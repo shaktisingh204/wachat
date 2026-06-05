@@ -5,7 +5,13 @@ import {
   Badge,
   Button,
   Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  CardDescription,
   EmptyState,
+  Separator,
   Skeleton,
 } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
@@ -143,23 +149,19 @@ export default function WachatAdAccountProvisioningPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {accounts.map((account) => (
               <Card key={account.id} padding="none" className="flex flex-col">
-                <div className="p-5 flex-1 flex flex-col gap-2">
+                <CardHeader className="flex-1 flex flex-col gap-2">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <h3
+                      <CardTitle
                         className="font-semibold text-lg line-clamp-1"
-                        style={{ color: 'var(--st-text)' }}
                         title={account.name}
                       >
                         {account.name}
-                      </h3>
-                      <p
-                        className="text-sm flex items-center gap-1.5 mt-1"
-                        style={{ color: 'var(--st-text-secondary)' }}
-                      >
+                      </CardTitle>
+                      <CardDescription className="text-sm flex items-center gap-1.5 mt-1">
                         <CreditCard className="w-3.5 h-3.5" aria-hidden="true" />
                         ID: {account.account_id}
-                      </p>
+                      </CardDescription>
                     </div>
                     {account.account_status === 1 ? (
                       <Badge
@@ -175,44 +177,32 @@ export default function WachatAdAccountProvisioningPage() {
                     )}
                   </div>
 
-                  <div
-                    className="mt-4 pt-4 grid grid-cols-2 gap-4 text-sm"
-                    style={{ borderTop: '1px solid var(--st-border)' }}
-                  >
-                    <div>
-                      <p
-                        className="text-xs uppercase tracking-wider font-medium mb-1"
-                        style={{ color: 'var(--st-text-tertiary)' }}
-                      >
-                        Currency
-                      </p>
-                      <p
-                        className="font-medium"
-                        style={{ color: 'var(--st-text)' }}
-                      >
-                        {account.currency || 'N/A'}
-                      </p>
+                  <CardBody className="mt-4 px-0 pb-0 pt-0">
+                    <Separator className="mb-4" />
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-xs uppercase tracking-wider font-medium mb-1 text-[var(--st-text-tertiary)]">
+                          Currency
+                        </p>
+                        <p className="font-medium text-[var(--st-text)]">
+                          {account.currency || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-wider font-medium mb-1 text-[var(--st-text-tertiary)]">
+                          Created
+                        </p>
+                        <p className="font-medium text-[var(--st-text)]">
+                          {account.created_time
+                            ? new Date(account.created_time).toLocaleDateString()
+                            : 'Unknown'}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p
-                        className="text-xs uppercase tracking-wider font-medium mb-1"
-                        style={{ color: 'var(--st-text-tertiary)' }}
-                      >
-                        Created
-                      </p>
-                      <p
-                        className="font-medium"
-                        style={{ color: 'var(--st-text)' }}
-                      >
-                        {account.created_time
-                          ? new Date(account.created_time).toLocaleDateString()
-                          : 'Unknown'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                  </CardBody>
+                </CardHeader>
 
-                <div className="p-5 pt-0 mt-auto">
+                <CardFooter className="mt-auto">
                   <Button
                     block
                     variant="outline"
@@ -223,7 +213,7 @@ export default function WachatAdAccountProvisioningPage() {
                   >
                     Link to Project
                   </Button>
-                </div>
+                </CardFooter>
               </Card>
             ))}
           </div>

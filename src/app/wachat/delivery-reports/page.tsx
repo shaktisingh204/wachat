@@ -208,8 +208,7 @@ export default function DeliveryReportsPage() {
                         <Badge tone="danger">{m.status}</Badge>
                       </Td>
                       <Td
-                        className="whitespace-nowrap"
-                        style={{ color: 'var(--st-text-secondary)' }}
+                        className="whitespace-nowrap [color:var(--st-text-secondary)]"
                       >
                         {m.timestamp ? fmtDate(m.timestamp) : '-'}
                       </Td>
@@ -267,19 +266,12 @@ export default function DeliveryReportsPage() {
               )}
               <div>
                 <p
-                  className="mb-1.5 text-xs font-medium uppercase tracking-wide"
-                  style={{ color: 'var(--st-text-tertiary)' }}
+                  className="mb-1.5 text-xs font-medium uppercase tracking-wide [color:var(--st-text-tertiary)]"
                 >
                   Raw payload
                 </p>
                 <pre
-                  className="overflow-x-auto p-3 text-[11.5px] leading-relaxed"
-                  style={{
-                    borderRadius: 'var(--st-radius)',
-                    border: '1px solid var(--st-border)',
-                    background: 'var(--st-bg-secondary)',
-                    color: 'var(--st-text-secondary)',
-                  }}
+                  className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-[11.5px] leading-relaxed [color:var(--st-text-secondary)]"
                 >
                   {JSON.stringify(detailRow, null, 2)}
                 </pre>
@@ -313,16 +305,14 @@ export default function DeliveryReportsPage() {
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div
-      className="flex items-start justify-between gap-4 pb-2 last:border-0"
-      style={{ borderBottom: '1px solid var(--st-border)' }}
+      className="flex items-start justify-between gap-4 border-b border-[var(--st-border)] pb-2 last:border-0"
     >
       <span
-        className="text-xs font-medium uppercase tracking-wide"
-        style={{ color: 'var(--st-text-tertiary)' }}
+        className="text-xs font-medium uppercase tracking-wide [color:var(--st-text-tertiary)]"
       >
         {label}
       </span>
-      <span className="text-right" style={{ color: 'var(--st-text)' }}>
+      <span className="text-right [color:var(--st-text)]">
         {value}
       </span>
     </div>

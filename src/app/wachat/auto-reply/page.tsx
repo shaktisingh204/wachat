@@ -156,10 +156,10 @@ export default function AutoReplyPage() {
       <Card padding="lg">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
-            <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+            <h2 className="text-[15px] text-[var(--st-text)]">
               Master auto-reply switch
             </h2>
-            <p className="mt-1 text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
               Enable or disable all auto-reply functionality for this project.
             </p>
           </div>
@@ -183,24 +183,16 @@ export default function AutoReplyPage() {
               <AccordionTrigger>
                 <div className="flex items-center gap-3">
                   <span
-                    className="flex h-8 w-8 items-center justify-center [&_svg]:size-4"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      background: 'var(--st-bg-secondary)',
-                      color: 'var(--st-text)',
-                    }}
+                    className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] [&_svg]:size-4"
                     aria-hidden="true"
                   >
                     <Icon />
                   </span>
                   <div className="text-left">
-                    <div className="text-[14px] leading-tight" style={{ color: 'var(--st-text)' }}>
+                    <div className="text-[14px] leading-tight text-[var(--st-text)]">
                       {label}
                     </div>
-                    <div
-                      className="mt-0.5 text-[12px] leading-tight"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    <div className="mt-0.5 text-[12px] leading-tight text-[var(--st-text-secondary)]">
                       {description}
                     </div>
                   </div>

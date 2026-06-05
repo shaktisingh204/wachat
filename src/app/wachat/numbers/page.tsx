@@ -335,23 +335,21 @@ export default function NumbersPage() {
                         alt={phone.verified_name}
                         width={56}
                         height={56}
-                        className="rounded-full"
-                        style={{ border: '2px solid var(--st-border)' }}
+                        className="rounded-full border-2 border-[var(--st-border)]"
                       />
                     ) : (
                       <div
-                        className="flex h-14 w-14 items-center justify-center rounded-full"
-                        style={{ background: 'var(--st-bg-secondary)', color: 'var(--st-text-tertiary)' }}
+                        className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text-tertiary)]"
                       >
                         <UserRound className="h-6 w-6" aria-hidden="true" />
                       </div>
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[15px] leading-tight" style={{ color: 'var(--st-text)' }}>
+                    <div className="truncate text-[15px] leading-tight text-[var(--st-text)]">
                       {phone.verified_name}
                     </div>
-                    <div className="mt-0.5 font-mono text-[12px] tabular-nums" style={{ color: 'var(--st-text-secondary)' }}>
+                    <div className="mt-0.5 font-mono text-[12px] tabular-nums text-[var(--st-text-secondary)]">
                       {phone.display_phone_number}
                     </div>
                   </div>
@@ -366,8 +364,7 @@ export default function NumbersPage() {
                   </DetailRow>
                   <DetailRow label="About">
                     <span
-                      className="max-w-[180px] truncate text-[12.5px]"
-                      style={{ color: 'var(--st-text)' }}
+                      className="max-w-[180px] truncate text-[12.5px] text-[var(--st-text)]"
                       title={phone.profile?.about || 'Not set'}
                     >
                       {phone.profile?.about || 'Not set'}
@@ -409,12 +406,11 @@ export default function NumbersPage() {
                     />
                   ) : null}
                   <Button
-                    variant="ghost"
+                    variant="danger"
                     size="sm"
                     iconLeft={Trash2}
                     onClick={() => setRemoveTarget(phone)}
                     block
-                    style={{ color: 'var(--st-danger)' }}
                   >
                     Remove number
                   </Button>
@@ -575,8 +571,7 @@ function DetailRow({
   return (
     <div className="flex items-center justify-between gap-3">
       <span
-        className="text-[10.5px] uppercase tracking-wide"
-        style={{ color: 'var(--st-text-tertiary)' }}
+        className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]"
       >
         {label}
       </span>

@@ -16,6 +16,8 @@ import {
   Button,
   IconButton,
   Card,
+  CardTitle,
+  CardDescription,
   EmptyState,
   Field,
   Input,
@@ -264,18 +266,12 @@ export default function BroadcastSegmentsPage() {
       <div className="flex flex-col gap-6">
         {/* Segments grid */}
         <div>
-          <h2
-            className="text-[18px] tracking-tight leading-none"
-            style={{ color: 'var(--st-text)' }}
-          >
+          <CardTitle className="text-[18px] tracking-tight leading-none">
             Your Segments ({segments.length})
-          </h2>
-          <p
-            className="mt-1.5 text-[12.5px]"
-            style={{ color: 'var(--st-text-secondary)' }}
-          >
+          </CardTitle>
+          <CardDescription className="mt-1.5 text-[12.5px]">
             Manage saved audience segments for broadcast targeting.
-          </p>
+          </CardDescription>
         </div>
 
         {isLoading && segments.length === 0 ? (
@@ -309,12 +305,9 @@ export default function BroadcastSegmentsPage() {
               return (
                 <Card key={seg._id} padding="lg">
                   <div className="flex items-start justify-between gap-2">
-                    <h3
-                      className="text-sm"
-                      style={{ color: 'var(--st-text)' }}
-                    >
+                    <CardTitle className="text-sm">
                       {seg.name}
-                    </h3>
+                    </CardTitle>
                     <div className="flex items-center gap-1">
                       <SegmentDrawer
                         trigger={
@@ -388,18 +381,12 @@ export default function BroadcastSegmentsPage() {
                     {!filters.tags?.length &&
                       !filters.lastActive &&
                       !filters.city && (
-                        <span
-                          className="text-[11.5px]"
-                          style={{ color: 'var(--st-text-tertiary)' }}
-                        >
+                        <span className="text-[11.5px] [color:var(--st-text-tertiary)]">
                           No filters
                         </span>
                       )}
                   </div>
-                  <p
-                    className="mt-3 text-[11px]"
-                    style={{ color: 'var(--st-text-tertiary)' }}
-                  >
+                  <p className="mt-3 text-[11px] [color:var(--st-text-tertiary)]">
                     Created {fmtDate(seg.createdAt)}
                   </p>
                 </Card>

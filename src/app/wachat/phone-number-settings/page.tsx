@@ -3,6 +3,8 @@
 import {
   Button,
   Card,
+  CardHeader,
+  CardBody,
   Modal,
   EmptyState,
   Field,
@@ -242,107 +244,108 @@ export default function PhoneNumberSettingsPage() {
           </div>
 
           <Card className="mt-4" padding="lg">
-            <div className="mb-6 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span
-                  className="flex h-12 w-12 items-center justify-center rounded-full"
-                  style={{ background: 'var(--st-bg-secondary)' }}
-                >
-                  <Phone className="h-6 w-6" style={{ color: 'var(--st-text-secondary)' }} aria-hidden="true" />
-                </span>
-                <div>
-                  <div className="text-[16px]" style={{ color: 'var(--st-text)' }}>
-                    {current?.display_phone_number || current?.number || '--'}
-                  </div>
-                  <div className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
-                    {current?.verified_name || current?.displayName || ''}
+            <CardHeader>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-secondary)]">
+                    <Phone className="h-6 w-6 text-[color:var(--st-text-secondary)]" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <div className="text-[16px] text-[color:var(--st-text)]">
+                      {current?.display_phone_number || current?.number || '--'}
+                    </div>
+                    <div className="text-[12px] text-[color:var(--st-text-secondary)]">
+                      {current?.verified_name || current?.displayName || ''}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setDraftDisplayName(
-                    current?.verified_name || current?.displayName || '',
-                  );
-                  setDisplayNameOpen(true);
-                }}
-              >
-                Edit display name
-              </Button>
-            </div>
-
-            <div className="flex max-w-lg flex-col gap-5">
-              {fields.map((f) => (
-                f.key === 'description' ? (
-                  <div key={f.key} className="flex flex-col gap-1.5 relative">
-                    <div className="flex items-center justify-between">
-                      <label htmlFor={`pn-${f.key}`} className="text-[13px]" style={{ color: 'var(--st-text)' }}>
-                        {f.label}
-                      </label>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        iconLeft={isGenerating ? undefined : Sparkles}
-                        onClick={generateDescription}
-                        disabled={isGenerating}
-                      >
-                        {isGenerating ? <Loader2 className="mr-1 h-3 w-3 animate-spin" aria-hidden="true" /> : null}
-                        {isGenerating ? 'Generating...' : 'AI Generate'}
-                      </Button>
-                    </div>
-                    <Textarea
-                      id={`pn-${f.key}`}
-                      value={profile[f.key] || ''}
-                      onChange={(e) =>
-                        setProfile((prev) => ({
-                          ...prev,
-                          [f.key]: e.target.value,
-                        }))
-                      }
-                      rows={4}
-                      maxLength={512}
-                    />
-                    {f.helpText && (
-                      <span className="text-[11.5px] leading-tight" style={{ color: 'var(--st-text-tertiary)' }}>
-                        {f.helpText}
-                      </span>
-                    )}
-                  </div>
-                ) : (
-                  <Field key={f.key} label={f.label} help={f.helpText} id={`pn-${f.key}`}>
-                    <Input
-                      id={`pn-${f.key}`}
-                      value={profile[f.key] || ''}
-                      onChange={(e) =>
-                        setProfile((prev) => ({
-                          ...prev,
-                          [f.key]: e.target.value,
-                        }))
-                      }
-                      maxLength={
-                        f.key === 'about' ? 139 :
-                        f.key === 'address' ? 256 :
-                        f.key === 'email' ? 128 : undefined
-                      }
-                    />
-                  </Field>
-                )
-              ))}
-              <div className="pt-2">
                 <Button
-                  variant="primary"
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  iconLeft={isSaving ? undefined : Save}
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setDraftDisplayName(
+                      current?.verified_name || current?.displayName || '',
+                    );
+                    setDisplayNameOpen(true);
+                  }}
                 >
-                  {isSaving ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
-                  {isSaving ? 'Saving…' : 'Save profile'}
+                  Edit display name
                 </Button>
               </div>
-            </div>
+            </CardHeader>
+
+            <CardBody>
+              <div className="flex max-w-lg flex-col gap-5">
+                {fields.map((f) => (
+                  f.key === 'description' ? (
+                    <div key={f.key} className="flex flex-col gap-1.5 relative">
+                      <div className="flex items-center justify-between">
+                        <label htmlFor={`pn-${f.key}`} className="text-[13px] text-[color:var(--st-text)]">
+                          {f.label}
+                        </label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={isGenerating ? undefined : Sparkles}
+                          onClick={generateDescription}
+                          disabled={isGenerating}
+                        >
+                          {isGenerating ? <Loader2 className="mr-1 h-3 w-3 animate-spin" aria-hidden="true" /> : null}
+                          {isGenerating ? 'Generating...' : 'AI Generate'}
+                        </Button>
+                      </div>
+                      <Textarea
+                        id={`pn-${f.key}`}
+                        value={profile[f.key] || ''}
+                        onChange={(e) =>
+                          setProfile((prev) => ({
+                            ...prev,
+                            [f.key]: e.target.value,
+                          }))
+                        }
+                        rows={4}
+                        maxLength={512}
+                      />
+                      {f.helpText && (
+                        <span className="text-[11.5px] leading-tight text-[color:var(--st-text-tertiary)]">
+                          {f.helpText}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <Field key={f.key} label={f.label} help={f.helpText} id={`pn-${f.key}`}>
+                      <Input
+                        id={`pn-${f.key}`}
+                        value={profile[f.key] || ''}
+                        onChange={(e) =>
+                          setProfile((prev) => ({
+                            ...prev,
+                            [f.key]: e.target.value,
+                          }))
+                        }
+                        maxLength={
+                          f.key === 'about' ? 139 :
+                          f.key === 'address' ? 256 :
+                          f.key === 'email' ? 128 : undefined
+                        }
+                      />
+                    </Field>
+                  )
+                ))}
+                <div className="pt-2">
+                  <Button
+                    variant="primary"
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    iconLeft={isSaving ? undefined : Save}
+                  >
+                    {isSaving ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
+                    {isSaving ? 'Saving…' : 'Save profile'}
+                  </Button>
+                </div>
+              </div>
+            </CardBody>
           </Card>
         </>
       )}

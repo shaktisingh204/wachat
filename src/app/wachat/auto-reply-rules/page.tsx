@@ -12,6 +12,9 @@ import {
   Badge,
   Button,
   Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
   Drawer,
   DrawerContent,
   DrawerDescription,
@@ -98,27 +101,27 @@ function SortableRuleRow({ rule, setDeleteTarget }: { rule: AutoReplyRule; setDe
     isDragging,
   } = useSortable({ id: rule._id });
 
-  const style = {
+  const dragStyle = {
     transform: CSS.Transform.toString(transform),
     transition,
-    ...(isDragging
-      ? { opacity: 0.5, position: 'relative' as const, zIndex: 10, background: 'var(--st-bg-secondary)' }
-      : null),
   };
 
   return (
-    <Tr ref={setNodeRef} style={style}>
+    <Tr
+      ref={setNodeRef}
+      style={dragStyle}
+      className={isDragging ? 'relative z-10 opacity-50 bg-[var(--st-bg-secondary)]' : undefined}
+    >
       <Td className="w-10">
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab transition-colors"
-          style={{ color: 'var(--st-text-tertiary)' }}
+          className="cursor-grab transition-colors text-[var(--st-text-tertiary)]"
         >
             <GripVertical className="h-4 w-4" aria-hidden="true" />
         </div>
       </Td>
-      <Td style={{ fontSize: 13, color: 'var(--st-text)' }}>
+      <Td className="text-[13px] text-[var(--st-text)]">
         {rule.name}
       </Td>
       <Td>
@@ -135,10 +138,10 @@ function SortableRuleRow({ rule, setDeleteTarget }: { rule: AutoReplyRule; setDe
           )}
         </div>
       </Td>
-      <Td style={{ fontSize: 13, color: 'var(--st-text-secondary)' }}>
+      <Td className="text-[13px] text-[var(--st-text-secondary)]">
         {rule.matchType}
       </Td>
-      <Td truncate className="max-w-[200px]" style={{ fontSize: 13, color: 'var(--st-text-secondary)' }}>
+      <Td truncate className="max-w-[200px] text-[13px] text-[var(--st-text-secondary)]">
         {rule.responseText || rule.templateName || '-'}
       </Td>
       <Td>
@@ -328,12 +331,12 @@ export default function AutoReplyRulesPage() {
       </div>
 
       {/* Rules list */}
-      <Card padding="lg" className="mt-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 style={{ fontSize: 15, color: 'var(--st-text)' }}>Rules</h2>
+      <Card padding="none" className="mt-6">
+        <CardHeader className="flex items-center justify-between px-5 pt-5 pb-4">
+          <CardTitle>Rules</CardTitle>
           {isLoading && <Spinner size="sm" label="Loading rules" />}
-        </div>
-
+        </CardHeader>
+        <CardBody className="px-5 pb-5">
         {isLoading && rules.length === 0 ? (
           <div className="flex h-20 items-center justify-center">
             <Spinner label="Loading rules" />
@@ -388,6 +391,7 @@ export default function AutoReplyRulesPage() {
             </DndContext>
           </Table>
         )}
+        </CardBody>
       </Card>
 
       {/* Create-rule drawer */}

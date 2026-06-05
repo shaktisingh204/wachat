@@ -470,10 +470,7 @@ export default function TemplatesPage() {
                 />
               ) : null}
 
-              <span
-                className="ml-auto text-[11.5px] tabular-nums"
-                style={{ color: 'var(--st-text-tertiary)' }}
-              >
+              <span className="ml-auto text-[11.5px] tabular-nums [color:var(--st-text-tertiary)]">
                 {filteredTemplates.length} / {templates.length} templates
               </span>
             </div>
@@ -483,13 +480,9 @@ export default function TemplatesPage() {
           {selectedIds.size > 0 && (
             <Card
               padding="sm"
-              className="flex items-center justify-between"
-              style={{ borderColor: 'var(--st-accent)' }}
+              className="flex items-center justify-between [border-color:var(--st-accent)]"
             >
-              <span
-                className="text-sm font-medium"
-                style={{ color: 'var(--st-text)' }}
-              >
+              <span className="text-sm font-medium [color:var(--st-text)]">
                 {selectedIds.size} template{selectedIds.size > 1 ? 's' : ''} selected
               </span>
               <div className="flex gap-2">
@@ -522,17 +515,8 @@ export default function TemplatesPage() {
             </div>
           ) : filteredTemplates.length > 0 ? (
             <Card padding="none" className="overflow-hidden">
-              {/* Local, token-only row chrome: hairline separators + hover tint.
-                  Scoped to this list via the .tpl-list class. */}
-              <style>{`
-                .tpl-list__row { border-top: 1px solid var(--st-border); transition: background 120ms ease; }
-                .tpl-list__row:hover { background: var(--st-hover); }
-              `}</style>
               <div className="tpl-list">
-                <div
-                  className="grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] items-center gap-4 px-4 py-3 text-[11px] font-medium uppercase tracking-wide"
-                  style={{ color: 'var(--st-text-tertiary)' }}
-                >
+                <div className="grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] items-center gap-4 px-4 py-3 text-[11px] font-medium uppercase tracking-wide [color:var(--st-text-tertiary)]">
                   <Checkbox
                     size="sm"
                     checked={
@@ -551,7 +535,7 @@ export default function TemplatesPage() {
                 {filteredTemplates.map((t) => (
                   <div
                     key={t._id.toString()}
-                    className="tpl-list__row grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] items-center gap-4 px-4 py-3 text-sm"
+                    className="grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] items-center gap-4 px-4 py-3 text-sm [border-top:1px_solid_var(--st-border)] [transition:background_120ms_ease] hover:[background:var(--st-hover)]"
                   >
                     <Checkbox
                       size="sm"
@@ -561,8 +545,7 @@ export default function TemplatesPage() {
                     />
                     <button
                       type="button"
-                      className="min-w-0 truncate text-left hover:underline"
-                      style={{ color: 'var(--st-text)' }}
+                      className="min-w-0 truncate text-left hover:underline [color:var(--st-text)]"
                       onClick={() =>
                         router.push(
                           `/wachat/templates/create?id=${t._id.toString()}`,
@@ -571,16 +554,10 @@ export default function TemplatesPage() {
                     >
                       {t.name}
                     </button>
-                    <span
-                      className="truncate capitalize"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    <span className="truncate capitalize [color:var(--st-text-secondary)]">
                       {titleCase(t.category || '') || '—'}
                     </span>
-                    <span
-                      className="truncate"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    <span className="truncate [color:var(--st-text-secondary)]">
                       {t.language || '—'}
                     </span>
                     <span>

@@ -15,6 +15,8 @@ import {
   Input,
   Badge,
   Modal,
+  Alert,
+  EmptyState,
 } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { Plus, Trash2, Settings, Check, X } from 'lucide-react';
@@ -228,87 +230,95 @@ export function AgentsSettingsClient({ project: initialProject }: { project: Wit
                         <div className="space-y-4">
                             {agentsList.length > 0 ? (
                                 agentsList.map((agent: any) => (
-                                    <div key={agent.userId.toString()} className="flex flex-col gap-3 rounded-md p-4" style={{ border: '1px solid var(--st-border-subtle)' }}>
-                                        <div className="flex items-center justify-between gap-4">
-                                            <div className="flex items-center gap-4">
-                                                <Avatar
-                                                    name={agent.name}
-                                                    src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${agent.email}`}
-                                                    initials={agent.name.substring(0, 2).toUpperCase()}
-                                                    shape="round"
-                                                />
-                                                <div className="space-y-0.5">
-                                                    <p className="text-sm font-medium leading-none">{agent.name}</p>
-                                                    <p className="text-sm" style={{ color: 'var(--st-text-tertiary)' }}>{agent.email}</p>
-                                                    <div className="flex items-center gap-2 mt-2">
-                                                        <Badge kind="outline">{agent.role}</Badge>
-                                                        {(agent.skills || []).map((s: string) => (
-                                                            <Badge key={s} kind="soft" className="text-[10px]">{s}</Badge>
-                                                        ))}
+                                    <Card key={agent.userId.toString()} variant="outlined" padding="sm">
+                                        <CardBody className="flex flex-col gap-3">
+                                            <div className="flex items-center justify-between gap-4">
+                                                <div className="flex items-center gap-4">
+                                                    <Avatar
+                                                        name={agent.name}
+                                                        src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${agent.email}`}
+                                                        initials={agent.name.substring(0, 2).toUpperCase()}
+                                                        shape="round"
+                                                    />
+                                                    <div className="space-y-0.5">
+                                                        <p className="text-sm font-medium leading-none">{agent.name}</p>
+                                                        <p className="text-sm" style={{ color: 'var(--st-text-tertiary)' }}>{agent.email}</p>
+                                                        <div className="flex items-center gap-2 mt-2">
+                                                            <Badge kind="outline">{agent.role}</Badge>
+                                                            {(agent.skills || []).map((s: string) => (
+                                                                <Badge key={s} kind="soft" className="text-[10px]">{s}</Badge>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        iconLeft={Settings}
+                                                        onClick={() => {
+                                                            setEditingSkillsAgentId(agent.userId.toString());
+                                                            setCurrentSkills(agent.skills || []);
+                                                        }}
+                                                    >
+                                                        Skills
+                                                    </Button>
+                                                    <Button
+                                                        variant="danger"
+                                                        size="sm"
+                                                        iconLeft={Trash2}
+                                                        aria-label={`Remove ${agent.name}`}
+                                                        onClick={() => handleInitiateRemoveAgent(agent)}
+                                                        disabled={isPending}
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    iconLeft={Settings}
-                                                    onClick={() => {
-                                                        setEditingSkillsAgentId(agent.userId.toString());
-                                                        setCurrentSkills(agent.skills || []);
-                                                    }}
-                                                >
-                                                    Skills
-                                                </Button>
-                                                <Button
-                                                    variant="danger"
-                                                    size="sm"
-                                                    iconLeft={Trash2}
-                                                    aria-label={`Remove ${agent.name}`}
-                                                    onClick={() => handleInitiateRemoveAgent(agent)}
-                                                    disabled={isPending}
-                                                />
-                                            </div>
-                                        </div>
 
-                                        {/* Skill Editor */}
-                                        {editingSkillsAgentId === agent.userId.toString() && (
-                                            <div className="mt-2 p-3 rounded-md text-sm" style={{ background: 'var(--st-surface-sunken)', border: '1px solid var(--st-border-subtle)' }}>
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <h4 className="font-medium">Edit Skills</h4>
-                                                    <Button variant="ghost" size="sm" iconLeft={X} aria-label="Close skill editor" onClick={() => setEditingSkillsAgentId(null)} />
-                                                </div>
-                                                <div className="flex flex-wrap gap-2 mb-4">
-                                                    {AVAILABLE_SKILLS.map(skill => (
-                                                        <Badge
-                                                            key={skill}
-                                                            tone={currentSkills.includes(skill) ? 'accent' : 'neutral'}
-                                                            kind={currentSkills.includes(skill) ? 'solid' : 'outline'}
-                                                            className="cursor-pointer"
-                                                            role="button"
-                                                            tabIndex={0}
-                                                            aria-pressed={currentSkills.includes(skill)}
-                                                            onClick={() => toggleSkill(skill)}
-                                                            onKeyDown={(e) => {
-                                                                if (e.key === 'Enter' || e.key === ' ') {
-                                                                    e.preventDefault();
-                                                                    toggleSkill(skill);
-                                                                }
-                                                            }}
-                                                        >
-                                                            {skill}
-                                                        </Badge>
-                                                    ))}
-                                                </div>
-                                                <Button variant="primary" size="sm" onClick={() => handleSaveSkills(agent.userId.toString())} loading={isPending}>
-                                                    Save Skills
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </div>
+                                            {/* Skill Editor */}
+                                            {editingSkillsAgentId === agent.userId.toString() && (
+                                                <Card variant="ghost" padding="sm" className="mt-2 text-sm">
+                                                    <CardBody className="space-y-3">
+                                                        <div className="flex justify-between items-center">
+                                                            <h4 className="font-medium">Edit Skills</h4>
+                                                            <Button variant="ghost" size="sm" iconLeft={X} aria-label="Close skill editor" onClick={() => setEditingSkillsAgentId(null)} />
+                                                        </div>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {AVAILABLE_SKILLS.map(skill => (
+                                                                <Badge
+                                                                    key={skill}
+                                                                    tone={currentSkills.includes(skill) ? 'accent' : 'neutral'}
+                                                                    kind={currentSkills.includes(skill) ? 'solid' : 'outline'}
+                                                                    className="cursor-pointer"
+                                                                    role="button"
+                                                                    tabIndex={0}
+                                                                    aria-pressed={currentSkills.includes(skill)}
+                                                                    onClick={() => toggleSkill(skill)}
+                                                                    onKeyDown={(e) => {
+                                                                        if (e.key === 'Enter' || e.key === ' ') {
+                                                                            e.preventDefault();
+                                                                            toggleSkill(skill);
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    {skill}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                        <Button variant="primary" size="sm" onClick={() => handleSaveSkills(agent.userId.toString())} loading={isPending}>
+                                                            Save Skills
+                                                        </Button>
+                                                    </CardBody>
+                                                </Card>
+                                            )}
+                                        </CardBody>
+                                    </Card>
                                 ))
                             ) : (
-                                <p className="text-sm" style={{ color: 'var(--st-text-tertiary)' }}>No team members have been added to this project yet.</p>
+                                <EmptyState
+                                    icon={Settings}
+                                    title="No team members yet"
+                                    description="No team members have been added to this project yet."
+                                />
                             )}
                         </div>
                     </div>
@@ -334,10 +344,12 @@ export function AgentsSettingsClient({ project: initialProject }: { project: Wit
             >
                 <div className="py-2 space-y-4">
                     {openTicketsCount > 0 ? (
-                        <div className="p-3 rounded-md text-sm" style={{ background: 'var(--st-danger-soft, rgba(220,38,38,0.1))', color: 'var(--st-text-primary)', border: '1px solid var(--st-danger, rgba(220,38,38,0.2))' }}>
-                            <p className="font-semibold mb-1">Warning: {openTicketsCount} open tickets assigned</p>
-                            <p>You must reassign these tickets before removing the agent, or unassign them.</p>
-                        </div>
+                        <Alert
+                            tone="danger"
+                            title={`Warning: ${openTicketsCount} open ticket${openTicketsCount !== 1 ? 's' : ''} assigned`}
+                        >
+                            You must reassign these tickets before removing the agent, or unassign them.
+                        </Alert>
                     ) : (
                         <p className="text-sm">This agent has no open tickets. Safe to remove.</p>
                     )}

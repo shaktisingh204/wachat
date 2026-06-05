@@ -166,8 +166,7 @@ export default function ContactTimelinePage() {
           <ScrollArea style={{ maxHeight: 640 }}>
             <div className="relative pl-8">
               <div
-                className="absolute left-3.5 bottom-0 top-0 w-px"
-                style={{ background: 'var(--st-border)' }}
+                className="absolute left-3.5 bottom-0 top-0 w-px bg-[var(--st-border)]"
                 aria-hidden="true"
               />
               <div className="space-y-4">
@@ -178,11 +177,7 @@ export default function ContactTimelinePage() {
                   return (
                     <div key={i} className="relative flex gap-4">
                       <div
-                        className="absolute -left-4.5 z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
-                        style={{
-                          background: 'var(--st-bg-secondary)',
-                          color: 'var(--st-text)',
-                        }}
+                        className="absolute -left-4.5 z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
                       >
                         <Icon className="h-3.5 w-3.5" aria-hidden="true" />
                       </div>
@@ -194,15 +189,13 @@ export default function ContactTimelinePage() {
                             {isNote ? 'Note' : isIn ? 'Received' : 'Sent'}
                           </Badge>
                           <span
-                            className="whitespace-nowrap text-[11px]"
-                            style={{ color: 'var(--st-text-tertiary)' }}
+                            className="whitespace-nowrap text-[11px] text-[var(--st-text-tertiary)]"
                           >
                             {ev.timestamp ? fmtDate(ev.timestamp) : ''}
                           </span>
                         </div>
                         <p
-                          className="mt-1 text-[12px]"
-                          style={{ color: 'var(--st-text-secondary)' }}
+                          className="mt-1 text-[12px] text-[var(--st-text-secondary)]"
                         >
                           {ev.content || '—'}
                         </p>

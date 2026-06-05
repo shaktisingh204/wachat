@@ -15,9 +15,13 @@ import {
   Button,
   IconButton,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
   EmptyState,
   Field,
   Input,
+  Separator,
   Skeleton,
   Textarea,
 } from '@/components/sabcrm/20ui';
@@ -134,9 +138,10 @@ export default function ContactNotesPage() {
       <div className="flex flex-col gap-6">
         {/* Search */}
         <Card padding="lg">
-          <h2 className="mb-4 text-[15px]" style={{ color: 'var(--st-text)' }}>
-            Look up contact
-          </h2>
+          <CardHeader>
+            <CardTitle>Look up contact</CardTitle>
+          </CardHeader>
+          <CardBody>
           <form
             onSubmit={handleSearch}
             className="flex max-w-md items-end gap-3"
@@ -159,16 +164,16 @@ export default function ContactNotesPage() {
               {isSearching ? 'Searching…' : 'Search'}
             </Button>
           </form>
+          </CardBody>
         </Card>
 
         {/* Notes list */}
         {hasSearched && (
           <Card padding="lg">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-                Notes for {contactId} ({notes.length})
-              </h2>
-            </div>
+            <CardHeader>
+              <CardTitle>Notes for {contactId} ({notes.length})</CardTitle>
+            </CardHeader>
+            <CardBody>
 
             {isSearching ? (
               <div className="flex flex-col gap-2">
@@ -188,26 +193,17 @@ export default function ContactNotesPage() {
             ) : (
               <div className="mb-6 flex flex-col gap-3">
                 {notes.map((note) => (
-                  <div
+                  <Card
                     key={note._id}
-                    className="flex items-start justify-between gap-3 p-4"
-                    style={{
-                      borderRadius: 'var(--st-radius-lg)',
-                      border: '1px solid var(--st-border)',
-                      background: 'var(--st-bg-secondary)',
-                    }}
+                    variant="outlined"
+                    padding="sm"
                   >
+                    <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <p
-                        className="whitespace-pre-wrap text-[13px]"
-                        style={{ color: 'var(--st-text)' }}
-                      >
+                      <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                         {note.text}
                       </p>
-                      <p
-                        className="mt-1.5 text-[11px]"
-                        style={{ color: 'var(--st-text-tertiary)' }}
-                      >
+                      <p className="mt-1.5 text-[11px] text-[var(--st-text-tertiary)]">
                         {fmtDate(note.createdAt)}
                       </p>
                     </div>
@@ -241,17 +237,15 @@ export default function ContactNotesPage() {
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
-                  </div>
+                    </div>
+                  </Card>
                 ))}
               </div>
             )}
 
             {/* Add note form */}
-            <div
-              className="pt-4"
-              style={{ borderTop: '1px solid var(--st-border)' }}
-            >
-              <h3 className="mb-3 text-[14px]" style={{ color: 'var(--st-text)' }}>
+            <Separator className="my-4" />
+              <h3 className="mb-3 text-[14px] text-[var(--st-text)]">
                 Add a note
               </h3>
               <form
@@ -281,7 +275,7 @@ export default function ContactNotesPage() {
                   </Button>
                 </div>
               </form>
-            </div>
+            </CardBody>
           </Card>
         )}
       </div>

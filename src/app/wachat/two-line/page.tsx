@@ -16,6 +16,7 @@ import {
   Input,
   Select,
   Badge,
+  EmptyState,
 } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useState, useEffect } from 'react';
@@ -167,12 +168,14 @@ export default function MultiNumberManagementPage() {
           <TBody>
             {numbers.length === 0 ? (
               <Tr>
-                <Td
-                  colSpan={5}
-                  align="center"
-                  style={{ paddingTop: 32, paddingBottom: 32, color: 'var(--st-text-secondary)' }}
-                >
-                  No phone numbers configured. Click "Add number" to get started.
+                <Td colSpan={5} align="center">
+                  <div className="py-8">
+                    <EmptyState
+                      icon={Phone}
+                      title="No phone numbers configured"
+                      description='Click "Add number" to get started.'
+                    />
+                  </div>
                 </Td>
               </Tr>
             ) : (
@@ -180,11 +183,10 @@ export default function MultiNumberManagementPage() {
                 const team = TEAMS.find((t) => t.id === num.teamId);
                 return (
                   <Tr key={num.id}>
-                    <Td style={{ fontWeight: 500 }}>
+                    <Td className="font-medium">
                       <div className="flex items-center gap-2">
                         <Phone
-                          className="h-4 w-4"
-                          style={{ color: 'var(--st-text-tertiary)' }}
+                          className="h-4 w-4 text-[var(--st-text-tertiary)]"
                           aria-hidden="true"
                         />
                         {num.number}
@@ -195,21 +197,19 @@ export default function MultiNumberManagementPage() {
                       {team ? (
                         <Badge tone="neutral">{team.name}</Badge>
                       ) : (
-                        <span style={{ color: 'var(--st-text-secondary)' }}>Unassigned</span>
+                        <Badge tone="neutral" kind="soft">Unassigned</Badge>
                       )}
                     </Td>
                     <Td>
                       <div className="flex items-center gap-1.5">
                         {num.defaultRoute === 'bot' ? (
                           <Bot
-                            className="h-3.5 w-3.5"
-                            style={{ color: 'var(--st-accent)' }}
+                            className="h-3.5 w-3.5 text-[var(--st-accent)]"
                             aria-hidden="true"
                           />
                         ) : (
                           <User
-                            className="h-3.5 w-3.5"
-                            style={{ color: 'var(--st-warn)' }}
+                            className="h-3.5 w-3.5 text-[var(--st-warn)]"
                             aria-hidden="true"
                           />
                         )}

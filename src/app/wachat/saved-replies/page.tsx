@@ -10,6 +10,7 @@ import {
   Field,
   IconButton,
   Input,
+  Kbd,
   Modal,
   Select,
   Skeleton,
@@ -218,7 +219,7 @@ export default function SavedRepliesPage() {
         key: 'shortcut',
         header: 'Shortcut',
         render: (row) => (
-          <span className="font-mono text-[12px]" style={{ color: 'var(--st-text)' }}>
+          <span className="font-mono text-[12px] [color:var(--st-text)]">
             {row.shortcut}
           </span>
         ),
@@ -227,14 +228,14 @@ export default function SavedRepliesPage() {
         key: 'title',
         header: 'Title',
         render: (row) => (
-          <span className="truncate" style={{ color: 'var(--st-text)' }}>{row.title}</span>
+          <span className="truncate [color:var(--st-text)]">{row.title}</span>
         ),
       },
       {
         key: 'body',
         header: 'Body',
         render: (row) => (
-          <span className="line-clamp-1" style={{ color: 'var(--st-text-secondary)' }}>
+          <span className="line-clamp-1 [color:var(--st-text-secondary)]">
             {row.body}
           </span>
         ),
@@ -282,27 +283,9 @@ export default function SavedRepliesPage() {
       description={
         <>
           Create shortcut replies your team can use in conversations. Press{' '}
-          <kbd
-            className="rounded px-1 font-mono text-[10px]"
-            style={{
-              border: '1px solid var(--st-border)',
-              background: 'var(--st-bg-secondary)',
-              color: 'var(--st-text-secondary)',
-            }}
-          >
-            Cmd+K
-          </kbd>{' '}
+          <Kbd>Cmd+K</Kbd>{' '}
           to search or{' '}
-          <kbd
-            className="rounded px-1 font-mono text-[10px]"
-            style={{
-              border: '1px solid var(--st-border)',
-              background: 'var(--st-bg-secondary)',
-              color: 'var(--st-text-secondary)',
-            }}
-          >
-            Cmd+N
-          </kbd>{' '}
+          <Kbd>Cmd+N</Kbd>{' '}
           for a new reply.
         </>
       }
