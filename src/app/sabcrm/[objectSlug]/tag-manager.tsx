@@ -12,12 +12,13 @@
  */
 
 import * as React from 'react';
-import { X, Plus, Trash2, Check } from 'lucide-react';
+import { Plus, Trash2, Check } from 'lucide-react';
 
 import { TwentyButton } from '@/components/sabcrm/twenty';
 import { StSelect, type StSelectOption } from '@/components/sabcrm/twenty/st-select';
 import { TWENTY_PALETTE } from '@/components/sabcrm/twenty/twenty-palette';
 import { useStConfirm } from '@/components/sabcrm/twenty/st-modals';
+import { Modal, Alert } from '@/components/sabcrm/20ui';
 import {
   createTagTw,
   updateTagTw,
@@ -116,34 +117,13 @@ export function TagManagerDialog({
   };
 
   return (
-    <div className="st-dialog-overlay" onClick={onClose} role="presentation">
-      <div
-        className="st-dialog st-dialog--sm"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Manage tags"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            e.stopPropagation();
-            onClose();
-          }
-        }}
-      >
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Manage tags</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            aria-label="Close"
-            onClick={onClose}
-          >
-            <X size={16} />
-          </button>
-        </div>
-
-        <div className="st-dialog__body">
-        {error ? <div className="st-banner">{error}</div> : null}
+    <>
+      <Modal open onClose={onClose} title="Manage tags" size="sm">
+        {error ? (
+          <Alert tone="danger" className="stg-mgr__error">
+            {error}
+          </Alert>
+        ) : null}
 
         {/* Create row */}
         <div className="stg-mgr__create">
@@ -191,10 +171,9 @@ export function TagManagerDialog({
             ))
           )}
         </div>
-        </div>
-      </div>
+      </Modal>
       {dialog}
-    </div>
+    </>
   );
 }
 

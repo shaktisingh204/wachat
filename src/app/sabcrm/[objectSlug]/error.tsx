@@ -14,7 +14,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Button, EmptyState } from '@/components/zoruui';
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
 import { AlertTriangle } from 'lucide-react';
 
 export default function SabcrmObjectError({
@@ -31,7 +31,8 @@ export default function SabcrmObjectError({
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-8">
       <EmptyState
-        icon={<AlertTriangle />}
+        icon={AlertTriangle}
+        tone="danger"
         title="Something went wrong"
         description={
           error?.message?.length && error.message.length < 200
@@ -40,7 +41,7 @@ export default function SabcrmObjectError({
         }
         action={
           <div className="flex items-center gap-2">
-            <Button size="md" onClick={() => reset()}>
+            <Button size="md" variant="primary" onClick={() => reset()}>
               Try again
             </Button>
             <Link href="/sabcrm">

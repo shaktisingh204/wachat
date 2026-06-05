@@ -35,6 +35,7 @@ import {
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
+import { Select } from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -361,23 +362,17 @@ export default function SabcrmDuplicatesPage(): React.JSX.Element {
           <label className="st-dup-scan__label" htmlFor="st-dup-field">
             Dedupe on field
           </label>
-          <select
+          <Select
             id="st-dup-field"
-            className="st-select"
-            value={fieldKey}
+            aria-label="Dedupe on field"
+            value={fieldKey || null}
             disabled={scanning || fields.length === 0}
-            onChange={(e) => setFieldKey(e.target.value)}
-          >
-            {fields.length === 0 ? (
-              <option value="">No dedupable fields</option>
-            ) : (
-              fields.map((f) => (
-                <option key={f.key} value={f.key}>
-                  {f.label}
-                </option>
-              ))
-            )}
-          </select>
+            onChange={(v) => v != null && setFieldKey(v)}
+            placeholder={
+              fields.length === 0 ? 'No dedupable fields' : 'Select field'
+            }
+            options={fields.map((f) => ({ value: f.key, label: f.label }))}
+          />
         </div>
 
         <button

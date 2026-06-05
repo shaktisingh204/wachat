@@ -49,6 +49,7 @@ import {
 
 import { TwentyPageHeader, TwentyButton } from "@/components/sabcrm/twenty";
 import { TwentyFieldValue } from "@/components/sabcrm/twenty/twenty-field";
+import { Modal, Button } from "@/components/sabcrm/20ui";
 import { useProject } from "@/context/project-context";
 import {
   listSabcrmObjectsTw,
@@ -301,59 +302,16 @@ function ConfirmDialog({
   onCancel,
   onConfirm,
 }: ConfirmDialogProps): React.JSX.Element {
-  // Close on Escape (but never while the merge is mid-flight).
-  React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !merging) onCancel();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onCancel, merging]);
-
   return (
-    <div
-      className="st-dialog-overlay"
-      onClick={merging ? undefined : onCancel}
-      role="presentation"
-    >
-      <div
-        className="st-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`Merge ${object.labelPlural}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">
-            Merge {object.labelPlural.toLowerCase()}?
-          </h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onCancel}
-            disabled={merging}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <div className="st-merge-confirm__warn">
-            <AlertTriangle
-              className="st-merge-confirm__warn-icon"
-              size={16}
-              aria-hidden="true"
-            />
-            <span>
-              The chosen values will be written onto{" "}
-              <span className="st-merge-confirm__name">{primaryName}</span>, and{" "}
-              <span className="st-merge-confirm__name">{secondaryName}</span>{" "}
-              will be <strong>permanently deleted</strong>. This cannot be
-              undone.
-            </span>
-          </div>
-        </div>
-        <div className="st-dialog__footer">
+    <Modal
+      open
+      // Escape, overlay click, and the close button all route here — suppress
+      // every dismissal path while the merge is mid-flight (matches the prior
+      // disabled close + non-dismissable overlay behaviour).
+      onClose={merging ? () => {} : onCancel}
+      title={`Merge ${object.labelPlural.toLowerCase()}?`}
+      footer={
+        <>
           <TwentyButton
             variant="secondary"
             onClick={onCancel}
@@ -361,18 +319,31 @@ function ConfirmDialog({
           >
             Cancel
           </TwentyButton>
-          <button
-            type="button"
-            className="st-btn st-btn--danger"
+          <Button
+            variant="danger"
             onClick={onConfirm}
             disabled={merging}
+            loading={merging}
           >
-            {merging ? <Loader2 size={14} className="st-spin" /> : null}
             Merge &amp; delete secondary
-          </button>
-        </div>
+          </Button>
+        </>
+      }
+    >
+      <div className="st-merge-confirm__warn">
+        <AlertTriangle
+          className="st-merge-confirm__warn-icon"
+          size={16}
+          aria-hidden="true"
+        />
+        <span>
+          The chosen values will be written onto{" "}
+          <span className="st-merge-confirm__name">{primaryName}</span>, and{" "}
+          <span className="st-merge-confirm__name">{secondaryName}</span> will
+          be <strong>permanently deleted</strong>. This cannot be undone.
+        </span>
       </div>
-    </div>
+    </Modal>
   );
 }
 

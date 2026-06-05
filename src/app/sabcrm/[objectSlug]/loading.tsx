@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui';
 
 export default function SabcrmObjectIndexLoading() {
   return (
@@ -6,30 +6,30 @@ export default function SabcrmObjectIndexLoading() {
       {/* Header skeleton */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <Skeleton className="mb-2 h-8 w-48" />
-          <Skeleton className="h-4 w-72" />
+          <Skeleton width="12rem" height="2rem" className="mb-2" />
+          <Skeleton width="18rem" height="1rem" />
         </div>
-        <Skeleton className="h-10 w-32" />
+        <Skeleton width="8rem" height="2.5rem" />
       </div>
 
       {/* Toolbar skeleton */}
       <div className="mb-4 flex flex-col gap-3">
         {/* Search + View switch row */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Skeleton className="h-10 w-full max-w-sm" />
+          <Skeleton height="2.5rem" className="w-full max-w-sm" />
           <div className="flex items-center gap-3">
-            <Skeleton className="h-6 w-16" />
-            <Skeleton className="h-9 w-[220px]" />
+            <Skeleton width="4rem" height="1.5rem" />
+            <Skeleton width={220} height="2.25rem" />
           </div>
         </div>
 
         {/* Sort + Filters row */}
         <div className="flex flex-wrap items-center gap-2">
-          <Skeleton className="h-9 w-[170px]" />
-          <Skeleton className="h-9 w-[120px]" />
-          <Skeleton className="h-9 w-[160px]" />
-          <Skeleton className="h-9 w-[170px]" />
-          <Skeleton className="h-9 w-[160px]" />
+          <Skeleton width={170} height="2.25rem" />
+          <Skeleton width={120} height="2.25rem" />
+          <Skeleton width={160} height="2.25rem" />
+          <Skeleton width={170} height="2.25rem" />
+          <Skeleton width={160} height="2.25rem" />
         </div>
       </div>
 
@@ -38,11 +38,11 @@ export default function SabcrmObjectIndexLoading() {
         <div className="space-y-0">
           {/* Table header */}
           <div className="flex border-b border-zoru-line bg-zoru-surface px-6 py-3">
-            <Skeleton className="h-4 w-32" />
+            <Skeleton width="8rem" height="1rem" />
             <div className="ml-auto flex gap-6">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-20" />
+              <Skeleton width="6rem" height="1rem" />
+              <Skeleton width="6rem" height="1rem" />
+              <Skeleton width="5rem" height="1rem" />
             </div>
           </div>
 
@@ -52,11 +52,11 @@ export default function SabcrmObjectIndexLoading() {
               key={i}
               className="flex border-b border-zoru-line px-6 py-4 last:border-b-0"
             >
-              <Skeleton className="h-5 w-40" />
+              <Skeleton width="10rem" height="1.25rem" />
               <div className="ml-auto flex gap-6">
-                <Skeleton className="h-5 w-24" />
-                <Skeleton className="h-5 w-24" />
-                <Skeleton className="h-5 w-20" />
+                <Skeleton width="6rem" height="1.25rem" />
+                <Skeleton width="6rem" height="1.25rem" />
+                <Skeleton width="5rem" height="1.25rem" />
               </div>
             </div>
           ))}
@@ -65,9 +65,9 @@ export default function SabcrmObjectIndexLoading() {
 
       {/* Pagination skeleton */}
       <div className="mt-4 flex items-center justify-between">
-        <Skeleton className="h-9 w-[100px]" />
-        <Skeleton className="h-5 w-16" />
-        <Skeleton className="h-9 w-[100px]" />
+        <Skeleton width="6.25rem" height="2.25rem" />
+        <Skeleton width="4rem" height="1.25rem" />
+        <Skeleton width="6.25rem" height="2.25rem" />
       </div>
     </main>
   );

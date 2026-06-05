@@ -18,6 +18,7 @@
 
 import * as React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Select } from '@/components/sabcrm/20ui';
 
 export const PAGE_SIZE_OPTIONS: readonly number[] = [25, 50, 100];
 
@@ -76,21 +77,20 @@ export function SabcrmPagination({
 
       <span className="st-pagination__spacer" />
 
-      <label className="st-pagination__sizer">
+      <span className="st-pagination__sizer">
         Rows
-        <select
+        <Select
           className="st-pagination__select"
-          value={limit}
+          size="sm"
+          value={String(limit)}
           aria-label="Rows per page"
-          onChange={(e) => onLimitChange(Number(e.target.value))}
-        >
-          {PAGE_SIZE_OPTIONS.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      </label>
+          onChange={(v) => v != null && onLimitChange(Number(v))}
+          options={PAGE_SIZE_OPTIONS.map((opt) => ({
+            value: String(opt),
+            label: String(opt),
+          }))}
+        />
+      </span>
 
       <div className="st-pagination__nav">
         <button

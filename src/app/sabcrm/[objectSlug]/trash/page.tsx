@@ -26,11 +26,11 @@ import {
   RotateCcw,
   AlertTriangle,
   Loader2,
-  X,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
+import { Modal, Button, Alert } from '@/components/sabcrm/20ui';
 import './trash.css';
 import { useProject } from '@/context/project-context';
 import {
@@ -102,74 +102,43 @@ function ConfirmDialog({
   onCancel,
   onConfirm,
 }: ConfirmDialogProps): React.JSX.Element {
-  // Close on Escape (but never while a delete is mid-flight).
-  React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !deleting) onCancel();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onCancel, deleting]);
-
   return (
-    <div
-      className="st-dialog-overlay"
-      onClick={deleting ? undefined : onCancel}
-      role="presentation"
-    >
-      <div
-        className="st-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`Permanently delete ${objectSingular}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete permanently</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onCancel}
-            disabled={deleting}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-
-        <div className="st-dialog__body str-confirm__body">
-          <p>
-            Permanently delete{' '}
-            <span className="str-confirm__name">{recordLabelText}</span>?
-          </p>
-          <p className="str-confirm__warn">
-            This action cannot be undone — the {objectSingular.toLowerCase()} and
-            its data are removed for good.
-          </p>
-          {error && (
-            <div className="st-banner" role="alert">
-              <AlertTriangle className="st-banner__icon" size={15} />
-              <span>{error}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel} disabled={deleting}>
+    <Modal
+      open
+      onClose={onCancel}
+      title="Delete permanently"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onCancel} disabled={deleting}>
             Cancel
-          </TwentyButton>
-          <button
-            type="button"
-            className="st-btn str-btn-danger-solid"
+          </Button>
+          <Button
+            variant="danger"
             onClick={onConfirm}
+            loading={deleting}
             disabled={deleting}
           >
-            {deleting ? <Loader2 size={14} className="st-spin" /> : null}
             Delete permanently
-          </button>
-        </div>
+          </Button>
+        </>
+      }
+    >
+      <div className="str-confirm__body">
+        <p>
+          Permanently delete{' '}
+          <span className="str-confirm__name">{recordLabelText}</span>?
+        </p>
+        <p className="str-confirm__warn">
+          This action cannot be undone — the {objectSingular.toLowerCase()} and
+          its data are removed for good.
+        </p>
+        {error && (
+          <Alert tone="danger" icon={AlertTriangle}>
+            {error}
+          </Alert>
+        )}
       </div>
-    </div>
+    </Modal>
   );
 }
 

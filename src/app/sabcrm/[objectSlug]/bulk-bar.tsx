@@ -24,7 +24,6 @@ import * as React from 'react';
 import {
   Trash2,
   X,
-  Loader2,
   Pencil,
   Tag as TagIcon,
   Download,
@@ -32,6 +31,7 @@ import {
 } from 'lucide-react';
 
 import { TwentyButton } from '@/components/sabcrm/twenty';
+import { Button } from '@/components/sabcrm/20ui';
 import type { FieldMetadata } from '@/lib/sabcrm/types';
 import type { SabcrmRustTag } from '@/app/actions/sabcrm-tags.actions.types';
 
@@ -266,15 +266,16 @@ export function SabcrmBulkBar({
         {confirming ? (
           <>
             <span className="st-selbar__field-label">Delete {count}?</span>
-            <button
-              type="button"
-              className="st-btn st-btn--danger"
+            <Button
+              variant="danger"
+              size="sm"
+              iconLeft={Trash2}
+              loading={deleting}
               disabled={busy}
               onClick={() => onDelete()}
             >
-              {deleting ? <Loader2 size={14} className="st-spin" /> : <Trash2 size={14} />}
               Confirm
-            </button>
+            </Button>
             <TwentyButton
               variant="ghost"
               disabled={busy}

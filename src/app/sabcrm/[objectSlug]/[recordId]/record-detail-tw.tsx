@@ -71,6 +71,7 @@ import { TwentyChip, TwentyAvatar } from '@/components/sabcrm/twenty/twenty-prim
 import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
 import { TwentyTimeline } from '@/components/sabcrm/twenty/twenty-timeline';
+import { Select } from '@/components/sabcrm/20ui';
 // Twenty record-show building blocks (the LEFT field panel + the MAIN tabbed
 // area). These are the Twenty-faithful primitives the record page is wired to:
 // `RecordFieldPanel` renders the left-column label→value field list with inline
@@ -1149,18 +1150,16 @@ function Composer({ onAdd, record, recordLabel, projectId }: ComposerProps) {
   return (
     <form className="st-composer" onSubmit={submit}>
       <div className="st-composer__row">
-        <select
-          className="st-composer__type"
-          value={type}
-          onChange={(e) => setType(e.target.value as SabcrmActivityKind)}
+        <Select
+          size="sm"
           aria-label="Activity type"
-        >
-          {ACTIVITY_KINDS.map((k) => (
-            <option key={k.value} value={k.value}>
-              {k.label}
-            </option>
-          ))}
-        </select>
+          value={type}
+          onChange={(v) => v != null && setType(v as SabcrmActivityKind)}
+          options={ACTIVITY_KINDS.map((k) => ({
+            value: k.value,
+            label: k.label,
+          }))}
+        />
         <input
           className="st-composer__title"
           value={title}
