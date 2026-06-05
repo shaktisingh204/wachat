@@ -282,6 +282,17 @@ export interface SidebarMenuButtonProps
    * plain string; supply this when `children` is rich content.
    */
   tooltip?: string;
+  /**
+   * Render the control as a custom element (e.g. a Next.js `<Link>`) instead of
+   * the default `<button>`. Receives the composed className, the resolved
+   * `aria-current`, and the inner icon+label content. When provided, the default
+   * button + collapsed tooltip are bypassed (used by link-based navigation).
+   */
+  render?: (props: {
+    className: string;
+    'aria-current': 'page' | undefined;
+    children: React.ReactNode;
+  }) => React.ReactNode;
 }
 
 /**
@@ -291,7 +302,7 @@ export interface SidebarMenuButtonProps
  */
 export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   function SidebarMenuButton(
-    { icon: Icon, children, isActive = false, tooltip, className, type = 'button', onMouseEnter, onMouseLeave, onFocus, onBlur, ...rest },
+    { icon: Icon, children, isActive = false, tooltip, render, className, type = 'button', onMouseEnter, onMouseLeave, onFocus, onBlur, ...rest },
     ref,
   ) {
     const { open } = useSidebar();
@@ -348,6 +359,20 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
         ours();
       };
 
+    const buttonCls = cx('u-sidebar__button', isActive && 'is-active', className);
+    const inner = (
+      <>
+        {Icon ? <Icon size={16} className="u-sidebar__button-icon" aria-hidden="true" /> : null}
+        <span className="u-sidebar__button-label">{children}</span>
+      </>
+    );
+
+    // Custom render (e.g. a Next.js Link) bypasses the native button + the
+    // collapsed tooltip (link nav is used in the always-expanded sidebar).
+    if (render) {
+      return <>{render({ className: buttonCls, 'aria-current': isActive ? 'page' : undefined, children: inner })}</>;
+    }
+
     return (
       <>
         <button
@@ -356,15 +381,14 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
           aria-current={isActive ? 'page' : undefined}
           aria-describedby={describedBy}
           data-active={isActive ? '' : undefined}
-          className={cx('u-sidebar__button', isActive && 'is-active', className)}
+          className={buttonCls}
           onMouseEnter={chain(onMouseEnter as undefined, showTip)}
           onMouseLeave={chain(onMouseLeave as undefined, hideTip)}
           onFocus={chain(onFocus as undefined, showTip)}
           onBlur={chain(onBlur as undefined, hideTip)}
           {...rest}
         >
-          {Icon ? <Icon size={16} className="u-sidebar__button-icon" aria-hidden="true" /> : null}
-          <span className="u-sidebar__button-label">{children}</span>
+          {inner}
         </button>
         {tipText != null ? (
           <CollapsedTooltip id={tipId} label={tipText} open={showTooltip} rect={rect} />

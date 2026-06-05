@@ -33,6 +33,17 @@ import './notifications.css';
 import { TwentyCommandMenu } from './twenty-command-menu';
 import { TwentyWorkspaceSwitcher } from './twenty-workspace-switcher';
 import { NotificationsBell } from './notifications-bell';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from '@/components/sabcrm/20ui';
 import { useCommandMenu } from './use-command-menu';
 import { listSabcrmFavoritesTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { SabcrmRustFavorite } from '@/app/actions/sabcrm-twenty.actions.types';
@@ -344,148 +355,156 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
     <div className={rootClassName}>
       <TwentyCommandMenu open={commandMenuOpen} onOpenChange={setCommandMenuOpen} />
       <div className="st-shell">
-        <aside className="st-sidebar" aria-label="SabCRM navigation">
-          <div className="st-sidebar__scroll">
-            {/* Workspace (project) switcher + notifications bell */}
-            <div className="st-sidebar__header">
-              <TwentyWorkspaceSwitcher />
-              <NotificationsBell />
-            </div>
-
-            {/* CRM workspace identity (general settings) — reflects the name +
-                icon configured in Settings → General. */}
-            {settingsValue.general.workspaceName ? (
-              <div className="st-ws-identity" title="CRM workspace">
-                {settingsValue.general.iconEmoji ? (
-                  <span className="st-ws-identity__icon" aria-hidden="true">
-                    {settingsValue.general.iconEmoji}
-                  </span>
-                ) : null}
-                <span className="st-ws-identity__name">
-                  {settingsValue.general.workspaceName}
-                </span>
+        <SidebarProvider>
+          <Sidebar aria-label="SabCRM navigation">
+            <SidebarHeader>
+              {/* Workspace (project) switcher + notifications bell */}
+              <div className="st-sidebar__header">
+                <TwentyWorkspaceSwitcher />
+                <NotificationsBell />
               </div>
-            ) : null}
 
-            {/* Search */}
-            <button
-              type="button"
-              className="st-search-btn"
-              onClick={() => setCommandMenuOpen(true)}
-              aria-label="Search (Command or Control + K)"
-              aria-haspopup="dialog"
-              aria-expanded={commandMenuOpen}
-            >
-              <Search className="st-search-btn__icon" size={16} aria-hidden="true" />
-              <span className="st-search-btn__label">Search</span>
-              <kbd className="st-kbd">⌘K</kbd>
-            </button>
+              {/* CRM workspace identity — name + icon from Settings → General. */}
+              {settingsValue.general.workspaceName ? (
+                <div className="st-ws-identity" title="CRM workspace">
+                  {settingsValue.general.iconEmoji ? (
+                    <span className="st-ws-identity__icon" aria-hidden="true">
+                      {settingsValue.general.iconEmoji}
+                    </span>
+                  ) : null}
+                  <span className="st-ws-identity__name">
+                    {settingsValue.general.workspaceName}
+                  </span>
+                </div>
+              ) : null}
 
-            {/* Favorites */}
-            <div className="st-section-title">
-              <Star className="st-section-title__chevron" size={12} aria-hidden="true" />
-              <span>Favorites</span>
-            </div>
-            {favorites.length > 0 ? (
-              <nav aria-label="Favorites">
-                {favorites.map((fav) => {
-                  const href = `/sabcrm/${fav.object}/${fav.recordId}`;
-                  const active = isActivePath(pathname, href);
-                  return (
-                    <Link
-                      key={fav.id}
-                      href={href}
-                      className={`st-nav-item${active ? ' active' : ''}`}
-                      aria-current={active ? 'page' : undefined}
-                    >
-                      <Star
-                        className="st-nav-item__icon"
-                        size={16}
-                        aria-hidden="true"
-                      />
-                      <span className="st-nav-item__label">
-                        {favoriteLabel(fav, labelBySlug)}
-                      </span>
-                    </Link>
-                  );
-                })}
-              </nav>
-            ) : (
-              <div className="st-fav-empty">No favorites</div>
-            )}
+              {/* Search */}
+              <button
+                type="button"
+                className="st-search-btn"
+                onClick={() => setCommandMenuOpen(true)}
+                aria-label="Search (Command or Control + K)"
+                aria-haspopup="dialog"
+                aria-expanded={commandMenuOpen}
+              >
+                <Search className="st-search-btn__icon" size={16} aria-hidden="true" />
+                <span className="st-search-btn__label">Search</span>
+                <kbd className="st-kbd">⌘K</kbd>
+              </button>
+            </SidebarHeader>
 
-            {/* Workspace — faithful to Twenty's default object navigation */}
-            <div className="st-section-title">
-              <span>Workspace</span>
-            </div>
-            <nav aria-label="Workspace">
-              {workspaceNav.map((item) => {
-                const { slug, label, icon: Icon } = item;
-                const href = navHref(item);
-                const active = isBestActive(pathname, href, allNavHrefs);
-                return (
-                  <Link
-                    key={slug}
-                    href={href}
-                    className={`st-nav-item${active ? ' active' : ''}`}
-                    aria-current={active ? 'page' : undefined}
-                  >
-                    <Icon className="st-nav-item__icon" size={16} aria-hidden="true" />
-                    <span className="st-nav-item__label">{label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
+            <SidebarContent>
+              {/* Favorites */}
+              <SidebarGroup label="Favorites">
+                {favorites.length > 0 ? (
+                  <SidebarMenu>
+                    {favorites.map((fav) => {
+                      const href = `/sabcrm/${fav.object}/${fav.recordId}`;
+                      const active = isActivePath(pathname, href);
+                      return (
+                        <SidebarMenuItem key={fav.id}>
+                          <SidebarMenuButton
+                            icon={Star}
+                            isActive={active}
+                            render={(p) => (
+                              <Link href={href} className={p.className} aria-current={p['aria-current']}>
+                                {p.children}
+                              </Link>
+                            )}
+                          >
+                            {favoriteLabel(fav, labelBySlug)}
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                ) : (
+                  <div className="st-fav-empty">No favorites</div>
+                )}
+              </SidebarGroup>
 
-            {/* More — SabCRM-specific surfaces beyond upstream Twenty */}
-            <div className="st-section-title">
-              <span>More</span>
-            </div>
-            <nav aria-label="More">
-              {MORE_NAV.map((item) => {
-                const { slug, label, icon: Icon } = item;
-                const href = navHref(item);
-                const active = isBestActive(pathname, href, allNavHrefs);
-                return (
-                  <Link
-                    key={slug}
-                    href={href}
-                    className={`st-nav-item${active ? ' active' : ''}`}
-                    aria-current={active ? 'page' : undefined}
-                  >
-                    <Icon className="st-nav-item__icon" size={16} aria-hidden="true" />
-                    <span className="st-nav-item__label">{label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+              {/* Workspace — faithful to Twenty's default object navigation */}
+              <SidebarGroup label="Workspace">
+                <SidebarMenu>
+                  {workspaceNav.map((item) => {
+                    const { slug, label, icon: Icon } = item;
+                    const href = navHref(item);
+                    const active = isBestActive(pathname, href, allNavHrefs);
+                    return (
+                      <SidebarMenuItem key={slug}>
+                        <SidebarMenuButton
+                          icon={Icon}
+                          isActive={active}
+                          render={(p) => (
+                            <Link href={href} className={p.className} aria-current={p['aria-current']}>
+                              {p.children}
+                            </Link>
+                          )}
+                        >
+                          {label}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroup>
 
-          {/* Other — mirrors Twenty's NavigationDrawerOtherSection, pinned bottom */}
-          <div className="st-sidebar__footer">
-            <div className="st-section-title">
-              <span>Other</span>
-            </div>
-            <nav aria-label="Other">
-              {OTHER_NAV.map((item) => {
-                const { slug, label, icon: Icon } = item;
-                const href = navHref(item);
-                const active = isBestActive(pathname, href, allNavHrefs);
-                return (
-                  <Link
-                    key={slug}
-                    href={href}
-                    className={`st-nav-item${active ? ' active' : ''}`}
-                    aria-current={active ? 'page' : undefined}
-                  >
-                    <Icon className="st-nav-item__icon" size={16} aria-hidden="true" />
-                    <span className="st-nav-item__label">{label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-        </aside>
+              {/* More — SabCRM-specific surfaces beyond upstream Twenty */}
+              <SidebarGroup label="More">
+                <SidebarMenu>
+                  {MORE_NAV.map((item) => {
+                    const { slug, label, icon: Icon } = item;
+                    const href = navHref(item);
+                    const active = isBestActive(pathname, href, allNavHrefs);
+                    return (
+                      <SidebarMenuItem key={slug}>
+                        <SidebarMenuButton
+                          icon={Icon}
+                          isActive={active}
+                          render={(p) => (
+                            <Link href={href} className={p.className} aria-current={p['aria-current']}>
+                              {p.children}
+                            </Link>
+                          )}
+                        >
+                          {label}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroup>
+            </SidebarContent>
+
+            {/* Other — mirrors Twenty's NavigationDrawerOtherSection, pinned bottom */}
+            <SidebarFooter>
+              <SidebarGroup label="Other">
+                <SidebarMenu>
+                  {OTHER_NAV.map((item) => {
+                    const { slug, label, icon: Icon } = item;
+                    const href = navHref(item);
+                    const active = isBestActive(pathname, href, allNavHrefs);
+                    return (
+                      <SidebarMenuItem key={slug}>
+                        <SidebarMenuButton
+                          icon={Icon}
+                          isActive={active}
+                          render={(p) => (
+                            <Link href={href} className={p.className} aria-current={p['aria-current']}>
+                              {p.children}
+                            </Link>
+                          )}
+                        >
+                          {label}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroup>
+            </SidebarFooter>
+          </Sidebar>
+        </SidebarProvider>
 
         <main className="st-main">{children}</main>
       </div>
