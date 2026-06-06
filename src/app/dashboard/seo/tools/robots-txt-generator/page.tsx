@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, ZoruDynamicSelector, ZoruToaster, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, ZoruDynamicSelector, useToast } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Plus, Trash, Upload, Loader2, Download } from 'lucide-react';
@@ -246,7 +246,6 @@ export default function RobotsTxtGeneratorPage() {
           <Textarea readOnly value={out} className="min-h-[200px] font-mono text-sm bg-[var(--st-bg-secondary)]" />
         </div>
       </div>
-      <ZoruToaster />
     </ToolShell>
   );
 }
