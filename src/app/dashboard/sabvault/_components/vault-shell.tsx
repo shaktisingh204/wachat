@@ -62,8 +62,8 @@ export function VaultShell({
                         <div className="flex flex-col gap-1">
                             <Link
                                 href="/dashboard/sabvault"
-                                className={`rounded-md px-2 py-1.5 text-sm hover:bg-[var(--zoru-bg-subtle)] ${
-                                    !selectedFolderId ? 'bg-[var(--zoru-bg-subtle)] font-medium' : ''
+                                className={`rounded-md px-2 py-1.5 text-sm hover:bg-[var(--st-bg-secondary)] ${
+                                    !selectedFolderId ? 'bg-[var(--st-bg-secondary)] font-medium' : ''
                                 }`}
                             >
                                 All secrets
@@ -72,8 +72,8 @@ export function VaultShell({
                                 <Link
                                     key={f._id}
                                     href={`/dashboard/sabvault?folder=${encodeURIComponent(f._id ?? '')}`}
-                                    className={`rounded-md px-2 py-1.5 text-sm hover:bg-[var(--zoru-bg-subtle)] ${
-                                        selectedFolderId === f._id ? 'bg-[var(--zoru-bg-subtle)] font-medium' : ''
+                                    className={`rounded-md px-2 py-1.5 text-sm hover:bg-[var(--st-bg-secondary)] ${
+                                        selectedFolderId === f._id ? 'bg-[var(--st-bg-secondary)] font-medium' : ''
                                     }`}
                                 >
                                     {f.name}
@@ -111,7 +111,7 @@ export function VaultShell({
                         <div className="flex items-center justify-between gap-3">
                             <div>
                                 <div className="text-sm font-semibold">Vault is locked</div>
-                                <div className="text-xs text-[var(--zoru-text-muted)]">
+                                <div className="text-xs text-[var(--st-text-secondary)]">
                                     Names + URLs are visible. Reveal/copy requires unlock.
                                 </div>
                             </div>
@@ -127,7 +127,7 @@ export function VaultShell({
                         <div className="flex items-center justify-between gap-3">
                             <div>
                                 <div className="text-sm font-semibold">Set up your vault</div>
-                                <div className="text-xs text-[var(--zoru-text-muted)]">
+                                <div className="text-xs text-[var(--st-text-secondary)]">
                                     Choose a master password — it never leaves this browser.
                                 </div>
                             </div>
@@ -154,7 +154,7 @@ export function VaultShell({
                                         <KindGlyph kind={s.kind} />
                                         <div className="flex-1">
                                             <div className="text-sm font-medium">{s.name}</div>
-                                            <div className="text-xs text-[var(--zoru-text-muted)]">
+                                            <div className="text-xs text-[var(--st-text-secondary)]">
                                                 {s.url || s.kind}
                                             </div>
                                         </div>
@@ -197,7 +197,7 @@ function KindGlyph({ kind }: { kind: string }) {
                         ? '🖥️'
                         : '🗝️';
     return (
-        <span aria-hidden className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[var(--zoru-bg-subtle)] text-base">
+        <span aria-hidden className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[var(--st-bg-secondary)] text-base">
             {ch}
         </span>
     );

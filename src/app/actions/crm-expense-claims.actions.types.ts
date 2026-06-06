@@ -4,6 +4,7 @@
  */
 
 export type CrmExpenseClaimStatus =
+    | 'draft' | 'submitted' | 'approved' | 'rejected' | 'reimbursed' | 'cancelled' | 'archived';
 
 export interface CrmExpenseClaimDoc {
     _id: string;

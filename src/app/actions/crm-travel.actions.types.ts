@@ -4,6 +4,7 @@
  */
 
 export type CrmTravelStatus =
+    | 'draft' | 'pending' | 'approved' | 'rejected' | 'cancelled' | 'completed' | 'archived';
 
 export interface CrmTravelRequestDoc {
     _id: string;

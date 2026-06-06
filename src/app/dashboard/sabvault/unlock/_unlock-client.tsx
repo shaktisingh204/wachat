@@ -116,7 +116,7 @@ export function UnlockClient({ keyRecord }: { keyRecord: SabvaultUserKeyRecord |
                 <h1 className="mb-1 text-lg font-semibold">
                     {isSetup ? 'Set up your SabVault' : 'Unlock SabVault'}
                 </h1>
-                <p className="mb-4 text-sm text-[var(--zoru-text-muted)]">
+                <p className="mb-4 text-sm text-[var(--st-text-secondary)]">
                     {isSetup
                         ? 'Your master password derives the encryption key in this browser. It is never sent to our servers — losing it means losing access.'
                         : 'Enter your master password. The key stays in this tab only and locks after 15 minutes of inactivity.'}

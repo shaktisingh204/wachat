@@ -75,12 +75,12 @@ export function ShareDialogClient({
 
     return (
         <div className="zoruui mx-auto flex max-w-2xl flex-col gap-4 p-6">
-            <Link href={`/dashboard/sabvault/${secret._id}`} className="text-sm text-[var(--zoru-text-muted)]">
+            <Link href={`/dashboard/sabvault/${secret._id}`} className="text-sm text-[var(--st-text-secondary)]">
                 ← Back to secret
             </Link>
             <ZoruCard className="p-5">
                 <h1 className="mb-1 text-lg font-semibold">Share {secret.name}</h1>
-                <p className="mb-4 text-sm text-[var(--zoru-text-muted)]">
+                <p className="mb-4 text-sm text-[var(--st-text-secondary)]">
                     Grant a teammate or team access. The grantee unlocks with their own master key.
                 </p>
                 <form className="flex flex-col gap-3" onSubmit={onSubmit}>
@@ -131,7 +131,7 @@ export function ShareDialogClient({
             <ZoruCard className="p-5">
                 <h2 className="mb-3 text-sm font-semibold">Active grants</h2>
                 {initialShares.length === 0 ? (
-                    <div className="text-sm text-[var(--zoru-text-muted)]">No active shares.</div>
+                    <div className="text-sm text-[var(--st-text-secondary)]">No active shares.</div>
                 ) : (
                     <ul className="divide-y">
                         {initialShares.map((s) => (
@@ -140,7 +140,7 @@ export function ShareDialogClient({
                                     <div className="text-sm font-medium">
                                         {s.granteeType}: <span className="font-mono">{s.granteeId}</span>
                                     </div>
-                                    <div className="text-xs text-[var(--zoru-text-muted)]">
+                                    <div className="text-xs text-[var(--st-text-secondary)]">
                                         Granted {new Date(s.grantedAt).toLocaleString()}
                                     </div>
                                 </div>

@@ -127,7 +127,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             description="Create an engagement to organise scope, time and billing."
                         />
                     ) : (
-                        <ul className="divide-y divide-[var(--zoru-border-subtle)]">
+                        <ul className="divide-y divide-[var(--st-border-light)]">
                             {engagements.items.map((e) => (
                                 <li
                                     key={e._id}
@@ -173,7 +173,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             {docRequests.items.map((r) => (
                                 <li
                                     key={r._id}
-                                    className="rounded-md border border-[var(--zoru-border-subtle)] p-3"
+                                    className="rounded-md border border-[var(--st-border-light)] p-3"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div>
@@ -223,7 +223,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             description="Create a task under an engagement."
                         />
                     ) : (
-                        <ul className="divide-y divide-[var(--zoru-border-subtle)]">
+                        <ul className="divide-y divide-[var(--st-border-light)]">
                             {tasks.items.map((t) => (
                                 <li
                                     key={t._id}
@@ -266,7 +266,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             description="Log time against any task for this client."
                         />
                     ) : (
-                        <ul className="divide-y divide-[var(--zoru-border-subtle)]">
+                        <ul className="divide-y divide-[var(--st-border-light)]">
                             {timeLogs.items.slice(0, 10).map((tl) => (
                                 <li
                                     key={tl._id}
@@ -311,7 +311,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             {advisoryNotes.items.map((n) => (
                                 <li
                                     key={n._id}
-                                    className="rounded-md border border-[var(--zoru-border-subtle)] p-3"
+                                    className="rounded-md border border-[var(--st-border-light)] p-3"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
@@ -359,7 +359,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             description="Add a recurring or one-off compliance deadline."
                         />
                     ) : (
-                        <ul className="divide-y divide-[var(--zoru-border-subtle)]">
+                        <ul className="divide-y divide-[var(--st-border-light)]">
                             {deadlines.items.map((d) => (
                                 <li
                                     key={d._id}

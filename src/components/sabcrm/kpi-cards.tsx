@@ -244,7 +244,7 @@ function RecordCountCards({
 }): React.ReactElement {
   if (recordCounts.length === 0) {
     return (
-      <div className="rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-8 text-center text-sm text-[var(--st-text-secondary)]">
+      <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-8 text-center text-sm text-[var(--st-text-secondary)]">
         No objects found
       </div>
     );

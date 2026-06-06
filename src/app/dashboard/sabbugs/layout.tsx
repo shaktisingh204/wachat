@@ -18,7 +18,7 @@ export default function BugTrackerLayout({
     <div className="zoruui flex w-full flex-col gap-4 p-4 md:p-6">
       <nav
         aria-label="Bug Tracker"
-        className="flex flex-wrap items-center gap-2 border-b border-[var(--zoru-divider)] pb-3"
+        className="flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] pb-3"
       >
         <SubNavLink href="/dashboard/sabbugs" label="All Bugs" />
         <SubNavLink href="/dashboard/sabbugs/board" label="Board" />

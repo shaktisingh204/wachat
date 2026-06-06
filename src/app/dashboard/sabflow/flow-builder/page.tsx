@@ -434,7 +434,7 @@ export default function SabFlowListPage() {
           </Button>
 
           {/* View toggle — segmented buttons (no tabs) */}
-          <div className="flex items-center gap-1 rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] p-0.5">
+          <div className="flex items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] p-0.5">
             <Button
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="icon-sm"

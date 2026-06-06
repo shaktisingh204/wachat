@@ -4,6 +4,7 @@
  */
 
 export type IntegrationProvider =
+    | 'slack' | 'smtp' | 'quickbooks' | 'google-calendar' | 'pusher' | 'facebook-ads' | 'social-auth' | 'push-notifications' | 'message-settings' | 'storage';
 
 export interface IntegrationEvent {
   _id: string;

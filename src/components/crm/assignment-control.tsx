@@ -267,7 +267,7 @@ export function AssignmentControl({
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto rounded-[var(--zoru-radius-md)] border border-[var(--st-border)]">
+          <div className="flex-1 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
             {employeesLoading ? (
               <div className="flex flex-col gap-2 p-3">
                 {[...Array(5)].map((_, i) => (

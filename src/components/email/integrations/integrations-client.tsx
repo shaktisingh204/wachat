@@ -93,7 +93,7 @@ export function IntegrationsClient() {
       <div
         role="tablist"
         aria-label="Integrations sections"
-        className="inline-flex rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1"
+        className="inline-flex rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1"
       >
         {([
           { key: 'keys', label: 'API keys', icon: KeyRound, count: keys.length },

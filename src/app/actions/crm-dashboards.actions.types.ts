@@ -4,6 +4,7 @@
  */
 
 export type WidgetKind =
+    | 'metric' | 'line' | 'bar' | 'donut' | 'funnel' | 'table';
 
 export type WidgetDataSourceType = 'saved_view' | 'report' | 'metric_query';
 

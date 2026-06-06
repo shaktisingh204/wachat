@@ -179,7 +179,7 @@ export default function AutomationsPage() {
               <Card key={workflow.id} className="flex flex-col transition-all hover:border-[var(--st-border-strong)] hover:shadow-sm">
                 <ZoruCardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-md)] bg-[var(--st-bg-muted)]">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                       {workflow.icon}
                     </div>
                     <div>

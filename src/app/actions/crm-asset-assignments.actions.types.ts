@@ -4,6 +4,7 @@
  */
 
 export type CrmAssetAssignmentStatus =
+    | 'assigned' | 'returned' | 'lost' | 'damaged' | 'archived';
 
 export interface CrmAssetAssignmentDoc {
     _id: string;

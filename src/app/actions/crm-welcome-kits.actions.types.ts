@@ -4,6 +4,7 @@
  */
 
 export type CrmWelcomeKitStatus =
+    | 'pending' | 'shipped' | 'delivered' | 'archived';
 
 export interface CrmWelcomeKitItem {
     name: string;

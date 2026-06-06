@@ -4,3 +4,4 @@
  */
 
 export type TaskLinkedKind =
+    | 'lead' | 'deal' | 'client' | 'contact' | 'ticket' | 'invoice' | 'none';

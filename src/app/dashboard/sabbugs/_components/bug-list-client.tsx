@@ -150,7 +150,7 @@ function SavedFilterChip({
   onDelete: () => void;
 }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-[var(--zoru-divider)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs">
+    <span className="inline-flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs">
       <button
         type="button"
         className="text-[var(--st-text)] hover:underline"

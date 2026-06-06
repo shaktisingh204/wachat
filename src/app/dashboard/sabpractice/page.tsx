@@ -78,7 +78,7 @@ async function OverviewData() {
                             description="Add a deadline to start tracking compliance."
                         />
                     ) : (
-                        <ul className="divide-y divide-[var(--zoru-border-subtle)]">
+                        <ul className="divide-y divide-[var(--st-border-light)]">
                             {upcomingDeadlines.slice(0, 10).map((d) => (
                                 <li
                                     key={d._id}

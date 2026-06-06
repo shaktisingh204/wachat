@@ -48,7 +48,7 @@ export default async function SabvaultAuditPage(props: {
                     </div>
                 ) : (
                     <table className="w-full text-sm">
-                        <thead className="border-b text-left text-xs uppercase text-[var(--zoru-text-muted)]">
+                        <thead className="border-b text-left text-xs uppercase text-[var(--st-text-secondary)]">
                             <tr>
                                 <th className="px-4 py-2">Time</th>
                                 <th className="px-4 py-2">Action</th>
@@ -99,7 +99,7 @@ function FilterChip({ current, value, label }: { current?: string; value?: strin
             href={href}
             className={`rounded-md border px-3 py-1 ${
                 active
-                    ? 'bg-[var(--zoru-bg-subtle)] font-medium'
+                    ? 'bg-[var(--st-bg-secondary)] font-medium'
                     : 'border-[var(--st-border)]'
             }`}
         >

@@ -104,7 +104,7 @@ function BoardColumn({
       </header>
       <div className="flex flex-col gap-2">
         {bugs.length === 0 ? (
-          <p className="rounded-md border border-dashed border-[var(--zoru-divider)] p-3 text-center text-xs text-[var(--st-text-secondary)]">
+          <p className="rounded-md border border-dashed border-[var(--st-border)] p-3 text-center text-xs text-[var(--st-text-secondary)]">
             Empty
           </p>
         ) : (
@@ -123,7 +123,7 @@ function BoardCard({
   onMove: (bug: BugDoc, next: BugStatus) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-[var(--zoru-divider)] bg-[var(--st-bg-secondary)] p-2 text-sm">
+    <div className="flex flex-col gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-sm">
       <Link
         href={`/dashboard/sabbugs/${bug._id}`}
         className="font-medium text-[var(--st-text)] hover:underline"

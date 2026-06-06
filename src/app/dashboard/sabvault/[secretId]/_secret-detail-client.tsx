@@ -107,7 +107,7 @@ export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
     return (
         <div className="zoruui mx-auto flex max-w-3xl flex-col gap-4 p-6">
             <div className="flex items-center justify-between">
-                <Link href="/dashboard/sabvault" className="text-sm text-[var(--zoru-text-muted)]">
+                <Link href="/dashboard/sabvault" className="text-sm text-[var(--st-text-secondary)]">
                     ← Back to vault
                 </Link>
                 <div className="flex gap-2">
@@ -129,7 +129,7 @@ export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
                 </div>
                 {secret.url ? (
                     <div className="mb-3 text-sm">
-                        <span className="text-[var(--zoru-text-muted)]">URL · </span>
+                        <span className="text-[var(--st-text-secondary)]">URL · </span>
                         <a href={secret.url} target="_blank" rel="noreferrer" className="underline">
                             {secret.url}
                         </a>
@@ -160,8 +160,8 @@ export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
                         ) : null}
                         {revealed.note ? (
                             <div className="text-sm">
-                                <div className="mb-1 text-[var(--zoru-text-muted)]">Note</div>
-                                <div className="whitespace-pre-wrap rounded-md bg-[var(--zoru-bg-subtle)] p-3">
+                                <div className="mb-1 text-[var(--st-text-secondary)]">Note</div>
+                                <div className="whitespace-pre-wrap rounded-md bg-[var(--st-bg-secondary)] p-3">
                                     {revealed.note}
                                 </div>
                             </div>
@@ -197,7 +197,7 @@ function FieldRow({
 }) {
     return (
         <div className="flex items-center gap-3">
-            <div className="w-24 text-xs uppercase text-[var(--zoru-text-muted)]">{label}</div>
+            <div className="w-24 text-xs uppercase text-[var(--st-text-secondary)]">{label}</div>
             <div className="flex-1 font-mono text-sm">{value}</div>
             {onToggle ? (
                 <Button variant="ghost" size="sm" onClick={onToggle}>

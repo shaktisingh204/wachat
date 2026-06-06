@@ -18,7 +18,7 @@ const ITEMS: Array<{ href: string; label: string }> = [
 export function SabpracticeNav() {
     const pathname = usePathname();
     return (
-        <nav className="zoruui flex flex-wrap gap-1 border-b border-[var(--zoru-border-subtle)] pb-2 mb-6">
+        <nav className="zoruui flex flex-wrap gap-1 border-b border-[var(--st-border-light)] pb-2 mb-6">
             {ITEMS.map((it) => {
                 const active =
                     it.href === '/dashboard/sabpractice'

@@ -4,6 +4,7 @@
  */
 
 export type CrmPayrollRunStatus =
+    | 'draft' | 'in_progress' | 'processed' | 'paid' | 'archived';
 
 export interface CrmPayrollRunDoc {
     _id: string;

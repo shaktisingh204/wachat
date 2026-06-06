@@ -344,7 +344,7 @@ function UploadStep({ onParsed }: UploadStepProps): React.ReactElement {
         </SabFileToFileButton>
       </div>
 
-      <div className="w-full rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-4 text-xs text-[var(--st-text-secondary)]">
+      <div className="w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-4 text-xs text-[var(--st-text-secondary)]">
         <p className="font-medium text-[var(--st-text)]">Tips</p>
         <ul className="mt-2 list-disc space-y-1 pl-4">
           <li>The first row must be a header row.</li>
@@ -412,7 +412,7 @@ function MappingStep({
       </div>
 
       {topIssues.length > 0 && (
-        <div className="rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-3 text-xs text-[var(--st-text-secondary)]">
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-3 text-xs text-[var(--st-text-secondary)]">
           {topIssues.map((issue, idx) => (
             <p key={idx} className="flex items-start gap-2">
               <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--st-danger)]" />
@@ -564,7 +564,7 @@ function PreviewStep({
       </p>
 
       {/* Scrollable preview table */}
-      <div className="overflow-auto rounded-[var(--zoru-radius-md)] border border-[var(--st-border)]">
+      <div className="overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/60">
@@ -676,18 +676,18 @@ function ImportStep({ result, busy }: ImportStepProps): React.ReactElement {
     <div className="flex flex-col gap-4">
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="flex flex-col items-center gap-1 rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] p-3">
+        <div className="flex flex-col items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
           <span className="text-2xl font-bold text-[var(--st-text)]">{result.total}</span>
           <span className="text-xs text-[var(--st-text-secondary)]">Total</span>
         </div>
-        <div className="flex flex-col items-center gap-1 rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] p-3">
+        <div className="flex flex-col items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
           <span className="flex items-center gap-1 text-2xl font-bold text-[var(--st-text)]">
             <CheckCircle2 className="h-5 w-5 text-[var(--st-status-ok)]" />
             {result.succeeded}
           </span>
           <span className="text-xs text-[var(--st-text-secondary)]">Imported</span>
         </div>
-        <div className="flex flex-col items-center gap-1 rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] p-3">
+        <div className="flex flex-col items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
           <span className="flex items-center gap-1 text-2xl font-bold text-[var(--st-text)]">
             {result.failed > 0 && (
               <XCircle className="h-5 w-5 text-[var(--st-danger)]" />
@@ -707,7 +707,7 @@ function ImportStep({ result, busy }: ImportStepProps): React.ReactElement {
             Failed rows ({failedRows.length})
           </p>
           <div
-            className="overflow-y-auto rounded-[var(--zoru-radius-md)] border border-[var(--st-border)]"
+            className="overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)]"
             style={{ maxHeight: '180px' }}
           >
             {failedRows.slice(0, 20).map(({ index, errors }) => (
@@ -731,7 +731,7 @@ function ImportStep({ result, busy }: ImportStepProps): React.ReactElement {
       )}
 
       {result.succeeded === result.total && result.total > 0 && (
-        <div className="flex items-center gap-2 rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 px-3 py-2 text-xs text-[var(--st-text)]">
+        <div className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 px-3 py-2 text-xs text-[var(--st-text)]">
           <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" />
           All {result.total} records imported successfully.
         </div>

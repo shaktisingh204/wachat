@@ -4,8 +4,10 @@
  */
 
 export type Feedback360Status =
+    | 'draft' | 'in_progress' | 'completed' | 'archived';
 
 export type Feedback360ReviewerRole =
+    | 'self' | 'manager' | 'peer' | 'direct_report' | 'other';
 
 export interface Feedback360ReviewerResponse {
     reviewerId: string;

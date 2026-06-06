@@ -107,7 +107,7 @@ function SegmentedNav({
     { id: 'related', label: 'Related' },
   ];
   return (
-    <div className="inline-flex items-center gap-1 rounded-md border border-[var(--zoru-divider)] bg-[var(--st-bg-muted)] p-1">
+    <div className="inline-flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-1">
       {items.map((it) => (
         <button
           key={it.id}
@@ -221,7 +221,7 @@ function CommentsTab({
           {attachments.map((id) => (
             <span
               key={id}
-              className="inline-flex items-center gap-1 rounded-md border border-[var(--zoru-divider)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs"
+              className="inline-flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs"
             >
               <code className="font-mono">{id.slice(-6)}</code>
               <button
@@ -292,7 +292,7 @@ function HistoryTab({ entries }: { entries: BugHistoryEntryDoc[] }) {
         {entries.map((h) => (
           <li
             key={h._id}
-            className="flex flex-col gap-1 border-l-2 border-[var(--zoru-divider)] pl-3 text-sm"
+            className="flex flex-col gap-1 border-l-2 border-[var(--st-border)] pl-3 text-sm"
           >
             <span className="text-xs text-[var(--st-text-secondary)]">
               {new Date(h.ts).toLocaleString()} · actor {h.actorId.slice(-6)}

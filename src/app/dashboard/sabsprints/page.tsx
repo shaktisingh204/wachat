@@ -15,7 +15,7 @@ export default function SabSprintsRootPage() {
                     </ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <p className="text-sm text-[var(--zoru-text-secondary)]">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         SabSprints projects are scoped to a SabNode workspace project ID. Open one from the
                         Projects switcher in the top bar to land on
                         <code className="mx-1 rounded bg-[var(--zoru-surface-alt)] px-1 py-0.5">
