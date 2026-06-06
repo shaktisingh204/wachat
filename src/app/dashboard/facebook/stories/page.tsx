@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -25,8 +25,8 @@ import {
   publishVideoStory,
 } from "@/app/actions/facebook.actions";
 import { uploadLibraryFile } from "@/app/actions/files.actions";
-import { ZoruFileUploadCard, ZoruFileUploadItem } from '@/components/sabcrm/20ui/compat';
-import { RadioGroup, RadioCard } from '@/components/sabcrm/20ui/compat';
+import { FileUploadCard, FileUploadItem } from '@/components/sabcrm/20ui';
+import { RadioGroup, RadioCard } from '@/components/sabcrm/20ui';
 import { useProject } from "@/context/project-context";
 
 /**
@@ -313,7 +313,7 @@ function CreateStoryDialog({
   const [url, setUrl] = useState("");
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [uploadedMime, setUploadedMime] = useState("");
-  const [items, setItems] = useState<ZoruFileUploadItem[]>([]);
+  const [items, setItems] = useState<FileUploadItem[]>([]);
   const [isPublishing, startPublishTransition] = useTransition();
   const { toast } = useToast();
 
@@ -436,7 +436,7 @@ function CreateStoryDialog({
 
           {mode === "upload" ? (
             <div className="flex flex-col gap-2">
-              <ZoruFileUploadCard
+              <FileUploadCard
                 accept="image/jpeg, image/png, video/mp4"
                 multiple={false}
                 maxSize={50 * 1024 * 1024}

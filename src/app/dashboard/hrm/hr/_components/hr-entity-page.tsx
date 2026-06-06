@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast, zoruBadgeVariants } from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast, badgeVariants } from '@/components/sabcrm/20ui';
 import {
   Plus,
   Pencil,
@@ -124,7 +124,7 @@ export const ClayBadge = React.forwardRef<HTMLSpanElement, ClayBadgeProps>(
     <span
       ref={ref}
       className={cn(
-        zoruBadgeVariants({ variant: TONE_TO_VARIANT[tone] }),
+        badgeVariants({ variant: TONE_TO_VARIANT[tone] }),
         'gap-1.5',
         className,
       )}

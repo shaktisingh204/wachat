@@ -1,11 +1,11 @@
 'use client';
 
-import { ZoruFileCardCollections, type ZoruFileCardItem } from '@/components/sabcrm/20ui/compat';
+import { FileCardCollections, type FileCardItem } from '@/components/sabcrm/20ui';
 
 export function AdjustmentAttachments({ attachments }: { attachments: string[] }) {
     if (!attachments || attachments.length === 0) return null;
 
-    const items: ZoruFileCardItem[] = attachments.map((url, i) => {
+    const items: FileCardItem[] = attachments.map((url, i) => {
         let name = url;
         try {
             const parsedUrl = new URL(url);
@@ -28,7 +28,7 @@ export function AdjustmentAttachments({ attachments }: { attachments: string[] }
     });
 
     return (
-        <ZoruFileCardCollections 
+        <FileCardCollections 
             items={items} 
             view="grid" 
             onItemClick={(item) => {

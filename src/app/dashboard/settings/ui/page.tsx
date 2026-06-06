@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState } from 'react';
@@ -17,7 +17,7 @@ import {
     type AppearancePrefs,
 } from '@/app/actions/account.actions';
 import { useT } from '@/lib/i18n/client';
-import { applyTheme } from '@/components/sabcrm/20ui/compat';
+import { applyTheme } from '@/components/sabcrm/20ui';
 
 type Appearance = AppearancePrefs;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, Input, Label, Badge, StatCard, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Accordion, AccordionItem, AccordionTrigger, AccordionContent, ZoruAccordion03, ZoruAccordion03Item, ZoruAccordion03Trigger, ZoruAccordion03Content, RadioGroup, RadioCard, Separator } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, Input, Label, Badge, StatCard, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Accordion03, Accordion03Item, Accordion03Trigger, Accordion03Content, RadioGroup, RadioCard, Separator } from '@/components/sabcrm/20ui';
 import { SabsmsDataTable } from "@/components/sabsms/page-toolkit";
 import {
   Building2,
@@ -67,10 +67,10 @@ export function BrandsView() {
             </div>
             <form onSubmit={handleSubmit}>
               <CardBody className="p-0">
-                <ZoruAccordion03 type="single" defaultValue="step-1" collapsible className="p-4 sm:p-6">
-                  <ZoruAccordion03Item value="step-1">
-                    <ZoruAccordion03Trigger>1. Entity Profile & Legal Information</ZoruAccordion03Trigger>
-                    <ZoruAccordion03Content className="space-y-6">
+                <Accordion03 type="single" defaultValue="step-1" collapsible className="p-4 sm:p-6">
+                  <Accordion03Item value="step-1">
+                    <Accordion03Trigger>1. Entity Profile & Legal Information</Accordion03Trigger>
+                    <Accordion03Content className="space-y-6">
                       <div className="grid gap-4 mt-2">
                         <Label>Entity Type</Label>
                         <RadioGroup defaultValue="private" name="entityType" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -108,12 +108,12 @@ export function BrandsView() {
                           </Select>
                         </div>
                       </div>
-                    </ZoruAccordion03Content>
-                  </ZoruAccordion03Item>
+                    </Accordion03Content>
+                  </Accordion03Item>
 
-                  <ZoruAccordion03Item value="step-2" className="mt-4">
-                    <ZoruAccordion03Trigger>2. Business Location</ZoruAccordion03Trigger>
-                    <ZoruAccordion03Content className="space-y-5">
+                  <Accordion03Item value="step-2" className="mt-4">
+                    <Accordion03Trigger>2. Business Location</Accordion03Trigger>
+                    <Accordion03Content className="space-y-5">
                       <div className="space-y-2 mt-2">
                         <Label>Street Address</Label>
                         <Input name="street" placeholder="123 Main Street" required />
@@ -145,12 +145,12 @@ export function BrandsView() {
                           </SelectContent>
                         </Select>
                       </div>
-                    </ZoruAccordion03Content>
-                  </ZoruAccordion03Item>
+                    </Accordion03Content>
+                  </Accordion03Item>
 
-                  <ZoruAccordion03Item value="step-3" className="mt-4">
-                    <ZoruAccordion03Trigger>3. Contact & Support Information</ZoruAccordion03Trigger>
-                    <ZoruAccordion03Content className="space-y-5">
+                  <Accordion03Item value="step-3" className="mt-4">
+                    <Accordion03Trigger>3. Contact & Support Information</Accordion03Trigger>
+                    <Accordion03Content className="space-y-5">
                       <div className="grid sm:grid-cols-2 gap-5 mt-2">
                         <div className="space-y-2">
                           <Label>Support Email</Label>
@@ -174,9 +174,9 @@ export function BrandsView() {
                           </div>
                         </div>
                       </div>
-                    </ZoruAccordion03Content>
-                  </ZoruAccordion03Item>
-                </ZoruAccordion03>
+                    </Accordion03Content>
+                  </Accordion03Item>
+                </Accordion03>
               </CardBody>
               <div className="p-4 sm:p-6 bg-[var(--st-bg-secondary)] border-t flex flex-col sm:flex-row justify-end gap-3">
                 <Button type="button" variant="outline" className="w-full sm:w-auto">Save Draft</Button>

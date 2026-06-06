@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronRight, Loader2, Upload, FolderPlus, Folder, X } from 'lucide-react';
 
-import { Card, CardBody, Button, Progress, useToast, cn, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/sabcrm/20ui/compat';
-import { ZoruFilesPage, type ZoruFileEntity } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Button, Progress, useToast, cn, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/sabcrm/20ui';
+import { FilesPage, type FileEntity } from '@/components/sabcrm/20ui';
 
 import {
     confirmUpload,
@@ -126,8 +126,8 @@ export function FileManager({
     const [showNewFolder, setShowNewFolder] = React.useState(false);
     const [newFolderName, setNewFolderName] = React.useState('');
 
-    // Mapping SabfilesNode to ZoruFileEntity
-    const zoruFiles: ZoruFileEntity[] = React.useMemo(() => {
+    // Mapping SabfilesNode to FileEntity
+    const zoruFiles: FileEntity[] = React.useMemo(() => {
         return nodes.map((n) => ({
             id: n.id,
             name: n.name,
@@ -218,7 +218,7 @@ export function FileManager({
         [parentId, toast],
     );
 
-    // Callbacks for ZoruFilesPage
+    // Callbacks for FilesPage
     const handleUpload = React.useCallback(
         (files: File[]) => {
             for (const f of files) void startUpload(f);
@@ -240,7 +240,7 @@ export function FileManager({
         toast({ title: 'Folder created', description: name });
     }, [newFolderName, parentId, toast]);
 
-    const handleRename = React.useCallback(async (file: ZoruFileEntity, newName: string) => {
+    const handleRename = React.useCallback(async (file: FileEntity, newName: string) => {
         const res = await renameNode(file.id, newName, parentId);
         if ('error' in res) {
             toast({ title: 'Rename failed', description: res.error, variant: 'destructive' });
@@ -249,7 +249,7 @@ export function FileManager({
         setNodes((curr) => curr.map((n) => (n.id === file.id ? res.node : n)));
     }, [parentId, toast]);
 
-    const handleDelete = React.useCallback(async (files: ZoruFileEntity[]) => {
+    const handleDelete = React.useCallback(async (files: FileEntity[]) => {
         const ids = files.map(f => f.id);
         const res = await trashNodes(ids, parentId);
         if ('error' in res) {
@@ -260,7 +260,7 @@ export function FileManager({
         toast({ title: `${ids.length} item(s) moved to trash` });
     }, [parentId, toast]);
 
-    const handleStar = React.useCallback(async (file: ZoruFileEntity, star: boolean) => {
+    const handleStar = React.useCallback(async (file: FileEntity, star: boolean) => {
         const res = await starNodes([file.id], star, parentId);
         if ('error' in res) {
             toast({ title: 'Action failed', description: res.error, variant: 'destructive' });
@@ -269,7 +269,7 @@ export function FileManager({
         setNodes((curr) => curr.map((n) => (n.id === file.id ? { ...n, starred: star } : n)));
     }, [parentId, toast]);
 
-    const handleDownload = React.useCallback(async (file: ZoruFileEntity) => {
+    const handleDownload = React.useCallback(async (file: FileEntity) => {
         const res = await getDownloadUrl(file.id);
         if ('error' in res) {
             toast({ title: 'Download failed', description: res.error, variant: 'destructive' });
@@ -282,7 +282,7 @@ export function FileManager({
         // We reuse this as a trigger to create a public link in sabfiles context
         // since ZoruFileShareDialog handles public link vs invites. 
         // For sabfiles, we just call createShare.
-        async (file: ZoruFileEntity, email: string, access: "viewer" | "editor") => {
+        async (file: FileEntity, email: string, access: "viewer" | "editor") => {
             // Placeholder: implement real sharing if needed. Sabfiles currently uses generic createShare.
             toast({ title: 'Invite sent (placeholder)', description: `To ${email}` });
         },
@@ -300,13 +300,13 @@ export function FileManager({
     );
 
     const handleNavigateFolder = React.useCallback(
-        (file: ZoruFileEntity) => {
+        (file: FileEntity) => {
             router.push(`/dashboard/sabfiles/folder/${file.id}`);
         },
         [router]
     );
 
-    const shareUrlFor = React.useCallback((file: ZoruFileEntity) => {
+    const shareUrlFor = React.useCallback((file: FileEntity) => {
         if (!file.shareToken) return undefined;
         return typeof window !== 'undefined'
             ? `${window.location.origin}/share/${file.shareToken}`
@@ -345,7 +345,7 @@ export function FileManager({
         >
             <Breadcrumb crumbs={initialBreadcrumb} />
 
-            <ZoruFilesPage
+            <FilesPage
                 files={zoruFiles}
                 onUpload={handleUpload}
                 onNewFolder={() => setShowNewFolder(true)}

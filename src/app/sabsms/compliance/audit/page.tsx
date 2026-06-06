@@ -32,7 +32,7 @@ import {
   MoreHorizontal,
   BellRing,
 } from "lucide-react";
-import { Button, Badge, Input, Label, Switch, Tabs, TabsList, TabsTrigger, TabsContent, ScrollArea, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Input, Label, Switch, Tabs, TabsList, TabsTrigger, TabsContent, ScrollArea, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/sabcrm/20ui';
 import { toast } from "sonner";
 
 import {
@@ -45,7 +45,7 @@ import {
   type SabsmsFacet,
 } from "@/components/sabsms/page-toolkit";
 
-import { DataTable, ActionSearchBar, type ZoruActionSearchAction, ZoruStatisticsCard1, type ZoruStatisticsCard1Item, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
+import { DataTable, ActionSearchBar, type LegacyActionSearchAction, StatisticsCard1, type StatisticsCard1Item, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui';
 
 // Mock Data Types
 type AuditAction = "template-approved" | "suppression-added" | "consent-changed" | "send-blocked" | "campaign-launched";
@@ -313,8 +313,8 @@ export default function ComplianceAuditPage() {
     }
   };
 
-  const searchActions: ZoruActionSearchAction[] = useMemo(() => {
-    const actions: ZoruActionSearchAction[] = logs.map(log => ({
+  const searchActions: LegacyActionSearchAction[] = useMemo(() => {
+    const actions: LegacyActionSearchAction[] = logs.map(log => ({
       id: log.id,
       label: `Hash: ${log.hash.substring(0, 16)}...`,
       icon: <Hash className="h-4 w-4" />,
@@ -448,7 +448,7 @@ export default function ComplianceAuditPage() {
     return data;
   }, [filters, logs]);
 
-  const statItems: ZoruStatisticsCard1Item[] = [
+  const statItems: StatisticsCard1Item[] = [
     { label: "Valid Chains", value: "99.99%", delta: 0.01, meta: "Cryptographically verified" },
     { label: "Critical Events", value: "24", delta: -12.5, meta: "Last 24 hours" },
     { label: "Avg Block Time", value: "42ms", delta: 5.2, meta: "Tamper detection speed" },
@@ -478,7 +478,7 @@ export default function ComplianceAuditPage() {
       <div className="space-y-8">
 
         {/* Premium Data-Rich Header */}
-        <ZoruStatisticsCard1
+        <StatisticsCard1
           headline="Total Audit Events"
           value="1,492,034"
           icon={<Database />}

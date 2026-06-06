@@ -25,7 +25,7 @@ import type {
   SumByFieldResult,
   TaskKpi,
 } from '@/app/actions/sabcrm.actions.types';
-import { Card, CardBody, CardHeader, CardTitle, CardDescription, ChartContainer, ChartTooltip, CHART_PALETTE, EmptyState, Separator, type ZoruChartTooltipProps } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription, ChartContainer, ChartTooltip, CHART_PALETTE, EmptyState, Separator, type LegacyChartTooltipProps } from '@/components/sabcrm/20ui';
 
 // Local bucket shapes that match CountByFieldResult.buckets / SumByFieldResult.buckets
 // (re-declared here to avoid importing the server-only analytics lib in a client component)
@@ -154,7 +154,7 @@ function PipelineValueChart({ data }: PipelineValueChartProps) {
           width={56}
         />
         <Recharts.Tooltip
-          content={(props: ZoruChartTooltipProps) => {
+          content={(props: LegacyChartTooltipProps) => {
             if (!props.active || !props.payload?.length) return null;
             const entry = props.payload[0];
             const raw = entry?.value;

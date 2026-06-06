@@ -4,7 +4,7 @@
  * SabcrmOuterShell — wraps the Twenty CRM frame in SabNode's standard chrome.
  *
  * SabCRM is a first-class SabNode module, so it shares the SAME outer
- * navigation as every other app: the left **app rail** (the `ZORU_APPS`
+ * navigation as every other app: the left **app rail** (the `SAB_APPS`
  * switcher) and the top **header** (brand + universal search + notifications +
  * user menu) — exactly what `ZoruHomeShell` renders. The difference is the
  * inner column: instead of the Zoru grouped sidebar we render the Twenty
@@ -19,12 +19,12 @@ import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, LogOut } from 'lucide-react';
 
-import { ZORU_APPS } from '@/components/sabcrm/20ui/compat';
+import { SAB_APPS } from '@/components/sabcrm/20ui';
 import { AppRail, AppHeader, type AppRailItem } from '@/components/sabcrm/20ui';
 import type { LucideIcon } from 'lucide-react';
-import { useHtmlDark, AppThemeToggle } from '@/components/sabcrm/20ui/compat';
-import { NotificationPopover } from '@/components/sabcrm/20ui/compat';
-import { UserDropdown } from '@/components/sabcrm/20ui/compat';
+import { useHtmlDark, AppThemeToggle } from '@/components/sabcrm/20ui';
+import { NotificationPopover } from '@/components/sabcrm/20ui';
+import { UserDropdown } from '@/components/sabcrm/20ui';
 import { CommandPaletteProvider } from '@/components/crm/command-palette';
 import { UniversalSearch } from '@/components/crm/universal-search';
 
@@ -46,7 +46,7 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
   // every other SabNode app is one click away. Now rendered by the 20ui AppRail.
   const railItems: AppRailItem[] = React.useMemo(
     () =>
-      ZORU_APPS.map((app) => ({
+      SAB_APPS.map((app) => ({
         id: app.id,
         label: app.name,
         href: app.href,

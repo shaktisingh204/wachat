@@ -35,9 +35,9 @@ import {
   Lock
 } from "lucide-react";
 
-import { cn } from '@/components/sabcrm/20ui/compat';
+import { cn } from '@/components/sabcrm/20ui';
 
-import { Badge, Button, Card, Input, Label, StatCard, Switch, CardBody, CardDescription, CardHeader, CardTitle, useToast, ZoruAccordion03, ZoruAccordion03Item, ZoruAccordion03Trigger, ZoruAccordion03Content, Collapsible, CollapsibleTrigger, CollapsibleContent, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, StatCard, Switch, CardBody, CardDescription, CardHeader, CardTitle, useToast, Accordion03, Accordion03Item, Accordion03Trigger, Accordion03Content, Collapsible, CollapsibleTrigger, CollapsibleContent, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/sabcrm/20ui';
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
 
@@ -116,11 +116,11 @@ export default function DltRegistrationPage() {
               </p>
             </div>
             
-            <ZoruAccordion03 type="single" defaultValue="step-1" className="space-y-4">
+            <Accordion03 type="single" defaultValue="step-1" className="space-y-4">
               
               {/* Step 1: PEID */}
-              <ZoruAccordion03Item value="step-1">
-                <ZoruAccordion03Trigger>
+              <Accordion03Item value="step-1">
+                <Accordion03Trigger>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] flex items-center justify-center font-bold text-sm">1</div>
                     <div className="flex flex-col items-start">
@@ -128,8 +128,8 @@ export default function DltRegistrationPage() {
                       <span className="text-xs font-normal text-[var(--st-text)]">Manage business registrations and entity IDs.</span>
                     </div>
                   </div>
-                </ZoruAccordion03Trigger>
-                <ZoruAccordion03Content>
+                </Accordion03Trigger>
+                <Accordion03Content>
                   <div className="space-y-6 px-11">
                     <div className="bg-[var(--st-bg-muted)]/50 rounded-xl p-5 border border-[var(--st-border)] shadow-sm">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -206,12 +206,12 @@ export default function DltRegistrationPage() {
                       </Accordion>
                     </div>
                   </div>
-                </ZoruAccordion03Content>
-              </ZoruAccordion03Item>
+                </Accordion03Content>
+              </Accordion03Item>
 
               {/* Step 2: Headers */}
-              <ZoruAccordion03Item value="step-2">
-                <ZoruAccordion03Trigger>
+              <Accordion03Item value="step-2">
+                <Accordion03Trigger>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] flex items-center justify-center font-bold text-sm">2</div>
                     <div className="flex flex-col items-start">
@@ -219,8 +219,8 @@ export default function DltRegistrationPage() {
                       <span className="text-xs font-normal text-[var(--st-text)]">Configure 6-alpha or 6-numeric Sender IDs for different message types.</span>
                     </div>
                   </div>
-                </ZoruAccordion03Trigger>
-                <ZoruAccordion03Content>
+                </Accordion03Trigger>
+                <Accordion03Content>
                   <div className="space-y-6 px-11">
                     <div className="flex justify-between items-center">
                       <p className="text-sm text-[var(--st-text)]">Register and map your headers to specific routing profiles.</p>
@@ -272,12 +272,12 @@ export default function DltRegistrationPage() {
                       </table>
                     </div>
                   </div>
-                </ZoruAccordion03Content>
-              </ZoruAccordion03Item>
+                </Accordion03Content>
+              </Accordion03Item>
 
               {/* Step 3: Template Matrix */}
-              <ZoruAccordion03Item value="step-3">
-                <ZoruAccordion03Trigger>
+              <Accordion03Item value="step-3">
+                <Accordion03Trigger>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] flex items-center justify-center font-bold text-sm">3</div>
                     <div className="flex flex-col items-start">
@@ -285,8 +285,8 @@ export default function DltRegistrationPage() {
                       <span className="text-xs font-normal text-[var(--st-text)]">Map internal SabSMS templates to DLT approved content structures.</span>
                     </div>
                   </div>
-                </ZoruAccordion03Trigger>
-                <ZoruAccordion03Content>
+                </Accordion03Trigger>
+                <Accordion03Content>
                   <div className="space-y-6 px-11">
                     
                     <div className="flex flex-col md:flex-row gap-4">
@@ -398,9 +398,9 @@ export default function DltRegistrationPage() {
                       </div>
                     </div>
                   </div>
-                </ZoruAccordion03Content>
-              </ZoruAccordion03Item>
-            </ZoruAccordion03>
+                </Accordion03Content>
+              </Accordion03Item>
+            </Accordion03>
           </div>
 
           {/* Sidebar / Configuration Panel */}

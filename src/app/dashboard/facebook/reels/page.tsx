@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, Textarea, useToast, ZoruFileUploadCard, type ZoruFileUploadItem, RadioGroup, RadioGroupItem, Input } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, Textarea, useToast, FileUploadCard, type FileUploadItem, RadioGroup, RadioGroupItem, Input } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -35,7 +35,7 @@ import { useProject } from "@/context/project-context";
  * /dashboard/facebook/reels — Meta Suite Reels manager, ZoruUI rebuild.
  *
  * Visual layer: PageHeader + Breadcrumb, neutral elevated cards
- * for the grid tiles, Dialog (built on ZoruFileUploadCard) for upload.
+ * for the grid tiles, Dialog (built on FileUploadCard) for upload.
  */
 
 import * as React from "react";
@@ -357,7 +357,7 @@ function UploadReelDialog({
   projectId: string | null;
   onSuccess: () => void;
 }) {
-  const [items, setItems] = useState<ZoruFileUploadItem[]>([]);
+  const [items, setItems] = useState<FileUploadItem[]>([]);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [publishMode, setPublishMode] = useState<"publish" | "schedule" | "draft">("publish");
@@ -527,7 +527,7 @@ function UploadReelDialog({
 
           <div className="flex flex-col gap-2">
             <Label required>Video file</Label>
-            <ZoruFileUploadCard
+            <FileUploadCard
               accept="video/*"
               multiple={false}
               items={items}

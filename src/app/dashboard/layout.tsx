@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { ZoruHomeShell } from '@/components/sabcrm/20ui/compat';
+import { SabHomeShell } from '@/components/sabcrm/20ui';
 import {
   redirect } from "next/navigation";
 
@@ -12,7 +12,7 @@ import { RBACGuard } from "@/components/zoruui-domain/rbac-guard";
  * /dashboard layout — the SabNode account dashboard, on ZoruUI.
  *
  * Server Component: checks session, redirects unauthenticated users,
- * then wraps children in `ZoruHomeShell` (zoruui sidebar + header +
+ * then wraps children in `SabHomeShell` (zoruui sidebar + header +
  * bottom-anchored dock). The vertical app rail and the URL-synced
  * multi-tab strip are both intentionally absent.
  *
@@ -81,7 +81,7 @@ export default async function DashboardLayout({
     <RBACGuard>
       <LocaleProvider initialLocale={locale}>
         <ProjectProvider initialProjects={projects} user={user}>
-          <ZoruHomeShell
+          <SabHomeShell
             user={{
               name: user?.name,
               email: user?.email,
@@ -94,7 +94,7 @@ export default async function DashboardLayout({
             }}
           >
             {children}
-          </ZoruHomeShell>
+          </SabHomeShell>
         </ProjectProvider>
       </LocaleProvider>
     </RBACGuard>

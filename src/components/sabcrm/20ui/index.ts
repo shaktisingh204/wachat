@@ -80,3 +80,5 @@ export * from './marketing';
 export * from './pricing';
 export * from './blocks';
 export * from './loaders';
+// Clean-named surface for the relocated legacy components (impls in ./legacy).
+export * from './legacy-public';

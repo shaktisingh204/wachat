@@ -1,10 +1,10 @@
 "use client";
 
-import { ZoruHomeShell } from '@/components/sabcrm/20ui/compat';
+import { SabHomeShell } from '@/components/sabcrm/20ui';
 import { usePathname } from "next/navigation";
 
 /**
- * WachatShell — wraps `ZoruHomeShell` with the wachat-specific
+ * WachatShell — wraps `SabHomeShell` with the wachat-specific
  * grouped sidebar (Inbox, Contacts, Broadcasts, Templates,
  * Automation, Reports, Growth, Calling, Engagement, Settings).
  *
@@ -37,7 +37,7 @@ export function WachatShell({ user, plan, children }: WachatShellProps) {
   );
 
   return (
-    <ZoruHomeShell
+    <SabHomeShell
       user={user}
       plan={plan}
       sidebarHeading="WaChat"
@@ -45,6 +45,6 @@ export function WachatShell({ user, plan, children }: WachatShellProps) {
       sidebarGroups={groups}
     >
       {children}
-    </ZoruHomeShell>
+    </SabHomeShell>
   );
 }

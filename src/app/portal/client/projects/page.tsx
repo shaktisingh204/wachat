@@ -7,13 +7,13 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import { getClientProjects } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
-import { Progress } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/sabcrm/20ui/compat';
-import { buttonVariants } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
+import { Progress } from '@/components/sabcrm/20ui';
+import { cn } from '@/components/sabcrm/20ui';
+import { buttonVariants } from '@/components/sabcrm/20ui';
 import { ClientProject } from '@/lib/client-portal/types';
 
 function statusVariant(s: string): 'default' | 'secondary' | 'destructive' | 'outline' {

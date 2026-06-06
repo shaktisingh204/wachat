@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, FullscreenCalendar, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, type ZoruFullscreenCalendarEvent } from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, FullscreenCalendar, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, type LegacyFullscreenCalendarEvent } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -133,7 +133,7 @@ export default function CalendarPage() {
     if (projectId) fetchData();
   }, [projectId, fetchData]);
 
-  const events = useMemo<ZoruFullscreenCalendarEvent[]>(
+  const events = useMemo<LegacyFullscreenCalendarEvent[]>(
     () =>
       posts.map((p) => ({
         id: `${p.kind}-${p.id}`,

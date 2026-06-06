@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, ZoruFileUploadCard, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, FileUploadCard, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import { useCallback, useState } from 'react';
 import {
   CheckCircle2,
@@ -170,7 +170,7 @@ export default function SabFlowImportPage() {
               </CardTitle>
             </CardHeader>
             <CardBody className="p-4 pt-5">
-              <ZoruFileUploadCard
+              <FileUploadCard
                 accept=".json,application/json"
                 multiple={false}
                 onFilesSelected={handleFiles}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -20,7 +20,7 @@ import { ArrowLeft,
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityFormField } from '@/components/crm/entity-form-field';
-import { ZoruFileInput } from '@/components/sabcrm/20ui/compat';
+import { FileInput } from '@/components/sabcrm/20ui';
 import { type LibraryFile } from '@/app/actions/files.actions';
 
 import {
@@ -399,7 +399,7 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
 
                 <div className="space-y-1.5">
                     <Label>Scanned Deposit Challan</Label>
-                    <ZoruFileInput
+                    <FileInput
                         value={scannedDocument}
                         onChange={setScannedDocument}
                         accept="all"

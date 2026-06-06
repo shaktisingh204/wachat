@@ -1,13 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { ZoruFilesPage, type ZoruFileEntity } from '@/components/sabcrm/20ui/compat';
+import { FilesPage, type FileEntity } from '@/components/sabcrm/20ui';
 import { getAdminBuilderAssets } from './actions';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function AdminAssetsPage() {
-    const [files, setFiles] = React.useState<ZoruFileEntity[]>([]);
+    const [files, setFiles] = React.useState<FileEntity[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
     const { toast } = useToast();
 
@@ -16,7 +16,7 @@ export default function AdminAssetsPage() {
         try {
             const items = await getAdminBuilderAssets();
             
-            const mappedFiles: ZoruFileEntity[] = items.map((item: any) => ({
+            const mappedFiles: FileEntity[] = items.map((item: any) => ({
                 id: item.id || item._id || Math.random().toString(),
                 name: item.name || item.filename || 'Unnamed Asset',
                 mime: item.mimeType || item.contentType || 'application/octet-stream',
@@ -61,7 +61,7 @@ export default function AdminAssetsPage() {
         }, 1500);
     }, [fetchAssets, toast]);
 
-    const handleDelete = React.useCallback((deletedFiles: ZoruFileEntity[]) => {
+    const handleDelete = React.useCallback((deletedFiles: FileEntity[]) => {
         toast({
             title: 'Files Deleted',
             description: `Deleted ${deletedFiles.length} file(s).`,
@@ -83,7 +83,7 @@ export default function AdminAssetsPage() {
                     <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                 </div>
             ) : (
-                <ZoruFilesPage 
+                <FilesPage 
                     files={files} 
                     defaultView="grid"
                     onUpload={handleUpload}

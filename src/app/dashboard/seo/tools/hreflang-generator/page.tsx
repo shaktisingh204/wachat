@@ -1,7 +1,7 @@
 'use client';
 
-import { Button, Input, Textarea, cn } from '@/components/sabcrm/20ui/compat';
-import { ZoruDynamicSelector } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, cn } from '@/components/sabcrm/20ui';
+import { DynamicSelector } from '@/components/sabcrm/20ui';
 import { useMemo, useState, useRef } from 'react';
 import { Download, Upload, AlertCircle } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -212,7 +212,7 @@ export default function HreflangGeneratorPage() {
             <div key={i} className="flex flex-col md:flex-row gap-4 items-start md:items-center p-3 md:p-0 border border-[var(--st-border)] md:border-transparent rounded-[var(--st-radius)] md:rounded-none bg-[var(--st-bg-muted)] md:bg-transparent">
               <div className="w-full md:w-64 flex flex-col gap-1">
                 <div className="md:hidden text-xs font-medium text-[var(--st-text-secondary)] px-1">Language / Region</div>
-                <ZoruDynamicSelector
+                <DynamicSelector
                   className={cn(langInvalid && "border-[var(--st-danger)]")}
                   value={r.lang}
                   onChange={(id) => update(i, 'lang', id)}

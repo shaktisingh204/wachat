@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { TagPicker, useToast, type TagPickerProps, type ZoruTagPickerTag } from '@/components/sabcrm/20ui/compat';
+import { TagPicker, useToast, type TagPickerProps, type LegacyTagPickerTag } from '@/components/sabcrm/20ui';
 import {
     createUserTag,
     deleteUserTag,
@@ -19,15 +19,15 @@ export type UserTagPickerProps = Omit<
     'onCreate' | 'onUpdate' | 'onDelete' | 'onError'
 >;
 
-export type TagPickerTag = ZoruTagPickerTag;
+export type TagPickerTag = LegacyTagPickerTag;
 
 export function TagPicker(props: UserTagPickerProps) {
     const { toast } = useToast();
     const unwrap = async (
         fn: () => Promise<
-            { ok: true; tags: ZoruTagPickerTag[] } | { ok: false; error: string }
+            { ok: true; tags: LegacyTagPickerTag[] } | { ok: false; error: string }
         >,
-    ): Promise<ZoruTagPickerTag[]> => {
+    ): Promise<LegacyTagPickerTag[]> => {
         const res = await fn();
         if (!res.ok) throw new Error(res.error);
         return res.tags;

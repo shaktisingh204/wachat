@@ -1,8 +1,8 @@
 'use client';
 
-import { Textarea } from '@/components/sabcrm/20ui/compat';
-import { ZoruFileUploadCard } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Textarea } from '@/components/sabcrm/20ui';
+import { FileUploadCard } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { Copy, Check } from 'lucide-react';
@@ -126,7 +126,7 @@ export default function HtmlFormatterPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
           <label className="text-sm font-semibold">Input HTML</label>
-          <ZoruFileUploadCard
+          <FileUploadCard
             accept=".html,.htm,.txt"
             multiple={false}
             onFilesSelected={handleFilesSelected}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, ZoruFilesPage, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast, type ZoruFileEntity } from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, FilesPage, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast, type FileEntity } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -24,10 +24,10 @@ import {
  * /dashboard/facebook/media — Page media library (ZoruUI).
  *
  * The Meta API surfaces 4 collections (photos, albums, videos, playlists).
- * Per the no-tab-ui rule we flatten them into a single ZoruFilesPage and
+ * Per the no-tab-ui rule we flatten them into a single FilesPage and
  * expose a neutral kind selector via DropdownMenu.
  *
- * ZoruFilesPage already composes 5 dialogs internally (preview, rename,
+ * FilesPage already composes 5 dialogs internally (preview, rename,
  * delete, share, upload). Upload/rename/delete are stubbed for the
  * Facebook side because Meta's Graph API does not expose generic asset
  * mutation in this surface — see TODOs.
@@ -111,8 +111,8 @@ export default function MediaPage() {
     fetchAll();
   }, [fetchAll]);
 
-  // Adapt the active collection to ZoruFileEntity[].
-  const files = useMemo<ZoruFileEntity[]>(() => {
+  // Adapt the active collection to FileEntity[].
+  const files = useMemo<FileEntity[]>(() => {
     switch (kind) {
       case 'photos':
         return photos.map((p) => ({
@@ -186,7 +186,7 @@ export default function MediaPage() {
   );
 
   const handleRename = useCallback(
-    (file: ZoruFileEntity, name: string) => {
+    (file: FileEntity, name: string) => {
       // TODO(meta-zoru): Meta does not allow generic rename; per-class
       // mutation lives in the post / video editors.
       toast({
@@ -198,7 +198,7 @@ export default function MediaPage() {
   );
 
   const handleDelete = useCallback(
-    (toDelete: ZoruFileEntity[]) => {
+    (toDelete: FileEntity[]) => {
       // TODO(meta-zoru): wire to handleDeletePost-style action per asset
       // class once exposed by facebook.actions.
       toast({
@@ -212,7 +212,7 @@ export default function MediaPage() {
   );
 
   const handleDownload = useCallback(
-    (file: ZoruFileEntity) => {
+    (file: FileEntity) => {
       if (!file.url) {
         toast({
           title: 'No download URL',
@@ -295,7 +295,7 @@ export default function MediaPage() {
         ) : error ? (
           <ErrorState message={error} />
         ) : (
-          <ZoruFilesPage
+          <FilesPage
             files={files}
             defaultView="grid"
             onUpload={handleUpload}

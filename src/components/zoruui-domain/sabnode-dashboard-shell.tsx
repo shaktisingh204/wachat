@@ -26,7 +26,7 @@ import { AdManagerProvider } from '@/context/ad-manager-context';
 import { ClayProjectGate } from '@/components/zoruui-domain/clay-project-gate';
 import { getProjects } from '@/app/actions/project.actions';
 import { getSession } from '@/app/actions/user.actions';
-import { SabNodeSidebar } from '@/components/sabcrm/20ui/compat';
+import { SabNodeSidebar } from '@/components/sabcrm/20ui';
 import {
   TabsProvider,
   TabsBar,

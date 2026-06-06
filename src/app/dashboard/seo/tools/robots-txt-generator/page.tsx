@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, ZoruDynamicSelector, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, DynamicSelector, useToast } from '@/components/sabcrm/20ui';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Plus, Trash, Upload, Loader2, Download } from 'lucide-react';
@@ -198,7 +198,7 @@ export default function RobotsTxtGeneratorPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <Label>User-agent</Label>
-                    <ZoruDynamicSelector
+                    <DynamicSelector
                       value={g.ua}
                       selectedLabel={selectedOpt ? selectedOpt.label : g.ua}
                       onChange={(id) => updateGroup(g.id, 'ua', id)}

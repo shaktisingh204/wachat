@@ -4,7 +4,7 @@
  * SabcrmShell — module chrome for the native SabCRM surface.
  *
  * Mirrors `SabwaShell`: a thin client wrapper over the shared
- * `ZoruHomeShell` (app rail + sidebar + header + main). It owns nothing
+ * `SabHomeShell` (app rail + sidebar + header + main). It owns nothing
  * bespoke — it only builds the SabCRM-specific grouped sidebar so every
  * `/dashboard/sabcrm/*` page renders inside the SAME chrome as the rest
  * of the dashboard.
@@ -21,8 +21,8 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import { icons as lucideIcons, Database, Plus } from "lucide-react";
 
-import { ZoruHomeShell } from '@/components/sabcrm/20ui/compat';
-import type { SidebarGroup, SidebarLeaf } from '@/components/sabcrm/20ui/compat';
+import { SabHomeShell } from '@/components/sabcrm/20ui';
+import type { SidebarGroup, SidebarLeaf } from '@/components/sabcrm/20ui';
 import { listObjectsAction } from "@/app/actions/sabcrm.actions";
 import type { ObjectMetadata } from "@/lib/sabcrm/types";
 import { SabcrmCommand } from "./sabcrm-command";
@@ -121,7 +121,7 @@ function buildSabcrmSidebarGroups(
 }
 
 /**
- * SabcrmShell — wraps `ZoruHomeShell` with the SabCRM object sidebar.
+ * SabcrmShell — wraps `SabHomeShell` with the SabCRM object sidebar.
  */
 export function SabcrmShell({
   user,
@@ -169,7 +169,7 @@ export function SabcrmShell({
   );
 
   return (
-    <ZoruHomeShell
+    <SabHomeShell
       user={user}
       plan={plan}
       sidebarHeading="SabCRM"
@@ -182,6 +182,6 @@ export function SabcrmShell({
         open={commandOpen}
         onOpenChange={setCommandOpen}
       />
-    </ZoruHomeShell>
+    </SabHomeShell>
   );
 }

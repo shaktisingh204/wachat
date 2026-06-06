@@ -8,7 +8,7 @@
  * of the dashboard's `ZoruAppRail` (jump between SabNode apps) but is its
  * own component styled entirely with the `.st-rail*` classes scoped under
  * `.sabcrm-twenty` — no ZoruUI, no Tailwind. The apps come from the central
- * {@link ZORU_APPS} registry so this rail always lists exactly what the rest
+ * {@link SAB_APPS} registry so this rail always lists exactly what the rest
  * of the workspace exposes.
  *
  * Each item is a `next/link`, carries an `aria-label`, and shows a
@@ -21,7 +21,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { ZORU_APPS } from '@/components/sabcrm/20ui/compat';
+import { SAB_APPS } from '@/components/sabcrm/20ui';
 
 const SABNODE_HOME = '/dashboard';
 
@@ -41,7 +41,7 @@ export function TwentyAppRail(): React.JSX.Element {
       </Link>
 
       <div className="st-rail__scroll">
-        {ZORU_APPS.map((app) => {
+        {SAB_APPS.map((app) => {
           const active = app.isActive(pathname);
           const Icon = app.Icon;
           return (

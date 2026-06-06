@@ -3,7 +3,7 @@
 // Inspired by react-hot-toast library
 import * as React from "react"
 
-import type { ZoruToastActionElement as ToastActionElement, ZoruToastProps as ToastProps } from '@/components/sabcrm/20ui/compat';const TOAST_LIMIT = 1
+import type { LegacyToastActionElement as ToastActionElement, LegacyToastProps as ToastProps } from '@/components/sabcrm/20ui';const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 5000
 
 type ToasterToast = ToastProps & {

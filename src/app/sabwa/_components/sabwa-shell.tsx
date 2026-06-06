@@ -1,10 +1,10 @@
 "use client";
 
-import { ZoruHomeShell } from '@/components/sabcrm/20ui/compat';
+import { SabHomeShell } from '@/components/sabcrm/20ui';
 import { usePathname } from "next/navigation";
 
 /**
- * SabwaShell — wraps `ZoruHomeShell` with the SabWa-specific grouped
+ * SabwaShell — wraps `SabHomeShell` with the SabWa-specific grouped
  * sidebar (Get started, Inbox & chats, Groups, Outbound, Library,
  * Automation, Media, Reports, Developer, Settings).
  *
@@ -75,7 +75,7 @@ export function SabwaShell({ user, plan, children }: SabwaShellProps) {
   }, [current]);
 
   return (
-    <ZoruHomeShell
+    <SabHomeShell
       user={user}
       plan={plan}
       sidebarHeading="SabWa"
@@ -83,6 +83,6 @@ export function SabwaShell({ user, plan, children }: SabwaShellProps) {
       sidebarGroups={groups}
     >
       {children}
-    </ZoruHomeShell>
+    </SabHomeShell>
   );
 }

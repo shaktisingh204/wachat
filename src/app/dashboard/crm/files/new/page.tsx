@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast, Checkbox, ZoruFileUploadCard, type ZoruFileUploadItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast, Checkbox, FileUploadCard, type FileUploadItem } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -38,9 +38,9 @@ function SubmitBtn() {
 }
 
 function ChunkedFileUploader({ onUploadSuccess }: { onUploadSuccess: (url: string, file: File) => void }) {
-  const [items, setItems] = useState<ZoruFileUploadItem[]>([]);
+  const [items, setItems] = useState<FileUploadItem[]>([]);
 
-  const uploadFile = async (item: ZoruFileUploadItem) => {
+  const uploadFile = async (item: FileUploadItem) => {
     const file = item.file;
     const chunkSize = 1024 * 1024;
     const totalChunks = Math.ceil(file.size / chunkSize);
@@ -78,7 +78,7 @@ function ChunkedFileUploader({ onUploadSuccess }: { onUploadSuccess: (url: strin
   };
 
   const handleFilesSelected = (files: File[]) => {
-    const newItems: ZoruFileUploadItem[] = files.map((file) => ({
+    const newItems: FileUploadItem[] = files.map((file) => ({
       id: Math.random().toString(36).substring(7),
       file,
       progress: 0,
@@ -97,7 +97,7 @@ function ChunkedFileUploader({ onUploadSuccess }: { onUploadSuccess: (url: strin
   };
 
   return (
-    <ZoruFileUploadCard
+    <FileUploadCard
       multiple={false}
       hint="Drag and drop a file or click to browse"
       onFilesSelected={handleFilesSelected}

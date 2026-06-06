@@ -1,10 +1,10 @@
-import { ZoruProvider } from '@/components/sabcrm/20ui/compat';
+import { SabScopeProvider } from '@/components/sabcrm/20ui';
 import type { ReactNode } from 'react';
 
 export default function SabtablesLayout({ children }: { children: ReactNode }) {
   return (
-    <ZoruProvider>
+    <SabScopeProvider>
       <div className="zoruui min-h-screen w-full">{children}</div>
-    </ZoruProvider>
+    </SabScopeProvider>
   );
 }

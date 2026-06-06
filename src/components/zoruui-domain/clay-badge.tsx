@@ -1,4 +1,4 @@
-import { zoruBadgeVariants } from '@/components/sabcrm/20ui/compat';
+import { badgeVariants } from '@/components/sabcrm/20ui';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -56,7 +56,7 @@ const dotTones: Record<Tone, string> = {
 };
 
 /**
- * ClayBadge — delegates visual styling to `zoruBadgeVariants` while
+ * ClayBadge — delegates visual styling to `badgeVariants` while
  * keeping the original `<span>` element + `HTMLSpanElement` ref contract
  * that callers depend on.
  */
@@ -65,7 +65,7 @@ export const ClayBadge = React.forwardRef<HTMLSpanElement, ClayBadgeProps>(
     <span
       ref={ref}
       className={cn(
-        zoruBadgeVariants({ variant: toneToVariant[tone] }),
+        badgeVariants({ variant: toneToVariant[tone] }),
         // ClayBadge's traditional sizing: 24px tall, slightly larger horizontal pad.
         'h-6 px-2.5 text-[11.5px] gap-1.5 leading-none whitespace-nowrap',
         toneOverride[tone],

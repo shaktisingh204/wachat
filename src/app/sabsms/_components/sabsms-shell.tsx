@@ -3,7 +3,7 @@
 import * as React from "react";
 import { usePathname } from "next/navigation";
 
-import { ZoruHomeShell } from '@/components/sabcrm/20ui/compat';
+import { SabHomeShell } from '@/components/sabcrm/20ui';
 
 import { buildSabsmsSidebarGroups } from "./sabsms-sidebar-config";
 
@@ -52,7 +52,7 @@ export function SabsmsShell({
   }, [engineEnabled, engineUrl]);
 
   return (
-    <ZoruHomeShell
+    <SabHomeShell
       user={user}
       plan={plan}
       sidebarHeading="SabSMS"
@@ -60,6 +60,6 @@ export function SabsmsShell({
       sidebarGroups={groups}
     >
       {children}
-    </ZoruHomeShell>
+    </SabHomeShell>
   );
 }

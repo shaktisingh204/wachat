@@ -4,7 +4,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { ZoruProvider } from '@/components/sabcrm/20ui/compat';
+import { SabScopeProvider } from '@/components/sabcrm/20ui';
 
 export default function RequestsLayout({
     children,
@@ -12,7 +12,7 @@ export default function RequestsLayout({
     children: React.ReactNode;
 }) {
     return (
-        <ZoruProvider>
+        <SabScopeProvider>
             <div className="zoruui flex flex-col">
                 <nav className="flex gap-4 border-b border-[var(--st-border)] px-6 py-2 text-sm">
                     <Link
@@ -42,6 +42,6 @@ export default function RequestsLayout({
                 </nav>
                 {children}
             </div>
-        </ZoruProvider>
+        </SabScopeProvider>
     );
 }

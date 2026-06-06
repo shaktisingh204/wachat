@@ -5,7 +5,7 @@ import {
   SabsmsPageShell,
   SabsmsDataTable,
 } from "@/components/sabsms/page-toolkit";
-import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Input, Label, Badge, StatCard, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Checkbox, Accordion, AccordionItem, AccordionTrigger, AccordionContent, ZoruAccordion03, ZoruAccordion03Item, ZoruAccordion03Trigger, ZoruAccordion03Content, Collapsible, CollapsibleTrigger, CollapsibleContent, RadioGroup, RadioCard, Separator, Switch, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Input, Label, Badge, StatCard, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Checkbox, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Accordion03, Accordion03Item, Accordion03Trigger, Accordion03Content, Collapsible, CollapsibleTrigger, CollapsibleContent, RadioGroup, RadioCard, Separator, Switch, cn } from '@/components/sabcrm/20ui';
 import { 
   Briefcase, 
   MessageSquare, 
@@ -108,10 +108,10 @@ export default function TenDlcRegistrationPage() {
                     </div>
                   </div>
                   <CardBody className="p-0">
-                    <ZoruAccordion03 type="single" defaultValue="step-1" collapsible className="p-6">
-                      <ZoruAccordion03Item value="step-1">
-                        <ZoruAccordion03Trigger>1. Entity Profile & Legal Info, ChevronDownrmation</ZoruAccordion03Trigger>
-                        <ZoruAccordion03Content className="space-y-6">
+                    <Accordion03 type="single" defaultValue="step-1" collapsible className="p-6">
+                      <Accordion03Item value="step-1">
+                        <Accordion03Trigger>1. Entity Profile & Legal Info, ChevronDownrmation</Accordion03Trigger>
+                        <Accordion03Content className="space-y-6">
                           <div className="grid gap-4 mt-2">
                             <Label>Entity Type</Label>
                             <RadioGroup defaultValue="private" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -149,12 +149,12 @@ export default function TenDlcRegistrationPage() {
                               </Select>
                             </div>
                           </div>
-                        </ZoruAccordion03Content>
-                      </ZoruAccordion03Item>
+                        </Accordion03Content>
+                      </Accordion03Item>
 
-                      <ZoruAccordion03Item value="step-2" className="mt-4">
-                        <ZoruAccordion03Trigger>2. Business Location</ZoruAccordion03Trigger>
-                        <ZoruAccordion03Content className="space-y-5">
+                      <Accordion03Item value="step-2" className="mt-4">
+                        <Accordion03Trigger>2. Business Location</Accordion03Trigger>
+                        <Accordion03Content className="space-y-5">
                           <div className="space-y-2 mt-2">
                             <Label>Street Address</Label>
                             <Input placeholder="123 Main Street" />
@@ -186,12 +186,12 @@ export default function TenDlcRegistrationPage() {
                               </SelectContent>
                             </Select>
                           </div>
-                        </ZoruAccordion03Content>
-                      </ZoruAccordion03Item>
+                        </Accordion03Content>
+                      </Accordion03Item>
 
-                      <ZoruAccordion03Item value="step-3" className="mt-4">
-                        <ZoruAccordion03Trigger>3. Contact & Support Info, ChevronDownrmation</ZoruAccordion03Trigger>
-                        <ZoruAccordion03Content className="space-y-5">
+                      <Accordion03Item value="step-3" className="mt-4">
+                        <Accordion03Trigger>3. Contact & Support Info, ChevronDownrmation</Accordion03Trigger>
+                        <Accordion03Content className="space-y-5">
                           <div className="grid sm:grid-cols-2 gap-5 mt-2">
                             <div className="space-y-2">
                               <Label>Support Email</Label>
@@ -215,9 +215,9 @@ export default function TenDlcRegistrationPage() {
                               </div>
                             </div>
                           </div>
-                        </ZoruAccordion03Content>
-                      </ZoruAccordion03Item>
-                    </ZoruAccordion03>
+                        </Accordion03Content>
+                      </Accordion03Item>
+                    </Accordion03>
                   </CardBody>
                   <div className="p-6 bg-[var(--st-bg-secondary)] border-t flex justify-end gap-3">
                     <Button variant="outline">Save Draft</Button>

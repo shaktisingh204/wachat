@@ -40,7 +40,7 @@
  * pulling in server-only code.
  */
 
-import { toast, type ZoruToastInput } from '@/components/sabcrm/20ui/compat';
+import { toast, type LegacyToastInput } from '@/components/sabcrm/20ui';
 
 // ── Public input shapes ─────────────────────────────────────────────────────
 // These are intentionally UI-facing (already-resolved labels/names), not raw
@@ -90,7 +90,7 @@ export interface NotifiableActionResult {
 // in lock-step with what the user sees as a toast.
 
 // Variant union mirrors ZoruUI's toast `cva` (zoruui/toast.tsx). Defined
-// locally rather than via `ZoruToastInput["variant"]` so the helper does not
+// locally rather than via `LegacyToastInput["variant"]` so the helper does not
 // depend on the exact key path of the toast-input type.
 type NotifyVariant = "default" | "destructive" | "success" | "warning" | "info";
 
@@ -99,9 +99,9 @@ function emit(
   description: string | undefined,
   variant: NotifyVariant,
 ): void {
-  // Typed as ZoruToastInput so any mismatch with the real toast contract
+  // Typed as LegacyToastInput so any mismatch with the real toast contract
   // surfaces here at build time rather than being silently dropped.
-  const payload: ZoruToastInput = { title, variant };
+  const payload: LegacyToastInput = { title, variant };
   if (description) payload.description = description;
   toast(payload);
 }

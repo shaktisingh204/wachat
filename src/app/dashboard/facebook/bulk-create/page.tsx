@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, ZoruFileUploadCard, Input, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, StatCard, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, FileUploadCard, Input, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, StatCard, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -24,7 +24,7 @@ import { bulkCreatePosts } from '@/app/actions/facebook.actions';
 /**
  * /dashboard/facebook/bulk-create — Bulk Facebook post creator (ZoruUI).
  *
- * `ZoruFileUploadCard` for CSV upload, editable preview table, and a
+ * `FileUploadCard` for CSV upload, editable preview table, and a
  * confirm-send `AlertDialog` before dispatching `bulkCreatePosts`.
  * No tab UI — manual entry and CSV upload sit side by side as
  * collapsible cards.
@@ -305,7 +305,7 @@ export default function BulkCreatePage() {
                   CSV must have a <code>message</code> column. Optional
                   columns: <code>image_url</code>, <code>scheduled_time</code>.
                 </p>
-                <ZoruFileUploadCard
+                <FileUploadCard
                   accept=".csv,text/csv"
                   multiple={false}
                   onFilesSelected={handleFiles}

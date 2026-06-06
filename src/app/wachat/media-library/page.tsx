@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruFilesPage, type ZoruFileEntity } from '@/components/sabcrm/20ui/compat';
+import { FilesPage, type FileEntity } from '@/components/sabcrm/20ui';
 import {
   EmptyState,
   Skeleton,
@@ -23,7 +23,7 @@ import WachatPage from '@/app/wachat/_components/wachat-page';
 
 /**
  * Wachat Media Library — 20ui migration.
- * Uses the composed `ZoruFilesPage` (toolbar + grid/list + 5 dialogs:
+ * Uses the composed `FilesPage` (toolbar + grid/list + 5 dialogs:
  * preview, rename, delete, share, upload). Same data + handlers as the
  * legacy version — all wired through `wachat-features.actions`.
  */
@@ -86,8 +86,8 @@ export default function MediaLibraryPage() {
     fetchData();
   }, [fetchData]);
 
-  // Map MediaItem -> ZoruFileEntity for the composed component.
-  const files: ZoruFileEntity[] = React.useMemo(
+  // Map MediaItem -> FileEntity for the composed component.
+  const files: FileEntity[] = React.useMemo(
     () =>
       media.map((m) => ({
         id: m._id,
@@ -124,7 +124,7 @@ export default function MediaLibraryPage() {
     });
   };
 
-  const handleDelete = (toDelete: ZoruFileEntity[]) => {
+  const handleDelete = (toDelete: FileEntity[]) => {
     startTransition(async () => {
       let removed = 0;
       for (const f of toDelete) {
@@ -139,7 +139,7 @@ export default function MediaLibraryPage() {
     });
   };
 
-  const handleRename = (file: ZoruFileEntity, newName: string) => {
+  const handleRename = (file: FileEntity, newName: string) => {
     if (!activeProjectId) return;
     startTransition(async () => {
       // Legacy server action only supports save (no rename), so we
@@ -166,7 +166,7 @@ export default function MediaLibraryPage() {
     });
   };
 
-  const handleDownload = (file: ZoruFileEntity) => {
+  const handleDownload = (file: FileEntity) => {
     if (!file.url) return;
     const a = document.createElement('a');
     a.href = file.url;
@@ -201,7 +201,7 @@ export default function MediaLibraryPage() {
           ))}
         </div>
       ) : (
-        <ZoruFilesPage
+        <FilesPage
           files={files}
           onUpload={handleUpload}
           onDelete={handleDelete}

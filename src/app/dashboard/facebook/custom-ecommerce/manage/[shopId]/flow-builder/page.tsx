@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, ZoruFileInput, Input, Label, RadioGroup, RadioGroupItem, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetTitle, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, FileInput, Input, Label, RadioGroup, RadioGroupItem, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetTitle, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -981,7 +981,7 @@ function PropertiesPanel({
                   <h4 className="text-sm tracking-tight text-[var(--st-text)]">
                     Card {elIndex + 1}
                   </h4>
-                  <ZoruFileInput
+                  <FileInput
                     accept="image"
                     placeholder="Pick a card image"
                     pickerTitle="Pick card image"
