@@ -1,16 +1,28 @@
 'use client';
 
 /**
- * SabWriter template gallery — pick a starter (public or personal) and
+ * SabWriter template gallery. Pick a starter (public or personal) and
  * instantiate a fresh document from it.
  */
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Layers, Plus } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  EmptyState,
+  IconButton,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageActions,
+  SegmentedControl,
+  Spinner,
+} from '@/components/sabcrm/20ui';
 import {
   listSabwriterTemplates,
   createDocumentFromTemplate,
@@ -18,6 +30,12 @@ import {
 import type { SabwriterTemplateDoc } from '@/lib/rust-client/sabwriter-templates';
 
 type Scope = 'all' | 'mine' | 'public';
+
+const SCOPE_ITEMS: ReadonlyArray<{ value: Scope; label: string }> = [
+  { value: 'all', label: 'All' },
+  { value: 'public', label: 'Public' },
+  { value: 'mine', label: 'My templates' },
+];
 
 export default function SabwriterTemplateGalleryPage() {
   const router = useRouter();
@@ -51,56 +69,65 @@ export default function SabwriterTemplateGalleryPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="flex items-center gap-2 mb-6">
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/dashboard/sabsign/docs" aria-label="Back to documents">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <h1 className="text-xl font-semibold text-[var(--st-text)] inline-flex items-center gap-2">
-          <Layers className="h-5 w-5" /> Document templates
-        </h1>
-      </div>
-
-      <div className="flex flex-wrap gap-2 mb-4">
-        {(['all', 'public', 'mine'] as const).map((s) => (
-          <Button
-            key={s}
+    <div className="ui20 p-6 max-w-5xl mx-auto">
+      <PageHeader>
+        <div className="flex items-center gap-2">
+          <IconButton
+            label="Back to documents"
+            icon={ArrowLeft}
+            variant="ghost"
             size="sm"
-            variant={scope === s ? 'default' : 'outline'}
-            onClick={() => setScope(s)}
-          >
-            {s === 'all' ? 'All' : s === 'public' ? 'Public' : 'My templates'}
-          </Button>
-        ))}
-      </div>
+            onClick={() => router.push('/dashboard/sabsign/docs')}
+          />
+          <PageHeaderHeading>
+            <PageTitle className="inline-flex items-center gap-2">
+              <Layers className="h-5 w-5" aria-hidden="true" /> Document templates
+            </PageTitle>
+          </PageHeaderHeading>
+        </div>
+        <PageActions>
+          <SegmentedControl<Scope>
+            items={SCOPE_ITEMS}
+            value={scope}
+            onChange={setScope}
+            size="sm"
+            aria-label="Filter templates by scope"
+          />
+        </PageActions>
+      </PageHeader>
 
       {loading ? (
-        <p className="text-sm text-[var(--st-text-secondary)]">Loading templates…</p>
+        <div className="flex items-center gap-2 py-6 text-sm text-[var(--st-text-secondary)]">
+          <Spinner size="sm" label="Loading templates" />
+          Loading templates...
+        </div>
       ) : templates.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[var(--st-border)] p-12 text-center">
-          <p className="text-sm text-[var(--st-text-secondary)]">
-            No templates in this scope yet.
-          </p>
+        <div className="mt-4">
+          <EmptyState
+            icon={Layers}
+            title="No templates yet"
+            description="No templates in this scope yet."
+          />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {templates.map((t) => (
-            <Card key={t._id}>
+            <Card key={t._id} padding="none">
               <CardBody className="p-4 flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-medium text-[var(--st-text)] line-clamp-1">
                     {t.name}
                   </h3>
                   {t.public ? (
-                    <Badge variant="outline">Public</Badge>
+                    <Badge tone="accent" kind="outline">
+                      Public
+                    </Badge>
                   ) : (
-                    <Badge variant="secondary">Mine</Badge>
+                    <Badge tone="neutral">Mine</Badge>
                   )}
                 </div>
                 {t.category ? (
-                  <Badge variant="outline" className="w-fit">
+                  <Badge tone="neutral" kind="outline" className="w-fit">
                     {t.category}
                   </Badge>
                 ) : null}
@@ -111,12 +138,13 @@ export default function SabwriterTemplateGalleryPage() {
                 ) : null}
                 <Button
                   size="sm"
+                  variant="primary"
                   className="mt-2"
+                  iconLeft={Plus}
+                  loading={creatingFrom === t._id}
                   onClick={() => handleUse(t)}
-                  disabled={creatingFrom === t._id}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {creatingFrom === t._id ? 'Creating…' : 'Use template'}
+                  {creatingFrom === t._id ? 'Creating...' : 'Use template'}
                 </Button>
               </CardBody>
             </Card>

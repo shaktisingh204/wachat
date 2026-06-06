@@ -1,16 +1,27 @@
 'use client';
 
 /**
- * SabWriter version history — timeline of `saveSabwriterVersion` snapshots
+ * SabWriter version history. Timeline of `saveSabwriterVersion` snapshots
  * with single-click restore.
  */
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, History, RotateCcw } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  EmptyState,
+  IconButton,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Spinner,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   listSabwriterVersions,
   restoreSabwriterVersion,
@@ -20,6 +31,7 @@ import type { SabwriterDocumentVersionDoc } from '@/lib/rust-client/sabwriter-ve
 export default function SabwriterVersionHistoryPage() {
   const params = useParams<{ docId: string }>();
   const router = useRouter();
+  const { toast } = useToast();
   const docId = params?.docId ?? '';
   const [versions, setVersions] = React.useState<SabwriterDocumentVersionDoc[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -31,10 +43,12 @@ export default function SabwriterVersionHistoryPage() {
     try {
       const res = await listSabwriterVersions(docId);
       setVersions(res.items);
+    } catch {
+      toast.error('Could not load version history.');
     } finally {
       setLoading(false);
     }
-  }, [docId]);
+  }, [docId, toast]);
 
   React.useEffect(() => {
     load();
@@ -47,35 +61,53 @@ export default function SabwriterVersionHistoryPage() {
     setRestoring(id);
     try {
       await restoreSabwriterVersion(id);
+      toast.success('Version restored.');
       router.push(`/dashboard/sabsign/docs/${docId}`);
-    } finally {
+    } catch {
+      toast.error('Could not restore this version.');
       setRestoring(null);
     }
   };
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <div className="flex items-center gap-2 mb-6">
-        <Button asChild variant="ghost" size="sm">
-          <Link
-            href={`/dashboard/sabsign/docs/${docId}`}
-            aria-label="Back to editor"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <h1 className="text-xl font-semibold text-[var(--st-text)] inline-flex items-center gap-2">
-          <History className="h-5 w-5" /> Version history
-        </h1>
-      </div>
+      <PageHeader bordered={false} className="mb-6">
+        <PageHeaderHeading>
+          <div className="flex items-center gap-2">
+            <IconButton
+              label="Back to editor"
+              icon={ArrowLeft}
+              size="sm"
+              onClick={() => router.push(`/dashboard/sabsign/docs/${docId}`)}
+            />
+            <PageTitle className="inline-flex items-center gap-2">
+              <History className="h-5 w-5" aria-hidden="true" /> Version history
+            </PageTitle>
+          </div>
+        </PageHeaderHeading>
+      </PageHeader>
 
       {loading ? (
-        <p className="text-sm text-[var(--st-text-secondary)]">Loading versions…</p>
+        <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+          <Spinner size="sm" label="Loading versions" />
+          Loading versions
+        </div>
       ) : versions.length === 0 ? (
-        <p className="text-sm text-[var(--st-text-secondary)]">
-          No saved versions yet. Use "Save version" from the editor to create
-          one.
-        </p>
+        <EmptyState
+          icon={History}
+          title="No saved versions yet"
+          description='Use "Save version" from the editor to create one.'
+          action={
+            <Button
+              variant="outline"
+              size="sm"
+              iconLeft={ArrowLeft}
+              onClick={() => router.push(`/dashboard/sabsign/docs/${docId}`)}
+            >
+              Back to editor
+            </Button>
+          }
+        />
       ) : (
         <ol className="flex flex-col gap-3">
           {versions.map((v) => (
@@ -98,11 +130,11 @@ export default function SabwriterVersionHistoryPage() {
                   <Button
                     size="sm"
                     variant="outline"
+                    iconLeft={RotateCcw}
+                    loading={restoring === v._id}
                     onClick={() => handleRestore(v._id)}
-                    disabled={restoring === v._id}
                   >
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    {restoring === v._id ? 'Restoring…' : 'Restore'}
+                    {restoring === v._id ? 'Restoring' : 'Restore'}
                   </Button>
                 </CardBody>
               </Card>

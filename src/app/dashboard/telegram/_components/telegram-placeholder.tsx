@@ -1,6 +1,16 @@
 'use client';
 
-import { Badge, Button, Card } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    Dot,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+} from '@/components/sabcrm/20ui';
 import * as React from 'react';
 
 import { type LucideIcon } from 'lucide-react';
@@ -28,63 +38,54 @@ export function TelegramPlaceholder({
 }: TelegramPlaceholderProps) {
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-start justify-between gap-4">
+            <PageHeader>
                 <div className="flex items-start gap-4">
-                    <div
-                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                        style={{
-                            background: 'var(--st-text)',
-                        }}
-                    >
-                        <Icon className="h-6 w-6" style={{ color: 'var(--st-bg-secondary)' }} strokeWidth={1.75} />
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-text)] text-[var(--st-bg-secondary)]">
+                        <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden="true" />
                     </div>
-                    <div className="min-w-0">
+                    <PageHeaderHeading>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-[22px] leading-tight text-[var(--st-text)]">
-                                {title}
-                            </h1>
-                            {badge ? <Badge variant="ghost">{badge}</Badge> : null}
+                            <PageTitle>{title}</PageTitle>
+                            {badge ? <Badge tone="neutral">{badge}</Badge> : null}
                         </div>
-                        <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
-                            {description}
-                        </p>
-                    </div>
+                        <PageDescription>{description}</PageDescription>
+                    </PageHeaderHeading>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
-                    {docsHref ? (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(docsHref, '_blank', 'noopener,noreferrer')}
-                        >
-                            Docs
-                        </Button>
-                    ) : null}
-                    {ctaLabel && ctaHref ? (
-                        <Button
-                            size="sm"
-                            onClick={() => {
-                                window.location.href = ctaHref;
-                            }}
-                        >
-                            {ctaLabel}
-                        </Button>
-                    ) : null}
-                </div>
-            </div>
+                {docsHref || (ctaLabel && ctaHref) ? (
+                    <PageActions>
+                        {docsHref ? (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(docsHref, '_blank', 'noopener,noreferrer')}
+                            >
+                                Docs
+                            </Button>
+                        ) : null}
+                        {ctaLabel && ctaHref ? (
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => {
+                                    window.location.href = ctaHref;
+                                }}
+                            >
+                                {ctaLabel}
+                            </Button>
+                        ) : null}
+                    </PageActions>
+                ) : null}
+            </PageHeader>
 
             {bullets && bullets.length > 0 ? (
-                <Card className="p-6">
+                <Card padding="lg">
                     <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--st-text-secondary)]">
                         What this will do
                     </p>
                     <ul className="mt-3 flex flex-col gap-2.5">
                         {bullets.map((b) => (
                             <li key={b} className="flex items-start gap-2 text-[13px] text-[var(--st-text)]">
-                                <span
-                                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full"
-                                    style={{ background: 'var(--st-text)' }}
-                                />
+                                <Dot tone="neutral" className="mt-[7px] shrink-0" />
                                 <span>{b}</span>
                             </li>
                         ))}

@@ -1,4 +1,4 @@
-import { Badge, Card } from '@/components/sabcrm/20ui';
+import { Alert, Badge, Card, EmptyState, type BadgeTone } from '@/components/sabcrm/20ui';
 import { notFound } from "next/navigation";
 import { LifeBuoy } from "lucide-react";
 
@@ -28,13 +28,13 @@ interface ActivityEntry {
   body?: string;
   actorId?: string;
   kind: "note" | "system";
-  tone?: React.ComponentProps<typeof ZoruBadge>["variant"];
+  tone?: BadgeTone;
 }
 
 function fmt(ts?: string): string {
-  if (!ts) return "—";
+  if (!ts) return "-";
   const d = new Date(ts);
-  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString();
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleString();
 }
 
 export default async function TicketActivityPage({
@@ -49,7 +49,9 @@ export default async function TicketActivityPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-[var(--st-text)]">{error}</p>
+          <Alert tone="danger" title="Could not load activity">
+            {error}
+          </Alert>
         </div>
       );
     }
@@ -86,7 +88,7 @@ export default async function TicketActivityPage({
                 : `Action: ${log.action}`,
           actorId: log.actorId ? String(log.actorId) : undefined,
           kind: "system",
-          tone: log.action === "create" ? "info" : "ghost",
+          tone: log.action === "create" ? "info" : "neutral",
           body: log.reason ?? undefined,
         });
       }
@@ -118,36 +120,35 @@ export default async function TicketActivityPage({
   return (
     <EntityDetailShell
       eyebrow="TICKET"
-      title={`Activity — ${ticket.subject || "Ticket"}`}
+      title={`Activity - ${ticket.subject || "Ticket"}`}
       back={{
         href: `/dashboard/sabdesk/${String(ticket._id)}`,
         label: "Back to ticket",
       }}
     >
-      <Card className="p-4">
+      <Card padding="md">
         {entries.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-10 text-center">
-            <LifeBuoy className="h-6 w-6 text-[var(--st-text-secondary)]" />
-            <p className="text-[13px] text-[var(--st-text-secondary)]">
-              No activity recorded yet.
-            </p>
-          </div>
+          <EmptyState
+            icon={LifeBuoy}
+            title="No activity recorded yet"
+            description="Audit events, assignments, and notes for this ticket will appear here as they happen."
+          />
         ) : (
           <ol className="flex flex-col gap-3">
             {entries.map((e) => (
               <li
                 key={e.id}
-                className="flex gap-3 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-3"
+                className="flex gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
               >
                 <div className="shrink-0">
-                  <Badge variant={e.tone ?? "ghost"}>{e.label}</Badge>
+                  <Badge tone={e.tone ?? "neutral"}>{e.label}</Badge>
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                     <span>{fmt(e.ts)}</span>
                     {e.actorId ? (
                       <>
-                        <span aria-hidden>·</span>
+                        <span aria-hidden="true">·</span>
                         <EntityPickerChip entity="user" id={e.actorId} />
                       </>
                     ) : null}

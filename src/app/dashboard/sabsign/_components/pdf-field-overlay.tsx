@@ -5,19 +5,28 @@
  *
  * Renders the source SabFiles document as an `<iframe>` (browsers render
  * PDFs natively) and overlays a positionable canvas of drag-droppable
- * fields. Each field is positioned in *page-relative* coordinates
+ * fields. Each field is positioned in page-relative coordinates
  * (0-1000 on each axis) so the layout survives client-side zoom and is
  * safe to round-trip through Mongo.
  *
- * NOTE: We deliberately do not depend on `pdfjs-dist` here — that ships
- * ~3 MB of WASM. The iframe approach works in every modern browser. If
- * the team later wants per-page placement (vs document-level overlay),
- * swap the iframe for a `pdfjs` canvas; the data model already carries
- * a `page` field per overlay item.
+ * NOTE: We deliberately do not depend on `pdfjs-dist` here. That ships
+ * roughly 3 MB of WASM. The iframe approach works in every modern
+ * browser. If the team later wants per-page placement (vs document-level
+ * overlay), swap the iframe for a `pdfjs` canvas. The data model already
+ * carries a `page` field per overlay item.
  */
 
 import * as React from 'react';
-import { Button } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Field,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import { Trash2, GripHorizontal } from 'lucide-react';
 import type { EnvelopeField, EsignFieldType } from '@/lib/rust-client/esign-envelopes';
 
@@ -85,38 +94,40 @@ export function PdfFieldOverlay({
     onChange(fields.filter((f) => f.id !== id));
   };
 
+  const roleOptions = recipientRoles.length ? recipientRoles : ['signer'];
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4">
       {/* Toolbox */}
       <div className="space-y-4">
-        <div>
-          <div className="text-xs font-medium text-[var(--st-text-secondary)] mb-2">
-            Assign new fields to
-          </div>
-          <select
-            className="w-full h-9 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm text-[var(--st-text)]"
-            value={activeRole}
-            onChange={(e) => setActiveRole(e.target.value)}
-          >
-            {recipientRoles.length === 0 && <option value="signer">signer</option>}
-            {recipientRoles.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Field label="Assign new fields to">
+          <Select value={activeRole} onValueChange={setActiveRole}>
+            <SelectTrigger aria-label="Assign new fields to">
+              <SelectValue placeholder="Select a role" />
+            </SelectTrigger>
+            <SelectContent>
+              {roleOptions.map((r) => (
+                <SelectItem key={r} value={r}>
+                  {r}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
         <div className="space-y-1">
-          <div className="text-xs font-medium text-[var(--st-text-secondary)] mb-1">Fields</div>
+          <div className="text-xs font-medium text-[var(--st-text-secondary)] mb-1">
+            Fields
+          </div>
           {FIELD_TYPES.map((p) => (
             <Button
               key={p.type}
               variant="outline"
               size="sm"
-              className="w-full justify-start"
+              block
+              className="justify-start"
+              iconLeft={GripHorizontal}
               onClick={() => addField(p)}
             >
-              <GripHorizontal className="h-4 w-4 mr-2" />
               {p.label}
             </Button>
           ))}
@@ -124,7 +135,7 @@ export function PdfFieldOverlay({
       </div>
 
       {/* Document + overlay */}
-      <div className="relative border border-[var(--st-border)] rounded-xl overflow-hidden bg-[var(--st-bg-secondary)]">
+      <div className="relative border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-hidden bg-[var(--st-bg-secondary)]">
         <div className="relative" ref={surfaceRef}>
           <iframe
             src={docUrl}
@@ -174,23 +185,26 @@ function DraggableField({ field, onChange, onRemove }: DraggableFieldProps) {
 
   return (
     <div
-      className="absolute pointer-events-auto group rounded-md border-2 border-dashed border-[var(--st-accent)] bg-[var(--st-accent)]/10 hover:bg-[var(--st-accent)]/20 cursor-move flex items-center justify-center text-xs text-[var(--st-accent)] font-medium select-none"
+      className="absolute pointer-events-auto group rounded-[var(--st-radius)] border-2 border-dashed border-[var(--st-accent)] bg-[var(--st-accent)]/10 hover:bg-[var(--st-accent)]/20 cursor-move flex items-center justify-center text-xs text-[var(--st-accent)] font-medium select-none"
       style={{ left: field.x, top: field.y, width: field.w, height: field.h }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
     >
       <span>{field.label || field.fieldType}</span>
-      <button
-        type="button"
-        className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-[var(--st-text)] text-white text-xs hidden group-hover:flex items-center justify-center"
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove();
-        }}
-      >
-        <Trash2 className="h-3 w-3" />
-      </button>
+      <span className="absolute -top-2 -right-2 hidden group-hover:block">
+        <IconButton
+          label="Remove field"
+          icon={Trash2}
+          variant="danger"
+          size="sm"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+        />
+      </span>
     </div>
   );
 }

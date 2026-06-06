@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Envelope detail — shows status, signers (with sign URLs for in-person
+ * Envelope detail. Shows status, signers (with sign URLs for in-person
  * + email-link flows), fields, and lets the sender:
  *   * send a draft
  *   * void an active envelope
@@ -22,9 +22,38 @@ import {
   FileDown,
   Mail,
   History,
+  FileText,
+  Inbox,
+  type LucideIcon,
 } from 'lucide-react';
 
-import { Badge, Button, Card, Input, Label } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  Input,
+  Modal,
+  PageActions,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Spinner,
+  TBody,
+  THead,
+  Table,
+  Td,
+  Th,
+  Tr,
+  useToast,
+  type BadgeTone,
+  type ButtonSize,
+  type ButtonVariant,
+} from '@/components/sabcrm/20ui';
 import {
   generateAuditTrailPdf,
   generateKioskLink,
@@ -35,25 +64,81 @@ import {
 } from '@/app/actions/sabsign.actions';
 import type { EsignEnvelopeDoc } from '@/lib/rust-client/esign-envelopes';
 
-const STATUS_BADGE: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-  draft: 'outline',
-  sent: 'secondary',
-  in_progress: 'secondary',
-  completed: 'default',
-  declined: 'destructive',
-  voided: 'destructive',
-  expired: 'destructive',
+const STATUS_TONE: Record<string, BadgeTone> = {
+  draft: 'neutral',
+  sent: 'info',
+  in_progress: 'info',
+  completed: 'success',
+  declined: 'danger',
+  voided: 'danger',
+  expired: 'danger',
 };
+
+const ICON_SIZE: Record<ButtonSize, number> = { sm: 13, md: 14, lg: 16 };
+
+/**
+ * A real anchor that looks like a 20ui Button. The 20ui `Button` always renders a
+ * native `<button>` (no `asChild`), so for navigation we render a link styled with
+ * the same `u-btn` classes instead of nesting an anchor inside a button.
+ */
+function LinkButton({
+  href,
+  variant = 'secondary',
+  size = 'md',
+  icon: Icon,
+  external = false,
+  children,
+}: {
+  href: string;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  icon?: LucideIcon;
+  external?: boolean;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  const cls = ['u-btn', `u-btn--${variant}`, `u-btn--${size}`].join(' ');
+  const content = (
+    <>
+      {Icon ? <Icon size={ICON_SIZE[size]} aria-hidden="true" /> : null}
+      <span className="u-btn__label">{children}</span>
+    </>
+  );
+  if (external) {
+    return (
+      <a className={cls} href={href} target="_blank" rel="noreferrer">
+        {content}
+      </a>
+    );
+  }
+  return (
+    <Link className={cls} href={href}>
+      {content}
+    </Link>
+  );
+}
 
 export default function EnvelopeDetailPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const envelopeId = params.id;
+  const { toast } = useToast();
 
   const [env, setEnv] = React.useState<EsignEnvelopeDoc | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [busy, setBusy] = React.useState(false);
   const [kioskInfo, setKioskInfo] = React.useState<{ url: string; pin: string } | null>(null);
+
+  // Void confirmation modal.
+  const [voidOpen, setVoidOpen] = React.useState(false);
+
+  // Clone-to-template modal.
+  const [cloneOpen, setCloneOpen] = React.useState(false);
+  const [cloneName, setCloneName] = React.useState('');
+
+  // Kiosk-PIN modal.
+  const [kioskSignerId, setKioskSignerId] = React.useState<string | null>(null);
+  const [kioskPin, setKioskPin] = React.useState('');
+  const [kioskError, setKioskError] = React.useState<string | null>(null);
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -62,10 +147,11 @@ export default function EnvelopeDetailPage() {
       setEnv(data);
     } catch (err) {
       console.error(err);
+      toast.error('Could not load this envelope.');
     } finally {
       setLoading(false);
     }
-  }, [envelopeId]);
+  }, [envelopeId, toast]);
 
   React.useEffect(() => {
     load();
@@ -75,18 +161,24 @@ export default function EnvelopeDetailPage() {
     setBusy(true);
     try {
       await sendEnvelope(envelopeId);
+      toast.success('Envelope sent.');
       await load();
+    } catch {
+      toast.error('Could not send the envelope.');
     } finally {
       setBusy(false);
     }
   };
 
-  const handleVoid = async () => {
-    if (!confirm('Void this envelope? Signers will no longer be able to sign.')) return;
+  const confirmVoid = async () => {
     setBusy(true);
     try {
       await voidEnvelope(envelopeId, 'Voided from detail view');
+      toast.success('Envelope voided.');
+      setVoidOpen(false);
       await load();
+    } catch {
+      toast.error('Could not void the envelope.');
     } finally {
       setBusy(false);
     }
@@ -96,181 +188,363 @@ export default function EnvelopeDetailPage() {
     setBusy(true);
     try {
       const res = await generateAuditTrailPdf(envelopeId);
-      alert(`Audit snapshot saved (id=${res.snapshotId}). PDF rendering pipeline is a TODO.`);
+      toast({
+        title: 'Audit snapshot saved',
+        description: `Snapshot id ${res.snapshotId}. PDF rendering pipeline is a TODO.`,
+        tone: 'success',
+      });
+    } catch {
+      toast.error('Could not generate the audit snapshot.');
     } finally {
       setBusy(false);
     }
   };
 
-  const handleClone = async () => {
-    const name = prompt('Template name?');
+  const confirmClone = async () => {
+    const name = cloneName.trim();
     if (!name) return;
     setBusy(true);
     try {
-      const res = await createTemplateFromEnvelope(envelopeId, name.trim());
-      router.push(`/dashboard/sabsign/templates`);
+      await createTemplateFromEnvelope(envelopeId, name);
+      toast.success('Template created.');
+      setCloneOpen(false);
+      setCloneName('');
+      router.push('/dashboard/sabsign/templates');
+    } catch {
+      toast.error('Could not create the template.');
     } finally {
       setBusy(false);
     }
   };
 
-  const handleKiosk = async (signerId: string) => {
-    const pin = prompt('Set a numeric PIN for this signer (4-8 digits):');
-    if (!pin || !/^\d{4,8}$/.test(pin)) {
-      alert('PIN must be 4-8 digits.');
+  const confirmKiosk = async () => {
+    if (!kioskSignerId) return;
+    const pin = kioskPin.trim();
+    if (!/^\d{4,8}$/.test(pin)) {
+      setKioskError('PIN must be 4 to 8 digits.');
       return;
     }
     setBusy(true);
     try {
-      const res = await generateKioskLink(envelopeId, signerId, pin);
+      const res = await generateKioskLink(envelopeId, kioskSignerId, pin);
       setKioskInfo(res);
+      toast.success('Kiosk link generated.');
+      setKioskSignerId(null);
+      setKioskPin('');
+      setKioskError(null);
       await load();
+    } catch {
+      setKioskError('Could not generate the kiosk link.');
     } finally {
       setBusy(false);
     }
   };
 
   if (loading) {
-    return <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading…</div>;
+    return (
+      <div className="ui20 p-6 flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+        <Spinner size="sm" />
+        Loading
+      </div>
+    );
   }
   if (!env) {
-    return <div className="p-6 text-sm text-[var(--st-text)]">Envelope not found.</div>;
+    return (
+      <div className="ui20 p-6">
+        <EmptyState
+          icon={Inbox}
+          title="Envelope not found"
+          description="This envelope may have been removed or you may not have access to it."
+          action={
+            <Button variant="outline" iconLeft={ArrowLeft} onClick={() => router.push('/dashboard/sabsign')}>
+              Back to envelopes
+            </Button>
+          }
+        />
+      </div>
+    );
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/sabsign')}>
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back
-          </Button>
-          <h1 className="text-xl font-semibold text-[var(--st-text)]">{env.name}</h1>
-          <Badge variant={STATUS_BADGE[env.status] || 'outline'}>
-            {env.status.replace('_', ' ')}
-          </Badge>
-        </div>
-        <div className="flex flex-wrap gap-2">
+    <div className="ui20 p-6 max-w-6xl mx-auto space-y-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="ghost"
+              size="sm"
+              iconLeft={ArrowLeft}
+              onClick={() => router.push('/dashboard/sabsign')}
+            >
+              Back
+            </Button>
+            <PageTitle>{env.name}</PageTitle>
+            <Badge tone={STATUS_TONE[env.status] ?? 'neutral'}>
+              {env.status.replace('_', ' ')}
+            </Badge>
+          </div>
+        </PageHeaderHeading>
+        <PageActions>
           {env.status === 'draft' && (
-            <Button onClick={handleSend} disabled={busy}>
-              <Send className="h-4 w-4 mr-2" />
+            <Button variant="primary" iconLeft={Send} onClick={handleSend} disabled={busy}>
               Send
             </Button>
           )}
           {env.status !== 'completed' && env.status !== 'voided' && (
-            <Button variant="outline" onClick={handleVoid} disabled={busy}>
-              <Ban className="h-4 w-4 mr-2" />
+            <Button variant="outline" iconLeft={Ban} onClick={() => setVoidOpen(true)} disabled={busy}>
               Void
             </Button>
           )}
-          <Button variant="outline" onClick={handleClone} disabled={busy}>
-            <Layers className="h-4 w-4 mr-2" />
+          <Button variant="outline" iconLeft={Layers} onClick={() => setCloneOpen(true)} disabled={busy}>
             Save as template
           </Button>
-          <Button variant="outline" asChild>
-            <Link href={`/dashboard/sabsign/${env._id}/audit`}>
-              <History className="h-4 w-4 mr-2" />
-              Audit trail
-            </Link>
-          </Button>
-          <Button variant="outline" onClick={handleAuditPdf} disabled={busy}>
-            <FileDown className="h-4 w-4 mr-2" />
+          <LinkButton href={`/dashboard/sabsign/${env._id}/audit`} variant="outline" icon={History}>
+            Audit trail
+          </LinkButton>
+          <Button variant="outline" iconLeft={FileDown} onClick={handleAuditPdf} disabled={busy}>
             Audit PDF
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
-      <Card className="p-4 border border-[var(--st-border)]">
-        <h3 className="text-sm font-medium text-[var(--st-text)] mb-2">Document</h3>
-        <div className="flex items-center gap-3 text-sm">
-          <span className="text-[var(--st-text)]">{env.docName || env.docId}</span>
-          {env.docUrl && (
-            <a
-              href={env.docUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-[var(--st-accent)] hover:underline"
-            >
-              Open
-            </a>
-          )}
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Document</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="inline-flex items-center gap-2 text-[var(--st-text)]">
+              <FileText className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+              {env.docName || env.docId}
+            </span>
+            {env.docUrl && (
+              <LinkButton href={env.docUrl} variant="ghost" size="sm" external>
+                Open
+              </LinkButton>
+            )}
+          </div>
+        </CardBody>
       </Card>
 
       {kioskInfo && (
-        <Card className="p-4 border border-[var(--st-border)] bg-[var(--st-bg-muted)]/20">
-          <h3 className="text-sm font-medium text-[var(--st-text)] mb-2">Kiosk link ready</h3>
-          <div className="text-sm">
-            <div>URL: <code className="text-xs">{kioskInfo.url}</code></div>
-            <div>PIN: <code className="text-xs">{kioskInfo.pin}</code></div>
-            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
-              Open the URL on the in-person device and enter the PIN. The
-              PIN hash is stored on the signer record server-side.
-            </p>
-          </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Kiosk link ready</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="text-sm space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[var(--st-text-secondary)]">URL</span>
+                <code className="text-xs text-[var(--st-text)] break-all">{kioskInfo.url}</code>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[var(--st-text-secondary)]">PIN</span>
+                <code className="text-xs text-[var(--st-text)]">{kioskInfo.pin}</code>
+              </div>
+              <p className="text-xs text-[var(--st-text-secondary)] mt-1">
+                Open the URL on the in-person device and enter the PIN. The PIN hash is stored on the
+                signer record server-side.
+              </p>
+            </div>
+          </CardBody>
         </Card>
       )}
 
-      <Card className="p-4 border border-[var(--st-border)]">
-        <h3 className="text-sm font-medium text-[var(--st-text)] mb-2">Signers</h3>
-        <table className="w-full text-sm">
-          <thead className="bg-[var(--st-bg-muted)]">
-            <tr>
-              <th className="px-3 py-2 text-left">#</th>
-              <th className="px-3 py-2 text-left">Name</th>
-              <th className="px-3 py-2 text-left">Email</th>
-              <th className="px-3 py-2 text-left">Auth</th>
-              <th className="px-3 py-2 text-left">Status</th>
-              <th className="px-3 py-2 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {env.signers.map((s) => (
-              <tr key={s.id} className="border-t border-[var(--st-border)]">
-                <td className="px-3 py-2">{s.order}</td>
-                <td className="px-3 py-2">{s.name}</td>
-                <td className="px-3 py-2">{s.email}</td>
-                <td className="px-3 py-2 text-[var(--st-text-secondary)]">{s.authMethod}</td>
-                <td className="px-3 py-2">
-                  <Badge variant="outline">{s.status}</Badge>
-                </td>
-                <td className="px-3 py-2 text-right space-x-2">
-                  {s.accessToken && (
-                    <a
-                      className="text-xs text-[var(--st-accent)] hover:underline"
-                      href={`/sign/${env._id}?signerId=${s.id}&t=${s.accessToken}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Mail className="h-3 w-3 inline" /> Sign link
-                    </a>
-                  )}
-                  <Button size="sm" variant="ghost" onClick={() => handleKiosk(s.id)}>
-                    <Monitor className="h-3 w-3 mr-1" />
-                    Kiosk
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <Card padding="none">
+        <CardHeader className="px-4 pt-4">
+          <CardTitle>Signers</CardTitle>
+        </CardHeader>
+        {env.signers.length === 0 ? (
+          <CardBody>
+            <EmptyState icon={Mail} size="sm" title="No signers" description="This envelope has no signers yet." />
+          </CardBody>
+        ) : (
+          <Table>
+            <THead>
+              <Tr>
+                <Th>#</Th>
+                <Th>Name</Th>
+                <Th>Email</Th>
+                <Th>Auth</Th>
+                <Th>Status</Th>
+                <Th align="right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
+              {env.signers.map((s) => (
+                <Tr key={s.id}>
+                  <Td>{s.order}</Td>
+                  <Td>{s.name}</Td>
+                  <Td>{s.email}</Td>
+                  <Td className="text-[var(--st-text-secondary)]">{s.authMethod}</Td>
+                  <Td>
+                    <Badge tone="neutral" kind="outline">
+                      {s.status}
+                    </Badge>
+                  </Td>
+                  <Td align="right">
+                    <div className="flex items-center justify-end gap-2">
+                      {s.accessToken && (
+                        <LinkButton
+                          href={`/sign/${env._id}?signerId=${s.id}&t=${s.accessToken}`}
+                          variant="ghost"
+                          size="sm"
+                          icon={Mail}
+                          external
+                        >
+                          Sign link
+                        </LinkButton>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconLeft={Monitor}
+                        onClick={() => {
+                          setKioskSignerId(s.id);
+                          setKioskPin('');
+                          setKioskError(null);
+                        }}
+                        disabled={busy}
+                      >
+                        Kiosk
+                      </Button>
+                    </div>
+                  </Td>
+                </Tr>
+              ))}
+            </TBody>
+          </Table>
+        )}
       </Card>
 
-      <Card className="p-4 border border-[var(--st-border)]">
-        <h3 className="text-sm font-medium text-[var(--st-text)] mb-2">Fields ({env.fields.length})</h3>
-        <ul className="text-sm space-y-1">
-          {env.fields.map((f) => (
-            <li key={f.id} className="flex items-center gap-2">
-              <Badge variant="outline">{f.fieldType}</Badge>
-              <span className="text-[var(--st-text-secondary)]">{f.recipientRole}</span>
-              <span>{f.label || '—'}</span>
-              {f.value && (
-                <span className="text-[var(--st-accent)] truncate max-w-xs">= {f.value}</span>
-              )}
-            </li>
-          ))}
-        </ul>
+      <Card>
+        <CardHeader>
+          <CardTitle>Fields ({env.fields.length})</CardTitle>
+        </CardHeader>
+        <CardBody>
+          {env.fields.length === 0 ? (
+            <EmptyState
+              icon={FileText}
+              size="sm"
+              title="No fields"
+              description="This envelope has no fields placed on the document."
+            />
+          ) : (
+            <ul className="text-sm space-y-1">
+              {env.fields.map((f) => (
+                <li key={f.id} className="flex items-center gap-2">
+                  <Badge tone="neutral" kind="outline">
+                    {f.fieldType}
+                  </Badge>
+                  <span className="text-[var(--st-text-secondary)]">{f.recipientRole}</span>
+                  <span className="text-[var(--st-text)]">{f.label || '-'}</span>
+                  {f.value && (
+                    <span className="text-[var(--st-accent)] truncate max-w-xs">= {f.value}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardBody>
       </Card>
+
+      <Modal
+        open={voidOpen}
+        onClose={() => setVoidOpen(false)}
+        title="Void this envelope?"
+        description="Signers will no longer be able to sign. This cannot be undone."
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setVoidOpen(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button variant="danger" iconLeft={Ban} onClick={confirmVoid} loading={busy}>
+              Void envelope
+            </Button>
+          </>
+        }
+      />
+
+      <Modal
+        open={cloneOpen}
+        onClose={() => setCloneOpen(false)}
+        title="Save as template"
+        description="Create a reusable template from this envelope."
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setCloneOpen(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              iconLeft={Layers}
+              onClick={confirmClone}
+              loading={busy}
+              disabled={!cloneName.trim()}
+            >
+              Create template
+            </Button>
+          </>
+        }
+      >
+        <Field label="Template name">
+          <Input
+            value={cloneName}
+            onChange={(e) => setCloneName(e.target.value)}
+            placeholder="e.g. Standard NDA"
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && cloneName.trim()) confirmClone();
+            }}
+          />
+        </Field>
+      </Modal>
+
+      <Modal
+        open={kioskSignerId !== null}
+        onClose={() => {
+          setKioskSignerId(null);
+          setKioskError(null);
+        }}
+        title="Generate kiosk link"
+        description="Set a numeric PIN the in-person signer will enter on the kiosk device."
+        size="sm"
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setKioskSignerId(null);
+                setKioskError(null);
+              }}
+              disabled={busy}
+            >
+              Cancel
+            </Button>
+            <Button variant="primary" iconLeft={Monitor} onClick={confirmKiosk} loading={busy}>
+              Generate link
+            </Button>
+          </>
+        }
+      >
+        <Field label="PIN" help="4 to 8 digits." error={kioskError ?? undefined}>
+          <Input
+            value={kioskPin}
+            inputMode="numeric"
+            onChange={(e) => {
+              setKioskPin(e.target.value);
+              if (kioskError) setKioskError(null);
+            }}
+            placeholder="e.g. 1234"
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') confirmKiosk();
+            }}
+          />
+        </Field>
+      </Modal>
     </div>
   );
 }

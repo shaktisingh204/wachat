@@ -1,21 +1,29 @@
 "use client";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, useToast } from '@/components/sabcrm/20ui';
+import * as React from "react";
+import { useTransition } from "react";
+import { Loader2, Trash2 } from "lucide-react";
+
 import {
-  useTransition } from "react";
-import { Loader2,
-  Trash2 } from "lucide-react";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  useToast,
+} from "@/components/sabcrm/20ui";
 
 import { deleteFacebookAgent } from "@/app/actions/facebook.actions";
 
 /**
- * DeleteAgentDialog (Meta Suite local, zoru-only).
+ * DeleteAgentDialog (Meta Suite local, 20ui).
  *
  * Confirmation dialog for `deleteFacebookAgent`. Replaces the inline
- * `confirm(...)` prompt with a proper destructive alert dialog.
+ * `confirm(...)` prompt with a proper destructive alert dialog from 20ui.
  */
-
-import * as React from "react";
 
 export interface DeleteAgentDialogProps {
   open: boolean;
@@ -41,16 +49,16 @@ export function DeleteAgentDialog({
       const result = await deleteFacebookAgent(agentId);
       if (result.error) {
         toast({
-          title: "Couldn’t delete agent",
+          title: "Could not delete agent",
           description: result.error,
-          variant: "destructive",
+          tone: "danger",
         });
         return;
       }
       toast({
         title: "Agent deleted",
         description: `${agentName || "Agent"} has been removed.`,
-        variant: "success",
+        tone: "success",
       });
       onOpenChange(false);
       onDeleted();
@@ -62,7 +70,7 @@ export function DeleteAgentDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Delete agent {agentName ? `“${agentName}”` : ""}?
+            Delete agent {agentName ? `"${agentName}"` : ""}?
           </AlertDialogTitle>
           <AlertDialogDescription>
             This permanently removes the agent and its training data from this
@@ -71,9 +79,7 @@ export function DeleteAgentDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             disabled={isPending}
             onClick={(e) => {
@@ -82,11 +88,11 @@ export function DeleteAgentDialog({
             }}
           >
             {isPending ? (
-              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" aria-hidden="true" />
             ) : (
-              <Trash2 className="mr-2 h-3.5 w-3.5" />
+              <Trash2 className="mr-2 h-3.5 w-3.5" aria-hidden="true" />
             )}
-            {isPending ? "Deleting…" : "Delete agent"}
+            {isPending ? "Deleting..." : "Delete agent"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

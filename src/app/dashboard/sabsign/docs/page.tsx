@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * SabWriter documents list — extension of the e-signatures module.
+ * SabWriter documents list, an extension of the e-signatures module.
  *
  * Lives at `/dashboard/sabsign/docs`. Surfaces drafts, in-review docs,
  * approved docs and docs already sent for signature, with quick CTAs to
@@ -15,6 +15,7 @@ import {
   FileText,
   Layers,
   Plus,
+  Search,
   Send,
   CheckCircle2,
   Clock,
@@ -22,8 +23,24 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Badge, Button, Card, CardBody, Input } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  EmptyState,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  SegmentedControl,
+  Skeleton,
+  useToast,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import {
   listSabwriterDocuments,
   createSabwriterDocument,
@@ -45,28 +62,29 @@ const STATUS_FILTERS: Array<{ value: StatusFilterValue; label: string }> = [
   { value: 'shared', label: 'Shared with me' },
 ];
 
-const STATUS_BADGE: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-  draft: 'outline',
-  in_review: 'secondary',
-  approved: 'default',
-  sent_for_signature: 'default',
+const STATUS_TONE: Record<string, BadgeTone> = {
+  draft: 'neutral',
+  in_review: 'warning',
+  approved: 'success',
+  sent_for_signature: 'info',
 };
 
 function StatusIcon({ status }: { status: SabwriterDocumentStatus }) {
   switch (status) {
     case 'sent_for_signature':
-      return <Send className="h-4 w-4" aria-hidden />;
+      return <Send className="h-3.5 w-3.5" aria-hidden="true" />;
     case 'approved':
-      return <CheckCircle2 className="h-4 w-4" aria-hidden />;
+      return <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />;
     case 'in_review':
-      return <Clock className="h-4 w-4" aria-hidden />;
+      return <Clock className="h-3.5 w-3.5" aria-hidden="true" />;
     default:
-      return <PenLine className="h-4 w-4" aria-hidden />;
+      return <PenLine className="h-3.5 w-3.5" aria-hidden="true" />;
   }
 }
 
 export default function SabwriterDocumentsListPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [data, setData] = React.useState<SabwriterDocumentDoc[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState('');
@@ -85,10 +103,11 @@ export default function SabwriterDocumentsListPage() {
       setData(res.items);
     } catch (err) {
       console.error(err);
+      toast.error('Could not load documents. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, search]);
+  }, [statusFilter, search, toast]);
 
   React.useEffect(() => {
     load();
@@ -102,6 +121,9 @@ export default function SabwriterDocumentsListPage() {
         contentJson: { type: 'doc', content: [] },
       });
       router.push(`/dashboard/sabsign/docs/${created.id}`);
+    } catch (err) {
+      console.error(err);
+      toast.error('Could not create the document. Please try again.');
     } finally {
       setCreating(false);
     }
@@ -109,105 +131,134 @@ export default function SabwriterDocumentsListPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this document? This cannot be undone.')) return;
-    await deleteSabwriterDocument(id);
-    load();
+    try {
+      await deleteSabwriterDocument(id);
+      toast.success('Document deleted.');
+      load();
+    } catch (err) {
+      console.error(err);
+      toast.error('Could not delete the document. Please try again.');
+    }
   };
 
+  const showEmpty = !loading && data.length === 0;
+
   return (
-    <EntityListShell
-      title="Documents"
-      subtitle="Draft, review and approve documents before sending them out for signature."
-      primaryAction={
-        <div className="flex flex-wrap items-center gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/dashboard/sabsign/docs/templates">
-              <Layers className="h-4 w-4 mr-2" />
-              From template
-            </Link>
-          </Button>
-          <Button onClick={handleNew} disabled={creating}>
-            <Plus className="h-4 w-4 mr-2" />
-            {creating ? 'Creating…' : 'New document'}
-          </Button>
-        </div>
-      }
-      search={{
-        value: search,
-        onChange: setSearch,
-        placeholder: 'Search documents by title…',
-      }}
-      loading={loading}
-      empty={
-        !loading && data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 text-center border rounded-xl border-dashed border-[var(--st-border)]">
-            <div className="w-12 h-12 bg-[var(--st-bg-secondary)] rounded-full flex items-center justify-center mb-4">
-              <FileText className="h-6 w-6 text-[var(--st-text-secondary)]" />
-            </div>
-            <h3 className="text-lg font-medium text-[var(--st-text)]">
-              No documents yet
-            </h3>
-            <p className="text-sm text-[var(--st-text-secondary)] mt-1">
-              Draft a document, collaborate with reviewers, then send it for
-              signature.
-            </p>
-            <Button className="mt-4" onClick={handleNew} disabled={creating}>
-              <Plus className="h-4 w-4 mr-2" />
-              {creating ? 'Creating…' : 'Create your first document'}
-            </Button>
-          </div>
-        ) : null
-      }
-    >
-      <div className="flex flex-wrap gap-2 mb-4">
-        {STATUS_FILTERS.map((f) => (
+    <div className="flex w-full flex-col gap-4">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Documents</PageTitle>
+          <PageDescription>
+            Draft, review and approve documents before sending them out for
+            signature.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
           <Button
-            key={f.value}
+            variant="outline"
             size="sm"
-            variant={statusFilter === f.value ? 'default' : 'outline'}
-            onClick={() => setStatusFilter(f.value)}
+            iconLeft={Layers}
+            onClick={() => router.push('/dashboard/sabsign/docs/templates')}
           >
-            {f.label}
+            From template
           </Button>
-        ))}
+          <Button
+            variant="primary"
+            size="sm"
+            iconLeft={Plus}
+            onClick={handleNew}
+            loading={creating}
+          >
+            {creating ? 'Creating' : 'New document'}
+          </Button>
+        </PageActions>
+      </PageHeader>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <SegmentedControl
+          aria-label="Filter documents by status"
+          items={STATUS_FILTERS}
+          value={statusFilter}
+          onChange={setStatusFilter}
+          size="sm"
+        />
+        <div className="w-full sm:w-72">
+          <Input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search documents by title"
+            iconLeft={Search}
+            aria-label="Search documents by title"
+          />
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-        {data.map((doc) => (
-          <Card key={doc._id} className="hover:shadow-md transition-shadow">
-            <CardBody className="p-4 flex flex-col gap-3">
-              <div className="flex items-start justify-between gap-2">
-                <Link
-                  href={`/dashboard/sabsign/docs/${doc._id}`}
-                  className="font-medium text-[var(--st-text)] hover:underline line-clamp-1"
-                >
-                  {doc.title}
-                </Link>
-                <Badge variant={STATUS_BADGE[doc.status] ?? 'outline'}>
-                  <span className="inline-flex items-center gap-1">
-                    <StatusIcon status={doc.status} />
-                    {doc.status.replace(/_/g, ' ')}
+
+      {loading ? (
+        <div
+          className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} height={108} radius="var(--st-radius)" />
+          ))}
+        </div>
+      ) : showEmpty ? (
+        <EmptyState
+          icon={FileText}
+          title="No documents yet"
+          description="Draft a document, collaborate with reviewers, then send it for signature."
+          action={
+            <Button
+              variant="primary"
+              iconLeft={Plus}
+              onClick={handleNew}
+              loading={creating}
+            >
+              {creating ? 'Creating' : 'Create your first document'}
+            </Button>
+          }
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {data.map((doc) => (
+            <Card key={doc._id} variant="interactive" padding="none">
+              <CardBody className="flex flex-col gap-3 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <Link
+                    href={`/dashboard/sabsign/docs/${doc._id}`}
+                    className="line-clamp-1 font-medium text-[var(--st-text)] hover:underline"
+                  >
+                    {doc.title}
+                  </Link>
+                  <Badge tone={STATUS_TONE[doc.status] ?? 'neutral'}>
+                    <span className="inline-flex items-center gap-1">
+                      <StatusIcon status={doc.status} />
+                      {doc.status.replace(/_/g, ' ')}
+                    </span>
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
+                  <span>
+                    v{doc.version ?? 0} ·{' '}
+                    {doc.updatedAt
+                      ? new Date(doc.updatedAt).toLocaleString()
+                      : new Date(doc.createdAt).toLocaleString()}
                   </span>
-                </Badge>
-              </div>
-              <div className="text-xs text-[var(--st-text-secondary)] flex items-center justify-between">
-                <span>
-                  v{doc.version ?? 0} ·{' '}
-                  {doc.updatedAt
-                    ? new Date(doc.updatedAt).toLocaleString()
-                    : new Date(doc.createdAt).toLocaleString()}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(doc._id)}
-                  className="text-[var(--st-text-secondary)] hover:text-[var(--st-danger)] inline-flex items-center gap-1"
-                  aria-label="Delete document"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </CardBody>
-          </Card>
-        ))}
-      </div>
-    </EntityListShell>
+                  <IconButton
+                    label="Delete document"
+                    icon={Trash2}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(doc._id)}
+                  />
+                </div>
+              </CardBody>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

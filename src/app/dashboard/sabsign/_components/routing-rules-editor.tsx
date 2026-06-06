@@ -9,7 +9,21 @@
 
 import * as React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Button, Input, Label, Card } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import type { EnvelopeField, EnvelopeSigner, RoutingRule } from '@/lib/rust-client/esign-envelopes';
 
 const OPS: Array<RoutingRule['op']> = ['equals', 'not_equals', 'contains', 'gt', 'lt', 'truthy'];
@@ -46,77 +60,80 @@ export function RoutingRulesEditor({
   const remove = (i: number) => onChange(rules.filter((_, idx) => idx !== i));
 
   return (
-    <Card className="p-4 border border-[var(--st-border)] space-y-3">
-      <div>
-        <h4 className="text-sm font-medium text-[var(--st-text)]">Conditional routing</h4>
-        <p className="text-xs text-[var(--st-text-secondary)]">
+    <Card variant="outlined" padding="md" className="space-y-3">
+      <CardHeader>
+        <CardTitle>Conditional routing</CardTitle>
+        <CardDescription>
           The first matching rule decides who signs next. Falls back to the
           lowest-order pending signer if none match.
-        </p>
-      </div>
+        </CardDescription>
+      </CardHeader>
       {rules.map((r, i) => (
-        <div key={i} className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_2fr_2fr_auto] gap-2">
-          <div>
-            <Label className="text-xs">Field</Label>
-            <select
-              className="w-full h-9 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm"
-              value={r.fieldId}
-              onChange={(e) => update(i, { fieldId: e.target.value })}
-            >
-              {fields.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.label || f.fieldType} ({f.recipientRole})
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Label className="text-xs">Op</Label>
-            <select
-              className="w-full h-9 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm"
+        <div key={i} className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_2fr_2fr_auto] gap-2 items-end">
+          <Field label="Field">
+            <Select value={r.fieldId} onValueChange={(value) => update(i, { fieldId: value })}>
+              <SelectTrigger aria-label="Field">
+                <SelectValue placeholder="Select field" />
+              </SelectTrigger>
+              <SelectContent>
+                {fields.map((f) => (
+                  <SelectItem key={f.id} value={f.id}>
+                    {f.label || f.fieldType} ({f.recipientRole})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Op">
+            <Select
               value={r.op}
-              onChange={(e) => update(i, { op: e.target.value as RoutingRule['op'] })}
+              onValueChange={(value) => update(i, { op: value as RoutingRule['op'] })}
             >
-              {OPS.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Label className="text-xs">Value</Label>
+              <SelectTrigger aria-label="Operator">
+                <SelectValue placeholder="Operator" />
+              </SelectTrigger>
+              <SelectContent>
+                {OPS.map((o) => (
+                  <SelectItem key={o} value={o}>
+                    {o}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Value">
             <Input
               value={r.value || ''}
               onChange={(e) => update(i, { value: e.target.value })}
             />
-          </div>
-          <div>
-            <Label className="text-xs">Next signer</Label>
-            <select
-              className="w-full h-9 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm"
+          </Field>
+          <Field label="Next signer">
+            <Select
               value={r.nextSignerId}
-              onChange={(e) => update(i, { nextSignerId: e.target.value })}
+              onValueChange={(value) => update(i, { nextSignerId: value })}
             >
-              {signers.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name || s.role}
-                </option>
-              ))}
-            </select>
-          </div>
-          <Button
-            size="sm"
+              <SelectTrigger aria-label="Next signer">
+                <SelectValue placeholder="Select signer" />
+              </SelectTrigger>
+              <SelectContent>
+                {signers.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.name || s.role}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <IconButton
+            label="Remove rule"
+            icon={Trash2}
             variant="ghost"
-            className="self-end text-[var(--st-text)]"
+            size="sm"
             onClick={() => remove(i)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          />
         </div>
       ))}
-      <Button size="sm" variant="outline" onClick={add}>
-        <Plus className="h-4 w-4 mr-1" />
+      <Button size="sm" variant="outline" iconLeft={Plus} onClick={add}>
         Add rule
       </Button>
     </Card>

@@ -1,17 +1,56 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Activity, Webhook, Key, Link2, Shield, Settings, Plus, Search, 
-  MoreVertical, CheckCircle2, XCircle, AlertCircle, RefreshCw, 
-  Copy, Eye, EyeOff, Trash2, Edit2, Play, Code2, Database,
-  Terminal, Globe, Zap, Lock, Calendar, Filter, Download, ArrowUpRight,
-  ChevronDown, ChevronRight, CheckSquare, Square, Box, Layers,
-  Cloud, HardDrive, Cpu, Network, Radio, Smartphone, CreditCard,
-  Users, FileText, FileSignature, FileKey, Mail, Bell, ShieldAlert,
-  Server, Clock, ArrowRight, ToggleLeft, ToggleRight, Loader2,
-  Check, X
+import React, { useState } from "react";
+import {
+  Activity, Webhook, Key, Shield, Settings, Plus, Search,
+  CheckCircle2, XCircle, AlertCircle, RefreshCw,
+  Copy, Trash2, Edit2, Play, Code2,
+  Terminal, Globe, Zap,
+  ChevronRight, Box, Layers,
+  HardDrive, CreditCard,
+  Users, FileText, ShieldAlert,
+  Clock, ArrowRight, ArrowUpRight, Filter, Download,
+  Cloud, type LucideIcon,
 } from "lucide-react";
+
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  CardFooter,
+  StatCard,
+  Badge,
+  Field,
+  Input,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Checkbox,
+  Switch,
+  Alert,
+  Separator,
+  SegmentedControl,
+  Pagination,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  useToast,
+} from "@/components/sabcrm/20ui";
 
 // ==========================================
 // MOCK DATA GENERATION
@@ -20,28 +59,28 @@ import {
 const EVENT_CATEGORIES = [
   {
     name: "Envelope",
-    events: ["envelope.created", "envelope.sent", "envelope.delivered", "envelope.completed", "envelope.declined", "envelope.voided", "envelope.deleted", "envelope.expired"]
+    events: ["envelope.created", "envelope.sent", "envelope.delivered", "envelope.completed", "envelope.declined", "envelope.voided", "envelope.deleted", "envelope.expired"],
   },
   {
     name: "Recipient",
-    events: ["recipient.delivered", "recipient.completed", "recipient.declined", "recipient.authentication_failed", "recipient.reassigned", "recipient.delegated"]
+    events: ["recipient.delivered", "recipient.completed", "recipient.declined", "recipient.authentication_failed", "recipient.reassigned", "recipient.delegated"],
   },
   {
     name: "Document",
-    events: ["document.viewed", "document.modified", "document.deleted", "document.downloaded", "document.watermarked"]
+    events: ["document.viewed", "document.modified", "document.deleted", "document.downloaded", "document.watermarked"],
   },
   {
     name: "Template",
-    events: ["template.created", "template.modified", "template.deleted", "template.shared", "template.version_created"]
+    events: ["template.created", "template.modified", "template.deleted", "template.shared", "template.version_created"],
   },
   {
     name: "Account",
-    events: ["account.billing_updated", "account.subscription_changed", "account.user_added", "account.user_removed", "account.settings_changed"]
+    events: ["account.billing_updated", "account.subscription_changed", "account.user_added", "account.user_removed", "account.settings_changed"],
   },
   {
     name: "Security",
-    events: ["security.login_failed", "security.mfa_enabled", "security.mfa_disabled", "security.api_key_created", "security.api_key_revoked"]
-  }
+    events: ["security.login_failed", "security.mfa_enabled", "security.mfa_disabled", "security.api_key_created", "security.api_key_revoked"],
+  },
 ];
 
 const MOCK_ENDPOINTS = [
@@ -73,12 +112,12 @@ const generateMockLogs = () => {
   const logs = [];
   const events = ["envelope.completed", "envelope.sent", "document.viewed", "recipient.declined"];
   const statuses = [200, 200, 200, 201, 400, 500, 503, 200, 200];
-  
+
   for (let i = 0; i < 150; i++) {
     const event = events[Math.floor(Math.random() * events.length)];
     const status = statuses[Math.floor(Math.random() * statuses.length)];
     const date = new Date(Date.now() - Math.floor(Math.random() * 10000000000));
-    
+
     logs.push({
       id: `evt_${Math.random().toString(36).substr(2, 9)}`,
       event: event,
@@ -88,13 +127,13 @@ const generateMockLogs = () => {
       duration: Math.floor(Math.random() * 500) + 50,
       payload: {
         id: `env_${Math.random().toString(36).substr(2, 9)}`,
-        status: event.split('.')[1],
+        status: event.split(".")[1],
         created_at: new Date(date.getTime() - 86400000).toISOString(),
         recipients: [
-          { name: "John Doe", email: "john@example.com", status: "completed" }
-        ]
+          { name: "John Doe", email: "john@example.com", status: "completed" },
+        ],
       },
-      response: status === 200 ? { success: true, message: "Processed" } : { error: "Internal Server Error", code: status }
+      response: status === 200 ? { success: true, message: "Processed" } : { error: "Internal Server Error", code: status },
     });
   }
   return logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -102,532 +141,498 @@ const generateMockLogs = () => {
 
 const MOCK_LOGS = generateMockLogs();
 
+type EndpointStatus = "active" | "failing" | "disabled" | (string & {});
+
+const endpointTone = (status: EndpointStatus) =>
+  status === "active" ? "success" : status === "failing" ? "warning" : "neutral";
+
+const EndpointStatusIcon = ({ status }: { status: EndpointStatus }) =>
+  status === "active" ? (
+    <CheckCircle2 size={12} aria-hidden="true" />
+  ) : status === "failing" ? (
+    <AlertCircle size={12} aria-hidden="true" />
+  ) : (
+    <XCircle size={12} aria-hidden="true" />
+  );
 
 // ==========================================
 // UTILITY COMPONENTS
 // ==========================================
 
-const GlassCard = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
-  <div className={`bg-neutral-900/50 backdrop-blur-md border border-neutral-800/60 rounded-xl overflow-hidden shadow-2xl ${className}`}>
-    {children}
-  </div>
-);
-
-const Badge = ({ children, color = "neutral", className = "" }: { children: React.ReactNode, color?: "success" | "warning" | "danger" | "info" | "neutral", className?: string }) => {
-  const colors = {
-    success: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    warning: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    danger: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    info: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    neutral: "bg-neutral-500/10 text-neutral-400 border-neutral-500/20"
-  };
-  return (
-    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border flex items-center gap-1.5 w-fit ${colors[color]} ${className}`}>
-      {children}
-    </span>
-  );
-};
-
-const Button = ({ children, variant = "primary", size = "md", icon: Icon, className = "", ...props }: any) => {
-  const base = "inline-flex items-center justify-center font-medium transition-all duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-950 disabled:opacity-50 disabled:cursor-not-allowed";
-  
-  const variants = {
-    primary: "bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500 border border-transparent shadow-[0_0_15px_rgba(79,70,229,0.3)]",
-    secondary: "bg-neutral-800 hover:bg-neutral-700 text-neutral-100 border border-neutral-700 focus:ring-neutral-500",
-    outline: "bg-transparent hover:bg-neutral-800/50 text-neutral-300 border border-neutral-700 focus:ring-neutral-600",
-    danger: "bg-rose-600/10 hover:bg-rose-600/20 text-rose-500 border border-rose-600/20 focus:ring-rose-500",
-    ghost: "bg-transparent hover:bg-neutral-800/50 text-neutral-400 hover:text-neutral-200 border border-transparent"
-  };
-  
-  const sizes = {
-    sm: "px-3 py-1.5 text-xs gap-1.5",
-    md: "px-4 py-2 text-sm gap-2",
-    lg: "px-6 py-3 text-base gap-2.5"
-  };
-
-  return (
-    <button className={`${base} ${variants[variant as keyof typeof variants]} ${sizes[size as keyof typeof sizes]} ${className}`} {...props}>
-      {Icon && <Icon className={size === "sm" ? "w-3.5 h-3.5" : size === "md" ? "w-4 h-4" : "w-5 h-5"} />}
-      {children}
-    </button>
-  );
-};
-
-const Input = ({ label, icon: Icon, ...props }: any) => (
-  <div className="flex flex-col gap-1.5 w-full">
-    {label && <label className="text-xs font-medium text-neutral-400 ml-1">{label}</label>}
-    <div className="relative">
-      {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />}
-      <input 
-        className={`w-full bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-neutral-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors ${Icon ? 'pl-9' : 'pl-3'} pr-3 py-2.5 placeholder-neutral-600`}
-        {...props}
-      />
-    </div>
-  </div>
-);
-
-const JsonViewer = ({ data }: { data: any }) => (
-  <div className="bg-[#0D0D11] border border-neutral-800 rounded-lg p-4 overflow-x-auto">
-    <pre className="text-xs font-mono text-neutral-300 leading-relaxed">
-      {JSON.stringify(data, null, 2).split('\n').map((line, i) => {
-        // Simple syntax highlighting
-        let styledLine = line;
-        if (line.includes('":')) {
-          const parts = line.split('":');
-          styledLine = `<span class="text-indigo-400">${parts[0]}</span>":<span class="text-emerald-400">${parts.slice(1).join('":')}</span>`;
-        }
-        return (
-          <div key={i} className="flex hover:bg-white/[0.02]">
-            <span className="w-8 select-none text-neutral-600 text-right pr-4 border-r border-neutral-800/50 mr-4 inline-block">{i + 1}</span>
-            <span dangerouslySetInnerHTML={{ __html: styledLine.replace(/"/g, '&quot;') }} />
-          </div>
-        );
-      })}
+const JsonViewer = ({ data }: { data: unknown }) => (
+  <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+    <pre className="font-mono text-xs leading-relaxed text-[var(--st-text-secondary)]">
+      {JSON.stringify(data, null, 2).split("\n").map((line, i) => (
+        <div key={i} className="flex">
+          <span className="mr-4 inline-block w-8 select-none border-r border-[var(--st-border)] pr-4 text-right text-[var(--st-text-tertiary)]">
+            {i + 1}
+          </span>
+          <span className="text-[var(--st-text)]">{line}</span>
+        </div>
+      ))}
     </pre>
   </div>
 );
-
 
 // ==========================================
 // VIEWS
 // ==========================================
 
 const WebhooksView = () => {
-  const [endpoints, setEndpoints] = useState(MOCK_ENDPOINTS);
+  const { toast } = useToast();
+  const [endpoints] = useState(MOCK_ENDPOINTS);
   const [isCreating, setIsCreating] = useState(false);
-  
+
+  const stats: { title: string; value: React.ReactNode; icon: LucideIcon; accent: string }[] = [
+    { title: "Active Endpoints", value: endpoints.filter((e) => e.status === "active").length, icon: Webhook, accent: "var(--st-accent)" },
+    { title: "Total Events Delivered", value: "18,553", icon: Activity, accent: "var(--st-status-ok)" },
+    { title: "Avg Latency", value: "142ms", icon: Zap, accent: "var(--st-warn)" },
+    { title: "Failed Deliveries", value: "126", icon: AlertCircle, accent: "var(--st-danger)" },
+  ];
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
-      {/* Stats row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          { title: "Active Endpoints", value: endpoints.filter(e => e.status === 'active').length, icon: Webhook, color: "text-indigo-400" },
-          { title: "Total Events Delivered", value: "18,553", icon: Activity, color: "text-emerald-400" },
-          { title: "Avg Latency", value: "142ms", icon: Zap, color: "text-amber-400" },
-          { title: "Failed Deliveries", value: "126", icon: AlertCircle, color: "text-rose-400" }
-        ].map((stat, i) => (
-          <GlassCard key={i} className="p-5 flex items-center gap-4">
-            <div className={`p-3 rounded-xl bg-neutral-800/50 border border-neutral-700/50 ${stat.color}`}>
-              <stat.icon className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wider">{stat.title}</div>
-              <div className="text-2xl font-bold text-neutral-100 mt-1">{stat.value}</div>
-            </div>
-          </GlassCard>
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        {stats.map((stat) => (
+          <StatCard key={stat.title} label={stat.title} value={stat.value} icon={stat.icon} accent={stat.accent} />
         ))}
       </div>
 
       {isCreating ? (
         <CreateWebhookForm onCancel={() => setIsCreating(false)} />
       ) : (
-        <GlassCard>
-          <div className="p-6 border-b border-neutral-800/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <Card padding="none">
+          <CardHeader className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
-              <h3 className="text-lg font-semibold text-neutral-100">Webhook Endpoints</h3>
-              <p className="text-sm text-neutral-400 mt-1">Configure endpoints to receive real-time event payloads.</p>
+              <CardTitle>Webhook Endpoints</CardTitle>
+              <CardDescription>Configure endpoints to receive real-time event payloads.</CardDescription>
             </div>
-            <Button icon={Plus} onClick={() => setIsCreating(true)}>Add Endpoint</Button>
-          </div>
-          
+            <Button variant="primary" iconLeft={Plus} onClick={() => setIsCreating(true)}>
+              Add Endpoint
+            </Button>
+          </CardHeader>
+
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-neutral-900/50 text-neutral-400 border-b border-neutral-800/60">
-                <tr>
-                  <th className="px-6 py-4 font-medium">URL & Secret</th>
-                  <th className="px-6 py-4 font-medium">Status</th>
-                  <th className="px-6 py-4 font-medium">Events Subscribed</th>
-                  <th className="px-6 py-4 font-medium">Delivery Rate</th>
-                  <th className="px-6 py-4 font-medium text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-800/60">
+            <Table>
+              <THead>
+                <Tr>
+                  <Th>URL &amp; Secret</Th>
+                  <Th>Status</Th>
+                  <Th>Events Subscribed</Th>
+                  <Th>Delivery Rate</Th>
+                  <Th align="right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {endpoints.map((ep) => (
-                  <tr key={ep.id} className="hover:bg-neutral-800/20 transition-colors">
-                    <td className="px-6 py-4">
+                  <Tr key={ep.id}>
+                    <Td>
                       <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-neutral-800 border border-neutral-700">
-                          <Globe className="w-4 h-4 text-neutral-400" />
-                        </div>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
+                          <Globe size={16} aria-hidden="true" />
+                        </span>
                         <div>
-                          <div className="font-medium text-neutral-200 truncate max-w-[200px] lg:max-w-[300px]" title={ep.url}>{ep.url}</div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <code className="text-xs text-neutral-500 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-800">
+                          <div className="max-w-[200px] truncate font-medium text-[var(--st-text)] lg:max-w-[300px]" title={ep.url}>
+                            {ep.url}
+                          </div>
+                          <div className="mt-1 flex items-center gap-2">
+                            <code className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 font-mono text-xs text-[var(--st-text-tertiary)]">
                               {ep.secret.substring(0, 12)}...
                             </code>
-                            <button className="text-neutral-500 hover:text-neutral-300 transition-colors">
-                              <Copy className="w-3.5 h-3.5" />
-                            </button>
+                            <IconButton
+                              label="Copy signing secret"
+                              icon={Copy}
+                              size="sm"
+                              onClick={() => toast.success("Signing secret copied")}
+                            />
                           </div>
                         </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge color={ep.status === 'active' ? 'success' : ep.status === 'failing' ? 'warning' : 'neutral'}>
-                        {ep.status === 'active' ? <CheckCircle2 className="w-3 h-3" /> : ep.status === 'failing' ? <AlertCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                    </Td>
+                    <Td>
+                      <Badge tone={endpointTone(ep.status)}>
+                        <EndpointStatusIcon status={ep.status} />
                         {ep.status.charAt(0).toUpperCase() + ep.status.slice(1)}
                       </Badge>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1.5 max-w-[250px]">
+                    </Td>
+                    <Td>
+                      <div className="flex max-w-[250px] flex-wrap gap-1.5">
                         {ep.events[0] === "*" ? (
-                          <Badge color="info">All Events</Badge>
+                          <Badge tone="info">All Events</Badge>
                         ) : (
                           <>
-                            {ep.events.slice(0, 2).map((evt, i) => (
-                              <span key={i} className="text-[11px] px-2 py-1 bg-neutral-800 rounded-md border border-neutral-700 text-neutral-300">
-                                {evt}
-                              </span>
+                            {ep.events.slice(0, 2).map((evt) => (
+                              <Badge key={evt} tone="neutral">{evt}</Badge>
                             ))}
                             {ep.events.length > 2 && (
-                              <span className="text-[11px] px-2 py-1 bg-neutral-800 rounded-md border border-neutral-700 text-neutral-400">
-                                +{ep.events.length - 2} more
-                              </span>
+                              <Badge tone="neutral">+{ep.events.length - 2} more</Badge>
                             )}
                           </>
                         )}
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col gap-1.5 w-32">
+                    </Td>
+                    <Td>
+                      <div className="flex w-32 flex-col gap-1.5">
                         <div className="flex justify-between text-xs">
-                          <span className={ep.successRate > 95 ? "text-emerald-400" : ep.successRate > 80 ? "text-amber-400" : "text-rose-400"}>
+                          <span
+                            className={
+                              ep.successRate > 95
+                                ? "text-[var(--st-status-ok)]"
+                                : ep.successRate > 80
+                                  ? "text-[var(--st-warn)]"
+                                  : "text-[var(--st-danger)]"
+                            }
+                          >
                             {ep.successRate}%
                           </span>
-                          <span className="text-neutral-500">{ep.totalDelivered.toLocaleString()} total</span>
+                          <span className="text-[var(--st-text-tertiary)]">{ep.totalDelivered.toLocaleString()} total</span>
                         </div>
-                        <div className="w-full h-1.5 bg-neutral-800 rounded-full overflow-hidden">
-                          <div 
-                            className={`h-full rounded-full ${ep.successRate > 95 ? "bg-emerald-500" : ep.successRate > 80 ? "bg-amber-500" : "bg-rose-500"}`}
+                        <div className="h-1.5 w-full overflow-hidden rounded-[var(--st-radius-pill)] bg-[var(--st-bg-muted)]">
+                          <div
+                            className={
+                              ep.successRate > 95
+                                ? "h-full rounded-[var(--st-radius-pill)] bg-[var(--st-status-ok)]"
+                                : ep.successRate > 80
+                                  ? "h-full rounded-[var(--st-radius-pill)] bg-[var(--st-warn)]"
+                                  : "h-full rounded-[var(--st-radius-pill)] bg-[var(--st-danger)]"
+                            }
                             style={{ width: `${ep.successRate}%` }}
                           />
                         </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
+                    </Td>
+                    <Td align="right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="sm" icon={Play} title="Test Endpoint" />
-                        <Button variant="ghost" size="sm" icon={Edit2} title="Edit" />
-                        <Button variant="ghost" size="sm" icon={Trash2} className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10" title="Delete" />
+                        <IconButton label="Test endpoint" icon={Play} size="sm" onClick={() => toast.info("Sending test event")} />
+                        <IconButton label="Edit endpoint" icon={Edit2} size="sm" />
+                        <IconButton label="Delete endpoint" icon={Trash2} size="sm" variant="danger" />
                       </div>
-                    </td>
-                  </tr>
+                    </Td>
+                  </Tr>
                 ))}
-              </tbody>
-            </table>
+              </TBody>
+            </Table>
           </div>
-        </GlassCard>
+        </Card>
       )}
     </div>
   );
 };
 
 const CreateWebhookForm = ({ onCancel }: { onCancel: () => void }) => {
+  const { toast } = useToast();
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
-  
+
   const toggleEvent = (evt: string) => {
-    setSelectedEvents(prev => prev.includes(evt) ? prev.filter(e => e !== evt) : [...prev, evt]);
+    setSelectedEvents((prev) => (prev.includes(evt) ? prev.filter((e) => e !== evt) : [...prev, evt]));
   };
 
   const toggleCategory = (catEvents: string[]) => {
-    const allSelected = catEvents.every(e => selectedEvents.includes(e));
+    const allSelected = catEvents.every((e) => selectedEvents.includes(e));
     if (allSelected) {
-      setSelectedEvents(prev => prev.filter(e => !catEvents.includes(e)));
+      setSelectedEvents((prev) => prev.filter((e) => !catEvents.includes(e)));
     } else {
-      setSelectedEvents(prev => [...new Set([...prev, ...catEvents])]);
+      setSelectedEvents((prev) => [...new Set([...prev, ...catEvents])]);
     }
   };
 
   return (
-    <GlassCard className="animate-in fade-in zoom-in-95 duration-300">
-      <div className="p-6 border-b border-neutral-800/60 flex justify-between items-center">
+    <Card padding="none">
+      <CardHeader className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-neutral-100">Add Webhook Endpoint</h3>
-          <p className="text-sm text-neutral-400 mt-1">Configure a new endpoint to receive HTTP POST requests.</p>
+          <CardTitle>Add Webhook Endpoint</CardTitle>
+          <CardDescription>Configure a new endpoint to receive HTTP POST requests.</CardDescription>
         </div>
-        <Button variant="ghost" icon={X} onClick={onCancel} />
-      </div>
+        <IconButton label="Close form" icon={XCircle} onClick={onCancel} />
+      </CardHeader>
 
-      <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+      <CardBody className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Left Column: Config */}
-        <div className="lg:col-span-1 space-y-6">
-          <Input label="Endpoint URL" placeholder="https://api.yourdomain.com/webhooks" icon={Globe} />
-          <Input label="Description (Optional)" placeholder="e.g. Production Billing Updates" icon={FileText} />
-          
-          <div className="bg-neutral-800/30 p-4 rounded-xl border border-neutral-700/50 space-y-4">
-            <h4 className="text-sm font-medium text-neutral-200 flex items-center gap-2">
-              <Shield className="w-4 h-4 text-indigo-400" /> Endpoint Security
+        <div className="space-y-6 lg:col-span-1">
+          <Field label="Endpoint URL">
+            <Input placeholder="https://api.yourdomain.com/webhooks" iconLeft={Globe} />
+          </Field>
+          <Field label="Description (Optional)">
+            <Input placeholder="e.g. Production Billing Updates" iconLeft={FileText} />
+          </Field>
+
+          <div className="space-y-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+            <h4 className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
+              <Shield size={16} className="text-[var(--st-accent)]" aria-hidden="true" /> Endpoint Security
             </h4>
-            <p className="text-xs text-neutral-400 leading-relaxed">
+            <p className="text-xs leading-relaxed text-[var(--st-text-secondary)]">
               We will sign every webhook request with a unique secret. You can use this secret to verify that the request came from SabSign.
             </p>
-            <div className="flex flex-col gap-2">
-              <label className="text-xs text-neutral-500">Signing Secret</label>
+            <Field label="Signing Secret">
               <div className="flex gap-2">
-                <code className="flex-1 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-xs text-neutral-300 font-mono flex items-center">
+                <code className="flex flex-1 items-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 font-mono text-xs text-[var(--st-text-secondary)]">
                   whsec_******************************
                 </code>
-                <Button variant="secondary" icon={RefreshCw} title="Rotate Secret" />
+                <IconButton
+                  label="Rotate signing secret"
+                  icon={RefreshCw}
+                  variant="secondary"
+                  onClick={() => toast.success("Signing secret rotated")}
+                />
               </div>
-            </div>
+            </Field>
           </div>
         </div>
 
         {/* Right Column: Events Selection */}
         <div className="lg:col-span-2">
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="text-sm font-medium text-neutral-200">Events to send</h4>
-            <Button variant="ghost" size="sm" onClick={() => setSelectedEvents(EVENT_CATEGORIES.flatMap(c => c.events))}>
+          <div className="mb-4 flex items-center justify-between">
+            <h4 className="text-sm font-medium text-[var(--st-text)]">Events to send</h4>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedEvents(EVENT_CATEGORIES.flatMap((c) => c.events))}>
               Select All
             </Button>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-            {EVENT_CATEGORIES.map((cat, i) => (
-              <div key={i} className="bg-neutral-900/40 rounded-xl border border-neutral-800/60 p-4">
-                <div 
-                  className="flex justify-between items-center mb-3 cursor-pointer group"
-                  onClick={() => toggleCategory(cat.events)}
-                >
-                  <h5 className="text-sm font-medium text-neutral-300 group-hover:text-indigo-400 transition-colors">{cat.name}</h5>
-                  {cat.events.every(e => selectedEvents.includes(e)) ? (
-                    <CheckSquare className="w-4 h-4 text-indigo-500" />
-                  ) : cat.events.some(e => selectedEvents.includes(e)) ? (
-                    <div className="w-4 h-4 rounded bg-indigo-500/20 border border-indigo-500 flex items-center justify-center">
-                      <div className="w-2 h-0.5 bg-indigo-500 rounded-full" />
-                    </div>
-                  ) : (
-                    <Square className="w-4 h-4 text-neutral-600 group-hover:text-neutral-500" />
-                  )}
+
+          <div className="grid h-[400px] grid-cols-1 gap-4 overflow-y-auto pr-2 md:grid-cols-2">
+            {EVENT_CATEGORIES.map((cat) => {
+              const allSelected = cat.events.every((e) => selectedEvents.includes(e));
+              const someSelected = cat.events.some((e) => selectedEvents.includes(e));
+              return (
+                <div key={cat.name} className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h5 className="text-sm font-medium text-[var(--st-text)]">{cat.name}</h5>
+                    <Checkbox
+                      checked={allSelected}
+                      indeterminate={someSelected && !allSelected}
+                      onChange={() => toggleCategory(cat.events)}
+                      aria-label={`Toggle all ${cat.name} events`}
+                    />
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {cat.events.map((evt) => (
+                      <Checkbox
+                        key={evt}
+                        size="sm"
+                        checked={selectedEvents.includes(evt)}
+                        onChange={() => toggleEvent(evt)}
+                        label={<span className="font-mono text-xs text-[var(--st-text-secondary)]">{evt}</span>}
+                      />
+                    ))}
+                  </div>
                 </div>
-                
-                <div className="space-y-2.5">
-                  {cat.events.map((evt, j) => (
-                    <label key={j} className="flex items-center gap-3 cursor-pointer group">
-                      <div className="relative flex items-center">
-                        <input 
-                          type="checkbox" 
-                          className="peer sr-only"
-                          checked={selectedEvents.includes(evt)}
-                          onChange={() => toggleEvent(evt)}
-                        />
-                        <div className="w-4 h-4 border border-neutral-600 rounded bg-transparent peer-checked:bg-indigo-500 peer-checked:border-indigo-500 transition-all flex items-center justify-center">
-                          <Check className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100" strokeWidth={3} />
-                        </div>
-                      </div>
-                      <span className="text-xs text-neutral-400 group-hover:text-neutral-200 transition-colors font-mono">
-                        {evt}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
+      </CardBody>
 
-      </div>
-
-      <div className="p-6 border-t border-neutral-800/60 flex justify-end gap-3 bg-neutral-900/30">
+      <CardFooter className="flex justify-end gap-3">
         <Button variant="ghost" onClick={onCancel}>Cancel</Button>
-        <Button variant="primary" icon={CheckCircle2}>Create Endpoint</Button>
-      </div>
-    </GlassCard>
+        <Button variant="primary" iconLeft={CheckCircle2} onClick={() => { toast.success("Endpoint created"); onCancel(); }}>
+          Create Endpoint
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
-
 const ApiKeysView = () => {
-  const [keys, setKeys] = useState(MOCK_API_KEYS);
+  const { toast } = useToast();
+  const [keys] = useState(MOCK_API_KEYS);
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
-      <GlassCard>
-        <div className="p-6 border-b border-neutral-800/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-8">
+      <Card padding="none">
+        <CardHeader className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h3 className="text-lg font-semibold text-neutral-100">API Keys</h3>
-            <p className="text-sm text-neutral-400 mt-1">Manage API keys used to authenticate requests to the SabSign API.</p>
+            <CardTitle>API Keys</CardTitle>
+            <CardDescription>Manage API keys used to authenticate requests to the SabSign API.</CardDescription>
           </div>
-          <Button icon={Key}>Generate New Key</Button>
-        </div>
-        
-        <div className="p-6">
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex gap-4 mb-6">
-            <ShieldAlert className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
-            <div>
-              <h4 className="text-sm font-medium text-blue-300">Keep your keys secure</h4>
-              <p className="text-xs text-blue-400/80 mt-1">
-                Your API keys carry many privileges. Do not share them in publicly accessible areas such as GitHub, client-side code, and so forth.
-              </p>
-            </div>
-          </div>
+          <Button variant="primary" iconLeft={Key}>Generate New Key</Button>
+        </CardHeader>
+
+        <CardBody>
+          <Alert tone="info" title="Keep your keys secure" icon={ShieldAlert} className="mb-6">
+            Your API keys carry many privileges. Do not share them in publicly accessible areas such as GitHub, client-side code, and so forth.
+          </Alert>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-neutral-900/50 text-neutral-400 border-b border-neutral-800/60">
-                <tr>
-                  <th className="px-6 py-4 font-medium">Name & Prefix</th>
-                  <th className="px-6 py-4 font-medium">Scopes</th>
-                  <th className="px-6 py-4 font-medium">Created</th>
-                  <th className="px-6 py-4 font-medium">Last Used</th>
-                  <th className="px-6 py-4 font-medium text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-800/60">
+            <Table>
+              <THead>
+                <Tr>
+                  <Th>Name &amp; Prefix</Th>
+                  <Th>Scopes</Th>
+                  <Th>Created</Th>
+                  <Th>Last Used</Th>
+                  <Th align="right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {keys.map((key) => (
-                  <tr key={key.id} className="hover:bg-neutral-800/20 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-neutral-200">{key.name}</div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <code className="text-xs text-neutral-400 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-800 font-mono">
+                  <Tr key={key.id}>
+                    <Td>
+                      <div className="font-medium text-[var(--st-text)]">{key.name}</div>
+                      <div className="mt-1 flex items-center gap-2">
+                        <code className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 font-mono text-xs text-[var(--st-text-secondary)]">
                           {key.prefix}****************
                         </code>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                       <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                    </Td>
+                    <Td>
+                      <div className="flex max-w-[200px] flex-wrap gap-1.5">
                         {key.scopes[0] === "*" ? (
-                          <Badge color="danger">Full Access</Badge>
+                          <Badge tone="danger">Full Access</Badge>
                         ) : (
-                          key.scopes.map((scope, i) => (
-                            <span key={i} className="text-[11px] px-2 py-1 bg-neutral-800 rounded-md border border-neutral-700 text-neutral-300">
-                              {scope}
-                            </span>
+                          key.scopes.map((scope) => (
+                            <Badge key={scope} tone="neutral">{scope}</Badge>
                           ))
                         )}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-neutral-400">
+                    </Td>
+                    <Td className="text-[var(--st-text-secondary)]">
                       {new Date(key.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-neutral-400">
-                        <Clock className="w-3.5 h-3.5" />
+                    </Td>
+                    <Td>
+                      <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+                        <Clock size={14} aria-hidden="true" />
                         {new Date(key.lastUsed).toLocaleDateString()}
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
+                    </Td>
+                    <Td align="right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="outline" size="sm">Roll Key</Button>
-                        <Button variant="ghost" size="sm" icon={Trash2} className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10" title="Revoke" />
+                        <Button variant="outline" size="sm" onClick={() => toast.success("Key rolled")}>Roll Key</Button>
+                        <IconButton label="Revoke key" icon={Trash2} size="sm" variant="danger" />
                       </div>
-                    </td>
-                  </tr>
+                    </Td>
+                  </Tr>
                 ))}
-              </tbody>
-            </table>
+              </TBody>
+            </Table>
           </div>
-        </div>
-      </GlassCard>
+        </CardBody>
+      </Card>
     </div>
   );
 };
 
-
 const EventLogsView = () => {
+  const { toast } = useToast();
   const [logs] = useState(MOCK_LOGS);
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
 
-  const getStatusColor = (status: number) => {
-    if (status >= 200 && status < 300) return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
-    if (status >= 400 && status < 500) return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
-    return 'text-rose-400 bg-rose-500/10 border-rose-500/20';
+  const statusTone = (status: number) => {
+    if (status >= 200 && status < 300) return "success" as const;
+    if (status >= 400 && status < 500) return "warning" as const;
+    return "danger" as const;
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
+    <div className="space-y-6">
       {/* Filters */}
-      <GlassCard className="p-4 flex flex-wrap gap-4 items-end">
-        <div className="w-full sm:w-auto flex-1 max-w-xs">
-          <Input label="Search Events" icon={Search} placeholder="Search by ID or event..." />
-        </div>
-        <div className="w-full sm:w-auto flex-1 max-w-xs">
-          <label className="text-xs font-medium text-neutral-400 ml-1 mb-1.5 block">Endpoint</label>
-          <div className="relative">
-            <select className="w-full bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-neutral-200 focus:outline-none focus:border-indigo-500 px-3 py-2.5 appearance-none cursor-pointer">
-              <option>All Endpoints</option>
-              {MOCK_ENDPOINTS.map(ep => <option key={ep.id}>{ep.url}</option>)}
-            </select>
-            <ChevronDown className="w-4 h-4 text-neutral-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+      <Card>
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="w-full max-w-xs flex-1 sm:w-auto">
+            <Field label="Search Events">
+              <Input iconLeft={Search} placeholder="Search by ID or event..." />
+            </Field>
           </div>
-        </div>
-        <div className="w-full sm:w-auto flex-1 max-w-xs">
-          <label className="text-xs font-medium text-neutral-400 ml-1 mb-1.5 block">Status</label>
-          <div className="relative">
-            <select className="w-full bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-neutral-200 focus:outline-none focus:border-indigo-500 px-3 py-2.5 appearance-none cursor-pointer">
-              <option>All Statuses</option>
-              <option>Success (2xx)</option>
-              <option>Error (4xx/5xx)</option>
-            </select>
-            <ChevronDown className="w-4 h-4 text-neutral-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="w-full max-w-xs flex-1 sm:w-auto">
+            <Field label="Endpoint">
+              <Select defaultValue="all">
+                <SelectTrigger aria-label="Endpoint">
+                  <SelectValue placeholder="All Endpoints" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Endpoints</SelectItem>
+                  {MOCK_ENDPOINTS.map((ep) => (
+                    <SelectItem key={ep.id} value={ep.id}>{ep.url}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
           </div>
+          <div className="w-full max-w-xs flex-1 sm:w-auto">
+            <Field label="Status">
+              <Select defaultValue="all">
+                <SelectTrigger aria-label="Status">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="success">Success (2xx)</SelectItem>
+                  <SelectItem value="error">Error (4xx/5xx)</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
+          <Button variant="secondary" iconLeft={Filter}>Filter</Button>
+          <IconButton label="Export CSV" icon={Download} variant="outline" onClick={() => toast.success("Export started")} />
         </div>
-        <Button variant="secondary" icon={Filter}>Filter</Button>
-        <Button variant="outline" icon={Download} title="Export CSV" />
-      </GlassCard>
+      </Card>
 
       {/* Logs Table */}
-      <GlassCard>
-        <div className="overflow-hidden">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-neutral-900/80 text-neutral-400 border-b border-neutral-800/60 sticky top-0 backdrop-blur-xl z-10">
-              <tr>
-                <th className="px-6 py-4 font-medium w-12"></th>
-                <th className="px-6 py-4 font-medium">Status</th>
-                <th className="px-6 py-4 font-medium">Event</th>
-                <th className="px-6 py-4 font-medium">Date & Time</th>
-                <th className="px-6 py-4 font-medium">Endpoint</th>
-                <th className="px-6 py-4 font-medium text-right">Duration</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-800/60">
+      <Card padding="none">
+        <div className="overflow-x-auto">
+          <Table>
+            <THead>
+              <Tr>
+                <Th width={48} aria-label="Expand row"> </Th>
+                <Th>Status</Th>
+                <Th>Event</Th>
+                <Th>Date &amp; Time</Th>
+                <Th>Endpoint</Th>
+                <Th align="right">Duration</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {logs.slice(0, 20).map((log) => (
                 <React.Fragment key={log.id}>
-                  <tr 
-                    className={`hover:bg-neutral-800/30 transition-colors cursor-pointer ${expandedLogId === log.id ? 'bg-neutral-800/20' : ''}`}
+                  <Tr
+                    className="u-tr--clickable"
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={expandedLogId === log.id}
                     onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setExpandedLogId(expandedLogId === log.id ? null : log.id);
+                      }
+                    }}
                   >
-                    <td className="px-6 py-4 text-center text-neutral-500">
-                      <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${expandedLogId === log.id ? 'rotate-90' : ''}`} />
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-md text-xs font-mono font-medium border ${getStatusColor(log.status)}`}>
-                        {log.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="font-mono text-neutral-200">{log.event}</span>
-                    </td>
-                    <td className="px-6 py-4 text-neutral-400 text-xs">
+                    <Td align="center">
+                      <ChevronRight
+                        size={16}
+                        aria-hidden="true"
+                        className={`text-[var(--st-text-tertiary)] transition-transform duration-200 ${expandedLogId === log.id ? "rotate-90" : ""}`}
+                      />
+                    </Td>
+                    <Td>
+                      <Badge tone={statusTone(log.status)} kind="outline">{log.status}</Badge>
+                    </Td>
+                    <Td>
+                      <span className="font-mono text-[var(--st-text)]">{log.event}</span>
+                    </Td>
+                    <Td className="text-xs text-[var(--st-text-secondary)]">
                       {new Date(log.timestamp).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="truncate max-w-[200px] text-neutral-400 text-xs" title={log.endpoint}>
-                        {log.endpoint}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right font-mono text-neutral-400 text-xs">
+                    </Td>
+                    <Td truncate className="max-w-[200px] text-xs text-[var(--st-text-secondary)]">
+                      <span title={log.endpoint}>{log.endpoint}</span>
+                    </Td>
+                    <Td align="right" className="font-mono text-xs text-[var(--st-text-secondary)]">
                       {log.duration}ms
-                    </td>
-                  </tr>
-                  
-                  {/* Expanded Row Details */}
+                    </Td>
+                  </Tr>
+
                   {expandedLogId === log.id && (
-                    <tr>
-                      <td colSpan={6} className="p-0 border-b-0 bg-neutral-900/30">
-                        <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in slide-in-from-top-2 fade-in duration-200">
-                          
+                    <tr className="u-tr">
+                      <td className="u-td" colSpan={6}>
+                        <div className="grid grid-cols-1 gap-6 bg-[var(--st-bg-secondary)] p-2 lg:grid-cols-2">
                           {/* Request */}
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                              <h5 className="text-sm font-medium text-neutral-200 flex items-center gap-2">
-                                <ArrowUpRight className="w-4 h-4 text-indigo-400" /> Request Payload
+                              <h5 className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
+                                <ArrowUpRight size={16} className="text-[var(--st-accent)]" aria-hidden="true" /> Request Payload
                               </h5>
-                              <Button variant="ghost" size="sm" icon={Copy} className="text-xs">Copy JSON</Button>
+                              <Button variant="ghost" size="sm" iconLeft={Copy} onClick={() => toast.success("JSON copied")}>
+                                Copy JSON
+                              </Button>
                             </div>
                             <JsonViewer data={log.payload} />
                           </div>
@@ -635,187 +640,181 @@ const EventLogsView = () => {
                           {/* Response */}
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                              <h5 className="text-sm font-medium text-neutral-200 flex items-center gap-2">
-                                <ArrowRight className="w-4 h-4 text-emerald-400" /> Response Body
+                              <h5 className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
+                                <ArrowRight size={16} className="text-[var(--st-status-ok)]" aria-hidden="true" /> Response Body
                               </h5>
-                              <Button variant="ghost" size="sm" icon={Copy} className="text-xs">Copy JSON</Button>
+                              <Button variant="ghost" size="sm" iconLeft={Copy} onClick={() => toast.success("JSON copied")}>
+                                Copy JSON
+                              </Button>
                             </div>
                             <JsonViewer data={log.response} />
                           </div>
-
                         </div>
                       </td>
                     </tr>
                   )}
                 </React.Fragment>
               ))}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         </div>
-        <div className="p-4 border-t border-neutral-800/60 flex items-center justify-between text-sm text-neutral-400">
+        <Separator />
+        <div className="flex items-center justify-between p-4 text-sm text-[var(--st-text-secondary)]">
           <div>Showing 1 to 20 of {logs.length} results</div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled>Previous</Button>
-            <Button variant="outline" size="sm">Next</Button>
-          </div>
+          <Pagination page={1} pageCount={Math.ceil(logs.length / 20)} onPageChange={() => undefined} />
         </div>
-      </GlassCard>
+      </Card>
     </div>
   );
 };
 
-
 const ConnectedAppsView = () => {
+  const { toast } = useToast();
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-8">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-xl font-semibold text-neutral-100">App Integrations</h2>
-          <p className="text-sm text-neutral-400 mt-1">Connect SabSign with your favorite tools to automate your workflows.</p>
+          <h2 className="text-xl font-semibold text-[var(--st-text)]">App Integrations</h2>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">Connect SabSign with your favorite tools to automate your workflows.</p>
         </div>
         <div className="w-full sm:w-64">
-          <Input icon={Search} placeholder="Search apps..." />
+          <Input iconLeft={Search} placeholder="Search apps..." aria-label="Search apps" />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {MOCK_APPS.map((app) => (
-          <GlassCard key={app.id} className="flex flex-col hover:border-indigo-500/50 transition-colors group cursor-pointer">
-            <div className="p-6 flex-1 flex flex-col items-start relative">
-              
-              {app.status === 'connected' && (
-                <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+          <Card key={app.id} variant="interactive" padding="none" className="flex flex-col">
+            <div className="relative flex flex-1 flex-col items-start p-6">
+              {app.status === "connected" && (
+                <span className="absolute right-4 top-4 h-2.5 w-2.5 rounded-[var(--st-radius-pill)] bg-[var(--st-status-ok)]" aria-label="Connected" />
               )}
-              {app.status === 'error' && (
-                <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+              {app.status === "error" && (
+                <span className="absolute right-4 top-4 h-2.5 w-2.5 rounded-[var(--st-radius-pill)] bg-[var(--st-danger)]" aria-label="Error" />
               )}
-              
-              <div className="w-12 h-12 rounded-xl bg-neutral-800 border border-neutral-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <app.icon className="w-6 h-6 text-neutral-300" />
-              </div>
-              
-              <h3 className="text-lg font-medium text-neutral-100">{app.name}</h3>
-              <p className="text-xs text-neutral-500 mt-1">{app.category}</p>
-              
+
+              <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+                <app.icon size={24} aria-hidden="true" />
+              </span>
+
+              <h3 className="text-lg font-medium text-[var(--st-text)]">{app.name}</h3>
+              <p className="mt-1 text-xs text-[var(--st-text-tertiary)]">{app.category}</p>
+
               <div className="mt-6 w-full flex-1">
-                {app.status === 'connected' ? (
-                  <div className="bg-neutral-800/30 rounded-lg p-3 border border-neutral-700/50">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-neutral-400">Sync Status</span>
-                      <span className="text-emerald-400 flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> Active
+                {app.status === "connected" ? (
+                  <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[var(--st-text-secondary)]">Sync Status</span>
+                      <span className="flex items-center gap-1 text-[var(--st-status-ok)]">
+                        <CheckCircle2 size={12} aria-hidden="true" /> Active
                       </span>
                     </div>
-                    <div className="flex justify-between items-center text-xs mt-2">
-                      <span className="text-neutral-400">Last Sync</span>
-                      <span className="text-neutral-300">{app.lastSync}</span>
+                    <div className="mt-2 flex items-center justify-between text-xs">
+                      <span className="text-[var(--st-text-secondary)]">Last Sync</span>
+                      <span className="text-[var(--st-text)]">{app.lastSync}</span>
                     </div>
                   </div>
-                ) : app.status === 'error' ? (
-                   <div className="bg-rose-500/10 rounded-lg p-3 border border-rose-500/20">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-rose-400 flex items-center gap-1">
-                        <AlertCircle className="w-3.5 h-3.5" /> Authentication Failed
-                      </span>
+                ) : app.status === "error" ? (
+                  <div className="rounded-[var(--st-radius)] border border-[var(--st-danger)] bg-[var(--st-danger-soft)] p-3">
+                    <div className="flex items-center gap-1 text-xs text-[var(--st-danger)]">
+                      <AlertCircle size={14} aria-hidden="true" /> Authentication Failed
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-neutral-400">
+                  <p className="text-sm text-[var(--st-text-secondary)]">
                     Connect {app.name} to automatically sync documents and data.
                   </p>
                 )}
               </div>
             </div>
-            
-            <div className="p-4 border-t border-neutral-800/60 bg-neutral-900/30 flex justify-between items-center">
-              {app.status === 'connected' ? (
+
+            <CardFooter className="flex items-center justify-between">
+              {app.status === "connected" ? (
                 <>
-                  <Button variant="ghost" size="sm" icon={Settings} className="text-neutral-400">Configure</Button>
-                  <Button variant="ghost" size="sm" className="text-rose-400 hover:text-rose-300">Disconnect</Button>
+                  <Button variant="ghost" size="sm" iconLeft={Settings}>Configure</Button>
+                  <Button variant="ghost" size="sm" onClick={() => toast.info(`Disconnected ${app.name}`)}>Disconnect</Button>
                 </>
-              ) : app.status === 'error' ? (
-                <Button variant="primary" size="sm" className="w-full">Reconnect</Button>
+              ) : app.status === "error" ? (
+                <Button variant="primary" size="sm" block onClick={() => toast.info(`Reconnecting ${app.name}`)}>Reconnect</Button>
               ) : (
-                <Button variant="secondary" size="sm" className="w-full">Connect</Button>
+                <Button variant="secondary" size="sm" block onClick={() => toast.success(`Connected ${app.name}`)}>Connect</Button>
               )}
-            </div>
-          </GlassCard>
+            </CardFooter>
+          </Card>
         ))}
       </div>
-
     </div>
   );
 };
 
 const SettingsView = () => {
+  const { toast } = useToast();
+  const [ipWhitelisting, setIpWhitelisting] = useState(true);
+  const [strictMode, setStrictMode] = useState(false);
+  const [rateLimitHeaders, setRateLimitHeaders] = useState(true);
+
   return (
-    <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
-      <GlassCard className="p-6 md:p-8 space-y-8">
-        <div>
-          <h2 className="text-xl font-semibold text-neutral-100">Advanced API Settings</h2>
-          <p className="text-sm text-neutral-400 mt-1">Configure global behavior for API requests and integrations.</p>
-        </div>
-
-        <div className="space-y-6">
-          <div className="flex items-start gap-4">
-            <div className="mt-1">
-              <ToggleRight className="w-8 h-8 text-indigo-500" />
-            </div>
-            <div>
-              <h4 className="text-base font-medium text-neutral-200">IP Whitelisting</h4>
-              <p className="text-sm text-neutral-400 mt-1 mb-3">Restrict API access to specific IP addresses or CIDR blocks.</p>
-              <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-3 font-mono text-sm text-neutral-300">
-                192.168.1.1/24<br/>
-                10.0.0.0/8
-              </div>
-              <Button variant="outline" size="sm" className="mt-3">Edit Allowed IPs</Button>
-            </div>
-          </div>
-
-          <div className="w-full h-px bg-neutral-800/60" />
-
-          <div className="flex items-start gap-4">
-             <div className="mt-1">
-              <ToggleLeft className="w-8 h-8 text-neutral-600" />
-            </div>
-            <div>
-              <h4 className="text-base font-medium text-neutral-200">Strict Mode Validation</h4>
-              <p className="text-sm text-neutral-400 mt-1">Reject API requests containing unknown JSON properties. By default, extra properties are ignored.</p>
-            </div>
-          </div>
-
-           <div className="w-full h-px bg-neutral-800/60" />
-
-          <div className="flex items-start gap-4">
-             <div className="mt-1">
-              <ToggleRight className="w-8 h-8 text-indigo-500" />
-            </div>
-            <div>
-              <h4 className="text-base font-medium text-neutral-200">Rate Limit Headers</h4>
-              <p className="text-sm text-neutral-400 mt-1">Include X-RateLimit-* headers in all API responses to track your usage in real-time.</p>
-            </div>
-          </div>
-
-        </div>
-
-      </GlassCard>
-
-      <GlassCard className="p-6 md:p-8 bg-rose-500/5 border-rose-500/20">
-        <div>
-          <h2 className="text-xl font-semibold text-rose-500">Danger Zone</h2>
-          <p className="text-sm text-neutral-400 mt-1">Irreversible actions for your integrations.</p>
-        </div>
-        <div className="mt-6 flex items-center justify-between p-4 bg-neutral-900/50 rounded-lg border border-neutral-800">
+    <div className="max-w-4xl space-y-8">
+      <Card>
+        <CardBody className="space-y-8">
           <div>
-            <h4 className="text-sm font-medium text-neutral-200">Revoke All API Keys</h4>
-            <p className="text-xs text-neutral-500 mt-1">Immediately invalidates all active API keys. This will break all current integrations.</p>
+            <h2 className="text-xl font-semibold text-[var(--st-text)]">Advanced API Settings</h2>
+            <p className="mt-1 text-sm text-[var(--st-text-secondary)]">Configure global behavior for API requests and integrations.</p>
           </div>
-          <Button variant="danger">Revoke All</Button>
-        </div>
-      </GlassCard>
 
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <Switch checked={ipWhitelisting} onCheckedChange={setIpWhitelisting} aria-label="Toggle IP whitelisting" />
+              <div>
+                <h4 className="text-base font-medium text-[var(--st-text)]">IP Whitelisting</h4>
+                <p className="mb-3 mt-1 text-sm text-[var(--st-text-secondary)]">Restrict API access to specific IP addresses or CIDR blocks.</p>
+                <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 font-mono text-sm text-[var(--st-text-secondary)]">
+                  192.168.1.1/24<br />
+                  10.0.0.0/8
+                </div>
+                <Button variant="outline" size="sm" className="mt-3" onClick={() => toast.info("Editing allowed IPs")}>Edit Allowed IPs</Button>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="flex items-start gap-4">
+              <Switch checked={strictMode} onCheckedChange={setStrictMode} aria-label="Toggle strict mode validation" />
+              <div>
+                <h4 className="text-base font-medium text-[var(--st-text)]">Strict Mode Validation</h4>
+                <p className="mt-1 text-sm text-[var(--st-text-secondary)]">Reject API requests containing unknown JSON properties. By default, extra properties are ignored.</p>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="flex items-start gap-4">
+              <Switch checked={rateLimitHeaders} onCheckedChange={setRateLimitHeaders} aria-label="Toggle rate limit headers" />
+              <div>
+                <h4 className="text-base font-medium text-[var(--st-text)]">Rate Limit Headers</h4>
+                <p className="mt-1 text-sm text-[var(--st-text-secondary)]">Include X-RateLimit-* headers in all API responses to track your usage in real-time.</p>
+              </div>
+            </div>
+          </div>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardBody>
+          <div>
+            <h2 className="text-xl font-semibold text-[var(--st-danger)]">Danger Zone</h2>
+            <p className="mt-1 text-sm text-[var(--st-text-secondary)]">Irreversible actions for your integrations.</p>
+          </div>
+          <div className="mt-6 flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+            <div>
+              <h4 className="text-sm font-medium text-[var(--st-text)]">Revoke All API Keys</h4>
+              <p className="mt-1 text-xs text-[var(--st-text-tertiary)]">Immediately invalidates all active API keys. This will break all current integrations.</p>
+            </div>
+            <Button variant="danger" onClick={() => toast.error("All API keys revoked")}>Revoke All</Button>
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 };
@@ -824,65 +823,43 @@ const SettingsView = () => {
 // MAIN PAGE LAYOUT
 // ==========================================
 
-export default function SabSignIntegrations() {
-  const [activeTab, setActiveTab] = useState("webhooks");
+type TabId = "webhooks" | "apikeys" | "logs" | "apps" | "settings";
 
-  const TABS = [
-    { id: "webhooks", label: "Webhooks", icon: Webhook },
-    { id: "apikeys", label: "API Keys", icon: Key },
-    { id: "logs", label: "Event Logs", icon: Terminal },
-    { id: "apps", label: "Connected Apps", icon: Layers },
-    { id: "settings", label: "Settings", icon: Settings },
+export default function SabSignIntegrations() {
+  const [activeTab, setActiveTab] = useState<TabId>("webhooks");
+
+  const TABS: { value: TabId; label: string; icon: LucideIcon }[] = [
+    { value: "webhooks", label: "Webhooks", icon: Webhook },
+    { value: "apikeys", label: "API Keys", icon: Key },
+    { value: "logs", label: "Event Logs", icon: Terminal },
+    { value: "apps", label: "Connected Apps", icon: Layers },
+    { value: "settings", label: "Settings", icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-neutral-200 font-sans p-4 md:p-8 pb-24 selection:bg-indigo-500/30">
-      
-      {/* Background Effects */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-blue-600/10 rounded-full blur-[100px]" />
-      </div>
-
-      <div className="max-w-[1400px] mx-auto relative z-10 space-y-8">
-        
-        {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-neutral-800/60">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
-                <Network className="w-6 h-6 text-indigo-400" />
-              </div>
-              <h1 className="text-3xl font-bold tracking-tight text-white">Integrations & API</h1>
-            </div>
-            <p className="text-neutral-400 text-sm max-w-xl">
+    <div className="ui20 min-h-screen bg-[var(--st-bg)] p-4 pb-24 text-[var(--st-text)] md:p-8">
+      <div className="relative mx-auto max-w-[1400px] space-y-8">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageEyebrow>SabSign</PageEyebrow>
+            <PageTitle>Integrations &amp; API</PageTitle>
+            <PageDescription>
               Connect SabSign to your existing tools, manage API authentication, and configure real-time webhooks for seamless data sync.
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <Button variant="outline" icon={Code2}>API Docs</Button>
-            <Button variant="primary" icon={Plus}>New Integration</Button>
-          </div>
-        </header>
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button variant="outline" iconLeft={Code2}>API Docs</Button>
+            <Button variant="primary" iconLeft={Plus}>New Integration</Button>
+          </PageActions>
+        </PageHeader>
 
         {/* Navigation */}
-        <nav className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap
-                ${activeTab === tab.id 
-                  ? 'bg-neutral-800/80 text-white border border-neutral-700/50 shadow-sm' 
-                  : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 border border-transparent'
-                }`}
-            >
-              <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'text-indigo-400' : ''}`} />
-              {tab.label}
-            </button>
-          ))}
-        </nav>
+        <SegmentedControl
+          items={TABS}
+          value={activeTab}
+          onChange={setActiveTab}
+          aria-label="Integrations sections"
+        />
 
         {/* Content Area */}
         <main className="min-h-[600px]">
@@ -892,7 +869,6 @@ export default function SabSignIntegrations() {
           {activeTab === "apps" && <ConnectedAppsView />}
           {activeTab === "settings" && <SettingsView />}
         </main>
-
       </div>
     </div>
   );

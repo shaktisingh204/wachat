@@ -2,17 +2,28 @@
 
 /**
  * Direct-link to a specific comment. Useful for "you were mentioned"
- * notifications and email permalinks. Renders the comment + a button to
+ * notifications and email permalinks. Renders the comment plus a button to
  * open the editor scrolled to its anchor range (anchor scroll deferred
  * until TipTap is wired).
  */
 
 import * as React from 'react';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  EmptyState,
+  IconButton,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Spinner,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   getSabwriterComment,
   resolveSabwriterComment,
@@ -21,10 +32,13 @@ import type { SabwriterCommentDoc } from '@/lib/rust-client/sabwriter-comments';
 
 export default function SabwriterCommentPermalinkPage() {
   const params = useParams<{ docId: string; commentId: string }>();
+  const router = useRouter();
+  const { toast } = useToast();
   const docId = params?.docId ?? '';
   const commentId = params?.commentId ?? '';
   const [comment, setComment] = React.useState<SabwriterCommentDoc | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [resolving, setResolving] = React.useState(false);
 
   React.useEffect(() => {
     if (!commentId) return;
@@ -43,40 +57,68 @@ export default function SabwriterCommentPermalinkPage() {
     };
   }, [commentId]);
 
+  const docHref = `/dashboard/sabsign/docs/${docId}`;
+
   const handleResolve = async () => {
     if (!comment) return;
-    const next = await resolveSabwriterComment(comment._id);
-    setComment(next);
+    setResolving(true);
+    try {
+      const next = await resolveSabwriterComment(comment._id);
+      setComment(next);
+      toast.success('Comment resolved');
+    } catch {
+      toast.error('Could not resolve the comment');
+    } finally {
+      setResolving(false);
+    }
   };
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <div className="flex items-center gap-2 mb-6">
-        <Button asChild variant="ghost" size="sm">
-          <Link href={`/dashboard/sabsign/docs/${docId}`} aria-label="Back">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <h1 className="text-xl font-semibold text-[var(--st-text)] inline-flex items-center gap-2">
-          <MessageCircle className="h-5 w-5" /> Comment
-        </h1>
-      </div>
+      <PageHeader bordered={false} className="mb-6">
+        <div className="flex items-center gap-2">
+          <IconButton
+            icon={ArrowLeft}
+            label="Back to document"
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(docHref)}
+          />
+          <PageHeaderHeading>
+            <PageTitle className="inline-flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" aria-hidden="true" /> Comment
+            </PageTitle>
+          </PageHeaderHeading>
+        </div>
+      </PageHeader>
 
       {loading ? (
-        <p className="text-sm text-[var(--st-text-secondary)]">Loading…</p>
+        <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+          <Spinner size="sm" label="Loading comment" />
+          <span>Loading comment.</span>
+        </div>
       ) : !comment ? (
-        <p className="text-sm text-[var(--st-text-secondary)]">Comment not found.</p>
+        <EmptyState
+          icon={MessageCircle}
+          title="Comment not found"
+          description="This comment may have been removed or the link is no longer valid."
+          action={
+            <Button variant="outline" size="sm" onClick={() => router.push(docHref)}>
+              Open in editor
+            </Button>
+          }
+        />
       ) : (
         <Card>
-          <CardBody className="p-4 flex flex-col gap-3">
+          <CardBody className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <Badge variant="outline">
-                Range {comment.anchor.from}–{comment.anchor.to}
+              <Badge tone="neutral" kind="outline">
+                Range {comment.anchor.from}-{comment.anchor.to}
               </Badge>
               {comment.resolved ? (
-                <Badge>Resolved</Badge>
+                <Badge tone="success">Resolved</Badge>
               ) : (
-                <Badge variant="secondary">Open</Badge>
+                <Badge tone="neutral">Open</Badge>
               )}
               <span className="text-xs text-[var(--st-text-secondary)] ml-auto">
                 {new Date(comment.createdAt).toLocaleString()}
@@ -86,13 +128,16 @@ export default function SabwriterCommentPermalinkPage() {
               {comment.body}
             </p>
             <div className="flex gap-2">
-              <Button asChild variant="outline" size="sm">
-                <Link href={`/dashboard/sabsign/docs/${docId}`}>
-                  Open in editor
-                </Link>
+              <Button variant="outline" size="sm" onClick={() => router.push(docHref)}>
+                Open in editor
               </Button>
               {!comment.resolved ? (
-                <Button size="sm" onClick={handleResolve}>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  loading={resolving}
+                  onClick={handleResolve}
+                >
                   Resolve
                 </Button>
               ) : null}

@@ -3,7 +3,7 @@
 /**
  * New envelope builder.
  *
- * Single-page workflow (no tabs — see ZoruUI no-tab directive):
+ * Single-page workflow (no tabs, see 20ui no-tab directive):
  *   1. Pick a SabFiles document.
  *   2. Add signers + auth tiers.
  *   3. (Optional) configure conditional routing rules.
@@ -13,9 +13,30 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Send, ArrowLeft, Settings2 } from 'lucide-react';
+import { Save, Send, ArrowLeft, Settings2, FileText } from 'lucide-react';
 
-import { Button, Card, Input, Label, Textarea, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Switch } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Field,
+  Input,
+  Textarea,
+  Label,
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+  Switch,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageActions,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import type { SabFilePick } from '@/components/sabfiles';
 import {
@@ -35,6 +56,7 @@ import { RoutingRulesEditor } from '../_components/routing-rules-editor';
 
 export default function NewEnvelopePage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [name, setName] = React.useState('');
   const [subject, setSubject] = React.useState('Please sign this document');
   const [message, setMessage] = React.useState('');
@@ -89,7 +111,7 @@ export default function NewEnvelopePage() {
       router.push(`/dashboard/sabsign/${res.id}`);
     } catch (err) {
       console.error(err);
-      alert(`Save failed: ${(err as Error).message}`);
+      toast.error(`Save failed: ${(err as Error).message}`);
     } finally {
       setSaving(false);
     }
@@ -97,90 +119,132 @@ export default function NewEnvelopePage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back
-          </Button>
-          <h1 className="text-xl font-semibold text-[var(--st-text)]">New envelope</h1>
-        </div>
-        <div className="flex gap-2">
+      <PageHeader>
+        <PageHeaderHeading>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              iconLeft={ArrowLeft}
+              onClick={() => router.back()}
+            >
+              Back
+            </Button>
+            <PageTitle>New envelope</PageTitle>
+          </div>
+        </PageHeaderHeading>
+        <PageActions>
           <Button
             variant="outline"
+            iconLeft={Save}
             disabled={!canSave || saving}
             onClick={() => handleSave(false)}
           >
-            <Save className="h-4 w-4 mr-2" />
             Save draft
           </Button>
-          <Button disabled={!canSave || saving} onClick={() => handleSave(true)}>
-            <Send className="h-4 w-4 mr-2" />
+          <Button
+            variant="primary"
+            iconLeft={Send}
+            loading={saving}
+            disabled={!canSave || saving}
+            onClick={() => handleSave(true)}
+          >
             Save and send
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
-      <Card className="p-4 border border-[var(--st-border)] space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <Label>Envelope name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Q3 Vendor Agreement" />
+      <Card>
+        <CardBody className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Field label="Envelope name">
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Q3 Vendor Agreement"
+              />
+            </Field>
+            <Field label="Email subject">
+              <Input value={subject} onChange={(e) => setSubject(e.target.value)} />
+            </Field>
+            <Field label="Email message" className="sm:col-span-2">
+              <Textarea value={message} onChange={(e) => setMessage(e.target.value)} />
+            </Field>
           </div>
           <div>
-            <Label>Email subject</Label>
-            <Input value={subject} onChange={(e) => setSubject(e.target.value)} />
+            <Label>Document</Label>
+            <div className="flex items-center gap-3 mt-1">
+              <SabFilePickerButton accept="document" onPick={(p) => setDoc(p)}>
+                {doc ? 'Replace document' : 'Pick document from SabFiles'}
+              </SabFilePickerButton>
+              {doc && (
+                <span className="text-sm text-[var(--st-text-secondary)]">{doc.name}</span>
+              )}
+            </div>
           </div>
-          <div className="sm:col-span-2">
-            <Label>Email message</Label>
-            <Textarea value={message} onChange={(e) => setMessage(e.target.value)} />
-          </div>
-        </div>
-        <div>
-          <Label>Document</Label>
-          <div className="flex items-center gap-3 mt-1">
-            <SabFilePickerButton
-              accept="document"
-              onPick={(p) => setDoc(p)}
-            >
-              {doc ? 'Replace document' : 'Pick document from SabFiles'}
-            </SabFilePickerButton>
-            {doc && (
-              <span className="text-sm text-[var(--st-text-secondary)]">{doc.name}</span>
-            )}
-          </div>
-        </div>
+        </CardBody>
       </Card>
 
       <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="advanced" className="border border-[var(--st-border)] rounded-xl bg-white px-4">
-          <AccordionTrigger className="py-3 hover:no-underline text-sm font-medium text-[var(--st-text)]">
-            <div className="flex items-center gap-2">
-              <Settings2 className="w-4 h-4 text-[var(--st-text-secondary)]" />
-              Advanced Settings (Reminders & Expirations)
-            </div>
+        <AccordionItem
+          value="advanced"
+          className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-4"
+        >
+          <AccordionTrigger className="py-3 text-sm font-medium text-[var(--st-text)]">
+            <span className="flex items-center gap-2">
+              <Settings2 className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+              Advanced settings (reminders and expirations)
+            </span>
           </AccordionTrigger>
           <AccordionContent className="pb-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 border-t border-[var(--st-border)]">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label>Send automatic reminders</Label>
-                  <Switch checked={remindersEnabled} onCheckedChange={setRemindersEnabled} />
+                  <Switch
+                    checked={remindersEnabled}
+                    onCheckedChange={setRemindersEnabled}
+                    aria-label="Send automatic reminders"
+                  />
                 </div>
                 {remindersEnabled && (
                   <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
-                    Remind every <Input type="number" className="w-20 inline-flex" value={reminderDays} onChange={(e)=>setReminderDays(parseInt(e.target.value))} /> days
+                    Remind every
+                    <Field label="" className="w-20">
+                      <Input
+                        type="number"
+                        inputSize="sm"
+                        aria-label="Reminder interval in days"
+                        value={reminderDays}
+                        onChange={(e) => setReminderDays(parseInt(e.target.value))}
+                      />
+                    </Field>
+                    days
                   </div>
                 )}
               </div>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label>Envelope expiration</Label>
-                  <Switch checked={expireEnabled} onCheckedChange={setExpireEnabled} />
+                  <Switch
+                    checked={expireEnabled}
+                    onCheckedChange={setExpireEnabled}
+                    aria-label="Envelope expiration"
+                  />
                 </div>
                 {expireEnabled && (
                   <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
-                    Void after <Input type="number" className="w-20 inline-flex" value={expireDays} onChange={(e)=>setExpireDays(parseInt(e.target.value))} /> days
+                    Void after
+                    <Field label="" className="w-20">
+                      <Input
+                        type="number"
+                        inputSize="sm"
+                        aria-label="Expiration in days"
+                        value={expireDays}
+                        onChange={(e) => setExpireDays(parseInt(e.target.value))}
+                      />
+                    </Field>
+                    days
                   </div>
                 )}
               </div>
@@ -189,14 +253,18 @@ export default function NewEnvelopePage() {
         </AccordionItem>
       </Accordion>
 
-      <Card className="p-4 border border-[var(--st-border)]">
-        <h3 className="text-sm font-medium text-[var(--st-text)] mb-3">Signers & Recipients</h3>
-        <SignersEditor
-          signers={signers}
-          routingOrder={routingOrder}
-          onSignersChange={setSigners}
-          onRoutingChange={setRoutingOrder}
-        />
+      <Card>
+        <CardHeader>
+          <CardTitle>Signers and recipients</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <SignersEditor
+            signers={signers}
+            routingOrder={routingOrder}
+            onSignersChange={setSigners}
+            onRoutingChange={setRoutingOrder}
+          />
+        </CardBody>
       </Card>
 
       {routingOrder === 'conditional' && (
@@ -209,23 +277,30 @@ export default function NewEnvelopePage() {
       )}
 
       {doc ? (
-        <Card className="p-4 border border-[var(--st-border)]">
-          <h3 className="text-sm font-medium text-[var(--st-text)] mb-3">
-            Place fields on the document
-          </h3>
-          <PdfFieldOverlay
-            docUrl={doc.url}
-            recipientRoles={roles.length ? roles : ['signer']}
-            fields={fields}
-            onChange={setFields}
-          />
+        <Card>
+          <CardHeader>
+            <CardTitle>Place fields on the document</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <PdfFieldOverlay
+              docUrl={doc.url}
+              recipientRoles={roles.length ? roles : ['signer']}
+              fields={fields}
+              onChange={setFields}
+            />
+          </CardBody>
         </Card>
       ) : (
-        <Card className="p-8 border border-dashed border-[var(--st-border)] text-center text-sm text-[var(--st-text-secondary)]">
-          Pick a document above to start placing signature fields.
+        <Card>
+          <CardBody>
+            <EmptyState
+              icon={FileText}
+              title="No document selected"
+              description="Pick a document above to start placing signature fields."
+            />
+          </CardBody>
         </Card>
       )}
     </div>
   );
 }
-

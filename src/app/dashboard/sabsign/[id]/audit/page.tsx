@@ -7,7 +7,23 @@
 
 import * as React from 'react';
 import { useParams } from 'next/navigation';
-import { Badge, Card } from '@/components/sabcrm/20ui';
+import { FileClock } from 'lucide-react';
+import {
+  Badge,
+  Card,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageActions,
+  Spinner,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
 import { getEnvelopeAudit } from '@/app/actions/sabsign.actions';
 import type { EsignAuditEvent } from '@/lib/rust-client/esign-audit';
 
@@ -35,47 +51,61 @@ export default function EnvelopeAuditPage() {
   }, [params.id]);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-[var(--st-text)]">Audit trail</h1>
-        <Badge variant={chainValid ? 'default' : 'destructive'}>
-          {chainValid ? 'Hash chain valid' : 'TAMPERED'}
-        </Badge>
-      </div>
-      <Card className="p-0 border border-[var(--st-border)] overflow-hidden">
+    <div className="ui20 p-6 max-w-4xl mx-auto space-y-4">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Audit trail</PageTitle>
+        </PageHeaderHeading>
+        <PageActions>
+          <Badge tone={chainValid ? 'success' : 'danger'} kind="soft" dot>
+            {chainValid ? 'Hash chain valid' : 'Tampered'}
+          </Badge>
+        </PageActions>
+      </PageHeader>
+
+      <Card padding="none" className="overflow-hidden">
         {loading ? (
-          <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading…</div>
+          <div className="flex items-center justify-center gap-2 p-6 text-sm text-[var(--st-text-secondary)]">
+            <Spinner size="sm" label="Loading audit trail" />
+            <span>Loading...</span>
+          </div>
         ) : events.length === 0 ? (
-          <div className="p-6 text-sm text-[var(--st-text-secondary)]">No events yet.</div>
+          <EmptyState
+            icon={FileClock}
+            title="No events yet"
+            description="Audit events appear here as this envelope moves through signing."
+          />
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-[var(--st-bg-muted)]">
-              <tr>
-                <th className="px-3 py-2 text-left">Timestamp</th>
-                <th className="px-3 py-2 text-left">Event</th>
-                <th className="px-3 py-2 text-left">Signer</th>
-                <th className="px-3 py-2 text-left">IP</th>
-                <th className="px-3 py-2 text-left">Hash</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table density="compact">
+            <THead>
+              <Tr>
+                <Th>Timestamp</Th>
+                <Th>Event</Th>
+                <Th>Signer</Th>
+                <Th>IP</Th>
+                <Th>Hash</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {events.map((ev) => (
-                <tr key={ev._id} className="border-t border-[var(--st-border)]">
-                  <td className="px-3 py-2 text-[var(--st-text-secondary)]">
+                <Tr key={ev._id}>
+                  <Td className="text-[var(--st-text-secondary)]">
                     {new Date(ev.ts).toLocaleString()}
-                  </td>
-                  <td className="px-3 py-2">
-                    <Badge variant="outline">{ev.eventType}</Badge>
-                  </td>
-                  <td className="px-3 py-2">{ev.signerId || '—'}</td>
-                  <td className="px-3 py-2 text-[var(--st-text-secondary)]">{ev.ip || '—'}</td>
-                  <td className="px-3 py-2 text-xs text-[var(--st-text-secondary)] truncate max-w-[200px]">
-                    {ev.hash.slice(0, 16)}…
-                  </td>
-                </tr>
+                  </Td>
+                  <Td>
+                    <Badge tone="neutral" kind="outline">
+                      {ev.eventType}
+                    </Badge>
+                  </Td>
+                  <Td>{ev.signerId || '-'}</Td>
+                  <Td className="text-[var(--st-text-secondary)]">{ev.ip || '-'}</Td>
+                  <Td truncate className="font-mono text-xs text-[var(--st-text-secondary)] max-w-[200px]">
+                    {ev.hash.slice(0, 16)}...
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         )}
       </Card>
     </div>
