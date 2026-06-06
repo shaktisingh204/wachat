@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Suspense } from 'react';
+import { CalendarClock } from 'lucide-react';
 
 import {
     listSabpracticeClients,
@@ -7,7 +8,20 @@ import {
     listSabpracticeEngagements,
     listSabpracticeTimeLogs,
 } from '@/app/actions/sabpractice.actions';
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, PageHeader, StatCard, EmptyState, Badge } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Card,
+    CardBody,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    EmptyState,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    StatCard,
+} from '@/components/sabcrm/20ui';
 
 async function OverviewData() {
     const now = new Date();
@@ -34,12 +48,12 @@ async function OverviewData() {
     return (
         <div className="space-y-6">
             <PageHeader>
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">SabPractice</h1>
-                    <p className="text-sm text-[var(--st-text-secondary)]">
-                        Your firm overview — clients, engagements, and what is due next.
-                    </p>
-                </div>
+                <PageHeaderHeading>
+                    <PageTitle>SabPractice</PageTitle>
+                    <PageDescription>
+                        Your firm overview. Clients, engagements, and what is due next.
+                    </PageDescription>
+                </PageHeaderHeading>
             </PageHeader>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -48,7 +62,10 @@ async function OverviewData() {
                 <StatCard
                     label="Hours this month"
                     value={(hours.totalHours ?? 0).toFixed(1)}
-                    period={`${(hours.billableHours ?? 0).toFixed(1)} billable`}
+                    delta={{
+                        value: `${(hours.billableHours ?? 0).toFixed(1)} billable`,
+                        tone: 'neutral',
+                    }}
                 />
                 <StatCard
                     label="Upcoming deadlines (30d)"
@@ -64,6 +81,7 @@ async function OverviewData() {
                 <CardBody>
                     {upcomingDeadlines.length === 0 ? (
                         <EmptyState
+                            icon={CalendarClock}
                             title="No upcoming deadlines"
                             description="Add a deadline to start tracking compliance."
                         />
@@ -75,13 +93,16 @@ async function OverviewData() {
                                     className="flex items-center justify-between py-2 text-sm"
                                 >
                                     <div className="flex flex-col">
-                                        <span className="font-medium">{d.name}</span>
+                                        <span className="font-medium text-[var(--st-text)]">
+                                            {d.name}
+                                        </span>
                                         <span className="text-xs text-[var(--st-text-secondary)]">
-                                            {d.kind ?? 'custom'} ·{' '}
+                                            {d.kind ?? 'custom'}
+                                            {', '}
                                             {new Date(d.dueDate).toLocaleDateString()}
                                         </span>
                                     </div>
-                                    <Badge>{d.status ?? 'upcoming'}</Badge>
+                                    <Badge tone="warning">{d.status ?? 'upcoming'}</Badge>
                                 </li>
                             ))}
                         </ul>
@@ -96,7 +117,7 @@ export default function SabpracticeOverviewPage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading…</div>
+                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading...</div>
             }
         >
             <OverviewData />

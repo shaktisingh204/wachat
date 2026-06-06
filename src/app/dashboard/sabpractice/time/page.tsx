@@ -1,8 +1,27 @@
 import * as React from 'react';
 import { Suspense } from 'react';
+import { Clock } from 'lucide-react';
 
 import { listSabpracticeTimeLogs } from '@/app/actions/sabpractice.actions';
-import { Badge, Card, CardBody, CardHeader, CardTitle, EmptyState, PageHeader, StatCard, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    EmptyState,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    StatCard,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+} from '@/components/sabcrm/20ui';
 
 import { LogTimeForm } from './_components/log-time-form';
 
@@ -45,22 +64,19 @@ async function TimeData() {
     return (
         <div className="space-y-6">
             <PageHeader>
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">Time</h1>
-                    <p className="text-sm text-[var(--st-text-secondary)]">
-                        Week of {weekStart.toLocaleDateString()} —{' '}
+                <PageHeaderHeading>
+                    <PageTitle>Time</PageTitle>
+                    <PageDescription>
+                        Week of {weekStart.toLocaleDateString()} to{' '}
                         {weekEnd.toLocaleDateString()}
-                    </p>
-                </div>
+                    </PageDescription>
+                </PageHeaderHeading>
             </PageHeader>
 
             <div className="grid gap-4 sm:grid-cols-3">
                 <StatCard label="This week" value={list.totalHours.toFixed(1)} />
                 <StatCard label="Billable" value={list.billableHours.toFixed(1)} />
-                <StatCard
-                    label="Entries"
-                    value={String(list.items.length)}
-                />
+                <StatCard label="Entries" value={String(list.items.length)} />
             </div>
 
             <Card>
@@ -81,8 +97,8 @@ async function TimeData() {
                         <THead>
                             <Tr>
                                 <Th>Day</Th>
-                                <Th>Hours</Th>
-                                <Th>Billable</Th>
+                                <Th align="right">Hours</Th>
+                                <Th align="right">Billable</Th>
                             </Tr>
                         </THead>
                         <TBody>
@@ -97,8 +113,8 @@ async function TimeData() {
                                                 day: 'numeric',
                                             })}
                                         </Td>
-                                        <Td>{t.hours.toFixed(2)}</Td>
-                                        <Td>{t.billable.toFixed(2)}</Td>
+                                        <Td align="right">{t.hours.toFixed(2)}</Td>
+                                        <Td align="right">{t.billable.toFixed(2)}</Td>
                                     </Tr>
                                 );
                             })}
@@ -114,6 +130,7 @@ async function TimeData() {
                 <CardBody>
                     {list.items.length === 0 ? (
                         <EmptyState
+                            icon={Clock}
                             title="No time logged this week"
                             description="Log time above to populate the grid."
                         />
@@ -123,7 +140,7 @@ async function TimeData() {
                                 <Tr>
                                     <Th>Date</Th>
                                     <Th>Task</Th>
-                                    <Th>Hours</Th>
+                                    <Th align="right">Hours</Th>
                                     <Th>Notes</Th>
                                     <Th>Billable</Th>
                                 </Tr>
@@ -131,18 +148,20 @@ async function TimeData() {
                             <TBody>
                                 {list.items.map((tl) => (
                                     <Tr key={tl._id}>
-                                        <Td>
-                                            {new Date(tl.date).toLocaleDateString()}
-                                        </Td>
+                                        <Td>{new Date(tl.date).toLocaleDateString()}</Td>
                                         <Td className="font-mono text-xs">
                                             {tl.taskId.slice(-6)}
                                         </Td>
-                                        <Td>{tl.hours.toFixed(2)}</Td>
+                                        <Td align="right">{tl.hours.toFixed(2)}</Td>
                                         <Td className="text-sm text-[var(--st-text-secondary)]">
-                                            {tl.notes ?? '—'}
+                                            {tl.notes ?? '-'}
                                         </Td>
                                         <Td>
-                                            {tl.billable ? <Badge>billable</Badge> : '—'}
+                                            {tl.billable ? (
+                                                <Badge tone="success">billable</Badge>
+                                            ) : (
+                                                '-'
+                                            )}
                                         </Td>
                                     </Tr>
                                 ))}
@@ -159,7 +178,9 @@ export default function TimePage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading…</div>
+                <div className="p-6 text-sm text-[var(--st-text-secondary)]">
+                    Loading...
+                </div>
             }
         >
             <TimeData />

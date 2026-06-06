@@ -3,11 +3,12 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Input, Label } from '@/components/sabcrm/20ui';
+import { Button, Checkbox, Field, Input, useToast } from '@/components/sabcrm/20ui';
 import { logSabpracticeTime } from '@/app/actions/sabpractice.actions';
 
 export function LogTimeForm() {
     const router = useRouter();
+    const { toast } = useToast();
     const [taskId, setTaskId] = React.useState('');
     const [hours, setHours] = React.useState('');
     const [date, setDate] = React.useState(new Date().toISOString().slice(0, 10));
@@ -22,69 +23,68 @@ export function LogTimeForm() {
                 e.preventDefault();
                 if (!taskId.trim() || !hours) return;
                 start(async () => {
-                    await logSabpracticeTime({
-                        taskId: taskId.trim(),
-                        loggerUserId: '',
-                        date: new Date(date).toISOString(),
-                        hours: Number(hours),
-                        notes: notes || undefined,
-                        billable,
-                    });
-                    setHours('');
-                    setNotes('');
-                    router.refresh();
+                    try {
+                        await logSabpracticeTime({
+                            taskId: taskId.trim(),
+                            loggerUserId: '',
+                            date: new Date(date).toISOString(),
+                            hours: Number(hours),
+                            notes: notes || undefined,
+                            billable,
+                        });
+                        setHours('');
+                        setNotes('');
+                        toast.success('Time logged');
+                        router.refresh();
+                    } catch {
+                        toast.error('Could not log time');
+                    }
                 });
             }}
         >
-            <div className="sm:col-span-2 space-y-1">
-                <Label htmlFor="sp-task">Task ID</Label>
+            <Field label="Task ID" className="sm:col-span-2">
                 <Input
-                    id="sp-task"
                     value={taskId}
                     onChange={(e) => setTaskId(e.target.value)}
                     placeholder="task _id"
                 />
-            </div>
-            <div className="space-y-1">
-                <Label htmlFor="sp-date">Date</Label>
+            </Field>
+            <Field label="Date">
                 <Input
-                    id="sp-date"
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                 />
-            </div>
-            <div className="space-y-1">
-                <Label htmlFor="sp-hours">Hours</Label>
+            </Field>
+            <Field label="Hours">
                 <Input
-                    id="sp-hours"
                     type="number"
                     step="0.25"
                     min="0.25"
                     value={hours}
                     onChange={(e) => setHours(e.target.value)}
                 />
-            </div>
-            <div className="sm:col-span-2 space-y-1">
-                <Label htmlFor="sp-notes">Notes</Label>
+            </Field>
+            <Field label="Notes" className="sm:col-span-2">
                 <Input
-                    id="sp-notes"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="what you did"
                 />
-            </div>
+            </Field>
             <div className="sm:col-span-6 flex items-center justify-between gap-3">
-                <label className="flex items-center gap-2 text-sm">
-                    <input
-                        type="checkbox"
-                        checked={billable}
-                        onChange={(e) => setBillable(e.target.checked)}
-                    />
-                    Billable
-                </label>
-                <Button type="submit" disabled={pending || !taskId.trim() || !hours}>
-                    {pending ? 'Logging…' : 'Log time'}
+                <Checkbox
+                    label="Billable"
+                    checked={billable}
+                    onChange={(e) => setBillable(e.target.checked)}
+                />
+                <Button
+                    type="submit"
+                    variant="primary"
+                    loading={pending}
+                    disabled={!taskId.trim() || !hours}
+                >
+                    {pending ? 'Logging' : 'Log time'}
                 </Button>
             </div>
         </form>

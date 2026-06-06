@@ -2,19 +2,34 @@ import * as React from 'react';
 import { Suspense } from 'react';
 
 import { listSabpracticeEngagements } from '@/app/actions/sabpractice.actions';
-import { Badge, Card, CardBody, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Card,
+    CardBody,
+    EmptyState,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+} from '@/components/sabcrm/20ui';
 
 async function EngagementsData() {
     const list = await listSabpracticeEngagements({ status: 'all', limit: 200 });
     return (
         <div className="space-y-4">
             <PageHeader>
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">Engagements</h1>
-                    <p className="text-sm text-[var(--st-text-secondary)]">
+                <PageHeaderHeading>
+                    <PageTitle>Engagements</PageTitle>
+                    <PageDescription>
                         Cross-client engagement list. Open a client to add a new one.
-                    </p>
-                </div>
+                    </PageDescription>
+                </PageHeaderHeading>
             </PageHeader>
             <Card>
                 <CardBody className="p-0">
@@ -41,11 +56,11 @@ async function EngagementsData() {
                                         <Td className="font-mono text-xs">
                                             {e.clientId.slice(-6)}
                                         </Td>
-                                        <Td>{e.billingCadence ?? '—'}</Td>
+                                        <Td>{e.billingCadence ?? '-'}</Td>
                                         <Td>
                                             {e.hourlyRateMinor
                                                 ? `${(e.hourlyRateMinor / 100).toFixed(2)} ${e.currency ?? ''}`
-                                                : '—'}
+                                                : '-'}
                                         </Td>
                                         <Td>
                                             <Badge>{e.status ?? 'active'}</Badge>
@@ -65,7 +80,7 @@ export default function EngagementsPage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading…</div>
+                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading...</div>
             }
         >
             <EngagementsData />

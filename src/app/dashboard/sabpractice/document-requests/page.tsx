@@ -1,9 +1,25 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { FileCheck2 } from 'lucide-react';
 
 import { listSabpracticeDocumentRequests } from '@/app/actions/sabpractice.actions';
-import { Badge, Card, CardBody, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Card,
+    CardBody,
+    EmptyState,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Table,
+    TBody,
+    Td,
+    Th,
+    THead,
+    Tr,
+} from '@/components/sabcrm/20ui';
 
 async function DocRequestsData() {
     const list = await listSabpracticeDocumentRequests({ status: 'open', limit: 200 });
@@ -11,20 +27,22 @@ async function DocRequestsData() {
     return (
         <div className="space-y-4">
             <PageHeader>
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">Document requests</h1>
-                    <p className="text-sm text-[var(--st-text-secondary)]">
+                <PageHeaderHeading>
+                    <PageTitle>Document requests</PageTitle>
+                    <PageDescription>
                         Open requests across all clients. Files source from SabFiles only.
-                    </p>
-                </div>
+                    </PageDescription>
+                </PageHeaderHeading>
             </PageHeader>
 
-            <Card>
+            <Card padding="none">
                 <CardBody className="p-0">
                     {list.items.length === 0 ? (
                         <EmptyState
+                            icon={FileCheck2}
+                            tone="success"
                             title="Nothing pending"
-                            description="All document requests are complete — nice."
+                            description="All document requests are complete. Nice work."
                         />
                     ) : (
                         <Table>
@@ -59,7 +77,7 @@ async function DocRequestsData() {
                                             <Td>
                                                 {r.dueDate
                                                     ? new Date(r.dueDate).toLocaleDateString()
-                                                    : '—'}
+                                                    : '-'}
                                             </Td>
                                             <Td>
                                                 <Badge>{r.status ?? 'requested'}</Badge>
@@ -80,7 +98,7 @@ export default function DocRequestsPage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading…</div>
+                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading.</div>
             }
         >
             <DocRequestsData />

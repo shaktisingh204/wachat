@@ -1,12 +1,25 @@
 'use client';
 
-import React from 'react';
+import * as React from 'react';
 import { FileText, Plus, Database, Edit, Eye, MoreHorizontal } from 'lucide-react';
-import { PageHeader } from '@/components/sabcrm/20ui';
-import { Card } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Card,
+  Button,
+  IconButton,
+  Badge,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
 
 const MOCK_FORMS = [
   {
@@ -50,19 +63,27 @@ const MOCK_FORMS = [
 export default function SabCreatorFormsPage() {
   return (
     <div className="p-6 md:p-10 space-y-8">
-      <PageHeader
-        title="Forms"
-        subtitle="Design forms and collect structured data across your apps."
-        icon={FileText}
-        actions={
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>
+            <span className="inline-flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5" aria-hidden="true" />
+              SabCreator
+            </span>
+          </PageEyebrow>
+          <PageTitle>Forms</PageTitle>
+          <PageDescription>
+            Design forms and collect structured data across your apps.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus}>
             Create Form
           </Button>
-        }
-      />
+        </PageActions>
+      </PageHeader>
 
-      <Card className="p-0 overflow-hidden">
+      <Card padding="none" className="overflow-hidden">
         <Table>
           <THead>
             <Tr>
@@ -71,7 +92,7 @@ export default function SabCreatorFormsPage() {
               <Th>Database Table</Th>
               <Th>Submissions</Th>
               <Th>Status</Th>
-              <Th className="text-right">Actions</Th>
+              <Th align="right">Actions</Th>
             </Tr>
           </THead>
           <TBody>
@@ -81,37 +102,29 @@ export default function SabCreatorFormsPage() {
                   <span className="font-medium text-[var(--st-text)]">{form.name}</span>
                 </Td>
                 <Td>
-                  <span className="text-sm text-[var(--st-text)]/80">{form.app}</span>
+                  <span className="text-sm text-[var(--st-text-secondary)]">{form.app}</span>
                 </Td>
                 <Td>
-                  <div className="flex items-center text-sm text-[var(--st-text)]/80">
-                    <Database className="w-4 h-4 mr-1.5 text-[var(--st-text)]/50" />
+                  <div className="flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)]">
+                    <Database className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                     {form.table}
                   </div>
                 </Td>
-                <Td className="text-sm text-[var(--st-text)]/70">
-                  {form.submissions.toLocaleString()}
+                <Td>
+                  <span className="text-sm text-[var(--st-text-secondary)]">
+                    {form.submissions.toLocaleString()}
+                  </span>
                 </Td>
                 <Td>
-                  <Badge
-                    variant={
-                      form.status === 'published' ? 'default' : 'secondary'
-                    }
-                  >
+                  <Badge tone={form.status === 'published' ? 'success' : 'neutral'} dot>
                     {form.status}
                   </Badge>
                 </Td>
-                <Td className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="icon">
-                      <Eye className="w-4 h-4 text-[var(--st-text)]/60" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="w-4 h-4 text-[var(--st-text)]/60" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="w-4 h-4 text-[var(--st-text)]/60" />
-                    </Button>
+                <Td align="right">
+                  <div className="flex justify-end gap-1">
+                    <IconButton label={`Preview ${form.name}`} icon={Eye} size="sm" />
+                    <IconButton label={`Edit ${form.name}`} icon={Edit} size="sm" />
+                    <IconButton label={`More actions for ${form.name}`} icon={MoreHorizontal} size="sm" />
                   </div>
                 </Td>
               </Tr>

@@ -1,3 +1,11 @@
+/**
+ * Roles and access route (server component).
+ *
+ * This file fetches the app, its roles, and its role assignments, then hands
+ * everything to the client editor. It renders no UI primitives itself. All of
+ * the interface lives in `./_components/roles-editor-client`, which is built
+ * entirely on the 20ui design system (`@/components/sabcrm/20ui`).
+ */
 import { notFound } from 'next/navigation';
 
 import {

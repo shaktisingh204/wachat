@@ -1,18 +1,42 @@
 'use client';
 
 /**
- * Roles + row-level-security + user assignment editor.
+ * Roles, row-level-security, and user-assignment editor.
  *
- * The condition input is a plain JSON textarea — a true visual rule
- * builder is deferred (TODO marker noted in the action layer).
+ * The condition input is a plain JSON textarea. A true visual rule builder is
+ * deferred (TODO marker noted in the action layer).
  */
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, UserPlus } from 'lucide-react';
+import { Plus, Trash2, UserPlus, ShieldCheck } from 'lucide-react';
 
-import { Badge, Button, Card, EmptyState, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  Label,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   assignSabcreatorRole,
   createSabcreatorRole,
@@ -42,6 +66,7 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
   const router = useRouter();
   const selected = roles.find((r) => r._id === selectedRoleId) ?? null;
   const [pending, startTransition] = useTransition();
+  const { toast } = useToast();
 
   // Inline form for "create new role"
   const [newName, setNewName] = useState('');
@@ -53,9 +78,11 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
         setRoles((p) => [res.entity, ...p]);
         setSelectedRoleId(res.entity._id);
         setNewName('');
+        toast.success('Role created');
         router.refresh();
       } catch (err) {
         console.error('[sabcreator] createRole failed', err);
+        toast.error('Could not create the role');
       }
     });
   };
@@ -73,9 +100,11 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
         );
         setAssignments((p) => [res.entity, ...p.filter((a) => a._id !== res.entity._id)]);
         setAssignUserId('');
+        toast.success('User assigned');
         router.refresh();
       } catch (err) {
         console.error('[sabcreator] assign failed', err);
+        toast.error('Could not assign the user');
       }
     });
   };
@@ -85,9 +114,11 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
       try {
         await unassignSabcreatorRole(id, app._id);
         setAssignments((p) => p.filter((a) => a._id !== id));
+        toast.success('User unassigned');
         router.refresh();
       } catch (err) {
         console.error('[sabcreator] unassign failed', err);
+        toast.error('Could not unassign the user');
       }
     });
   };
@@ -103,9 +134,11 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
           [field]: rule,
         });
         setRoles((p) => p.map((r) => (r._id === res._id ? res : r)));
+        toast.success('Access rule saved');
         router.refresh();
       } catch (err) {
         console.error('[sabcreator] updateRole failed', err);
+        toast.error('Could not save the access rule');
       }
     });
   };
@@ -113,12 +146,12 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
   return (
     <div className="min-h-screen flex flex-col">
       <PageHeader>
-        <div>
-          <PageTitle>Roles & access</PageTitle>
+        <PageHeaderHeading>
+          <PageTitle>Roles and access</PageTitle>
           <PageDescription>
-            {app.name} — row-level security + per-user assignments.
+            {app.name}. Row-level security and per-user assignments.
           </PageDescription>
-        </div>
+        </PageHeaderHeading>
         <PageActions>
           <Button asChild variant="outline">
             <Link href={`/dashboard/sabcreator/${app._id}/builder`}>
@@ -130,36 +163,43 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
 
       <div className="grid grid-cols-[260px_1fr] gap-4 px-6 pb-10 flex-1">
         <aside>
-          <Card className="p-3 space-y-3">
-            <div className="flex items-center gap-2">
-              <Input
-                placeholder="Role name"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
+          <Card padding="sm" className="space-y-3">
+            <div className="flex items-end gap-2">
+              <Field label="New role" className="flex-1">
+                <Input
+                  placeholder="Role name"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                />
+              </Field>
+              <IconButton
+                label="Create role"
+                icon={Plus}
+                variant="primary"
+                onClick={handleCreate}
+                disabled={pending || !newName.trim()}
               />
-              <Button size="icon" onClick={handleCreate} disabled={pending || !newName.trim()}>
-                <Plus className="size-4" />
-              </Button>
             </div>
             <ul className="space-y-1">
-              {roles.map((r) => (
-                <li key={r._id}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedRoleId(r._id)}
-                    className={`w-full flex items-center justify-between gap-2 px-2 py-2 rounded-md text-sm text-left ${
-                      selectedRoleId === r._id
-                        ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] font-medium'
-                        : 'hover:bg-[var(--st-bg-muted)]'
-                    }`}
-                  >
-                    <span>{r.name}</span>
-                    <Badge variant="outline" className="shrink-0">
-                      {assignments.filter((a) => a.roleId === r._id).length}
-                    </Badge>
-                  </button>
-                </li>
-              ))}
+              {roles.map((r) => {
+                const isActive = selectedRoleId === r._id;
+                return (
+                  <li key={r._id}>
+                    <Button
+                      variant={isActive ? 'secondary' : 'ghost'}
+                      block
+                      onClick={() => setSelectedRoleId(r._id)}
+                      aria-pressed={isActive}
+                      className="justify-between"
+                    >
+                      <span>{r.name}</span>
+                      <Badge variant="outline" className="shrink-0">
+                        {assignments.filter((a) => a.roleId === r._id).length}
+                      </Badge>
+                    </Button>
+                  </li>
+                );
+              })}
             </ul>
           </Card>
         </aside>
@@ -167,67 +207,84 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
         <main className="space-y-4">
           {selected ? (
             <>
-              <Card className="p-4">
-                <h3 className="font-semibold mb-3">Row-level security</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <RuleEditor
-                    label="Can read"
-                    value={selected.recordsCanRead}
-                    onChange={(r) => updateRule('recordsCanRead', r)}
-                  />
-                  <RuleEditor
-                    label="Can edit"
-                    value={selected.recordsCanEdit}
-                    onChange={(r) => updateRule('recordsCanEdit', r)}
-                  />
-                  <RuleEditor
-                    label="Can delete"
-                    value={selected.recordsCanDelete}
-                    onChange={(r) => updateRule('recordsCanDelete', r)}
-                  />
-                </div>
+              <Card padding="md">
+                <CardHeader>
+                  <CardTitle>Row-level security</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <RuleEditor
+                      label="Can read"
+                      value={selected.recordsCanRead}
+                      onChange={(r) => updateRule('recordsCanRead', r)}
+                    />
+                    <RuleEditor
+                      label="Can edit"
+                      value={selected.recordsCanEdit}
+                      onChange={(r) => updateRule('recordsCanEdit', r)}
+                    />
+                    <RuleEditor
+                      label="Can delete"
+                      value={selected.recordsCanDelete}
+                      onChange={(r) => updateRule('recordsCanDelete', r)}
+                    />
+                  </div>
+                </CardBody>
               </Card>
 
-              <Card className="p-4">
-                <h3 className="font-semibold mb-3">Assigned users</h3>
-                <div className="flex items-center gap-2 mb-4">
-                  <Input
-                    placeholder="User _id to assign"
-                    value={assignUserId}
-                    onChange={(e) => setAssignUserId(e.target.value)}
-                  />
-                  <Button onClick={handleAssign} disabled={pending || !assignUserId.trim()}>
-                    <UserPlus className="size-4" /> Assign
-                  </Button>
-                </div>
-                <ul className="divide-y">
-                  {assignments
-                    .filter((a) => a.roleId === selected._id)
-                    .map((a) => (
-                      <li
-                        key={a._id}
-                        className="py-2 flex items-center justify-between"
-                      >
-                        <div>
-                          <div className="text-sm font-medium">{a.assigneeUserId}</div>
-                          <div className="text-xs text-[var(--st-text-secondary)]">
-                            assigned {new Date(a.assignedAt).toLocaleString()}
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleUnassign(a._id)}
+              <Card padding="md">
+                <CardHeader>
+                  <CardTitle>Assigned users</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <div className="flex items-end gap-2 mb-4">
+                    <Field label="Assign user" className="flex-1">
+                      <Input
+                        placeholder="User _id to assign"
+                        value={assignUserId}
+                        onChange={(e) => setAssignUserId(e.target.value)}
+                      />
+                    </Field>
+                    <Button
+                      variant="primary"
+                      iconLeft={UserPlus}
+                      onClick={handleAssign}
+                      disabled={pending || !assignUserId.trim()}
+                    >
+                      Assign
+                    </Button>
+                  </div>
+                  <ul className="divide-y divide-[var(--st-border)]">
+                    {assignments
+                      .filter((a) => a.roleId === selected._id)
+                      .map((a) => (
+                        <li
+                          key={a._id}
+                          className="py-2 flex items-center justify-between"
                         >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </li>
-                    ))}
-                </ul>
+                          <div>
+                            <div className="text-sm font-medium text-[var(--st-text)]">
+                              {a.assigneeUserId}
+                            </div>
+                            <div className="text-xs text-[var(--st-text-secondary)]">
+                              assigned {new Date(a.assignedAt).toLocaleString()}
+                            </div>
+                          </div>
+                          <IconButton
+                            label="Unassign user"
+                            icon={Trash2}
+                            variant="ghost"
+                            onClick={() => handleUnassign(a._id)}
+                          />
+                        </li>
+                      ))}
+                  </ul>
+                </CardBody>
               </Card>
             </>
           ) : (
             <EmptyState
+              icon={ShieldCheck}
               title="No role selected"
               description="Create a role on the left to start editing access rules."
             />
@@ -259,7 +316,7 @@ function RuleEditor({
           onChange({ ...value, rule: v as SabcreatorRowLevelRuleKind })
         }
       >
-        <SelectTrigger>
+        <SelectTrigger aria-label={label}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -269,7 +326,7 @@ function RuleEditor({
         </SelectContent>
       </Select>
       {value.rule === 'conditional' ? (
-        <div className="space-y-1">
+        <Field help="JSON predicate evaluated server-side. A visual rule builder is on the roadmap.">
           <Textarea
             rows={4}
             value={draftCondition}
@@ -288,10 +345,7 @@ function RuleEditor({
             }}
             placeholder='{"fieldOwnerId": "$user._id"}'
           />
-          <p className="text-xs text-[var(--st-text-secondary)]">
-            JSON predicate evaluated server-side. A visual rule builder is on the roadmap.
-          </p>
-        </div>
+        </Field>
       ) : null}
     </div>
   );

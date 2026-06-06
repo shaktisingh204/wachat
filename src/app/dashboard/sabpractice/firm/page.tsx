@@ -2,7 +2,17 @@ import * as React from 'react';
 import { Suspense } from 'react';
 
 import { listSabpracticeFirms } from '@/app/actions/sabpractice.actions';
-import { Card, CardBody, CardHeader, CardTitle, PageHeader } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Spinner,
+} from '@/components/sabcrm/20ui';
 
 import { FirmForm } from './_components/firm-form';
 
@@ -12,12 +22,10 @@ async function FirmData() {
     return (
         <div className="space-y-6">
             <PageHeader>
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">Firm settings</h1>
-                    <p className="text-sm text-[var(--st-text-secondary)]">
-                        Your accounting firm's profile.
-                    </p>
-                </div>
+                <PageHeaderHeading>
+                    <PageTitle>Firm settings</PageTitle>
+                    <PageDescription>Your accounting firm profile.</PageDescription>
+                </PageHeaderHeading>
             </PageHeader>
             <Card>
                 <CardHeader>
@@ -35,7 +43,10 @@ export default function FirmSettingsPage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading firm…</div>
+                <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-text-secondary)]">
+                    <Spinner size="sm" label="Loading firm" />
+                    <span>Loading firm</span>
+                </div>
             }
         >
             <FirmData />

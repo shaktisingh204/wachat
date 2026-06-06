@@ -1,11 +1,27 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Workflow } from 'lucide-react';
 
 import {
   getSabcreatorApp,
   listSabcreatorWorkflows,
 } from '@/app/actions/sabcreator.actions';
-import { Badge, Button, Card, EmptyState, PageHeader, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Card,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,47 +42,61 @@ export default async function WorkflowsListPage({
   );
 
   return (
-    <div className="px-6 py-8 space-y-6">
+    <div className="ui20 px-6 py-8 space-y-6">
       <PageHeader>
-        <div>
+        <PageHeaderHeading>
           <PageTitle>Workflows</PageTitle>
           <PageDescription>
-            {app.name} — triggers, schedules and SabFlow delegations.
+            {app.name}, triggers, schedules and SabFlow delegations.
           </PageDescription>
-        </div>
+        </PageHeaderHeading>
         <PageActions>
-          <Button asChild variant="outline">
-            <Link href={`/dashboard/sabcreator/${appId}/builder`}>
-              Back to builder
-            </Link>
-          </Button>
+          <Link
+            href={`/dashboard/sabcreator/${appId}/builder`}
+            className="u-btn u-btn--outline u-btn--md"
+          >
+            <span className="u-btn__label">Back to builder</span>
+          </Link>
         </PageActions>
       </PageHeader>
 
       {workflows.items.length === 0 ? (
         <EmptyState
+          icon={Workflow}
           title="No workflows yet"
           description="Add workflows from the builder shell (Workflows tab)."
         />
       ) : (
-        <Card className="p-0 divide-y">
-          {workflows.items.map((w) => (
-            <div
-              key={w._id}
-              className="px-4 py-3 flex items-center justify-between"
-            >
-              <div>
-                <div className="font-medium">{w.name}</div>
-                <div className="text-xs text-[var(--st-text-secondary)]">
-                  trigger: {w.trigger.kind}
-                  {w.sabflowRefId
-                    ? ` · sabflow ${w.sabflowRefId.slice(-6)}`
-                    : ' · inline'}
-                </div>
-              </div>
-              <Badge variant="outline">{w.status}</Badge>
-            </div>
-          ))}
+        <Card padding="none">
+          <Table>
+            <THead>
+              <Tr>
+                <Th>Workflow</Th>
+                <Th>Source</Th>
+                <Th align="right">Status</Th>
+              </Tr>
+            </THead>
+            <TBody>
+              {workflows.items.map((w) => (
+                <Tr key={w._id}>
+                  <Td>
+                    <span className="font-medium">{w.name}</span>
+                  </Td>
+                  <Td>
+                    <span className="text-xs text-[var(--st-text-secondary)]">
+                      trigger: {w.trigger.kind}
+                      {w.sabflowRefId
+                        ? `, sabflow ${w.sabflowRefId.slice(-6)}`
+                        : ', inline'}
+                    </span>
+                  </Td>
+                  <Td align="right">
+                    <Badge tone="neutral">{w.status}</Badge>
+                  </Td>
+                </Tr>
+              ))}
+            </TBody>
+          </Table>
         </Card>
       )}
     </div>

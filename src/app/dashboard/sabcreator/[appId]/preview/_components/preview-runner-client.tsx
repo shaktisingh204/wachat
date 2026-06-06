@@ -3,13 +3,27 @@
 /**
  * Runtime preview for SabCreator apps. Renders forms (with live submit)
  * and a stub renderer for pages. Real page widgets (charts, list views)
- * will be implemented in a follow-up — this preview surface is enough
- * to validate form schemas + workflow wiring end-to-end.
+ * will be implemented in a follow-up. This preview surface is enough
+ * to validate form schemas plus workflow wiring end-to-end.
  */
 
 import { useState, useTransition } from 'react';
+import { FileText, LayoutDashboard } from 'lucide-react';
 
-import { Badge, Button, Card, Input, Label, Textarea } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  EmptyState,
+  Field,
+  Input,
+  SegmentedControl,
+  Textarea,
+} from '@/components/sabcrm/20ui';
 import { submitSabcreatorForm } from '@/app/actions/sabcreator.actions';
 import type {
   SabcreatorFormDoc,
@@ -26,34 +40,38 @@ export function PreviewRunnerClient({ forms, pages }: Props) {
   const [tab, setTab] = useState<'forms' | 'pages'>(
     forms.length > 0 ? 'forms' : 'pages',
   );
+
   return (
     <div className="space-y-4">
-      <div className="inline-flex border rounded-md p-1 bg-[var(--st-bg-muted)]/30">
-        <button
-          type="button"
-          onClick={() => setTab('forms')}
-          className={`px-3 py-1.5 text-sm rounded ${
-            tab === 'forms' ? 'bg-[var(--st-bg-secondary)] shadow-sm' : 'text-[var(--st-text-secondary)]'
-          }`}
-        >
-          Forms ({forms.length})
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab('pages')}
-          className={`px-3 py-1.5 text-sm rounded ${
-            tab === 'pages' ? 'bg-[var(--st-bg-secondary)] shadow-sm' : 'text-[var(--st-text-secondary)]'
-          }`}
-        >
-          Pages ({pages.length})
-        </button>
-      </div>
+      <SegmentedControl
+        aria-label="Preview surface"
+        value={tab}
+        onChange={setTab}
+        items={[
+          { value: 'forms', label: `Forms (${forms.length})`, icon: FileText },
+          { value: 'pages', label: `Pages (${pages.length})`, icon: LayoutDashboard },
+        ]}
+      />
       {tab === 'forms' ? (
-        <div className="space-y-4">
-          {forms.map((f) => (
-            <FormRuntime key={f._id} form={f} />
-          ))}
-        </div>
+        forms.length === 0 ? (
+          <EmptyState
+            icon={FileText}
+            title="No forms to preview"
+            description="Build a form in the designer to validate its schema here."
+          />
+        ) : (
+          <div className="space-y-4">
+            {forms.map((f) => (
+              <FormRuntime key={f._id} form={f} />
+            ))}
+          </div>
+        )
+      ) : pages.length === 0 ? (
+        <EmptyState
+          icon={LayoutDashboard}
+          title="No pages to preview"
+          description="Create a page in the designer to inspect its config tree here."
+        />
       ) : (
         <div className="space-y-4">
           {pages.map((p) => (
@@ -86,71 +104,73 @@ function FormRuntime({ form }: { form: SabcreatorFormDoc }) {
   };
 
   return (
-    <Card className="p-4">
-      <div className="flex items-center justify-between mb-3">
+    <Card>
+      <CardHeader className="flex items-start justify-between gap-3">
         <div>
-          <div className="font-semibold">{form.name}</div>
-          <div className="text-xs text-[var(--st-text-secondary)]">
-            on submit: {form.submitAction}
-          </div>
+          <CardTitle>{form.name}</CardTitle>
+          <CardDescription>on submit: {form.submitAction}</CardDescription>
         </div>
         <Badge variant="outline">{form.status}</Badge>
-      </div>
-      {fields.length === 0 ? (
-        <div className="text-sm text-[var(--st-text-secondary)]">No fields defined.</div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-3">
-          {fields
-            .filter((f) => !f.hidden)
-            .map((f) => (
-              <div key={f.tableFieldId} className="space-y-1">
-                <Label>
-                  {f.label}
-                  {f.required ? <span className="text-[var(--st-text)]"> *</span> : null}
-                </Label>
-                <Input
+      </CardHeader>
+      <CardBody>
+        {fields.length === 0 ? (
+          <p className="text-sm text-[var(--st-text-secondary)]">No fields defined.</p>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {fields
+              .filter((f) => !f.hidden)
+              .map((f) => (
+                <Field
+                  key={f.tableFieldId}
+                  label={f.label}
                   required={!!f.required}
-                  value={String(values[f.tableFieldId] ?? '')}
-                  onChange={(e) =>
-                    setValues((p) => ({ ...p, [f.tableFieldId]: e.target.value }))
-                  }
-                />
-                {f.helpText ? (
-                  <p className="text-xs text-[var(--st-text-secondary)]">{f.helpText}</p>
-                ) : null}
-              </div>
-            ))}
-          <Button type="submit" disabled={pending}>
-            {pending ? 'Submitting…' : 'Submit'}
-          </Button>
-          {result ? (
-            <Textarea readOnly value={result} rows={6} className="font-mono text-xs" />
-          ) : null}
-        </form>
-      )}
+                  help={f.helpText || undefined}
+                >
+                  <Input
+                    required={!!f.required}
+                    value={String(values[f.tableFieldId] ?? '')}
+                    onChange={(e) =>
+                      setValues((p) => ({ ...p, [f.tableFieldId]: e.target.value }))
+                    }
+                  />
+                </Field>
+              ))}
+            <Button type="submit" variant="primary" loading={pending}>
+              {pending ? 'Submitting' : 'Submit'}
+            </Button>
+            {result ? (
+              <Field label="Result">
+                <Textarea readOnly value={result} rows={6} className="font-mono text-xs" />
+              </Field>
+            ) : null}
+          </form>
+        )}
+      </CardBody>
     </Card>
   );
 }
 
 function PageStub({ page }: { page: SabcreatorPageDoc }) {
-  const widgets =
-    (page.configJson as { widgets?: unknown })?.widgets ?? [];
+  const widgets = (page.configJson as { widgets?: unknown })?.widgets ?? [];
   const count = Array.isArray(widgets) ? widgets.length : 0;
+
   return (
-    <Card className="p-4">
-      <div className="flex items-center justify-between">
+    <Card>
+      <CardHeader className="flex items-start justify-between gap-3">
         <div>
-          <div className="font-semibold">{page.name}</div>
-          <div className="text-xs text-[var(--st-text-secondary)]">
-            {page.kind} · /{page.slug} · visibility {page.roleVisibility}
-          </div>
+          <CardTitle>{page.name}</CardTitle>
+          <CardDescription>
+            {page.kind} / {page.slug} . visibility {page.roleVisibility}
+          </CardDescription>
         </div>
         <Badge variant="outline">{count} widgets</Badge>
-      </div>
-      <p className="text-xs text-[var(--st-text-secondary)] mt-3">
-        Widget rendering is stubbed in preview. Use the page designer to inspect the
-        config tree.
-      </p>
+      </CardHeader>
+      <CardBody>
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          Widget rendering is stubbed in preview. Use the page designer to inspect the
+          config tree.
+        </p>
+      </CardBody>
     </Card>
   );
 }

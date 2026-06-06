@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Input, Label, Textarea } from '@/components/sabcrm/20ui';
+import { Button, Field, Input, Textarea, useToast } from '@/components/sabcrm/20ui';
 import {
     createSabpracticeFirm,
     updateSabpracticeFirm,
@@ -16,6 +16,7 @@ interface Props {
 
 export function FirmForm({ initial }: Props) {
     const router = useRouter();
+    const { toast } = useToast();
     const [name, setName] = React.useState(initial?.name ?? '');
     const [registrationNo, setRegistrationNo] = React.useState(initial?.registrationNo ?? '');
     const [email, setEmail] = React.useState(initial?.email ?? '');
@@ -25,7 +26,8 @@ export function FirmForm({ initial }: Props) {
     const [services, setServices] = React.useState((initial?.services ?? []).join(', '));
     const [pending, start] = React.useTransition();
 
-    function submit() {
+    function submit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
         if (!name.trim()) return;
         start(async () => {
             const payload = {
@@ -40,65 +42,73 @@ export function FirmForm({ initial }: Props) {
                     .map((s) => s.trim())
                     .filter(Boolean),
             };
-            if (initial?._id) {
-                await updateSabpracticeFirm(initial._id, payload);
-            } else {
-                await createSabpracticeFirm(payload);
+            try {
+                if (initial?._id) {
+                    await updateSabpracticeFirm(initial._id, payload);
+                    toast.success('Firm updated');
+                } else {
+                    await createSabpracticeFirm(payload);
+                    toast.success('Firm created');
+                }
+                router.refresh();
+            } catch {
+                toast.error('Could not save the firm. Please try again.');
             }
-            router.refresh();
         });
     }
 
     return (
-        <div className="space-y-3">
+        <form className="space-y-3" onSubmit={submit}>
             <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1">
-                    <Label>Firm name</Label>
+                <Field label="Firm name" required>
                     <Input value={name} onChange={(e) => setName(e.target.value)} />
-                </div>
-                <div className="space-y-1">
-                    <Label>Registration no</Label>
+                </Field>
+                <Field label="Registration no">
                     <Input
                         value={registrationNo}
                         onChange={(e) => setRegistrationNo(e.target.value)}
                     />
-                </div>
-                <div className="space-y-1">
-                    <Label>Email</Label>
+                </Field>
+                <Field label="Email">
                     <Input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
-                </div>
-                <div className="space-y-1">
-                    <Label>Phone</Label>
+                </Field>
+                <Field label="Phone">
                     <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
-                </div>
-                <div className="space-y-1 sm:col-span-2">
-                    <Label>Website</Label>
+                </Field>
+                <Field label="Website" className="sm:col-span-2">
                     <Input value={website} onChange={(e) => setWebsite(e.target.value)} />
-                </div>
-                <div className="space-y-1 sm:col-span-2">
-                    <Label>Address</Label>
+                </Field>
+                <Field label="Address" className="sm:col-span-2">
                     <Textarea
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         rows={2}
                     />
-                </div>
-                <div className="space-y-1 sm:col-span-2">
-                    <Label>Services (comma-separated)</Label>
+                </Field>
+                <Field
+                    label="Services (comma-separated)"
+                    help="Separate each service with a comma."
+                    className="sm:col-span-2"
+                >
                     <Input
                         value={services}
                         onChange={(e) => setServices(e.target.value)}
                         placeholder="Bookkeeping, Tax filing, Audit"
                     />
-                </div>
+                </Field>
             </div>
-            <Button onClick={submit} disabled={pending || !name.trim()}>
-                {pending ? 'Saving…' : initial ? 'Save changes' : 'Create firm'}
+            <Button
+                type="submit"
+                variant="primary"
+                loading={pending}
+                disabled={!name.trim()}
+            >
+                {initial ? 'Save changes' : 'Create firm'}
             </Button>
-        </div>
+        </form>
     );
 }
