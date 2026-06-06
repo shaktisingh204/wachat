@@ -83,6 +83,35 @@ the exact impl preserves behavior (no blind rewrite). Clusters by #files:
   These demo the OLD zoru components -> simplest: DELETE or rewrite the showcase. Low stakes.
 - 1 real-app collision: src/app/sabwa/inbox/_components/left-pane.tsx (ZoruEmptyState <-> EmptyState) -> dedup by hand.
 
+## ===== PHASE 2 (user 2026-06-06): EVERY module/page -> PURE 20ui =====
+User directive: remove legacy+zoruui FULLY, then migrate EVERY module/page EXCEPT crm, hrm, wachat
+(already done) so every frontend file uses ONLY 20ui — no raw HTML primitives, no inline styles,
+nothing but 20ui. Parallel agents, non-stop, BREAKAGE TOLERANCE ON.
+
+STATUS of "remove zoruui fully": compat.ts DELETED; /zoru path GONE (-> 20ui/legacy/); 0 Zoru* names,
+0 compat, 0 /zoru in consumers. REMAINING legacy bits (removed as modules migrate, then deleted):
+  - src/components/sabcrm/20ui/legacy/ (shell SabHomeShell x5 layouts, file-manager x12, widgets) + legacy-public.ts
+  - zoru-legacy.css (18 imports) + the `.zoruui` scope class (378 files)
+  Final deletion AFTER modules migrated: rebuild the 5 dashboard layouts on 20ui shell (SabHomeShell ->
+  20ui HomeShell wiring), migrate file-manager -> @/components/sabfiles, then delete legacy/ + legacy-public.ts
+  + zoru-legacy.css + drop .zoruui.
+
+MIGRATION WORKFLOW (reusable): `module-to-pure-20ui`
+  scriptPath: .../987f8268-.../workflows/scripts/module-to-pure-20ui-wf_a1088dab-205.js
+  Launch per module: Workflow({scriptPath, args:{module:"src/app/dashboard/<name>"}})
+  Per file: list -> rewrite (pure 20ui, 4 skills, breakage-ok) -> verify+fix. Disjoint files => run several
+  modules CONCURRENTLY. Validate quality on first completions, then chain the rest.
+
+RUNNING NOW: url-shortener (wk01i5nny), sabsprints (wtuqjmyvz), sabvault (w04bcdwq0).
+
+MODULES TO MIGRATE (dashboard, exclude crm + hrm + hrm-advanced + wachat; ~ file counts):
+  seo 268, sabdesk 114, facebook 96, sabbi 90, telegram 88, ad-manager 55, sabflow 49, user 48,
+  settings 48, sabcheckout 48, sabsense 45, finance 43, url-shortener 41*, sabchat 36, sabmonitor 34,
+  sabshop 30, sabconnect 28, email 28, sabworkerly 26, sabsign 25, platform 22, api 22, sabsprints 21*,
+  marketing 20, team 17, sabbigin 17, sabpractice 16, sabcreator 16, sabvault 15*, + the long tail.
+NON-dashboard top-level to also do: src/app/sabwa, sabsms, portal, admin, app, auth, onboarding, etc.
+(* = in flight)
+
 ## Wave 3 final deletion gate (when 128 -> 0)
 - delete src/components/sabcrm/20ui/compat.ts (+ its Zoru* aliases)
 - delete src/components/sabcrm/20ui/zoru/ folder
