@@ -3,7 +3,39 @@
 import * as React from 'react';
 import { useParams } from 'next/navigation';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Badge, Checkbox, useToast, Switch, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    IconButton,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    Input,
+    Field,
+    Badge,
+    Checkbox,
+    Switch,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    EmptyState,
+    Breadcrumb,
+    BreadcrumbList,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbSeparator,
+    BreadcrumbPage,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { Plus, Trash2, Receipt, Search, ArrowLeft, Percent } from 'lucide-react';
 
 import { listTaxRules, upsertTaxRule, deleteTaxRule } from '@/app/actions/sabshop.actions';
@@ -21,7 +53,7 @@ export default function TaxesPage(): React.JSX.Element {
     const params = useParams<{ storefrontId: string }>();
     const { toast } = useToast();
     const id = params.storefrontId;
-    
+
     const [items, setItems] = React.useState<Rule[]>([]);
     const [draft, setDraft] = React.useState<Rule>({ name: '', region: '', rate: 0.18, inclusive: false, active: true });
     const [isCreating, setIsCreating] = React.useState(false);
@@ -36,14 +68,14 @@ export default function TaxesPage(): React.JSX.Element {
 
     async function onCreate() {
         if (!draft.name.trim() || !draft.region.trim()) {
-            toast({ title: 'Missing fields', description: 'Name and Region are required.', variant: 'destructive' });
+            toast({ title: 'Missing fields', description: 'Name and Region are required.', tone: 'danger' });
             return;
         }
-        
+
         const r = await upsertTaxRule({ storefrontId: id, ...draft });
-        if (!r.ok) { toast({ title: 'Error', description: r.error, variant: 'destructive' }); return; }
-        
-        toast({ title: 'Tax rule created', description: 'The tax rule has been successfully saved.' });
+        if (!r.ok) { toast({ title: 'Error', description: r.error, tone: 'danger' }); return; }
+
+        toast.success({ title: 'Tax rule created', description: 'The tax rule has been successfully saved.' });
         setDraft({ name: '', region: '', rate: 0.18, inclusive: false, active: true });
         setIsCreating(false);
         load();
@@ -53,19 +85,19 @@ export default function TaxesPage(): React.JSX.Element {
         if (!confirm('Are you sure you want to delete this tax rule?')) return;
         const r = await deleteTaxRule(rid);
         if (r.ok) {
-            toast({ title: 'Tax rule deleted', description: 'The tax rule was removed.' });
+            toast.success({ title: 'Tax rule deleted', description: 'The tax rule was removed.' });
             load();
         }
     }
 
-    const filteredItems = items.filter(r => 
-        r.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const filteredItems = items.filter(r =>
+        r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.region.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
-        <div className="zoruui flex flex-col gap-6 p-8 max-w-6xl mx-auto w-full h-full">
-            <div className="flex flex-col gap-2">
+        <div className="ui20 flex flex-col gap-6 p-8 max-w-6xl mx-auto w-full h-full">
+            <div className="flex flex-col gap-3">
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
@@ -77,31 +109,38 @@ export default function TaxesPage(): React.JSX.Element {
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <BreadcrumbPage>Taxes & Duties</BreadcrumbPage>
+                            <BreadcrumbPage>Taxes and Duties</BreadcrumbPage>
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
-                
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Taxes & Duties</h1>
-                        <p className="text-[var(--st-text-secondary)] mt-1">Configure regional tax overrides and how taxes are applied to prices.</p>
-                    </div>
+
+                <PageHeader bordered={false}>
+                    <PageHeaderHeading>
+                        <PageTitle>Taxes and Duties</PageTitle>
+                        <PageDescription>Configure regional tax overrides and how taxes are applied to prices.</PageDescription>
+                    </PageHeaderHeading>
                     {!isCreating && (
-                        <Button onClick={() => setIsCreating(true)} className="gap-2">
-                            <Plus className="h-4 w-4" /> Add Tax Rule
-                        </Button>
+                        <PageActions>
+                            <Button variant="primary" iconLeft={Plus} onClick={() => setIsCreating(true)}>
+                                Add Tax Rule
+                            </Button>
+                        </PageActions>
                     )}
-                </div>
+                </PageHeader>
             </div>
 
             {isCreating ? (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-2">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 space-y-6">
-                        <Button variant="ghost" onClick={() => setIsCreating(false)} className="gap-2 -ml-4 mb-2 text-[var(--st-text-secondary)]">
-                            <ArrowLeft className="h-4 w-4" /> Back to tax rules
+                        <Button
+                            variant="ghost"
+                            iconLeft={ArrowLeft}
+                            onClick={() => setIsCreating(false)}
+                            className="-ml-2 mb-2"
+                        >
+                            Back to tax rules
                         </Button>
-                        
+
                         <Card>
                             <CardHeader>
                                 <CardTitle>Tax Rule Details</CardTitle>
@@ -109,57 +148,50 @@ export default function TaxesPage(): React.JSX.Element {
                             </CardHeader>
                             <CardBody className="space-y-6">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>Tax Name</Label>
-                                        <Input 
-                                            placeholder="e.g. GST, VAT, Sales Tax" 
-                                            value={draft.name} 
-                                            onChange={(e) => setDraft({ ...draft, name: e.target.value })} 
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Region (Code)</Label>
-                                        <Input 
-                                            placeholder="e.g. IN, IN-MH, US, EU"
-                                            value={draft.region} 
-                                            onChange={(e) => setDraft({ ...draft, region: e.target.value.toUpperCase() })} 
-                                        />
-                                        <p className="text-[10px] text-[var(--st-text-secondary)]">Use ISO country or state codes.</p>
-                                    </div>
-                                </div>
-                                
-                                <div className="space-y-2">
-                                    <Label>Tax Rate</Label>
-                                    <div className="relative max-w-[200px]">
-                                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
+                                    <Field label="Tax Name">
                                         <Input
-                                            className="pl-9"
-                                            type="number"
-                                            step="0.1"
-                                            min="0"
-                                            max="100"
-                                            value={draft.rate * 100}
-                                            onChange={(e) => {
-                                                const val = Number(e.target.value);
-                                                setDraft({ ...draft, rate: val / 100 });
-                                            }}
+                                            placeholder="e.g. GST, VAT, Sales Tax"
+                                            value={draft.name}
+                                            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                                         />
-                                    </div>
+                                    </Field>
+                                    <Field label="Region (Code)" help="Use ISO country or state codes.">
+                                        <Input
+                                            placeholder="e.g. IN, IN-MH, US, EU"
+                                            value={draft.region}
+                                            onChange={(e) => setDraft({ ...draft, region: e.target.value.toUpperCase() })}
+                                        />
+                                    </Field>
                                 </div>
+
+                                <Field label="Tax Rate" className="max-w-[200px]">
+                                    <Input
+                                        iconLeft={Percent}
+                                        type="number"
+                                        step="0.1"
+                                        min="0"
+                                        max="100"
+                                        value={draft.rate * 100}
+                                        onChange={(e) => {
+                                            const val = Number(e.target.value);
+                                            setDraft({ ...draft, rate: val / 100 });
+                                        }}
+                                    />
+                                </Field>
                             </CardBody>
                         </Card>
-                        
+
                         <Card>
                             <CardHeader>
                                 <CardTitle>Tax Calculation</CardTitle>
                                 <CardDescription>How this tax behaves with your product prices.</CardDescription>
                             </CardHeader>
                             <CardBody>
-                                <label className="flex items-start gap-3 p-4 border border-[var(--st-border)] rounded-lg cursor-pointer hover:bg-[var(--st-hover)] transition-colors">
-                                    <Checkbox 
+                                <label className="flex items-start gap-3 p-4 border border-[var(--st-border)] rounded-[var(--st-radius)] cursor-pointer hover:bg-[var(--st-hover)] transition-colors">
+                                    <Checkbox
                                         className="mt-1"
-                                        checked={!!draft.inclusive} 
-                                        onCheckedChange={(c) => setDraft({ ...draft, inclusive: c === true })} 
+                                        checked={!!draft.inclusive}
+                                        onChange={(e) => setDraft({ ...draft, inclusive: e.target.checked })}
                                     />
                                     <div>
                                         <p className="font-medium text-[var(--st-text)] text-sm">Tax is included in product prices</p>
@@ -173,10 +205,10 @@ export default function TaxesPage(): React.JSX.Element {
 
                         <div className="flex justify-end gap-3 pb-8">
                             <Button variant="outline" onClick={() => setIsCreating(false)}>Cancel</Button>
-                            <Button onClick={onCreate}>Save Tax Rule</Button>
+                            <Button variant="primary" onClick={onCreate}>Save Tax Rule</Button>
                         </div>
                     </div>
-                    
+
                     {/* Sidebar / Status for Draft */}
                     <div className="space-y-6">
                         <Card>
@@ -185,11 +217,11 @@ export default function TaxesPage(): React.JSX.Element {
                             </CardHeader>
                             <CardBody>
                                 <div className="flex items-center justify-between">
-                                    <Label className="cursor-pointer" htmlFor="tax-active">Active</Label>
-                                    <Switch 
-                                        id="tax-active" 
-                                        checked={draft.active} 
-                                        onCheckedChange={(c) => setDraft({ ...draft, active: c })} 
+                                    <Switch
+                                        id="tax-active"
+                                        label="Active"
+                                        checked={draft.active}
+                                        onCheckedChange={(c) => setDraft({ ...draft, active: c })}
                                     />
                                 </div>
                                 <p className="text-xs text-[var(--st-text-secondary)] mt-2">
@@ -200,84 +232,88 @@ export default function TaxesPage(): React.JSX.Element {
                     </div>
                 </div>
             ) : (
-                <div className="animate-in fade-in slide-in-from-bottom-2 space-y-4">
+                <div className="space-y-4">
                     {items.length > 0 && (
-                        <div className="flex items-center gap-2 max-w-sm">
-                            <Search className="h-4 w-4 text-[var(--st-text-secondary)] absolute ml-3" />
-                            <Input 
-                                placeholder="Search tax rules..." 
-                                className="pl-9"
+                        <div className="max-w-sm">
+                            <Input
+                                iconLeft={Search}
+                                placeholder="Search tax rules..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                aria-label="Search tax rules"
                             />
                         </div>
                     )}
-                    
-                    <Card>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-[var(--st-hover)]/50 border-b border-[var(--st-border)] text-xs uppercase text-[var(--st-text-secondary)]">
-                                    <tr>
-                                        <th className="px-6 py-4 font-medium">Tax Name</th>
-                                        <th className="px-6 py-4 font-medium">Region</th>
-                                        <th className="px-6 py-4 font-medium">Rate</th>
-                                        <th className="px-6 py-4 font-medium">Calculation</th>
-                                        <th className="px-6 py-4 font-medium">Status</th>
-                                        <th className="px-6 py-4 text-right font-medium">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-[var(--st-border)]">
-                                    {items.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={6} className="px-6 py-12 text-center text-[var(--st-text-secondary)]">
-                                                <Receipt className="h-10 w-10 mx-auto text-[var(--st-border)] mb-3" />
-                                                <p className="font-medium text-[var(--st-text)] mb-1">No tax rules</p>
-                                                <p className="text-sm">Create a tax rule to start charging taxes on orders.</p>
-                                            </td>
-                                        </tr>
-                                    ) : filteredItems.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={6} className="px-6 py-8 text-center text-[var(--st-text-secondary)]">
-                                                No tax rules match your search.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        filteredItems.map((r) => (
-                                            <tr key={r._id} className="hover:bg-[var(--st-hover)]/30 transition-colors group">
-                                                <td className="px-6 py-4 font-medium text-[var(--st-text)]">
-                                                    {r.name}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <Badge variant="outline" className="font-mono">{r.region}</Badge>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    {(r.rate * 100).toFixed(1)}%
-                                                </td>
-                                                <td className="px-6 py-4 text-[var(--st-text-secondary)]">
-                                                    {r.inclusive ? 'Included in price' : 'Added at checkout'}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <Badge variant={r.active ? 'success' : 'default'} className={!r.active ? 'bg-[var(--st-text-secondary)] text-white' : ''}>
-                                                        {r.active ? 'Active' : 'Disabled'}
-                                                    </Badge>
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <Button 
-                                                        variant="ghost" 
-                                                        size="sm" 
-                                                        className="text-red-500 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
-                                                        onClick={() => r._id && onDelete(r._id)}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </Card>
+
+                    {items.length === 0 ? (
+                        <Card>
+                            <CardBody>
+                                <EmptyState
+                                    icon={Receipt}
+                                    title="No tax rules"
+                                    description="Create a tax rule to start charging taxes on orders."
+                                    action={
+                                        <Button variant="primary" iconLeft={Plus} onClick={() => setIsCreating(true)}>
+                                            Add Tax Rule
+                                        </Button>
+                                    }
+                                />
+                            </CardBody>
+                        </Card>
+                    ) : (
+                        <Card padding="none">
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <THead>
+                                        <Tr>
+                                            <Th>Tax Name</Th>
+                                            <Th>Region</Th>
+                                            <Th>Rate</Th>
+                                            <Th>Calculation</Th>
+                                            <Th>Status</Th>
+                                            <Th align="right">Actions</Th>
+                                        </Tr>
+                                    </THead>
+                                    <TBody>
+                                        {filteredItems.length === 0 ? (
+                                            <Tr>
+                                                <Td colSpan={6} align="center" className="text-[var(--st-text-secondary)]">
+                                                    No tax rules match your search.
+                                                </Td>
+                                            </Tr>
+                                        ) : (
+                                            filteredItems.map((r) => (
+                                                <Tr key={r._id}>
+                                                    <Td className="font-medium text-[var(--st-text)]">{r.name}</Td>
+                                                    <Td>
+                                                        <Badge variant="outline" className="font-mono">{r.region}</Badge>
+                                                    </Td>
+                                                    <Td>{(r.rate * 100).toFixed(1)}%</Td>
+                                                    <Td className="text-[var(--st-text-secondary)]">
+                                                        {r.inclusive ? 'Included in price' : 'Added at checkout'}
+                                                    </Td>
+                                                    <Td>
+                                                        <Badge tone={r.active ? 'success' : 'neutral'}>
+                                                            {r.active ? 'Active' : 'Disabled'}
+                                                        </Badge>
+                                                    </Td>
+                                                    <Td align="right">
+                                                        <IconButton
+                                                            label={`Delete ${r.name}`}
+                                                            icon={Trash2}
+                                                            variant="danger"
+                                                            size="sm"
+                                                            onClick={() => r._id && onDelete(r._id)}
+                                                        />
+                                                    </Td>
+                                                </Tr>
+                                            ))
+                                        )}
+                                    </TBody>
+                                </Table>
+                            </div>
+                        </Card>
+                    )}
                 </div>
             )}
         </div>
