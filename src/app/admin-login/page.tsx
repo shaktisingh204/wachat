@@ -1,4 +1,4 @@
-import "@/styles/zoruui.css";
+import "@/components/sabcrm/20ui/zoru-legacy.css";
 import { isAdminConfigured } from '@/app/actions/admin.actions';
 import AdminLoginClient from './admin-login-client';
 

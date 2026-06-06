@@ -10,7 +10,7 @@
  */
 
 import 'server-only';
-import '@/styles/zoruui.css';
+import '@/components/sabcrm/20ui/zoru-legacy.css';
 
 export const dynamic = 'force-dynamic';
 

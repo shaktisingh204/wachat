@@ -1,4 +1,4 @@
-import "@/styles/zoruui.css";
+import "@/components/sabcrm/20ui/zoru-legacy.css";
 
 import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, Button } from '@/components/sabcrm/20ui/compat';
 import { Suspense } from 'react'

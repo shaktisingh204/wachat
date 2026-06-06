@@ -1,4 +1,4 @@
-import "@/styles/zoruui.css";
+import "@/components/sabcrm/20ui/zoru-legacy.css";
 
 import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, ZoruCardDescription } from "@/components/zoruui";
 import { Clock, Mail } from "lucide-react";

@@ -1,4 +1,4 @@
-import "@/styles/zoruui.css";
+import "@/components/sabcrm/20ui/zoru-legacy.css";
 import React from 'react';
 import { redirect } from 'next/navigation';
 import { getAdminSession } from '@/lib/admin-session';

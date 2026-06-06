@@ -21,7 +21,7 @@ import { RBACGuard } from "@/components/zoruui-domain/rbac-guard";
  * override this shell on their own subtrees.
  */
 
-import "@/styles/zoruui.css";
+import "@/components/sabcrm/20ui/zoru-legacy.css";
 
 import React from "react";
 

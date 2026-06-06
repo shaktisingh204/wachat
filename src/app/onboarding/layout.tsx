@@ -1,4 +1,4 @@
-import "@/styles/zoruui.css";
+import "@/components/sabcrm/20ui/zoru-legacy.css";
 import Link from 'next/link';
 import { SabNodeLogo } from '@/components/zoruui-domain/logo';
 

@@ -1,4 +1,4 @@
-import "@/styles/zoruui.css";
+import "@/components/sabcrm/20ui/zoru-legacy.css";
 import { Suspense } from 'react';
 import ClientPage from './page.client';
 import Loading from './loading';

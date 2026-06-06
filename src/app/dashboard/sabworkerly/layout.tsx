@@ -1,7 +1,7 @@
 import React from 'react';
 import { SabworkerlyNav } from './_components/sabworkerly-nav';
 
-import '@/styles/zoruui.css';
+import '@/components/sabcrm/20ui/zoru-legacy.css';
 
 export default function SabworkerlyLayout({ children }: { children: React.ReactNode }) {
     return (

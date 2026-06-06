@@ -12,7 +12,7 @@
 export const dynamic = 'force-dynamic';
 
 import 'server-only';
-import '@/styles/zoruui.css';
+import '@/components/sabcrm/20ui/zoru-legacy.css';
 
 import type { ReactNode } from 'react';
 import Link from 'next/link';

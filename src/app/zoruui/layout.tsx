@@ -1,5 +1,5 @@
 import { ZoruProvider } from '@/components/sabcrm/20ui/compat';
-import "@/styles/zoruui.css";
+import "@/components/sabcrm/20ui/zoru-legacy.css";
 import { ZoruGalleryLayout } from "./ZoruGalleryLayout";
 
 export const metadata = {
