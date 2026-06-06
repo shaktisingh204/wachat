@@ -27,8 +27,19 @@ const TONE_ICON: Record<FeedbackTone, LucideIcon> = {
   neutral: Info,
 };
 
+const ALERT_VARIANT_TONE: Record<string, FeedbackTone> = {
+  default: 'info',
+  destructive: 'danger',
+  error: 'danger',
+  success: 'success',
+  warning: 'warning',
+  info: 'info',
+};
+
 export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
   tone?: FeedbackTone;
+  /** Back-compat (shadcn/legacy) variant; mapped to tone when `tone` is absent. */
+  variant?: 'default' | 'destructive' | 'error' | 'success' | 'warning' | 'info';
   /** Bold lead-in above the body. */
   title?: React.ReactNode;
   /** Override the tone's default icon, or pass `null` to hide it. */
@@ -41,7 +52,8 @@ export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
 
 /** A tinted notice with a left edge, icon, title, body and optional dismiss. */
 export function Alert({
-  tone = 'info',
+  tone,
+  variant,
   title,
   icon,
   onClose,
@@ -50,12 +62,14 @@ export function Alert({
   children,
   ...rest
 }: AlertProps): React.JSX.Element {
-  const Icon = icon === null ? null : icon ?? TONE_ICON[tone];
-  const cls = ['u-alert', `u-alert--${tone}`, className].filter(Boolean).join(' ');
+  const resolvedTone: FeedbackTone =
+    tone ?? (variant ? ALERT_VARIANT_TONE[variant] ?? 'info' : 'info');
+  const Icon = icon === null ? null : icon ?? TONE_ICON[resolvedTone];
+  const cls = ['u-alert', `u-alert--${resolvedTone}`, className].filter(Boolean).join(' ');
   return (
     <div
-      role={tone === 'danger' ? 'alert' : 'status'}
-      aria-live={tone === 'danger' ? 'assertive' : 'polite'}
+      role={resolvedTone === 'danger' ? 'alert' : 'status'}
+      aria-live={resolvedTone === 'danger' ? 'assertive' : 'polite'}
       className={cls}
       {...rest}
     >

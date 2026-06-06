@@ -33,10 +33,36 @@ Every file imports CLEAN names from `@/components/sabcrm/20ui`. No legacy, no zo
 - 16 dashboard pages rebuilt off shadcn `@/components/ui` -> 20ui (the original workflow).
 
 ## Waves
-- [ ] WAVE 1: deterministic codemod — files using ONLY safe aliases: `Zoru*`->clean, `useZoruToast`->useToast,
-      import `/compat`->`@/components/sabcrm/20ui`. Pilot on src/components/email, verify, scale by module dir.
-- [ ] WAVE 2: absorb unique zoru-only components into 20ui (relocate + clean names + fold CSS), per-file API-different.
-- [ ] WAVE 3: delete `zoru/` + `compat.ts` + zoru-legacy.css once importers==0; final verify.
+- [x] WAVE 1 (Pass A): `Zoru*`->clean names in compat-importing files. 2258 files. (commit "Pass A")
+- [x] WAVE 1b: bridged ALL /zoru-only names through compat; redirected 290 /zoru consumers -> compat.
+      Consumer /zoru COMPONENT imports == 0 (only zoru-legacy.css side-imports + compat bridge remain).
+- [x] compat gap-bridge complete -> fast checker `node .20ui-dezoru/check-imports.js` == 0 missing. APP BUILDS.
+- [x] WAVE 1c (Pass B): swapped 3657 barrel-safe files /compat -> clean @/components/sabcrm/20ui.
+      compat importers 3953 -> 298. clean-barrel importers ~3923. checker still 0. (commit "Pass B")
+- [ ] WAVE 2 — clear the 298 remaining /compat files:
+    SAFE RENAMES first (same component, just clean name; then they Pass-B to barrel):
+      - CardContent -> CardBody  (137 files)  [clean rename, collision-guarded]
+      - zoruSonnerToast -> toast (35) + zoruToast -> toast (9)  [ADD `toast.loading` first; sonner-style .loading used]
+    ABSORB unique legacy components into 20ui (relocate impl + clean name + keep CSS), then drop compat bridge:
+      - chart: ZoruChart(40, recharts namespace) + ZORU_CHART_PALETTE(41)
+      - file-manager: ZoruFileUploadCard/FilesPage/FileEntity/FileInput/FileCardCollections (-> @/components/sabfiles per policy)
+      - shell: ZoruHomeShell(5)/ZoruAppSidebar(8)/ZoruHeader(7)/ZoruShell/ZORU_APPS/applyTheme/useHtmlDark/AppThemeToggle
+      - ZoruRadioGroupItem(50) -> 20ui radio item (check choice.tsx API)
+      - ZoruAccordion03*(10), ZoruStatisticsCard1(8), ZoruProvider(10), ZoruToaster(9, provider-free),
+        ZoruBouncyToggle/LimelightNav/StarIcon(7 each), ZoruDynamicSelector(2)
+      - SHOWCASE /app/zoruui/* (~8 files, Pass A collision-skipped: ZoruCalendar/ZoruEmptyState collide) -> rename or delete demos
+- [ ] WAVE 3: when 298 -> 0, delete compat.ts + zoru/ folder + fold zoru-legacy.css into 20ui (rename). Final tsc.
+
+## Current metrics (update each wave)
+- checker missing-export: 0   | compat importers: 298 | clean-barrel importers: ~3923
+- tsc baseline total errors ~113151 (pre-existing: clay/e2e/mongo/missing-rust-clients — NOT mine, NOT a gate)
+- branch: dezoru-20ui-migration (checkpoint commits). main untouched.
+
+## Codemods (reusable)
+- .20ui-dezoru/codemod-passA.js <dir>  — Zoru*->clean for compat imports (collision-guarded)
+- .20ui-dezoru/codemod-passB.js <dir>  — /compat -> barrel when all names barrel-safe
+- .20ui-dezoru/check-imports.js         — fast missing-export checker (run after every change)
+- /tmp/dezoru-map.txt                    — ZoruName => cleanName map (from compat aliases)
 
 ## Verification harness
 - fast: scripts/check-20ui-imports (validate every 20ui named import against barrel exports) — build this.

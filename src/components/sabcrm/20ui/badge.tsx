@@ -22,22 +22,50 @@ export type BadgeTone =
   | 'info';
 export type BadgeStyleKind = 'soft' | 'solid' | 'outline';
 
+/** Back-compat (shadcn/legacy ZoruUI) variant names, mapped to tone + kind. */
+export type BadgeVariant =
+  | 'default'
+  | 'secondary'
+  | 'destructive'
+  | 'outline'
+  | 'success'
+  | 'warning'
+  | 'info'
+  | 'accent';
+
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   tone?: BadgeTone;
   kind?: BadgeStyleKind;
   /** Leading status dot. */
   dot?: boolean;
+  /** Back-compat variant; mapped to tone (+ outline kind) when `tone` is absent. */
+  variant?: BadgeVariant;
 }
 
+const BADGE_VARIANT_TONE: Record<BadgeVariant, BadgeTone> = {
+  default: 'neutral',
+  secondary: 'neutral',
+  destructive: 'danger',
+  outline: 'neutral',
+  success: 'success',
+  warning: 'warning',
+  info: 'info',
+  accent: 'accent',
+};
+
 export function Badge({
-  tone = 'neutral',
-  kind = 'soft',
+  tone,
+  kind,
   dot = false,
+  variant,
   className,
   children,
   ...rest
 }: BadgeProps): React.JSX.Element {
-  const cls = ['u-badge', `u-badge--${tone}`, `u-badge--${kind}`, className]
+  const resolvedTone: BadgeTone =
+    tone ?? (variant ? BADGE_VARIANT_TONE[variant] ?? 'neutral' : 'neutral');
+  const resolvedKind: BadgeStyleKind = kind ?? (variant === 'outline' ? 'outline' : 'soft');
+  const cls = ['u-badge', `u-badge--${resolvedTone}`, `u-badge--${resolvedKind}`, className]
     .filter(Boolean)
     .join(' ');
   return (

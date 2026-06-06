@@ -24,10 +24,20 @@ export type ButtonVariant =
   | 'gradient';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
+/** Back-compat (shadcn) variant/size names accepted and normalized to 20ui's. */
+export type ButtonVariantCompat = ButtonVariant | 'default' | 'destructive' | 'link';
+export type ButtonSizeCompat = ButtonSize | 'default' | 'icon';
+const BTN_VARIANT_ALIAS: Record<string, ButtonVariant> = {
+  default: 'primary',
+  destructive: 'danger',
+  link: 'ghost',
+};
+const BTN_SIZE_ALIAS: Record<string, ButtonSize> = { default: 'md', icon: 'md' };
+
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
+  variant?: ButtonVariantCompat;
+  size?: ButtonSizeCompat;
   /** Icon before the label. */
   iconLeft?: LucideIcon;
   /** Icon after the label. */
@@ -57,17 +67,19 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) {
+    const v: ButtonVariant = BTN_VARIANT_ALIAS[variant as string] ?? (variant as ButtonVariant);
+    const sz: ButtonSize = BTN_SIZE_ALIAS[size as string] ?? (size as ButtonSize);
     const cls = [
       'u-btn',
-      `u-btn--${variant}`,
-      `u-btn--${size}`,
+      `u-btn--${v}`,
+      `u-btn--${sz}`,
       block && 'u-btn--block',
       loading && 'is-loading',
       className,
     ]
       .filter(Boolean)
       .join(' ');
-    const s = ICON_SIZE[size];
+    const s = ICON_SIZE[sz];
     return (
       <button
         ref={ref}
