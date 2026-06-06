@@ -11,7 +11,7 @@ export * from './index';
 // ZoruToaster is ZoruUI's self-contained (Sonner-style) toaster — it needs NO
 // provider, unlike the 20ui Toaster. Keep it pointing at the real ZoruUI one so
 // standalone <ZoruToaster/> renders don't break during the migration.
-export { ZoruToaster } from '@/components/sabcrm/20ui/zoru';
+export { ZoruToaster } from '@/components/sabcrm/20ui/legacy';
 
 // --- Gap fills ---------------------------------------------------------------
 // The bulk `@/components/zoruui` -> compat migration repointed these names here,
@@ -49,7 +49,7 @@ export {
   ZoruLimelightNav,
   ZoruStarIcon,
   ZoruHomeShell,
-} from '@/components/sabcrm/20ui/zoru';
+} from '@/components/sabcrm/20ui/legacy';
 // Type-only bridges (must be `export type` so the bundler erases them rather than
 // hunting for a runtime value — see the value-vs-type gotcha in this file's history).
 export type {
@@ -63,12 +63,12 @@ export type {
   ZoruActionSearchAction,
   ZoruStatisticsCard1Item,
   ZoruToastInput,
-} from '@/components/sabcrm/20ui/zoru';
+} from '@/components/sabcrm/20ui/legacy';
 // Shell + file-card bridges (some live only on /zoru subpaths). Wave 2 absorbs into 20ui.
-export { ZoruShell, ZoruFileCardCollections } from '@/components/sabcrm/20ui/zoru';
-export type { ZoruFileCardItem } from '@/components/sabcrm/20ui/zoru';
-export { ZORU_APPS } from '@/components/sabcrm/20ui/zoru/shell/zoru-apps';
-export { applyTheme, useHtmlDark, AppThemeToggle } from '@/components/sabcrm/20ui/zoru/shell/app-theme';
+export { ZoruShell, ZoruFileCardCollections } from '@/components/sabcrm/20ui/legacy';
+export type { ZoruFileCardItem } from '@/components/sabcrm/20ui/legacy';
+export { ZORU_APPS } from '@/components/sabcrm/20ui/legacy/shell/zoru-apps';
+export { applyTheme, useHtmlDark, AppThemeToggle } from '@/components/sabcrm/20ui/legacy/shell/app-theme';
 
 export {
   Accordion as ZoruAccordion,

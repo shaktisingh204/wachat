@@ -7,7 +7,7 @@
  * zoru palette automatically — so no visual divergence and no duplicate
  * code.
  *
- * Always import dock pieces from `@/components/sabcrm/20ui/zoru/dock` inside the
+ * Always import dock pieces from `@/components/sabcrm/20ui/legacy/dock` inside the
  * zoru shell so a future implementation swap stays a one-file change.
  */
 export {
