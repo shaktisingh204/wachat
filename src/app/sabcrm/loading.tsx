@@ -23,27 +23,11 @@ export default function SabcrmLoading() {
           />
         </header>
 
-        <ul
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-            gap: 'var(--st-space-3)',
-            listStyle: 'none',
-            margin: 0,
-            padding: 0,
-          }}
-        >
+        <ul className="grid gap-[var(--st-space-3)] list-none m-0 p-0 [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
           {Array.from({ length: 6 }).map((_, i) => (
             <li key={i}>
-              <div className="st-panel" style={{ padding: 'var(--st-space-4)' }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 'var(--st-space-3)',
-                  }}
-                >
+              <div className="st-panel p-[var(--st-space-4)]">
+                <div className="flex items-center justify-between gap-[var(--st-space-3)]">
                   <span
                     className="st-skeleton"
                     style={{ width: 128, height: 16, display: 'inline-block' }}
@@ -54,22 +38,10 @@ export default function SabcrmLoading() {
                   />
                 </div>
                 <span
-                  className="st-skeleton"
-                  style={{
-                    width: '100%',
-                    height: 36,
-                    display: 'block',
-                    marginTop: 'var(--st-space-3)',
-                  }}
+                  className="st-skeleton block mt-[var(--st-space-3)]"
+                  style={{ width: '100%', height: 36 }}
                 />
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--st-space-2)',
-                    marginTop: 'var(--st-space-3)',
-                  }}
-                >
+                <div className="flex items-center gap-[var(--st-space-2)] mt-[var(--st-space-3)]">
                   <span
                     className="st-skeleton"
                     style={{ width: 72, height: 20, display: 'inline-block' }}

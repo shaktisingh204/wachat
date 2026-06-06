@@ -362,16 +362,7 @@ async function PortalDashboardPageContent({ params }: PageProps) {
           <Link
             key={c.id}
             href={c.href}
-            style={{
-              display: "block",
-              background: "white",
-              borderRadius: 14,
-              padding: 20,
-              border: "1px solid #e2e8f0",
-              color: "inherit",
-              textDecoration: "none",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-            }}
+            className="block bg-white rounded-[14px] p-5 border border-[#e2e8f0] text-inherit no-underline shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
           >
             <h2
               style={{

@@ -22,6 +22,8 @@ import {
   Field,
   Select,
   Slider,
+  Spinner,
+  EmptyState,
 } from '@/components/sabcrm/20ui';
 import {
   useEffect,
@@ -29,24 +31,37 @@ import {
   useTransition,
   useCallback,
 } from 'react';
-import { ChartBar, Send, Square } from 'lucide-react';
+import { ChartBar, Send, Square, Trophy, Trash2, FlaskConical } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 
 /**
  * Wachat Campaign A/B Test -- split-test broadcast campaigns.
- * 20ui rebuild. Uses real broadcast segments for audience selection.
+ *
+ * Backed end-to-end by the `wachat-ab-testing` Rust crate (via
+ * `@/app/actions/wachat-ab-testing.actions`): create persists the test +
+ * launches the real split broadcast, and the list / detail views read the
+ * persisted tests and their per-variant results. Results stay at zero
+ * until the broadcast webhook populates `wa_ab_test_results`.
  */
 
 import * as React from 'react';
 
 import { getBroadcastSegments } from '@/app/actions/wachat-features.actions';
+import {
+  listAbTests,
+  createAbTest,
+  getAbTest,
+  stopAbTest,
+  promoteAbTestWinner,
+  deleteAbTest,
+} from '@/app/actions/wachat-ab-testing.actions';
+import type {
+  AbTest,
+  VariantResult,
+} from '@/lib/rust-client/wachat-ab-testing';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
-
-function cx(...a: Array<string | false | null | undefined>): string {
-  return a.filter(Boolean).join(' ');
-}
 
 const TEMPLATES = [
   'Order Confirmation',
@@ -58,38 +73,115 @@ const TEMPLATES = [
 
 const TEMPLATE_OPTIONS = TEMPLATES.map((t) => ({ value: t, label: t }));
 
-interface TestResult {
-  variant: string;
-  sent: number;
-  opened: number;
-  replied: number;
+interface SegmentRow {
+  _id: string;
+  name: string;
+  estimatedSize?: number;
+}
+
+function statusTone(status: string): 'info' | 'neutral' | 'success' | 'warning' {
+  switch (status) {
+    case 'running':
+      return 'info';
+    case 'completed':
+      return 'success';
+    case 'stopped':
+      return 'warning';
+    default:
+      return 'neutral';
+  }
+}
+
+function pct(n: number, d: number): string {
+  return d > 0 ? `${((n / d) * 100).toFixed(1)}%` : '0%';
+}
+
+/** Per-variant rate as already-computed `0..1` from the backend. */
+function rateLabel(rate: number): string {
+  return `${(rate * 100).toFixed(1)}%`;
 }
 
 export default function CampaignAbTestPage() {
   const { activeProject } = useProject();
+  const projectId = activeProject?._id ? String(activeProject._id) : null;
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [segments, setSegments] = useState<any[]>([]);
+
+  // ---- Form state ----
+  const [segments, setSegments] = useState<SegmentRow[]>([]);
+  const [name, setName] = useState('');
   const [variantA, setVariantA] = useState(TEMPLATES[0]);
   const [variantB, setVariantB] = useState(TEMPLATES[2]);
   const [split, setSplit] = useState(50);
   const [audience, setAudience] = useState('all');
-  const [results, setResults] = useState<TestResult[] | null>(null);
   const [sending, setSending] = useState(false);
 
+  // ---- List state ----
+  const [tests, setTests] = useState<AbTest[]>([]);
+  const [listLoading, setListLoading] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
+
+  // ---- Detail (per-variant results) state ----
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detailVariants, setDetailVariants] = useState<VariantResult[] | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
   const loadSegments = useCallback(() => {
-    if (!activeProject?._id) return;
+    if (!projectId) return;
     startTransition(async () => {
-      const res = await getBroadcastSegments(String(activeProject._id));
-      if (!res.error) setSegments(res.segments ?? []);
+      const res = await getBroadcastSegments(projectId);
+      if (!res.error) setSegments((res.segments ?? []) as SegmentRow[]);
     });
-  }, [activeProject?._id]);
+  }, [projectId]);
+
+  const loadTests = useCallback(async () => {
+    if (!projectId) {
+      setTests([]);
+      setListLoading(false);
+      return;
+    }
+    setListLoading(true);
+    setListError(null);
+    const res = await listAbTests(projectId);
+    if (res.error) {
+      setListError(res.error);
+      setTests([]);
+    } else {
+      setTests(res.tests ?? []);
+    }
+    setListLoading(false);
+  }, [projectId]);
 
   useEffect(() => {
     loadSegments();
   }, [loadSegments]);
 
+  useEffect(() => {
+    void loadTests();
+  }, [loadTests]);
+
+  const loadDetail = useCallback(async (testId: string) => {
+    setDetailId(testId);
+    setDetailLoading(true);
+    setDetailVariants(null);
+    const res = await getAbTest(testId);
+    setDetailLoading(false);
+    if (res.error) {
+      toast({ title: 'Error', description: res.error, tone: 'danger' });
+      return;
+    }
+    setDetailVariants(res.variants ?? []);
+  }, [toast]);
+
   const launchTest = () => {
+    if (!projectId) {
+      toast({
+        title: 'No project',
+        description: 'Select a project first.',
+        tone: 'danger',
+      });
+      return;
+    }
     if (variantA === variantB) {
       toast({
         title: 'Error',
@@ -98,44 +190,75 @@ export default function CampaignAbTestPage() {
       });
       return;
     }
+    const testName = name.trim() || `${variantA} vs ${variantB}`;
     setSending(true);
-    const total =
-      audience === 'all'
-        ? 500
-        : segments.find((s: any) => s._id === audience)?.estimatedSize || 200;
-    setTimeout(() => {
-      setResults([
-        {
-          variant: 'A',
-          sent: Math.round((total * split) / 100),
-          opened: Math.round(((total * split) / 100) * 0.72),
-          replied: Math.round(((total * split) / 100) * 0.18),
-        },
-        {
-          variant: 'B',
-          sent: Math.round((total * (100 - split)) / 100),
-          opened: Math.round(((total * (100 - split)) / 100) * 0.65),
-          replied: Math.round(((total * (100 - split)) / 100) * 0.22),
-        },
-      ]);
+    void (async () => {
+      const res = await createAbTest({
+        projectId,
+        name: testName,
+        variantA: { name: variantA },
+        variantB: { name: variantB },
+        splitPct: split,
+        audience,
+        phoneNumberId: null,
+      });
       setSending(false);
-      toast({ title: 'Test complete', description: 'A/B test results are ready.', tone: 'success' });
-    }, 2000);
+      if (res.error) {
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
+        return;
+      }
+      if (res.warning) {
+        toast({ title: 'Test saved', description: res.warning, tone: 'warning' });
+      } else {
+        toast({
+          title: 'Test launched',
+          description: res.message ?? 'A/B test launched.',
+          tone: 'success',
+        });
+      }
+      setName('');
+      await loadTests();
+    })();
   };
 
-  const stopTest = () => {
-    setResults(null);
-    setSending(false);
-    toast({ title: 'Test stopped', description: 'A/B test was stopped.', tone: 'neutral' });
+  const handleStop = async (testId: string) => {
+    const res = await stopAbTest(testId);
+    if (res.success) {
+      toast({ title: 'Test stopped', description: 'No new messages will be queued.', tone: 'neutral' });
+      await loadTests();
+    } else {
+      toast({ title: 'Error', description: res.error ?? 'Could not stop test.', tone: 'danger' });
+    }
   };
 
-  const pct = (n: number, d: number) =>
-    d > 0 ? `${((n / d) * 100).toFixed(1)}%` : '0%';
+  const handlePromote = async (testId: string, winner: 'A' | 'B') => {
+    const res = await promoteAbTestWinner(testId, winner);
+    if (res.success) {
+      toast({ title: 'Winner promoted', description: `Variant ${winner} marked as winner.`, tone: 'success' });
+      await loadTests();
+    } else {
+      toast({ title: 'Error', description: res.error ?? 'Could not promote winner.', tone: 'danger' });
+    }
+  };
+
+  const handleDelete = async (testId: string) => {
+    const res = await deleteAbTest(testId);
+    if (res.success) {
+      toast({ title: 'Test deleted', description: 'The A/B test was removed.', tone: 'neutral' });
+      if (detailId === testId) {
+        setDetailId(null);
+        setDetailVariants(null);
+      }
+      await loadTests();
+    } else {
+      toast({ title: 'Error', description: res.error ?? 'Could not delete test.', tone: 'danger' });
+    }
+  };
 
   const audienceOptions = React.useMemo(
     () => [
       { value: 'all', label: 'All contacts' },
-      ...segments.map((s: any) => ({ value: String(s._id), label: s.name })),
+      ...segments.map((s) => ({ value: String(s._id), label: s.name })),
     ],
     [segments],
   );
@@ -152,6 +275,7 @@ export default function CampaignAbTestPage() {
       width="narrow"
     >
       <div className="flex flex-col gap-6">
+        {/* ----------------------------- New test form ----------------------------- */}
         <div className="grid gap-4 sm:grid-cols-2">
           <Card padding="lg">
             <CardHeader>
@@ -241,9 +365,9 @@ export default function CampaignAbTestPage() {
                 variant="primary"
                 iconLeft={Send}
                 loading={sending}
-                disabled={sending || variantA === variantB}
+                disabled={sending || variantA === variantB || !projectId}
               >
-                {sending ? 'Running test...' : 'Launch A/B test'}
+                {sending ? 'Launching test...' : 'Launch A/B test'}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -252,7 +376,7 @@ export default function CampaignAbTestPage() {
                 <AlertDialogDescription>
                   Variant A ({variantA}) and Variant B ({variantB}) will be sent
                   in a {split}/{100 - split} split to your selected audience.
-                  Results will appear once both variants finish processing.
+                  Results populate as delivery and reply webhooks arrive.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -263,31 +387,6 @@ export default function CampaignAbTestPage() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-
-          {sending && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" iconLeft={Square}>
-                  Stop
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Stop the test?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    In-flight messages cannot be unsent, but no new messages will
-                    be queued. Partial results will be discarded.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Keep running</AlertDialogCancel>
-                  <AlertDialogAction onClick={stopTest}>
-                    Stop test
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
         </div>
 
         {variantA === variantB && (
@@ -296,48 +395,192 @@ export default function CampaignAbTestPage() {
           </Alert>
         )}
 
-        {results && (
-          <Card padding="lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <ChartBar className="h-4 w-4" aria-hidden="true" /> Results
-              </CardTitle>
-            </CardHeader>
-            <CardBody>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {results.map((r) => {
-                  const otherR = results.find((x) => x.variant !== r.variant);
-                  const isWinner = otherR
-                    ? r.replied / r.sent >= otherR.replied / otherR.sent
-                    : false;
+        {/* ----------------------------- Test list ----------------------------- */}
+        <Card padding="lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <FlaskConical className="h-4 w-4" aria-hidden="true" /> Your A/B tests
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
+            {listLoading ? (
+              <div className="flex items-center justify-center py-10">
+                <Spinner size="md" />
+              </div>
+            ) : listError ? (
+              <Alert tone="danger">{listError}</Alert>
+            ) : tests.length === 0 ? (
+              <EmptyState
+                icon={FlaskConical}
+                title="No A/B tests yet"
+                description="Pick two templates above and launch your first split test."
+              />
+            ) : (
+              <div className="flex flex-col gap-3">
+                {tests.map((t) => {
+                  const summary = t.summary;
+                  const totalSent = summary?.totalSent ?? 0;
+                  const isOpen = detailId === t._id;
                   return (
-                    <Card
-                      key={r.variant}
-                      variant={isWinner ? 'outlined' : 'outlined'}
-                      padding="md"
-                      className={isWinner ? 'ab-result-card--winner' : undefined}
+                    <div
+                      key={t._id}
+                      className="ab-test-row rounded-[var(--st-radius-md)] border border-[var(--st-border)] p-4"
                     >
-                      <CardHeader>
-                        <CardTitle className="flex items-center justify-between text-sm">
-                          Variant {r.variant}:{' '}
-                          {r.variant === 'A' ? variantA : variantB}
-                          {isWinner && <Badge tone="success">Winner</Badge>}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardBody>
-                        <div className="grid grid-cols-3 gap-2">
-                          <StatCard label="Sent" value={r.sent} />
-                          <StatCard label="Open rate" value={pct(r.opened, r.sent)} />
-                          <StatCard label="Reply rate" value={pct(r.replied, r.sent)} />
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{t.name}</span>
+                          <Badge tone={statusTone(t.status)}>{t.status}</Badge>
+                          {t.winnerVariant && (
+                            <Badge tone="success">Winner: {t.winnerVariant}</Badge>
+                          )}
                         </div>
-                      </CardBody>
-                    </Card>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[12px] tabular-nums text-[var(--st-text-secondary)]">
+                            {totalSent} sent
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => (isOpen ? setDetailId(null) : void loadDetail(t._id))}
+                          >
+                            {isOpen ? 'Hide results' : 'View results'}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="mt-1 text-[12px] text-[var(--st-text-tertiary)]">
+                        {t.variantA.name} ({t.splitPct}%) vs {t.variantB.name} ({100 - t.splitPct}%)
+                      </div>
+
+                      {/* Per-variant detail */}
+                      {isOpen && (
+                        <div className="mt-3">
+                          {detailLoading ? (
+                            <div className="flex items-center justify-center py-6">
+                              <Spinner size="sm" />
+                            </div>
+                          ) : detailVariants && detailVariants.length > 0 ? (
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              {detailVariants.map((v) => {
+                                const templateName =
+                                  v.variant === 'A' ? t.variantA.name : t.variantB.name;
+                                return (
+                                  <Card key={v.variant} variant="outlined" padding="md">
+                                    <CardHeader>
+                                      <CardTitle className="flex items-center justify-between text-sm">
+                                        Variant {v.variant}: {templateName}
+                                        {t.winnerVariant === v.variant && (
+                                          <Badge tone="success">Winner</Badge>
+                                        )}
+                                      </CardTitle>
+                                    </CardHeader>
+                                    <CardBody>
+                                      <div className="grid grid-cols-3 gap-2">
+                                        <StatCard label="Sent" value={v.sent} />
+                                        <StatCard
+                                          label="Open rate"
+                                          value={v.sent > 0 ? rateLabel(v.openRate) : pct(0, 0)}
+                                        />
+                                        <StatCard
+                                          label="Reply rate"
+                                          value={v.sent > 0 ? rateLabel(v.replyRate) : pct(0, 0)}
+                                        />
+                                      </div>
+                                    </CardBody>
+                                  </Card>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <Alert tone="info">
+                              No results yet. Metrics appear as delivery and reply
+                              webhooks arrive.
+                            </Alert>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Row actions */}
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        {t.status === 'running' && (
+                          <>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" iconLeft={Square}>
+                                  Stop
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Stop the test?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    In-flight messages cannot be unsent, but no new
+                                    messages will be queued.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Keep running</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => void handleStop(t._id)}>
+                                    Stop test
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              iconLeft={Trophy}
+                              onClick={() => void handlePromote(t._id, 'A')}
+                            >
+                              Promote A
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              iconLeft={Trophy}
+                              onClick={() => void handlePromote(t._id, 'B')}
+                            >
+                              Promote B
+                            </Button>
+                          </>
+                        )}
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm" iconLeft={Trash2}>
+                              Delete
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete this A/B test?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This permanently removes the test and its recorded
+                                results. This cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction intent="danger" onClick={() => void handleDelete(t._id)}>
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
-            </CardBody>
-          </Card>
-        )}
+            )}
+          </CardBody>
+        </Card>
+
+        <div className="flex items-center gap-2 text-[12px] text-[var(--st-text-tertiary)]">
+          <ChartBar className="h-3.5 w-3.5" aria-hidden="true" />
+          Results update from delivery and reply webhooks; rates stay at 0% until they arrive.
+        </div>
       </div>
     </WachatPage>
   );

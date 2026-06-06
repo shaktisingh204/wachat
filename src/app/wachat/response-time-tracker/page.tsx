@@ -55,7 +55,14 @@ import {
 } from 'recharts';
 
 import { useProject } from '@/context/project-context';
-import { getAgentPerformance } from '@/app/actions/wachat-features.actions';
+import {
+  getAgentPerformance,
+  getAgentHourly,
+} from '@/app/actions/wachat-analytics.actions';
+import type {
+  AgentPerformanceRow,
+  AgentHourlyBucket,
+} from '@/lib/rust-client/wachat-analytics';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
@@ -92,22 +99,17 @@ function speedLabel(ms: number) {
   return 'Slow';
 }
 
-function generateMockHourlyData(avgMs: number) {
-  return Array.from({ length: 24 }).map((_, hour) => {
-    const noise = (Math.random() - 0.5) * avgMs * 0.5;
-    return {
-      hourUtc: hour,
-      responseMs: Math.max(1000, avgMs + noise),
-    };
-  });
-}
-
 export default function ResponseTimeTrackerPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [agents, setAgents] = useState<any[]>([]);
-  const [drillAgent, setDrillAgent] = useState<any | null>(null);
+  const [agents, setAgents] = useState<AgentPerformanceRow[]>([]);
+  const [drillAgent, setDrillAgent] = useState<AgentPerformanceRow | null>(null);
+
+  // Real per-agent hourly buckets for the drill-in, fetched on demand.
+  const [hourlyBuckets, setHourlyBuckets] = useState<AgentHourlyBucket[]>([]);
+  const [hourlyLoading, setHourlyLoading] = useState(false);
+  const [hourlyError, setHourlyError] = useState<string | null>(null);
 
   const [timezone, setTimezone] = useState<'utc' | 'local'>('local');
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
@@ -118,21 +120,52 @@ export default function ResponseTimeTrackerPage() {
     if (!activeProject?._id) return;
     startTransition(async () => {
       const res = await getAgentPerformance(String(activeProject._id));
-      if (res.error) {
+      if ('error' in res) {
         toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
-      const withHourly = (res.performance ?? []).map((a: any) => ({
-        ...a,
-        hourlyAverages: a.hourlyAverages || generateMockHourlyData(a.avgResponseMs || 10000)
-      }));
-      setAgents(withHourly);
+      setAgents(res.performance ?? []);
     });
   }, [activeProject?._id, toast]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // When an agent is opened, pull its real hourly response-time buckets.
+  useEffect(() => {
+    const projectId = activeProject?._id ? String(activeProject._id) : null;
+    if (!drillAgent || !projectId) {
+      setHourlyBuckets([]);
+      setHourlyError(null);
+      return;
+    }
+    let cancelled = false;
+    setHourlyLoading(true);
+    setHourlyError(null);
+    setHourlyBuckets([]);
+    getAgentHourly(projectId, drillAgent.agentId)
+      .then((res) => {
+        if (cancelled) return;
+        if ('error' in res) {
+          setHourlyError(res.error);
+          setHourlyBuckets([]);
+        } else {
+          setHourlyBuckets(res.buckets ?? []);
+        }
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('Failed to load hourly response data:', err);
+        setHourlyError('Failed to load hourly data.');
+      })
+      .finally(() => {
+        if (!cancelled) setHourlyLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [drillAgent, activeProject?._id]);
 
   const totalMsgs = agents.reduce((s, a) => s + (a.messagesSent || 0), 0);
   const avgResp = agents.length
@@ -146,24 +179,27 @@ export default function ResponseTimeTrackerPage() {
     : 0;
 
   const chartData = React.useMemo(() => {
-    if (!drillAgent?.hourlyAverages) return [];
-    return drillAgent.hourlyAverages.map((d: any) => {
-      const dt = new Date();
-      dt.setUTCHours(d.hourUtc, 0, 0, 0);
-      const hourLabel = dt.toLocaleTimeString([], {
-        hour: 'numeric',
-        minute: '2-digit',
-        timeZone: timezone === 'utc' ? 'UTC' : undefined
-      });
-      const sortKey = timezone === 'utc' ? dt.getUTCHours() : dt.getHours();
-      return {
-        hourLabel,
-        sortKey,
-        responseMs: d.responseMs,
-        seconds: Number((d.responseMs / 1000).toFixed(1))
-      };
-    }).sort((a: any, b: any) => a.sortKey - b.sortKey);
-  }, [drillAgent, timezone]);
+    if (!hourlyBuckets.length) return [];
+    return hourlyBuckets
+      .map((d) => {
+        const dt = new Date();
+        dt.setUTCHours(d.hour, 0, 0, 0);
+        const hourLabel = dt.toLocaleTimeString([], {
+          hour: 'numeric',
+          minute: '2-digit',
+          timeZone: timezone === 'utc' ? 'UTC' : undefined,
+        });
+        const sortKey = timezone === 'utc' ? dt.getUTCHours() : dt.getHours();
+        return {
+          hourLabel,
+          sortKey,
+          responseMs: d.avgResponseMs,
+          messageCount: d.messageCount,
+          seconds: Number((d.avgResponseMs / 1000).toFixed(1)),
+        };
+      })
+      .sort((a, b) => a.sortKey - b.sortKey);
+  }, [hourlyBuckets, timezone]);
 
   return (
     <WachatPage
@@ -264,8 +300,8 @@ export default function ResponseTimeTrackerPage() {
                 </Tr>
               </THead>
               <TBody>
-                {agents.map((a: any) => (
-                  <Tr key={a._id}>
+                {agents.map((a) => (
+                  <Tr key={a.agentId}>
                     <Td className="font-medium">{a.agentName}</Td>
                     <Td className="tabular-nums">
                       {fmtMs(a.avgResponseMs)}
@@ -341,18 +377,34 @@ export default function ResponseTimeTrackerPage() {
                   Hourly Response Time (Seconds)
                 </h3>
                 <div className="h-[250px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="hourLabel" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                      <Tooltip
-                        formatter={(value: any) => [`${value}s`, 'Avg Response']}
-                        labelStyle={{ color: 'var(--st-text)' }}
-                      />
-                      <Bar dataKey="seconds" fill="var(--st-accent)" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  {hourlyLoading ? (
+                    <Skeleton className="h-full w-full" radius="var(--st-radius-md)" />
+                  ) : hourlyError ? (
+                    <EmptyState
+                      icon={TriangleAlert}
+                      title="Couldn't load hourly data"
+                      description={hourlyError}
+                    />
+                  ) : chartData.length === 0 ? (
+                    <EmptyState
+                      icon={BarChart3}
+                      title="No hourly activity"
+                      description="This agent has no timed responses in the selected window yet."
+                    />
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                        <XAxis dataKey="hourLabel" fontSize={12} tickLine={false} axisLine={false} />
+                        <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                        <Tooltip
+                          formatter={(value: any) => [`${value}s`, 'Avg Response']}
+                          labelStyle={{ color: 'var(--st-text)' }}
+                        />
+                        <Bar dataKey="seconds" fill="var(--st-accent)" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
                 </div>
               </div>
             </div>

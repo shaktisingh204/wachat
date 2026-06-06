@@ -22,7 +22,9 @@ use sabnode_db::{document_to_clean_json, mongo::MongoHandle};
 use serde_json::Value;
 
 use crate::cycle::detect_cycle;
-use crate::dto::{AckResult, SaveFlowReq, SaveFlowResult};
+use crate::dto::{
+    AckResult, BulkDeleteResult, BulkStatusResult, CloneFlowResult, SaveFlowReq, SaveFlowResult,
+};
 
 const FLOWS_COLL: &str = "flows";
 const PROJECTS_COLL: &str = "projects";
@@ -329,4 +331,226 @@ pub fn first_flow_id(summaries: &[Value]) -> Option<String> {
         .and_then(|v| v.get("_id"))
         .and_then(|v| v.as_str())
         .map(|s| s.to_owned())
+}
+
+/// `cloneFlow(flowId)` — deep-copy an existing flow document.
+///
+/// Loads the source flow, enforces owner-or-agent access via its owning
+/// project, then inserts a brand-new row with a fresh `_id`, the duplicated
+/// `nodes`/`edges`/`triggerKeywords`, `name` suffixed with ` (Copy)`, and
+/// `status = "PAUSED"`. Returns the new flow's hex id.
+///
+/// Mirrors the legacy `cloneFlow` server action but as a single Mongo-only
+/// round-trip (no get-then-save N+1 across the network).
+pub async fn clone_flow(
+    user: &AuthUser,
+    mongo: &MongoHandle,
+    flow_id_hex: &str,
+) -> Result<CloneFlowResult> {
+    let oid = match ObjectId::parse_str(flow_id_hex) {
+        Ok(o) => o,
+        Err(_) => {
+            return Ok(CloneFlowResult {
+                error: Some("Invalid Flow ID.".to_owned()),
+                ..Default::default()
+            });
+        }
+    };
+
+    let flows = mongo.collection::<Document>(FLOWS_COLL);
+    let source = flows
+        .find_one(doc! { "_id": oid })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let Some(source) = source else {
+        return Ok(CloneFlowResult {
+            error: Some("Source flow not found.".to_owned()),
+            ..Default::default()
+        });
+    };
+
+    let project_id = match source.get_object_id("projectId") {
+        Ok(p) => p,
+        Err(_) => {
+            return Ok(CloneFlowResult {
+                error: Some("Source flow not found.".to_owned()),
+                ..Default::default()
+            });
+        }
+    };
+
+    // Owner-or-agent access check via the owning project.
+    match load_project_for(user, mongo, &project_id.to_hex()).await {
+        Ok(_) => {}
+        Err(ApiError::NotFound(_)) | Err(ApiError::Forbidden(_)) => {
+            return Ok(CloneFlowResult {
+                error: Some("Access denied".to_owned()),
+                ..Default::default()
+            });
+        }
+        Err(e) => return Err(e),
+    }
+
+    let now = bson::DateTime::from_chrono(Utc::now());
+    let new_id = ObjectId::new();
+
+    // Duplicate the graph payload verbatim. `name` gets the legacy ` (Copy)`
+    // suffix and the clone always starts `PAUSED` so it doesn't fire until the
+    // operator reviews it.
+    let source_name = source.get_str("name").unwrap_or("Untitled Flow");
+    let nodes = source.get("nodes").cloned().unwrap_or(bson::Bson::Array(Vec::new()));
+    let edges = source.get("edges").cloned().unwrap_or(bson::Bson::Array(Vec::new()));
+    let trigger_keywords = source
+        .get("triggerKeywords")
+        .cloned()
+        .unwrap_or(bson::Bson::Array(Vec::new()));
+
+    let copy = doc! {
+        "_id": new_id,
+        "name": format!("{source_name} (Copy)"),
+        "projectId": project_id,
+        "nodes": nodes,
+        "edges": edges,
+        "triggerKeywords": trigger_keywords,
+        "status": "PAUSED",
+        "createdAt": now,
+        "updatedAt": now,
+    };
+
+    flows
+        .insert_one(copy)
+        .await
+        .map_err(|_e| ApiError::Internal(anyhow::anyhow!("Failed to clone flow.")))?;
+
+    Ok(CloneFlowResult {
+        flow_id: Some(new_id.to_hex()),
+        message: Some("Flow duplicated successfully.".to_owned()),
+        ..Default::default()
+    })
+}
+
+/// Resolve the subset of `flow_id_hex` values the caller may act on.
+///
+/// Parses each hex id, loads the matching flow rows in one query, then keeps
+/// only the ids whose owning project passes the owner-or-agent guard. Project
+/// access decisions are memoised so a bulk op over many flows in the same
+/// project costs one project read, not one per flow. Inaccessible / missing /
+/// malformed ids are silently dropped — bulk ops are best-effort over the
+/// caller's own rows (a stale id from another tenant simply doesn't count).
+async fn accessible_flow_oids(
+    user: &AuthUser,
+    mongo: &MongoHandle,
+    flow_id_hexes: &[String],
+) -> Result<Vec<ObjectId>> {
+    let oids: Vec<ObjectId> = flow_id_hexes
+        .iter()
+        .filter_map(|h| ObjectId::parse_str(h).ok())
+        .collect();
+    if oids.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let flows = mongo.collection::<Document>(FLOWS_COLL);
+    let mut cursor = flows
+        .find(doc! { "_id": { "$in": &oids } })
+        .projection(doc! { "_id": 1, "projectId": 1 })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+
+    // project oid -> whether the caller may touch its flows.
+    let mut access: std::collections::HashMap<ObjectId, bool> = std::collections::HashMap::new();
+    let mut allowed: Vec<ObjectId> = Vec::new();
+
+    while let Some(d) = cursor
+        .try_next()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+    {
+        let (Ok(id), Ok(pid)) = (d.get_object_id("_id"), d.get_object_id("projectId")) else {
+            continue;
+        };
+        let ok = match access.get(&pid) {
+            Some(&v) => v,
+            None => {
+                let v = match load_project_for(user, mongo, &pid.to_hex()).await {
+                    Ok(_) => true,
+                    Err(ApiError::NotFound(_)) | Err(ApiError::Forbidden(_)) => false,
+                    Err(e) => return Err(e),
+                };
+                access.insert(pid, v);
+                v
+            }
+        };
+        if ok {
+            allowed.push(id);
+        }
+    }
+
+    Ok(allowed)
+}
+
+/// `bulkDeleteFlows(flowIds)` — delete every accessible flow in `flow_ids`,
+/// scoped to the caller, in one `delete_many`. Also unsets
+/// `contacts.activeFlow` for any contact actively running one of the deleted
+/// flows. Returns the count actually removed.
+pub async fn bulk_delete_flows(
+    user: &AuthUser,
+    mongo: &MongoHandle,
+    flow_id_hexes: &[String],
+) -> Result<BulkDeleteResult> {
+    let allowed = accessible_flow_oids(user, mongo, flow_id_hexes).await?;
+    if allowed.is_empty() {
+        return Ok(BulkDeleteResult { deleted: 0 });
+    }
+
+    // Cleanup active executions on contacts first. TS stores
+    // `activeFlow.flowId` as the hex string (not an ObjectId).
+    let allowed_hexes: Vec<String> = allowed.iter().map(|o| o.to_hex()).collect();
+    let contacts = mongo.collection::<Document>(CONTACTS_COLL);
+    contacts
+        .update_many(
+            doc! { "activeFlow.flowId": { "$in": &allowed_hexes } },
+            doc! { "$unset": { "activeFlow": "" } },
+        )
+        .await
+        .map_err(|_e| ApiError::Internal(anyhow::anyhow!("Failed to delete flows.")))?;
+
+    let flows = mongo.collection::<Document>(FLOWS_COLL);
+    let res = flows
+        .delete_many(doc! { "_id": { "$in": &allowed } })
+        .await
+        .map_err(|_e| ApiError::Internal(anyhow::anyhow!("Failed to delete flows.")))?;
+
+    Ok(BulkDeleteResult {
+        deleted: res.deleted_count,
+    })
+}
+
+/// `bulkUpdateFlowStatus(flowIds, status)` — set `status` on every accessible
+/// flow in `flow_ids`, scoped to the caller, in one `update_many`. Returns the
+/// count actually modified.
+pub async fn bulk_status_flows(
+    user: &AuthUser,
+    mongo: &MongoHandle,
+    flow_id_hexes: &[String],
+    status: &str,
+) -> Result<BulkStatusResult> {
+    let allowed = accessible_flow_oids(user, mongo, flow_id_hexes).await?;
+    if allowed.is_empty() {
+        return Ok(BulkStatusResult { modified: 0 });
+    }
+
+    let now = bson::DateTime::from_chrono(Utc::now());
+    let flows = mongo.collection::<Document>(FLOWS_COLL);
+    let res = flows
+        .update_many(
+            doc! { "_id": { "$in": &allowed } },
+            doc! { "$set": { "status": status, "updatedAt": now } },
+        )
+        .await
+        .map_err(|_e| ApiError::Internal(anyhow::anyhow!("Failed to update flows.")))?;
+
+    Ok(BulkStatusResult {
+        modified: res.modified_count,
+    })
 }

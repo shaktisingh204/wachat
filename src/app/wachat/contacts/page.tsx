@@ -285,10 +285,54 @@ export default function ContactsPage() {
     router.push(`/wachat/chat?contactId=${contact._id.toString()}&phoneId=${contact.phoneNumberId}`);
   };
 
-  const handleExportCsv = () => {
-    toast({ title: 'Exporting...', description: 'CSV export will be available shortly.' });
-    // In real life, trigger rust-backend stream_csv here
-  };
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportCsv = useCallback(async () => {
+    if (!activeProjectId || isExporting) return;
+    setIsExporting(true);
+    try {
+      const params = new URLSearchParams({ projectId: activeProjectId });
+      if (selectedTags.length > 0) params.set('tagIds', selectedTags.join(','));
+
+      const res = await fetch(`/api/wachat/contacts/export?${params.toString()}`, {
+        cache: 'no-store',
+      });
+      if (!res.ok) {
+        let message = `Export failed (${res.status}).`;
+        try {
+          const body = (await res.json()) as { error?: string };
+          if (body?.error) message = body.error;
+        } catch {
+          /* non-JSON body */
+        }
+        throw new Error(message);
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'contacts.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: 'Export ready',
+        description: 'Your contacts CSV has been downloaded.',
+        tone: 'success',
+      });
+    } catch (e) {
+      toast({
+        title: 'Export failed',
+        description: e instanceof Error ? e.message : 'Could not export contacts.',
+        tone: 'danger',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  }, [activeProjectId, isExporting, selectedTags, toast]);
 
   const stats = useMemo(() => {
     const withTags = contacts.filter((c) => (c.tagIds || []).length > 0).length;
@@ -467,8 +511,15 @@ export default function ContactsPage() {
 
           <Card variant="outlined" padding="none" className="overflow-hidden">
             <div className="flex items-center justify-end p-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
-              <Button variant="ghost" size="sm" onClick={handleExportCsv} iconLeft={Download}>
-                Export CSV
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleExportCsv}
+                iconLeft={Download}
+                loading={isExporting}
+                disabled={isExporting || isEmpty}
+              >
+                {isExporting ? 'Exporting…' : 'Export CSV'}
               </Button>
             </div>
 

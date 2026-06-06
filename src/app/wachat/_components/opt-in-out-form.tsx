@@ -19,15 +19,15 @@ import {
 import { useFormStatus } from 'react-dom';
 import { Save } from 'lucide-react';
 
-import { handleUpdateOptInOutSettings } from '@/app/actions/index.ts';
+import { updateOptInOutSettings } from '@/app/actions/wachat-auto-reply-settings.actions';
 import type { Project,
   WithId } from '@/lib/definitions';
 
 /**
  * OptInOutForm (wachat-local, 20ui).
  *
- * Replaces the legacy opt-in-out-form. Same server
- * action (handleUpdateOptInOutSettings), same form fields and switch.
+ * Replaces the legacy opt-in-out-form. Now backed by the Rust crate via
+ * `updateOptInOutSettings`, with the same form fields and switch.
  */
 
 import * as React from 'react';
@@ -63,7 +63,7 @@ interface OptInOutFormProps {
 
 export function OptInOutForm({ project }: OptInOutFormProps) {
   const [state, formAction] = useActionState(
-    handleUpdateOptInOutSettings as any,
+    updateOptInOutSettings as any,
     initialState as any,
   );
   const { toast } = useToast();

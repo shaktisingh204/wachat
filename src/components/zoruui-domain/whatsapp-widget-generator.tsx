@@ -26,7 +26,8 @@ import {
   useState,
   useMemo,
   useActionState,
-  useEffect } from 'react';
+  useEffect,
+  useTransition } from 'react';
 import type { WithId,
   Project } from '@/lib/definitions';
 import { Code, Save, LoaderCircle, Palette, Text, MessageSquare, Code2, Settings, Zap } from 'lucide-react';
@@ -37,6 +38,8 @@ import { CodeBlock } from './code-block';
 import { Slider } from '../ui/slider';
 import { ColorPicker } from '../ui/color-picker';
 import { saveWidgetSettings } from '@/app/actions/widget.actions';
+import { saveAdvancedWidgetSettings } from '@/app/actions/wachat-widget-tracking.actions';
+import type { AdvancedSettingsBody } from '@/lib/rust-client/wachat-widget-tracking';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 import { SabFilePickerButton } from '@/components/sabfiles';
@@ -93,23 +96,61 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
         setSettings(prev => ({ ...prev, [field]: value }));
     }
 
-    // --- Advanced Settings (Local State for Embed Code only) ---
-    const [advancedSettings, setAdvancedSettings] = useState(() => {
+    // --- Advanced Settings (now persisted server-side via the
+    //     wachat-widget-tracking crate; localStorage kept only as a fast
+    //     first-paint cache so the embed snippet renders before the action
+    //     round-trips). ---
+    const ADV_DEFAULTS: AdvancedSettingsBody = { autoOpenDelay: 0, abTestEnabled: false, styleVariant: 'classic' };
+
+    const [advancedSettings, setAdvancedSettings] = useState<AdvancedSettingsBody>(() => {
+        // Server-backed value (widgetSettings.advanced) wins when present.
+        const serverAdvanced = (project.widgetSettings as { advanced?: Partial<AdvancedSettingsBody> } | undefined)?.advanced;
+        if (serverAdvanced) {
+            return { ...ADV_DEFAULTS, ...serverAdvanced };
+        }
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem(`widget_adv_${project._id}`);
-            if (saved) return JSON.parse(saved);
+            if (saved) {
+                try {
+                    return { ...ADV_DEFAULTS, ...(JSON.parse(saved) as Partial<AdvancedSettingsBody>) };
+                } catch {
+                    // ignore malformed cache
+                }
+            }
         }
-        return { autoOpenDelay: 0, abTestEnabled: false, styleVariant: 'classic' };
+        return ADV_DEFAULTS;
     });
 
+    const [isSavingAdvanced, startSaveAdvanced] = useTransition();
+
     useEffect(() => {
+        // Keep the local cache in sync for instant first-paint on reload.
         localStorage.setItem(`widget_adv_${project._id}`, JSON.stringify(advancedSettings));
     }, [advancedSettings, project._id]);
 
-    const handleAdvancedSettingChange = (field: keyof typeof advancedSettings, value: string | number | boolean) => {
-        setAdvancedSettings((prev: any) => ({ ...prev, [field]: value }));
+    const handleAdvancedSettingChange = (field: keyof AdvancedSettingsBody, value: string | number | boolean) => {
+        setAdvancedSettings(prev => ({ ...prev, [field]: value }));
     }
 
+    const handleSaveAdvanced = () => {
+        startSaveAdvanced(async () => {
+            const result = await saveAdvancedWidgetSettings(project._id.toString(), advancedSettings);
+            if (result.success) {
+                toast({ title: 'Saved', description: 'Advanced widget settings updated.' });
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
+    }
+
+    // The embed snippet loads `/api/widget/{projectId}`, which serves the
+    // injected tracker JS. That tracker `$inc`-s the same counters the Rust
+    // `wachat-widget-tracking` crate now owns at
+    // `POST /v1/wachat/widget/{projectId}/track`. The Rust route requires a
+    // session JWT (AuthUser), so the public visitor-side ping can't call it
+    // directly — FOLLOW-UP: repoint the generated tracker's `/api/widget/track`
+    // POST at the Rust endpoint via the api-platform proxy or a thin public
+    // Next route that forwards `{ eventType }` to the crate.
     const embedCode = useMemo(() => {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
         let attrs = "";
@@ -215,6 +256,13 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                             </Select>
                                         </div>
                                     )}
+                                    <Separator />
+                                    <div className="flex justify-end">
+                                        <Button type="button" variant="outline" disabled={isSavingAdvanced} onClick={handleSaveAdvanced}>
+                                            {isSavingAdvanced ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                                            Save Advanced Settings
+                                        </Button>
+                                    </div>
                                 </ZoruCardContent>
                             </Card>
                         </div>
@@ -246,11 +294,11 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                     </div>
                                 </div>
                                 {/* Widget Container */}
-                                <div className="absolute inset-0 flex items-end pointer-events-none" style={{ [settings.position.includes('right') ? 'justifyContent' : '']: settings.position.includes('right') ? 'flex-end' : 'flex-start', padding: '20px' }}>
+                                <div className="absolute inset-0 flex items-end pointer-events-none p-5" style={{ [settings.position.includes('right') ? 'justifyContent' : '']: settings.position.includes('right') ? 'flex-end' : 'flex-start' }}>
                                 <div id="sabnode-widget-container-preview" className="relative pointer-events-auto">
                                     {showWidget && (
-                                        <div id="sabnode-widget-chatbox-preview" className="absolute" style={{ bottom: advancedSettings.styleVariant === 'modern' ? '80px' : '96px', right: advancedSettings.styleVariant === 'modern' ? '-10px' : '0', width: advancedSettings.styleVariant === 'modern' ? '320px' : '350px', backgroundColor: 'white', borderRadius: `${settings.borderRadius}px`, overflow: 'hidden', boxShadow: advancedSettings.styleVariant === 'modern' ? '0 10px 25px rgba(0,0,0,0.1)' : '0 5px 20px rgba(0,0,0,0.2)' }}>
-                                            <div className="sabnode-chat-header" style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor, padding: `${settings.padding}px`, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div id="sabnode-widget-chatbox-preview" className="absolute bg-white overflow-hidden" style={{ bottom: advancedSettings.styleVariant === 'modern' ? '80px' : '96px', right: advancedSettings.styleVariant === 'modern' ? '-10px' : '0', width: advancedSettings.styleVariant === 'modern' ? '320px' : '350px', borderRadius: `${settings.borderRadius}px`, boxShadow: advancedSettings.styleVariant === 'modern' ? '0 10px 25px rgba(0,0,0,0.1)' : '0 5px 20px rgba(0,0,0,0.2)' }}>
+                                            <div className="sabnode-chat-header flex items-center gap-3" style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor, padding: `${settings.padding}px` }}>
                                                 <Avatar className="w-10 h-10">
                                                     {settings.headerAvatarUrl && <ZoruAvatarImage src={settings.headerAvatarUrl} />}
                                                     <ZoruAvatarFallback>{settings.headerTitle.charAt(0)}</ZoruAvatarFallback>
@@ -258,9 +306,9 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                                 <div><div className="title font-bold">{settings.headerTitle}</div><div className="subtitle text-xs opacity-90">{settings.headerSubtitle}</div></div>
                                             </div>
                                             <div className="sabnode-chat-body" style={{ padding: `${settings.padding}px`, backgroundColor: advancedSettings.styleVariant === 'modern' ? '#f3f4f6' : '#E5DDD5' }}>
-                                                <div className="sabnode-welcome-msg" style={{ background: 'white', color: settings.textColor, padding: '12px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>{settings.welcomeMessage}</div>
+                                                <div className="sabnode-welcome-msg bg-white p-3 rounded-lg shadow-sm" style={{ color: settings.textColor }}>{settings.welcomeMessage}</div>
                                             </div>
-                                            <div className="sabnode-chat-footer" style={{ padding: `${settings.padding}px`, background: 'white', borderTop: '1px solid #eee' }}>
+                                            <div className="sabnode-chat-footer bg-white border-t border-[#eee]" style={{ padding: `${settings.padding}px` }}>
                                                 <Button
                                                     className="sabnode-cta-button w-full h-12"
                                                     style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor, borderRadius: advancedSettings.styleVariant === 'modern' ? '8px' : '9999px' }}

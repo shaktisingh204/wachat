@@ -47,7 +47,8 @@ import {
   } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { getAgentPerformance } from '@/app/actions/wachat-features.actions';
+import { getAgentPerformance } from '@/app/actions/wachat-analytics.actions';
+import type { AgentPerformanceRow } from '@/lib/rust-client/wachat-analytics';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
@@ -97,57 +98,52 @@ function formatResponseTime(ms: number | null | undefined): string {
   return `${seconds}s`;
 }
 
+/**
+ * CSAT is a 1–5 star average from `wa_chat_ratings` (never a percentage).
+ * Show `—` when an agent has no ratings so an empty score never reads as 0/5.
+ */
+function formatCsat(score: number, reviews: number): string {
+  if (!reviews) return '—';
+  return `${score.toFixed(1)} / 5`;
+}
+
+type AgentBadge = { label: string; variant: string };
+type EnrichedAgent = AgentPerformanceRow & {
+  points: number;
+  badges: AgentBadge[];
+};
+
 export default function TeamPerformancePage() {
   const { activeProject, activeProjectId } = useProject();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [agents, setAgents] = useState<any[]>([]);
+  const [agents, setAgents] = useState<EnrichedAgent[]>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
-  const [drillAgent, setDrillAgent] = useState<any | null>(null);
+  const [drillAgent, setDrillAgent] = useState<EnrichedAgent | null>(null);
 
   const fetchData = useCallback(() => {
     if (!activeProjectId) return;
     startTransition(async () => {
       const days = parseInt(timeRange.replace('d', ''));
       const res = await getAgentPerformance(activeProjectId, days);
-      if (res.error) {
+      if ('error' in res) {
         toast({ title: 'Error', description: res.error, tone: 'danger' });
       } else {
-        const enhanced = (res.performance ?? []).map((a: any) => {
-          // Generate deterministic values for mock stats if not present
-          const stringToHash = (str: string) => {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
-            return Math.abs(hash);
-          };
-          const h = stringToHash(a.agentName || 'unknown');
+        // Real per-agent stats from Mongo (incl. CSAT) — gamification points
+        // and badges are display-only derivations of those real numbers.
+        const enhanced: EnrichedAgent[] = (res.performance ?? []).map((a) => {
+          const responseTimeSec = Math.floor((a.avgResponseMs || 0) / 1000);
+          const points = Math.max(0, (a.messagesSent || 0) * 10 - responseTimeSec);
 
-          // csat score 60-100
-          const csatScore = a.csatScore ?? (60 + (h % 41));
-          // some have low sample size < 30
-          const csatReviews = a.csatReviews ?? (h % 100);
-
-          // Gamification points: 10 per message - avg_resp_in_sec
-          const responseTimeSec = Math.floor((a.avgResponseMs || 0)/1000);
-          const points = Math.max(0, ((a.messagesSent || 0) * 10) - responseTimeSec);
-
-          const badges = [];
+          const badges: AgentBadge[] = [];
           if (responseTimeSec > 0 && responseTimeSec < 60) badges.push({ label: 'Speed Demon', variant: 'success' });
           if ((a.messagesSent || 0) > 50) badges.push({ label: 'Volume King', variant: 'default' });
-          if (csatScore > 90 && csatReviews >= 30) badges.push({ label: 'Customer Favorite', variant: 'secondary' });
+          if (a.csatScore >= 4.5 && a.csatReviews >= 30) badges.push({ label: 'Customer Favorite', variant: 'secondary' });
 
-          return {
-            ...a,
-            csatScore,
-            csatReviews,
-            points,
-            badges
-          };
+          return { ...a, points, badges };
         });
 
-        const sorted = enhanced.sort(
-          (a: any, b: any) => (b.points ?? 0) - (a.points ?? 0),
-        );
+        const sorted = enhanced.sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
         setAgents(sorted);
       }
     });
@@ -283,7 +279,7 @@ export default function TeamPerformancePage() {
                       ((a.points ?? 0) / maxPoints) * 100;
                     const isSignificant = a.csatReviews >= 30;
                     return (
-                      <Tr key={a._id}>
+                      <Tr key={a.agentId}>
                         <Td className="tabular-nums [color:var(--st-text-tertiary)]">
                           {i + 1}
                         </Td>
@@ -303,7 +299,7 @@ export default function TeamPerformancePage() {
                               {i === 0 && (
                                 <Badge tone="success">Top Agent</Badge>
                               )}
-                              {a.badges?.map((b: any, bi: number) => (
+                              {a.badges?.map((b, bi) => (
                                 <Badge key={bi} tone={badgeTone(b.variant)}>
                                   {b.label}
                                 </Badge>
@@ -332,7 +328,7 @@ export default function TeamPerformancePage() {
                                   : '[color:var(--st-text-tertiary)]'
                               }
                             >
-                              {a.csatScore}%
+                              {formatCsat(a.csatScore, a.csatReviews)}
                             </span>
                             {!isSignificant && (
                               <Tooltip
@@ -403,7 +399,7 @@ export default function TeamPerformancePage() {
                 />
                 <StatCard
                   label="CSAT Score"
-                  value={`${drillAgent.csatScore}%`}
+                  value={formatCsat(drillAgent.csatScore, drillAgent.csatReviews)}
                   icon={Star}
                   delta={{ value: `${drillAgent.csatReviews} reviews`, tone: 'neutral' }}
                 />
@@ -439,7 +435,7 @@ export default function TeamPerformancePage() {
                     Earned Badges
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {drillAgent.badges.map((b: any, bi: number) => (
+                    {drillAgent.badges.map((b, bi) => (
                       <Badge key={bi} tone={badgeTone(b.variant)}>
                         {b.label}
                       </Badge>

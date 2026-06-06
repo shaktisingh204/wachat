@@ -1812,7 +1812,7 @@ function BoardView({
           >
             Clear
           </button>
-          <span style={{ opacity: 0.8 }}>Drag any selected card to move all</span>
+          <span className="opacity-80">Drag any selected card to move all</span>
         </div>
       )}
       <div className="stv-board-hint" role="note">
@@ -2005,7 +2005,11 @@ function BoardView({
               {onCreateCard && (
                 <button
                   type="button"
-                  className="st-card st-board__add"
+                  // Self-styled (no dedicated CSS class for the board add button
+                  // in this file's stylesheets): inherit the `.st-card` chrome
+                  // but lay the icon + label out inline, dashed + muted so it
+                  // reads as an "add" affordance rather than a real card.
+                  className={`st-card st-board__add flex items-center gap-[var(--st-space-2)] justify-start border-dashed text-[var(--st-text-tertiary)] text-[var(--st-font-size-sm)] font-[var(--st-fw-medium)]${!canCreate ? ' cursor-not-allowed' : ''}${creatingKey === key || !canCreate ? ' opacity-60' : ''}`}
                   // Disabled while this column is persisting OR when the object
                   // has no usable label field (quick-create can't name a record)
                   // — the latter gives a visible disabled state instead of a
@@ -2021,22 +2025,6 @@ function BoardView({
                       ? undefined
                       : `Add a text or label field to ${objectLabelSingular} before creating records here`
                   }
-                  // Self-styled (no dedicated CSS class for the board add button
-                  // in this file's stylesheets): inherit the `.st-card` chrome
-                  // but lay the icon + label out inline, dashed + muted so it
-                  // reads as an "add" affordance rather than a real card.
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--st-space-2)',
-                    justifyContent: 'flex-start',
-                    borderStyle: 'dashed',
-                    color: 'var(--st-text-tertiary)',
-                    fontSize: 'var(--st-font-size-sm)',
-                    fontWeight: 'var(--st-fw-medium)',
-                    cursor: !canCreate ? 'not-allowed' : undefined,
-                    opacity: creatingKey === key || !canCreate ? 0.6 : 1,
-                  }}
                   // Never let the add-button press start a marquee / clear the
                   // card selection on the board surface.
                   onPointerDown={(e) => e.stopPropagation()}
@@ -2463,7 +2451,7 @@ function CreateDialog({ object, allObjects, projectId, initialValues, onClose, o
               ))}
             </div>
             {error && (
-              <div className="st-banner" style={{ marginTop: 'var(--st-space-3, 12px)' }}>
+              <div className="st-banner mt-[var(--st-space-3,12px)]">
                 <AlertTriangle className="st-banner__icon" size={15} />
                 <span>{error}</span>
               </div>
@@ -2492,8 +2480,7 @@ function CreateDialog({ object, allObjects, projectId, initialValues, onClose, o
 function TableSkeleton() {
   return (
     <div
-      className="st-table-wrap"
-      style={{ padding: 'var(--st-space-3)' }}
+      className="st-table-wrap p-[var(--st-space-3)]"
       role="status"
       aria-busy="true"
       aria-label="Loading records"
@@ -4149,8 +4136,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           </p>
           <Link
             href="/sabcrm"
-            className="st-btn st-btn--secondary"
-            style={{ textDecoration: 'none' }}
+            className="st-btn st-btn--secondary no-underline"
           >
             Back to SabCRM
           </Link>
@@ -4314,10 +4300,9 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
               hotkeys (Twenty's record-table hotkeys). Wraps on narrow widths
               via the flex layout of `.stx-kbd-hint`. */}
           <div
-            className="stx-kbd-hint"
+            className="stx-kbd-hint flex-wrap"
             role="note"
             aria-label="Keyboard shortcuts"
-            style={{ flexWrap: 'wrap' }}
           >
             <span className="stx-kbd">↑</span>
             <span className="stx-kbd">↓</span>

@@ -21,10 +21,15 @@ import {
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { Plus, Trash2, Settings, Check, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { handleInviteAgent } from '@/app/actions/team.actions';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getAgentOpenTickets, reassignAndRemoveAgent, updateProjectRoutingRules, updateAgentSkills } from './actions';
+import {
+  getAgentOpenTickets,
+  reassignAndRemoveAgent,
+  updateProjectRoutingRules,
+  updateAgentSkills,
+  inviteAgentToProject,
+} from '@/app/actions/wachat-project-agents.actions';
 import { WithId } from 'mongodb';
 import { Project } from '@/lib/definitions';
 import { getSession } from '@/app/actions/index.ts';
@@ -33,10 +38,27 @@ function cx(...a: Array<string | false | null | undefined>) {
   return a.filter(Boolean).join(' ');
 }
 
-const inviteAgentInitialState: any = { message: null, error: null };
+interface InviteAgentState { message?: string | null; error?: string | null }
+const inviteAgentInitialState: InviteAgentState = { message: null, error: null };
+
+/**
+ * `useActionState`-compatible adapter around the Rust-backed
+ * `inviteAgentToProject` action. Unpacks the same `FormData` fields the
+ * legacy `handleInviteAgent` form submitted (`projectId`, `email`, `role`)
+ * so the form markup below stays untouched.
+ */
+async function inviteAgentFormAction(
+    _prevState: InviteAgentState,
+    formData: FormData,
+): Promise<InviteAgentState> {
+    const projectId = (formData.get('projectId') as string) || '';
+    const email = (formData.get('email') as string) || '';
+    const role = (formData.get('role') as string) || 'agent';
+    return inviteAgentToProject(projectId, email, role);
+}
 
 function InviteAgentForm({ project, isDisabled, onInvited }: { project: any, isDisabled: boolean, onInvited: () => void }) {
-    const [state, formAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
+    const [state, formAction] = useActionState(inviteAgentFormAction, inviteAgentInitialState);
     const { pending } = useFormStatus();
     const { toast } = useToast();
     const formRef = React.useRef<HTMLFormElement>(null);

@@ -621,8 +621,7 @@ function PermissionBlock({
                 {busy ? (
                   <Loader2
                     size={14}
-                    className="st-spin"
-                    style={{ color: 'var(--st-text-tertiary)' }}
+                    className="st-spin text-[var(--st-text-tertiary)]"
                     aria-hidden="true"
                   />
                 ) : null}
@@ -729,8 +728,7 @@ function DefaultsBlock({
                 {busy ? (
                   <Loader2
                     size={14}
-                    className="st-spin"
-                    style={{ color: 'var(--st-text-tertiary)' }}
+                    className="st-spin text-[var(--st-text-tertiary)]"
                     aria-hidden="true"
                   />
                 ) : null}
@@ -896,7 +894,7 @@ function ObjectPermissionBlock({
       </div>
       <div className="rp-block__body">
         {objectsLoading ? (
-          <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+          <div className="st-table-wrap p-[var(--st-space-3)]">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="st-skeleton st-skeleton-row" />
             ))}
@@ -1057,7 +1055,7 @@ function FieldPermissionBlock({
       </div>
       <div className="rp-block__body">
         {objectsLoading ? (
-          <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+          <div className="st-table-wrap p-[var(--st-space-3)]">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="st-skeleton st-skeleton-row" />
             ))}
@@ -1351,7 +1349,7 @@ function MemberBlock({
 
         {/* Roster: assign / unassign. */}
         {membersLoading ? (
-          <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+          <div className="st-table-wrap p-[var(--st-space-3)]">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="st-skeleton st-skeleton-row" />
             ))}
@@ -1461,8 +1459,8 @@ function DeleteDialog({
           </button>
         </div>
         <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
-            Delete <strong style={{ color: 'var(--st-text)' }}>{role.name}</strong>?
+          <p className="m-0 text-[var(--st-text-secondary)]">
+            Delete <strong className="text-[var(--st-text)]">{role.name}</strong>?
             Its {role.memberIds.length} member
             {role.memberIds.length !== 1 ? 's' : ''} will lose the permissions
             this role grants. This cannot be undone.
@@ -1661,12 +1659,12 @@ export default function RolesPage(): React.JSX.Element {
 
       {isLoadingProject || loading ? (
         <div className="rp-layout">
-          <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+          <div className="st-table-wrap p-[var(--st-space-3)]">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="st-skeleton st-skeleton-row" />
             ))}
           </div>
-          <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+          <div className="st-table-wrap p-[var(--st-space-3)]">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="st-skeleton st-skeleton-row" />
             ))}

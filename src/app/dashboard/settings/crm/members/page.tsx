@@ -405,9 +405,9 @@ function DeleteInviteDialog({
           </button>
         </div>
         <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
+          <p className="m-0 text-[var(--st-text-secondary)]">
             Delete the invitation for{' '}
-            <strong style={{ color: 'var(--st-text)' }}>{invite.email}</strong>?
+            <strong className="text-[var(--st-text)]">{invite.email}</strong>?
             The invite code will stop working and the record is removed. This
             cannot be undone.
           </p>
@@ -458,13 +458,13 @@ function MemberRoleSelect({
 }: MemberRoleSelectProps): React.JSX.Element {
   // Owners always retain full access — their role is not reassignable here.
   if (member.isOwner) {
-    return <span style={{ color: 'var(--st-text-tertiary)' }}>Owner (full access)</span>;
+    return <span className="text-[var(--st-text-tertiary)]">Owner (full access)</span>;
   }
   if (rolesError || roles.length === 0) {
     const name = currentRoleId
       ? roles.find((r) => r.id === currentRoleId)?.name ?? 'Custom role'
       : 'No role assigned';
-    return <span style={{ color: 'var(--st-text-secondary)' }}>{name}</span>;
+    return <span className="text-[var(--st-text-secondary)]">{name}</span>;
   }
   return (
     <select
@@ -526,9 +526,9 @@ function RemoveMemberDialog({
           </button>
         </div>
         <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
+          <p className="m-0 text-[var(--st-text-secondary)]">
             Removing{' '}
-            <strong style={{ color: 'var(--st-text)' }}>
+            <strong className="text-[var(--st-text)]">
               {member.name.trim() || member.email}
             </strong>{' '}
             from the workspace is managed centrally in SabNode workspace settings
@@ -553,7 +553,7 @@ function RemoveMemberDialog({
 
 function RowsSkeleton({ count = 4 }: { count?: number }): React.JSX.Element {
   return (
-    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+    <div className="st-table-wrap p-[var(--st-space-3)]">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="st-skeleton st-skeleton-row" />
       ))}
@@ -643,7 +643,7 @@ function PendingInvites({
                         Invited {formatInvitedAt(invite.createdAt)}
                       </span>
                     </td>
-                    <td style={{ color: 'var(--st-text-secondary)' }}>{roleName}</td>
+                    <td className="text-[var(--st-text-secondary)]">{roleName}</td>
                     <td>
                       <span className="st-chip st-chip--pending">
                         <span className="st-chip__dot" aria-hidden="true" />
@@ -988,12 +988,7 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
                           </div>
                         </div>
                       </td>
-                      <td
-                        style={{
-                          textTransform: 'capitalize',
-                          color: 'var(--st-text-secondary)',
-                        }}
-                      >
+                      <td className="capitalize text-[var(--st-text-secondary)]">
                         {member.projectRole}
                       </td>
                       <td>

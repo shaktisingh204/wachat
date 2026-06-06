@@ -43,7 +43,7 @@ use std::sync::Arc;
 use axum::{
     Router,
     extract::FromRef,
-    routing::{delete, get, post},
+    routing::{delete, get, patch, post},
 };
 use sabnode_auth::AuthConfig;
 
@@ -188,7 +188,29 @@ where
             "/projects/{project_id}/message-tags",
             get(messaging::tags::list).post(messaging::tags::save),
         )
-        .route("/message-tags/{tag_id}", delete(messaging::tags::delete))
+        // literal `bulk-apply` registered before the `{tag_id}` param sibling
+        .route(
+            "/projects/{project_id}/message-tags/bulk-apply",
+            post(messaging::tags::bulk_apply),
+        )
+        .route(
+            "/projects/{project_id}/message-tags/{tag_id}/analytics",
+            get(messaging::tags::analytics),
+        )
+        .route(
+            "/message-tags/{tag_id}",
+            patch(messaging::tags::update).delete(messaging::tags::delete),
+        )
+        // ---- messaging: scheduled reports --------------------------------
+        .route(
+            "/projects/{project_id}/scheduled-reports",
+            get(messaging::scheduled_reports::list)
+                .post(messaging::scheduled_reports::create),
+        )
+        .route(
+            "/scheduled-reports/{report_id}",
+            delete(messaging::scheduled_reports::delete),
+        )
         // ---- messaging: bulk send -----------------------------------------
         .route(
             "/projects/{project_id}/bulk-send",
@@ -272,7 +294,7 @@ where
         )
         .route(
             "/projects/{project_id}/analytics/link-clicks",
-            get(analytics::link_clicks::list),
+            get(analytics::link_clicks::list).delete(analytics::link_clicks::clear),
         )
         // ---- profile: business hours, greeting, away, prefs --------------
         .route(

@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { FileText, Plus, Database, Edit, Eye, MoreHorizontal } from 'lucide-react';
-import { PageHeader } from '@/components/ui/page-header';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { PageHeader } from '@/components/sabcrm/20ui/compat';
+import { Card } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui/compat';
 import {
   Table,
   TableHeader,
@@ -13,7 +13,7 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from '@/components/ui/table';
+} from '@/components/sabcrm/20ui/compat';
 
 const MOCK_FORMS = [
   {

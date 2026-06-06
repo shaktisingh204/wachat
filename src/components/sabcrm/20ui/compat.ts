@@ -202,6 +202,13 @@ export {
   Th as ZoruTableHead,
   Td as ZoruTableCell,
   TCaption as ZoruTableCaption,
+  // shadcn (@/components/ui) bare table names -> 20ui table primitives.
+  THead as TableHeader,
+  TBody as TableBody,
+  Tr as TableRow,
+  Th as TableHead,
+  Td as TableCell,
+  TCaption as TableCaption,
 } from './index';
 
 // Type-only aliases (ZoruXProps etc.) — erased at build, safe as 'export type'.

@@ -3,6 +3,7 @@ import { fmtDate } from "@/lib/utils";
 
 import {
   useToast,
+  Alert,
   Badge,
   Button,
   Card,
@@ -81,18 +82,24 @@ export default function CustomerSatisfactionPage() {
   const [isPending, startTransition] = useTransition();
   const [ratings, setRatings] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>({});
+  const [error, setError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
+    setError(null);
     startTransition(async () => {
       const res = await getChatRatings(String(activeProject._id));
       if (res.error) {
+        setError(res.error);
         toast({ title: 'Error', description: res.error, tone: 'danger' });
+        setLoaded(true);
         return;
       }
       setRatings(res.ratings ?? []);
       setSummary(res.summary ?? {});
+      setLoaded(true);
     });
   }, [activeProject?._id, toast]);
 
@@ -100,10 +107,42 @@ export default function CustomerSatisfactionPage() {
     load();
   }, [load]);
 
-  const total = summary.count || 0;
-  const promoters = (summary.five || 0) + (summary.four || 0);
-  const passives = summary.three || 0;
-  const detractors = (summary.two || 0) + (summary.one || 0);
+  /**
+   * Real CSAT aggregates computed from the live ratings array (same source as
+   * /wachat/chat-ratings). We bucket the actual rows so the metrics stay correct
+   * even when the server summary omits per-star counts; the summary is used only
+   * as a fallback when no individual rows came back.
+   */
+  const buckets = useMemo(() => {
+    const b = { one: 0, two: 0, three: 0, four: 0, five: 0, count: 0 };
+    if (ratings.length > 0) {
+      for (const r of ratings) {
+        const v = Math.round(Number((r as any)?.rating) || 0);
+        if (v === 1) b.one++;
+        else if (v === 2) b.two++;
+        else if (v === 3) b.three++;
+        else if (v === 4) b.four++;
+        else if (v === 5) b.five++;
+        else continue;
+        b.count++;
+      }
+      return b;
+    }
+    // Fallback to the server summary when no individual rows are present.
+    return {
+      one: summary.one || 0,
+      two: summary.two || 0,
+      three: summary.three || 0,
+      four: summary.four || 0,
+      five: summary.five || 0,
+      count: summary.count || 0,
+    };
+  }, [ratings, summary]);
+
+  const total = buckets.count || 0;
+  const promoters = buckets.five + buckets.four;
+  const passives = buckets.three;
+  const detractors = buckets.two + buckets.one;
   const promPct = total ? Math.round((promoters / total) * 100) : 0;
   const passPct = total ? Math.round((passives / total) * 100) : 0;
   const detPct = total ? Math.round((detractors / total) * 100) : 0;
@@ -111,13 +150,13 @@ export default function CustomerSatisfactionPage() {
 
   const histogramData = useMemo(
     () => [
-      { rating: '1', count: summary.one || 0 },
-      { rating: '2', count: summary.two || 0 },
-      { rating: '3', count: summary.three || 0 },
-      { rating: '4', count: summary.four || 0 },
-      { rating: '5', count: summary.five || 0 },
+      { rating: '1', count: buckets.one },
+      { rating: '2', count: buckets.two },
+      { rating: '3', count: buckets.three },
+      { rating: '4', count: buckets.four },
+      { rating: '5', count: buckets.five },
     ],
-    [summary],
+    [buckets],
   );
 
   const lowRatings = useMemo(
@@ -166,7 +205,26 @@ export default function CustomerSatisfactionPage() {
       }
     >
       <div className="flex flex-col gap-6">
-        {isPending && total === 0 ? (
+        {error && (
+          <Alert tone="danger" title="Couldn’t load satisfaction data">
+            <div className="flex flex-col gap-3">
+              <span>{error}</span>
+              <div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  iconLeft={RefreshCw}
+                  onClick={load}
+                  loading={isPending}
+                >
+                  Try again
+                </Button>
+              </div>
+            </div>
+          </Alert>
+        )}
+
+        {!loaded && isPending && total === 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-[120px]" />

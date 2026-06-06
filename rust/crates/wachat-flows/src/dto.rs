@@ -99,3 +99,50 @@ pub struct BuilderDataResult {
     #[serde(rename = "initialFlow")]
     pub initial_flow: Option<Value>,
 }
+
+/// `{ flowId?, error? }` — return shape for `POST /v1/flows/{id}/clone`.
+///
+/// `flowId` is the hex `_id` of the freshly created copy. On access deny /
+/// missing source we surface a soft `{ error }` envelope so the UI can show
+/// it inline, matching the legacy `cloneFlow` server action's contract.
+#[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CloneFlowResult {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub flow_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+/// Request body for `DELETE /v1/flows/bulk-delete`.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkDeleteReq {
+    #[serde(default)]
+    pub flow_ids: Vec<String>,
+}
+
+/// `{ deleted }` — number of flows actually removed by the bulk delete.
+#[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkDeleteResult {
+    pub deleted: u64,
+}
+
+/// Request body for `PATCH /v1/flows/bulk-status`.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkStatusReq {
+    #[serde(default)]
+    pub flow_ids: Vec<String>,
+    pub status: String,
+}
+
+/// `{ modified }` — number of flows whose status was changed.
+#[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkStatusResult {
+    pub modified: u64,
+}

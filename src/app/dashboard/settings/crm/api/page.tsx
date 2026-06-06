@@ -263,7 +263,7 @@ function CreateKeyDialog({
                 </span>
               </div>
               {scopes.length > 0 ? (
-                <div className="st-field" style={{ marginTop: 'var(--st-space-3)' }}>
+                <div className="st-field mt-[var(--st-space-3)]">
                   <span className="st-field__label">Scopes</span>
                   <ScopeChips scopes={scopes} />
                 </div>
@@ -297,8 +297,7 @@ function CreateKeyDialog({
               </div>
 
               <div
-                className="st-field"
-                style={{ marginTop: 'var(--st-space-4)' }}
+                className="st-field mt-[var(--st-space-4)]"
               >
                 <span className="st-field__label" id="api-key-scopes-label">
                   Scopes
@@ -402,8 +401,8 @@ function RevokeDialog({
           </button>
         </div>
         <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
-            Revoke <strong style={{ color: 'var(--st-text)' }}>{labelOf(apiKey.label)}</strong>
+          <p className="m-0 text-[var(--st-text-secondary)]">
+            Revoke <strong className="text-[var(--st-text)]">{labelOf(apiKey.label)}</strong>
             ? Any integration using this key will immediately stop working. This
             cannot be undone.
           </p>
@@ -432,7 +431,7 @@ function RevokeDialog({
 
 function KeysSkeleton(): React.JSX.Element {
   return (
-    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+    <div className="st-table-wrap p-[var(--st-space-3)]">
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="st-skeleton st-skeleton-row" />
       ))}
@@ -576,17 +575,17 @@ export default function SabcrmApiKeysSettingsPage(): React.JSX.Element {
               <tbody>
                 {keys.map((key) => (
                   <tr key={key.id} className="st-row">
-                    <td style={{ fontWeight: 'var(--st-fw-medium)' }}>
+                    <td className="font-[var(--st-fw-medium)]">
                       {labelOf(key.label)}
                     </td>
                     <td className="st-mono">{maskedKey(key.prefix)}</td>
                     <td>
                       <ScopeChips scopes={scopesOf(key.label)} />
                     </td>
-                    <td style={{ color: 'var(--st-text-secondary)' }}>
+                    <td className="text-[var(--st-text-secondary)]">
                       {formatDate(key.createdAt)}
                     </td>
-                    <td style={{ color: 'var(--st-text-secondary)' }}>
+                    <td className="text-[var(--st-text-secondary)]">
                       {key.lastUsedAt ? (
                         formatDate(key.lastUsedAt)
                       ) : (

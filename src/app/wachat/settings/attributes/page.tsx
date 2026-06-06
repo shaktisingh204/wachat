@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, EmptyState, Skeleton } from '@/components/sabcrm/20ui';
+import { Button, EmptyState, Skeleton } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useRouter } from 'next/navigation';
 import { CircleAlert } from 'lucide-react';
@@ -58,9 +58,7 @@ export default function AttributesSettingsPage() {
       description="Custom contact fields for segmentation and personalization."
       width="narrow"
     >
-      <Card>
-        <UserAttributesSettingsTab project={activeProject} />
-      </Card>
+      <UserAttributesSettingsTab project={activeProject} />
     </WachatPage>
   );
 }

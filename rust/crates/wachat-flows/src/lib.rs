@@ -24,7 +24,11 @@ pub mod store;
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::get};
+use axum::{
+    Router,
+    extract::FromRef,
+    routing::{delete, get, patch, post},
+};
 use sabnode_auth::AuthConfig;
 
 pub use state::WachatFlowsState;
@@ -43,8 +47,13 @@ where
     Router::new()
         .route("/", get(handlers::list_flows).post(handlers::save_flow))
         .route("/builder-data", get(handlers::builder_data))
+        // Literal bulk-op segments MUST precede the `/{id}` param routes so
+        // axum 0.8 doesn't capture `bulk-delete` / `bulk-status` as an `:id`.
+        .route("/bulk-delete", delete(handlers::bulk_delete))
+        .route("/bulk-status", patch(handlers::bulk_status))
         .route(
             "/{id}",
             get(handlers::get_flow).delete(handlers::delete_flow),
         )
+        .route("/{id}/clone", post(handlers::clone_flow))
 }

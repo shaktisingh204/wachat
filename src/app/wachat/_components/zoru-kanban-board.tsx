@@ -52,6 +52,21 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+// Data path: this WhatsApp chat-kanban is keyed on the `Contact` shape
+// (`waId`, `unreadCount`, `lastMessage`, `_id` → /wachat/chat?contactId=…) and
+// the move handler already runs on Rust via `handleUpdateContactStatus`
+// (→ `rustClient.wachatContacts.updateStatus`).
+//
+// TODO(rust-kanban): there is no WhatsApp-contacts kanban endpoint on the Rust
+// BFF yet. The only `/kanban` Rust route is `wachatFacebookCrm.getKanbanData`
+// (`/v1/facebook/crm/projects/{id}/kanban`), which returns Messenger
+// *subscribers* as `columns[].conversations: FacebookSubscriber[]` — a
+// different domain from these `columns[].contacts: Contact[]`. Repointing here
+// would feed PSID subscribers into a waId UI and break the board, so the load +
+// status-list still use the native-mongo `getKanbanData`/`saveKanbanStatuses`.
+// When a contacts-domain Rust kanban endpoint exists (e.g. under
+// `/v1/contacts/.../kanban` on the `wachat-contacts` crate), swap these two
+// imports for its `rustClient.wachatContacts.*` wrappers.
 import {
   getKanbanData,
   saveKanbanStatuses,
@@ -321,6 +336,8 @@ export function ZoruKanbanBoard() {
   const [boardData, setBoardData] = useState<KanbanColumnData[]>([]);
   const [isLoading, startLoadingTransition] = useTransition();
   const [isClient, setIsClient] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [hasProjectId, setHasProjectId] = useState(true);
   const { toast } = useToast();
   const [activeContact, setActiveContact] = useState<WithId<Contact> | null>(null);
 
@@ -329,11 +346,28 @@ export function ZoruKanbanBoard() {
       typeof window !== "undefined"
         ? localStorage.getItem("activeProjectId")
         : null;
-    if (!storedProjectId) return;
+    if (!storedProjectId) {
+      setHasProjectId(false);
+      return;
+    }
+    setHasProjectId(true);
+    setLoadError(null);
     startLoadingTransition(async () => {
-      const data = await getKanbanData(storedProjectId);
-      if (data.project) setProject(data.project);
-      if (data.columns) setBoardData(data.columns);
+      try {
+        const data = await getKanbanData(storedProjectId);
+        if (data.project) {
+          setProject(data.project);
+          setBoardData(data.columns ?? []);
+        } else {
+          // A real project id was stored but the load returned nothing —
+          // surface it as an error rather than the "no project" empty state.
+          setLoadError(
+            "Could not load the chat board for this project. It may have been removed, or the request failed.",
+          );
+        }
+      } catch {
+        setLoadError("Something went wrong loading the chat board.");
+      }
     });
   }, []);
 
@@ -399,6 +433,9 @@ export function ZoruKanbanBoard() {
     const destContacts = Array.from(destColumn.contacts);
     destContacts.push(movedContact);
 
+    // Snapshot for revert if the server rejects the move.
+    const previousBoardData = boardData;
+
     const newBoardData = [...boardData];
     newBoardData[sourceColumnIndex] = {
       ...sourceColumn,
@@ -407,11 +444,31 @@ export function ZoruKanbanBoard() {
     newBoardData[destColumnIndex] = { ...destColumn, contacts: destContacts };
     setBoardData(newBoardData);
 
-    handleUpdateContactStatus(
-      contactId,
-      destinationColumnName,
-      movedContact?.assignedAgentId || "",
-    );
+    // Persist via the Rust contacts path (`wachatContacts.updateStatus`).
+    startLoadingTransition(async () => {
+      try {
+        const result = await handleUpdateContactStatus(
+          contactId,
+          destinationColumnName,
+          movedContact?.assignedAgentId || "",
+        );
+        if (!result?.success) {
+          setBoardData(previousBoardData);
+          toast({
+            title: "Couldn't move conversation",
+            description: result?.error || "The status change was not saved.",
+            tone: "danger",
+          });
+        }
+      } catch {
+        setBoardData(previousBoardData);
+        toast({
+          title: "Couldn't move conversation",
+          description: "Something went wrong saving the status change.",
+          tone: "danger",
+        });
+      }
+    });
   };
 
   const sensors = useSensors(
@@ -514,7 +571,22 @@ export function ZoruKanbanBoard() {
     return <KanbanPageSkeleton />;
   }
 
-  if (!project) {
+  if (loadError) {
+    return (
+      <div className="p-4">
+        <Alert tone="danger" icon={AlertCircle} title="Couldn't load the board">
+          {loadError}
+          <div className="mt-3">
+            <Button size="sm" variant="outline" onClick={fetchData}>
+              Try again
+            </Button>
+          </div>
+        </Alert>
+      </div>
+    );
+  }
+
+  if (!hasProjectId || !project) {
     return (
       <div className="p-4">
         <Alert tone="danger" icon={AlertCircle} title="No project selected">

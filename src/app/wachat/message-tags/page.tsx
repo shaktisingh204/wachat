@@ -53,7 +53,10 @@ import { useProject } from '@/context/project-context';
 import {
   getMessageTags,
   saveMessageTag,
+  updateMessageTag,
   deleteMessageTag,
+  bulkApplyMessageTag,
+  getMessageTagAnalytics,
 } from '@/app/actions/wachat-features.actions';
 
 interface Tag {
@@ -61,6 +64,12 @@ interface Tag {
   name: string;
   color: string;
   usageCount?: number;
+}
+
+interface AnalyticsPoint {
+  /** Calendar day, "YYYY-MM-DD". */
+  date: string;
+  usage: number;
 }
 
 const COLOR_PRESETS = [
@@ -101,6 +110,10 @@ export default function MessageTagsPage() {
   // Analytics state
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [analyticsTag, setAnalyticsTag] = useState<Tag | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsPoint[]>([]);
+  const [analyticsTotal, setAnalyticsTotal] = useState(0);
 
   const fetchData = useCallback(() => {
     if (!projectId) return;
@@ -136,7 +149,9 @@ export default function MessageTagsPage() {
   const handleSave = () => {
     if (!name.trim() || !projectId) return;
     startMutateTransition(async () => {
-      const res = await saveMessageTag(projectId, name.trim(), color);
+      const res = editing
+        ? await updateMessageTag(editing._id, { name: name.trim(), color })
+        : await saveMessageTag(projectId, name.trim(), color);
       if (res.error) {
         toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
@@ -168,23 +183,47 @@ export default function MessageTagsPage() {
   };
 
   const handleBulkApply = async () => {
-    if (!selectedBulkTag) return;
+    if (!selectedBulkTag || !projectId) return;
     setIsBulkApplying(true);
-    // Simulate API call for bulk apply
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const res = await bulkApplyMessageTag(projectId, { tagId: selectedBulkTag });
     setIsBulkApplying(false);
+    if (res.error) {
+      toast({ title: 'Error', description: res.error, tone: 'danger' });
+      return;
+    }
     setBulkApplyOpen(false);
     toast({
-      title: 'Success',
-      description: 'Tag has been bulk applied to past conversations.',
+      title: 'Tag applied',
+      description: `Tagged ${res.modifiedCount ?? 0} of ${res.matchedCount ?? 0} matching conversations.`,
       tone: 'success',
     });
     setSelectedBulkTag('');
+    fetchData();
   };
 
   const openAnalytics = (tag: Tag) => {
     setAnalyticsTag(tag);
     setAnalyticsOpen(true);
+    setAnalyticsError(null);
+    setAnalyticsData([]);
+    setAnalyticsTotal(0);
+    if (!projectId) return;
+    setAnalyticsLoading(true);
+    void (async () => {
+      const res = await getMessageTagAnalytics(projectId, tag._id, 30);
+      setAnalyticsLoading(false);
+      if (res.error) {
+        setAnalyticsError(res.error);
+        return;
+      }
+      setAnalyticsData(
+        (res.dailyUsage ?? []).map((d) => ({
+          date: d._id,
+          usage: d.count,
+        })),
+      );
+      setAnalyticsTotal(res.total ?? 0);
+    })();
   };
 
   const filteredTags = useMemo(() => {
@@ -256,15 +295,6 @@ export default function MessageTagsPage() {
     ],
     [],
   );
-
-  const mockChartData = useMemo(() => {
-    if (!analyticsTag) return [];
-    // Generate dummy usage data over 7 days
-    return Array.from({ length: 7 }).map((_, i) => ({
-      name: `Day ${i + 1}`,
-      usage: Math.floor(Math.random() * 50) + 5,
-    }));
-  }, [analyticsTag]);
 
   const breadcrumb = [
     { label: 'SabNode', href: '/dashboard' },
@@ -434,47 +464,81 @@ export default function MessageTagsPage() {
         onClose={() => setAnalyticsOpen(false)}
         size="lg"
         title={`Analytics: ${analyticsTag?.name ?? ''}`}
-        description="Usage count over the last 7 days."
+        description={
+          analyticsLoading || analyticsError
+            ? 'Daily tagged-message count over the last 30 days.'
+            : `${analyticsTotal} tagged ${
+                analyticsTotal === 1 ? 'message' : 'messages'
+              } over the last 30 days.`
+        }
         footer={
           <Button variant="outline" onClick={() => setAnalyticsOpen(false)}>
             Close
           </Button>
         }
       >
-        <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={mockChartData}>
-              <XAxis
-                dataKey="name"
-                stroke="var(--st-text-tertiary)"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke="var(--st-text-tertiary)"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `${value}`}
-              />
-              <RechartsTooltip
-                cursor={{ fill: 'var(--st-bg-secondary)' }}
-                contentStyle={{
-                  borderRadius: 'var(--st-radius)',
-                  border: '1px solid var(--st-border)',
-                  background: 'var(--st-bg)',
-                  color: 'var(--st-text)',
-                }}
-              />
-              <Bar
-                dataKey="usage"
-                fill={analyticsTag?.color || '#3B82F6'}
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        {analyticsLoading ? (
+          <div className="h-64 w-full">
+            <Skeleton height="100%" radius={8} />
+          </div>
+        ) : analyticsError ? (
+          <EmptyState
+            icon={BarChart2}
+            title="Couldn't load analytics"
+            description={analyticsError}
+            action={
+              <Button
+                variant="outline"
+                onClick={() => analyticsTag && openAnalytics(analyticsTag)}
+              >
+                Retry
+              </Button>
+            }
+          />
+        ) : analyticsData.length === 0 ? (
+          <EmptyState
+            icon={BarChart2}
+            title="No usage yet"
+            description="This tag hasn't been applied to any messages in the last 30 days."
+          />
+        ) : (
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={analyticsData}>
+                <XAxis
+                  dataKey="date"
+                  stroke="var(--st-text-tertiary)"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke="var(--st-text-tertiary)"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  allowDecimals={false}
+                  tickFormatter={(value) => `${value}`}
+                />
+                <RechartsTooltip
+                  cursor={{ fill: 'var(--st-bg-secondary)' }}
+                  contentStyle={{
+                    borderRadius: 'var(--st-radius)',
+                    border: '1px solid var(--st-border)',
+                    background: 'var(--st-bg)',
+                    color: 'var(--st-text)',
+                  }}
+                />
+                <Bar
+                  dataKey="usage"
+                  name="Messages"
+                  fill={analyticsTag?.color || '#3B82F6'}
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </Modal>
 
       {/* Delete tag alert */}

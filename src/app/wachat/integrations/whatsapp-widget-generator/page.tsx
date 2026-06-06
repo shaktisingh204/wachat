@@ -7,6 +7,7 @@ import {
   StatCard,
 } from '@/components/sabcrm/20ui';
 import {
+  useCallback,
   useEffect,
   useState,
   useTransition } from 'react';
@@ -18,6 +19,8 @@ import type { WithId,
   Project } from '@/lib/definitions';
 
 import { getProjectById } from '@/app/actions/project.actions';
+import { getWidgetStats } from '@/app/actions/wachat-widget-tracking.actions';
+import type { WidgetStats } from '@/lib/rust-client/wachat-widget-tracking';
 import { useProject } from '@/context/project-context';
 import { WhatsAppWidgetGenerator } from '@/components/zoruui-domain/whatsapp-widget-generator';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
@@ -54,18 +57,41 @@ function PageSkeleton() {
   );
 }
 
+const ZERO_STATS: WidgetStats = { loads: 0, opens: 0, clicks: 0 };
+
 export default function WhatsappWidgetGeneratorPage() {
   const { activeProject } = useProject();
   const [project, setProject] = useState<WithId<Project> | null>(null);
+  const [stats, setStats] = useState<WidgetStats | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
   const [isLoading, startLoadingTransition] = useTransition();
 
-  const fetchProjectData = async () => {
+  const fetchProjectData = useCallback(async () => {
     const id = activeProject?._id?.toString();
-    if (id) {
-      const data = await getProjectById(id);
-      setProject(data);
+    if (!id) {
+      setProject(null);
+      setStats(null);
+      setStatsError(null);
+      return;
     }
-  };
+
+    // The project still backs the appearance/embed form (a different crate).
+    // Widget analytics now come from the dedicated Rust stats endpoint via the
+    // wachat-widget-tracking action — no longer read off the project doc.
+    const [projectData, statsResult] = await Promise.all([
+      getProjectById(id),
+      getWidgetStats(id),
+    ]);
+
+    setProject(projectData);
+    if (statsResult.success) {
+      setStats(statsResult.stats);
+      setStatsError(null);
+    } else {
+      setStats(null);
+      setStatsError(statsResult.error);
+    }
+  }, [activeProject]);
 
   useEffect(() => {
     startLoadingTransition(() => {
@@ -74,7 +100,7 @@ export default function WhatsappWidgetGeneratorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProject]);
 
-  const stats = project?.widgetSettings?.stats || { loads: 0, opens: 0, clicks: 0 };
+  const displayStats = stats ?? ZERO_STATS;
 
   return (
     <WachatPage
@@ -114,15 +140,21 @@ export default function WhatsappWidgetGeneratorPage() {
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              <StatCard label="Widget loads" value={stats.loads.toLocaleString()} icon={Eye} />
-              <StatCard label="Chat opens" value={stats.opens.toLocaleString()} icon={Users} />
-              <StatCard
-                label="Clicks to WhatsApp"
-                value={stats.clicks.toLocaleString()}
-                icon={BarChart3}
-              />
-            </div>
+            {statsError ? (
+              <Alert tone="danger" title="Could not load widget analytics">
+                {statsError}
+              </Alert>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <StatCard label="Widget loads" value={displayStats.loads.toLocaleString()} icon={Eye} />
+                <StatCard label="Chat opens" value={displayStats.opens.toLocaleString()} icon={Users} />
+                <StatCard
+                  label="Clicks to WhatsApp"
+                  value={displayStats.clicks.toLocaleString()}
+                  icon={BarChart3}
+                />
+              </div>
+            )}
 
             <ErrorBoundary>
               <WhatsAppWidgetGenerator project={project} />

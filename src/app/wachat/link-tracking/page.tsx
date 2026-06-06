@@ -49,7 +49,7 @@ import {
 } from 'recharts';
 
 import { useProject } from '@/context/project-context';
-import { getLinkClicks } from '@/app/actions/wachat-features.actions';
+import { getLinkClicks, clearLinkClicks } from '@/app/actions/wachat-features.actions';
 import { formatUTC } from '@/lib/utils';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
@@ -81,7 +81,8 @@ export default function LinkTrackingPage() {
   const [isPending, startTransition] = useTransition();
   const [clicks, setClicks] = useState<ClickRecord[]>([]);
   const [viewing, setViewing] = useState<GroupedLink | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<GroupedLink | null>(null);
+  const [clearOpen, setClearOpen] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   const [page, setPage] = useState(1);
   const pageSize = 20;
@@ -103,6 +104,27 @@ export default function LinkTrackingPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const handleClearHistory = async () => {
+    if (!activeProjectId) return;
+    setIsClearing(true);
+    const res = await clearLinkClicks(activeProjectId);
+    setIsClearing(false);
+    if (res.error) {
+      toast({ title: 'Error', description: res.error, tone: 'danger' });
+      return;
+    }
+    setClearOpen(false);
+    setClicks([]);
+    toast({
+      title: 'History cleared',
+      description: `Removed ${res.deletedCount ?? 0} click ${
+        res.deletedCount === 1 ? 'record' : 'records'
+      }.`,
+      tone: 'success',
+    });
+    fetchData();
+  };
 
   const grouped: GroupedLink[] = useMemo(() => {
     const map = new Map<
@@ -243,13 +265,6 @@ export default function LinkTrackingPage() {
                 setPage(1);
               }}
             />
-            <IconButton
-              variant="ghost"
-              size="sm"
-              label="Delete tracked link"
-              icon={Trash2}
-              onClick={() => setDeleteTarget(row)}
-            />
           </div>
         ),
       },
@@ -273,15 +288,26 @@ export default function LinkTrackingPage() {
       description="Track clicks on links sent through WhatsApp messages, and measure campaign performance."
       width="wide"
       actions={
-        <Button
-          variant="outline"
-          size="sm"
-          iconLeft={RefreshCw}
-          onClick={fetchData}
-          disabled={isPending}
-        >
-          Refresh
-        </Button>
+        <>
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={RefreshCw}
+            onClick={fetchData}
+            disabled={isPending}
+          >
+            Refresh
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={Trash2}
+            onClick={() => setClearOpen(true)}
+            disabled={isPending || isClearing || totalClicks === 0}
+          >
+            Clear history
+          </Button>
+        </>
       }
     >
       <div className="flex flex-col gap-6">
@@ -426,39 +452,34 @@ export default function LinkTrackingPage() {
         ) : null}
       </Modal>
 
-      {/* Delete-confirm alert */}
+      {/* Clear-history confirm alert */}
       <AlertDialog
-        open={deleteTarget !== null}
+        open={clearOpen}
         onOpenChange={(open) => {
-          if (!open) setDeleteTarget(null);
+          if (!open && !isClearing) setClearOpen(false);
         }}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete tracked link?</AlertDialogTitle>
+            <AlertDialogTitle>Clear all link-click history?</AlertDialogTitle>
             <AlertDialogDescription>
-              This removes click analytics for{' '}
-              <span className="break-all font-mono">
-                {deleteTarget?.url}
-              </span>
-              . The link itself will continue to work in any messages already
-              sent.
+              This permanently removes all{' '}
+              <span className="font-mono tabular-nums">{totalClicks}</span>{' '}
+              recorded clicks for this project. Links already sent keep working —
+              only the analytics are erased. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isClearing}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               intent="danger"
-              onClick={() => {
-                toast({
-                  title: 'Tracked link removed',
-                  description:
-                    'Click analytics for this URL will no longer be recorded.',
-                });
-                setDeleteTarget(null);
+              disabled={isClearing}
+              onClick={(e) => {
+                e.preventDefault();
+                void handleClearHistory();
               }}
             >
-              Delete
+              {isClearing ? 'Clearing…' : 'Clear history'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -23,6 +23,9 @@ futures = "0.3"
 tracing = "0.1"
 anyhow = "1"
 utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+# EXTERNAL SEAM: all Razorpay REST traffic (api.razorpay.com) is confined to
+# `mod razorpay_client`. HTTP Basic auth (keyId:keySecret) over rustls.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "gzip"] }
 sabnode-common = { path = "../common" }
 sabnode-auth = { path = "../auth" }
 sabnode-db = { path = "../db" }

@@ -720,31 +720,71 @@ function Metric({
   );
 }
 
+interface AdCopyResult {
+  primaryText: string;
+  headline: string;
+  description: string;
+  creativeIdea: string;
+}
+
+function isAdCopyResult(value: unknown): value is AdCopyResult {
+  if (!value || typeof value !== 'object') return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.primaryText === 'string' &&
+    typeof v.headline === 'string' &&
+    typeof v.description === 'string' &&
+    typeof v.creativeIdea === 'string'
+  );
+}
+
 function AiCampaignDialog() {
   const [open, setOpen] = React.useState(false);
   const [prompt, setPrompt] = React.useState('');
   const [generating, setGenerating] = React.useState(false);
-  const [result, setResult] = React.useState<{ primaryText: string; headline: string; description: string; creativeIdea: string } | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+  const [result, setResult] = React.useState<AdCopyResult | null>(null);
 
   const closeAndReset = (val: boolean) => {
     setOpen(val);
     if (!val) {
       setResult(null);
+      setError(null);
       setPrompt('');
     }
   };
 
   const handleGenerate = async () => {
+    const offer = prompt.trim();
+    if (!offer) return;
     setGenerating(true);
-    // Simulate an AI API call delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setResult({
-      primaryText: `🚀 Elevate your ${prompt || 'business'} today! Join thousands of happy customers. Tap to chat with us on WhatsApp for an exclusive offer! 💬`,
-      headline: "Chat with us to claim your discount!",
-      description: "Available on WhatsApp. Quick response guaranteed.",
-      creativeIdea: "A vibrant, eye-catching image showing your product in action, with a recognizable green WhatsApp chat bubble in the lower right."
-    });
-    setGenerating(false);
+    setError(null);
+    setResult(null);
+    try {
+      const res = await fetch('/wachat/whatsapp-ads/generate-copy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: offer }),
+      });
+      const data: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        const message =
+          data && typeof data === 'object' && 'error' in data && typeof (data as { error: unknown }).error === 'string'
+            ? (data as { error: string }).error
+            : 'AI generation failed. Please try again.';
+        setError(message);
+        return;
+      }
+      if (!isAdCopyResult(data)) {
+        setError('Received an unexpected response from the AI service.');
+        return;
+      }
+      setResult(data);
+    } catch {
+      setError('Could not reach the AI service. Check your connection and try again.');
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
@@ -767,8 +807,14 @@ function AiCampaignDialog() {
               onChange={(e) => setPrompt(e.target.value)}
               className="resize-none"
               rows={3}
+              disabled={generating}
             />
           </Field>
+          {error && (
+            <Alert tone="danger" title="Generation failed">
+              {error}
+            </Alert>
+          )}
           {!result && (
             <Button
               variant="primary"
@@ -777,7 +823,7 @@ function AiCampaignDialog() {
               iconLeft={generating ? undefined : Sparkles}
             >
               {generating ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-              {generating ? 'Generating...' : 'Generate AI Copy'}
+              {generating ? 'Generating...' : error ? 'Retry generation' : 'Generate AI Copy'}
             </Button>
           )}
           {result && (
@@ -812,7 +858,7 @@ function AiCampaignDialog() {
                   {result.creativeIdea}
                 </CardBody>
               </Card>
-              <Button variant="outline" onClick={() => { setResult(null); setPrompt(''); }}>
+              <Button variant="outline" onClick={() => { setResult(null); setError(null); setPrompt(''); }}>
                 Start over
               </Button>
             </div>

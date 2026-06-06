@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Alert,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -15,21 +16,29 @@ import {
   Field,
   IconButton,
   Input,
+  Skeleton,
   Textarea,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {
+  useCallback,
   useEffect,
   useMemo,
   useState } from 'react';
 import { Link as LinkIcon,
   Copy,
   Check,
-  QrCode } from 'lucide-react';
+  QrCode,
+  History } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import { shortenUrlAction } from './actions';
+import {
+  listGeneratedLinks,
+  saveGeneratedLink,
+  shortenLink,
+} from '@/app/actions/wachat-link-generator.actions';
+import type { SavedLink } from '@/lib/rust-client/wachat-link-generator';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
@@ -44,6 +53,8 @@ export default function WhatsAppLinkGeneratorPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
 
+  const projectId = activeProject?._id?.toString() ?? '';
+
   const projectPhone =
     (activeProject as unknown as { phoneNumber?: string; whatsappNumber?: string })
       ?.phoneNumber ||
@@ -57,9 +68,34 @@ export default function WhatsAppLinkGeneratorPage() {
   const [isShortening, setIsShortening] = useState(false);
   const [shortUrl, setShortUrl] = useState('');
 
+  // Saved links (persisted server-side via the wachat-link-generator crate).
+  const [savedLinks, setSavedLinks] = useState<SavedLink[]>([]);
+  const [linksLoading, setLinksLoading] = useState(false);
+  const [linksError, setLinksError] = useState<string | null>(null);
+
   useEffect(() => {
     if (projectPhone && !phone) setPhone(projectPhone);
   }, [projectPhone, phone]);
+
+  const loadLinks = useCallback(async () => {
+    if (!projectId) {
+      setSavedLinks([]);
+      return;
+    }
+    setLinksLoading(true);
+    setLinksError(null);
+    const res = await listGeneratedLinks(projectId);
+    if (res.success) {
+      setSavedLinks(res.links);
+    } else {
+      setLinksError(res.error ?? 'Failed to load saved links.');
+    }
+    setLinksLoading(false);
+  }, [projectId]);
+
+  useEffect(() => {
+    void loadLinks();
+  }, [loadLinks]);
 
   const { isValid, cleanPhone, formattedPhone } = useMemo(() => {
     let p = phone.trim();
@@ -90,14 +126,18 @@ export default function WhatsAppLinkGeneratorPage() {
     if (!generatedLink) return;
     setIsShortening(true);
     try {
-      const res = await shortenUrlAction(generatedLink);
-      if (res) {
-        setShortUrl(res);
+      const res = await shortenLink(generatedLink);
+      if (res.success && res.shortUrl) {
+        setShortUrl(res.shortUrl);
         toast({ title: 'Success', description: 'Link shortened successfully.', tone: 'success' });
       } else {
-        toast({ title: 'Error', description: 'Failed to shorten link.', tone: 'danger' });
+        toast({
+          title: 'Error',
+          description: res.error ?? 'Failed to shorten link.',
+          tone: 'danger',
+        });
       }
-    } catch (error) {
+    } catch {
       toast({ title: 'Error', description: 'An error occurred while shortening.', tone: 'danger' });
     } finally {
       setIsShortening(false);
@@ -119,6 +159,19 @@ export default function WhatsAppLinkGeneratorPage() {
     setCopied(true);
     toast({ title: 'Copied', description: 'Link copied to clipboard.', tone: 'success' });
     window.setTimeout(() => setCopied(false), 2000);
+
+    // Persist the generated wa.me link so it shows up here and on
+    // /wachat/link-tracking. Best-effort: a save failure never blocks the
+    // copy itself.
+    if (projectId && generatedLink) {
+      const res = await saveGeneratedLink(projectId, generatedLink, {
+        phone: cleanPhone || undefined,
+        message: message.trim() || undefined,
+      });
+      if (res.success) {
+        void loadLinks();
+      }
+    }
   };
 
   return (
@@ -279,6 +332,65 @@ export default function WhatsAppLinkGeneratorPage() {
           )}
         </Card>
       </div>
+
+      {/* Recent links — persisted server-side; a copied link is saved here. */}
+      <Card className="mt-6 flex flex-col gap-3" padding="lg">
+        <div className="flex items-center gap-2">
+          <History className="h-4 w-4 text-[var(--st-text-muted)]" aria-hidden />
+          <h2 className="u-card__title text-[14px] font-semibold">Recent links</h2>
+        </div>
+
+        {linksLoading ? (
+          <div className="flex flex-col gap-2">
+            <Skeleton height={40} className="w-full" />
+            <Skeleton height={40} className="w-full" />
+            <Skeleton height={40} className="w-full" />
+          </div>
+        ) : linksError ? (
+          <Alert tone="danger" title="Couldn't load saved links">
+            <p className="mb-2">{linksError}</p>
+            <Button variant="outline" size="sm" onClick={() => void loadLinks()}>
+              Retry
+            </Button>
+          </Alert>
+        ) : savedLinks.length === 0 ? (
+          <EmptyState
+            icon={LinkIcon}
+            title="No saved links yet"
+            description="Generate a link and copy it — it will be saved here and on the link-tracking page."
+          />
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {savedLinks.map((link) => (
+              <li
+                key={link._id}
+                className="u-card u-card--outlined flex items-center gap-2 p-2"
+              >
+                <span className="flex-1 truncate font-mono text-[12px]" title={link.url}>
+                  {link.url}
+                </span>
+                <span className="shrink-0 text-[11px] text-[var(--st-text-muted)]">
+                  {new Date(link.createdAt).toLocaleDateString()}
+                </span>
+                <IconButton
+                  variant="outline"
+                  size="sm"
+                  label="Copy saved link"
+                  icon={Copy}
+                  onClick={() => {
+                    void navigator.clipboard.writeText(link.url);
+                    toast({
+                      title: 'Copied',
+                      description: 'Saved link copied to clipboard.',
+                      tone: 'success',
+                    });
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       {/* Copy-link confirmation */}
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>

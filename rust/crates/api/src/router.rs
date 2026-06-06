@@ -330,6 +330,9 @@ pub fn build(state: AppState) -> Router {
     let wachat_projects = wachat_projects::router::<AppState>();
     let wachat_contacts = wachat_contacts::router::<AppState>();
     let wachat_number_routing = wachat_number_routing::router::<AppState>();
+    let wachat_razorpay = wachat_razorpay::router::<AppState>();
+    let wachat_post_generator = wachat_post_generator::router::<AppState>();
+    let wachat_contacts_export_sync = wachat_contacts_export_sync::router::<AppState>();
     let wachat_ab_testing = wachat_ab_testing::router::<AppState>();
     let wachat_contact_merge = wachat_contact_merge::router::<AppState>();
     let wachat_auto_reply_settings = wachat_auto_reply_settings::router::<AppState>();
@@ -609,6 +612,9 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/wachat/analytics", wachat_analytics)
         .nest("/v1/wachat/public", wachat_public)
         .nest("/v1/wachat/number-routing", wachat_number_routing)
+        .nest("/v1/wachat/razorpay", wachat_razorpay)
+        .nest("/v1/wachat/post-generator", wachat_post_generator)
+        .nest("/v1/wachat/contacts-export-sync", wachat_contacts_export_sync)
         .nest("/v1/wachat/ab-tests", wachat_ab_testing)
         .nest("/v1/wachat/contact-merge", wachat_contact_merge)
         .nest("/v1/wachat/auto-reply-settings", wachat_auto_reply_settings)

@@ -565,7 +565,7 @@ export default function VoiceCenterDashboard() {
               <div className="absolute inset-0 mt-12 z-0 overflow-auto flex items-center justify-center p-20">
                 <div className="relative w-full max-w-4xl h-[600px] border border-slate-800/0">
                   {/* SVG for edges */}
-                  <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
                     <path d="M 150 110 L 150 150 L 150 200" stroke="#475569" strokeWidth="2" fill="none" strokeDasharray="4 2" className="animate-pulse" />
                     <path d="M 150 260 L 150 300 L -50 300 L -50 350" stroke="#475569" strokeWidth="2" fill="none" />
                     <path d="M 150 260 L 150 300 L 350 300 L 350 350" stroke="#475569" strokeWidth="2" fill="none" />
@@ -789,7 +789,7 @@ export default function VoiceCenterDashboard() {
                       <div className="w-32 h-16 relative overflow-hidden flex items-end justify-center mb-2">
                         <div className="w-32 h-32 rounded-full border-[12px] border-slate-800 absolute top-0 border-b-transparent border-r-transparent rotate-45"></div>
                         <div className="w-32 h-32 rounded-full border-[12px] border-emerald-500 absolute top-0 border-b-transparent border-r-transparent rotate-45" style={{clipPath: 'polygon(0 0, 100% 0, 100% 50%, 0 50%)'}}></div>
-                        <div className="w-1 h-14 bg-slate-300 absolute bottom-0 origin-bottom rounded-full shadow-md z-10" style={{transform: 'rotate(30deg)'}}></div>
+                        <div className="w-1 h-14 bg-slate-300 absolute bottom-0 origin-bottom rounded-full shadow-md z-10 rotate-[30deg]"></div>
                         <div className="w-3 h-3 bg-slate-200 rounded-full absolute bottom-[-6px] z-20"></div>
                       </div>
                       <div className="text-lg font-bold text-emerald-400">Positive (78%)</div>

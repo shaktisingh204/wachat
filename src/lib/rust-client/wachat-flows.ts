@@ -96,6 +96,42 @@ export interface BuilderPageData {
     initialFlow: RustFlowRecord | null;
 }
 
+/**
+ * Result envelope for `POST /v1/flows/:id/clone`.
+ *
+ * Mirrors the Rust `CloneFlowResult` (`#[serde(rename_all = "camelCase")]`):
+ * `flowId` is the hex `_id` of the freshly created copy; access deny / missing
+ * source surface as a soft `{ error }` envelope.
+ */
+export interface CloneWachatFlowResult {
+    flowId?: string;
+    message?: string;
+    error?: string;
+}
+
+/** Body for `DELETE /v1/flows/bulk-delete` — mirrors Rust `BulkDeleteReq`. */
+export interface BulkDeleteWachatFlowsBody {
+    flowIds: string[];
+}
+
+/** Result for `DELETE /v1/flows/bulk-delete` — mirrors Rust `BulkDeleteResult`. */
+export interface BulkDeleteWachatFlowsResult {
+    /** Number of flows actually removed. */
+    deleted: number;
+}
+
+/** Body for `PATCH /v1/flows/bulk-status` — mirrors Rust `BulkStatusReq`. */
+export interface BulkUpdateWachatFlowStatusBody {
+    flowIds: string[];
+    status: 'ACTIVE' | 'PAUSED' | 'ARCHIVED' | string;
+}
+
+/** Result for `PATCH /v1/flows/bulk-status` — mirrors Rust `BulkStatusResult`. */
+export interface BulkUpdateWachatFlowStatusResult {
+    /** Number of flows whose status changed. */
+    modified: number;
+}
+
 // ---------------------------------------------------------------------------
 // Public namespace
 // ---------------------------------------------------------------------------
@@ -151,6 +187,47 @@ export const wachatFlowsApi = {
         const qs = new URLSearchParams({ projectId }).toString();
         return rustFetch<BuilderPageData>(`${BASE}/builder-data?${qs}`);
     },
+
+    /**
+     * `POST /v1/flows/:id/clone` — deep-copies the flow (nodes/edges/
+     * triggerKeywords), suffixes the name with " (Copy)", forces
+     * `status = "PAUSED"`, and assigns a fresh `_id`. Returns `{ flowId }`
+     * for the new copy; access deny / missing source surface as a soft
+     * `{ error }` envelope.
+     */
+    cloneFlow: (flowId: string) =>
+        rustFetch<CloneWachatFlowResult>(
+            `${BASE}/${encodeURIComponent(flowId)}/clone`,
+            { method: 'POST' },
+        ),
+
+    /**
+     * `DELETE /v1/flows/bulk-delete` — body `{ flowIds }`. Deletes every
+     * accessible flow in the list in one `delete_many` (and unsets
+     * `contacts.activeFlow` for affected contacts). Returns `{ deleted }`.
+     */
+    bulkDeleteFlows: (flowIds: string[]) =>
+        rustFetch<BulkDeleteWachatFlowsResult>(`${BASE}/bulk-delete`, {
+            method: 'DELETE',
+            body: JSON.stringify({ flowIds } satisfies BulkDeleteWachatFlowsBody),
+        }),
+
+    /**
+     * `PATCH /v1/flows/bulk-status` — body `{ flowIds, status }`. Sets
+     * `status` on every accessible flow in the list in one `update_many`.
+     * Returns `{ modified }`.
+     */
+    bulkUpdateFlowStatus: (
+        flowIds: string[],
+        status: BulkUpdateWachatFlowStatusBody['status'],
+    ) =>
+        rustFetch<BulkUpdateWachatFlowStatusResult>(`${BASE}/bulk-status`, {
+            method: 'PATCH',
+            body: JSON.stringify({
+                flowIds,
+                status,
+            } satisfies BulkUpdateWachatFlowStatusBody),
+        }),
 };
 
 export type WachatFlowsApi = typeof wachatFlowsApi;

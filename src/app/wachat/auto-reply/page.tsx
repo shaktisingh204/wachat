@@ -26,7 +26,7 @@ import { CircleAlert,
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
-import { handleUpdateMasterSwitch } from '@/app/actions/project.actions';
+import { updateMasterSwitch } from '@/app/actions/wachat-auto-reply-settings.actions';
 import { AutoReplyForm } from '@/app/wachat/_components/auto-reply-form';
 import { OptInOutForm } from '@/app/wachat/_components/opt-in-out-form';
 
@@ -98,7 +98,7 @@ export default function AutoReplyPage() {
     if (!activeProject) return;
     setMasterEnabled(checked);
     startSwitchTransition(async () => {
-      const result = await handleUpdateMasterSwitch(activeProject._id.toString(), checked);
+      const result = await updateMasterSwitch(activeProject._id.toString(), checked);
       if (result.error) {
         toast({ title: 'Error', description: result.error, tone: 'danger' });
         setMasterEnabled(!checked);

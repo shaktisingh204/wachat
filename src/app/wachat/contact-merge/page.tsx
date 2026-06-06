@@ -41,7 +41,11 @@ import {
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
-import { getContactsPageData, updateContactTags } from '@/app/actions/contact.actions';
+import { getContactsPageData } from '@/app/actions/contact.actions';
+import {
+  mergeContacts,
+  type MergeContactsResult,
+} from '@/app/actions/wachat-contact-merge.actions';
 
 /**
  * Wachat Contact Merge -- rebuilt on 20ui primitives.
@@ -62,6 +66,9 @@ export default function ContactMergePage() {
     null,
   ]);
   const [merging, setMerging] = useState(false);
+  const [mergeResult, setMergeResult] = useState<MergeContactsResult | null>(
+    null,
+  );
 
   const load = useCallback(
     (search = '') => {
@@ -103,23 +110,29 @@ export default function ContactMergePage() {
   const contactB = contacts.find((c) => c._id === selected[1]);
 
   const handleMerge = async () => {
-    if (!contactA || !contactB) return;
+    if (!activeProject?._id || !contactA || !contactB) return;
     setMerging(true);
-    const combinedTags = [
-      ...new Set([...(contactA.tagIds || []), ...(contactB.tagIds || [])]),
-    ];
-    const res = await updateContactTags(contactA._id, combinedTags);
+    setMergeResult(null);
+    const res = await mergeContacts(
+      String(activeProject._id),
+      contactA._id,
+      contactB._id,
+    );
     if (res.success) {
+      const merged = res.contact;
+      const repointed =
+        (res.incomingRepointed ?? 0) + (res.outgoingRepointed ?? 0);
       toast({
-        title: 'Merged',
-        description: `Tags from "${contactB.name || contactB.waId}" merged into "${contactA.name || contactA.waId}".`,
+        title: 'Contacts merged',
+        description: `"${contactB.name || contactB.waId}" was folded into "${merged?.name || merged?.waId || contactA.name || contactA.waId}". ${repointed} message${repointed === 1 ? '' : 's'} re-pointed.`,
         tone: 'success',
       });
+      setMergeResult(res);
       setSelected([null, null]);
       load(query);
     } else {
       toast({
-        title: 'Error',
+        title: 'Merge failed',
         description: res.error || 'Merge failed.',
         tone: 'danger',
       });
@@ -270,7 +283,7 @@ export default function ContactMergePage() {
                 </div>
                 {renderContact(
                   contactB,
-                  'Secondary (merge tags into primary)',
+                  'Secondary (folded into primary, then deleted)',
                 )}
               </div>
               <div className="mt-4">
@@ -289,9 +302,12 @@ export default function ContactMergePage() {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Merge contacts?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Tags from "{contactB.name || contactB.waId}" will be
-                        combined into "{contactA.name || contactA.waId}". This
-                        cannot be undone.
+                        "{contactB.name || contactB.waId}" will be folded into "
+                        {contactA.name || contactA.waId}" — non-empty fields,
+                        tags and variables are unioned (primary wins), all of
+                        its messages are re-pointed to the primary, and the
+                        secondary contact is permanently deleted. This cannot be
+                        undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -302,6 +318,59 @@ export default function ContactMergePage() {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
+        {mergeResult?.success && mergeResult.contact && (
+          <Card padding="md">
+            <CardHeader>
+              <CardTitle>Merge complete</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <div className="flex flex-col gap-4">
+                <div className="space-y-2 text-[13px]">
+                  <p>
+                    <span className="text-[var(--st-text-secondary)]">
+                      Surviving contact:{' '}
+                    </span>
+                    <span className="text-[var(--st-text)]">
+                      {mergeResult.contact.name || 'Unknown'}
+                    </span>
+                  </p>
+                  <p>
+                    <span className="text-[var(--st-text-secondary)]">
+                      Phone:{' '}
+                    </span>
+                    <span className="font-mono text-[var(--st-text)]">
+                      {mergeResult.contact.waId || '—'}
+                    </span>
+                  </p>
+                  <p>
+                    <span className="text-[var(--st-text-secondary)]">
+                      Tags:{' '}
+                    </span>
+                    <span className="text-[var(--st-text)]">
+                      {mergeResult.contact.tagIds?.length || 0}
+                    </span>
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Badge tone="success">
+                    {mergeResult.incomingRepointed ?? 0} incoming re-pointed
+                  </Badge>
+                  <Badge tone="success">
+                    {mergeResult.outgoingRepointed ?? 0} outgoing re-pointed
+                  </Badge>
+                  <Badge tone="neutral">
+                    {mergeResult.conversationsRemoved ?? 0} stale conversation
+                    {(mergeResult.conversationsRemoved ?? 0) === 1
+                      ? ''
+                      : 's'}{' '}
+                    removed
+                  </Badge>
+                </div>
               </div>
             </CardBody>
           </Card>

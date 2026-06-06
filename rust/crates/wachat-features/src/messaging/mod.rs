@@ -9,4 +9,5 @@ pub mod quick_reply;
 pub mod saved_replies;
 pub mod scheduled;
 pub mod scheduled_broadcasts;
+pub mod scheduled_reports;
 pub mod tags;

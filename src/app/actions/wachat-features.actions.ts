@@ -524,6 +524,15 @@ export async function getLinkClicks(projectId: string) {
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
+export async function clearLinkClicks(projectId: string) {
+    if (!projectId) return { error: 'Project ID is required.' };
+    try {
+        const r = await rustClient.wachatFeatures.deleteLinkClicks(projectId);
+        revalidatePath('/wachat/link-tracking');
+        return { success: r.success, deletedCount: r.deletedCount };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
 // =================================================================
 //  CONVERSATION ASSIGNMENT
 // =================================================================
@@ -702,6 +711,65 @@ export async function deleteMessageTag(tagId: string) {
         const r = await rustClient.wachatFeatures.deleteMessageTag(tagId);
         return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
+}
+
+export async function updateMessageTag(
+    tagId: string,
+    patch: { name?: string; color?: string },
+) {
+    const name = patch.name?.trim();
+    const color = patch.color?.trim();
+    if (name === undefined && color === undefined) {
+        return { error: 'Provide a name or color to update.' };
+    }
+    if (name !== undefined && name.length === 0) {
+        return { error: 'Tag name cannot be empty.' };
+    }
+    if (color !== undefined && color.length === 0) {
+        return { error: 'Tag color cannot be empty.' };
+    }
+    try {
+        const r = await rustClient.wachatFeatures.updateMessageTag(tagId, {
+            ...(name !== undefined ? { name } : {}),
+            ...(color !== undefined ? { color } : {}),
+        });
+        revalidatePath('/wachat/message-tags');
+        return { success: r.success, message: 'Tag updated.' };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function bulkApplyMessageTag(
+    projectId: string,
+    body: { tagId: string; assignedAgent?: string; unreadOnly?: boolean },
+) {
+    if (!projectId) return { error: 'Project ID is required.' };
+    const tagId = body.tagId?.trim();
+    if (!tagId) return { error: 'Select a tag to apply.' };
+    try {
+        const r = await rustClient.wachatFeatures.bulkApplyMessageTag(projectId, {
+            tagId,
+            ...(body.assignedAgent ? { assignedAgent: body.assignedAgent } : {}),
+            ...(body.unreadOnly !== undefined ? { unreadOnly: body.unreadOnly } : {}),
+        });
+        revalidatePath('/wachat/message-tags');
+        return {
+            success: r.success,
+            modifiedCount: r.modifiedCount,
+            matchedCount: r.matchedCount,
+        };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function getMessageTagAnalytics(
+    projectId: string,
+    tagId: string,
+    days: number = 30,
+) {
+    if (!projectId || !tagId) return { error: 'Project and tag are required.' };
+    try {
+        const r = await rustClient.wachatFeatures.messageTagAnalytics(projectId, tagId, days);
+        return { dailyUsage: r.dailyUsage, total: r.total };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 // =================================================================

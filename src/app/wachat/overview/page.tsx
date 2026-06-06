@@ -44,6 +44,8 @@ import {
 import dynamic from 'next/dynamic';
 
 import { useProject } from '@/context/project-context';
+import { getDashboardSummary } from '@/app/actions/wachat-analytics.actions';
+import { getBroadcasts } from '@/app/actions/broadcast.actions';
 
 function cx(...a: Array<string | false | null | undefined>): string {
   return a.filter(Boolean).join(' ');
@@ -140,6 +142,7 @@ export default function OverviewPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [chart, setChart] = useState<ChartPoint[]>([]);
   const [broadcasts, setBroadcasts] = useState<RecentBroadcast[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [loading, startTransition] = useTransition();
 
   const [layout, setLayout] = useState<Record<WidgetKey, boolean>>(DEFAULT_LAYOUT);
@@ -165,19 +168,43 @@ export default function OverviewPage() {
 
   const reload = useCallback(() => {
     if (!projectId) return;
-    startTransition(() => {
-      fetch(`/api/wachat/dashboard?projectId=${projectId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.error) {
-            setStats(data.stats as Stats);
-            setChart((data.chart as ChartPoint[]) || []);
-            setBroadcasts(data.broadcasts || []);
-          }
-        })
-        .catch((err) => {
-          console.error('Failed to load overview data:', err);
+    startTransition(async () => {
+      try {
+        // Single Rust roll-up for stats + 30-day series; recent campaigns
+        // stay sourced from the real broadcasts store (the summary endpoint
+        // intentionally returns only totals + the daily series).
+        const [summary, broadcastsRes] = await Promise.all([
+          getDashboardSummary(projectId),
+          getBroadcasts(projectId, 1, 5),
+        ]);
+
+        if ('error' in summary) {
+          setError(summary.error);
+          return;
+        }
+
+        setError(null);
+        setStats({
+          totalMessages: summary.totalMessages,
+          totalSent: summary.totalSent,
+          totalFailed: summary.totalFailed,
+          totalDelivered: summary.totalDelivered,
+          totalRead: summary.totalRead,
+          totalCampaigns: summary.totalCampaigns,
         });
+        setChart(
+          summary.dailySeries.map((d) => ({
+            date: d.date,
+            sent: d.sent,
+            delivered: d.delivered,
+            read: d.read,
+          })),
+        );
+        setBroadcasts((broadcastsRes.broadcasts as RecentBroadcast[]) ?? []);
+      } catch (err) {
+        console.error('Failed to load overview data:', err);
+        setError('Failed to load overview data. Please try again.');
+      }
     });
   }, [projectId]);
 
@@ -250,6 +277,23 @@ export default function OverviewPage() {
           </div>
           <Skeleton className="h-[260px] w-full" />
         </div>
+      </WachatPage>
+    );
+  }
+
+  if (error && !stats) {
+    return (
+      <WachatPage breadcrumb={BREADCRUMB} width="wide">
+        <EmptyState
+          icon={CircleX}
+          title="Couldn't load overview"
+          description={error}
+          action={
+            <Button variant="primary" iconLeft={RefreshCw} onClick={reload}>
+              Try again
+            </Button>
+          }
+        />
       </WachatPage>
     );
   }

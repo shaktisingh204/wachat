@@ -45,6 +45,61 @@ export interface OkEnvelope { success: boolean; }
 export interface MessageEnvelope { message: string; }
 
 // ---------------------------------------------------------------------------
+// Wave D additions — message-tag write verbs + analytics, link-click clear.
+// Shapes mirror `rust/crates/wachat-features/src/messaging/tags.rs` and
+// `.../analytics/link_clicks.rs` exactly (every handler DTO is
+// `serde(rename_all = "camelCase")`).
+// ---------------------------------------------------------------------------
+
+/** Body for `PATCH /message-tags/{tagId}` — at least one field required. */
+export interface UpdateMessageTagBody {
+    name?: string;
+    color?: string;
+}
+
+/** Body for `POST /projects/{projectId}/message-tags/bulk-apply`. */
+export interface BulkApplyMessageTagBody {
+    /** Tag to stamp (hex ObjectId string). */
+    tagId: string;
+    /** Only conversations assigned to this agent (hex ObjectId string). */
+    assignedAgent?: string;
+    /** Only conversations with at least one unread message. */
+    unreadOnly?: boolean;
+}
+
+/** Result of the bulk-apply handler (`BulkApplyResp`). */
+export interface BulkApplyMessageTagResponse {
+    success: boolean;
+    /** Conversations that gained the tag. */
+    modifiedCount: number;
+    /** Conversations that matched the criteria. */
+    matchedCount: number;
+}
+
+/** One daily-usage bucket from the tag-analytics aggregation. */
+export interface MessageTagAnalyticsDay {
+    /** Calendar day, "YYYY-MM-DD". */
+    _id: string;
+    /** Tagged messages on that day. */
+    count: number;
+}
+
+/** Result of `GET /projects/{projectId}/message-tags/{tagId}/analytics`. */
+export interface MessageTagAnalyticsResponse {
+    /** Ascending by date. */
+    dailyUsage: MessageTagAnalyticsDay[];
+    /** Total tagged messages over the window. */
+    total: number;
+}
+
+/** Result of `DELETE /projects/{projectId}/analytics/link-clicks` (`ClearResp`). */
+export interface ClearLinkClicksResponse {
+    success: boolean;
+    /** Number of link-click rows removed. */
+    deletedCount: number;
+}
+
+// ---------------------------------------------------------------------------
 // Public namespace, grouped by domain
 // ---------------------------------------------------------------------------
 
@@ -429,6 +484,28 @@ export const wachatFeaturesApi = {
         post<MessageEnvelope>(
             `/phone-numbers/${enc(phoneNumberId)}/commerce-settings`,
             body,
+        ),
+
+    // ---- Wave D: message-tag write verbs + analytics, link-click clear ----
+    updateMessageTag: (tagId: string, body: UpdateMessageTagBody) =>
+        rustFetch<OkEnvelope>(`${BASE}/message-tags/${enc(tagId)}`, {
+            method: 'PATCH',
+            body: JSON.stringify(body),
+        }),
+    bulkApplyMessageTag: (projectId: string, body: BulkApplyMessageTagBody) =>
+        post<BulkApplyMessageTagResponse>(
+            `/projects/${enc(projectId)}/message-tags/bulk-apply`,
+            body,
+        ),
+    messageTagAnalytics: (projectId: string, tagId: string, days?: number) =>
+        get<MessageTagAnalyticsResponse>(
+            `/projects/${enc(projectId)}/message-tags/${enc(tagId)}/analytics${
+                days !== undefined ? `?days=${days}` : ''
+            }`,
+        ),
+    deleteLinkClicks: (projectId: string) =>
+        del<ClearLinkClicksResponse>(
+            `/projects/${enc(projectId)}/analytics/link-clicks`,
         ),
 };
 

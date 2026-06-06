@@ -6,8 +6,11 @@
 //!  - Local Mongo aggregations over `outgoing_messages` / `incoming_messages`
 //!    and `broadcasts`.
 
+pub mod agent_hourly;
+pub mod agent_performance;
 pub mod broadcasts;
 pub mod conversation;
+pub mod dashboard_summary;
 pub mod local_messages;
 pub mod messaging_limit;
 pub mod router;

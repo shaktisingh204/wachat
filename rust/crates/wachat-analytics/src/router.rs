@@ -4,18 +4,19 @@ use std::sync::Arc;
 
 use axum::{
     Json, Router,
-    extract::{FromRef, Path, State},
-    routing::post,
+    extract::{FromRef, Path, Query, State},
+    routing::{get, post},
 };
 use bson::doc;
 use sabnode_auth::{AuthConfig, AuthUser};
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
+use tracing::instrument;
 use wachat_types::Project;
 
 use crate::{
-    broadcasts, conversation, local_messages, messaging_limit, state::WachatAnalyticsState,
-    template,
+    agent_hourly, agent_performance, broadcasts, conversation, dashboard_summary, local_messages,
+    messaging_limit, state::WachatAnalyticsState, template,
 };
 
 const PROJECTS_COLL: &str = "projects";
@@ -56,6 +57,61 @@ where
             post(local_message_analytics),
         )
         .route("/projects/{id}/broadcasts", post(broadcast_analytics))
+        // --- Mongo-only roll-ups (GET): literal segments before param tails. ---
+        .route(
+            "/projects/{id}/dashboard-summary",
+            get(dashboard_summary_handler),
+        )
+        .route(
+            "/projects/{id}/agent-performance",
+            get(agent_performance_handler),
+        )
+        .route(
+            "/projects/{id}/agents/{agentId}/hourly",
+            get(agent_hourly_handler),
+        )
+}
+
+/// `GET /projects/{id}/dashboard-summary` — single-call overview totals +
+/// 30-day daily series, replacing native `getDashboardStats`/`getDashboardChartData`.
+#[instrument(skip_all)]
+async fn dashboard_summary_handler(
+    user: AuthUser,
+    State(s): State<WachatAnalyticsState>,
+    Path(id): Path<String>,
+) -> Result<Json<dashboard_summary::DashboardSummary>> {
+    let p = load_project_for(&user, &s.mongo, &id).await?;
+    Ok(Json(dashboard_summary::aggregate(&s.mongo, p.id).await?))
+}
+
+/// `GET /projects/{id}/agent-performance?days=N` — per-agent leaderboard with
+/// CSAT join, for the team-performance page.
+#[instrument(skip_all)]
+async fn agent_performance_handler(
+    user: AuthUser,
+    State(s): State<WachatAnalyticsState>,
+    Path(id): Path<String>,
+    Query(q): Query<agent_performance::AgentPerformanceQuery>,
+) -> Result<Json<agent_performance::AgentPerformanceResult>> {
+    let p = load_project_for(&user, &s.mongo, &id).await?;
+    Ok(Json(
+        agent_performance::aggregate(&s.mongo, p.id, q).await?,
+    ))
+}
+
+/// `GET /projects/{id}/agents/{agentId}/hourly?days=N` — per-hour response-time
+/// buckets for one agent (response-time-tracker drill-in).
+#[instrument(skip_all)]
+async fn agent_hourly_handler(
+    user: AuthUser,
+    State(s): State<WachatAnalyticsState>,
+    Path((id, agent_id)): Path<(String, String)>,
+    Query(q): Query<agent_hourly::HourlyQuery>,
+) -> Result<Json<agent_hourly::AgentHourlyResult>> {
+    let p = load_project_for(&user, &s.mongo, &id).await?;
+    Ok(Json(
+        agent_hourly::aggregate(&s.mongo, p.id, &agent_id, q).await?,
+    ))
 }
 
 async fn conversation_analytics(

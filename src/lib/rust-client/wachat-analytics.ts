@@ -140,6 +140,101 @@ export interface BroadcastAnalyticsResult {
 }
 
 // ---------------------------------------------------------------------------
+// Mongo-only roll-ups (Wave D) — GET endpoints backing the dashboard pages.
+//
+// All three are pure Mongo aggregations (no Meta Graph) over the real
+// `outgoing_messages` / `messages` / `broadcasts` / `agents` / `wa_chat_ratings`
+// collections. Response field names mirror the Rust crates verbatim
+// (`serde(rename_all = "camelCase")`) — see `wachat-analytics`:
+//   - `dashboard_summary.rs`  → DashboardSummaryResult
+//   - `agent_performance.rs`  → AgentPerformanceResult
+//   - `agent_hourly.rs`       → AgentHourlyResult
+// ---------------------------------------------------------------------------
+
+/**
+ * One day of the 30-day overview chart series.
+ * `date` is `YYYY-MM-DD` (UTC). Mirrors Rust `DailyPoint`.
+ */
+export interface DashboardDailyPoint {
+    date: string;
+    sent: number;
+    delivered: number;
+    read: number;
+}
+
+/**
+ * Result of `GET /v1/wachat/analytics/projects/:id/dashboard-summary`.
+ *
+ * Single-call replacement for the native `getDashboardStats` +
+ * `getDashboardChartData`: headline totals plus a dense, zero-filled 30-day
+ * daily series (exactly 30 entries, oldest → newest). Mirrors Rust
+ * `DashboardSummary`.
+ */
+export interface DashboardSummaryResult {
+    totalMessages: number;
+    totalSent: number;
+    totalDelivered: number;
+    totalRead: number;
+    totalFailed: number;
+    totalCampaigns: number;
+    /** Exactly 30 entries, oldest → newest, zero-filled for empty days. */
+    dailySeries: DashboardDailyPoint[];
+}
+
+/**
+ * One per-agent leaderboard row. Mirrors Rust `AgentPerformanceRow`.
+ *
+ * `csatScore` is the average customer-satisfaction rating and `csatReviews`
+ * the number of ratings backing it — both `0` when an agent has no ratings
+ * (never fabricated).
+ */
+export interface AgentPerformanceRow {
+    agentId: string;
+    agentName: string;
+    messagesSent: number;
+    avgResponseMs: number;
+    totalConversations: number;
+    csatScore: number;
+    csatReviews: number;
+}
+
+/**
+ * Result of `GET /v1/wachat/analytics/projects/:id/agent-performance?days=N`.
+ * Mirrors Rust `AgentPerformanceResult`. `days` echoes the clamped window
+ * (1..=365, default 30).
+ */
+export interface AgentPerformanceResult {
+    days: number;
+    performance: AgentPerformanceRow[];
+}
+
+/**
+ * One hour-of-day bucket for the response-time drill-in.
+ * `hour` is 0–23 (UTC). Mirrors Rust `HourlyBucket`.
+ */
+export interface AgentHourlyBucket {
+    hour: number;
+    avgResponseMs: number;
+    messageCount: number;
+}
+
+/**
+ * Result of `GET /v1/wachat/analytics/projects/:id/agents/:agentId/hourly?days=N`.
+ *
+ * Per-agent hourly response-time buckets — a dense 24-entry series (hour 0 →
+ * 23, zero-filled) plus the window totals. Mirrors Rust `AgentHourlyResult`.
+ */
+export interface AgentHourlyResult {
+    agentId: string;
+    days: number;
+    totalMessages: number;
+    /** Overall mean response time across the window, ms (0 when no data). */
+    avgResponseMs: number;
+    /** Exactly 24 entries, hour 0 → 23. */
+    buckets: AgentHourlyBucket[];
+}
+
+// ---------------------------------------------------------------------------
 // Public namespace
 // ---------------------------------------------------------------------------
 
@@ -190,6 +285,41 @@ export const wachatAnalyticsApi = {
                 method: 'POST',
                 body: JSON.stringify(body),
             },
+        ),
+
+    // --- Wave D: Mongo-only roll-ups (GET) ---
+
+    /**
+     * `GET /projects/:id/dashboard-summary` — overview totals + dense 30-day
+     * daily series in one response. Backs `/wachat/overview`.
+     */
+    dashboardSummary: (projectId: string) =>
+        rustFetch<DashboardSummaryResult>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/dashboard-summary`,
+        ),
+
+    /**
+     * `GET /projects/:id/agent-performance?days=N` — per-agent leaderboard with
+     * real CSAT join. Backs `/wachat/team-performance`. `days` defaults to the
+     * Rust default (30) when omitted; the server clamps it to 1..=365.
+     */
+    agentPerformance: (projectId: string, days?: number) =>
+        rustFetch<AgentPerformanceResult>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/agent-performance${
+                typeof days === 'number' ? `?days=${encodeURIComponent(String(days))}` : ''
+            }`,
+        ),
+
+    /**
+     * `GET /projects/:id/agents/:agentId/hourly?days=N` — per-hour response-time
+     * buckets for one agent (response-time-tracker drill-in). `days` defaults
+     * to the Rust default (30) when omitted; the server clamps it to 1..=365.
+     */
+    agentHourly: (projectId: string, agentId: string, days?: number) =>
+        rustFetch<AgentHourlyResult>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/agents/${encodeURIComponent(
+                agentId,
+            )}/hourly${typeof days === 'number' ? `?days=${encodeURIComponent(String(days))}` : ''}`,
         ),
 };
 

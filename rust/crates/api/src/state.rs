@@ -1265,6 +1265,21 @@ impl FromRef<AppState> for wachat_number_routing::WachatNumberRoutingState {
         wachat_number_routing::WachatNumberRoutingState::new(s.mongo.clone())
     }
 }
+impl FromRef<AppState> for wachat_razorpay::WachatRazorpayState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_razorpay::WachatRazorpayState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_post_generator::WachatPostGeneratorState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_post_generator::WachatPostGeneratorState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_contacts_export_sync::WachatContactsExportSyncState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_contacts_export_sync::WachatContactsExportSyncState::new(s.mongo.clone())
+    }
+}
 impl FromRef<AppState> for wachat_ab_testing::WachatAbTestingState {
     fn from_ref(s: &AppState) -> Self {
         wachat_ab_testing::WachatAbTestingState::new(s.mongo.clone())

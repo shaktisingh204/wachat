@@ -695,8 +695,7 @@ export default function GanttPage() {
             {/* Chart scroller */}
             <div
               ref={chartScrollRef}
-              className="relative overflow-x-auto"
-              style={{ flex: 1 }}
+              className="relative flex-1 overflow-x-auto"
             >
               <div
                 className="relative"

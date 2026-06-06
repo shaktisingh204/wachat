@@ -21,8 +21,12 @@ use bson::oid::ObjectId;
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use serde_json::Value;
+use tracing::instrument;
 
-use crate::dto::{AckResult, BuilderDataResult, ProjectIdQuery, SaveFlowReq, SaveFlowResult};
+use crate::dto::{
+    AckResult, BuilderDataResult, BulkDeleteReq, BulkDeleteResult, BulkStatusReq, BulkStatusResult,
+    CloneFlowResult, ProjectIdQuery, SaveFlowReq, SaveFlowResult,
+};
 use crate::state::WachatFlowsState;
 use crate::store;
 
@@ -154,4 +158,54 @@ pub async fn builder_data(
         flows,
         initial_flow,
     }))
+}
+
+/// `POST /v1/flows/:id/clone`
+///
+/// Deep-copies the flow: duplicates `nodes`/`edges`/`triggerKeywords`, suffixes
+/// the name with ` (Copy)`, forces `status = "PAUSED"`, and assigns a fresh
+/// `_id`. Returns `{ flowId }` for the new copy. Access deny / missing source
+/// surface as a soft `{ error }` envelope to match the legacy `cloneFlow`.
+#[instrument(skip_all)]
+pub async fn clone_flow(
+    user: AuthUser,
+    State(s): State<WachatFlowsState>,
+    Path(id): Path<String>,
+) -> Result<Json<CloneFlowResult>> {
+    Ok(Json(store::clone_flow(&user, &s.mongo, &id).await?))
+}
+
+/// `DELETE /v1/flows/bulk-delete`
+///
+/// Body `{ flowIds: [] }`. Deletes every flow in the list that the caller can
+/// access (owner-or-agent of its project), in one `delete_many`, and unsets
+/// `contacts.activeFlow` for affected contacts. Returns `{ deleted }`.
+#[instrument(skip_all)]
+pub async fn bulk_delete(
+    user: AuthUser,
+    State(s): State<WachatFlowsState>,
+    Json(body): Json<BulkDeleteReq>,
+) -> Result<Json<BulkDeleteResult>> {
+    Ok(Json(
+        store::bulk_delete_flows(&user, &s.mongo, &body.flow_ids).await?,
+    ))
+}
+
+/// `PATCH /v1/flows/bulk-status`
+///
+/// Body `{ flowIds: [], status }`. Sets `status` on every accessible flow in
+/// the list in one `update_many`. Returns `{ modified }`.
+#[instrument(skip_all)]
+pub async fn bulk_status(
+    user: AuthUser,
+    State(s): State<WachatFlowsState>,
+    Json(body): Json<BulkStatusReq>,
+) -> Result<Json<BulkStatusResult>> {
+    let status = body.status.trim();
+    if status.is_empty() {
+        return Err(ApiError::Validation("status is required.".to_owned()));
+    }
+    Ok(Json(
+        store::bulk_status_flows(&user, &s.mongo, &body.flow_ids, status).await?,
+    ))
 }

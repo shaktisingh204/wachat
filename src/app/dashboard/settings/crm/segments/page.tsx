@@ -580,9 +580,9 @@ function DeleteSegmentDialog({
           </button>
         </div>
         <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
+          <p className="m-0 text-[var(--st-text-secondary)]">
             Delete the segment{' '}
-            <strong style={{ color: 'var(--st-text)' }}>{segment.name}</strong>?
+            <strong className="text-[var(--st-text)]">{segment.name}</strong>?
             Its records are not affected — only the saved smart list is removed.
             This cannot be undone.
           </p>

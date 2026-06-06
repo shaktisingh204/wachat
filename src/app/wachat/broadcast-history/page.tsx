@@ -40,7 +40,7 @@ import { useProject } from '@/context/project-context';
 
 import * as React from 'react';
 
-import { getBroadcasts } from '@/app/actions/broadcast.actions';
+import { getBroadcasts, handleRequeueBroadcast } from '@/app/actions/broadcast.actions';
 
 function statusTone(s: string): BadgeTone {
   if (s === 'completed') return 'success';
@@ -55,9 +55,26 @@ function ReplayBroadcastDialog({
   onConfirm,
 }: {
   broadcast: any;
-  onConfirm: (id: string) => void;
+  onConfirm: (id: string) => Promise<boolean>;
 }) {
   const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const close = () => {
+    if (submitting) return;
+    setOpen(false);
+  };
+
+  const handleConfirm = async () => {
+    setSubmitting(true);
+    try {
+      const ok = await onConfirm(broadcast._id);
+      if (ok) setOpen(false);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <>
       <Button variant="ghost" size="sm" iconLeft={RotateCw} onClick={() => setOpen(true)}>
@@ -65,7 +82,7 @@ function ReplayBroadcastDialog({
       </Button>
       <Modal
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={close}
         title="Replay this broadcast?"
         description={
           <>
@@ -75,17 +92,16 @@ function ReplayBroadcastDialog({
         }
         footer={
           <>
-            <Button variant="outline" onClick={() => setOpen(false)}>
+            <Button variant="outline" onClick={close} disabled={submitting}>
               Cancel
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                onConfirm(broadcast._id);
-                setOpen(false);
-              }}
+              onClick={handleConfirm}
+              loading={submitting}
+              iconLeft={RotateCw}
             >
-              Replay broadcast
+              {submitting ? 'Queueing…' : 'Replay broadcast'}
             </Button>
           </>
         }
@@ -128,12 +144,39 @@ export default function BroadcastHistoryPage() {
   const toggle = (id: string) =>
     setExpandedId((prev) => (prev === id ? null : id));
 
-  const onReplay = (id: string) => {
-    toast({
-      title: 'Replay queued',
-      description: `Replay for broadcast ${id} has been requested.`,
-    });
-  };
+  const onReplay = useCallback(
+    async (id: string): Promise<boolean> => {
+      const fd = new FormData();
+      fd.set('broadcastId', id);
+      fd.set('requeueScope', 'ALL');
+
+      try {
+        const res = await handleRequeueBroadcast({}, fd);
+        if (res.error) {
+          toast({
+            title: 'Replay failed',
+            description: res.error,
+            tone: 'danger',
+          });
+          return false;
+        }
+        toast({
+          title: 'Replay queued',
+          description: res.message || 'A new campaign has been queued.',
+        });
+        if (projectId) fetchBroadcasts(projectId);
+        return true;
+      } catch {
+        toast({
+          title: 'Replay failed',
+          description: 'Something went wrong while requeuing the broadcast.',
+          tone: 'danger',
+        });
+        return false;
+      }
+    },
+    [toast, projectId, fetchBroadcasts],
+  );
 
   const totals = React.useMemo(() => {
     const totalMessages = broadcasts.reduce(

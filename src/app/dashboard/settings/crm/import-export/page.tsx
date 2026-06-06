@@ -350,8 +350,8 @@ function ExportControl({
   );
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--st-space-3)' }}>
-      <div ref={ref} style={{ position: 'relative' }}>
+    <div className="flex items-center gap-[var(--st-space-3)]">
+      <div ref={ref} className="relative">
         <button
           type="button"
           className="st-btn st-btn--secondary"
@@ -371,24 +371,12 @@ function ExportControl({
         {open && (
           <div
             role="menu"
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + 4px)',
-              right: 0,
-              zIndex: 20,
-              minWidth: 160,
-              padding: 4,
-              border: '1px solid var(--st-border)',
-              borderRadius: 'var(--st-radius)',
-              background: 'var(--st-bg)',
-              boxShadow: 'var(--st-shadow-pop)',
-            }}
+            className="absolute top-[calc(100%+4px)] right-0 z-20 min-w-[160px] p-1 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg)] shadow-[var(--st-shadow-pop)]"
           >
             <button
               type="button"
               role="menuitem"
-              className="st-btn st-btn--ghost"
-              style={{ width: '100%', justifyContent: 'flex-start' }}
+              className="st-btn st-btn--ghost w-full justify-start"
               onClick={() => void run('csv')}
             >
               Export as CSV
@@ -396,8 +384,7 @@ function ExportControl({
             <button
               type="button"
               role="menuitem"
-              className="st-btn st-btn--ghost"
-              style={{ width: '100%', justifyContent: 'flex-start' }}
+              className="st-btn st-btn--ghost w-full justify-start"
               onClick={() => void run('xlsx')}
             >
               Export as Excel
@@ -407,8 +394,7 @@ function ExportControl({
       </div>
       {msg && (
         <span
-          className={msg.ok ? 'st-pill' : 'st-iox-issue'}
-          style={{ margin: 0 }}
+          className={`${msg.ok ? 'st-pill' : 'st-iox-issue'} m-0`}
         >
           {msg.text}
         </span>
@@ -1000,7 +986,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
         <h1 className="st-page-header__title">Import &amp; Export</h1>
       </header>
 
-      <p className="st-muted" style={{ marginBottom: 'var(--st-space-4)' }}>
+      <p className="st-muted mb-[var(--st-space-4)]">
         Bulk-load records into any object from a CSV file, or export an
         object&apos;s records back out. Pick an object to begin — imports run
         through a guided 4-step wizard.
@@ -1114,8 +1100,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
 
               {stepError && (
                 <div
-                  className="st-iox-issue"
-                  style={{ marginBottom: 'var(--st-space-3)' }}
+                  className="st-iox-issue mb-[var(--st-space-3)]"
                   role="alert"
                 >
                   <AlertTriangle size={14} aria-hidden="true" />
@@ -1158,7 +1143,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                   ) : (
                     <div className="st-iox-drop">
                       <Upload size={22} aria-hidden="true" />
-                      <p className="st-muted" style={{ margin: 0 }}>
+                      <p className="st-muted m-0">
                         Pick a CSV file from your SabFiles library or upload a new
                         one.
                       </p>
@@ -1268,8 +1253,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                   {relationFields.length > 0 && (
                     <div>
                       <h3
-                        className="st-iw-step-title"
-                        style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                        className="st-iw-step-title flex items-center gap-[6px]"
                       >
                         <Link2 size={14} aria-hidden="true" />
                         Connect relations
@@ -1465,13 +1449,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                   {mappedRelations.length > 0 && (
                     <div>
                       <p
-                        className="st-iw-step-hint"
-                        style={{
-                          marginBottom: 6,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 6,
-                        }}
+                        className="st-iw-step-hint mb-[6px] flex items-center gap-[6px]"
                       >
                         <Link2 size={13} aria-hidden="true" />
                         Relation connect coverage — a sample of distinct values is
@@ -1505,8 +1483,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                                 </span>
                                 {probe?.loading ? (
                                   <span
-                                    className="st-rc-badge"
-                                    style={{ gap: 6 }}
+                                    className="st-rc-badge gap-[6px]"
                                   >
                                     <span
                                       className="st-spinner"
@@ -1622,11 +1599,11 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
 
                   {/* Sample rows */}
                   <div>
-                    <p className="st-iw-step-hint" style={{ marginBottom: 6 }}>
+                    <p className="st-iw-step-hint mb-[6px]">
                       Sample of the first {sampleRows.length} mapped row(s):
                     </p>
                     {mappedPairs.length === 0 ? (
-                      <p className="st-muted" style={{ margin: 0 }}>
+                      <p className="st-muted m-0">
                         No columns are mapped yet — go back and map at least one
                         field.
                       </p>
@@ -1798,7 +1775,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
 
                   {result.failed > 0 && (
                     <div>
-                      <p className="st-iw-step-hint" style={{ marginBottom: 6 }}>
+                      <p className="st-iw-step-hint mb-[6px]">
                         Per-row failures (first 50):
                       </p>
                       <div className="st-iw-failures">

@@ -1363,7 +1363,7 @@ function IndexesEditor({ object, projectId, onSaved }: IndexesEditorProps) {
                 aria-label="Index name (auto-derived)"
               />
               {nameTaken ? (
-                <span className="st-field__label" style={{ color: '#d64545' }}>
+                <span className="st-field__label text-[#d64545]">
                   An index over these fields already exists.
                 </span>
               ) : null}
@@ -2033,7 +2033,7 @@ function NewObjectDialog({
                 aria-invalid={slugTaken}
               />
               {slugTaken ? (
-                <span className="st-field__label" style={{ color: '#d64545' }}>
+                <span className="st-field__label text-[#d64545]">
                   An object with this slug already exists.
                 </span>
               ) : null}
@@ -2408,7 +2408,7 @@ function FieldDialog({
                   A field&apos;s key is fixed once created.
                 </span>
               ) : keyConflict ? (
-                <span className="st-field__label" style={{ color: '#d64545' }}>
+                <span className="st-field__label text-[#d64545]">
                   A field with this key already exists.
                 </span>
               ) : null}
@@ -2710,12 +2710,12 @@ export default function DataModelPage(): React.JSX.Element {
         <ErrorBanner message={error} />
       ) : loading ? (
         <div className="dm-layout">
-          <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+          <div className="st-table-wrap p-[var(--st-space-3)]">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="st-skeleton st-skeleton-row" />
             ))}
           </div>
-          <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+          <div className="st-table-wrap p-[var(--st-space-3)]">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="st-skeleton st-skeleton-row" />
             ))}

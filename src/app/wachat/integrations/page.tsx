@@ -1,7 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
+  Alert,
+  AlertTitle,
+  AlertDescription,
   Badge,
   Button,
   Card,
@@ -10,6 +13,7 @@ import {
   CardDescription,
   CardBody,
   CardFooter,
+  EmptyState,
   IconButton,
   Tabs,
   TabPanel,
@@ -19,8 +23,16 @@ import {
   Tr,
   Th,
   Td,
+  WaterLoader,
+  useToast,
 } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
+import {
+  connectOauthProvider,
+  disconnectOauthProvider,
+  listOauthConnections,
+} from '@/app/actions/wachat-integrations-hub.actions';
+import type { OauthConnection } from '@/lib/rust-client/wachat-integrations-hub';
 import {
   ArrowRight,
   Code2,
@@ -37,6 +49,7 @@ import {
   Trash2,
   Edit2,
   Copy,
+  Plug,
 } from 'lucide-react';
 
 import Link from 'next/link';
@@ -107,27 +120,213 @@ const integrations: Integration[] = [
   },
 ];
 
-const oauthConnections = [
-  {
+/**
+ * Presentation metadata for each OAuth provider slug. The connection *state*
+ * (connected / accountLabel / connectedAt) is live data from the Rust crate
+ * `wachat-integrations-hub`; this map only supplies the human label, blurb,
+ * and icon keyed by the provider slug the backend returns.
+ */
+const OAUTH_PROVIDER_META: Record<
+  string,
+  { name: string; description: string; icon: React.ReactNode }
+> = {
+  facebook: {
     name: 'Facebook / Meta',
     description: 'Connect your WhatsApp Business Account (WABA)',
     icon: <Globe className="h-[18px] w-[18px]" aria-hidden="true" />,
-    status: 'connected',
-    connectedAt: 'Dec 1, 2023',
   },
-  {
+  shopify: {
     name: 'Shopify',
     description: 'Sync your products and customers',
     icon: <ShoppingBag className="h-[18px] w-[18px]" aria-hidden="true" />,
-    status: 'disconnected',
   },
-  {
+  'google-analytics': {
     name: 'Google Analytics',
     description: 'Track WhatsApp link clicks and widget interactions',
     icon: <PieChart className="h-[18px] w-[18px]" aria-hidden="true" />,
-    status: 'disconnected',
+  },
+};
+
+function formatConnectedAt(iso?: string): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+/**
+ * OAuth Connections tab — real data via the `wachat-integrations-hub` crate.
+ *
+ * Loads on mount, renders loading / error / empty / populated states, and
+ * wires Connect + Disconnect to the server actions with optimistic per-row
+ * pending state and toast feedback.
+ */
+function OauthConnectionsTab(): React.JSX.Element {
+  const { toast } = useToast();
+  const [connections, setConnections] = useState<OauthConnection[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  /** Provider slug currently being mutated (connect/disconnect in flight). */
+  const [pending, setPending] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    const res = await listOauthConnections();
+    if (res.error) {
+      setLoadError(res.error);
+      setConnections(null);
+    } else {
+      setConnections(res.connections ?? []);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const handleConnect = useCallback(
+    async (provider: string, name: string) => {
+      setPending(provider);
+      const res = await connectOauthProvider(provider);
+      setPending(null);
+      if (res.success) {
+        toast({ tone: 'success', title: `${name} connection started.` });
+        void load();
+      } else {
+        toast({
+          tone: 'danger',
+          title: `Could not connect ${name}.`,
+          description: res.error,
+        });
+      }
+    },
+    [toast, load],
+  );
+
+  const handleDisconnect = useCallback(
+    async (provider: string, name: string) => {
+      setPending(provider);
+      const res = await disconnectOauthProvider(provider);
+      setPending(null);
+      if (res.success) {
+        toast({ tone: 'success', title: `${name} disconnected.` });
+        void load();
+      } else {
+        toast({
+          tone: 'danger',
+          title: `Could not disconnect ${name}.`,
+          description: res.error,
+        });
+      }
+    },
+    [toast, load],
+  );
+
+  if (loading && connections === null) {
+    return (
+      <div className="flex justify-center py-16" role="status" aria-busy="true">
+        <WaterLoader width={220} caption="Loading connections" label="Loading OAuth connections" />
+      </div>
+    );
   }
-];
+
+  if (loadError) {
+    return (
+      <Alert tone="danger" className="mt-1">
+        <AlertTitle>Couldn&apos;t load connections</AlertTitle>
+        <AlertDescription>
+          {loadError}
+          <div className="mt-3">
+            <Button size="sm" variant="outline" onClick={() => void load()}>
+              Retry
+            </Button>
+          </div>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!connections || connections.length === 0) {
+    return (
+      <EmptyState
+        icon={Plug}
+        title="No connections yet"
+        description="Connect Facebook, Shopify or Google Analytics to power WABA messaging, product sync, and click tracking."
+      />
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      {connections.map((conn) => {
+        const meta = OAUTH_PROVIDER_META[conn.provider] ?? {
+          name: conn.provider,
+          description: 'OAuth connection',
+          icon: <Plug className="h-[18px] w-[18px]" aria-hidden="true" />,
+        };
+        const since = formatConnectedAt(conn.connectedAt);
+        const isPending = pending === conn.provider;
+
+        return (
+          <Card
+            key={conn.provider}
+            padding="none"
+            className="flex items-center justify-between gap-4 p-5"
+          >
+            <div className="flex items-center gap-4">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+                {meta.icon}
+              </span>
+              <div>
+                <CardTitle className="text-[15px] font-medium">{meta.name}</CardTitle>
+                <CardDescription className="text-sm">
+                  {conn.accountLabel ?? meta.description}
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              {conn.connected ? (
+                <>
+                  <div className="flex flex-col items-end">
+                    <Badge tone="success">Connected</Badge>
+                    {since ? (
+                      <span className="mt-1 text-[11px] text-[var(--st-text-tertiary)]">
+                        Since {since}
+                      </span>
+                    ) : null}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={isPending}
+                    onClick={() => void handleDisconnect(conn.provider, meta.name)}
+                  >
+                    {isPending ? 'Disconnecting…' : 'Disconnect'}
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="primary"
+                  disabled={isPending}
+                  onClick={() => void handleConnect(conn.provider, meta.name)}
+                >
+                  {isPending ? 'Connecting…' : 'Connect'}
+                </Button>
+              )}
+            </div>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
 
 const webhooks = [
   {
@@ -237,36 +436,7 @@ export default function IntegrationsPage() {
         </TabPanel>
 
         <TabPanel value="oauth" className="mt-4">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {oauthConnections.map((app) => (
-              <Card key={app.name} padding="none" className="flex items-center justify-between p-5">
-                <div className="flex items-center gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
-                    {app.icon}
-                  </span>
-                  <div>
-                    <CardTitle className="text-[15px] font-medium">{app.name}</CardTitle>
-                    <CardDescription className="text-sm">{app.description}</CardDescription>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  {app.status === 'connected' ? (
-                    <>
-                      <div className="flex flex-col items-end">
-                        <Badge tone="success">Connected</Badge>
-                        <span className="mt-1 text-[11px] text-[var(--st-text-tertiary)]">
-                          Since {app.connectedAt}
-                        </span>
-                      </div>
-                      <Button size="sm" variant="outline">Disconnect</Button>
-                    </>
-                  ) : (
-                    <Button size="sm" variant="primary">Connect</Button>
-                  )}
-                </div>
-              </Card>
-            ))}
-          </div>
+          <OauthConnectionsTab />
         </TabPanel>
 
         <TabPanel value="webhooks" className="mt-4">

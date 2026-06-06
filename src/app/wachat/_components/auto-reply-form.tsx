@@ -28,7 +28,7 @@ import { Loader2,
   Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { handleUpdateAutoReplySettings } from '@/app/actions/project.actions';
+import { updateAutoReplySettings } from '@/app/actions/wachat-auto-reply-settings.actions';
 import type { GeneralReplyRule,
   Project,
   WithId } from '@/lib/definitions';
@@ -37,8 +37,8 @@ import { timezones } from '@/lib/timezones';
 /**
  * AutoReplyForm (wachat-local, 20ui).
  *
- * Replaces the legacy auto-reply-form. Same server
- * action (handleUpdateAutoReplySettings), same hidden form fields,
+ * Replaces the legacy auto-reply-form. Now backed by the Rust crate via
+ * `updateAutoReplySettings`, with the same hidden form fields and the
  * same per-type behavior (welcome / general / inactiveHours / aiAssistant).
  */
 
@@ -97,7 +97,7 @@ const formDetails = {
 
 export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
   const [state, formAction] = useActionState(
-    handleUpdateAutoReplySettings as any,
+    updateAutoReplySettings as any,
     initialState as any,
   );
   const { toast } = useToast();
