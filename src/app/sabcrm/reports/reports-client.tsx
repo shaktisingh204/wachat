@@ -39,7 +39,7 @@ import {
 } from 'lucide-react';
 import * as Recharts from 'recharts';
 
-import { Button, Input, Label, Textarea, Badge, Skeleton, EmptyState, Card, CardHeader, CardTitle, CardContent, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Table, THead, TBody, Tr, Th, Td, Separator, ScrollArea, Alert, AlertTitle, AlertDescription, useToast, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Badge, Skeleton, EmptyState, Card, CardHeader, CardTitle, CardBody, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Table, THead, TBody, Tr, Th, Td, Separator, ScrollArea, Alert, AlertTitle, AlertDescription, useToast, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, cn } from '@/components/sabcrm/20ui/compat';
 
 import {
   listObjectsAction,

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Table, THead, TBody, Tr, Th, Td, Button, Badge, Input } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Table, THead, TBody, Tr, Th, Td, Button, Badge, Input } from '@/components/sabcrm/20ui';
 import { Database, Plus, RefreshCw, FileText, UploadCloud, Link2, Search, Trash2, Edit } from 'lucide-react';
 
 const mockDatasets = [
@@ -87,7 +87,7 @@ export default function DatasetsPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <Table>
             <THead>
               <Tr>
@@ -131,7 +131,7 @@ export default function DatasetsPage() {
               )}
             </TBody>
           </Table>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

@@ -7,7 +7,7 @@
 
 import { notFound } from 'next/navigation';
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardContent, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardBody, Badge, EmptyState } from '@/components/sabcrm/20ui';
 
 import {
     getSabConnectFeed,
@@ -67,14 +67,14 @@ export default async function SabConnectGroupPage({ params }: PageProps) {
                         {manuals.items.map((m) => (
                             <li key={m._id}>
                                 <Card>
-                                    <CardContent className="p-3">
+                                    <CardBody className="p-3">
                                         <p className="text-sm font-semibold text-[var(--st-text)]">
                                             {m.title}
                                         </p>
                                         <p className="line-clamp-2 text-xs text-[var(--st-bg-muted)]">
                                             {m.body}
                                         </p>
-                                    </CardContent>
+                                    </CardBody>
                                 </Card>
                             </li>
                         ))}

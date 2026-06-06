@@ -20,8 +20,8 @@
 import { redirect } from 'next/navigation';
 import { BarChart3, Download, Eye, Search, ShieldCheck, Store } from 'lucide-react';
 
-import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 import { getAdminSession } from '@/lib/admin-session';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -237,7 +237,7 @@ function KpiCard({
 }) {
   return (
     <Card className="border-[var(--st-border)] bg-[var(--st-text)] shadow-none">
-      <CardContent className="p-5 space-y-2">
+      <CardBody className="p-5 space-y-2">
         <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-[var(--st-text-secondary)]">
           <Icon className="h-3.5 w-3.5 text-[var(--st-text-secondary)]/80" />
           {label}
@@ -246,7 +246,7 @@ function KpiCard({
           {value.toLocaleString()}
         </div>
         {sub && <div className="text-xs text-[var(--st-text)]">{sub}</div>}
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Plus, Search, MoreHorizontal, LayoutGrid } from "lucide-react";
-import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Input, Card, CardContent, Table, THead, TBody, Tr, Th, Td, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Input, Card, CardBody, Table, THead, TBody, Tr, Th, Td, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/sabcrm/20ui';
 
 const MOCK_COLLECTIONS = [
   {
@@ -97,7 +97,7 @@ export default function CollectionsPage() {
       </PageHeader>
 
       <Card>
-        <CardContent className="p-0">
+        <CardBody className="p-0">
           <div className="flex items-center justify-between p-4 border-b border-[var(--st-border)]">
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-tertiary)]" />
@@ -181,7 +181,7 @@ export default function CollectionsPage() {
               </TBody>
             </Table>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

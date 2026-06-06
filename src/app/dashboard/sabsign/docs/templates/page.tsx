@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Layers, Plus } from 'lucide-react';
 
-import { Badge, Button, Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody } from '@/components/sabcrm/20ui';
 import {
   listSabwriterTemplates,
   createDocumentFromTemplate,
@@ -88,7 +88,7 @@ export default function SabwriterTemplateGalleryPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {templates.map((t) => (
             <Card key={t._id}>
-              <CardContent className="p-4 flex flex-col gap-2">
+              <CardBody className="p-4 flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-medium text-[var(--st-text)] line-clamp-1">
                     {t.name}
@@ -118,7 +118,7 @@ export default function SabwriterTemplateGalleryPage() {
                   <Plus className="h-4 w-4 mr-2" />
                   {creatingFrom === t._id ? 'Creating…' : 'Use template'}
                 </Button>
-              </CardContent>
+              </CardBody>
             </Card>
           ))}
         </div>

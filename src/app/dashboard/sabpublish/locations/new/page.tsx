@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardContent, Input, Label, PageHeader, Textarea, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, PageHeader, Textarea, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 import { createSabpublishLocation } from '@/app/actions/sabpublish.actions';
 
 export default function NewSabpublishLocationPage() {
@@ -55,7 +55,7 @@ export default function NewSabpublishLocationPage() {
         </PageHeading>
       </PageHeader>
       <Card>
-        <CardContent className="p-6">
+        <CardBody className="p-6">
           <form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
             <div className="sm:col-span-2">
               <Label htmlFor="name">Name *</Label>
@@ -109,7 +109,7 @@ export default function NewSabpublishLocationPage() {
               </Button>
             </div>
           </form>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

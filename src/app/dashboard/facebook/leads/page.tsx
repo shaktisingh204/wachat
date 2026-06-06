@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -107,7 +107,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
       startLeadsLoading(async () => {
         const res = await getLeadsForForm(formId, projectId);
         if (res.error) {
-          zoruSonnerToast.error(res.error);
+          toast.error(res.error);
           setLeads([]);
           return;
         }
@@ -133,7 +133,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
 
   const handleExport = () => {
     if (!selectedForm || leads.length === 0) {
-      zoruSonnerToast.info('No leads to export.');
+      toast.info('No leads to export.');
       return;
     }
     // Collect all field names across all leads.
@@ -155,7 +155,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
     }
     const safeName = selectedForm.name.replace(/[^\w-]+/g, '_').slice(0, 64);
     downloadCsv(`leads_${safeName}_${selectedForm.id}.csv`, rows);
-    zoruSonnerToast.success(`Exported ${leads.length} lead(s).`);
+    toast.success(`Exported ${leads.length} lead(s).`);
   };
 
   if (!projectId) {

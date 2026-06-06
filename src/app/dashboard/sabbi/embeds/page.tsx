@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Table, THead, TBody, Tr, Th, Td, Button, Badge, Input, Switch, Label } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Table, THead, TBody, Tr, Th, Td, Button, Badge, Input, Switch, Label } from '@/components/sabcrm/20ui';
 import { LayoutDashboard, Plus, Search, Code, ExternalLink, Copy, Settings, Trash2 } from 'lucide-react';
 
 const mockEmbeds = [
@@ -42,12 +42,12 @@ export default function EmbedsPage() {
             <CardTitle className="text-sm font-medium">Total Views</CardTitle>
             <ExternalLink className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">10,196</div>
             <p className="text-xs text-muted-foreground">
               +14% from last month
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
         
         <Card>
@@ -55,12 +55,12 @@ export default function EmbedsPage() {
             <CardTitle className="text-sm font-medium">Active Embeds</CardTitle>
             <Code className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">2</div>
             <p className="text-xs text-muted-foreground">
               Across 3 domains
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
@@ -68,12 +68,12 @@ export default function EmbedsPage() {
             <CardTitle className="text-sm font-medium">Security</CardTitle>
             <Settings className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-sm font-medium text-emerald-600 mb-1">All secure</div>
             <p className="text-xs text-muted-foreground">
               Using JWT domain restriction
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -100,7 +100,7 @@ export default function EmbedsPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <Table>
             <THead>
               <Tr>
@@ -152,7 +152,7 @@ export default function EmbedsPage() {
               )}
             </TBody>
           </Table>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

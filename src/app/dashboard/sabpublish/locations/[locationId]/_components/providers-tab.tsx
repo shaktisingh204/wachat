@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import {
   connectSabpublishProvider,
   disconnectSabpublishProvider,
@@ -69,7 +69,7 @@ export function SabpublishProvidersTab({
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardBody className="space-y-3">
               {row?.lastSyncAt ? (
                 <p className="text-sm text-[var(--st-text-secondary)]">
                   Last sync: {new Date(row.lastSyncAt).toLocaleString()}
@@ -113,7 +113,7 @@ export function SabpublishProvidersTab({
                   </Button>
                 )}
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
         );
       })}

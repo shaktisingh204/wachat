@@ -7,7 +7,7 @@ import {
   ShoppingCart, Info, CheckCircle2, ChevronDown, 
   SlidersHorizontal, MapPin
 } from "lucide-react";
-import { Button, Input, Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter, Badge, Checkbox, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Badge, Checkbox, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui';
 import { toast } from "sonner";
 import { searchNumbers, getRecommendedNumbers, checkoutNumbers, PhoneNumber } from "./actions";
 
@@ -162,7 +162,7 @@ export default function BuyNumbersPage() {
           </div>
           <CardDescription>Use granular filters to find the exact numbers you need.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
             <div className="space-y-3">
               <Label>Country</Label>
@@ -258,7 +258,7 @@ export default function BuyNumbersPage() {
               </div>
             </div>
           </div>
-        </CardContent>
+        </CardBody>
         <CardFooter className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50 flex justify-between items-center py-4 border-t border-[var(--st-border)] dark:border-[var(--st-border)] rounded-b-xl">
           <Button variant="ghost" className="text-[var(--st-text)]" onClick={handleClearFilters}>
             Clear Filters

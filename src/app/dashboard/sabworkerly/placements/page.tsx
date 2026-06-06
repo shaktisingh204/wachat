@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Card, CardContent, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
 import { UserCheck } from 'lucide-react';
 import { getSabworkerlyPlacements } from '@/app/actions/sabworkerly.actions';
 
@@ -32,7 +32,7 @@ export default async function PlacementsPage() {
                 />
             ) : (
                 <Card>
-                    <CardContent className="p-0">
+                    <CardBody className="p-0">
                         <Table>
                             <THead>
                                 <Tr>
@@ -61,7 +61,7 @@ export default async function PlacementsPage() {
                                 ))}
                             </TBody>
                         </Table>
-                    </CardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

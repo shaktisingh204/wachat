@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, Input, Label, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   useActionState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -32,10 +32,10 @@ export function PosSessionNewForm() {
 
     React.useEffect(() => {
         if (state.id) {
-            zoruSonnerToast.success(state.message ?? 'Session opened.');
+            toast.success(state.message ?? 'Session opened.');
             router.push(`/dashboard/crm/pos/sessions/${state.id}`);
         } else if (state.error) {
-            zoruSonnerToast.error(state.error);
+            toast.error(state.error);
         }
     }, [state, router]);
 

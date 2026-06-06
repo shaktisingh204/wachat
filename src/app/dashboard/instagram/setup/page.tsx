@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Skeleton, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Skeleton, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -103,7 +103,7 @@ export default function InstagramSetupPage(): React.JSX.Element {
   }, [refresh]);
 
   const onConnectClick = () => {
-    zoruSonnerToast.info('Opening Meta Suite onboarding…');
+    toast.info('Opening Meta Suite onboarding…');
   };
 
   return (

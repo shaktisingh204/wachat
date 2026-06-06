@@ -42,7 +42,7 @@ import {
   X,
 } from 'lucide-react';
 
-import { Button, Card, CardContent, CardHeader, CardTitle, Separator, Skeleton, EmptyState, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Separator, Skeleton, EmptyState, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   getRecordAction,
   updateRecordAction,
@@ -345,14 +345,14 @@ export function RecordDetail({
         <CardHeader>
           <Skeleton className="h-6 w-48" />
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+        <CardBody className="flex flex-col gap-4">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="flex flex-col gap-1.5">
               <Skeleton className="h-3 w-24" />
               <Skeleton className="h-4 w-full max-w-sm" />
             </div>
           ))}
-        </CardContent>
+        </CardBody>
       </Card>
     );
   }
@@ -360,14 +360,14 @@ export function RecordDetail({
   if (error || !record) {
     return (
       <Card className={className}>
-        <CardContent className="py-10">
+        <CardBody className="py-10">
           <EmptyState
             title={error ? 'Couldn’t load record' : 'Record not found'}
             description={
               error ?? 'This record may have been deleted or moved.'
             }
           />
-        </CardContent>
+        </CardBody>
       </Card>
     );
   }
@@ -425,7 +425,7 @@ export function RecordDetail({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-0 p-0">
+      <CardBody className="flex flex-col gap-0 p-0">
         {sections.map((section, sectionIdx) => (
           <div key={section.key}>
             {sectionIdx > 0 && <Separator />}
@@ -589,7 +589,7 @@ export function RecordDetail({
             Updated {record.updatedAt ? fmt.dateTime(record.updatedAt) : '—'}
           </span>
         </div>
-      </CardContent>
+      </CardBody>
       {confirmDialog}
     </Card>
   );

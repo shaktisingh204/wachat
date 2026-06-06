@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -91,7 +91,7 @@ export default function FacebookAgentsPage(): React.JSX.Element {
   const onCreate = () => {
     if (!projectId) return;
     if (!form.name.trim()) {
-      zoruSonnerToast.error('Agent name is required.');
+      toast.error('Agent name is required.');
       return;
     }
     startMutating(async () => {
@@ -103,10 +103,10 @@ export default function FacebookAgentsPage(): React.JSX.Element {
       fd.set('isActive', 'on');
       const res = await createFacebookAgent({}, fd);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success(res.message ?? 'Agent created.');
+      toast.success(res.message ?? 'Agent created.');
       setDialogOpen(false);
       setForm({
         name: '',
@@ -124,10 +124,10 @@ export default function FacebookAgentsPage(): React.JSX.Element {
     startMutating(async () => {
       const res = await updateFacebookAgent(id, { isActive: !a.isActive });
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success(a.isActive ? 'Agent paused.' : 'Agent resumed.');
+      toast.success(a.isActive ? 'Agent paused.' : 'Agent resumed.');
       refresh();
     });
   };
@@ -139,10 +139,10 @@ export default function FacebookAgentsPage(): React.JSX.Element {
     startMutating(async () => {
       const res = await deleteFacebookAgent(id);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success('Agent deleted.');
+      toast.success('Agent deleted.');
       refresh();
     });
   };

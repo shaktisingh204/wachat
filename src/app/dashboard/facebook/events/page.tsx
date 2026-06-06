@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -114,10 +114,10 @@ export default function FacebookEventsPage(): React.JSX.Element {
     startSubmit(async () => {
       const res = await handleCreateFacebookEvent(undefined, formData);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success(res.message ?? 'Event created.');
+      toast.success(res.message ?? 'Event created.');
       setCreateOpen(false);
       refresh();
     });
@@ -129,10 +129,10 @@ export default function FacebookEventsPage(): React.JSX.Element {
     startDelete(async () => {
       const res = await deleteFacebookEvent(id, projectId);
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? 'Could not cancel event.');
+        toast.error(res.error ?? 'Could not cancel event.');
         return;
       }
-      zoruSonnerToast.success('Event cancelled.');
+      toast.success('Event cancelled.');
       setConfirmDelete(null);
       if (activeEvent?.id === id) setActiveEvent(null);
       refresh();

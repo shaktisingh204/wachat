@@ -41,7 +41,7 @@ import {
   type SabsmsRowAction,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, StatCard, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, StatCard, Textarea, toast } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 
 import {
@@ -116,10 +116,10 @@ export function ListsTable({
   ) {
     const result = await fn();
     if (result.ok) {
-      zoruSonnerToast.success(`${label} succeeded.`);
+      toast.success(`${label} succeeded.`);
       handleRefresh();
     } else {
-      zoruSonnerToast.error(`${label} failed: ${result.error ?? "Unknown"}`);
+      toast.error(`${label} failed: ${result.error ?? "Unknown"}`);
     }
   }
 
@@ -375,7 +375,7 @@ export function ListsTable({
             destructive: true,
             onSelect: async (rows) => {
               await Promise.all(rows.map((r) => deleteList(r.id)));
-              zoruSonnerToast.success(`Deleted ${rows.length} list(s).`);
+              toast.success(`Deleted ${rows.length} list(s).`);
               setSelectedIds([]);
               handleRefresh();
             },
@@ -510,7 +510,7 @@ function CreateListDialog({
         expiresAt: expiresAt || undefined,
       });
       if (result.ok) {
-        zoruSonnerToast.success(`Created list "${name}".`);
+        toast.success(`Created list "${name}".`);
         onOpenChange(false);
         onCreated();
       } else {
@@ -660,7 +660,7 @@ function AddContactsDialog({
         phones: parsed.valid,
       });
       if (result.ok) {
-        zoruSonnerToast.success(`Added ${result.added} contact(s).`);
+        toast.success(`Added ${result.added} contact(s).`);
         onOpenChange(false);
         onChanged();
       } else {
@@ -787,11 +787,11 @@ function TagDialog({
       .filter(Boolean);
     const result = await tagList({ listId: list.id, tags });
     if (result.ok) {
-      zoruSonnerToast.success("Tags updated.");
+      toast.success("Tags updated.");
       onOpenChange(false);
       onSaved();
     } else {
-      zoruSonnerToast.error(`Failed: ${result.error}`);
+      toast.error(`Failed: ${result.error}`);
     }
   }
 
@@ -841,7 +841,7 @@ function ShareDialog({
       setToken(result.token);
       onSaved();
     } else {
-      zoruSonnerToast.error(`Failed: ${result.error}`);
+      toast.error(`Failed: ${result.error}`);
     }
   }
 
@@ -916,7 +916,7 @@ function CompareDialog({
       if (res.ok) {
         setResult({ onlyA: res.onlyA, onlyB: res.onlyB, both: res.both });
       } else {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
       }
     } finally {
       setBusy(false);
@@ -1201,7 +1201,7 @@ function EditListDialog({
         expiresAt: expiresAt || undefined,
       });
       if (result.ok) {
-        zoruSonnerToast.success(`Updated list "${name}".`);
+        toast.success(`Updated list "${name}".`);
         onOpenChange(false);
         onUpdated();
       } else {

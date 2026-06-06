@@ -39,7 +39,7 @@ import {
 import Link from "next/link";
 import { Plus, X, Search, ExternalLink, Loader2, Link2 } from "lucide-react";
 
-import { Card, CardHeader, CardTitle, CardContent, Button, Input, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button, Input, Badge, EmptyState } from '@/components/sabcrm/20ui';
 
 import type {
   ActionResult,
@@ -393,7 +393,7 @@ function RelationSection({
         )}
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-2">
+      <CardBody className="flex flex-col gap-2">
         {canAdd && pickerOpen && (
           <RelationPicker
             target={target}
@@ -438,7 +438,7 @@ function RelationSection({
             ))}
           </ul>
         )}
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
 
-import { Badge, Button, Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody } from '@/components/sabcrm/20ui';
 import {
   getSabwriterComment,
   resolveSabwriterComment,
@@ -68,7 +68,7 @@ export default function SabwriterCommentPermalinkPage() {
         <p className="text-sm text-[var(--st-text-secondary)]">Comment not found.</p>
       ) : (
         <Card>
-          <CardContent className="p-4 flex flex-col gap-3">
+          <CardBody className="p-4 flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <Badge variant="outline">
                 Range {comment.anchor.from}–{comment.anchor.to}
@@ -97,7 +97,7 @@ export default function SabwriterCommentPermalinkPage() {
                 </Button>
               ) : null}
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       )}
     </div>

@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { punchInAction, punchOutAction } from '@/app/actions/crm/attendance.actions';
 import { CrmAttendanceDoc } from '@/lib/rust-client/crm-attendance';
 
@@ -27,11 +27,11 @@ export default function AttendanceClient({
   if (!employeeId) {
     return (
       <Card className="max-w-md mx-auto mt-10">
-        <CardContent className="pt-6">
+        <CardBody className="pt-6">
           <div className="text-center text-[var(--st-text)]">
             You do not have an employee profile linked to your account. Please contact your administrator.
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
     );
   }
@@ -91,7 +91,7 @@ export default function AttendanceClient({
           {currentTime.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
       </CardHeader>
-      <CardContent className="flex flex-col gap-6">
+      <CardBody className="flex flex-col gap-6">
         <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-4">
           <div className="flex flex-col">
             <span className="text-sm text-[var(--st-text-tertiary)]">Status</span>
@@ -147,7 +147,7 @@ export default function AttendanceClient({
              </div>
            </div>
         )}
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { useGSAP } from '@gsap/react';
 import gsapCore from 'gsap';
 import { Download, Printer } from 'lucide-react';
@@ -74,7 +74,7 @@ export default function ReportsPage() {
             {activeReport === 'balance_sheet' && 'Balance Sheet as of Today'}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           {activeReport === 'trial_balance' && (
             <Table>
               <THead>
@@ -125,7 +125,7 @@ export default function ReportsPage() {
               Balance Sheet visualization goes here.
             </div>
           )}
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

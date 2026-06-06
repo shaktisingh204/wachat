@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, Label, Skeleton, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, Label, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -110,10 +110,10 @@ export default function MessengerSettingsPage(): React.JSX.Element {
     startSaving(async () => {
       const res = await setMessengerGreeting(projectId, greeting);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success('Greeting saved.');
+      toast.success('Greeting saved.');
       refresh();
     });
   };
@@ -123,11 +123,11 @@ export default function MessengerSettingsPage(): React.JSX.Element {
     startSaving(async () => {
       const res = await deleteMessengerProfileFields(projectId, ['greeting']);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
       setGreeting('');
-      zoruSonnerToast.success('Greeting cleared.');
+      toast.success('Greeting cleared.');
       refresh();
     });
   };
@@ -137,10 +137,10 @@ export default function MessengerSettingsPage(): React.JSX.Element {
     startSaving(async () => {
       const res = await setMessengerGetStarted(projectId, getStarted);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success('Get-started payload saved.');
+      toast.success('Get-started payload saved.');
       refresh();
     });
   };
@@ -150,11 +150,11 @@ export default function MessengerSettingsPage(): React.JSX.Element {
     startSaving(async () => {
       const res = await deleteMessengerProfileFields(projectId, ['get_started']);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
       setGetStarted('');
-      zoruSonnerToast.success('Get-started cleared.');
+      toast.success('Get-started cleared.');
       refresh();
     });
   };
@@ -170,10 +170,10 @@ export default function MessengerSettingsPage(): React.JSX.Element {
     startSaving(async () => {
       const res = await setMessengerIceBreakers(projectId, cleaned);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success('Ice breakers saved.');
+      toast.success('Ice breakers saved.');
       refresh();
     });
   };
@@ -183,11 +183,11 @@ export default function MessengerSettingsPage(): React.JSX.Element {
     startSaving(async () => {
       const res = await deleteMessengerProfileFields(projectId, ['ice_breakers']);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
       setIceBreakers([]);
-      zoruSonnerToast.success('Ice breakers cleared.');
+      toast.success('Ice breakers cleared.');
       refresh();
     });
   };
@@ -201,10 +201,10 @@ export default function MessengerSettingsPage(): React.JSX.Element {
     startSaving(async () => {
       const res = await setWhitelistedDomains(projectId, domains);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success('Whitelisted domains saved.');
+      toast.success('Whitelisted domains saved.');
       refresh();
     });
   };
@@ -216,11 +216,11 @@ export default function MessengerSettingsPage(): React.JSX.Element {
         'whitelisted_domains',
       ]);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
       setDomainsInput('');
-      zoruSonnerToast.success('Whitelisted domains cleared.');
+      toast.success('Whitelisted domains cleared.');
       refresh();
     });
   };

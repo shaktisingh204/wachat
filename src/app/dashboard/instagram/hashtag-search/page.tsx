@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, Input, Skeleton, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, Input, Skeleton, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useState,
@@ -109,12 +109,12 @@ export default function HashtagSearchPage(): React.JSX.Element {
   const runSearch = useCallback(
     (rawTag: string) => {
       if (!projectId) {
-        zoruSonnerToast.error('Select a project with a connected Instagram account first.');
+        toast.error('Select a project with a connected Instagram account first.');
         return;
       }
       const cleaned = rawTag.replace(/^#/, '').trim();
       if (!cleaned) {
-        zoruSonnerToast.error('Enter a hashtag to search.');
+        toast.error('Enter a hashtag to search.');
         return;
       }
       startLoading(async () => {

@@ -5,7 +5,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { getChartAction, runChartAction } from '@/app/actions/analytics-bi.actions';
 
 import { ChartPreview } from '../chart-preview';
@@ -61,13 +61,13 @@ export default async function DrilldownPage({
             top of the chart's saved filter list.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <DrilldownRunner
             chartId={chartId}
             chartType={chart.type}
             initialRun={initialRun}
           />
-        </CardContent>
+        </CardBody>
       </Card>
 
       {initialRun.rows.length > 0 && (
@@ -75,13 +75,13 @@ export default async function DrilldownPage({
           <CardHeader>
             <CardTitle>Baseline result</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <ChartPreview
               chartType={chart.type}
               rows={initialRun.rows}
               columns={initialRun.columns}
             />
-          </CardContent>
+          </CardBody>
         </Card>
       )}
     </div>

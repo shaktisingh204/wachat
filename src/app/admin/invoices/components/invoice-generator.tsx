@@ -2,13 +2,13 @@
 
 import React, { useState, useRef } from "react";
 import { Plus, Trash, Download, Eye, FileText, Send } from "lucide-react";
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Textarea } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { Card } from '@/components/sabcrm/20ui/compat';
-import { Separator } from '@/components/sabcrm/20ui/compat';
-import { zoruSonnerToast as toast } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Textarea } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { Card } from '@/components/sabcrm/20ui';
+import { Separator } from '@/components/sabcrm/20ui';
+import { toast } from '@/components/sabcrm/20ui';
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 

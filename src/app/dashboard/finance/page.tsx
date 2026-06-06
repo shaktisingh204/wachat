@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
 import { ArrowUpRight, ArrowDownRight, Wallet, Activity, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 
@@ -34,13 +34,13 @@ export default function FinanceDashboardPage() {
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <Wallet className="w-4 h-4 text-[var(--st-text-secondary)]" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">₹45,231.89</div>
             <p className="text-xs text-[var(--st-text-secondary)] flex items-center mt-1 text-[var(--st-text)]">
               <ArrowUpRight className="w-3 h-3 mr-1" />
               +20.1% from last month
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
         
         <Card>
@@ -48,12 +48,12 @@ export default function FinanceDashboardPage() {
             <CardTitle className="text-sm font-medium">Accounts Receivable</CardTitle>
             <Activity className="w-4 h-4 text-[var(--st-text-secondary)]" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">₹12,450.00</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">
               8 invoices pending
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
@@ -61,13 +61,13 @@ export default function FinanceDashboardPage() {
             <CardTitle className="text-sm font-medium">Accounts Payable</CardTitle>
             <CreditCard className="w-4 h-4 text-[var(--st-text-secondary)]" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">₹8,210.50</div>
             <p className="text-xs text-[var(--st-text-secondary)] flex items-center mt-1 text-[var(--st-text)]">
               <ArrowDownRight className="w-3 h-3 mr-1" />
               -4% from last month
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
@@ -75,12 +75,12 @@ export default function FinanceDashboardPage() {
             <CardTitle className="text-sm font-medium">Cash at Bank</CardTitle>
             <Wallet className="w-4 h-4 text-[var(--st-text-secondary)]" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">₹89,432.00</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">
               Across 3 accounts
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -89,16 +89,16 @@ export default function FinanceDashboardPage() {
           <CardHeader>
             <CardTitle>Cash Flow Overview</CardTitle>
           </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center text-[var(--st-text-secondary)] border-t">
+          <CardBody className="h-[300px] flex items-center justify-center text-[var(--st-text-secondary)] border-t">
             Chart Component (Requires Recharts or similar)
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Recent Transactions</CardTitle>
           </CardHeader>
-          <CardContent className="border-t pt-4 space-y-4">
+          <CardBody className="border-t pt-4 space-y-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="flex items-center justify-between">
                 <div>
@@ -110,7 +110,7 @@ export default function FinanceDashboardPage() {
                 </div>
               </div>
             ))}
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
     </div>

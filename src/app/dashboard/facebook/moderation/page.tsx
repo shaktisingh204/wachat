@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -98,7 +98,7 @@ export default function FacebookModerationPage(): React.JSX.Element {
     if (!projectId) return;
     const data = { ...form, ...overrides };
     if (!data.keywords.trim()) {
-      zoruSonnerToast.error('Keywords / pattern is required.');
+      toast.error('Keywords / pattern is required.');
       return;
     }
     startMutating(async () => {
@@ -111,10 +111,10 @@ export default function FacebookModerationPage(): React.JSX.Element {
       if (data.isActive) fd.set('isActive', 'on');
       const res = await saveModerationRule({}, fd);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success(res.message ?? 'Rule saved.');
+      toast.success(res.message ?? 'Rule saved.');
       setDialogOpen(false);
       setForm({
         name: '',
@@ -140,7 +140,7 @@ export default function FacebookModerationPage(): React.JSX.Element {
       if (next) fd.set('isActive', 'on');
       const res = await saveModerationRule({}, fd);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
       refresh();
@@ -155,10 +155,10 @@ export default function FacebookModerationPage(): React.JSX.Element {
     startMutating(async () => {
       const res = await deleteModerationRule(id);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success('Rule deleted.');
+      toast.success('Rule deleted.');
       refresh();
     });
   };

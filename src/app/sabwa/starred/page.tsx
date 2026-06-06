@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, Input, Skeleton, cn, Checkbox, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, Input, Skeleton, cn, Checkbox, toast } from '@/components/sabcrm/20ui';
 import {
   ChevronDown,
   ChevronUp,
@@ -101,7 +101,7 @@ export default function SabWaStarredPage() {
     try {
       const res = await updateMessage(sessionId, chatJid, messageId, { op: 'star', starred: false });
       if (!res.ok) throw new Error(res.error);
-      zoruSonnerToast.success('Message unstarred');
+      toast.success('Message unstarred');
       
       setSelectedIds((prev) => {
         if (prev.has(messageId)) {
@@ -114,7 +114,7 @@ export default function SabWaStarredPage() {
       
       await refetch();
     } catch (err: any) {
-      zoruSonnerToast.error(err.message || 'Failed to unstar message');
+      toast.error(err.message || 'Failed to unstar message');
     }
   }, [sessionId, refetch]);
 
@@ -131,14 +131,14 @@ export default function SabWaStarredPage() {
       }));
       
       if (successCount > 0) {
-         zoruSonnerToast.success(`Unstarred ${successCount} message${successCount > 1 ? 's' : ''}`);
+         toast.success(`Unstarred ${successCount} message${successCount > 1 ? 's' : ''}`);
          setSelectedIds(new Set());
          await refetch();
       } else {
-         zoruSonnerToast.error('Failed to unstar messages');
+         toast.error('Failed to unstar messages');
       }
     } catch (err: any) {
-      zoruSonnerToast.error(err.message || 'Failed to bulk unstar');
+      toast.error(err.message || 'Failed to bulk unstar');
     } finally {
       setIsBulkUnstarring(false);
     }

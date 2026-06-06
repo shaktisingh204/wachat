@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Table, TBody, Td, Th, THead, Tr, Badge, Progress, Button, Input, Card, CardContent, CardDescription, CardHeader, CardTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, StatCard, Switch, Label } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr, Badge, Progress, Button, Input, Card, CardBody, CardDescription, CardHeader, CardTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, StatCard, Switch, Label } from '@/components/sabcrm/20ui';
 import {
   Search,
   Filter,
@@ -194,7 +194,7 @@ export default function NumberPoolPage() {
               Configure auto-scaling and routing logic for this number pool.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardBody className="space-y-6">
             <div className="flex flex-col space-y-4">
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
@@ -253,7 +253,7 @@ export default function NumberPoolPage() {
                 </div>
               )}
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card className="md:col-span-2">
@@ -263,7 +263,7 @@ export default function NumberPoolPage() {
               Detailed view of all your numbers, their health, and current throughput limits.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="flex items-center justify-between mb-6">
               <div className="flex flex-1 items-center space-x-2">
                 <div className="relative w-72">
@@ -377,7 +377,7 @@ export default function NumberPoolPage() {
                 </TBody>
               </Table>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
     </div>

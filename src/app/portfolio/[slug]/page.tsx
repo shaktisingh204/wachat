@@ -6,8 +6,8 @@ import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
 import { LayoutGrid, Star } from 'lucide-react';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { WebsitePage } from '@/lib/definitions';
-import { Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
-import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback } from '@/components/sabcrm/20ui';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -91,7 +91,7 @@ function TestimonialSection() {
                 <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8 mt-12">
                     {MOCK_TESTIMONIALS.map((t) => (
                         <Card key={t.id} className="bg-background border-none shadow-sm">
-                            <CardContent className="p-6">
+                            <CardBody className="p-6">
                                 <div className="flex items-center space-x-1 mb-4">
                                     {Array.from({ length: 5 }).map((_, i) => (
                                         <Star key={i} className={`w-4 h-4 ${i < t.rating ? 'fill-primary text-primary' : 'text-muted'}`} />
@@ -107,7 +107,7 @@ function TestimonialSection() {
                                         <p className="text-xs text-muted-foreground">{t.company}</p>
                                     </div>
                                 </div>
-                            </CardContent>
+                            </CardBody>
                         </Card>
                     ))}
                 </div>

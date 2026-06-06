@@ -221,6 +221,8 @@ export interface ToastFn {
   neutral: (input: ToastInput) => string;
   /** Alias for the neutral tone. */
   message: (input: ToastInput) => string;
+  /** A persistent neutral toast (no auto-dismiss); dismiss/replace it by id. */
+  loading: (input: ToastInput) => string;
   /** Dismiss a specific toast by id. */
   dismiss: (id: string) => void;
 }
@@ -240,6 +242,7 @@ export const toast: ToastFn = Object.assign(toastBase, {
   info: (input: ToastInput) => enqueue(toOptions(input, 'info')),
   neutral: (input: ToastInput) => enqueue(toOptions(input, 'neutral')),
   message: (input: ToastInput) => enqueue(toOptions(input, 'neutral')),
+  loading: (input: ToastInput) => enqueue({ ...toOptions(input, 'neutral'), duration: 1_000_000 }),
   dismiss,
 });
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, Skeleton, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, Skeleton, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useState,
@@ -72,12 +72,12 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
   const onSearch = useCallback(
     (rawUsername: string) => {
       if (!projectId) {
-        zoruSonnerToast.error('Select a project with a connected Instagram account first.');
+        toast.error('Select a project with a connected Instagram account first.');
         return;
       }
       const cleaned = rawUsername.replace(/^@/, '').trim();
       if (!cleaned) {
-        zoruSonnerToast.error('Enter an Instagram username to discover.');
+        toast.error('Enter an Instagram username to discover.');
         return;
       }
       startLoading(async () => {

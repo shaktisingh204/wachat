@@ -8,7 +8,7 @@
 
 import Link from 'next/link';
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardContent, Avatar, AvatarFallback, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardBody, Avatar, AvatarFallback, EmptyState } from '@/components/sabcrm/20ui';
 
 import { getSabConnectPeople } from '@/app/actions/sabconnect.actions';
 
@@ -44,7 +44,7 @@ export default async function SabConnectPeoplePage() {
                                     className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
                                 >
                                     <Card>
-                                        <CardContent className="flex items-center gap-3 p-3">
+                                        <CardBody className="flex items-center gap-3 p-3">
                                             <Avatar>
                                                 <AvatarFallback>{initial}</AvatarFallback>
                                             </Avatar>
@@ -59,7 +59,7 @@ export default async function SabConnectPeoplePage() {
                                                     </span>
                                                 ) : null}
                                             </div>
-                                        </CardContent>
+                                        </CardBody>
                                     </Card>
                                 </Link>
                             </li>

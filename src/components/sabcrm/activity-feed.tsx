@@ -37,7 +37,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-import { Card, CardContent, Button, Badge, Avatar, AvatarImage, AvatarFallback, EmptyState, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Button, Badge, Avatar, AvatarImage, AvatarFallback, EmptyState, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
 import {
   getActivityFeedAction,
 } from '@/app/actions/sabcrm.actions';
@@ -402,7 +402,7 @@ export function ActivityFeed({
 
   return (
     <Card className={className}>
-      <CardContent className="p-4">
+      <CardBody className="p-4">
         {loading ? (
           <ActivityFeedSkeleton />
         ) : loadError ? (
@@ -470,7 +470,7 @@ export function ActivityFeed({
             )}
           </div>
         )}
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

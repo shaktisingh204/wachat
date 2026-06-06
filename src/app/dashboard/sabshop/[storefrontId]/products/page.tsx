@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Plus, Search, MoreHorizontal, Filter } from "lucide-react";
-import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Input, Card, CardContent, Table, THead, TBody, Tr, Th, Td, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Input, Card, CardBody, Table, THead, TBody, Tr, Th, Td, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 
 const MOCK_PRODUCTS = [
   {
@@ -102,7 +102,7 @@ export default function ProductsPage() {
       </PageHeader>
 
       <Card>
-        <CardContent className="p-0">
+        <CardBody className="p-0">
           <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-[var(--st-border)] gap-4">
             <div className="relative w-full sm:max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-tertiary)]" />
@@ -193,7 +193,7 @@ export default function ProductsPage() {
               </TBody>
             </Table>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

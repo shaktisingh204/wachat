@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, Skeleton } from '@/components/sabcrm/20ui';
 
 export default function LoadingEditPaymentAccount() {
     return (
@@ -16,7 +16,7 @@ export default function LoadingEditPaymentAccount() {
                     <Skeleton className="h-6 w-48 mb-2" />
                     <Skeleton className="h-4 w-72" />
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardBody className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Skeleton className="h-4 w-24" />
@@ -35,7 +35,7 @@ export default function LoadingEditPaymentAccount() {
                         <Skeleton className="h-10 w-24" />
                         <Skeleton className="h-10 w-32" />
                     </div>
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

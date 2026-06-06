@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/sabcrm/20ui/compat';
-import { PageHeader, PageHeaderHeading, PageHeaderDescription } from '@/components/sabcrm/20ui/compat';
-import { Progress } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, CardDescription, CardFooter } from '@/components/sabcrm/20ui';
+import { PageHeader, PageHeaderHeading, PageHeaderDescription } from '@/components/sabcrm/20ui';
+import { Progress } from '@/components/sabcrm/20ui';
 import { 
   ShoppingCart, 
   CreditCard, 
@@ -14,8 +14,8 @@ import {
   TrendingUp,
   TrendingDown
 } from "lucide-react";
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Separator } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Separator } from '@/components/sabcrm/20ui';
 
 export default function FunnelsPage() {
   const funnelSteps = [
@@ -84,7 +84,7 @@ export default function FunnelsPage() {
           </PageHeaderDescription>
         </PageHeader>
         <Card className="bg-primary text-primary-foreground border-none">
-          <CardContent className="p-4 flex items-center gap-4">
+          <CardBody className="p-4 flex items-center gap-4">
             <div>
               <p className="text-sm font-medium opacity-80">Overall Conversion</p>
               <p className="text-3xl font-bold">{overallConversion}%</p>
@@ -92,7 +92,7 @@ export default function FunnelsPage() {
             <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
               <TrendingUp className="h-5 w-5" />
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -104,7 +104,7 @@ export default function FunnelsPage() {
               Last 30 days of data across all active campaigns.
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardBody className="p-0">
             <div className="flex flex-col md:flex-row h-full rounded-b-xl overflow-hidden">
               {funnelSteps.map((step, index) => {
                 const isLast = index === funnelSteps.length - 1;
@@ -157,7 +157,7 @@ export default function FunnelsPage() {
                 );
               })}
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -166,7 +166,7 @@ export default function FunnelsPage() {
               <CardTitle>Drop-off Analysis</CardTitle>
               <CardDescription>Where users are leaving the funnel</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <div className="space-y-6">
                 {funnelSteps.slice(1).map((step, i) => {
                   const dropoffPercent = step.dropoff ? (step.dropoff / funnelSteps[i].count * 100).toFixed(1) : "0";
@@ -188,7 +188,7 @@ export default function FunnelsPage() {
                   );
                 })}
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
           
           <Card>
@@ -196,7 +196,7 @@ export default function FunnelsPage() {
               <CardTitle>Optimization Opportunities</CardTitle>
               <CardDescription>AI-generated insights to improve conversion</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <div className="space-y-4">
                 <div className="p-4 rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-100 dark:border-orange-900/50">
                   <h4 className="font-semibold text-orange-800 dark:text-orange-300 flex items-center gap-2 mb-2">
@@ -218,7 +218,7 @@ export default function FunnelsPage() {
                   </p>
                 </div>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

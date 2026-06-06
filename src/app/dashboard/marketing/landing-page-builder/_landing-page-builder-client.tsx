@@ -14,7 +14,7 @@ import { useToast } from '@/components/sabcrm/20ui/compat';
 import { createLandingPage, updateLandingPage, deleteLandingPage } from '@/app/actions/marketing/landing-page-builder.actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
 import { ChartContainer, ChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
 
 export function LandingPageClient({ initialData }: { initialData: any[] }) {
   const [data, setData] = useState(initialData);
@@ -158,7 +158,7 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
               <CardHeader>
                 <CardTitle>Cross-Channel Revenue vs Spend</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <ChartContainer height={300}>
                   <ZoruChart.BarChart data={mockChannelData}>
                     <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -169,14 +169,14 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
                     <ZoruChart.Bar dataKey="spend" name="Spend" fill={ZORU_CHART_PALETTE[3]} radius={[4, 4, 0, 0]} />
                   </ZoruChart.BarChart>
                 </ChartContainer>
-              </CardContent>
+              </CardBody>
             </Card>
 
             <Card>
               <CardHeader>
                 <CardTitle>Channel ROI (%)</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <ChartContainer height={300}>
                   <ZoruChart.LineChart data={mockChannelData}>
                     <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -186,7 +186,7 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
                     <ZoruChart.Line type="monotone" dataKey="roi" name="ROI (%)" stroke={ZORU_CHART_PALETTE[0]} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
                   </ZoruChart.LineChart>
                 </ChartContainer>
-              </CardContent>
+              </CardBody>
             </Card>
           </div>
         </TabsContent>

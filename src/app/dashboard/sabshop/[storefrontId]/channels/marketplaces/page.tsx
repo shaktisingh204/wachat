@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Switch } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Switch } from '@/components/sabcrm/20ui';
 import { 
   Store, 
   ShoppingCart, 
@@ -86,34 +86,34 @@ export default function MarketplacesPage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Marketplace Revenue</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">$24,590.00</div>
             <p className="text-xs text-green-500 flex items-center mt-1">
               <TrendingUp className="h-3 w-3 mr-1" /> +14.5% this month
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Active Channels</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">2 / 8</div>
             <p className="text-xs text-muted-foreground mt-1">
               Available integrations connected
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Orders Pending Sync</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">4</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center">
               <RefreshCcw className="h-3 w-3 mr-1" /> Auto-syncs every 15m
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -135,7 +135,7 @@ export default function MarketplacesPage() {
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="flex-grow">
+            <CardBody className="flex-grow">
               {channel.status === "connected" ? (
                 <div className="space-y-3 bg-muted/30 p-3 rounded-lg border">
                   <div className="flex items-start gap-2">
@@ -156,7 +156,7 @@ export default function MarketplacesPage() {
                   Not connected
                 </div>
               )}
-            </CardContent>
+            </CardBody>
             
             <CardFooter className="pt-4 border-t bg-muted/10 mt-auto">
               {channel.status === "connected" ? (

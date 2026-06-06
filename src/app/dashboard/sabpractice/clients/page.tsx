@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { listSabpracticeClients } from '@/app/actions/sabpractice.actions';
-import { Badge, Card, CardContent, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 import { ClientCreateDialog } from './_components/client-create-dialog';
 
@@ -25,7 +25,7 @@ async function ClientsData({ status }: { status?: string }) {
             </PageHeader>
 
             <Card>
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {clients.items.length === 0 ? (
                         <EmptyState
                             title="No clients yet"
@@ -71,7 +71,7 @@ async function ClientsData({ status }: { status?: string }) {
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

@@ -2,10 +2,10 @@ import { getSession } from '@/app/actions/user.actions';
 import { redirect } from 'next/navigation';
 import { connectToDatabase } from '@/lib/mongodb';
 import { nanoid } from 'nanoid';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
-import { PageHeader } from '@/components/sabcrm/20ui/compat';
-import { EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
+import { PageHeader } from '@/components/sabcrm/20ui';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import { LayoutDashboard, Plus } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -49,7 +49,7 @@ export default async function BuilderRootPage() {
 
             <div className="mt-8">
                 <Card className="border-dashed border-2">
-                    <CardContent className="pt-6">
+                    <CardBody className="pt-6">
                         <EmptyState
                             icon={LayoutDashboard}
                             title="Create a new page"
@@ -63,7 +63,7 @@ export default async function BuilderRootPage() {
                                 </form>
                             }
                         />
-                    </CardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -207,7 +207,7 @@ export default function FacebookAudiencePage(): React.JSX.Element {
   const handleSave = () => {
     if (!projectId) return;
     if (!formName.trim()) {
-      zoruSonnerToast.error('Segment name is required.');
+      toast.error('Segment name is required.');
       return;
     }
     startSaving(async () => {
@@ -220,10 +220,10 @@ export default function FacebookAudiencePage(): React.JSX.Element {
       if (formAgeMax) fd.set('filterAgeMax', formAgeMax);
       const res = await saveAudienceSegment(undefined, fd);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success(res.message ?? 'Segment saved.');
+      toast.success(res.message ?? 'Segment saved.');
       setDialogOpen(false);
       resetForm();
       refresh();

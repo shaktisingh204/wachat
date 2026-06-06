@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Label, Textarea, PageHeader, PageTitle, PageDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Textarea, PageHeader, PageTitle, PageDescription } from '@/components/sabcrm/20ui';
 import { createSabwebinar } from '@/app/actions/sabwebinar.actions';
 
 export function NewSabwebinarForm() {
@@ -62,7 +62,7 @@ export function NewSabwebinarForm() {
             <CardTitle>Basics</CardTitle>
             <CardDescription>Public-facing details for the landing page.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardBody className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="title">Title</Label>
               <Input
@@ -134,7 +134,7 @@ export function NewSabwebinarForm() {
                 Cancel
               </Button>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       </form>
     </div>

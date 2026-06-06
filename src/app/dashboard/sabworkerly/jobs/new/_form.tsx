@@ -3,7 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardContent, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { addSabworkerlyJob } from '@/app/actions/sabworkerly.actions';
 
 interface ClientOpt { id: string; name: string }
@@ -55,7 +55,7 @@ export function JobForm({ clients, presetClientId }: { clients: ClientOpt[]; pre
 
     return (
         <Card>
-            <CardContent className="p-6">
+            <CardBody className="p-6">
                 <form onSubmit={onSubmit} className="flex flex-col gap-5">
                     {error && (
                         <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-3 text-sm text-[var(--st-text-secondary)]">
@@ -158,7 +158,7 @@ export function JobForm({ clients, presetClientId }: { clients: ClientOpt[]; pre
                         </Button>
                     </div>
                 </form>
-            </CardContent>
+            </CardBody>
         </Card>
     );
 }

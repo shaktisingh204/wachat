@@ -13,11 +13,11 @@ import {
   Search,
   Activity
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/sabcrm/20ui/compat';
-import { Table, THead, TBody, Th, Tr, Td } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/sabcrm/20ui';
+import { Table, THead, TBody, Th, Tr, Td } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
 
 const mockSegments = [
   {
@@ -89,7 +89,7 @@ export default function CustomerSegmentsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
-          <CardContent className="pt-6">
+          <CardBody className="pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-indigo-500/10 rounded-[var(--st-radius)]">
                 <Users className="w-5 h-5 text-indigo-500" />
@@ -99,11 +99,11 @@ export default function CustomerSegmentsPage() {
                 <p className="text-2xl font-bold text-[var(--st-text)]">6,984</p>
               </div>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
         
         <Card>
-          <CardContent className="pt-6">
+          <CardBody className="pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-emerald-500/10 rounded-[var(--st-radius)]">
                 <Activity className="w-5 h-5 text-emerald-500" />
@@ -113,11 +113,11 @@ export default function CustomerSegmentsPage() {
                 <p className="text-2xl font-bold text-[var(--st-text)]">24</p>
               </div>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardBody className="pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-blue-500/10 rounded-[var(--st-radius)]">
                 <Settings className="w-5 h-5 text-blue-500" />
@@ -127,7 +127,7 @@ export default function CustomerSegmentsPage() {
                 <p className="text-2xl font-bold text-[var(--st-text)]">Real-time</p>
               </div>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -147,7 +147,7 @@ export default function CustomerSegmentsPage() {
             />
           </div>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardBody className="p-0">
           <Table>
             <THead>
               <Tr>
@@ -210,7 +210,7 @@ export default function CustomerSegmentsPage() {
               )}
             </TBody>
           </Table>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

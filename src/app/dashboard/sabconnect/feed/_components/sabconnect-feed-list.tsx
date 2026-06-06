@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
-import { Avatar, AvatarFallback, Badge, Card, CardContent, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Card, CardBody, EmptyState } from '@/components/sabcrm/20ui';
 
 import type { SabConnectFeedItemDoc } from '@/lib/rust-client/sabconnect-feed';
 import { SabConnectFeedItemActions } from './sabconnect-feed-item-actions';
@@ -121,7 +121,7 @@ export function SabConnectFeedList(props: Props) {
                         return (
                             <li key={row.id}>
                                 <Card>
-                                    <CardContent className="flex flex-col gap-3 p-4">
+                                    <CardBody className="flex flex-col gap-3 p-4">
                                         <header className="flex items-start gap-3">
                                             <Avatar className="size-9">
                                                 <AvatarFallback>{initial}</AvatarFallback>
@@ -168,7 +168,7 @@ export function SabConnectFeedList(props: Props) {
                                                 Open in workspace →
                                             </Link>
                                         )}
-                                    </CardContent>
+                                    </CardBody>
                                 </Card>
                             </li>
                         );

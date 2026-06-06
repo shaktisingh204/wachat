@@ -3,12 +3,12 @@
 import { useMemo, useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Textarea } from '@/components/sabcrm/20ui/compat';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Textarea } from '@/components/sabcrm/20ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 const INIT_SNIPPETS = {
   basic: `<script>
@@ -149,7 +149,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       description="Generate Google Tag Manager head and body snippets for your website."
     >
       <Card>
-        <CardContent className="p-4 space-y-3">
+        <CardBody className="p-4 space-y-3">
           <Label htmlFor="gtm-id">GTM Container ID</Label>
           <Input
             id="gtm-id"
@@ -162,7 +162,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               Invalid GTM ID format. It should look like GTM-XXXXXXX.
             </p>
           )}
-        </CardContent>
+        </CardBody>
       </Card>
 
       <div className="space-y-2">

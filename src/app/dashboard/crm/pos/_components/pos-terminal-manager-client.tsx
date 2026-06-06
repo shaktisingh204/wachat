@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui';
 import {
     Download,
     ListChecks,
@@ -114,7 +114,7 @@ export function PosTerminalManagerClient({ terminals }: Props) {
         if (raw == null) return;
         const closingCash = Number(raw);
         if (!Number.isFinite(closingCash) || closingCash < 0) {
-            zoruSonnerToast.error('Closing cash must be a non-negative number.');
+            toast.error('Closing cash must be a non-negative number.');
             return;
         }
         setPendingId(row.terminalId);
@@ -124,12 +124,12 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                 closingCash,
             });
             if (res.success) {
-                zoruSonnerToast.success(
+                toast.success(
                     `Session closed. Discrepancy: ${fmtMoney(res.discrepancy ?? 0)}.`,
                 );
                 router.refresh();
             } else {
-                zoruSonnerToast.error(res.error ?? 'Failed to close session.');
+                toast.error(res.error ?? 'Failed to close session.');
             }
         } finally {
             setPendingId(null);

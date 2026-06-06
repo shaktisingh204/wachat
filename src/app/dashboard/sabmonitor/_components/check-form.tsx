@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 
-import { Button, Card, CardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 
 import {
     createSabmonitorCheck,
@@ -93,7 +93,7 @@ export function CheckForm({
 
     return (
         <Card className="zoruui">
-            <CardContent className="p-4">
+            <CardBody className="p-4">
                 <form className="flex flex-col gap-4" onSubmit={onSubmit}>
                     <div className="grid gap-3 md:grid-cols-2">
                         <div className="flex flex-col gap-1">
@@ -252,7 +252,7 @@ export function CheckForm({
                         </Button>
                     </div>
                 </form>
-            </CardContent>
+            </CardBody>
         </Card>
     );
 }

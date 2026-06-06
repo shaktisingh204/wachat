@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Card, CardContent, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
 import { Banknote } from 'lucide-react';
 import { getSabworkerlyPayrollRuns } from '@/app/actions/sabworkerly.actions';
 import { RunPayrollForm } from './_run-form';
@@ -27,10 +27,10 @@ export default async function PayrollPage() {
             </PageHeader>
 
             <Card>
-                <CardContent className="p-6">
+                <CardBody className="p-6">
                     <h2 className="mb-4 text-lg font-semibold">Run payroll</h2>
                     <RunPayrollForm />
-                </CardContent>
+                </CardBody>
             </Card>
 
             {runs.length === 0 ? (
@@ -41,7 +41,7 @@ export default async function PayrollPage() {
                 />
             ) : (
                 <Card>
-                    <CardContent className="p-0">
+                    <CardBody className="p-0">
                         <Table>
                             <THead>
                                 <Tr>
@@ -69,7 +69,7 @@ export default async function PayrollPage() {
                                 ))}
                             </TBody>
                         </Table>
-                    </CardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

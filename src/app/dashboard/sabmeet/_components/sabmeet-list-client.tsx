@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Badge, Input, EmptyState, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Badge, Input, EmptyState, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
 import { Calendar, Plus, Search, Video, Clock, Users } from 'lucide-react';
 import type { MeetRoom } from '@/app/actions/sabmeet.actions.types';
 
@@ -112,7 +112,7 @@ function MeetingCard({ room }: { room: MeetRoom }) {
           <CardDescription className="line-clamp-2">{room.description}</CardDescription>
         ) : null}
       </CardHeader>
-      <CardContent className="space-y-2 text-sm">
+      <CardBody className="space-y-2 text-sm">
         {start ? (
           <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
             <Clock className="h-4 w-4" />
@@ -142,7 +142,7 @@ function MeetingCard({ room }: { room: MeetRoom }) {
             <Link href={`/dashboard/meetings/${room._id}/analytics`}>Stats</Link>
           </Button>
         </div>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -16,7 +16,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Notebook, Plus, StickyNote, Zap } from 'lucide-react';
 
-import { Badge, Button, Card, CardContent, CardFooter, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Textarea, toast } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   createSabnotebookNotebook,
@@ -61,7 +61,7 @@ export function NotebookGrid({
 
   const handleCreate = React.useCallback(async () => {
     if (!name.trim()) {
-      zoruSonnerToast.error('Name is required');
+      toast.error('Name is required');
       return;
     }
     setCreating(true);
@@ -73,10 +73,10 @@ export function NotebookGrid({
     });
     setCreating(false);
     if (res.error) {
-      zoruSonnerToast.error(res.error);
+      toast.error(res.error);
       return;
     }
-    zoruSonnerToast.success('Notebook created');
+    toast.success('Notebook created');
     setOpen(false);
     resetForm();
     if (res.id) router.push(`${BASE}/${res.id}`);
@@ -87,10 +87,10 @@ export function NotebookGrid({
     async (id: string) => {
       const res = await deleteSabnotebookNotebook(id);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success('Notebook archived');
+      toast.success('Notebook archived');
       router.refresh();
     },
     [router],
@@ -140,12 +140,12 @@ export function NotebookGrid({
             <StickyNote className="h-4 w-4 text-[var(--st-text)]" />
             <CardTitle className="line-clamp-1">Quick Notes</CardTitle>
           </CardHeader>
-          <CardContent className="min-h-[60px]">
+          <CardBody className="min-h-[60px]">
             <p className="line-clamp-3 text-sm text-[var(--st-text-secondary)]">
               Your sticky-notes board. Jump-in for quick reminders without
               picking a section.
             </p>
-          </CardContent>
+          </CardBody>
           <CardFooter className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
             <Badge variant="secondary">Always pinned</Badge>
           </CardFooter>
@@ -168,11 +168,11 @@ export function NotebookGrid({
               <Notebook className="h-4 w-4 text-[var(--st-text-secondary)]" />
               <CardTitle className="line-clamp-1">{nb.name}</CardTitle>
             </CardHeader>
-            <CardContent className="min-h-[60px]">
+            <CardBody className="min-h-[60px]">
               <p className="line-clamp-3 text-sm text-[var(--st-text-secondary)]">
                 {nb.description ?? 'No description.'}
               </p>
-            </CardContent>
+            </CardBody>
             <CardFooter className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
               <Badge variant="secondary">{nb.noteCount ?? 0} notes</Badge>
               <Button

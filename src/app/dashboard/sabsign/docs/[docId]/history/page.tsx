@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, History, RotateCcw } from 'lucide-react';
 
-import { Badge, Button, Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody } from '@/components/sabcrm/20ui';
 import {
   listSabwriterVersions,
   restoreSabwriterVersion,
@@ -81,7 +81,7 @@ export default function SabwriterVersionHistoryPage() {
           {versions.map((v) => (
             <li key={v._id}>
               <Card>
-                <CardContent className="p-4 flex items-start justify-between gap-3">
+                <CardBody className="p-4 flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline">v{v.version}</Badge>
@@ -104,7 +104,7 @@ export default function SabwriterVersionHistoryPage() {
                     <RotateCcw className="h-4 w-4 mr-2" />
                     {restoring === v._id ? 'Restoring…' : 'Restore'}
                   </Button>
-                </CardContent>
+                </CardBody>
               </Card>
             </li>
           ))}

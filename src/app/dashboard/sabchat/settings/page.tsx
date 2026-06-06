@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Checkbox, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Switch, Textarea, zoruSonnerToast, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Checkbox, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Switch, Textarea, toast, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -102,14 +102,14 @@ export default function SabchatSettingsPage() {
             if (Object.keys(patch).every(k => k in (settings || {}))) {
                 const res = await saveSabchatSettings(patch);
                 if (res.error || !res.settings) {
-                    zoruSonnerToast.error(res.error || 'Save failed');
+                    toast.error(res.error || 'Save failed');
                     setSavingSection(null);
                     return;
                 }
                 setSettings(res.settings);
             }
             setSavingSection(null);
-            zoruSonnerToast.success(`${label} saved`);
+            toast.success(`${label} saved`);
         });
     }
 
@@ -585,8 +585,8 @@ function WebhooksSection({
     saving: boolean;
 }) {
     function sendTest() {
-        if (!value.url) return zoruSonnerToast.error('Add a webhook URL first.');
-        zoruSonnerToast.info('Test webhook queued.');
+        if (!value.url) return toast.error('Add a webhook URL first.');
+        toast.info('Test webhook queued.');
     }
     return (
         <Card className="p-6">

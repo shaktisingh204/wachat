@@ -8,8 +8,8 @@ import {
   SabsmsSavedViews,
   SabsmsRefreshButton,
 } from "@/components/sabsms/page-toolkit";
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter, Badge, Tabs, TabsContent, TabsList, TabsTrigger, StatCard } from '@/components/sabcrm/20ui/compat';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter, Badge, Tabs, TabsContent, TabsList, TabsTrigger, StatCard } from '@/components/sabcrm/20ui';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from '@/components/sabcrm/20ui';
 
 import {
   LineChart,
@@ -319,7 +319,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                   <CardDescription>Daily revenue vs spend vs net margin over the last 30 days.</CardDescription>
                 </div>
               </CardHeader>
-              <CardContent className="pt-4">
+              <CardBody className="pt-4">
                 <ChartContainer config={trendsChartConfig} className="h-[450px] w-full">
                   <ComposedChart data={spendTrendsData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <defs>
@@ -389,7 +389,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                     />
                   </ComposedChart>
                 </ChartContainer>
-              </CardContent>
+              </CardBody>
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -398,7 +398,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2"><Globe className="w-5 h-5 text-[var(--st-text)]" /> Spend by Region</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                   <div className="h-[320px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={countrySpend} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
@@ -418,7 +418,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                </CardContent>
+                </CardBody>
               </Card>
 
               {/* Provider Spend Pie */}
@@ -426,7 +426,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2"><PieChartIcon className="w-5 h-5 text-[var(--st-text)]" /> Provider Distribution</CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col md:flex-row items-center gap-8">
+                <CardBody className="flex flex-col md:flex-row items-center gap-8">
                   <div className="h-[280px] flex-1 w-full relative">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -468,7 +468,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                       </div>
                     ))}
                   </div>
-                </CardContent>
+                </CardBody>
               </Card>
             </div>
           </TabsContent>
@@ -479,7 +479,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                 <CardTitle className="text-lg">Provider Performance Radar</CardTitle>
                 <CardDescription>Evaluating providers across 5 key dimensions: Delivery, Latency, Support, Features, and Cost Efficiency.</CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col lg:flex-row items-center gap-8 pt-4">
+              <CardBody className="flex flex-col lg:flex-row items-center gap-8 pt-4">
                 <div className="h-[400px] w-full lg:w-1/2">
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="75%" data={providerPerformance}>
@@ -527,7 +527,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                     </div>
                   ))}
                 </div>
-              </CardContent>
+              </CardBody>
             </Card>
           </TabsContent>
 
@@ -537,7 +537,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                 <CardTitle className="text-lg">Campaign Spend vs. Conversions</CardTitle>
                 <CardDescription>Breakdown of SMS and MMS costs per campaign, and resulting conversions.</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <ChartContainer config={campaignChartConfig} className="h-[400px] w-full">
                   <ComposedChart data={campaignSpend} layout="vertical" margin={{ top: 20, right: 20, bottom: 20, left: 40 }}>
                     <CartesianGrid horizontal={false} strokeDasharray="3 3" className="stroke-muted" />
@@ -553,7 +553,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                     <Scatter dataKey="conversions" fill="hsl(var(--chart-3))" shape="star" />
                   </ComposedChart>
                 </ChartContainer>
-              </CardContent>
+              </CardBody>
             </Card>
           </TabsContent>
 
@@ -568,7 +568,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                   </CardTitle>
                   <CardDescription>Hard limits to prevent accidental overspending</CardDescription>
                 </CardHeader>
-                <CardContent className="pt-6 space-y-5">
+                <CardBody className="pt-6 space-y-5">
                   <div className="flex flex-col p-4 rounded-xl border bg-[var(--st-bg-secondary)] hover:border-[var(--st-border)]/30 transition-colors">
                     <div className="flex items-center justify-between mb-2">
                       <div>
@@ -601,7 +601,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                       <div className="text-xs text-[var(--st-text-secondary)]">Numbers locked from Int'l</div>
                     </div>
                   </div>
-                </CardContent>
+                </CardBody>
               </Card>
 
               {/* Anomaly Alerts */}
@@ -613,7 +613,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                   </CardTitle>
                   <CardDescription>Machine learning driven notifications for unexpected spend</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4 pt-4">
+                <CardBody className="space-y-4 pt-4">
                   <div className="group flex items-center justify-between p-4 rounded-xl border border-muted hover:border-foreground/20 transition-all bg-[var(--st-bg-secondary)] hover:shadow-sm">
                     <div className="flex items-start gap-3">
                       <div className="p-2 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 rounded-lg text-[var(--st-text)] dark:text-[var(--st-text-secondary)] mt-0.5">
@@ -654,7 +654,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                       <Edit3 className="w-4 h-4" />
                     </Button>
                   </div>
-                </CardContent>
+                </CardBody>
               </Card>
             </div>
           </TabsContent>

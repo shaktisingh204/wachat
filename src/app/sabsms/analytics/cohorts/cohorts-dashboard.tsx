@@ -9,7 +9,7 @@ import {
   useSabsmsUrlState,
 } from "@/components/sabsms/page-toolkit";
 import { Sparkles, Filter, Eye, Layers, TrendingUp, Users, Target } from "lucide-react";
-import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Table, THead, Tr, Th, TBody, Td, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Table, THead, Tr, Th, TBody, Td, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui';
 import {
   LineChart,
   Line,
@@ -201,10 +201,10 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
               <Users className="h-4 w-4" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-3xl font-bold">{totalContacts.toLocaleString()}</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">Across {data.totalCohorts} active cohorts</p>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card variant="interactive">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
@@ -213,10 +213,10 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
               <TrendingUp className="h-4 w-4" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-3xl font-bold">{avgM1Retention}%</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">Industry avg is ~35%</p>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card variant="interactive">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
@@ -225,10 +225,10 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
               <Target className="h-4 w-4" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-3xl font-bold">{bestCohort.id}</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">{bestCohort.val}% retained in M1</p>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -238,7 +238,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
           <CardTitle>Retention Curves</CardTitle>
           <CardDescription>Visualizing drop-off rates across all cohorts over time</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
@@ -277,7 +277,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
 
       {/* LTV Curve Chart */}
@@ -286,7 +286,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
           <CardTitle>LTV Over Time</CardTitle>
           <CardDescription>Cumulative Life-Time Value progression across all cohorts over time</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={ltvChartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
@@ -325,7 +325,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
 
       {/* Heatmap */}
@@ -336,7 +336,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
             Hover and click cells to drill down into the specific cohort period.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-0 overflow-x-auto">
+        <CardBody className="p-0 overflow-x-auto">
           <Table>
             <THead>
               <Tr className="hover:bg-transparent">
@@ -404,7 +404,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
               ))}
             </TBody>
           </Table>
-        </CardContent>
+        </CardBody>
       </Card>
 
       {/* Drill-down Drawer */}
@@ -421,7 +421,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
           </p>
           <div className="grid grid-cols-3 gap-4">
             <Card variant="default" className="bg-[var(--st-bg-muted)]/30">
-              <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+              <CardBody className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-2">Active Contacts</p>
                 <p className="text-2xl font-bold font-mono text-[var(--st-text)]">
                   {selectedCell &&
@@ -429,10 +429,10 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                       .find((r) => r.id === selectedCell.rowId)
                       ?.cells.find((c) => c.period === selectedCell.period)?.absoluteValue.toLocaleString()}
                 </p>
-              </CardContent>
+              </CardBody>
             </Card>
             <Card variant="default" className="bg-[var(--st-bg-muted)]/30">
-              <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+              <CardBody className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-2">Retention Rate</p>
                 <p className="text-2xl font-bold font-mono text-[var(--st-text)]">
                   {selectedCell &&
@@ -440,10 +440,10 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                       .find((r) => r.id === selectedCell.rowId)
                       ?.cells.find((c) => c.period === selectedCell.period)?.value}%
                 </p>
-              </CardContent>
+              </CardBody>
             </Card>
             <Card variant="default" className="bg-[var(--st-bg-muted)]/30">
-              <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+              <CardBody className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-2">LTV</p>
                 <p className="text-2xl font-bold font-mono text-[var(--st-text)]">
                   ${selectedCell &&
@@ -451,7 +451,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                       .find((r) => r.id === selectedCell.rowId)
                       ?.cells.find((c) => c.period === selectedCell.period)?.ltv}
                 </p>
-              </CardContent>
+              </CardBody>
             </Card>
           </div>
           

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions, StatCard, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions, StatCard, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   type Sabwebinar,
@@ -139,7 +139,7 @@ function OverviewTab({
         <CardHeader>
           <CardTitle>Schedule</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-2 md:grid-cols-3 text-sm">
+        <CardBody className="grid grid-cols-1 gap-2 md:grid-cols-3 text-sm">
           <div>
             <strong>Scheduled:</strong>{' '}
             {webinar.scheduledStart
@@ -152,7 +152,7 @@ function OverviewTab({
           <div>
             <strong>Capacity:</strong> {webinar.capacity ?? 'Unlimited'}
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );
@@ -190,7 +190,7 @@ function LandingTab({ webinar }: { webinar: Sabwebinar }) {
           </Link>
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+      <CardBody className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <Label>Hero image (from SabFiles)</Label>
           <SabFilePickerButton
@@ -267,7 +267,7 @@ function LandingTab({ webinar }: { webinar: Sabwebinar }) {
             {busy ? 'Saving…' : 'Save landing'}
           </Button>
         </div>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -282,7 +282,7 @@ function RegistrationsTab({
   }
   return (
     <Card>
-      <CardContent className="p-0">
+      <CardBody className="p-0">
         <table className="w-full text-sm">
           <thead className="border-b">
             <tr>
@@ -311,7 +311,7 @@ function RegistrationsTab({
             ))}
           </tbody>
         </table>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -329,7 +329,7 @@ function LiveTab({ webinar }: { webinar: Sabwebinar }) {
               : 'Start the broadcast to enable preview.'}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <div className="flex aspect-video w-full items-center justify-center rounded-md bg-black text-white">
             {isLive ? (
               <p className="text-sm opacity-70">Live stream URL bound via IWebinarTransport</p>
@@ -337,16 +337,16 @@ function LiveTab({ webinar }: { webinar: Sabwebinar }) {
               <p className="text-sm opacity-50">Offline</p>
             )}
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
       <Card>
         <CardHeader>
           <CardTitle>Live console</CardTitle>
           <CardDescription>Chat, presence, polls, Q&amp;A controls.</CardDescription>
         </CardHeader>
-        <CardContent className="text-sm opacity-70">
+        <CardBody className="text-sm opacity-70">
           Open the dedicated tabs (Polls, Q&amp;A) to manage during the broadcast.
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );
@@ -384,7 +384,7 @@ function PollsTab({
         <CardHeader>
           <CardTitle>New poll</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-3">
+        <CardBody className="flex flex-col gap-3">
           <Input
             placeholder="Question"
             value={question}
@@ -406,7 +406,7 @@ function PollsTab({
               Create poll
             </Button>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
 
       {polls.length === 0 ? (
@@ -434,7 +434,7 @@ function PollRow({ poll }: { poll: SabwebinarPoll }) {
           <Badge variant="secondary">{poll.status}</Badge>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col gap-2">
+      <CardBody className="flex flex-col gap-2">
         {poll.options.map((o) => {
           const pct = totalVotes > 0 ? Math.round((o.voteCount / totalVotes) * 100) : 0;
           return (
@@ -462,7 +462,7 @@ function PollRow({ poll }: { poll: SabwebinarPoll }) {
             </Button>
           </div>
         ) : null}
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -493,7 +493,7 @@ function QnaRow({ item }: { item: SabwebinarQnaItem }) {
           {new Date(item.createdAt).toLocaleString()}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-2">
+      <CardBody className="flex flex-col gap-2">
         {item.answered ? (
           <p className="text-sm">
             <strong>Answer:</strong> {item.answer}
@@ -518,7 +518,7 @@ function QnaRow({ item }: { item: SabwebinarQnaItem }) {
             </Button>
           </div>
         )}
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -532,7 +532,7 @@ function RecordingTab({ webinar }: { webinar: Sabwebinar }) {
         <CardTitle>Post-event recording</CardTitle>
         <CardDescription>Upload via SabFiles — no external URL paste.</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3">
+      <CardBody className="flex flex-col gap-3">
         <SabFilePickerButton
           accept="video"
           value={fileId ? { fileId } : undefined}
@@ -550,7 +550,7 @@ function RecordingTab({ webinar }: { webinar: Sabwebinar }) {
             {busy ? 'Saving…' : 'Attach recording'}
           </Button>
         </div>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -575,7 +575,7 @@ function AnalyticsTab({ analytics }: { analytics: SabwebinarAnalytics }) {
         <CardHeader>
           <CardTitle>Registrations by source</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           {analytics.registrationsBySource.length === 0 ? (
             <p className="text-sm opacity-70">No registrations yet.</p>
           ) : (
@@ -588,7 +588,7 @@ function AnalyticsTab({ analytics }: { analytics: SabwebinarAnalytics }) {
               ))}
             </ul>
           )}
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

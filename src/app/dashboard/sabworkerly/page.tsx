@@ -1,7 +1,7 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 
-import { Card, CardHeader, CardTitle, CardContent, PageHeader, PageTitle, PageDescription, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, PageHeader, PageTitle, PageDescription, Badge } from '@/components/sabcrm/20ui';
 import { getSession } from '@/app/actions/user.actions';
 import {
     getSabworkerlyDashboardStats,
@@ -44,9 +44,9 @@ export default async function SabworkerlyOverviewPage() {
                             Active Workers
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <div className="text-3xl font-semibold">{stats.activeWorkers}</div>
-                    </CardContent>
+                    </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
@@ -54,9 +54,9 @@ export default async function SabworkerlyOverviewPage() {
                             Open Jobs
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <div className="text-3xl font-semibold">{stats.openJobs}</div>
-                    </CardContent>
+                    </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
@@ -64,9 +64,9 @@ export default async function SabworkerlyOverviewPage() {
                             Pending Timesheets
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <div className="text-3xl font-semibold">{stats.pendingTimesheets}</div>
-                    </CardContent>
+                    </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
@@ -74,12 +74,12 @@ export default async function SabworkerlyOverviewPage() {
                             Unpaid Invoices
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <div className="text-3xl font-semibold">{stats.unpaidInvoices}</div>
                         <div className="mt-1 text-xs text-[color:var(--st-text-secondary)]">
                             {money(stats.unpaidTotalMinor)} outstanding
                         </div>
-                    </CardContent>
+                    </CardBody>
                 </Card>
             </div>
 
@@ -88,7 +88,7 @@ export default async function SabworkerlyOverviewPage() {
                     <CardHeader>
                         <CardTitle>Pending timesheet approvals</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         {pendingTs.length === 0 ? (
                             <p className="text-sm text-[color:var(--st-text-secondary)]">
                                 No timesheets awaiting approval.
@@ -106,13 +106,13 @@ export default async function SabworkerlyOverviewPage() {
                                 ))}
                             </ul>
                         )}
-                    </CardContent>
+                    </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
                         <CardTitle>Outstanding invoices</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         {unpaidInv.length === 0 ? (
                             <p className="text-sm text-[color:var(--st-text-secondary)]">
                                 No outstanding invoices.
@@ -133,7 +133,7 @@ export default async function SabworkerlyOverviewPage() {
                                 ))}
                             </ul>
                         )}
-                    </CardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

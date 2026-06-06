@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
 import { RefreshCw, CheckCircle2, AlertCircle, Building2 } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import gsapCore from 'gsap';
@@ -64,7 +64,7 @@ export default function BankingReconciliationPage() {
               </Badge>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-auto p-0">
+          <CardBody className="flex-1 overflow-auto p-0">
             <Table>
               <THead className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
                 <Tr>
@@ -94,7 +94,7 @@ export default function BankingReconciliationPage() {
                 ))}
               </TBody>
             </Table>
-          </CardContent>
+          </CardBody>
         </Card>
 
         {/* Right Pane: Ledger Match */}
@@ -102,7 +102,7 @@ export default function BankingReconciliationPage() {
           <CardHeader className="bg-[var(--st-bg-muted)]/30 pb-4 shrink-0">
             <CardTitle>SabFinance Ledger Match</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 overflow-auto p-6 flex flex-col items-center justify-center space-y-6">
+          <CardBody className="flex-1 overflow-auto p-6 flex flex-col items-center justify-center space-y-6">
             
             <div className="w-full max-w-md p-6 border rounded-xl bg-[var(--st-bg-secondary)] shadow-sm space-y-4 relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -136,7 +136,7 @@ export default function BankingReconciliationPage() {
               <Button variant="outline" className="w-full max-w-md">Browse Ledger (Alt+L)</Button>
             </div>
 
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
     </div>

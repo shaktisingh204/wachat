@@ -1,11 +1,11 @@
 import React, { useState, useMemo, useTransition, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
-import { Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
 import { toast } from '@/hooks/use-toast';
-import { Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { Download, Upload, FileSpreadsheet, Loader2, Search } from 'lucide-react';
 
 interface CsvRow {
@@ -110,7 +110,7 @@ export function BulkUpload() {
                     Upload a CSV file to create multiple TDS records at once. Download the template first to ensure correct formatting.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardBody className="space-y-4">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <Button variant="outline" onClick={handleDownloadTemplate}>
@@ -219,7 +219,7 @@ export function BulkUpload() {
                         </div>
                     </div>
                 )}
-            </CardContent>
+            </CardBody>
         </Card>
     );
 }

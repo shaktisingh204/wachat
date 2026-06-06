@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Skeleton, DataTable, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Skeleton, DataTable, toast } from '@/components/sabcrm/20ui';
 import { useCallback, useEffect, useState, useTransition, useMemo } from 'react';
 import { AlertCircle, ExternalLink, Plus, Radar, RefreshCw, Trash2, TrendingUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -88,16 +88,16 @@ export default function FacebookCompetitorsPage() {
     if (!projectId) return;
     const ref = parsePageRef(formUrl);
     if (!ref) {
-      zoruSonnerToast.error('Page URL or ID is required.');
+      toast.error('Page URL or ID is required.');
       return;
     }
     startSaving(async () => {
       const res = await addCompetitor(projectId, ref);
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? 'Failed to track competitor.');
+        toast.error(res.error ?? 'Failed to track competitor.');
         return;
       }
-      zoruSonnerToast.success(
+      toast.success(
         formName.trim()
           ? `Tracking "${formName.trim()}".`
           : 'Competitor tracked.',
@@ -117,10 +117,10 @@ export default function FacebookCompetitorsPage() {
       const res = await syncCompetitorData(id);
       setSyncingId(null);
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? 'Sync failed.');
+        toast.error(res.error ?? 'Sync failed.');
         return;
       }
-      zoruSonnerToast.success('Sync queued.');
+      toast.success('Sync queued.');
       refresh();
     })();
   };
@@ -132,10 +132,10 @@ export default function FacebookCompetitorsPage() {
     (async () => {
       const res = await removeCompetitor(id);
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? 'Failed to remove.');
+        toast.error(res.error ?? 'Failed to remove.');
         return;
       }
-      zoruSonnerToast.success('Competitor removed.');
+      toast.success('Competitor removed.');
       setConfirmRemove(null);
       refresh();
     })();
@@ -152,7 +152,7 @@ export default function FacebookCompetitorsPage() {
       const res = await analyzeCompetitorTrends(projectId, id);
       setAnalyzingId(null);
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? 'Analysis failed.');
+        toast.error(res.error ?? 'Analysis failed.');
         setAnalysisOpen(false);
         return;
       }

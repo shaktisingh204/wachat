@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { Switch } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { Switch } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { 
   Briefcase, 
   Building2, 
@@ -70,7 +70,7 @@ export default function B2BPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="border rounded-lg overflow-hidden">
               <Table>
                 <THead className="bg-muted/50">
@@ -114,7 +114,7 @@ export default function B2BPage() {
                 </TBody>
               </Table>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         {/* Price Lists */}
@@ -128,7 +128,7 @@ export default function B2BPage() {
               <Button variant="outline" size="sm">Create New</Button>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="space-y-4">
               {priceLists.map((pl, idx) => (
                 <div key={idx} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors">
@@ -148,7 +148,7 @@ export default function B2BPage() {
                 </div>
               ))}
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         {/* B2B Settings */}
@@ -157,7 +157,7 @@ export default function B2BPage() {
             <CardTitle className="flex items-center gap-2"><CreditCard className="h-5 w-5" /> Global Settings</CardTitle>
             <CardDescription>Configure store-wide B2B preferences.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardBody className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label className="text-base">Enable Net Terms</Label>
@@ -195,7 +195,7 @@ export default function B2BPage() {
                 </SelectContent>
               </Select>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
       </div>

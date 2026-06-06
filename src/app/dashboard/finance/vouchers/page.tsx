@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { UploadCloud } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'context/gsap'; // We'll just import gsap from 'gsap' usually, assuming standard import
@@ -79,7 +79,7 @@ export default function VouchersPage() {
         <CardHeader>
           <CardTitle>New Voucher</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardBody className="space-y-6">
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Voucher Type</Label>
@@ -177,7 +177,7 @@ export default function VouchersPage() {
               <Button>Save Voucher (Cmd+S)</Button>
             </div>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Card, CardContent, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
 import { Receipt } from 'lucide-react';
 import {
     getSabworkerlyInvoices,
@@ -33,10 +33,10 @@ export default async function InvoicesPage() {
             </PageHeader>
 
             <Card>
-                <CardContent className="p-6">
+                <CardBody className="p-6">
                     <h2 className="mb-4 text-lg font-semibold">Generate invoice</h2>
                     <GenerateInvoiceForm clients={clients.map((c) => ({ id: c._id, name: c.name }))} />
-                </CardContent>
+                </CardBody>
             </Card>
 
             {invoices.length === 0 ? (
@@ -47,7 +47,7 @@ export default async function InvoicesPage() {
                 />
             ) : (
                 <Card>
-                    <CardContent className="p-0">
+                    <CardBody className="p-0">
                         <Table>
                             <THead>
                                 <Tr>
@@ -75,7 +75,7 @@ export default async function InvoicesPage() {
                                 ))}
                             </TBody>
                         </Table>
-                    </CardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

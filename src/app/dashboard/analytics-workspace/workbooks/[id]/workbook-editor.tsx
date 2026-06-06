@@ -14,7 +14,7 @@ import type {
   BiChartRunResponse,
   BiChartType,
 } from '@/lib/rust-client/bi-charts';
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 import { ChartPreview } from './chart-preview';
 
@@ -125,7 +125,7 @@ export function WorkbookEditor({
             charts run via the Rust query exec layer.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-3">
+        <CardBody className="flex flex-col gap-3">
           <div className="grid gap-1.5">
             <Label htmlFor="ch-name">Name</Label>
             <Input
@@ -209,7 +209,7 @@ export function WorkbookEditor({
               Preview
             </Button>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
 
       <div className="flex flex-col gap-4">
@@ -219,13 +219,13 @@ export function WorkbookEditor({
               <CardTitle>Preview</CardTitle>
               <CardDescription>Mode: {previewResult.mode}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <ChartPreview
                 chartType={chartType}
                 rows={previewResult.rows}
                 columns={previewResult.columns}
               />
-            </CardContent>
+            </CardBody>
           </Card>
         )}
 

@@ -16,7 +16,7 @@
 import * as React from 'react';
 import { Archive, ArchiveRestore, Pin, PinOff, Save, Trash2 } from 'lucide-react';
 
-import { Badge, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@/components/sabcrm/20ui';
 import {
   archiveSabnotebookNote,
   deleteSabnotebookNote,
@@ -181,10 +181,10 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
     });
     setSaving(false);
     if (res.error) {
-      zoruSonnerToast.error(res.error);
+      toast.error(res.error);
       return;
     }
-    zoruSonnerToast.success('Saved');
+    toast.success('Saved');
     if (res.entity) onSaved?.(res.entity);
   }, [body, note._id, title, tags, onSaved]);
 
@@ -194,7 +194,7 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
     const res = await pinSabnotebookNote(note._id, next);
     if (res.error) {
       setPinned(!next);
-      zoruSonnerToast.error(res.error);
+      toast.error(res.error);
       return;
     }
     if (res.entity) onSaved?.(res.entity);
@@ -206,7 +206,7 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
     const res = await archiveSabnotebookNote(note._id, next);
     if (res.error) {
       setArchived(!next);
-      zoruSonnerToast.error(res.error);
+      toast.error(res.error);
       return;
     }
     if (res.entity) onSaved?.(res.entity);
@@ -216,10 +216,10 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
     if (!confirm('Delete this note? This cannot be undone.')) return;
     const res = await deleteSabnotebookNote(note._id, note.notebookId);
     if (res.error) {
-      zoruSonnerToast.error(res.error);
+      toast.error(res.error);
       return;
     }
-    zoruSonnerToast.success('Note deleted');
+    toast.success('Note deleted');
     onDeleted?.(note._id);
   }, [note._id, note.notebookId, onDeleted]);
 

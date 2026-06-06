@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { createDatasetAction } from '@/app/actions/analytics-bi.actions';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui';
 
 type Source = 'csv_upload' | 'mongo_collection' | 'rest_api';
 
@@ -75,7 +75,7 @@ export function NewDatasetPanel() {
           tenant; REST endpoints are stored as saved URLs.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardBody>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="grid gap-1.5">
             <Label htmlFor="ds-name">Name</Label>
@@ -154,7 +154,7 @@ export function NewDatasetPanel() {
             {pending ? 'Saving…' : 'Add dataset'}
           </Button>
         </div>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -34,7 +34,7 @@ import {
   X,
 } from 'lucide-react';
 
-import { Button, Input, Textarea, Label, Switch, Badge, Separator, EmptyState, Card, CardHeader, CardTitle, CardDescription, CardContent, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, IconPicker, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Label, Switch, Badge, Separator, EmptyState, Card, CardHeader, CardTitle, CardDescription, CardBody, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, IconPicker, useToast } from '@/components/sabcrm/20ui';
 import {
   createCustomObjectAction,
   addFieldAction,
@@ -319,14 +319,14 @@ function ObjectSummaryCard({
           {object.slug}
         </CardDescription>
       </CardHeader>
-      <CardContent className="mt-auto flex items-center justify-between gap-2">
+      <CardBody className="mt-auto flex items-center justify-between gap-2">
         <span className="text-xs text-[var(--st-text-secondary)]">
           {fieldCount} {fieldCount === 1 ? 'field' : 'fields'}
         </span>
         <Button type="button" size="sm" variant="outline" onClick={onOpen}>
           Manage
         </Button>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

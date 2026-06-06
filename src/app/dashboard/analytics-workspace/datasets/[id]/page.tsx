@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui';
 import {
   getDatasetAction,
   previewDatasetAction,
@@ -71,29 +71,29 @@ export default async function DatasetDetailPage({
           <CardHeader>
             <CardTitle>Rows</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <p className="text-2xl font-semibold text-[var(--st-text)]">
               {preview.rowCount ?? dataset.rowCount ?? 0}
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>Last refresh</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <p className="text-sm text-[var(--st-text-secondary)]">
               {dataset.lastRefreshAt ?? '—'}
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>Columns</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <p className="text-2xl font-semibold text-[var(--st-text)]">{columns.length}</p>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -105,7 +105,7 @@ export default async function DatasetDetailPage({
             materialised into a system collection before previewing.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           {preview.rows.length === 0 ? (
             <p className="text-sm text-[var(--st-text-secondary)]">No preview rows available.</p>
           ) : (
@@ -132,7 +132,7 @@ export default async function DatasetDetailPage({
               </TBody>
             </Table>
           )}
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

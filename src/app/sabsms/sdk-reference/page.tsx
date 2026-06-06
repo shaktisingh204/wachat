@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import { Tabs, TabsList, TabsTrigger, TabsContent, Card, CardHeader, CardTitle, CardContent, CardFooter, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Badge, useToast } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsList, TabsTrigger, TabsContent, Card, CardHeader, CardTitle, CardBody, CardFooter, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Badge, useToast } from '@/components/sabcrm/20ui';
 import {
   BookOpen,
   Github,
@@ -276,7 +276,7 @@ end`;
                   <CardHeader>
                     <CardTitle className="text-lg">{cat.label}</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardBody>
                     <div className="relative group rounded-md bg-[var(--st-text)] p-4 border overflow-hidden">
                       <pre className="text-sm text-white font-mono overflow-x-auto whitespace-pre">
                         <code>{code}</code>
@@ -290,7 +290,7 @@ end`;
                         <Copy className="h-4 w-4" />
                       </Button>
                     </div>
-                  </CardContent>
+                  </CardBody>
                   <CardFooter className="bg-[var(--st-bg-muted)]/50 py-3 flex items-center justify-between">
                     <div className="text-xs text-[var(--st-text-secondary)]">
                       Generated from{" "}

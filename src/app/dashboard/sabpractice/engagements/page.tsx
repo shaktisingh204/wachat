@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Suspense } from 'react';
 
 import { listSabpracticeEngagements } from '@/app/actions/sabpractice.actions';
-import { Badge, Card, CardContent, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 async function EngagementsData() {
     const list = await listSabpracticeEngagements({ status: 'all', limit: 200 });
@@ -17,7 +17,7 @@ async function EngagementsData() {
                 </div>
             </PageHeader>
             <Card>
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {list.items.length === 0 ? (
                         <EmptyState
                             title="No engagements"
@@ -55,7 +55,7 @@ async function EngagementsData() {
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

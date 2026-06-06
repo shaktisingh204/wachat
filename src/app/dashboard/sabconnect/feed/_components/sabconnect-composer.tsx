@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 
-import { Button, Card, CardContent, Textarea, Badge, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Textarea, Badge, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { createSabConnectPost } from '@/app/actions/sabconnect.actions';
@@ -42,7 +42,7 @@ export function SabConnectComposer({ groups }: Props) {
 
     return (
         <Card>
-            <CardContent className="flex flex-col gap-3 p-4">
+            <CardBody className="flex flex-col gap-3 p-4">
                 <Textarea
                     aria-label="Share an update"
                     placeholder="Share an update with your team…"
@@ -94,7 +94,7 @@ export function SabConnectComposer({ groups }: Props) {
                         {pending ? 'Posting…' : 'Post'}
                     </Button>
                 </div>
-            </CardContent>
+            </CardBody>
         </Card>
     );
 }

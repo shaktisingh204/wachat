@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Checkbox, EmptyState, Input, Label, Skeleton, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Checkbox, EmptyState, Input, Label, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -17,7 +17,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/sabcrm/20ui/compat';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/sabcrm/20ui';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -115,7 +115,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
       
       const res = await handleUpdatePageDetails({ success: false }, fd);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
       
@@ -132,18 +132,18 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
           const bulkRes = await handleUpdatePageDetails({ success: false }, bulkFd);
           if (bulkRes.error) {
              hasError = true;
-             zoruSonnerToast.error(`Failed to sync page ID ${targetPageId}: ${bulkRes.error}`);
+             toast.error(`Failed to sync page ID ${targetPageId}: ${bulkRes.error}`);
           }
         }
         if (!hasError) {
-           zoruSonnerToast.success(`Details updated and synced to ${values.syncPageIds.length} pages.`);
+           toast.success(`Details updated and synced to ${values.syncPageIds.length} pages.`);
         }
       } else {
-        zoruSonnerToast.success('Page details updated.');
+        toast.success('Page details updated.');
       }
       
       if (values.syncInstagram) {
-         zoruSonnerToast.success('Linked Instagram profile updated successfully.');
+         toast.success('Linked Instagram profile updated successfully.');
       }
 
       setEditing(false);

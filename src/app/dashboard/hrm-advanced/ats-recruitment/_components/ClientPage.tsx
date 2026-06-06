@@ -4,10 +4,10 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ATSApplication } from '@/lib/hrm-advanced-types';
 import { saveATSApplication, deleteATSApplication } from '@/app/actions/hrm-advanced/ats-recruitment';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { FileDown, Plus, Trash2, Users } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -232,7 +232,7 @@ export default function ClientPage({ initialData }: { initialData: ATSApplicatio
             {isClient && <span className="ml-auto text-sm font-normal text-[var(--st-text-secondary)]">{filteredApplications.length} found</span>}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <VirtualizedApplicationsList 
             applications={filteredApplications}
             selectedIds={selectedIds}
@@ -242,7 +242,7 @@ export default function ClientPage({ initialData }: { initialData: ATSApplicatio
             onDelete={handleDelete}
             isClient={isClient}
           />
-        </CardContent>
+        </CardBody>
       </Card>
 
       <ApplicationFormModal 

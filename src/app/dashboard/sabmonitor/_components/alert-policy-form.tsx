@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 
 import {
     createSabmonitorAlertPolicy,
@@ -75,7 +75,7 @@ export function AlertPolicyForm({
 
     return (
         <Card className="zoruui">
-            <CardContent className="p-4">
+            <CardBody className="p-4">
                 <form className="flex flex-col gap-4" onSubmit={onSubmit}>
                     <div className="flex flex-col gap-1">
                         <Label htmlFor="name">Name</Label>
@@ -145,7 +145,7 @@ export function AlertPolicyForm({
                         </Button>
                     </div>
                 </form>
-            </CardContent>
+            </CardBody>
         </Card>
     );
 }

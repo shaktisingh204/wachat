@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label } from '@/components/sabcrm/20ui';
 import { Mic, MicOff, Video, VideoOff, Loader2 } from 'lucide-react';
 import type { MeetRoom } from '@/app/actions/sabmeet.actions.types';
 import { joinMeetRoom } from '@/app/actions/sabmeet.actions';
@@ -111,7 +111,7 @@ export function LobbyClient({ room }: LobbyClientProps) {
             <CardTitle>Device check</CardTitle>
             <CardDescription>Preview your camera and microphone.</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="aspect-video w-full overflow-hidden rounded-lg bg-black grid place-items-center">
               {requesting ? (
                 <Loader2 className="h-6 w-6 animate-spin text-white" />
@@ -147,7 +147,7 @@ export function LobbyClient({ room }: LobbyClientProps) {
                 {camOn ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
               </Button>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
@@ -157,7 +157,7 @@ export function LobbyClient({ room }: LobbyClientProps) {
               {room.description ?? 'Join the meeting'}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardBody className="space-y-4">
             <div className="grid gap-2">
               <Label htmlFor="displayName">Your name</Label>
               <Input
@@ -193,7 +193,7 @@ export function LobbyClient({ room }: LobbyClientProps) {
             <Button onClick={handleJoin} disabled={joining || requesting} className="w-full">
               {joining ? 'Joining…' : 'Join meeting'}
             </Button>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
     </div>

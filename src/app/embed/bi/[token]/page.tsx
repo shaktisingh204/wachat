@@ -7,7 +7,7 @@
  */
 import { notFound } from 'next/navigation';
 
-import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { resolveEmbedAction } from '@/app/actions/analytics-bi.actions';
 
 export const dynamic = 'force-dynamic';
@@ -57,13 +57,13 @@ export default async function PublicEmbedPage({
                       <Badge variant="outline">{(c.type as string) ?? 'unknown'}</Badge>
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardBody>
                     <p className="text-sm text-[var(--st-text-secondary)]">
                       Embedded chart payloads are rendered by the workbook
                       owner&apos;s saved config. Interactive previews require
                       a logged-in session.
                     </p>
-                  </CardContent>
+                  </CardBody>
                 </Card>
               );
             })}

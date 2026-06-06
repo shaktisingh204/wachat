@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Upload, Plus, Trash2, HelpCircle } from "lucide-react";
-import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Input, Textarea, Label, Card, CardContent, CardHeader, CardTitle, CardDescription, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Switch, Separator, Badge } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Input, Textarea, Label, Card, CardBody, CardHeader, CardTitle, CardDescription, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Switch, Separator, Badge } from '@/components/sabcrm/20ui';
 
 export default function NewProductPage() {
   const params = useParams();
@@ -43,7 +43,7 @@ export default function NewProductPage() {
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardBody className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Title</Label>
                 <Input id="title" placeholder="Short Sleeve T-Shirt" />
@@ -56,7 +56,7 @@ export default function NewProductPage() {
                   className="min-h-[150px]"
                 />
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
 
           <Card>
@@ -64,7 +64,7 @@ export default function NewProductPage() {
               <CardTitle>Media</CardTitle>
               <CardDescription>Add images, videos, or 3D models.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <div className="border-2 border-dashed border-[var(--st-border)] rounded-xl p-10 flex flex-col items-center justify-center text-center bg-[var(--st-bg-secondary)]/50 hover:bg-[var(--st-bg-secondary)] transition-colors cursor-pointer">
                 <div className="w-12 h-12 bg-[var(--st-bg-muted)] rounded-full flex items-center justify-center mb-4">
                   <Upload className="w-6 h-6 text-[var(--st-text-tertiary)]" />
@@ -77,14 +77,14 @@ export default function NewProductPage() {
                   Select Files
                 </Button>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
 
           <Card>
             <CardHeader>
               <CardTitle>Pricing</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="price">Price</Label>
@@ -110,7 +110,7 @@ export default function NewProductPage() {
                   <Switch defaultChecked />
                 </div>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
 
           <Card>
@@ -123,7 +123,7 @@ export default function NewProductPage() {
               </div>
             </CardHeader>
             {hasVariants && (
-              <CardContent className="space-y-6">
+              <CardBody className="space-y-6">
                 <Separator />
                 <div className="space-y-4">
                   <div className="flex items-end gap-4">
@@ -154,7 +154,7 @@ export default function NewProductPage() {
                     Add another option
                   </Button>
                 </div>
-              </CardContent>
+              </CardBody>
             )}
           </Card>
         </div>
@@ -165,7 +165,7 @@ export default function NewProductPage() {
             <CardHeader>
               <CardTitle>Status</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardBody className="space-y-4">
               <Select defaultValue="draft">
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
@@ -188,14 +188,14 @@ export default function NewProductPage() {
               <p className="text-xs text-[var(--st-text-secondary)] leading-relaxed">
                 This product will be hidden from all sales channels.
               </p>
-            </CardContent>
+            </CardBody>
           </Card>
 
           <Card>
             <CardHeader>
               <CardTitle>Organization</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardBody className="space-y-4">
               <div className="space-y-2">
                 <Label>Product type</Label>
                 <Input placeholder="e.g. T-Shirt" />
@@ -212,14 +212,14 @@ export default function NewProductPage() {
                 <Label>Tags</Label>
                 <Input placeholder="Find or create tags" />
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
           
           <Card>
             <CardHeader>
               <CardTitle>Inventory</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardBody className="space-y-4">
               <div className="space-y-2">
                 <Label>SKU (Stock Keeping Unit)</Label>
                 <Input placeholder="e.g. TSHIRT-001" />
@@ -238,7 +238,7 @@ export default function NewProductPage() {
                   <Input type="number" defaultValue="0" />
                 </div>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

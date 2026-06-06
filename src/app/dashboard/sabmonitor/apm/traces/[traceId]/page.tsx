@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
 
-import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
 
 import {
     getSabmonitorTrace,
@@ -34,9 +34,9 @@ export default async function TraceDetailPage({ params }: PageProps): Promise<Re
                 </span>
             </div>
             <Card className="zoruui">
-                <CardContent className="p-4">
+                <CardBody className="p-4">
                     <TraceWaterfall spans={spans.items} />
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

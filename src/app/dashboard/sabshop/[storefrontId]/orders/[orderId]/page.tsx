@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, Badge, Button, Table, TBody, Td, Th, THead, Tr, Separator, Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardFooter, Badge, Button, Table, TBody, Td, Th, THead, Tr, Separator, Avatar, AvatarFallback } from '@/components/sabcrm/20ui';
 import { 
   ArrowLeft, 
   Package, 
@@ -99,7 +99,7 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
             <CardHeader>
               <CardTitle>Order Items</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
                 <Table>
                   <THead className="bg-[var(--st-bg-secondary)]">
@@ -151,7 +151,7 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
                   <span>${ORDER_DETAILS.total.toFixed(2)}</span>
                 </div>
               </div>
-            </CardContent>
+            </CardBody>
             <CardFooter className="bg-[var(--st-bg-secondary)]/50 border-t border-[var(--st-border)] flex justify-end">
               <Button variant="outline">Refund Order</Button>
             </CardFooter>
@@ -162,7 +162,7 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
             <CardHeader>
               <CardTitle>Timeline</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <div className="space-y-0">
                 {ORDER_DETAILS.timeline.map((event, index) => {
                   const Icon = event.icon;
@@ -191,7 +191,7 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
                   );
                 })}
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
         </div>
 
@@ -202,7 +202,7 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
             <CardHeader>
               <CardTitle>Customer</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardBody className="space-y-6">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
                   <AvatarFallback className="bg-[var(--st-bg-secondary)] text-[var(--st-text)] font-semibold border border-[var(--st-border)]">
@@ -230,7 +230,7 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
                   <span>{ORDER_DETAILS.customer.phone}</span>
                 </div>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
 
           {/* Shipping Address */}
@@ -241,7 +241,7 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <div className="flex items-start gap-3 mt-2">
                 <MapPin className="w-4 h-4 text-[var(--st-text-secondary)] mt-1 shrink-0" />
                 <div className="text-sm text-[var(--st-text-secondary)] space-y-1">
@@ -254,7 +254,7 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
                   <p>{ORDER_DETAILS.shippingAddress.country}</p>
                 </div>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
 
           {/* Billing Address */}
@@ -262,11 +262,11 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle>Billing Address</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <p className="text-sm text-[var(--st-text-secondary)] mt-2">
                 Same as shipping address
               </p>
-            </CardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

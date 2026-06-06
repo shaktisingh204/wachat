@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Badge, Button, Card, CardContent, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, EmptyState } from '@/components/sabcrm/20ui';
 import {
   scanSabpublishCitations,
   updateSabpublishCitationStatus,
@@ -58,7 +58,7 @@ export function SabpublishCitationsTab({
         <div className="space-y-3">
           {items.map((c) => (
             <Card key={c._id}>
-              <CardContent className="space-y-2 p-4">
+              <CardBody className="space-y-2 p-4">
                 <div className="flex items-center justify-between">
                   <a
                     href={c.sourceUrl}
@@ -105,7 +105,7 @@ export function SabpublishCitationsTab({
                     Mark resolved
                   </Button>
                 </div>
-              </CardContent>
+              </CardBody>
             </Card>
           ))}
         </div>

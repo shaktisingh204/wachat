@@ -27,7 +27,7 @@ import {
 } from "lucide-react"
 
 import Link from "next/link"
-import { PageHeader, Alert, AlertDescription, AlertTitle, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Button, Input, Label, Textarea, Switch, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@/components/sabcrm/20ui/compat';const MOCK_SEGMENTS = [
+import { PageHeader, Alert, AlertDescription, AlertTitle, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Button, Input, Label, Textarea, Switch, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@/components/sabcrm/20ui';const MOCK_SEGMENTS = [
   { id: 'seg-1', name: 'High Value Customers', count: 12450, lastSync: '2 hours ago', type: 'Dynamic', engagement: 'High' },
   { id: 'seg-2', name: 'Churn Risk (30 days)', count: 3200, lastSync: '5 hours ago', type: 'Dynamic', engagement: 'Low' },
   { id: 'seg-3', name: 'Beta Testers', count: 450, lastSync: '1 day ago', type: 'Static', engagement: 'Very High' },
@@ -189,7 +189,7 @@ export default function CreateCampaignPage() {
                     <CardTitle className="flex items-center gap-2"><Settings2 className="h-5 w-5 text-[var(--st-text)]" /> Campaign Fundamentals</CardTitle>
                     <CardDescription>Define the core details and routing preferences for this broadcast.</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardBody className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="name">Campaign Name</Label>
                       <Input 
@@ -257,7 +257,7 @@ export default function CreateCampaignPage() {
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
-                  </CardContent>
+                  </CardBody>
                 </Card>
               )}
 
@@ -268,7 +268,7 @@ export default function CreateCampaignPage() {
                     <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-[var(--st-text)]" /> Audience Targeting</CardTitle>
                     <CardDescription>Select who will receive this campaign. You can combine multiple segments or apply exclusion rules.</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardBody className="space-y-6">
                     <div className="flex items-center justify-between">
                       <Label className="text-base">Target Segments</Label>
                       <Button variant="outline" size="sm"><Plus className="h-4 w-4 mr-1" /> Create New</Button>
@@ -319,7 +319,7 @@ export default function CreateCampaignPage() {
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
-                  </CardContent>
+                  </CardBody>
                 </Card>
               )}
 
@@ -330,7 +330,7 @@ export default function CreateCampaignPage() {
                     <CardTitle className="flex items-center gap-2"><Megaphone className="h-5 w-5 text-[var(--st-text)]" /> Message Content</CardTitle>
                     <CardDescription>Craft your SMS payload. Use variables to personalize the message for each recipient.</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardBody className="space-y-6">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label>Message Body</Label>
@@ -370,7 +370,7 @@ export default function CreateCampaignPage() {
                         <Switch defaultChecked />
                       </div>
                     </div>
-                  </CardContent>
+                  </CardBody>
                 </Card>
               )}
 
@@ -381,7 +381,7 @@ export default function CreateCampaignPage() {
                     <CardTitle className="flex items-center gap-2"><CalendarClock className="h-5 w-5 text-[var(--st-text)]" /> Schedule & Review</CardTitle>
                     <CardDescription>Final check before your campaign goes live. Set the delivery schedule.</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardBody className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Card 
                         variant={scheduleType === 'now' ? "interactive" : "default"}
@@ -465,7 +465,7 @@ export default function CreateCampaignPage() {
                         </div>
                       </div>
                     </div>
-                  </CardContent>
+                  </CardBody>
                 </Card>
               )}
             </m.div>
@@ -502,7 +502,7 @@ export default function CreateCampaignPage() {
                 <Smartphone className="h-4 w-4 text-[var(--st-text-secondary)]" />
                 <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Device Preview</CardTitle>
               </CardHeader>
-              <CardContent className="p-6 flex justify-center bg-[var(--prism-mesh)] bg-opacity-10 min-h-[400px]">
+              <CardBody className="p-6 flex justify-center bg-[var(--prism-mesh)] bg-opacity-10 min-h-[400px]">
                 {/* Mock iPhone Frame */}
                 <div className="w-[280px] h-[580px] bg-white dark:bg-black rounded-[40px] border-[8px] border-[var(--st-border)] dark:border-[var(--st-border)] shadow-2xl relative overflow-hidden flex flex-col">
                   {/* Notch */}
@@ -529,12 +529,12 @@ export default function CreateCampaignPage() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
+              </CardBody>
             </Card>
 
             {/* Campaign Stats Mini */}
             <Card variant="default">
-              <CardContent className="p-4 space-y-4">
+              <CardBody className="p-4 space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-[var(--st-text)] text-[var(--st-text)] rounded-lg">
                     <BarChart className="h-5 w-5" />
@@ -554,7 +554,7 @@ export default function CreateCampaignPage() {
                     <span className="font-medium">1.2s</span>
                   </div>
                 </div>
-              </CardContent>
+              </CardBody>
             </Card>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
 
 import { listSabmonitorIncidents } from '@/app/actions/sabmonitor.actions';
 import { StatusBadge } from '../_components/status-badge';
@@ -46,7 +46,7 @@ export default async function SabmonitorIncidentsPage({
                 </form>
             </div>
             <Card className="zoruui">
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {res.items.length === 0 ? (
                         <p className="p-4 text-sm text-[var(--st-text-secondary)]">No incidents.</p>
                     ) : (
@@ -83,7 +83,7 @@ export default async function SabmonitorIncidentsPage({
                             </tbody>
                         </table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, use } from 'react';
-import { Badge, Card, Button, Input, Checkbox, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Button, Input, Checkbox, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui';
 import { Search, Download, FileText, Trash, Filter } from 'lucide-react';
-import { zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { toast } from '@/components/sabcrm/20ui';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { TdsAdjustForm } from './tds-adjust-form';
 import { fmtINR } from '@/lib/utils';
@@ -51,7 +51,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                                 ? { ...r, tds: data.payload.tds } 
                                 : r
                         ));
-                        zoruSonnerToast.info('Collaborative Update', {
+                        toast.info('Collaborative Update', {
                             description: `TDS updated for employee ID ${data.payload.id.substring(0,6)}...`
                         });
                     }
@@ -131,7 +131,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
     const handleBulkDelete = () => {
         if (selectedIds.size === 0) return;
         setRows(prev => prev.filter(r => !selectedIds.has(r._id.toString())));
-        zoruSonnerToast.success(`Removed ${selectedIds.size} records temporarily.`);
+        toast.success(`Removed ${selectedIds.size} records temporarily.`);
         setSelectedIds(new Set());
     };
 
@@ -151,13 +151,13 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        zoruSonnerToast.success('Exported to CSV successfully');
+        toast.success('Exported to CSV successfully');
     };
 
     const exportPDF = () => {
         // Simple PDF print implementation
         window.print();
-        zoruSonnerToast.success('Opening print preview for PDF export...');
+        toast.success('Opening print preview for PDF export...');
     };
 
     const handleUpdateTds = async (val: number) => {
@@ -167,11 +167,11 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
             // Optimistic update
             setRows(prev => prev.map(r => r._id === editingRow._id ? { ...r, tds: val } : r));
             setEditingRow(null);
-            zoruSonnerToast.success(`TDS updated to ₹${val} for ${editingRow.employee?.firstName}`);
+            toast.success(`TDS updated to ₹${val} for ${editingRow.employee?.firstName}`);
             
             // In a real app we'd call an API here and catch if it fails to revert
         } catch (error: any) {
-            zoruSonnerToast.error('Failed to update TDS', { description: error.message });
+            toast.error('Failed to update TDS', { description: error.message });
             // Revert state if necessary...
         }
     };

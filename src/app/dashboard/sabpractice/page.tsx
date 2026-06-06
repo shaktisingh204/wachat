@@ -7,7 +7,7 @@ import {
     listSabpracticeEngagements,
     listSabpracticeTimeLogs,
 } from '@/app/actions/sabpractice.actions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, PageHeader, StatCard, EmptyState, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, PageHeader, StatCard, EmptyState, Badge } from '@/components/sabcrm/20ui';
 
 async function OverviewData() {
     const now = new Date();
@@ -61,7 +61,7 @@ async function OverviewData() {
                     <CardTitle>Upcoming deadlines</CardTitle>
                     <CardDescription>Next 30 days, soonest first.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     {upcomingDeadlines.length === 0 ? (
                         <EmptyState
                             title="No upcoming deadlines"
@@ -86,7 +86,7 @@ async function OverviewData() {
                             ))}
                         </ul>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

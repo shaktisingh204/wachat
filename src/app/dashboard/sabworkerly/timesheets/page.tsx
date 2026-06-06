@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Card, CardContent, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
 import { ClockIcon } from 'lucide-react';
 import {
     getSabworkerlyTimesheets,
@@ -32,18 +32,18 @@ export default async function TimesheetsPage() {
             </PageHeader>
 
             <Card>
-                <CardContent className="p-6">
+                <CardBody className="p-6">
                     <h2 className="mb-4 text-lg font-semibold">Log a weekly timesheet</h2>
                     <NewTimesheetForm placements={placements.map((p) => ({
                         id: p._id,
                         label: `${p.workerId.slice(-6)} on ${p.jobId.slice(-6)}`,
                         workerId: p.workerId,
                     }))} />
-                </CardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <CardContent className="p-6">
+                <CardBody className="p-6">
                     <h2 className="mb-4 text-lg font-semibold">
                         Pending approvals ({pending.length})
                     </h2>
@@ -75,11 +75,11 @@ export default async function TimesheetsPage() {
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <CardContent className="p-6">
+                <CardBody className="p-6">
                     <h2 className="mb-4 text-lg font-semibold">All timesheets</h2>
                     {all.length === 0 ? (
                         <EmptyState
@@ -111,7 +111,7 @@ export default async function TimesheetsPage() {
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Table, THead, TBody, Tr, Th, Td, Button, Badge, Input } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Table, THead, TBody, Tr, Th, Td, Button, Badge, Input } from '@/components/sabcrm/20ui';
 import { BarChart2, Plus, LineChart, PieChart, Search, Play, MoreVertical } from 'lucide-react';
 
 const mockCharts = [
@@ -50,10 +50,10 @@ export default function ChartsPage() {
               Bar Charts
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">12</div>
             <p className="text-xs text-muted-foreground mt-1">Active visualisations</p>
-          </CardContent>
+          </CardBody>
         </Card>
         
         <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-100 dark:border-green-900/50">
@@ -63,10 +63,10 @@ export default function ChartsPage() {
               Time Series
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">8</div>
             <p className="text-xs text-muted-foreground mt-1">Active visualisations</p>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-100 dark:border-amber-900/50">
@@ -76,10 +76,10 @@ export default function ChartsPage() {
               Composition
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">4</div>
             <p className="text-xs text-muted-foreground mt-1">Active visualisations</p>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -106,7 +106,7 @@ export default function ChartsPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <Table>
             <THead>
               <Tr>
@@ -152,7 +152,7 @@ export default function ChartsPage() {
               )}
             </TBody>
           </Table>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

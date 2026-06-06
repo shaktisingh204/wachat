@@ -17,10 +17,10 @@ import {
   TerminalSquare,
 } from "lucide-react";
 
-import { PageHeader } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { ScrollArea } from '@/components/sabcrm/20ui/compat';
+import { PageHeader } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { ScrollArea } from '@/components/sabcrm/20ui';
 import { cn } from "@/lib/utils";
 
 type NodeStatus = "success" | "running" | "error" | "pending";
@@ -248,11 +248,11 @@ export default function ExecutionReplayPage({
                           </Badge>
                         </div>
                       </CardHeader>
-                      <CardContent className="p-4 pt-1">
+                      <CardBody className="p-4 pt-1">
                         <p className="text-xs text-[var(--st-text-secondary)] leading-relaxed line-clamp-2">
                           {node.description}
                         </p>
-                      </CardContent>
+                      </CardBody>
                     </Card>
                   </m.div>
                 );

@@ -15,11 +15,11 @@ import {
   TrendingUp,
   Percent
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Switch } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Switch } from '@/components/sabcrm/20ui';
 
 const mockTiers = [
   {
@@ -97,7 +97,7 @@ export default function LoyaltyProgramPage() {
             </div>
             <Switch checked={pointsEnabled} onCheckedChange={setPointsEnabled} />
           </CardHeader>
-          <CardContent className="pt-6 flex-1 space-y-6">
+          <CardBody className="pt-6 flex-1 space-y-6">
             <div className={`space-y-4 ${!pointsEnabled ? "opacity-50 pointer-events-none" : ""}`}>
               <div className="flex items-center justify-between">
                 <div>
@@ -168,7 +168,7 @@ export default function LoyaltyProgramPage() {
                 </div>
               </div>
             </div>
-          </CardContent>
+          </CardBody>
           <CardFooter className="bg-[var(--st-bg-secondary)] py-4 border-t border-[var(--st-border)] flex justify-between rounded-b-[var(--st-radius-lg)]">
              <span className="text-xs text-[var(--st-text-secondary)]">Last modified: 2 days ago</span>
              <Button variant="outline" size="sm">Manage Rules</Button>
@@ -187,7 +187,7 @@ export default function LoyaltyProgramPage() {
             </div>
             <Switch checked={vipEnabled} onCheckedChange={setVipEnabled} />
           </CardHeader>
-          <CardContent className="pt-6 flex-1">
+          <CardBody className="pt-6 flex-1">
             <div className={`space-y-4 ${!vipEnabled ? "opacity-50 pointer-events-none" : ""}`}>
               {mockTiers.map((tier) => (
                 <div key={tier.id} className={`p-4 rounded-[var(--st-radius-lg)] border ${tier.borderColor} bg-[var(--st-bg)] transition-shadow hover:shadow-[var(--st-shadow-md)] relative overflow-hidden group`}>
@@ -225,7 +225,7 @@ export default function LoyaltyProgramPage() {
                 </div>
               ))}
             </div>
-          </CardContent>
+          </CardBody>
           <CardFooter className="bg-[var(--st-bg-secondary)] py-4 border-t border-[var(--st-border)] flex justify-center rounded-b-[var(--st-radius-lg)]">
             <Button variant="ghost" className="w-full text-indigo-500 hover:text-indigo-600">
               + Add New VIP Tier

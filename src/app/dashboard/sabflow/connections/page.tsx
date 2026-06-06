@@ -26,7 +26,7 @@ import {
   Info,
 } from "lucide-react"
 
-import { PageHeader } from '@/components/sabcrm/20ui/compat';import { Card, CardContent, CardFooter, CardHeader } from '@/components/sabcrm/20ui/compat';import { Badge } from '@/components/sabcrm/20ui/compat';import { Button } from '@/components/sabcrm/20ui/compat';import { Input } from '@/components/sabcrm/20ui/compat';import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';import { Progress } from '@/components/sabcrm/20ui/compat';import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';import { fadeInUp, staggerContainer } from "@/lib/motion"
+import { PageHeader } from '@/components/sabcrm/20ui';import { Card, CardBody, CardFooter, CardHeader } from '@/components/sabcrm/20ui';import { Badge } from '@/components/sabcrm/20ui';import { Button } from '@/components/sabcrm/20ui';import { Input } from '@/components/sabcrm/20ui';import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';import { Progress } from '@/components/sabcrm/20ui';import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui';import { fadeInUp, staggerContainer } from "@/lib/motion"
 
 type ConnectionStatus = "Connected" | "Expired" | "Error"
 
@@ -294,7 +294,7 @@ export default function ConnectionsPage() {
                 </DropdownMenu>
               </CardHeader>
               
-              <CardContent className="flex-1 space-y-4">
+              <CardBody className="flex-1 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider">Account</p>
@@ -330,7 +330,7 @@ export default function ConnectionsPage() {
                     <Progress value={conn.usage} className="h-1.5" />
                   </div>
                 )}
-              </CardContent>
+              </CardBody>
 
               <CardFooter className="bg-[var(--st-bg-muted)]/30 pt-4 pb-4 border-t border-[var(--st-border)]/50 flex items-center justify-between mt-auto">
                 <div className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1.5">

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { createScheduleAction } from '@/app/actions/analytics-bi.actions';
 import type { BiScheduleFormat } from '@/lib/rust-client/bi-schedules';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 interface WorkbookRef {
   id: string;
@@ -60,7 +60,7 @@ export function NewSchedulePanel({ workbooks }: { workbooks: WorkbookRef[] }) {
           newline-separated email addresses.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardBody>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="grid gap-1.5">
             <Label htmlFor="sch-name">Name</Label>
@@ -127,7 +127,7 @@ export function NewSchedulePanel({ workbooks }: { workbooks: WorkbookRef[] }) {
             {pending ? 'Saving…' : 'Create schedule'}
           </Button>
         </div>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

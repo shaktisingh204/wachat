@@ -4,7 +4,7 @@
 
 import Link from 'next/link';
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardContent, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardBody, Badge, EmptyState } from '@/components/sabcrm/20ui';
 
 import { getSabConnectGroups } from '@/app/actions/sabconnect.actions';
 import { CreateGroupDialog } from './_components/create-group-dialog';
@@ -40,7 +40,7 @@ export default async function SabConnectGroupsPage() {
                                 className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
                             >
                                 <Card className="h-full transition-shadow hover:shadow-md">
-                                    <CardContent className="flex flex-col gap-2 p-4">
+                                    <CardBody className="flex flex-col gap-2 p-4">
                                         <div className="flex items-start justify-between gap-2">
                                             <h3 className="text-base font-semibold text-[var(--st-text)]">
                                                 {g.name}
@@ -55,7 +55,7 @@ export default async function SabConnectGroupsPage() {
                                         <p className="text-xs text-[var(--st-bg-muted)]">
                                             {g.memberCount ?? g.memberIds?.length ?? 0} members
                                         </p>
-                                    </CardContent>
+                                    </CardBody>
                                 </Card>
                             </Link>
                         </li>

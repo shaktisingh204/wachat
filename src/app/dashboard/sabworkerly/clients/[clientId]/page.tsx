@@ -2,7 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
-import { Button, Card, CardHeader, CardTitle, CardContent, PageHeader, PageTitle, PageActions, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardBody, PageHeader, PageTitle, PageActions, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
 import {
     getSabworkerlyClientById,
     getSabworkerlyJobs,
@@ -50,30 +50,30 @@ export default async function ClientDetailPage({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <Card>
                     <CardHeader><CardTitle>Contact</CardTitle></CardHeader>
-                    <CardContent className="space-y-1 text-sm">
+                    <CardBody className="space-y-1 text-sm">
                         <div>{client.contactName ?? '—'}</div>
                         <div className="text-[color:var(--st-text-secondary)]">{client.contactEmail ?? '—'}</div>
                         <div className="text-[color:var(--st-text-secondary)]">{client.contactPhone ?? '—'}</div>
-                    </CardContent>
+                    </CardBody>
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>Terms</CardTitle></CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <div className="text-2xl font-semibold">NET-{client.paymentTermsDays}</div>
                         <div className="text-xs text-[color:var(--st-text-secondary)]">payment terms</div>
-                    </CardContent>
+                    </CardBody>
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>Status</CardTitle></CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <Badge variant="secondary">{client.status}</Badge>
-                    </CardContent>
+                    </CardBody>
                 </Card>
             </div>
 
             <Card>
                 <CardHeader><CardTitle>Jobs posted ({jobs.length})</CardTitle></CardHeader>
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {jobs.length === 0 ? (
                         <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">No jobs yet.</p>
                     ) : (
@@ -104,12 +104,12 @@ export default async function ClientDetailPage({
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
 
             <Card>
                 <CardHeader><CardTitle>Active placements ({placements.length})</CardTitle></CardHeader>
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {placements.length === 0 ? (
                         <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">No active placements.</p>
                     ) : (
@@ -134,12 +134,12 @@ export default async function ClientDetailPage({
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
 
             <Card>
                 <CardHeader><CardTitle>Invoices ({invoices.length})</CardTitle></CardHeader>
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {invoices.length === 0 ? (
                         <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">No invoices yet.</p>
                     ) : (
@@ -167,7 +167,7 @@ export default async function ClientDetailPage({
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

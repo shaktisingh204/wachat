@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/sabcrm/20ui/compat';
-import { PageHeader, PageHeaderHeading, PageHeaderDescription } from '@/components/sabcrm/20ui/compat';
-import { Table, THead, TBody, Th, Tr, Td } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, CardDescription } from '@/components/sabcrm/20ui';
+import { PageHeader, PageHeaderHeading, PageHeaderDescription } from '@/components/sabcrm/20ui';
+import { Table, THead, TBody, Th, Tr, Td } from '@/components/sabcrm/20ui';
 import { DollarSign, UserCheck, BarChart3, TrendingUp } from "lucide-react";
 
 export default function CohortsPage() {
@@ -46,13 +46,13 @@ export default function CohortsPage() {
             <CardTitle className="text-sm font-medium">Average LTV</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-3xl font-bold">$485.50</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center">
               <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
               <span className="text-green-500 font-medium">+8%</span> vs last year
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
         
         <Card>
@@ -60,13 +60,13 @@ export default function CohortsPage() {
             <CardTitle className="text-sm font-medium">Avg. Orders/Customer</CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-3xl font-bold">3.2</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center">
               <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
               <span className="text-green-500 font-medium">+0.4</span> vs last year
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
         
         <Card>
@@ -74,13 +74,13 @@ export default function CohortsPage() {
             <CardTitle className="text-sm font-medium">Day 30 Retention</CardTitle>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-3xl font-bold">52.4%</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center">
               <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
               <span className="text-green-500 font-medium">+12%</span> vs last year
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
@@ -88,13 +88,13 @@ export default function CohortsPage() {
             <CardTitle className="text-sm font-medium">Repeat Purchase Rate</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-3xl font-bold">38%</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center">
               <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
               <span className="text-green-500 font-medium">+4%</span> vs last year
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -105,7 +105,7 @@ export default function CohortsPage() {
             Percentage of customers returning in subsequent months after their first purchase.
           </CardDescription>
         </CardHeader>
-        <CardContent className="overflow-x-auto">
+        <CardBody className="overflow-x-auto">
           <Table className="min-w-[800px]">
             <THead>
               <Tr>
@@ -138,7 +138,7 @@ export default function CohortsPage() {
               ))}
             </TBody>
           </Table>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

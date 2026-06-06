@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
 
 import { listSabmonitorCheckRuns } from '@/app/actions/sabmonitor.actions';
 import { StatusBadge } from '../../../_components/status-badge';
@@ -32,7 +32,7 @@ export default async function CheckRunsPage({ params }: PageProps): Promise<Reac
                 </Link>
             </div>
             <Card className="zoruui">
-                <CardContent className="p-4">
+                <CardBody className="p-4">
                     <ResponseTimeChart
                         points={ascending.map((r) => ({
                             ts: r.ts,
@@ -40,10 +40,10 @@ export default async function CheckRunsPage({ params }: PageProps): Promise<Reac
                             status: r.status,
                         }))}
                     />
-                </CardContent>
+                </CardBody>
             </Card>
             <Card className="zoruui">
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {runs.items.length === 0 ? (
                         <p className="p-4 text-sm text-[var(--st-text-secondary)]">
                             No runs yet — click <span className="font-medium">Run now</span> to
@@ -81,7 +81,7 @@ export default async function CheckRunsPage({ params }: PageProps): Promise<Reac
                             </tbody>
                         </table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

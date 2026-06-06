@@ -1,7 +1,7 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 
-import { Card, CardHeader, CardTitle, CardContent, PageHeader, PageTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, PageHeader, PageTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
 import {
     getSabworkerlyJobById,
     getSabworkerlyPlacements,
@@ -40,40 +40,40 @@ export default async function JobDetailPage({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 <Card>
                     <CardHeader><CardTitle>Status</CardTitle></CardHeader>
-                    <CardContent><Badge variant="secondary">{job.status}</Badge></CardContent>
+                    <CardBody><Badge variant="secondary">{job.status}</Badge></CardBody>
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>Charge rate</CardTitle></CardHeader>
-                    <CardContent className="text-xl font-semibold">
+                    <CardBody className="text-xl font-semibold">
                         {money(job.hourlyChargeRateMinor, job.currency)}/h
-                    </CardContent>
+                    </CardBody>
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>Pay rate</CardTitle></CardHeader>
-                    <CardContent className="text-xl font-semibold">
+                    <CardBody className="text-xl font-semibold">
                         {money(job.hourlyPayRateMinor, job.currency)}/h
-                    </CardContent>
+                    </CardBody>
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>Margin</CardTitle></CardHeader>
-                    <CardContent className="text-xl font-semibold">
+                    <CardBody className="text-xl font-semibold">
                         {money(job.hourlyChargeRateMinor - job.hourlyPayRateMinor, job.currency)}/h
-                    </CardContent>
+                    </CardBody>
                 </Card>
             </div>
 
             {job.description && (
                 <Card>
                     <CardHeader><CardTitle>Description</CardTitle></CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <p className="whitespace-pre-line text-sm">{job.description}</p>
-                    </CardContent>
+                    </CardBody>
                 </Card>
             )}
 
             <Card>
                 <CardHeader><CardTitle>Place a worker</CardTitle></CardHeader>
-                <CardContent>
+                <CardBody>
                     <PlaceWorkerForm
                         jobId={job._id}
                         defaultChargeMinor={job.hourlyChargeRateMinor}
@@ -81,12 +81,12 @@ export default async function JobDetailPage({
                         defaultStartDate={new Date(job.startDate).toISOString().slice(0, 10)}
                         workers={workers.map((w) => ({ id: w._id, name: w.name }))}
                     />
-                </CardContent>
+                </CardBody>
             </Card>
 
             <Card>
                 <CardHeader><CardTitle>Placements ({placements.length})</CardTitle></CardHeader>
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {placements.length === 0 ? (
                         <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">
                             No workers placed yet.
@@ -113,7 +113,7 @@ export default async function JobDetailPage({
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

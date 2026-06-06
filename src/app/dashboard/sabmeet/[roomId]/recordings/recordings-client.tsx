@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, EmptyState, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Badge, EmptyState, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { ArrowLeft, Video as VideoIcon, FileText } from 'lucide-react';
 import type { MeetRoom, MeetRecording } from '@/app/actions/sabmeet.actions.types';
@@ -110,7 +110,7 @@ function RecordingCard({ recording }: { recording: MeetRecording }) {
             : '—'}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardBody className="space-y-3">
         {playbackUrl ? (
           <video
             src={playbackUrl}
@@ -131,7 +131,7 @@ function RecordingCard({ recording }: { recording: MeetRecording }) {
         {recording.errorMessage ? (
           <div className="text-xs text-[var(--st-text)]">{recording.errorMessage}</div>
         ) : null}
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

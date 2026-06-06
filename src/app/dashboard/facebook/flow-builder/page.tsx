@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, Skeleton, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, Skeleton, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -112,10 +112,10 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
         triggerKeywords: [],
       });
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success(res.message ?? 'Flow created.');
+      toast.success(res.message ?? 'Flow created.');
       setCreateOpen(false);
       setNewName('');
       if (res.flowId) {
@@ -132,10 +132,10 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
     startDelete(async () => {
       const res = await deleteFlow(id);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success(res.message ?? 'Flow deleted.');
+      toast.success(res.message ?? 'Flow deleted.');
       setConfirmDelete(null);
       refresh();
     });

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, CardContent, PageHeader, PageTitle, PageActions, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, PageHeader, PageTitle, PageActions, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
 import { Plus, Users } from 'lucide-react';
 import { getSabworkerlyWorkers } from '@/app/actions/sabworkerly.actions';
 
@@ -40,7 +40,7 @@ export default async function WorkersListPage() {
                 />
             ) : (
                 <Card>
-                    <CardContent className="p-0">
+                    <CardBody className="p-0">
                         <Table>
                             <THead>
                                 <Tr>
@@ -95,7 +95,7 @@ export default async function WorkersListPage() {
                                 ))}
                             </TBody>
                         </Table>
-                    </CardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

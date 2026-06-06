@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { Plus, Search, Eye, EyeOff, MoreHorizontal, Copy, Check, Shield } from "lucide-react"
 
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';import { Button } from '@/components/sabcrm/20ui/compat';import { Badge } from '@/components/sabcrm/20ui/compat';import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui/compat';import { Input } from '@/components/sabcrm/20ui/compat';import { Label } from '@/components/sabcrm/20ui/compat';import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';type EnvVar = {
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';import { Button } from '@/components/sabcrm/20ui';import { Badge } from '@/components/sabcrm/20ui';import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui';import { Input } from '@/components/sabcrm/20ui';import { Label } from '@/components/sabcrm/20ui';import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';type EnvVar = {
   id: string
   key: string
   value: string
@@ -112,7 +112,7 @@ export default function EnvVarsPage() {
             A list of all environment variables configured for this project.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardBody className="p-0">
           <div className="p-4 border-b bg-[var(--st-bg-secondary)]">
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -223,7 +223,7 @@ export default function EnvVarsPage() {
               </TBody>
             </Table>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   )

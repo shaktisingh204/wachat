@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Suspense } from 'react';
 
 import { listSabpracticeFirms } from '@/app/actions/sabpractice.actions';
-import { Card, CardContent, CardHeader, CardTitle, PageHeader } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, PageHeader } from '@/components/sabcrm/20ui';
 
 import { FirmForm } from './_components/firm-form';
 
@@ -23,9 +23,9 @@ async function FirmData() {
                 <CardHeader>
                     <CardTitle>{firm ? 'Edit firm' : 'Create your firm'}</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     <FirmForm initial={firm} />
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

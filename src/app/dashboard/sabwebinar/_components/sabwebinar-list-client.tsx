@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Badge, Input, EmptyState, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Badge, Input, EmptyState, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
 import { Plus, Search, Video, Calendar, Users } from 'lucide-react';
 import type { Sabwebinar, SabwebinarStatus } from '@/app/actions/sabwebinar.actions';
 
@@ -114,7 +114,7 @@ export function SabwebinarListClient({ items }: Props) {
                     {w.description ?? `/${w.slug}`}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-2 text-sm">
+                <CardBody className="flex flex-col gap-2 text-sm">
                   {w.scheduledStart ? (
                     <div className="flex items-center gap-2 opacity-80">
                       <Calendar className="size-4" />
@@ -127,7 +127,7 @@ export function SabwebinarListClient({ items }: Props) {
                       Capacity: {w.capacity}
                     </div>
                   ) : null}
-                </CardContent>
+                </CardBody>
               </Card>
             </Link>
           ))}

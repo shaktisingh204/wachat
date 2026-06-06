@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr, Badge, Button, Tabs, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr, Badge, Button, Tabs, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
 import { Filter, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -62,7 +62,7 @@ export default function OrdersPage({ params }: { params: { storefrontId: string 
           <CardTitle>Order History</CardTitle>
           <CardDescription>View all recent orders from your customers.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex justify-between items-center mb-4">
               <TabsList>
@@ -138,7 +138,7 @@ export default function OrdersPage({ params }: { params: { storefrontId: string 
               </Button>
             </div>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

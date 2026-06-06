@@ -2,14 +2,14 @@
 
 import React from "react";
 import { Plus, Search, FileText, PackageCheck, Clock, AlertCircle, MoreHorizontal } from "lucide-react";
-import { PageHeader } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
-import { StatCard } from '@/components/sabcrm/20ui/compat';
+import { PageHeader } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
+import { StatCard } from '@/components/sabcrm/20ui';
 
 const mockPurchaseOrders = [
   {
@@ -135,7 +135,7 @@ export default function PurchaseOrdersPage() {
             <Button variant="outline">Filter Status</Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <Table>
             <THead>
               <Tr>
@@ -183,7 +183,7 @@ export default function PurchaseOrdersPage() {
               ))}
             </TBody>
           </Table>
-        </CardContent>
+        </CardBody>
         <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">
           <div>Showing 1 to {mockPurchaseOrders.length} of 156 purchase orders</div>
           <div className="flex space-x-2">

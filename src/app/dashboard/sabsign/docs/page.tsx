@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Badge, Button, Card, CardContent, Input } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input } from '@/components/sabcrm/20ui';
 import {
   listSabwriterDocuments,
   createSabwriterDocument,
@@ -173,7 +173,7 @@ export default function SabwriterDocumentsListPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
         {data.map((doc) => (
           <Card key={doc._id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex flex-col gap-3">
+            <CardBody className="p-4 flex flex-col gap-3">
               <div className="flex items-start justify-between gap-2">
                 <Link
                   href={`/dashboard/sabsign/docs/${doc._id}`}
@@ -204,7 +204,7 @@ export default function SabwriterDocumentsListPage() {
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
         ))}
       </div>

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Badge, Button, Card, CardContent, Checkbox, EmptyState, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, EmptyState, Label, Textarea } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   createSabpublishPost,
@@ -75,7 +75,7 @@ export function SabpublishPostsTab({
   return (
     <div className="space-y-6">
       <Card>
-        <CardContent className="space-y-4 p-6">
+        <CardBody className="space-y-4 p-6">
           <div>
             <Label htmlFor="post-body">Post body</Label>
             <Textarea
@@ -146,7 +146,7 @@ export function SabpublishPostsTab({
               Schedule
             </Button>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
 
       <div>
@@ -162,7 +162,7 @@ export function SabpublishPostsTab({
           <div className="space-y-3">
             {posts.map((p) => (
               <Card key={p._id}>
-                <CardContent className="space-y-2 p-4">
+                <CardBody className="space-y-2 p-4">
                   <div className="flex items-center justify-between">
                     <Badge variant="outline">{p.status}</Badge>
                     <span className="text-xs text-[var(--st-text-secondary)]">
@@ -177,7 +177,7 @@ export function SabpublishPostsTab({
                   <div className="text-xs text-[var(--st-text-secondary)]">
                     Providers: {(p.providerIds ?? []).join(', ') || '—'}
                   </div>
-                </CardContent>
+                </CardBody>
               </Card>
             ))}
           </div>

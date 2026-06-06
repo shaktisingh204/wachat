@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardContent, Input, Label, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Switch, Textarea } from '@/components/sabcrm/20ui';
 
 /**
  * Tiny reusable "name + JSON-stepsJson + optional switch" form, shared
@@ -64,7 +64,7 @@ export function JsonEditorForm({
 
     return (
         <Card className="zoruui">
-            <CardContent className="p-4">
+            <CardBody className="p-4">
                 <form className="flex flex-col gap-4" onSubmit={submit}>
                     <div className="flex flex-col gap-1">
                         <Label htmlFor="name">Name</Label>
@@ -100,7 +100,7 @@ export function JsonEditorForm({
                         </Button>
                     </div>
                 </form>
-            </CardContent>
+            </CardBody>
         </Card>
     );
 }

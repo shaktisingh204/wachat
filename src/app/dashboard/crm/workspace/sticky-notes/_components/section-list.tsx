@@ -10,7 +10,7 @@
 import * as React from 'react';
 import { Hash, Plus, Trash2 } from 'lucide-react';
 
-import { Button, Input, ScrollArea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, ScrollArea, toast } from '@/components/sabcrm/20ui';
 import {
   createSabnotebookSection,
   deleteSabnotebookSection,
@@ -46,7 +46,7 @@ export function SectionList({
     });
     setAdding(false);
     if (res.error) {
-      zoruSonnerToast.error(res.error);
+      toast.error(res.error);
       return;
     }
     setDraft('');
@@ -59,7 +59,7 @@ export function SectionList({
       if (!confirm('Delete this section and all its notes?')) return;
       const res = await deleteSabnotebookSection(id, notebookId);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
       onChanged();

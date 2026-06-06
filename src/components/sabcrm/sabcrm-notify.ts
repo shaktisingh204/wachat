@@ -7,9 +7,9 @@
  * mention actions into ZoruUI toasts. It owns **no** global state of its own:
  * it is a pure mapping from "what just happened" → a ZoruUI toast payload,
  * delegating every side effect to the shared ZoruUI toast queue
- * ({@link zoruToast}, mounted once via `<ZoruToaster />` at the app root).
+ * ({@link toast}, mounted once via `<ZoruToaster />` at the app root).
  *
- * Why a dedicated module (vs. calling `zoruToast` inline at each call site):
+ * Why a dedicated module (vs. calling `toast` inline at each call site):
  *  - One place decides the copy, the variant (success / info / destructive),
  *    and the title vs. description split for assignment + mention events, so
  *    every surface (record table, board, detail, command menu, related rail)
@@ -40,7 +40,7 @@
  * pulling in server-only code.
  */
 
-import { zoruToast, type ZoruToastInput } from '@/components/sabcrm/20ui/compat';
+import { toast, type ZoruToastInput } from '@/components/sabcrm/20ui/compat';
 
 // ── Public input shapes ─────────────────────────────────────────────────────
 // These are intentionally UI-facing (already-resolved labels/names), not raw
@@ -103,7 +103,7 @@ function emit(
   // surfaces here at build time rather than being silently dropped.
   const payload: ZoruToastInput = { title, variant };
   if (description) payload.description = description;
-  zoruToast(payload);
+  toast(payload);
 }
 
 function joinNames(names: string[]): string {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Suspense } from 'react';
 
 import { listSabpracticeTimeLogs } from '@/app/actions/sabpractice.actions';
-import { Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, PageHeader, StatCard, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle, EmptyState, PageHeader, StatCard, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 import { LogTimeForm } from './_components/log-time-form';
 
@@ -67,16 +67,16 @@ async function TimeData() {
                 <CardHeader>
                     <CardTitle>Log time</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     <LogTimeForm />
-                </CardContent>
+                </CardBody>
             </Card>
 
             <Card>
                 <CardHeader>
                     <CardTitle>By day</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     <Table>
                         <THead>
                             <Tr>
@@ -104,14 +104,14 @@ async function TimeData() {
                             })}
                         </TBody>
                     </Table>
-                </CardContent>
+                </CardBody>
             </Card>
 
             <Card>
                 <CardHeader>
                     <CardTitle>Entries</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     {list.items.length === 0 ? (
                         <EmptyState
                             title="No time logged this week"
@@ -149,7 +149,7 @@ async function TimeData() {
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

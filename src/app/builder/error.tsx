@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/sabcrm/20ui';
 
 export default function BuilderError({
     error,
@@ -24,11 +24,11 @@ export default function BuilderError({
                         We encountered an error while trying to load or create your project.
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     <div className="text-sm text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] p-4 rounded-md overflow-auto break-all">
                         {error.message || 'Unknown error occurred'}
                     </div>
-                </CardContent>
+                </CardBody>
                 <CardFooter className="flex justify-end gap-2">
                     <Button variant="outline" onClick={() => window.location.href = '/dashboard'}>
                         Go to Dashboard

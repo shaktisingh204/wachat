@@ -1,7 +1,7 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 
-import { Card, CardHeader, CardTitle, CardContent, PageHeader, PageTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, PageHeader, PageTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
 import {
     getSabworkerlyWorkerById,
     getSabworkerlyPlacements,
@@ -46,7 +46,7 @@ export default async function WorkerDetailPage({
                     <CardHeader>
                         <CardTitle>Profile</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex flex-col gap-2 text-sm">
+                    <CardBody className="flex flex-col gap-2 text-sm">
                         <div className="flex justify-between">
                             <span className="text-[color:var(--st-text-secondary)]">Email</span>
                             <span>{worker.email}</span>
@@ -70,13 +70,13 @@ export default async function WorkerDetailPage({
                                 <Badge key={s} variant="outline">{s}</Badge>
                             ))}
                         </div>
-                    </CardContent>
+                    </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
                         <CardTitle>Documents</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         {(worker.documentIds ?? []).length === 0 ? (
                             <p className="text-sm text-[color:var(--st-text-secondary)]">
                                 No documents attached.
@@ -90,20 +90,20 @@ export default async function WorkerDetailPage({
                                 ))}
                             </ul>
                         )}
-                    </CardContent>
+                    </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
                         <CardTitle>Earnings (approved + invoiced)</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <div className="text-3xl font-semibold">
                             {money(earningsMinor, worker.currency)}
                         </div>
                         <div className="text-xs text-[color:var(--st-text-secondary)]">
                             {timesheets.length} timesheet(s) on file
                         </div>
-                    </CardContent>
+                    </CardBody>
                 </Card>
             </div>
 
@@ -111,7 +111,7 @@ export default async function WorkerDetailPage({
                 <CardHeader>
                     <CardTitle>Placement history</CardTitle>
                 </CardHeader>
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {placements.length === 0 ? (
                         <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">
                             No placements yet.
@@ -146,7 +146,7 @@ export default async function WorkerDetailPage({
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

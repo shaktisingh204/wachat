@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Skeleton, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Skeleton, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -132,10 +132,10 @@ export default function KnowledgeBasePage(): React.JSX.Element {
       fd.set('blobUrl', pendingFile.url);
       const res = await uploadKnowledgeDoc(undefined, fd);
       if (res.error) {
-        zoruSonnerToast.error(res.error);
+        toast.error(res.error);
         return;
       }
-      zoruSonnerToast.success(res.message ?? 'Document added.');
+      toast.success(res.message ?? 'Document added.');
       setPendingFile(null);
       setTitle('');
       refresh();
@@ -149,10 +149,10 @@ export default function KnowledgeBasePage(): React.JSX.Element {
     startDelete(async () => {
       const res = await deleteKnowledgeDoc(id);
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? 'Could not delete document.');
+        toast.error(res.error ?? 'Could not delete document.');
         return;
       }
-      zoruSonnerToast.success('Document deleted.');
+      toast.success('Document deleted.');
       setConfirmDelete(null);
       refresh();
     });

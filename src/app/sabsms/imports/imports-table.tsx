@@ -34,7 +34,7 @@ import {
   type SabsmsRowAction,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import { Badge, Progress, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Progress, toast } from '@/components/sabcrm/20ui';
 
 import { ImportsWizard } from "./wizard";
 import {
@@ -166,10 +166,10 @@ export function ImportsTable({
   ) {
     const result = await fn();
     if (result.ok) {
-      zoruSonnerToast.success(`${label} succeeded.`);
+      toast.success(`${label} succeeded.`);
       handleRefresh();
     } else {
-      zoruSonnerToast.error(`${label} failed: ${result.error}`);
+      toast.error(`${label} failed: ${result.error}`);
     }
   }
 
@@ -403,7 +403,7 @@ export function ImportsTable({
             icon: <X className="h-3.5 w-3.5" />,
             onSelect: async (rows) => {
               await Promise.all(rows.map((r) => cancelImport(r.id)));
-              zoruSonnerToast.success(`Cancelled ${rows.length} import(s).`);
+              toast.success(`Cancelled ${rows.length} import(s).`);
               handleRefresh();
             },
           },
@@ -413,7 +413,7 @@ export function ImportsTable({
             destructive: true,
             onSelect: async (rows) => {
               await Promise.all(rows.map((r) => deleteImport(r.id)));
-              zoruSonnerToast.success(`Deleted ${rows.length} import(s).`);
+              toast.success(`Deleted ${rows.length} import(s).`);
               setSelectedIds([]);
               handleRefresh();
             },

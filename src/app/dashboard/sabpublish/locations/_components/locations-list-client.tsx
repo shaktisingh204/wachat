@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Badge, Button, Card, CardContent, EmptyState, PageHeader, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, EmptyState, PageHeader, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 
 export function SabpublishLocationsListClient({
@@ -34,7 +34,7 @@ export function SabpublishLocationsListClient({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {initial.map((loc) => (
             <Card key={loc._id}>
-              <CardContent className="space-y-2 p-4">
+              <CardBody className="space-y-2 p-4">
                 <div className="flex items-center justify-between">
                   <Link
                     href={`/dashboard/sabpublish/locations/${loc._id}`}
@@ -54,7 +54,7 @@ export function SabpublishLocationsListClient({
                     {loc.phone}
                   </div>
                 ) : null}
-              </CardContent>
+              </CardBody>
             </Card>
           ))}
         </div>

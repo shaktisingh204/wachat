@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { Users, ShoppingCart, Globe, Activity, ArrowUpRight, ArrowDownRight, MapPin } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { PageHeader, PageHeaderHeading, PageHeaderDescription } from '@/components/sabcrm/20ui/compat';
-import { Progress } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, CardDescription, CardFooter } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { PageHeader, PageHeaderHeading, PageHeaderDescription } from '@/components/sabcrm/20ui';
+import { Progress } from '@/components/sabcrm/20ui';
 
 export default function LiveAnalyticsPage() {
   const [activeVisitors, setActiveVisitors] = useState(142);
@@ -63,13 +63,13 @@ export default function LiveAnalyticsPage() {
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-4xl font-bold">{activeVisitors}</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center">
               <ArrowUpRight className="h-3 w-3 mr-1 text-green-500" />
               <span className="text-green-500 font-medium">+12%</span> from last hour
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
         
         <Card>
@@ -79,13 +79,13 @@ export default function LiveAnalyticsPage() {
             </CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-4xl font-bold">${liveCartTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center">
               <Activity className="h-3 w-3 mr-1 text-blue-500" />
               <span>Updating in real-time</span>
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
         
         <Card>
@@ -95,12 +95,12 @@ export default function LiveAnalyticsPage() {
             </CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-4xl font-bold">{Math.floor(activeVisitors * 0.45)}</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center">
               <span className="font-medium">45%</span> of visitors
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
@@ -110,13 +110,13 @@ export default function LiveAnalyticsPage() {
             </CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-4xl font-bold">14</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center">
               <ArrowDownRight className="h-3 w-3 mr-1 text-red-500" />
               <span className="text-red-500 font-medium">-2</span> from last 5 mins
             </p>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -128,7 +128,7 @@ export default function LiveAnalyticsPage() {
               Geographic distribution of your current visitors.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="space-y-6">
               {activeCountries.map((country, idx) => (
                 <div key={idx} className="flex items-center">
@@ -148,7 +148,7 @@ export default function LiveAnalyticsPage() {
                 </div>
               ))}
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
         
         <Card className="col-span-3">
@@ -158,7 +158,7 @@ export default function LiveAnalyticsPage() {
               Pages with the most active visitors right now.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="space-y-4">
               {topPages.map((page, idx) => (
                 <div key={idx} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
@@ -173,7 +173,7 @@ export default function LiveAnalyticsPage() {
                 </div>
               ))}
             </div>
-          </CardContent>
+          </CardBody>
           <CardFooter>
             <p className="text-xs text-muted-foreground text-center w-full">
               Updated every 5 seconds

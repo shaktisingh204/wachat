@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { listSabpracticeDocumentRequests } from '@/app/actions/sabpractice.actions';
-import { Badge, Card, CardContent, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 async function DocRequestsData() {
     const list = await listSabpracticeDocumentRequests({ status: 'open', limit: 200 });
@@ -20,7 +20,7 @@ async function DocRequestsData() {
             </PageHeader>
 
             <Card>
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {list.items.length === 0 ? (
                         <EmptyState
                             title="Nothing pending"
@@ -70,7 +70,7 @@ async function DocRequestsData() {
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

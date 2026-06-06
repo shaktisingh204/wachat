@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Textarea, zoruSonnerToast, Checkbox, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Label, Input, Switch } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Textarea, toast, Checkbox, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Label, Input, Switch } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -135,10 +135,10 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
       };
       const res = await saveVisitorPostSpamRules(projectId, rules);
       if (res.success) {
-        zoruSonnerToast.success('Spam rules updated successfully.');
+        toast.success('Spam rules updated successfully.');
         setIsSpamRulesOpen(false);
       } else {
-        zoruSonnerToast.error(res.error ?? 'Failed to save rules.');
+        toast.error(res.error ?? 'Failed to save rules.');
       }
     });
   };
@@ -174,7 +174,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
     if (!selected || !projectId) return;
     const msg = replyText.trim();
     if (!msg) {
-      zoruSonnerToast.error('Reply cannot be empty.');
+      toast.error('Reply cannot be empty.');
       return;
     }
     startReplying(async () => {
@@ -187,10 +187,10 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
         fd,
       );
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? 'Failed to post reply.');
+        toast.error(res.error ?? 'Failed to post reply.');
         return;
       }
-      zoruSonnerToast.success('Reply posted.');
+      toast.success('Reply posted.');
       setReplyText('');
     });
   };
@@ -200,10 +200,10 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
     startActing(async () => {
       const res = await handleDeleteComment(selected.id, projectId);
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? 'Failed to delete.');
+        toast.error(res.error ?? 'Failed to delete.');
         return;
       }
-      zoruSonnerToast.success('Visitor post deleted.');
+      toast.success('Visitor post deleted.');
       closeSheet();
       refresh();
     });
@@ -214,10 +214,10 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
     startActing(async () => {
       const res = await handleHideVisitorPost(selected.id, projectId);
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? 'Failed to hide post.');
+        toast.error(res.error ?? 'Failed to hide post.');
         return;
       }
-      zoruSonnerToast.success('Visitor post hidden.');
+      toast.success('Visitor post hidden.');
       closeSheet();
       refresh();
     });
@@ -228,10 +228,10 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
     startActing(async () => {
       const res = await handleMarkVisitorPostSpam(selected.id, projectId);
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? 'Failed to mark as spam.');
+        toast.error(res.error ?? 'Failed to mark as spam.');
         return;
       }
-      zoruSonnerToast.success('Visitor post marked as spam.');
+      toast.success('Visitor post marked as spam.');
       closeSheet();
       refresh();
     });
@@ -242,10 +242,10 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
     startActing(async () => {
       const res = await handleLikeObject(selected.id, projectId);
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? 'Failed to like.');
+        toast.error(res.error ?? 'Failed to like.');
         return;
       }
-      zoruSonnerToast.success('Liked.');
+      toast.success('Liked.');
     });
   };
 
@@ -270,9 +270,9 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
       }
 
       if (failCount === 0) {
-        zoruSonnerToast.success(`Successfully processed ${successCount} post(s).`);
+        toast.success(`Successfully processed ${successCount} post(s).`);
       } else {
-        zoruSonnerToast.warning(`Processed ${successCount}, failed ${failCount}.`);
+        toast.warning(`Processed ${successCount}, failed ${failCount}.`);
       }
       setSelectedIds(new Set());
       refresh();

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Button, toast } from '@/components/sabcrm/20ui';
 import { useRouter } from 'next/navigation';
 import { Printer } from 'lucide-react';
 
@@ -47,12 +47,12 @@ export function PosSessionDetailActions({ sessionId, status }: Props) {
         try {
             const res = await closePosSession({ id: sessionId, closingCash });
             if (res.success) {
-                zoruSonnerToast.success(
+                toast.success(
                     `Session closed. Discrepancy: ${inr.format(res.discrepancy ?? 0)}.`,
                 );
                 router.refresh();
             } else {
-                zoruSonnerToast.error(res.error ?? 'Failed to close.');
+                toast.error(res.error ?? 'Failed to close.');
             }
         } finally {
             setPending(false);
@@ -64,10 +64,10 @@ export function PosSessionDetailActions({ sessionId, status }: Props) {
         try {
             const res = await reconcilePosSession(sessionId);
             if (res.success) {
-                zoruSonnerToast.success('Session reconciled.');
+                toast.success('Session reconciled.');
                 router.refresh();
             } else {
-                zoruSonnerToast.error(res.error ?? 'Failed to reconcile.');
+                toast.error(res.error ?? 'Failed to reconcile.');
             }
         } finally {
             setPending(false);
@@ -82,10 +82,10 @@ export function PosSessionDetailActions({ sessionId, status }: Props) {
         try {
             const res = await archivePosSession(sessionId);
             if (res.success) {
-                zoruSonnerToast.success('Session archived.');
+                toast.success('Session archived.');
                 router.push('/dashboard/crm/pos/sessions');
             } else {
-                zoruSonnerToast.error(res.error ?? 'Failed to archive.');
+                toast.error(res.error ?? 'Failed to archive.');
             }
         } finally {
             setPending(false);

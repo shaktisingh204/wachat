@@ -14,12 +14,12 @@ import {
   ThumbsUp,
   ExternalLink
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/sabcrm/20ui/compat';
-import { Table, THead, TBody, Th, Tr, Td } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui';
+import { Table, THead, TBody, Th, Tr, Td } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
 
 const mockReviews = [
   {
@@ -154,7 +154,7 @@ export default function ReviewsModerationPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="shadow-none border-[var(--st-border)]">
-          <CardContent className="pt-6">
+          <CardBody className="pt-6">
             <p className="text-sm font-medium text-[var(--st-text-secondary)] mb-1">Pending Review</p>
             <div className="flex items-center gap-2">
               <h2 className="text-3xl font-bold text-amber-500">24</h2>
@@ -162,34 +162,34 @@ export default function ReviewsModerationPage() {
                 Needs action
               </span>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card className="shadow-none border-[var(--st-border)]">
-          <CardContent className="pt-6">
+          <CardBody className="pt-6">
             <p className="text-sm font-medium text-[var(--st-text-secondary)] mb-1">Approved Today</p>
             <div className="flex items-center gap-2">
               <h2 className="text-3xl font-bold text-[var(--st-text)]">142</h2>
               <span className="text-xs font-medium text-emerald-500">+12%</span>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card className="shadow-none border-[var(--st-border)]">
-          <CardContent className="pt-6">
+          <CardBody className="pt-6">
             <p className="text-sm font-medium text-[var(--st-text-secondary)] mb-1">Average Rating</p>
             <div className="flex items-center gap-2">
               <h2 className="text-3xl font-bold text-[var(--st-text)]">4.8</h2>
               <RatingStars rating={5} />
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card className="shadow-none border-[var(--st-border)] bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
-          <CardContent className="pt-6">
+          <CardBody className="pt-6">
             <p className="text-sm font-medium text-indigo-600 mb-1">AI Sentiment</p>
             <div className="flex items-center gap-2">
               <h2 className="text-3xl font-bold text-indigo-700">92%</h2>
               <span className="text-xs font-medium text-indigo-600">Positive</span>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -223,7 +223,7 @@ export default function ReviewsModerationPage() {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-0 flex-1 overflow-auto">
+        <CardBody className="p-0 flex-1 overflow-auto">
           <Table>
             <THead>
               <Tr>
@@ -321,7 +321,7 @@ export default function ReviewsModerationPage() {
               ))}
             </TBody>
           </Table>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

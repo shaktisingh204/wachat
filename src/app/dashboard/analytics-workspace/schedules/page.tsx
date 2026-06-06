@@ -3,7 +3,7 @@
  */
 import Link from 'next/link';
 
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui';
 import {
   listSchedulesAction,
   listWorkbooksAction,
@@ -47,7 +47,7 @@ export default async function SchedulesPage() {
             populated after the first tick.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           {schedules.length === 0 ? (
             <p className="text-sm text-[var(--st-text-secondary)]">No scheduled reports.</p>
           ) : (
@@ -80,7 +80,7 @@ export default async function SchedulesPage() {
               </TBody>
             </Table>
           )}
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

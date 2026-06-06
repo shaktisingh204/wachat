@@ -2,7 +2,7 @@
  * SabConnect — manuals / wiki list (tree view of top-level pages).
  */
 
-import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardContent, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardBody, Badge, EmptyState } from '@/components/sabcrm/20ui';
 
 import { getSabConnectManuals } from '@/app/actions/sabconnect.actions';
 import { CreateManualDialog } from './_components/create-manual-dialog';
@@ -34,7 +34,7 @@ export default async function SabConnectManualsPage() {
                     {items.map((m) => (
                         <li key={m._id}>
                             <Card>
-                                <CardContent className="flex flex-col gap-2 p-4">
+                                <CardBody className="flex flex-col gap-2 p-4">
                                     <div className="flex items-start justify-between gap-2">
                                         <h3 className="text-base font-semibold text-[var(--st-text)]">
                                             {m.title}
@@ -45,7 +45,7 @@ export default async function SabConnectManualsPage() {
                                     </div>
                                     <p className="line-clamp-3 text-sm text-[var(--st-bg-muted)]">{m.body}</p>
                                     <p className="text-xs text-[var(--st-bg-muted)]">v{m.version ?? 1}</p>
-                                </CardContent>
+                                </CardBody>
                             </Card>
                         </li>
                     ))}

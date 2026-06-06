@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { SabsmsPageShell } from '@/components/sabsms/page-toolkit';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Tabs, TabsList, TabsTrigger, TabsContent, Switch, Button, Label, Badge, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Tabs, TabsList, TabsTrigger, TabsContent, Switch, Button, Label, Badge, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { 
   Bell, CheckCircle2, Download, Upload, Trash2, 
   RefreshCcw, Search, MessageSquare, Mail, Slack, 
@@ -125,7 +125,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                 <CardHeader>
                   <CardTitle className="text-base">Global Toggles</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardBody className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>Mute All Notifications</Label>
@@ -147,14 +147,14 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                     </div>
                     <Switch checked={config.aiDailySummary} onCheckedChange={() => handleToggle('aiDailySummary')} />
                   </div>
-                </CardContent>
+                </CardBody>
               </Card>
 
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">Delivery Preferences</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardBody className="space-y-6">
                   <div className="space-y-2">
                     <Label>Digest Mode</Label>
                     <Select value={config.digestMode} onValueChange={(val) => setConfig({...config, digestMode: val})}>
@@ -207,7 +207,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                       </div>
                     )}
                   </div>
-                </CardContent>
+                </CardBody>
               </Card>
             </div>
           </TabsContent>
@@ -218,7 +218,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                 <CardTitle className="text-base">Event Subscriptions</CardTitle>
                 <CardDescription>Map system events to specific notification channels.</CardDescription>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardBody className="p-0">
                 <div className="divide-y border rounded-md">
                   {config.events.map((evt: any, i: number) => (
                     <div key={evt.id} className="bg-[var(--st-bg-secondary)] flex flex-col border-b last:border-b-0">
@@ -277,7 +277,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                     </div>
                   ))}
                 </div>
-              </CardContent>
+              </CardBody>
             </Card>
           </TabsContent>
 
@@ -291,7 +291,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                     </CardTitle>
                     <Switch checked={ch.enabled} onCheckedChange={() => handleChannelToggle(i)} />
                   </CardHeader>
-                  <CardContent className="flex-1 pb-2 space-y-4">
+                  <CardBody className="flex-1 pb-2 space-y-4">
                     <p className="text-xs text-[var(--st-text-secondary)] capitalize">
                       Type: {ch.type}
                     </p>
@@ -320,7 +320,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                         </div>
                       </div>
                     )}
-                  </CardContent>
+                  </CardBody>
                   <CardFooter>
                     <Button variant="secondary" size="sm" className="w-full" onClick={() => handleTestSend(ch.name)} disabled={!ch.enabled}>
                       <Play className="mr-2 h-3 w-3" /> Test Send
@@ -337,7 +337,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                 <CardTitle className="text-base">Recipient Overrides</CardTitle>
                 <CardDescription>Individual team members who have overridden defaults.</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 {config.recipientOverrides.length > 0 ? (
                   <div className="divide-y border rounded-md">
                     {config.recipientOverrides.map((ro: any, idx: number) => (
@@ -352,7 +352,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                 ) : (
                   <p className="text-sm text-[var(--st-text-secondary)]">No active overrides.</p>
                 )}
-              </CardContent>
+              </CardBody>
             </Card>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -360,7 +360,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                 <CardHeader>
                   <CardTitle className="text-base text-[var(--st-text)]">Danger Zone</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardBody className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">Bulk Unsubscribe</p>
@@ -375,7 +375,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                     </div>
                     <Button variant="outline" size="sm" onClick={handleRestoreDefaults}>Restore</Button>
                   </div>
-                </CardContent>
+                </CardBody>
               </Card>
 
               <Card>
@@ -383,7 +383,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                   <CardTitle className="text-base">Audit Trail</CardTitle>
                   <CardDescription>Recent changes to notification configuration.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="h-6 w-6 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center shrink-0">
@@ -405,7 +405,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                     </div>
                     <Button variant="link" size="sm" className="px-0">View full audit log &rarr;</Button>
                   </div>
-                </CardContent>
+                </CardBody>
               </Card>
             </div>
           </TabsContent>

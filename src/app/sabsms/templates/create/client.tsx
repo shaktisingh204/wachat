@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Input, Textarea, Button, Label, Badge, ScrollArea, Alert, AlertDescription, AlertTitle, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Input, Textarea, Button, Label, Badge, ScrollArea, Alert, AlertDescription, AlertTitle, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/sabcrm/20ui';
 import { 
   MessageSquare, 
   Save, 
@@ -271,7 +271,7 @@ export default function CreateSMSTemplatePage() {
                     Template Details
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardBody className="space-y-4">
                   <div className="grid gap-2">
                     <Label htmlFor="name">Template Name</Label>
                     <Input 
@@ -290,7 +290,7 @@ export default function CreateSMSTemplatePage() {
                       className="bg-[var(--st-bg-secondary)]"
                     />
                   </div>
-                </CardContent>
+                </CardBody>
               </Card>
 
               <Card className="border-[var(--st-border)]/50 shadow-sm border-primary/20">
@@ -303,7 +303,7 @@ export default function CreateSMSTemplatePage() {
                     Use {'{{variable_name}}'} syntax to insert dynamic content.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                   <div className="grid gap-2">
                     <Textarea 
                       placeholder="Type your message here..." 
@@ -312,7 +312,7 @@ export default function CreateSMSTemplatePage() {
                       onChange={(e) => setTemplateContent(e.target.value)}
                     />
                   </div>
-                </CardContent>
+                </CardBody>
               </Card>
 
               {extractedVariables.length > 0 && (
@@ -326,7 +326,7 @@ export default function CreateSMSTemplatePage() {
                       Provide mock values to preview your message realistically.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardBody>
                     <div className="grid gap-4 sm:grid-cols-2">
                       {extractedVariables.map((v) => (
                         <div key={v} className="grid gap-2">
@@ -344,7 +344,7 @@ export default function CreateSMSTemplatePage() {
                         </div>
                       ))}
                     </div>
-                  </CardContent>
+                  </CardBody>
                 </Card>
               )}
 
@@ -368,7 +368,7 @@ export default function CreateSMSTemplatePage() {
                       Delivery Analysis
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardBody>
                     <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                       <div className="space-y-1">
                         <p className="text-[10px] text-[var(--st-text-secondary)] uppercase tracking-wider font-semibold">Encoding</p>
@@ -407,7 +407,7 @@ export default function CreateSMSTemplatePage() {
                         <p className="text-xs">Non-GSM characters detected. Message length reduced to 70 chars per part.</p>
                       </div>
                     )}
-                  </CardContent>
+                  </CardBody>
                 </Card>
 
                 <div className="flex justify-center pt-4">

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
 
 import {
     listSabmonitorChecks,
@@ -35,12 +35,12 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
             <div className="grid gap-3 md:grid-cols-4">
                 {stats.map((s) => (
                     <Card key={s.label} className="zoruui">
-                        <CardContent className="flex flex-col gap-1 p-4">
+                        <CardBody className="flex flex-col gap-1 p-4">
                             <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 {s.label}
                             </span>
                             <span className={`text-2xl font-semibold ${s.tone}`}>{s.value}</span>
-                        </CardContent>
+                        </CardBody>
                     </Card>
                 ))}
             </div>
@@ -56,7 +56,7 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
                     </Link>
                 </div>
                 <Card className="zoruui">
-                    <CardContent className="p-0">
+                    <CardBody className="p-0">
                         {ongoingRes.items.length === 0 ? (
                             <p className="p-4 text-sm text-[var(--st-text-secondary)]">
                                 No ongoing incidents — every check is healthy.
@@ -83,14 +83,14 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
                                 ))}
                             </ul>
                         )}
-                    </CardContent>
+                    </CardBody>
                 </Card>
             </section>
 
             <section className="flex flex-col gap-3">
                 <h2 className="text-sm font-semibold text-[var(--st-text)]">Slowest recent checks</h2>
                 <Card className="zoruui">
-                    <CardContent className="p-0">
+                    <CardBody className="p-0">
                         {checksRes.items.length === 0 ? (
                             <p className="p-4 text-sm text-[var(--st-text-secondary)]">
                                 No checks configured yet.{' '}
@@ -122,7 +122,7 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
                                 ))}
                             </ul>
                         )}
-                    </CardContent>
+                    </CardBody>
                 </Card>
             </section>
         </div>

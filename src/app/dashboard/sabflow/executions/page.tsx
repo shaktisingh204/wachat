@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { 
   MoreHorizontal, 
   Search, 
@@ -148,40 +148,40 @@ export default function ExecutionsPage() {
             <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Total Executions</CardTitle>
             <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">12,453</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">+14% from last month</p>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card className="bg-[var(--st-bg-secondary)]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Success Rate</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">98.2%</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">+0.2% from last week</p>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card className="bg-[var(--st-bg-secondary)]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Failed (24h)</CardTitle>
             <XCircle className="h-4 w-4 text-[var(--st-text)]" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">23</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">Requires attention</p>
-          </CardContent>
+          </CardBody>
         </Card>
         <Card className="bg-[var(--st-bg-secondary)]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Avg Latency</CardTitle>
             <Clock className="h-4 w-4 text-[var(--st-text)]" />
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">1.2s</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">-0.1s from last week</p>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -237,7 +237,7 @@ export default function ExecutionsPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardBody className="p-0">
           <Table>
             <THead>
               <Tr className="bg-[var(--st-bg-muted)]/40 hover:bg-[var(--st-bg-muted)]/40">
@@ -318,7 +318,7 @@ export default function ExecutionsPage() {
               )}
             </TBody>
           </Table>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

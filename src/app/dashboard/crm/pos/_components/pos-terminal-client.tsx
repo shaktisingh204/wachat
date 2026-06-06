@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, Input, Label, Textarea, zoruSonnerToast, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea, toast, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui';
 import {
   Banknote,
   CreditCard,
@@ -228,7 +228,7 @@ export function PosTerminalClient({
 
     const onCheckout = async () => {
         if (cart.length === 0) {
-            zoruSonnerToast.error('Add at least one item before checkout.');
+            toast.error('Add at least one item before checkout.');
             return;
         }
         let paymentSplits: PosPaymentSplit[] | null = null;
@@ -238,7 +238,7 @@ export function PosTerminalClient({
             const upi = Number(splitUpi) || 0;
             const sum = cash + card + upi;
             if (Math.abs(sum - totals.total) > 0.01) {
-                zoruSonnerToast.error(
+                toast.error(
                     `Split totals (${fmtMoney(sum)}) don't match cart total (${fmtMoney(totals.total)}).`,
                 );
                 return;
@@ -285,11 +285,11 @@ export function PosTerminalClient({
                 setSplitCash('0');
                 setSplitCard('0');
                 setSplitUpi('0');
-                zoruSonnerToast.success(
+                toast.success(
                     `Transaction ${res.transactionNumber} recorded.`,
                 );
             } else {
-                zoruSonnerToast.error(res.error ?? 'Checkout failed.');
+                toast.error(res.error ?? 'Checkout failed.');
             }
         } finally {
             setSubmitting(false);
@@ -298,7 +298,7 @@ export function PosTerminalClient({
 
     const onHold = async () => {
         if (cart.length === 0) {
-            zoruSonnerToast.error('Add at least one item before holding.');
+            toast.error('Add at least one item before holding.');
             return;
         }
         setSubmitting(true);
@@ -310,12 +310,12 @@ export function PosTerminalClient({
                 holdReason: holdReason || undefined,
             });
             if (res.success) {
-                zoruSonnerToast.success('Ticket held.');
+                toast.success('Ticket held.');
                 setCart([]);
                 setCustomerName('');
                 setHoldReason('');
             } else {
-                zoruSonnerToast.error(res.error ?? 'Could not hold ticket.');
+                toast.error(res.error ?? 'Could not hold ticket.');
             }
         } finally {
             setSubmitting(false);

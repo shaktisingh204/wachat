@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Label, Card, CardHeader, CardTitle, CardBody, DatePicker, DateRangePicker } from '@/components/sabcrm/20ui/compat';
+import { Label, Card, CardHeader, CardTitle, CardBody, DatePicker, DateRangePicker } from '@/components/sabcrm/20ui';
 
 export function Field({
   label,
@@ -50,7 +50,7 @@ export function DemoDateRange() {
   );
 }
 
-import { Button, Kbd, zoruToast, CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/components/sabcrm/20ui/compat';
+import { Button, Kbd, toast, CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/components/sabcrm/20ui';
 import { Search, Check, Inbox, Settings, User } from "lucide-react";
 
 export function CommandAndToastDemo() {
@@ -63,7 +63,7 @@ export function CommandAndToastDemo() {
       </Button>
       <Button
         onClick={() =>
-          zoruToast({
+          toast({
             title: "Saved",
             description: "Your changes are live.",
           })
@@ -74,7 +74,7 @@ export function CommandAndToastDemo() {
       <Button
         variant="destructive"
         onClick={() =>
-          zoruToast({
+          toast({
             variant: "destructive",
             title: "Failed to publish",
             description: "Check the workspace status and try again.",

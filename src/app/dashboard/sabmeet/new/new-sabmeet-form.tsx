@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Checkbox, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
 import { ArrowLeft } from 'lucide-react';
 import { createMeetRoom } from '@/app/actions/sabmeet.actions';
 
@@ -84,7 +84,7 @@ export function NewMeetingForm() {
             <CardTitle className="text-base">Type</CardTitle>
             <CardDescription>Start now or schedule for later.</CardDescription>
           </CardHeader>
-          <CardContent className="flex gap-3">
+          <CardBody className="flex gap-3">
             <button
               type="button"
               onClick={() => setMode('instant')}
@@ -101,14 +101,14 @@ export function NewMeetingForm() {
               <div className="font-medium text-[var(--st-text)]">Scheduled</div>
               <div className="text-xs text-[var(--st-text-secondary)] mt-1">Pick a start/end time and invite people.</div>
             </button>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Details</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardBody className="space-y-4">
             <div className="grid gap-2">
               <Label htmlFor="name">Name *</Label>
               <Input id="name" name="name" required maxLength={120} placeholder="Weekly sync" />
@@ -143,14 +143,14 @@ export function NewMeetingForm() {
                 placeholder="alice@example.com, bob@example.com"
               />
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Security &amp; options</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardBody className="space-y-4">
             <div className="grid gap-2">
               <Label htmlFor="passcode">Passcode (optional)</Label>
               <Input id="passcode" name="passcode" type="text" maxLength={32} placeholder="Leave blank for none" />
@@ -167,7 +167,7 @@ export function NewMeetingForm() {
               <Checkbox name="requireAuth" />
               <span className="text-sm text-[var(--st-text)]">Require signed-in users only (no guests)</span>
             </label>
-          </CardContent>
+          </CardBody>
         </Card>
 
         {error ? (

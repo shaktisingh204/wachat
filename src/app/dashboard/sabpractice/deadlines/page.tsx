@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Suspense } from 'react';
 
 import { listSabpracticeDeadlines } from '@/app/actions/sabpractice.actions';
-import { Badge, Card, CardContent, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 import { FileDeadlineButton } from './_components/file-deadline-button';
 
@@ -27,7 +27,7 @@ async function DeadlinesData() {
             </PageHeader>
 
             <Card>
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {sorted.length === 0 ? (
                         <EmptyState
                             title="No deadlines"
@@ -76,7 +76,7 @@ async function DeadlinesData() {
                             </TBody>
                         </Table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

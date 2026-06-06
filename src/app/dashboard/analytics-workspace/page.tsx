@@ -7,7 +7,7 @@
  */
 import Link from 'next/link';
 
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { listWorkbooksAction } from '@/app/actions/analytics-bi.actions';
 
 import { NewWorkbookButton } from './_components/new-workbook-button';
@@ -70,11 +70,11 @@ export default async function AnalyticsWorkspacePage() {
                     } datasets`}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                   <p className="text-xs text-[var(--st-text-secondary)]">
                     Updated {wb.updatedAt ?? wb.createdAt ?? '—'}
                   </p>
-                </CardContent>
+                </CardBody>
               </Card>
             </Link>
           ))}

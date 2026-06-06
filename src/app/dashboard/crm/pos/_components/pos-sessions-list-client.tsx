@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, toast } from '@/components/sabcrm/20ui';
 import {
     Banknote,
     Clock,
@@ -256,11 +256,11 @@ export function PosSessionsListClient({
         try {
             const res = await closePosSession({ id, closingCash });
             if (res.success) {
-                zoruSonnerToast.success(
+                toast.success(
                     `Session closed. Discrepancy: ${fmtMoney(res.discrepancy ?? 0)}.`,
                 );
             } else {
-                zoruSonnerToast.error(res.error ?? 'Failed to close session.');
+                toast.error(res.error ?? 'Failed to close session.');
             }
         } finally {
             setPendingId(null);
@@ -272,9 +272,9 @@ export function PosSessionsListClient({
         try {
             const res = await reconcilePosSession(id);
             if (res.success) {
-                zoruSonnerToast.success('Session reconciled.');
+                toast.success('Session reconciled.');
             } else {
-                zoruSonnerToast.error(res.error ?? 'Failed to reconcile.');
+                toast.error(res.error ?? 'Failed to reconcile.');
             }
         } finally {
             setPendingId(null);
@@ -303,9 +303,9 @@ export function PosSessionsListClient({
             if (res.success) ok += 1;
             else fail += 1;
         }
-        if (ok > 0) zoruSonnerToast.success(`Archived ${ok} session(s).`);
+        if (ok > 0) toast.success(`Archived ${ok} session(s).`);
         if (fail > 0) {
-            zoruSonnerToast.error(
+            toast.error(
                 `${fail} session(s) skipped — only closed/reconciled can be archived.`,
             );
         }

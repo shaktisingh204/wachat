@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Badge, Button, Card, CardContent, EmptyState, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, EmptyState, Textarea } from '@/components/sabcrm/20ui';
 import { replySabpublishReview } from '@/app/actions/sabpublish.actions';
 import type { SabpublishReviewDoc } from '@/lib/rust-client/sabpublish-reviews';
 
@@ -42,7 +42,7 @@ export function SabpublishReviewsTab({
     <div className="space-y-3">
       {items.map((r) => (
         <Card key={r._id}>
-          <CardContent className="space-y-3 p-4">
+          <CardBody className="space-y-3 p-4">
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-medium">
@@ -83,7 +83,7 @@ export function SabpublishReviewsTab({
                 </Button>
               </div>
             )}
-          </CardContent>
+          </CardBody>
         </Card>
       ))}
     </div>

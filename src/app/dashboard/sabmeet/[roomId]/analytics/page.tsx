@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Button, Card, CardContent, CardHeader, CardTitle, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
 import { ArrowLeft } from 'lucide-react';
 import { getMeetRoom, getMeetRoomAnalytics } from '@/app/actions/sabmeet.actions';
 
@@ -19,9 +19,9 @@ export default async function AnalyticsPage({ params }: PageProps) {
       <CardHeader className="pb-2">
         <CardTitle className="text-sm text-[var(--st-text-secondary)]">{label}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardBody>
         <div className="text-2xl font-semibold text-[var(--st-text)]">{value}</div>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 

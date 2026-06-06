@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, StatCard, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, StatCard, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 import type { SabpublishProviderDoc } from '@/lib/rust-client/sabpublish-providers';
 import type { SabpublishSyncJobDoc } from '@/lib/rust-client/sabpublish-sync-jobs';
@@ -65,7 +65,7 @@ export function SabpublishOverviewClient({
             Last 10 sync jobs across all of your locations and providers.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           {data.recentJobs.length === 0 ? (
             <EmptyState
               title="No sync jobs yet"
@@ -93,7 +93,7 @@ export function SabpublishOverviewClient({
               ))}
             </ul>
           )}
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

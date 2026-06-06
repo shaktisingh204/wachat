@@ -46,7 +46,7 @@ import {
   setTaskStatusAction,
 } from '@/app/actions/sabcrm.actions';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
-import { Badge, Button, Card, CardContent, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, cn } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, cn } from '@/components/sabcrm/20ui';
 import type {
   ActivityAttachment,
   CrmActivityRecord,
@@ -228,7 +228,7 @@ function ActivityComposer({
 
   return (
     <Card>
-      <CardContent className="flex flex-col gap-3 p-4">
+      <CardBody className="flex flex-col gap-3 p-4">
         {/* Type selector */}
         <div className="flex flex-wrap gap-1.5">
           {ACTIVITY_TYPES.map((t) => {
@@ -344,7 +344,7 @@ function ActivityComposer({
             Log {typeMeta(type).label.toLowerCase()}
           </Button>
         </div>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -605,7 +605,7 @@ export function RecordActivity({
       )}
 
       <Card>
-        <CardContent className="p-4">
+        <CardBody className="p-4">
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-8 text-sm text-[var(--st-text-secondary)]">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -674,7 +674,7 @@ export function RecordActivity({
               )}
             </>
           )}
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

@@ -3,7 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, CardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import { addSabworkerlyClient } from '@/app/actions/sabworkerly.actions';
 
 export function ClientForm() {
@@ -41,7 +41,7 @@ export function ClientForm() {
 
     return (
         <Card>
-            <CardContent className="p-6">
+            <CardBody className="p-6">
                 <form onSubmit={onSubmit} className="flex flex-col gap-5">
                     {error && (
                         <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-3 text-sm text-[var(--st-text-secondary)]">
@@ -99,7 +99,7 @@ export function ClientForm() {
                         </Button>
                     </div>
                 </form>
-            </CardContent>
+            </CardBody>
         </Card>
     );
 }

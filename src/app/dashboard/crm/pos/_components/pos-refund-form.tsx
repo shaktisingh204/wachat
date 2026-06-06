@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Table, TBody, Td, Th, THead, Tr, zoruSonnerToast, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Table, TBody, Td, Th, THead, Tr, toast, Checkbox } from '@/components/sabcrm/20ui';
 import {
   useRouter } from 'next/navigation';
 
@@ -98,11 +98,11 @@ export function PosRefundForm({ original }: Props) {
                 total: l.refundAmount,
             }));
         if (refundedLineItems.length === 0) {
-            zoruSonnerToast.error('Pick at least one line and qty to refund.');
+            toast.error('Pick at least one line and qty to refund.');
             return;
         }
         if (!reason.trim()) {
-            zoruSonnerToast.error('A refund reason is required.');
+            toast.error('A refund reason is required.');
             return;
         }
         setSubmitting(true);
@@ -116,10 +116,10 @@ export function PosRefundForm({ original }: Props) {
                 requestApproval: total > 10000,
             });
             if (res.success) {
-                zoruSonnerToast.success(total > 10000 ? 'Refund approval requested.' : 'Refund recorded.');
+                toast.success(total > 10000 ? 'Refund approval requested.' : 'Refund recorded.');
                 router.push('/dashboard/crm/pos/refunds');
             } else {
-                zoruSonnerToast.error(res.error ?? 'Refund failed.');
+                toast.error(res.error ?? 'Refund failed.');
             }
         } finally {
             setSubmitting(false);

@@ -12,7 +12,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save } from 'lucide-react';
 
-import { Button, Card, Input, Select, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Select, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@/components/sabcrm/20ui';
 import { createSabnotebookNote } from '@/app/actions/sabnotebook.actions';
 import type { SabnotebookNoteKind } from '@/lib/rust-client/sabnotebook-notes';
 
@@ -32,7 +32,7 @@ export function QuickCapture({ notebookId, sectionId }: QuickCaptureProps) {
 
   const handleSave = React.useCallback(async () => {
     if (!body.trim() && !title.trim()) {
-      zoruSonnerToast.error('Add a title or some content');
+      toast.error('Add a title or some content');
       return;
     }
     setSaving(true);
@@ -50,10 +50,10 @@ export function QuickCapture({ notebookId, sectionId }: QuickCaptureProps) {
     });
     setSaving(false);
     if (res.error) {
-      zoruSonnerToast.error(res.error);
+      toast.error(res.error);
       return;
     }
-    zoruSonnerToast.success('Captured');
+    toast.success('Captured');
     if (res.id) {
       router.push(`${BASE}/${notebookId}?note=${res.id}`);
     } else {

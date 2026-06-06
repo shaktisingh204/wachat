@@ -12,7 +12,7 @@ import {
     listSabpracticeTasks,
     listSabpracticeTimeLogs,
 } from '@/app/actions/sabpractice.actions';
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, Separator } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, Separator } from '@/components/sabcrm/20ui';
 
 import {
     ClientDocRequestBinder,
@@ -72,7 +72,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                     <CardTitle>Overview</CardTitle>
                     <CardDescription>Snapshot of work for this client.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
                         <div>
                             <dt className="text-[var(--st-text-secondary)]">Engagements</dt>
@@ -97,7 +97,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             </dd>
                         </div>
                     </dl>
-                </CardContent>
+                </CardBody>
             </Card>
 
             {/* Engagements */}
@@ -109,7 +109,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                     </div>
                     <CreateEngagementButton clientId={clientId} />
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     {engagements.items.length === 0 ? (
                         <EmptyState
                             title="No engagements"
@@ -137,7 +137,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             ))}
                         </ul>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
 
             {/* Documents */}
@@ -151,7 +151,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                     </div>
                     <NewDocRequestButton clientId={clientId} />
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     {docRequests.items.length === 0 ? (
                         <EmptyState
                             title="No document requests"
@@ -193,7 +193,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             ))}
                         </ul>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
 
             {/* Tasks */}
@@ -205,7 +205,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                     </div>
                     <CreateTaskButton clientId={clientId} />
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     {tasks.items.length === 0 ? (
                         <EmptyState
                             title="No tasks yet"
@@ -231,7 +231,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             ))}
                         </ul>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
 
             {/* Time */}
@@ -248,7 +248,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                         <Link href="/dashboard/sabpractice/time">Open time grid</Link>
                     </Button>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     {timeLogs.items.length === 0 ? (
                         <EmptyState
                             title="No time logged"
@@ -275,7 +275,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             ))}
                         </ul>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
 
             {/* Advisory */}
@@ -289,7 +289,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                     </div>
                     <CreateAdvisoryNoteButton clientId={clientId} />
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     {advisoryNotes.items.length === 0 ? (
                         <EmptyState
                             title="No advisory notes"
@@ -327,7 +327,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             ))}
                         </ul>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
 
             {/* Deadlines */}
@@ -341,7 +341,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                     </div>
                     <CreateDeadlineButton clientId={clientId} />
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                     {deadlines.items.length === 0 ? (
                         <EmptyState
                             title="No deadlines"
@@ -366,7 +366,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                             ))}
                         </ul>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

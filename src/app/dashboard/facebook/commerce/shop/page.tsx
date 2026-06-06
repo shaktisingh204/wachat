@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, Skeleton, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, Skeleton, toast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -135,7 +135,7 @@ export default function CommerceShopPage(): React.JSX.Element {
       let res: { success: boolean; error?: string };
       if (type === 'fulfill') {
         if (!carrier.trim() || !trackingNumber.trim()) {
-          zoruSonnerToast.error('Carrier and tracking number are required.');
+          toast.error('Carrier and tracking number are required.');
           return;
         }
         res = await fulfillOrder(order.id, projectId, {
@@ -148,10 +148,10 @@ export default function CommerceShopPage(): React.JSX.Element {
         res = await refundOrder(order.id, projectId, reason.trim() || undefined);
       }
       if (!res.success) {
-        zoruSonnerToast.error(res.error ?? `Could not ${type} order.`);
+        toast.error(res.error ?? `Could not ${type} order.`);
         return;
       }
-      zoruSonnerToast.success(
+      toast.success(
         type === 'fulfill'
           ? 'Order fulfilled.'
           : type === 'cancel'

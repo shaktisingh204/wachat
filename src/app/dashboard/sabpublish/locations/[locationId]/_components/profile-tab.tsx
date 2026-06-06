@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Button, Card, CardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui';
 import {
   saveSabpublishProfileFields,
   syncSabpublishLocation,
@@ -73,7 +73,7 @@ export function SabpublishProfileTab({
 
   return (
     <Card>
-      <CardContent className="space-y-4 p-6">
+      <CardBody className="space-y-4 p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           {FIELDS.map((f) => (
             <div
@@ -113,7 +113,7 @@ export function SabpublishProfileTab({
             Sync to all providers
           </Button>
         </div>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

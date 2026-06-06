@@ -3,7 +3,7 @@
  */
 import Link from 'next/link';
 
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui';
 import {
   listDatasetsAction,
   listJoinsAction,
@@ -51,7 +51,7 @@ export default async function JoinsPage() {
             Use these when building charts to query rows from two sources.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           {joins.length === 0 ? (
             <p className="text-sm text-[var(--st-text-secondary)]">No joins yet.</p>
           ) : (
@@ -80,7 +80,7 @@ export default async function JoinsPage() {
               </TBody>
             </Table>
           )}
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

@@ -16,11 +16,11 @@ import {
 } from "react-icons/lu";
 import { cn } from "@/lib/utils";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
 
 type FolderNode = {
   id: string;
@@ -206,10 +206,10 @@ export default function FoldersPage() {
               <LuFolder className="h-4 w-4" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">14</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">+2 from last month</p>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card variant="interactive" className="bg-[var(--st-bg-secondary)]">
@@ -219,10 +219,10 @@ export default function FoldersPage() {
               <LuActivity className="h-4 w-4" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">51</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">Spread across 4 root folders</p>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card variant="interactive" className="bg-[var(--st-bg-secondary)]">
@@ -232,10 +232,10 @@ export default function FoldersPage() {
               <LuHardDrive className="h-4 w-4" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">1.2 GB</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">Of 10 GB limit</p>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card variant="interactive" className="bg-[var(--st-bg-secondary)]">
@@ -245,10 +245,10 @@ export default function FoldersPage() {
               <LuClock className="h-4 w-4" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="text-2xl font-bold">12 mins</div>
             <p className="text-xs text-[var(--st-text-secondary)] mt-1">Last flow update</p>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 

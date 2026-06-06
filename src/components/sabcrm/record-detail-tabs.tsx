@@ -28,7 +28,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, Link2 } from 'lucide-react';
 
-import { Tabs, TabsList, TabsTrigger, TabsContent, Card, CardContent, CardHeader, CardTitle, Badge, EmptyState, Separator, cn } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsList, TabsTrigger, TabsContent, Card, CardBody, CardHeader, CardTitle, Badge, EmptyState, Separator, cn } from '@/components/sabcrm/20ui';
 import type {
   CrmRecordWithLabel,
   FieldMetadata,
@@ -112,7 +112,7 @@ function RelatedPanel({
         <Badge variant="outline">{records.length}</Badge>
       </CardHeader>
       <Separator />
-      <CardContent className="p-0">
+      <CardBody className="p-0">
         {records.length === 0 ? (
           <div className="px-5 py-6">
             <EmptyState
@@ -135,7 +135,7 @@ function RelatedPanel({
             ))}
           </ul>
         )}
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -205,12 +205,12 @@ export function RecordDetailTabs({
       <TabsContent value={TAB_RELATED}>
         {relations.length === 0 ? (
           <Card>
-            <CardContent className="py-10">
+            <CardBody className="py-10">
               <EmptyState
                 title="No related records"
                 description={`${object.labelSingular} has no relationships to other objects.`}
               />
-            </CardContent>
+            </CardBody>
           </Card>
         ) : (
           <div className="flex flex-col gap-4">
@@ -228,12 +228,12 @@ export function RecordDetailTabs({
       <TabsContent value={TAB_ACTIVITY}>
         {activitySlot ?? (
           <Card>
-            <CardContent className="py-10">
+            <CardBody className="py-10">
               <EmptyState
                 title="No activity yet"
                 description="The activity timeline for this record will appear here."
               />
-            </CardContent>
+            </CardBody>
           </Card>
         )}
       </TabsContent>

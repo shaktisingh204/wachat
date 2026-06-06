@@ -5,12 +5,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { Key, Shield, Save, ArrowLeft, AlertCircle } from 'lucide-react';
 import { m } from 'motion/react';
 
-import { PageHeader } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
-import { Checkbox } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { PageHeader } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui';
+import { Checkbox } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { fadeInUp, staggerContainer } from '@/lib/motion';
 
 // Mock scope categories and operations
@@ -151,7 +151,7 @@ export default function CredentialScopesPage() {
                             </Badge>
                         </div>
                     </CardHeader>
-                    <CardContent className="p-0 overflow-x-auto">
+                    <CardBody className="p-0 overflow-x-auto">
                         <Table>
                             <THead className="bg-[var(--st-bg-muted)]/30">
                                 <Tr>
@@ -208,7 +208,7 @@ export default function CredentialScopesPage() {
                                 })}
                             </TBody>
                         </Table>
-                    </CardContent>
+                    </CardBody>
                     <CardFooter className="bg-[var(--st-bg-muted)]/20 border-t p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                          <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)] bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] px-3 py-2 rounded-md">
                             <AlertCircle className="h-4 w-4 shrink-0" />

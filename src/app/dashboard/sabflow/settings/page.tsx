@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Separator, Skeleton, Switch, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Separator, Skeleton, Switch, toast } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -106,7 +106,7 @@ export default function SabflowSettingsPage() {
     ) {
         const parseResult = sabflowSettingsSchema.safeParse(patch);
         if (!parseResult.success) {
-            zoruSonnerToast.error(parseResult.error.errors[0].message);
+            toast.error(parseResult.error.errors[0].message);
             return;
         }
 
@@ -115,11 +115,11 @@ export default function SabflowSettingsPage() {
             const res = await saveSabflowSettings(patch);
             setSavingSection(null);
             if (res.error || !res.settings) {
-                zoruSonnerToast.error(res.error || 'Save failed');
+                toast.error(res.error || 'Save failed');
                 return;
             }
             setSettings(res.settings);
-            zoruSonnerToast.success(`${label} saved`);
+            toast.success(`${label} saved`);
         });
     }
 
@@ -136,7 +136,7 @@ export default function SabflowSettingsPage() {
 
         const parseResult = sabflowSettingsSchema.safeParse(patch);
         if (!parseResult.success) {
-            zoruSonnerToast.error(parseResult.error.errors[0].message);
+            toast.error(parseResult.error.errors[0].message);
             return;
         }
 
@@ -145,11 +145,11 @@ export default function SabflowSettingsPage() {
             const res = await saveSabflowSettings(patch);
             setSavingSection(null);
             if (res.error || !res.settings) {
-                zoruSonnerToast.error(res.error || 'Save failed');
+                toast.error(res.error || 'Save failed');
                 return;
             }
             setSettings(res.settings);
-            zoruSonnerToast.success('All settings saved');
+            toast.success('All settings saved');
         });
     }
 
@@ -501,17 +501,17 @@ function WebhooksSection({
 
     function sendTest() {
         if (!value.url) {
-            zoruSonnerToast.error('Add a webhook URL first.');
+            toast.error('Add a webhook URL first.');
             return;
         }
 
         startTesting(async () => {
-            zoruSonnerToast.loading('Testing webhook...', { id: 'webhook-test' });
+            toast.loading('Testing webhook...', { id: 'webhook-test' });
             const res = await testSabflowWebhook(value.url, value.secret);
             if (res.error) {
-                zoruSonnerToast.error(`Test failed: ${res.error}`, { id: 'webhook-test' });
+                toast.error(`Test failed: ${res.error}`, { id: 'webhook-test' });
             } else {
-                zoruSonnerToast.success('Test webhook sent successfully.', { id: 'webhook-test' });
+                toast.success('Test webhook sent successfully.', { id: 'webhook-test' });
             }
         });
     }

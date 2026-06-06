@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { Switch } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { Switch } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { 
   Store, 
   MonitorSmartphone, 
@@ -66,7 +66,7 @@ export default function POSPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="border rounded-lg overflow-hidden">
               <Table>
                 <THead className="bg-muted/50">
@@ -99,7 +99,7 @@ export default function POSPage() {
                 </TBody>
               </Table>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         {/* Quick Settings */}
@@ -109,7 +109,7 @@ export default function POSPage() {
               <CardTitle className="flex items-center gap-2"><Receipt className="h-5 w-5" /> Receipt Config</CardTitle>
               <CardDescription>Customize printed and digital receipts.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardBody className="space-y-4">
               <div className="space-y-2">
                 <Label>Header Text</Label>
                 <Input placeholder="Welcome to SabShop!" defaultValue="Thank you for shopping with us!" />
@@ -132,7 +132,7 @@ export default function POSPage() {
                 </div>
                 <Switch defaultChecked />
               </div>
-            </CardContent>
+            </CardBody>
             <CardFooter>
               <Button className="w-full" variant="outline"><Printer className="mr-2 h-4 w-4" /> Preview Receipt</Button>
             </CardFooter>
@@ -150,7 +150,7 @@ export default function POSPage() {
               <Button variant="outline" size="sm"><Plus className="mr-2 h-4 w-4" /> Add Staff</Button>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="border rounded-lg overflow-hidden">
               <Table>
                 <THead className="bg-muted/50">
@@ -184,7 +184,7 @@ export default function POSPage() {
                 </TBody>
               </Table>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
         
       </div>

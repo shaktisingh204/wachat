@@ -20,7 +20,7 @@ import {
   Search,
 } from 'lucide-react';
 
-import { Badge, Button, Input, ScrollArea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, ScrollArea, toast } from '@/components/sabcrm/20ui';
 import { createSabnotebookNote } from '@/app/actions/sabnotebook.actions';
 import type {
   SabnotebookNote,
@@ -77,7 +77,7 @@ export function NoteList({
 
   const handleAdd = React.useCallback(async () => {
     if (!sectionId) {
-      zoruSonnerToast.error('Pick a section first');
+      toast.error('Pick a section first');
       return;
     }
     setAdding(true);
@@ -91,7 +91,7 @@ export function NoteList({
     });
     setAdding(false);
     if (res.error) {
-      zoruSonnerToast.error(res.error);
+      toast.error(res.error);
       return;
     }
     onChanged();

@@ -1,7 +1,7 @@
 'use client';
 
 import { fmtINR } from "@/lib/utils";
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, cn, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, cn, toast } from '@/components/sabcrm/20ui';
 import { useRouter } from 'next/navigation';
 import {
   ArrowUpRight,
@@ -265,11 +265,11 @@ export default function WhatsAppAdsPage(): React.ReactElement {
       try {
         const res = await updateEntityStatus(campaign.id, 'campaign', next);
         if (res.error) {
-          zoruSonnerToast.error(
+          toast.error(
             `Couldn't ${next === 'PAUSED' ? 'pause' : 'resume'} "${campaign.name}": ${res.error}`,
           );
         } else {
-          zoruSonnerToast.success(
+          toast.success(
             `${campaign.name} ${next === 'PAUSED' ? 'paused' : 'activated'}`,
           );
           loadData();

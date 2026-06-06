@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { createJoinAction } from '@/app/actions/analytics-bi.actions';
 import type { BiJoinType } from '@/lib/rust-client/bi-dataset-joins';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 interface DatasetRef {
   id: string;
@@ -76,7 +76,7 @@ export function JoinBuilder({ datasets }: { datasets: DatasetRef[] }) {
           Pick two datasets, choose the join type, and map matching columns.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardBody>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="grid gap-1.5">
             <Label htmlFor="join-name">Name</Label>
@@ -174,7 +174,7 @@ export function JoinBuilder({ datasets }: { datasets: DatasetRef[] }) {
             {pending ? 'Saving…' : 'Save join'}
           </Button>
         </div>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

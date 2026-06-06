@@ -3,7 +3,7 @@
  */
 import Link from 'next/link';
 
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui';
 import { listDatasetsAction } from '@/app/actions/analytics-bi.actions';
 
 import { NewDatasetPanel } from './_components/new-dataset-panel';
@@ -47,7 +47,7 @@ export default async function DatasetsPage() {
             Click any dataset to preview rows and refresh its schema.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           {items.length === 0 ? (
             <p className="text-sm text-[var(--st-text-secondary)]">No datasets yet.</p>
           ) : (
@@ -81,7 +81,7 @@ export default async function DatasetsPage() {
               </TBody>
             </Table>
           )}
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

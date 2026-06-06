@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
 
 import { listSabmonitorProbes } from '@/app/actions/sabmonitor.actions';
 import { StatusBadge } from '../_components/status-badge';
@@ -13,7 +13,7 @@ export default async function ProbesPage(): Promise<React.JSX.Element> {
         <div className="flex flex-col gap-4">
             <h2 className="text-sm font-semibold text-[var(--st-text)]">Probe agents</h2>
             <Card className="zoruui">
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {res.items.length === 0 ? (
                         <p className="p-4 text-sm text-[var(--st-text-secondary)]">
                             No probe agents registered. The probe runtime is using the
@@ -48,7 +48,7 @@ export default async function ProbesPage(): Promise<React.JSX.Element> {
                             </tbody>
                         </table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );

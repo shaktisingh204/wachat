@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui';
 
 import { listSabmonitorTraces } from '@/app/actions/sabmonitor.actions';
 
@@ -55,7 +55,7 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
                 </form>
             </div>
             <Card className="zoruui">
-                <CardContent className="p-0">
+                <CardBody className="p-0">
                     {res.items.length === 0 ? (
                         <p className="p-4 text-sm text-[var(--st-text-secondary)]">No traces yet.</p>
                     ) : (
@@ -101,7 +101,7 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
                             </tbody>
                         </table>
                     )}
-                </CardContent>
+                </CardBody>
             </Card>
         </div>
     );
