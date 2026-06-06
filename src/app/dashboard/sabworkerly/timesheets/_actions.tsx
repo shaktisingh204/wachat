@@ -1,9 +1,15 @@
 'use client';
 
-import React, { useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Modal,
+    Field,
+    Textarea,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import {
     submitSabworkerlyTimesheet,
     approveSabworkerlyTimesheet,
@@ -12,13 +18,28 @@ import {
 
 export function TimesheetActions({ id, status }: { id: string; status: string }) {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, startTransition] = useTransition();
+    const [rejectOpen, setRejectOpen] = useState(false);
+    const [reason, setReason] = useState('');
 
-    const handle = (fn: () => Promise<unknown>): void => {
+    const handle = (fn: () => Promise<unknown>, success: string): void => {
         startTransition(async () => {
-            await fn();
-            router.refresh();
+            try {
+                await fn();
+                router.refresh();
+                toast.success(success);
+            } catch {
+                toast.error('Something went wrong. Please try again.');
+            }
         });
+    };
+
+    const confirmReject = (): void => {
+        const trimmed = reason.trim();
+        handle(() => rejectSabworkerlyTimesheet(id, trimmed || undefined), 'Timesheet rejected');
+        setRejectOpen(false);
+        setReason('');
     };
 
     return (
@@ -27,8 +48,8 @@ export function TimesheetActions({ id, status }: { id: string; status: string })
                 <Button
                     size="sm"
                     variant="secondary"
-                    disabled={pending}
-                    onClick={() => handle(() => submitSabworkerlyTimesheet(id))}
+                    loading={pending}
+                    onClick={() => handle(() => submitSabworkerlyTimesheet(id), 'Timesheet submitted')}
                 >
                     Submit
                 </Button>
@@ -37,8 +58,9 @@ export function TimesheetActions({ id, status }: { id: string; status: string })
                 <>
                     <Button
                         size="sm"
-                        disabled={pending}
-                        onClick={() => handle(() => approveSabworkerlyTimesheet(id))}
+                        variant="primary"
+                        loading={pending}
+                        onClick={() => handle(() => approveSabworkerlyTimesheet(id), 'Timesheet approved')}
                     >
                         Approve
                     </Button>
@@ -46,13 +68,46 @@ export function TimesheetActions({ id, status }: { id: string; status: string })
                         size="sm"
                         variant="outline"
                         disabled={pending}
-                        onClick={() => {
-                            const reason = window.prompt('Rejection reason?') ?? undefined;
-                            handle(() => rejectSabworkerlyTimesheet(id, reason));
-                        }}
+                        onClick={() => setRejectOpen(true)}
                     >
                         Reject
                     </Button>
+
+                    <Modal
+                        open={rejectOpen}
+                        onClose={() => setRejectOpen(false)}
+                        title="Reject timesheet"
+                        description="Add an optional note so the submitter knows what to change."
+                        size="sm"
+                        footer={
+                            <div className="flex justify-end gap-2">
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setRejectOpen(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="danger"
+                                    loading={pending}
+                                    onClick={confirmReject}
+                                >
+                                    Reject
+                                </Button>
+                            </div>
+                        }
+                    >
+                        <Field label="Rejection reason" help="Optional. Leave blank to reject without a note.">
+                            <Textarea
+                                value={reason}
+                                onChange={(e) => setReason(e.target.value)}
+                                placeholder="Describe what needs to change."
+                                rows={4}
+                            />
+                        </Field>
+                    </Modal>
                 </>
             )}
         </div>

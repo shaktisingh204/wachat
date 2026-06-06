@@ -1,24 +1,72 @@
 'use client';
-import { fmtINR } from "@/lib/utils";
+import { fmtINR } from '@/lib/utils';
 
 import { useState, useTransition } from 'react';
 import useSWR from 'swr';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
-import { createSalesForecast, deleteSalesForecast, getSalesForecasts } from '@/app/actions/platform/ai-sales-forecasting.actions';
+import {
+  Button,
+  IconButton,
+  Card,
+  Field,
+  Input,
+  Badge,
+  EmptyState,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  useToast,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
+import {
+  createSalesForecast,
+  deleteSalesForecast,
+  getSalesForecasts,
+} from '@/app/actions/platform/ai-sales-forecasting.actions';
 import type { AISalesForecast } from '@/types/platform';
-import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, TrendingUp } from 'lucide-react';
 
 export function ClientSalesForecastingPage({ initialData }: { initialData: AISalesForecast[] }) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  const { data: forecasts = initialData, mutate } = useSWR<AISalesForecast[]>('ai-sales-forecasts', () => getSalesForecasts(), {
-    fallbackData: initialData,
-  });
+  const { data: forecasts = initialData, mutate } = useSWR<AISalesForecast[]>(
+    'ai-sales-forecasts',
+    () => getSalesForecasts(),
+    { fallbackData: initialData },
+  );
 
-  const [form, setForm] = useState({ period: '', predictedRevenue: 0, confidenceScore: 0, aiModel: 'gpt-4', drivers: '' });
+  const [form, setForm] = useState({
+    period: '',
+    predictedRevenue: 0,
+    confidenceScore: 0,
+    aiModel: 'gpt-4',
+    drivers: '',
+  });
 
   const handleCreate = async () => {
     if (!form.period) return;
@@ -26,68 +74,111 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
       try {
         await createSalesForecast({
           ...form,
-          drivers: form.drivers.split(',').map(d => d.trim()).filter(Boolean)
+          drivers: form.drivers
+            .split(',')
+            .map((d) => d.trim())
+            .filter(Boolean),
         });
-        toast({ title: 'Forecast created', variant: 'success' });
+        toast.success('Forecast created');
         setDialogOpen(false);
         setForm({ period: '', predictedRevenue: 0, confidenceScore: 0, aiModel: 'gpt-4', drivers: '' });
         await mutate();
-      } catch (err) {
-        toast({ title: 'Error creating forecast', variant: 'destructive' });
+      } catch {
+        toast.error('Error creating forecast');
       }
     });
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure?')) return;
     try {
       await deleteSalesForecast(id);
-      toast({ title: 'Forecast deleted', variant: 'success' });
+      toast.success('Forecast deleted');
       await mutate();
-    } catch (err) {
-      toast({ title: 'Error deleting forecast', variant: 'destructive' });
+    } catch {
+      toast.error('Error deleting forecast');
+    } finally {
+      setPendingDeleteId(null);
     }
   };
 
-  const filteredData = forecasts.filter(d => d.period.toLowerCase().includes(query.toLowerCase()));
+  const filteredData = forecasts.filter((d) =>
+    d.period.toLowerCase().includes(query.toLowerCase()),
+  );
 
   return (
     <EntityListShell
       title="AI Sales Forecasting"
       subtitle="Predict revenue and analyze sales trends using AI."
-      primaryAction={<Button onClick={() => setDialogOpen(true)}><Plus className="w-4 h-4 mr-2" />Run Forecast</Button>}
+      primaryAction={
+        <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
+          Run Forecast
+        </Button>
+      }
       search={{ value: query, onChange: setQuery, placeholder: 'Search by period...' }}
     >
-      <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+      <Card padding="none" className="overflow-hidden">
         <Table>
           <THead>
             <Tr>
               <Th>Period</Th>
               <Th>Model</Th>
-              <Th>Predicted Revenue</Th>
-              <Th>Confidence</Th>
+              <Th align="right">Predicted Revenue</Th>
+              <Th align="right">Confidence</Th>
               <Th>Drivers</Th>
-              <Th className="text-right">Actions</Th>
+              <Th align="right">Actions</Th>
             </Tr>
           </THead>
           <TBody>
-            {filteredData.map(item => (
+            {filteredData.map((item) => (
               <Tr key={item.id}>
                 <Td className="font-medium">{item.period}</Td>
                 <Td>{item.aiModel || 'N/A'}</Td>
-                <Td>{fmtINR(item.predictedRevenue)}</Td>
-                <Td>{item.confidenceScore}%</Td>
-                <Td>{item.drivers.join(', ')}</Td>
-                <Td className="text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
-                    <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
-                  </Button>
+                <Td align="right">{fmtINR(item.predictedRevenue)}</Td>
+                <Td align="right">
+                  <Badge
+                    tone={
+                      item.confidenceScore >= 75
+                        ? 'success'
+                        : item.confidenceScore >= 50
+                          ? 'warning'
+                          : 'danger'
+                    }
+                  >
+                    {item.confidenceScore}%
+                  </Badge>
+                </Td>
+                <Td>
+                  <div className="flex flex-wrap gap-1">
+                    {item.drivers.length > 0 ? (
+                      item.drivers.map((driver, i) => (
+                        <Badge key={`${item.id}-driver-${i}`} tone="neutral">
+                          {driver}
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-[var(--st-text-tertiary)]">None</span>
+                    )}
+                  </div>
+                </Td>
+                <Td align="right">
+                  <IconButton
+                    label={`Delete forecast for ${item.period}`}
+                    icon={Trash2}
+                    variant="ghost"
+                    onClick={() => setPendingDeleteId(item.id)}
+                  />
                 </Td>
               </Tr>
             ))}
             {filteredData.length === 0 && (
               <Tr>
-                <Td colSpan={6} className="text-center py-8 text-[var(--st-text-tertiary)]">No forecasts found.</Td>
+                <Td colSpan={6}>
+                  <EmptyState
+                    icon={TrendingUp}
+                    title="No forecasts found"
+                    description="Run a forecast to predict revenue and analyze sales trends."
+                  />
+                </Td>
               </Tr>
             )}
           </TBody>
@@ -98,16 +189,20 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
         <DialogContent>
           <DialogHeader>
             <DialogTitle>New Sales Forecast</DialogTitle>
+            <DialogDescription>
+              Configure the period and model, then generate a predicted revenue forecast.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label>Period (e.g. Q4 2026)</Label>
-              <Input value={form.period} onChange={e => setForm({ ...form, period: e.target.value })} />
-            </div>
-            <div className="grid gap-2">
-              <Label>AI Model</Label>
-              <Select value={form.aiModel} onValueChange={v => setForm({ ...form, aiModel: v })}>
-                <SelectTrigger>
+            <Field label="Period (e.g. Q4 2026)">
+              <Input
+                value={form.period}
+                onChange={(e) => setForm({ ...form, period: e.target.value })}
+              />
+            </Field>
+            <Field label="AI Model">
+              <Select value={form.aiModel} onValueChange={(v) => setForm({ ...form, aiModel: v })}>
+                <SelectTrigger aria-label="AI Model">
                   <SelectValue placeholder="Select an AI Model" />
                 </SelectTrigger>
                 <SelectContent>
@@ -117,28 +212,71 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
                   <SelectItem value="llama-3">Llama 3</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label>Predicted Revenue ($)</Label>
-              <Input type="number" value={form.predictedRevenue} onChange={e => setForm({ ...form, predictedRevenue: parseFloat(e.target.value) })} />
-            </div>
-            <div className="grid gap-2">
-              <Label>Confidence Score (%)</Label>
-              <Input type="number" value={form.confidenceScore} onChange={e => setForm({ ...form, confidenceScore: parseInt(e.target.value) })} />
-            </div>
-            <div className="grid gap-2">
-              <Label>Key Drivers (comma separated)</Label>
-              <Input value={form.drivers} onChange={e => setForm({ ...form, drivers: e.target.value })} placeholder="Marketing spend, new leads" />
-            </div>
+            </Field>
+            <Field label="Predicted Revenue">
+              <Input
+                type="number"
+                prefix="₹"
+                value={form.predictedRevenue}
+                onChange={(e) =>
+                  setForm({ ...form, predictedRevenue: parseFloat(e.target.value) || 0 })
+                }
+              />
+            </Field>
+            <Field label="Confidence Score">
+              <Input
+                type="number"
+                suffix="%"
+                value={form.confidenceScore}
+                onChange={(e) =>
+                  setForm({ ...form, confidenceScore: parseInt(e.target.value, 10) || 0 })
+                }
+              />
+            </Field>
+            <Field label="Key Drivers (comma separated)">
+              <Input
+                value={form.drivers}
+                onChange={(e) => setForm({ ...form, drivers: e.target.value })}
+                placeholder="Marketing spend, new leads"
+              />
+            </Field>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreate} disabled={isPending}>
-              {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} Create
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button variant="primary" onClick={handleCreate} loading={isPending}>
+              Create
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteId(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this forecast?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes the forecast. You cannot undo this.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep forecast</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingDeleteId) void handleDelete(pendingDeleteId);
+              }}
+            >
+              Delete forecast
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
   );
 }

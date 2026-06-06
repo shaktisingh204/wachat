@@ -20,12 +20,12 @@ export function PayrollRunActions({ id, status }: { id: string; status: string }
     return (
         <div className="flex gap-1">
             {status === 'draft' && (
-                <Button size="sm" disabled={pending} onClick={() => set('approved')}>
+                <Button size="sm" loading={pending} onClick={() => set('approved')}>
                     Approve
                 </Button>
             )}
             {status === 'approved' && (
-                <Button size="sm" variant="secondary" disabled={pending} onClick={() => set('paid')}>
+                <Button size="sm" variant="secondary" loading={pending} onClick={() => set('paid')}>
                     Mark paid
                 </Button>
             )}

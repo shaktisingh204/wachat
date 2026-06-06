@@ -2,12 +2,25 @@
 
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Play } from 'lucide-react';
 
-import { Button, Input, Label } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Input,
+    Field,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    Alert,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { runSabworkerlyPayroll } from '@/app/actions/sabworkerly.actions';
 
 export function RunPayrollForm() {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
@@ -27,39 +40,62 @@ export function RunPayrollForm() {
                 new Date(end).toISOString(),
             );
             if (res.success) {
-                setMessage(`Run created — ${res.lineCount} worker(s), total ${(res.totalMinor / 100).toFixed(2)}`);
+                const note = `Run created. ${res.lineCount} worker(s), total ${(res.totalMinor / 100).toFixed(2)}`;
+                setMessage(note);
+                toast.success(note);
                 router.refresh();
             } else {
                 setError(res.error);
+                toast.error(res.error);
             }
         });
     };
 
     return (
-        <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            {error && (
-                <div className="md:col-span-3 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-2 text-sm text-[var(--st-text-secondary)]">
-                    {error}
-                </div>
-            )}
-            {message && (
-                <div className="md:col-span-3 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-2 text-sm text-white">
-                    {message}
-                </div>
-            )}
-            <div className="flex flex-col gap-1">
-                <Label htmlFor="pr-start">Period start</Label>
-                <Input id="pr-start" type="date" value={start} onChange={(e) => setStart(e.target.value)} />
-            </div>
-            <div className="flex flex-col gap-1">
-                <Label htmlFor="pr-end">Period end</Label>
-                <Input id="pr-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
-            </div>
-            <div className="flex items-end">
-                <Button type="submit" disabled={pending} className="w-full">
-                    {pending ? 'Running…' : 'Run payroll'}
-                </Button>
-            </div>
-        </form>
+        <Card>
+            <CardHeader>
+                <CardTitle>Run payroll</CardTitle>
+                <CardDescription>Pick a pay period, then generate the run for every worker.</CardDescription>
+            </CardHeader>
+            <CardBody>
+                <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                    {error ? (
+                        <Alert tone="danger" className="md:col-span-3">
+                            {error}
+                        </Alert>
+                    ) : null}
+                    {message ? (
+                        <Alert tone="success" className="md:col-span-3">
+                            {message}
+                        </Alert>
+                    ) : null}
+                    <Field label="Period start">
+                        <Input
+                            type="date"
+                            value={start}
+                            onChange={(e) => setStart(e.target.value)}
+                        />
+                    </Field>
+                    <Field label="Period end">
+                        <Input
+                            type="date"
+                            value={end}
+                            onChange={(e) => setEnd(e.target.value)}
+                        />
+                    </Field>
+                    <div className="flex items-end">
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            iconLeft={Play}
+                            loading={pending}
+                            block
+                        >
+                            {pending ? 'Running' : 'Run payroll'}
+                        </Button>
+                    </div>
+                </form>
+            </CardBody>
+        </Card>
     );
 }

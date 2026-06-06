@@ -4,7 +4,22 @@ import { fmtDate } from "@/lib/utils";
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Table, THead, TBody, Tr, Th, Td, Card, Button, DateRangePicker, Input } from '@/components/sabcrm/20ui';
+import {
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Card,
+  Button,
+  DateRangePicker,
+  Input,
+  Field,
+  Badge,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
+import { ScrollText, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ActivityLog } from '@/types/platform';
 import { DateRange } from "react-day-picker";
 import { useDebounce } from 'use-debounce';
@@ -99,29 +114,36 @@ export function ActivityLogsClient({
   };
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const hasFilters = Boolean(dateRange || userId || query);
 
   const filters = (
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="w-64">
+    <div className="flex flex-wrap items-end gap-3">
+      <Field label="Date range" className="w-64">
         <DateRangePicker
           value={dateRange}
           onChange={setDateRange}
           placeholder="Filter by date range"
+          aria-label="Filter by date range"
         />
-      </div>
-      <div className="w-64">
-        <Input 
-          placeholder="Filter by User ID" 
+      </Field>
+      <Field label="User ID" className="w-64">
+        <Input
+          placeholder="Filter by User ID"
           value={userId}
           onChange={(e) => setUserId(e.target.value)}
+          aria-label="Filter by User ID"
         />
-      </div>
-      {(dateRange || userId || query) && (
-        <Button variant="ghost" size="sm" onClick={() => {
-          setDateRange(undefined);
-          setUserId('');
-          setQuery('');
-        }}>
+      </Field>
+      {hasFilters && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            setDateRange(undefined);
+            setUserId('');
+            setQuery('');
+          }}
+        >
           Clear Filters
         </Button>
       )}
@@ -134,19 +156,21 @@ export function ActivityLogsClient({
         Showing {total === 0 ? 0 : ((page - 1) * pageSize) + 1} to {Math.min(page * pageSize, total)} of {total} entries
       </div>
       <div className="flex items-center gap-2">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => handlePageChange(Math.max(1, page - 1))} 
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={ChevronLeft}
+          onClick={() => handlePageChange(Math.max(1, page - 1))}
           disabled={page <= 1 || isPending}
         >
           Previous
         </Button>
         <span className="text-sm text-[var(--st-text-tertiary)] px-2">Page {page} of {totalPages}</span>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => handlePageChange(Math.min(totalPages, page + 1))} 
+        <Button
+          variant="outline"
+          size="sm"
+          iconRight={ChevronRight}
+          onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
           disabled={page >= totalPages || isPending}
         >
           Next
@@ -164,39 +188,45 @@ export function ActivityLogsClient({
       pagination={pagination}
       loading={isPending}
     >
-      <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden opacity-100 transition-opacity duration-200" style={{ opacity: isPending ? 0.5 : 1 }}>
-        <Table>
-          <THead>
-            <Tr>
-              <Th>Timestamp</Th>
-              <Th>Action</Th>
-              <Th>Entity</Th>
-              <Th>User ID</Th>
-              <Th>IP Address</Th>
-            </Tr>
-          </THead>
-          <TBody>
-            {initialData.map(item => (
-              <Tr key={item.id}>
-                <Td className="text-sm text-[var(--st-text-tertiary)]">
-                  {fmtDate(item.timestamp)}
-                </Td>
-                <Td className="font-medium text-[var(--st-text)]">{item.action}</Td>
-                <Td className="text-sm">
-                  <span className="bg-[var(--st-hover)] px-2 py-1 rounded-md mr-2">{item.entityType}</span>
-                  <span className="text-[var(--st-text-tertiary)] font-mono text-xs">{item.entityId}</span>
-                </Td>
-                <Td className="font-mono text-xs">{item.userId || 'system'}</Td>
-                <Td className="text-sm">{item.ipAddress || '—'}</Td>
-              </Tr>
-            ))}
-            {initialData.length === 0 && !isPending && (
+      <Card
+        padding="none"
+        className={`overflow-hidden transition-opacity duration-200 ${isPending ? 'opacity-50' : 'opacity-100'}`}
+      >
+        {initialData.length === 0 && !isPending ? (
+          <EmptyState
+            icon={ScrollText}
+            title="No logs found"
+            description="No activity matches the current filters. Adjust the search or date range to see more."
+          />
+        ) : (
+          <Table>
+            <THead>
               <Tr>
-                <Td colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No logs found.</Td>
+                <Th>Timestamp</Th>
+                <Th>Action</Th>
+                <Th>Entity</Th>
+                <Th>User ID</Th>
+                <Th>IP Address</Th>
               </Tr>
-            )}
-          </TBody>
-        </Table>
+            </THead>
+            <TBody>
+              {initialData.map(item => (
+                <Tr key={item.id}>
+                  <Td className="text-sm text-[var(--st-text-tertiary)]">
+                    {fmtDate(item.timestamp)}
+                  </Td>
+                  <Td className="font-medium text-[var(--st-text)]">{item.action}</Td>
+                  <Td className="text-sm">
+                    <Badge tone="neutral" className="mr-2">{item.entityType}</Badge>
+                    <span className="text-[var(--st-text-tertiary)] font-mono text-xs">{item.entityId}</span>
+                  </Td>
+                  <Td className="font-mono text-xs">{item.userId || 'system'}</Td>
+                  <Td className="text-sm">{item.ipAddress || '-'}</Td>
+                </Tr>
+              ))}
+            </TBody>
+          </Table>
+        )}
       </Card>
     </EntityListShell>
   );

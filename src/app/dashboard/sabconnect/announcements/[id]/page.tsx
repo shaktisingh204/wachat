@@ -1,11 +1,11 @@
-import { Badge, Button, Card } from '@/components/sabcrm/20ui';
+import { Badge, Card, CardTitle, cn } from '@/components/sabcrm/20ui';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Pencil } from 'lucide-react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 /**
- * Announcement detail — §1B W7.
+ * Announcement detail. §1B W7.
  */
 
 import Link from 'next/link';
@@ -39,18 +39,20 @@ export default async function AnnouncementDetailPage({
                 actions={
                     <div className="flex items-center gap-2">
                         <AnnouncementPresence announcementId={announcement._id} />
-                        <Button variant="ghost" asChild>
-                            <Link href="/dashboard/sabconnect/announcements">
-                                <ArrowLeft className="h-4 w-4" /> Back
-                            </Link>
-                        </Button>
-                        <Button asChild>
-                            <Link
-                                href={`/dashboard/sabconnect/announcements/${announcement._id}/edit`}
-                            >
-                                <Pencil className="h-4 w-4" /> Edit
-                            </Link>
-                        </Button>
+                        <Link
+                            href="/dashboard/sabconnect/announcements"
+                            className={cn('u-btn', 'u-btn--ghost', 'u-btn--md')}
+                        >
+                            <ArrowLeft size={14} aria-hidden="true" />
+                            <span className="u-btn__label">Back</span>
+                        </Link>
+                        <Link
+                            href={`/dashboard/sabconnect/announcements/${announcement._id}/edit`}
+                            className={cn('u-btn', 'u-btn--primary', 'u-btn--md')}
+                        >
+                            <Pencil size={14} aria-hidden="true" />
+                            <span className="u-btn__label">Edit</span>
+                        </Link>
                     </div>
                 }
                 audit={
@@ -61,9 +63,7 @@ export default async function AnnouncementDetailPage({
                 }
                 rightRail={
                     <Card>
-                        <h3 className="mb-3 text-[13.5px] font-semibold text-[var(--st-text)]">
-                            Reach
-                        </h3>
+                        <CardTitle className="mb-3">Reach</CardTitle>
                         <AnnouncementStats
                             viewCount={announcement.viewCount}
                             acknowledgementCount={announcement.acknowledgementCount}
@@ -88,7 +88,7 @@ export default async function AnnouncementDetailPage({
                         <img
                             src={announcement.bannerUrl}
                             alt={announcement.title}
-                            className="mb-4 max-h-64 w-full rounded-md object-cover"
+                            className="mb-4 max-h-64 w-full rounded-[var(--st-radius)] object-cover"
                         />
                     ) : null}
                     <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-[var(--st-text)]">
@@ -97,7 +97,7 @@ export default async function AnnouncementDetailPage({
                     {announcement.tags && announcement.tags.length > 0 ? (
                         <div className="mt-4 flex flex-wrap gap-1.5">
                             {announcement.tags.map((t) => (
-                                <Badge key={t} variant="ghost">
+                                <Badge key={t} tone="neutral">
                                     {t}
                                 </Badge>
                             ))}

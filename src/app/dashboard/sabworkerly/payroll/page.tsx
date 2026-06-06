@@ -1,6 +1,23 @@
 import React from 'react';
 
-import { Card, CardBody, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardBody,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    Badge,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 import { Banknote } from 'lucide-react';
 import { getSabworkerlyPayrollRuns } from '@/app/actions/sabworkerly.actions';
 import { RunPayrollForm } from './_run-form';
@@ -18,17 +35,21 @@ function money(minor: number, currency = 'USD'): string {
 export default async function PayrollPage() {
     const runs = await getSabworkerlyPayrollRuns({ status: 'all', limit: 200 });
     return (
-        <div className="zoruui flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
             <PageHeader>
-                <PageTitle>Payroll</PageTitle>
-                <PageDescription>
-                    Pay workers for approved timesheets. Uses each placement&apos;s pay rate.
-                </PageDescription>
+                <PageHeaderHeading>
+                    <PageTitle>Payroll</PageTitle>
+                    <PageDescription>
+                        Pay workers for approved timesheets. Uses each placement&apos;s pay rate.
+                    </PageDescription>
+                </PageHeaderHeading>
             </PageHeader>
 
             <Card>
-                <CardBody className="p-6">
-                    <h2 className="mb-4 text-lg font-semibold">Run payroll</h2>
+                <CardHeader>
+                    <CardTitle>Run payroll</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <RunPayrollForm />
                 </CardBody>
             </Card>
@@ -40,36 +61,36 @@ export default async function PayrollPage() {
                     description="Approve timesheets, then trigger a run using the form above."
                 />
             ) : (
-                <Card>
-                    <CardBody className="p-0">
-                        <Table>
-                            <THead>
-                                <Tr>
-                                    <Th>Period</Th>
-                                    <Th>Workers</Th>
-                                    <Th>Total</Th>
-                                    <Th>Status</Th>
-                                    <Th>Actions</Th>
+                <Card padding="none">
+                    <Table>
+                        <THead>
+                            <Tr>
+                                <Th>Period</Th>
+                                <Th>Workers</Th>
+                                <Th>Total</Th>
+                                <Th>Status</Th>
+                                <Th>Actions</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
+                            {runs.map((r) => (
+                                <Tr key={r._id}>
+                                    <Td>
+                                        {new Date(r.periodStart).toLocaleDateString()} to{' '}
+                                        {new Date(r.periodEnd).toLocaleDateString()}
+                                    </Td>
+                                    <Td>{r.lineItems.length}</Td>
+                                    <Td>{money(r.totalMinor, r.currency)}</Td>
+                                    <Td>
+                                        <Badge variant="secondary">{r.status}</Badge>
+                                    </Td>
+                                    <Td>
+                                        <PayrollRunActions id={r._id} status={r.status} />
+                                    </Td>
                                 </Tr>
-                            </THead>
-                            <TBody>
-                                {runs.map((r) => (
-                                    <Tr key={r._id}>
-                                        <Td>
-                                            {new Date(r.periodStart).toLocaleDateString()} —{' '}
-                                            {new Date(r.periodEnd).toLocaleDateString()}
-                                        </Td>
-                                        <Td>{r.lineItems.length}</Td>
-                                        <Td>{money(r.totalMinor, r.currency)}</Td>
-                                        <Td><Badge variant="secondary">{r.status}</Badge></Td>
-                                        <Td>
-                                            <PayrollRunActions id={r._id} status={r.status} />
-                                        </Td>
-                                    </Tr>
-                                ))}
-                            </TBody>
-                        </Table>
-                    </CardBody>
+                            ))}
+                        </TBody>
+                    </Table>
                 </Card>
             )}
         </div>

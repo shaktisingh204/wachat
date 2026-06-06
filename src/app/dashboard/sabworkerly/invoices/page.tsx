@@ -1,6 +1,24 @@
 import React from 'react';
 
-import { Card, CardBody, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardBody,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    Badge,
+    type BadgeTone,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 import { Receipt } from 'lucide-react';
 import {
     getSabworkerlyInvoices,
@@ -18,23 +36,42 @@ function money(minor: number, currency = 'USD'): string {
     }
 }
 
+function statusTone(status: string): BadgeTone {
+    switch (status) {
+        case 'paid':
+            return 'success';
+        case 'sent':
+            return 'info';
+        case 'overdue':
+        case 'void':
+            return 'danger';
+        case 'draft':
+        default:
+            return 'neutral';
+    }
+}
+
 export default async function InvoicesPage() {
     const [invoices, clients] = await Promise.all([
         getSabworkerlyInvoices({ status: 'all', limit: 200 }),
         getSabworkerlyClients({ status: 'active', limit: 200 }),
     ]);
     return (
-        <div className="zoruui flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
             <PageHeader>
-                <PageTitle>Invoices</PageTitle>
-                <PageDescription>
-                    Aggregate approved timesheets into a client-facing invoice.
-                </PageDescription>
+                <PageHeaderHeading>
+                    <PageTitle>Invoices</PageTitle>
+                    <PageDescription>
+                        Aggregate approved timesheets into a client-facing invoice.
+                    </PageDescription>
+                </PageHeaderHeading>
             </PageHeader>
 
-            <Card>
-                <CardBody className="p-6">
-                    <h2 className="mb-4 text-lg font-semibold">Generate invoice</h2>
+            <Card padding="none">
+                <CardHeader>
+                    <CardTitle>Generate invoice</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <GenerateInvoiceForm clients={clients.map((c) => ({ id: c._id, name: c.name }))} />
                 </CardBody>
             </Card>
@@ -46,7 +83,7 @@ export default async function InvoicesPage() {
                     description="Approve timesheets, then use the Generate form above to roll them into an invoice."
                 />
             ) : (
-                <Card>
+                <Card padding="none">
                     <CardBody className="p-0">
                         <Table>
                             <THead>
@@ -62,12 +99,14 @@ export default async function InvoicesPage() {
                                 {invoices.map((inv) => (
                                     <Tr key={inv._id}>
                                         <Td>
-                                            {new Date(inv.periodStart).toLocaleDateString()} —{' '}
+                                            {new Date(inv.periodStart).toLocaleDateString()} to{' '}
                                             {new Date(inv.periodEnd).toLocaleDateString()}
                                         </Td>
                                         <Td>{inv.lineItems.length}</Td>
                                         <Td>{money(inv.totalMinor, inv.currency)}</Td>
-                                        <Td><Badge variant="secondary">{inv.status}</Badge></Td>
+                                        <Td>
+                                            <Badge tone={statusTone(inv.status)}>{inv.status}</Badge>
+                                        </Td>
                                         <Td>
                                             <InvoiceStatusActions id={inv._id} status={inv.status} />
                                         </Td>

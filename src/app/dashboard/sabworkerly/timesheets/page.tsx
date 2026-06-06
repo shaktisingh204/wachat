@@ -1,6 +1,23 @@
 import React from 'react';
 
-import { Card, CardBody, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardBody,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    Badge,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 import { ClockIcon } from 'lucide-react';
 import {
     getSabworkerlyTimesheets,
@@ -10,9 +27,9 @@ import { TimesheetActions } from './_actions';
 import { NewTimesheetForm } from './_new-form';
 
 function hoursLabel(d: Record<string, number | undefined>): string {
-    return (['mon','tue','wed','thu','fri','sat','sun'] as const)
-        .map((k) => `${k}:${(d[k] ?? 0)}`)
-        .join(' · ');
+    return (['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const)
+        .map((k) => `${k}:${d[k] ?? 0}`)
+        .join(' . ');
 }
 
 export default async function TimesheetsPage() {
@@ -23,32 +40,38 @@ export default async function TimesheetsPage() {
     ]);
 
     return (
-        <div className="zoruui flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
             <PageHeader>
-                <PageTitle>Timesheets</PageTitle>
-                <PageDescription>
-                    Pending approvals · log new weekly hours · audit log.
-                </PageDescription>
+                <PageHeaderHeading>
+                    <PageTitle>Timesheets</PageTitle>
+                    <PageDescription>
+                        Pending approvals, log new weekly hours, audit log.
+                    </PageDescription>
+                </PageHeaderHeading>
             </PageHeader>
 
             <Card>
-                <CardBody className="p-6">
-                    <h2 className="mb-4 text-lg font-semibold">Log a weekly timesheet</h2>
-                    <NewTimesheetForm placements={placements.map((p) => ({
-                        id: p._id,
-                        label: `${p.workerId.slice(-6)} on ${p.jobId.slice(-6)}`,
-                        workerId: p.workerId,
-                    }))} />
+                <CardHeader>
+                    <CardTitle>Log a weekly timesheet</CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <NewTimesheetForm
+                        placements={placements.map((p) => ({
+                            id: p._id,
+                            label: `${p.workerId.slice(-6)} on ${p.jobId.slice(-6)}`,
+                            workerId: p.workerId,
+                        }))}
+                    />
                 </CardBody>
             </Card>
 
             <Card>
-                <CardBody className="p-6">
-                    <h2 className="mb-4 text-lg font-semibold">
-                        Pending approvals ({pending.length})
-                    </h2>
+                <CardHeader>
+                    <CardTitle>Pending approvals ({pending.length})</CardTitle>
+                </CardHeader>
+                <CardBody>
                     {pending.length === 0 ? (
-                        <p className="text-sm text-[color:var(--st-text-secondary)]">All caught up.</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">All caught up.</p>
                     ) : (
                         <Table>
                             <THead>
@@ -79,8 +102,10 @@ export default async function TimesheetsPage() {
             </Card>
 
             <Card>
-                <CardBody className="p-6">
-                    <h2 className="mb-4 text-lg font-semibold">All timesheets</h2>
+                <CardHeader>
+                    <CardTitle>All timesheets</CardTitle>
+                </CardHeader>
+                <CardBody>
                     {all.length === 0 ? (
                         <EmptyState
                             icon={ClockIcon}
@@ -102,7 +127,9 @@ export default async function TimesheetsPage() {
                                     <Tr key={t._id}>
                                         <Td>{new Date(t.weekStart).toLocaleDateString()}</Td>
                                         <Td>{t.totalHours.toFixed(2)}</Td>
-                                        <Td><Badge variant="secondary">{t.status}</Badge></Td>
+                                        <Td>
+                                            <Badge tone="neutral">{t.status}</Badge>
+                                        </Td>
                                         <Td>
                                             <TimesheetActions id={t._id} status={t.status} />
                                         </Td>

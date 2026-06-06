@@ -1,6 +1,20 @@
 import React from 'react';
 
-import { Card, CardBody, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardBody,
+    PageHeader,
+    PageTitle,
+    PageDescription,
+    Badge,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 import { UserCheck } from 'lucide-react';
 import { getSabworkerlyPlacements } from '@/app/actions/sabworkerly.actions';
 
@@ -16,11 +30,11 @@ function money(minor: number, currency = 'USD'): string {
 export default async function PlacementsPage() {
     const placements = await getSabworkerlyPlacements({ status: 'active', limit: 200 });
     return (
-        <div className="zoruui flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
             <PageHeader>
                 <PageTitle>Active placements</PageTitle>
                 <PageDescription>
-                    Workers currently on assignment. Margin = charge − pay.
+                    Workers currently on assignment. Margin is charge minus pay.
                 </PageDescription>
             </PageHeader>
 
@@ -31,7 +45,7 @@ export default async function PlacementsPage() {
                     description="Place a worker into a job from the Jobs view."
                 />
             ) : (
-                <Card>
+                <Card padding="none">
                     <CardBody className="p-0">
                         <Table>
                             <THead>
@@ -40,7 +54,7 @@ export default async function PlacementsPage() {
                                     <Th>Job</Th>
                                     <Th>Start</Th>
                                     <Th>Charge / Pay</Th>
-                                    <Th>Margin / h</Th>
+                                    <Th align="right">Margin / h</Th>
                                 </Tr>
                             </THead>
                             <TBody>
@@ -52,8 +66,8 @@ export default async function PlacementsPage() {
                                         <Td>
                                             {money(p.hourlyChargeRateMinor)} / {money(p.hourlyPayRateMinor)}
                                         </Td>
-                                        <Td>
-                                            <Badge variant="secondary">
+                                        <Td align="right">
+                                            <Badge tone="accent">
                                                 {money(p.hourlyChargeRateMinor - p.hourlyPayRateMinor)}
                                             </Badge>
                                         </Td>

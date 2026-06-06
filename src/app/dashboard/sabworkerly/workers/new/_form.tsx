@@ -2,10 +2,26 @@
 
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { FileIcon, X } from 'lucide-react';
 
-import { Button, Card, CardBody, Input, Label, Textarea, Badge, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import {
+    Alert,
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    Field,
+    IconButton,
+    Input,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Tag,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
-import { X, FileIcon } from 'lucide-react';
 import { addSabworkerlyWorker } from '@/app/actions/sabworkerly.actions';
 
 interface AttachedDoc {
@@ -15,6 +31,7 @@ interface AttachedDoc {
 
 export function WorkerForm() {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
 
@@ -38,8 +55,8 @@ export function WorkerForm() {
     const onDocPick = (pick: SabFilePick): void => {
         if (!pick?.id) return;
         const id = String(pick.id);
-        const name = pick.name || pick.filename || `Document ${docs.length + 1}`;
-        setDocs((prev) => (prev.some((d) => d.id === id) ? prev : [...prev, { id, name }]));
+        const docName = pick.name || `Document ${docs.length + 1}`;
+        setDocs((prev) => (prev.some((d) => d.id === id) ? prev : [...prev, { id, name: docName }]));
     };
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
@@ -58,56 +75,51 @@ export function WorkerForm() {
                 documentIds: docs.map((d) => d.id),
             });
             if (res.success) {
+                toast.success('Worker created');
                 router.push(`/dashboard/sabworkerly/workers/${res.id}`);
                 router.refresh();
             } else {
                 setError(res.error);
+                toast.error(res.error);
             }
         });
     };
 
     return (
         <Card>
-            <CardBody className="p-6">
+            <CardBody>
                 <form onSubmit={onSubmit} className="flex flex-col gap-5">
-                    {error && (
-                        <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-3 text-sm text-[var(--st-text-secondary)]">
+                    {error ? (
+                        <Alert tone="danger" onClose={() => setError(null)}>
                             {error}
-                        </div>
-                    )}
+                        </Alert>
+                    ) : null}
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="name">Name</Label>
+                        <Field label="Name" required>
                             <Input
-                                id="name"
                                 required
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                             />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="email">Email</Label>
+                        </Field>
+                        <Field label="Email" required>
                             <Input
-                                id="email"
                                 type="email"
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="phone">Phone</Label>
+                        </Field>
+                        <Field label="Phone">
                             <Input
-                                id="phone"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
                             />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="status">Status</Label>
+                        </Field>
+                        <Field label="Status">
                             <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
-                                <SelectTrigger id="status">
+                                <SelectTrigger aria-label="Status">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -116,31 +128,26 @@ export function WorkerForm() {
                                     <SelectItem value="inactive">Inactive</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="rate">Pay rate (per hour)</Label>
+                        </Field>
+                        <Field label="Pay rate (per hour)">
                             <Input
-                                id="rate"
                                 type="number"
                                 step="0.01"
                                 min="0"
                                 value={hourlyRate}
                                 onChange={(e) => setHourlyRate(e.target.value)}
                             />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="currency">Currency</Label>
+                        </Field>
+                        <Field label="Currency">
                             <Input
-                                id="currency"
                                 value={currency}
                                 onChange={(e) => setCurrency(e.target.value.toUpperCase())}
                                 maxLength={3}
                             />
-                        </div>
+                        </Field>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                        <Label>Skills</Label>
+                    <Field label="Skills">
                         <div className="flex gap-2">
                             <Input
                                 placeholder="e.g. forklift, bartending, CDL"
@@ -157,62 +164,56 @@ export function WorkerForm() {
                                 Add
                             </Button>
                         </div>
-                        {skills.length > 0 && (
+                        {skills.length > 0 ? (
                             <div className="mt-1 flex flex-wrap gap-2">
                                 {skills.map((s) => (
-                                    <Badge key={s} variant="secondary" className="gap-1">
+                                    <Tag
+                                        key={s}
+                                        removeLabel={`Remove ${s}`}
+                                        onRemove={() => setSkills((prev) => prev.filter((x) => x !== s))}
+                                    >
                                         {s}
-                                        <button
-                                            type="button"
-                                            aria-label={`Remove ${s}`}
-                                            onClick={() => setSkills((prev) => prev.filter((x) => x !== s))}
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </button>
-                                    </Badge>
+                                    </Tag>
                                 ))}
                             </div>
-                        )}
-                    </div>
+                        ) : null}
+                    </Field>
 
-                    <div className="flex flex-col gap-2">
-                        <Label>Documents (ID, visa, certs)</Label>
-                        <p className="text-xs text-[color:var(--st-text-secondary)]">
-                            Sourced from SabFiles. Use the picker to attach uploaded documents.
-                        </p>
+                    <Field
+                        label="Documents (ID, visa, certs)"
+                        help="Sourced from SabFiles. Use the picker to attach uploaded documents."
+                    >
                         <div>
                             <SabFilePickerButton
                                 accept="all"
                                 onPick={onDocPick}
-                                variant="secondary"
+                                variant="outline"
                             >
                                 Attach document from SabFiles
                             </SabFilePickerButton>
                         </div>
-                        {docs.length > 0 && (
+                        {docs.length > 0 ? (
                             <ul className="mt-2 flex flex-col gap-1">
                                 {docs.map((d) => (
                                     <li
                                         key={d.id}
-                                        className="flex items-center justify-between rounded-md border border-[color:var(--st-border)] px-3 py-2 text-sm"
+                                        className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2 text-sm text-[var(--st-text)]"
                                     >
                                         <span className="flex items-center gap-2">
-                                            <FileIcon className="h-4 w-4 text-[color:var(--st-text-secondary)]" />
+                                            <FileIcon className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                                             {d.name}
                                         </span>
-                                        <button
-                                            type="button"
-                                            aria-label={`Remove ${d.name}`}
+                                        <IconButton
+                                            label={`Remove ${d.name}`}
+                                            icon={X}
+                                            size="sm"
                                             onClick={() => setDocs((prev) => prev.filter((x) => x.id !== d.id))}
-                                            className="text-[color:var(--st-text-secondary)] hover:text-[color:var(--st-text)]"
-                                        >
-                                            <X className="h-4 w-4" />
-                                        </button>
+                                        />
                                     </li>
                                 ))}
                             </ul>
-                        )}
-                    </div>
+                        ) : null}
+                    </Field>
 
                     <div className="flex justify-end gap-2 pt-2">
                         <Button
@@ -223,8 +224,8 @@ export function WorkerForm() {
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={pending}>
-                            {pending ? 'Saving…' : 'Create worker'}
+                        <Button type="submit" variant="primary" loading={pending}>
+                            {pending ? 'Saving' : 'Create worker'}
                         </Button>
                     </div>
                 </form>

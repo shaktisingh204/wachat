@@ -1,7 +1,25 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
+import { Briefcase, DollarSign, TrendingUp, Users } from 'lucide-react';
 
-import { Card, CardHeader, CardTitle, CardBody, PageHeader, PageTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardBody,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    StatCard,
+    Badge,
+    EmptyState,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+} from '@/components/sabcrm/20ui';
 import {
     getSabworkerlyJobById,
     getSabworkerlyPlacements,
@@ -32,34 +50,30 @@ export default async function JobDetailPage({
     ]);
 
     return (
-        <div className="zoruui flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
             <PageHeader>
-                <PageTitle>{job.title}</PageTitle>
+                <PageHeaderHeading>
+                    <PageTitle>{job.title}</PageTitle>
+                </PageHeaderHeading>
             </PageHeader>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                <Card>
-                    <CardHeader><CardTitle>Status</CardTitle></CardHeader>
-                    <CardBody><Badge variant="secondary">{job.status}</Badge></CardBody>
-                </Card>
-                <Card>
-                    <CardHeader><CardTitle>Charge rate</CardTitle></CardHeader>
-                    <CardBody className="text-xl font-semibold">
-                        {money(job.hourlyChargeRateMinor, job.currency)}/h
-                    </CardBody>
-                </Card>
-                <Card>
-                    <CardHeader><CardTitle>Pay rate</CardTitle></CardHeader>
-                    <CardBody className="text-xl font-semibold">
-                        {money(job.hourlyPayRateMinor, job.currency)}/h
-                    </CardBody>
-                </Card>
-                <Card>
-                    <CardHeader><CardTitle>Margin</CardTitle></CardHeader>
-                    <CardBody className="text-xl font-semibold">
-                        {money(job.hourlyChargeRateMinor - job.hourlyPayRateMinor, job.currency)}/h
-                    </CardBody>
-                </Card>
+                <StatCard label="Status" value={<Badge tone="neutral">{job.status}</Badge>} icon={Briefcase} />
+                <StatCard
+                    label="Charge rate"
+                    value={`${money(job.hourlyChargeRateMinor, job.currency)}/h`}
+                    icon={DollarSign}
+                />
+                <StatCard
+                    label="Pay rate"
+                    value={`${money(job.hourlyPayRateMinor, job.currency)}/h`}
+                    icon={DollarSign}
+                />
+                <StatCard
+                    label="Margin"
+                    value={`${money(job.hourlyChargeRateMinor - job.hourlyPayRateMinor, job.currency)}/h`}
+                    icon={TrendingUp}
+                />
             </div>
 
             {job.description && (
@@ -88,9 +102,11 @@ export default async function JobDetailPage({
                 <CardHeader><CardTitle>Placements ({placements.length})</CardTitle></CardHeader>
                 <CardBody className="p-0">
                     {placements.length === 0 ? (
-                        <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">
-                            No workers placed yet.
-                        </p>
+                        <EmptyState
+                            icon={Users}
+                            title="No workers placed yet"
+                            description="Place a worker above and they will appear here."
+                        />
                     ) : (
                         <Table>
                             <THead>
@@ -106,8 +122,8 @@ export default async function JobDetailPage({
                                     <Tr key={p._id}>
                                         <Td className="font-mono text-xs">{p.workerId}</Td>
                                         <Td>{new Date(p.startDate).toLocaleDateString()}</Td>
-                                        <Td>{p.endDate ? new Date(p.endDate).toLocaleDateString() : '—'}</Td>
-                                        <Td><Badge variant="secondary">{p.status}</Badge></Td>
+                                        <Td>{p.endDate ? new Date(p.endDate).toLocaleDateString() : '-'}</Td>
+                                        <Td><Badge tone="neutral">{p.status}</Badge></Td>
                                     </Tr>
                                 ))}
                             </TBody>

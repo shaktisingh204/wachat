@@ -1,4 +1,11 @@
 import { getAnnouncementKpis } from '@/app/actions/crm-announcements.actions';
+import {
+    PageHeader,
+    PageHeaderHeading,
+    PageEyebrow,
+    PageTitle,
+    PageDescription,
+} from '@/components/sabcrm/20ui';
 import { NewAnnouncementClient } from './_components/new-announcement-client';
 
 /**
@@ -14,6 +21,15 @@ export default async function NewAnnouncementPage() {
 
     return (
         <div className="flex w-full flex-col gap-6 p-4 md:p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageEyebrow>Announcements</PageEyebrow>
+                    <PageTitle>New announcement</PageTitle>
+                    <PageDescription>
+                        Compose a new announcement and review your current activity at a glance.
+                    </PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
             <NewAnnouncementClient initialKpis={kpis} />
         </div>
     );

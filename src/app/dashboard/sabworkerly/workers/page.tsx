@@ -1,7 +1,24 @@
 import React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, CardBody, PageHeader, PageTitle, PageActions, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Badge,
+    type BadgeTone,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 import { Plus, Users } from 'lucide-react';
 import { getSabworkerlyWorkers } from '@/app/actions/sabworkerly.actions';
 
@@ -14,16 +31,32 @@ function money(minor: number, currency = 'USD'): string {
     }
 }
 
+const STATUS_TONE: Record<string, BadgeTone> = {
+    active: 'success',
+    on_assignment: 'info',
+    inactive: 'neutral',
+};
+
+const STATUS_LABEL: Record<string, string> = {
+    active: 'Active',
+    on_assignment: 'On assignment',
+    inactive: 'Inactive',
+};
+
 export default async function WorkersListPage() {
     const workers = await getSabworkerlyWorkers({ status: 'all', limit: 200 });
     return (
-        <div className="zoruui flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
             <PageHeader>
-                <PageTitle>Workers</PageTitle>
+                <PageHeaderHeading>
+                    <PageTitle>Workers</PageTitle>
+                    <PageDescription>
+                        Manage your temp workers and place them into client jobs.
+                    </PageDescription>
+                </PageHeaderHeading>
                 <PageActions>
                     <Link href="/dashboard/sabworkerly/workers/new">
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
+                        <Button variant="primary" iconLeft={Plus}>
                             Add worker
                         </Button>
                     </Link>
@@ -35,67 +68,62 @@ export default async function WorkersListPage() {
                     icon={Users}
                     title="No workers yet"
                     description="Add your first temp worker to start placing them into client jobs."
-                    actionLabel="Add worker"
-                    actionHref="/dashboard/sabworkerly/workers/new"
+                    action={
+                        <Link href="/dashboard/sabworkerly/workers/new">
+                            <Button variant="primary" iconLeft={Plus}>
+                                Add worker
+                            </Button>
+                        </Link>
+                    }
                 />
             ) : (
-                <Card>
-                    <CardBody className="p-0">
-                        <Table>
-                            <THead>
-                                <Tr>
-                                    <Th>Name</Th>
-                                    <Th>Email</Th>
-                                    <Th>Skills</Th>
-                                    <Th>Rate</Th>
-                                    <Th>Status</Th>
+                <Card padding="none">
+                    <Table>
+                        <THead>
+                            <Tr>
+                                <Th>Name</Th>
+                                <Th>Email</Th>
+                                <Th>Skills</Th>
+                                <Th>Rate</Th>
+                                <Th>Status</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
+                            {workers.map((w) => (
+                                <Tr key={w._id}>
+                                    <Td>
+                                        <Link
+                                            href={`/dashboard/sabworkerly/workers/${w._id}`}
+                                            className="font-medium text-[var(--st-text)] hover:underline"
+                                        >
+                                            {w.name}
+                                        </Link>
+                                    </Td>
+                                    <Td className="text-[var(--st-text-secondary)]">
+                                        {w.email}
+                                    </Td>
+                                    <Td>
+                                        <div className="flex flex-wrap gap-1">
+                                            {(w.skills ?? []).slice(0, 3).map((s) => (
+                                                <Badge key={s} tone="neutral">{s}</Badge>
+                                            ))}
+                                            {(w.skills ?? []).length > 3 && (
+                                                <Badge tone="neutral" kind="outline">
+                                                    +{(w.skills ?? []).length - 3}
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </Td>
+                                    <Td>{money(w.hourlyRateMinor, w.currency)}/h</Td>
+                                    <Td>
+                                        <Badge tone={STATUS_TONE[w.status] ?? 'neutral'} dot>
+                                            {STATUS_LABEL[w.status] ?? w.status}
+                                        </Badge>
+                                    </Td>
                                 </Tr>
-                            </THead>
-                            <TBody>
-                                {workers.map((w) => (
-                                    <Tr key={w._id}>
-                                        <Td>
-                                            <Link
-                                                href={`/dashboard/sabworkerly/workers/${w._id}`}
-                                                className="font-medium hover:underline"
-                                            >
-                                                {w.name}
-                                            </Link>
-                                        </Td>
-                                        <Td className="text-[color:var(--st-text-secondary)]">
-                                            {w.email}
-                                        </Td>
-                                        <Td>
-                                            <div className="flex flex-wrap gap-1">
-                                                {(w.skills ?? []).slice(0, 3).map((s) => (
-                                                    <Badge key={s} variant="secondary">{s}</Badge>
-                                                ))}
-                                                {(w.skills ?? []).length > 3 && (
-                                                    <Badge variant="outline">
-                                                        +{(w.skills ?? []).length - 3}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </Td>
-                                        <Td>{money(w.hourlyRateMinor, w.currency)}/h</Td>
-                                        <Td>
-                                            <Badge
-                                                variant={
-                                                    w.status === 'active'
-                                                        ? 'default'
-                                                        : w.status === 'on_assignment'
-                                                          ? 'secondary'
-                                                          : 'outline'
-                                                }
-                                            >
-                                                {w.status}
-                                            </Badge>
-                                        </Td>
-                                    </Tr>
-                                ))}
-                            </TBody>
-                        </Table>
-                    </CardBody>
+                            ))}
+                        </TBody>
+                    </Table>
                 </Card>
             )}
         </div>

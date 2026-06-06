@@ -2,8 +2,23 @@
 
 import React, { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { CalendarOff } from 'lucide-react';
 
-import { Button, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    EmptyState,
+    Field,
+    Input,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { addSabworkerlyTimesheet } from '@/app/actions/sabworkerly.actions';
 
 interface PlacementOpt { id: string; label: string; workerId: string }
@@ -21,8 +36,8 @@ function mondayOf(d: Date): string {
 
 export function NewTimesheetForm({ placements }: { placements: PlacementOpt[] }) {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, startTransition] = useTransition();
-    const [error, setError] = useState<string | null>(null);
 
     const [placementId, setPlacementId] = useState<string>(placements[0]?.id ?? '');
     const [weekStart, setWeekStart] = useState<string>(mondayOf(new Date()));
@@ -37,18 +52,19 @@ export function NewTimesheetForm({ placements }: { placements: PlacementOpt[] })
 
     if (placements.length === 0) {
         return (
-            <p className="text-sm text-[color:var(--st-text-secondary)]">
-                No active placements — place a worker into a job first.
-            </p>
+            <EmptyState
+                icon={CalendarOff}
+                title="No active placements"
+                description="Place a worker into a job first, then log their timesheet here."
+            />
         );
     }
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
-        setError(null);
         const placement = placements.find((p) => p.id === placementId);
         if (!placement) {
-            setError('Pick a placement');
+            toast.error('Pick a placement');
             return;
         }
         const dailyHoursJson = Object.fromEntries(
@@ -64,68 +80,69 @@ export function NewTimesheetForm({ placements }: { placements: PlacementOpt[] })
                 status: 'draft',
             });
             if (res.success) {
+                toast.success('Timesheet draft saved');
                 router.refresh();
             } else {
-                setError(res.error);
+                toast.error(res.error);
             }
         });
     };
 
     return (
-        <form onSubmit={onSubmit} className="flex flex-col gap-4">
-            {error && (
-                <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-2 text-sm text-[var(--st-text-secondary)]">
-                    {error}
-                </div>
-            )}
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                <div className="flex flex-col gap-1 md:col-span-2">
-                    <Label>Placement</Label>
-                    <Select value={placementId} onValueChange={setPlacementId}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                            {placements.map((p) => (
-                                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="flex flex-col gap-1">
-                    <Label htmlFor="weekStart">Week starting (Mon)</Label>
-                    <Input
-                        id="weekStart"
-                        type="date"
-                        value={weekStart}
-                        onChange={(e) => setWeekStart(e.target.value)}
-                    />
-                </div>
-            </div>
-
-            <div className="grid grid-cols-7 gap-2">
-                {DAYS.map((d) => (
-                    <div key={d} className="flex flex-col gap-1">
-                        <Label htmlFor={`ts-${d}`} className="text-xs uppercase">{d}</Label>
-                        <Input
-                            id={`ts-${d}`}
-                            type="number"
-                            step="0.25"
-                            min="0"
-                            max="24"
-                            value={hours[d]}
-                            onChange={(e) => setHours((prev) => ({ ...prev, [d]: e.target.value }))}
-                        />
+        <Card>
+            <CardBody>
+                <form onSubmit={onSubmit} className="flex flex-col gap-4">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                        <div className="md:col-span-2 flex flex-col gap-1.5">
+                            <span className="text-xs font-medium text-[var(--st-text-secondary)]">
+                                Placement
+                            </span>
+                            <Select value={placementId} onValueChange={setPlacementId}>
+                                <SelectTrigger aria-label="Placement">
+                                    <SelectValue placeholder="Pick a placement" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {placements.map((p) => (
+                                        <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Field label="Week starting (Mon)">
+                            <Input
+                                type="date"
+                                value={weekStart}
+                                onChange={(e) => setWeekStart(e.target.value)}
+                            />
+                        </Field>
                     </div>
-                ))}
-            </div>
 
-            <div className="flex items-center justify-between pt-2">
-                <span className="text-sm text-[color:var(--st-text-secondary)]">
-                    Total: <span className="font-semibold text-[color:var(--st-text)]">{total.toFixed(2)} h</span>
-                </span>
-                <Button type="submit" disabled={pending}>
-                    {pending ? 'Saving…' : 'Save draft'}
-                </Button>
-            </div>
-        </form>
+                    <div className="grid grid-cols-7 gap-2">
+                        {DAYS.map((d) => (
+                            <Field key={d} label={<span className="uppercase">{d}</span>}>
+                                <Input
+                                    type="number"
+                                    step="0.25"
+                                    min="0"
+                                    max="24"
+                                    value={hours[d]}
+                                    onChange={(e) => setHours((prev) => ({ ...prev, [d]: e.target.value }))}
+                                />
+                            </Field>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2">
+                        <span className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                            Total
+                            <Badge tone="info">{total.toFixed(2)} h</Badge>
+                        </span>
+                        <Button type="submit" variant="primary" loading={pending}>
+                            {pending ? 'Saving' : 'Save draft'}
+                        </Button>
+                    </div>
+                </form>
+            </CardBody>
+        </Card>
     );
 }

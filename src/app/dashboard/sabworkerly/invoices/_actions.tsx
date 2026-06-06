@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/sabcrm/20ui';
 import { updateSabworkerlyInvoiceStatus } from '@/app/actions/sabworkerly.actions';
 
-export function InvoiceStatusActions({ id, status }: { id: string; status: string }) {
+export function InvoiceStatusActions({ id, status }: { id: string; status: string }): React.JSX.Element {
     const router = useRouter();
     const [pending, startTransition] = useTransition();
 
@@ -20,17 +20,17 @@ export function InvoiceStatusActions({ id, status }: { id: string; status: strin
     return (
         <div className="flex gap-1">
             {status === 'draft' && (
-                <Button size="sm" disabled={pending} onClick={() => set('sent')}>
+                <Button size="sm" variant="primary" loading={pending} onClick={() => set('sent')}>
                     Mark sent
                 </Button>
             )}
             {(status === 'sent' || status === 'overdue') && (
-                <Button size="sm" variant="secondary" disabled={pending} onClick={() => set('paid')}>
+                <Button size="sm" variant="secondary" loading={pending} onClick={() => set('paid')}>
                     Mark paid
                 </Button>
             )}
             {status === 'sent' && (
-                <Button size="sm" variant="outline" disabled={pending} onClick={() => set('overdue')}>
+                <Button size="sm" variant="outline" loading={pending} onClick={() => set('overdue')}>
                     Overdue
                 </Button>
             )}

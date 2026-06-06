@@ -1,7 +1,25 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
+import { FileText, Briefcase, Wallet } from 'lucide-react';
 
-import { Card, CardHeader, CardTitle, CardBody, PageHeader, PageTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardBody,
+    StatCard,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Badge,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+} from '@/components/sabcrm/20ui';
 import {
     getSabworkerlyWorkerById,
     getSabworkerlyPlacements,
@@ -35,10 +53,14 @@ export default async function WorkerDetailPage({
         .filter((t) => t.status === 'approved' || t.status === 'invoiced')
         .reduce((acc, t) => acc + Math.round(t.totalHours * worker.hourlyRateMinor), 0);
 
+    const documentIds = worker.documentIds ?? [];
+
     return (
-        <div className="zoruui flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
             <PageHeader>
-                <PageTitle>{worker.name}</PageTitle>
+                <PageHeaderHeading>
+                    <PageTitle>{worker.name}</PageTitle>
+                </PageHeaderHeading>
             </PageHeader>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -57,9 +79,9 @@ export default async function WorkerDetailPage({
                                 <span>{worker.phone}</span>
                             </div>
                         )}
-                        <div className="flex justify-between">
+                        <div className="flex items-center justify-between">
                             <span className="text-[color:var(--st-text-secondary)]">Status</span>
-                            <Badge variant="secondary">{worker.status}</Badge>
+                            <Badge tone="neutral" kind="soft">{worker.status}</Badge>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-[color:var(--st-text-secondary)]">Pay rate</span>
@@ -67,7 +89,7 @@ export default async function WorkerDetailPage({
                         </div>
                         <div className="flex flex-wrap gap-1 pt-2">
                             {(worker.skills ?? []).map((s) => (
-                                <Badge key={s} variant="outline">{s}</Badge>
+                                <Badge key={s} tone="neutral" kind="outline">{s}</Badge>
                             ))}
                         </div>
                     </CardBody>
@@ -77,14 +99,20 @@ export default async function WorkerDetailPage({
                         <CardTitle>Documents</CardTitle>
                     </CardHeader>
                     <CardBody>
-                        {(worker.documentIds ?? []).length === 0 ? (
-                            <p className="text-sm text-[color:var(--st-text-secondary)]">
-                                No documents attached.
-                            </p>
+                        {documentIds.length === 0 ? (
+                            <EmptyState
+                                size="sm"
+                                icon={FileText}
+                                title="No documents attached"
+                                description="Documents linked to this worker will appear here."
+                            />
                         ) : (
                             <ul className="flex flex-col gap-1 text-sm">
-                                {(worker.documentIds ?? []).map((id) => (
-                                    <li key={id} className="rounded-md border border-[color:var(--st-border)] px-3 py-2 font-mono text-xs">
+                                {documentIds.map((id) => (
+                                    <li
+                                        key={id}
+                                        className="rounded-[var(--st-radius)] border border-[color:var(--st-border)] px-3 py-2 font-mono text-xs"
+                                    >
                                         {id}
                                     </li>
                                 ))}
@@ -92,30 +120,26 @@ export default async function WorkerDetailPage({
                         )}
                     </CardBody>
                 </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Earnings (approved + invoiced)</CardTitle>
-                    </CardHeader>
-                    <CardBody>
-                        <div className="text-3xl font-semibold">
-                            {money(earningsMinor, worker.currency)}
-                        </div>
-                        <div className="text-xs text-[color:var(--st-text-secondary)]">
-                            {timesheets.length} timesheet(s) on file
-                        </div>
-                    </CardBody>
-                </Card>
+                <StatCard
+                    icon={Wallet}
+                    label="Earnings (approved + invoiced)"
+                    value={money(earningsMinor, worker.currency)}
+                    delta={{ value: `${timesheets.length} timesheet(s) on file`, tone: 'neutral' }}
+                />
             </div>
 
-            <Card>
+            <Card padding="none">
                 <CardHeader>
                     <CardTitle>Placement history</CardTitle>
                 </CardHeader>
                 <CardBody className="p-0">
                     {placements.length === 0 ? (
-                        <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">
-                            No placements yet.
-                        </p>
+                        <EmptyState
+                            className="py-8"
+                            icon={Briefcase}
+                            title="No placements yet"
+                            description="Placements for this worker will be listed here once created."
+                        />
                     ) : (
                         <Table>
                             <THead>
@@ -134,12 +158,12 @@ export default async function WorkerDetailPage({
                                         <Td className="font-mono text-xs">{p.jobId}</Td>
                                         <Td>{new Date(p.startDate).toLocaleDateString()}</Td>
                                         <Td>
-                                            {p.endDate ? new Date(p.endDate).toLocaleDateString() : '—'}
+                                            {p.endDate ? new Date(p.endDate).toLocaleDateString() : '-'}
                                         </Td>
                                         <Td>{money(p.hourlyChargeRateMinor)}</Td>
                                         <Td>{money(p.hourlyPayRateMinor)}</Td>
                                         <Td>
-                                            <Badge variant="secondary">{p.status}</Badge>
+                                            <Badge tone="neutral" kind="soft">{p.status}</Badge>
                                         </Td>
                                     </Tr>
                                 ))}

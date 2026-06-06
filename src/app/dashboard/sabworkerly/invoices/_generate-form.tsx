@@ -2,17 +2,28 @@
 
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { FileText } from 'lucide-react';
 
-import { Button, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Field,
+    Input,
+    EmptyState,
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { generateSabworkerlyInvoice } from '@/app/actions/sabworkerly.actions';
 
 interface ClientOpt { id: string; name: string }
 
 export function GenerateInvoiceForm({ clients }: { clients: ClientOpt[] }) {
     const router = useRouter();
+    const { toast } = useToast();
     const [pending, startTransition] = useTransition();
-    const [error, setError] = useState<string | null>(null);
-    const [message, setMessage] = useState<string | null>(null);
 
     const today = new Date();
     const monthAgo = new Date(today.getTime() - 30 * 86400 * 1000);
@@ -22,16 +33,16 @@ export function GenerateInvoiceForm({ clients }: { clients: ClientOpt[] }) {
 
     if (clients.length === 0) {
         return (
-            <p className="text-sm text-[color:var(--st-text-secondary)]">
-                Add a client first to generate an invoice.
-            </p>
+            <EmptyState
+                icon={FileText}
+                title="No clients yet"
+                description="Add a client first to generate an invoice."
+            />
         );
     }
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
-        setError(null);
-        setMessage(null);
         startTransition(async () => {
             const res = await generateSabworkerlyInvoice(
                 clientId,
@@ -39,48 +50,39 @@ export function GenerateInvoiceForm({ clients }: { clients: ClientOpt[] }) {
                 new Date(end).toISOString(),
             );
             if (res.success) {
-                setMessage(`Generated invoice with ${res.lineCount} line(s) totalling ${(res.totalMinor / 100).toFixed(2)}`);
+                toast.success(
+                    `Generated invoice with ${res.lineCount} line(s) totalling ${(res.totalMinor / 100).toFixed(2)}`,
+                );
                 router.refresh();
             } else {
-                setError(res.error);
+                toast.error(res.error);
             }
         });
     };
 
     return (
         <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 md:grid-cols-4">
-            {error && (
-                <div className="md:col-span-4 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-2 text-sm text-[var(--st-text-secondary)]">
-                    {error}
-                </div>
-            )}
-            {message && (
-                <div className="md:col-span-4 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-2 text-sm text-white">
-                    {message}
-                </div>
-            )}
-            <div className="flex flex-col gap-1">
-                <Label>Client</Label>
+            <Field label="Client">
                 <Select value={clientId} onValueChange={setClientId}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger aria-label="Client">
+                        <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                         {clients.map((c) => (
                             <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
-            </div>
-            <div className="flex flex-col gap-1">
-                <Label htmlFor="g-start">Period start</Label>
-                <Input id="g-start" type="date" value={start} onChange={(e) => setStart(e.target.value)} />
-            </div>
-            <div className="flex flex-col gap-1">
-                <Label htmlFor="g-end">Period end</Label>
-                <Input id="g-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
-            </div>
+            </Field>
+            <Field label="Period start">
+                <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
+            </Field>
+            <Field label="Period end">
+                <Input type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
+            </Field>
             <div className="flex items-end">
-                <Button type="submit" disabled={pending} className="w-full">
-                    {pending ? 'Generating…' : 'Generate'}
+                <Button type="submit" variant="primary" loading={pending} block>
+                    {pending ? 'Generating' : 'Generate'}
                 </Button>
             </div>
         </form>

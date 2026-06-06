@@ -1,7 +1,23 @@
 import React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, CardBody, PageHeader, PageTitle, PageActions, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardBody,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageActions,
+    Badge,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 import { Plus, Briefcase } from 'lucide-react';
 import { getSabworkerlyJobs } from '@/app/actions/sabworkerly.actions';
 
@@ -17,13 +33,14 @@ function money(minor: number, currency = 'USD'): string {
 export default async function JobsListPage() {
     const jobs = await getSabworkerlyJobs({ status: 'all', limit: 200 });
     return (
-        <div className="zoruui flex flex-col gap-5">
+        <div className="ui20 flex flex-col gap-5">
             <PageHeader>
-                <PageTitle>Jobs</PageTitle>
+                <PageHeaderHeading>
+                    <PageTitle>Jobs</PageTitle>
+                </PageHeaderHeading>
                 <PageActions>
                     <Link href="/dashboard/sabworkerly/jobs/new">
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
+                        <Button iconLeft={Plus} variant="primary">
                             Post job
                         </Button>
                     </Link>
@@ -35,20 +52,25 @@ export default async function JobsListPage() {
                     icon={Briefcase}
                     title="No jobs posted"
                     description="Post a job for one of your clients to start placing workers."
-                    actionLabel="Post job"
-                    actionHref="/dashboard/sabworkerly/jobs/new"
+                    action={
+                        <Link href="/dashboard/sabworkerly/jobs/new">
+                            <Button iconLeft={Plus} variant="primary">
+                                Post job
+                            </Button>
+                        </Link>
+                    }
                 />
             ) : (
-                <Card>
+                <Card padding="none">
                     <CardBody className="p-0">
                         <Table>
                             <THead>
                                 <Tr>
                                     <Th>Title</Th>
                                     <Th>Shift</Th>
-                                    <Th>Charge</Th>
-                                    <Th>Pay</Th>
-                                    <Th>Margin</Th>
+                                    <Th align="right">Charge</Th>
+                                    <Th align="right">Pay</Th>
+                                    <Th align="right">Margin</Th>
                                     <Th>Status</Th>
                                 </Tr>
                             </THead>
@@ -60,21 +82,21 @@ export default async function JobsListPage() {
                                             <Td>
                                                 <Link
                                                     href={`/dashboard/sabworkerly/jobs/${j._id}`}
-                                                    className="font-medium hover:underline"
+                                                    className="font-medium text-[var(--st-text)] hover:underline"
                                                 >
                                                     {j.title}
                                                 </Link>
                                             </Td>
-                                            <Td>{j.shiftPattern ?? '—'}</Td>
-                                            <Td>{money(j.hourlyChargeRateMinor, j.currency)}/h</Td>
-                                            <Td>{money(j.hourlyPayRateMinor, j.currency)}/h</Td>
-                                            <Td>
-                                                <Badge variant={margin > 0 ? 'default' : 'outline'}>
+                                            <Td>{j.shiftPattern ?? '-'}</Td>
+                                            <Td align="right">{money(j.hourlyChargeRateMinor, j.currency)}/h</Td>
+                                            <Td align="right">{money(j.hourlyPayRateMinor, j.currency)}/h</Td>
+                                            <Td align="right">
+                                                <Badge tone={margin > 0 ? 'success' : 'neutral'}>
                                                     {money(margin, j.currency)}/h
                                                 </Badge>
                                             </Td>
                                             <Td>
-                                                <Badge variant="secondary">{j.status}</Badge>
+                                                <Badge tone="neutral">{j.status}</Badge>
                                             </Td>
                                         </Tr>
                                     );

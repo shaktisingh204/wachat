@@ -2,10 +2,29 @@
 
 import { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  Badge,
+  EmptyState,
+  Field,
+  Input,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { createCustomReport, deleteCustomReport } from '@/app/actions/platform/custom-report-builder.actions';
 import type { CustomReport } from '@/types/platform';
-import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { FileBarChart, Plus, Trash2 } from 'lucide-react';
 
 import { useRouter } from 'next/navigation';
 
@@ -30,12 +49,12 @@ export function CustomReportBuilderClient({ initialData }: CustomReportBuilderCl
           ...form,
           columns: form.columns.split(',').map(c => c.trim()).filter(Boolean)
         });
-        toast({ title: 'Report created', variant: 'success' });
+        toast.success('Report created');
         setDialogOpen(false);
         setForm({ name: '', description: '', dataSource: '', columns: '' });
         router.refresh();
       } catch (err) {
-        toast({ title: 'Error creating report', variant: 'destructive' });
+        toast.error('Error creating report');
       }
     });
   };
@@ -45,10 +64,10 @@ export function CustomReportBuilderClient({ initialData }: CustomReportBuilderCl
     startTransition(async () => {
       try {
         await deleteCustomReport(id);
-        toast({ title: 'Report deleted', variant: 'success' });
+        toast.success('Report deleted');
         router.refresh();
       } catch (err) {
-        toast({ title: 'Error deleting report', variant: 'destructive' });
+        toast.error('Error deleting report');
       }
     });
   };
@@ -59,59 +78,63 @@ export function CustomReportBuilderClient({ initialData }: CustomReportBuilderCl
     <EntityListShell
       title="Custom Report Builder"
       subtitle="Build and manage custom reports with drag-and-drop elements."
-      primaryAction={<Button onClick={() => setDialogOpen(true)}><Plus className="w-4 h-4 mr-2" />Create Report</Button>}
+      primaryAction={<Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>Create Report</Button>}
       search={{ value: query, onChange: setQuery, placeholder: 'Search reports...' }}
     >
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredData.map(item => (
-          <Card key={item.id} className="p-4 flex flex-col justify-between hover:border-[var(--st-accent)] transition-colors">
-            <div>
-              <h3 className="font-semibold text-lg text-[var(--st-text)]">{item.name}</h3>
-              <p className="text-sm text-[var(--st-text-tertiary)] mt-1">{item.description}</p>
-              <div className="mt-4">
-                <span className="text-xs font-semibold bg-[var(--st-hover)] px-2 py-1 rounded-md">{item.dataSource}</span>
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end">
-              <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
-                <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
-              </Button>
-            </div>
-          </Card>
-        ))}
-        {filteredData.length === 0 && (
-          <div className="col-span-full py-12 text-center text-[var(--st-text-tertiary)]">No reports found.</div>
-        )}
-      </div>
+      {filteredData.length === 0 ? (
+        <EmptyState
+          icon={FileBarChart}
+          title="No reports found"
+          description="Create a custom report to get started."
+          action={<Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>Create Report</Button>}
+        />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredData.map(item => (
+            <Card key={item.id} variant="interactive" padding="md" className="flex flex-col justify-between">
+              <CardBody className="flex flex-col gap-2">
+                <CardTitle>{item.name}</CardTitle>
+                <CardDescription>{item.description}</CardDescription>
+                <div>
+                  <Badge tone="accent">{item.dataSource}</Badge>
+                </div>
+              </CardBody>
+              <CardFooter className="justify-end">
+                <IconButton
+                  label="Delete report"
+                  icon={Trash2}
+                  variant="ghost"
+                  onClick={() => handleDelete(item.id)}
+                />
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>New Custom Report</DialogTitle>
+            <DialogDescription>Define the report name, source, and columns to include.</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label>Report Name</Label>
+          <div className="flex flex-col gap-4 py-4">
+            <Field label="Report Name">
               <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-            </div>
-            <div className="grid gap-2">
-              <Label>Description</Label>
+            </Field>
+            <Field label="Description">
               <Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
-            </div>
-            <div className="grid gap-2">
-              <Label>Data Source</Label>
+            </Field>
+            <Field label="Data Source">
               <Input value={form.dataSource} onChange={e => setForm({ ...form, dataSource: e.target.value })} placeholder="e.g. deals, contacts" />
-            </div>
-            <div className="grid gap-2">
-              <Label>Columns (comma separated)</Label>
+            </Field>
+            <Field label="Columns (comma separated)">
               <Input value={form.columns} onChange={e => setForm({ ...form, columns: e.target.value })} placeholder="Revenue, Date, Rep" />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreate} disabled={isPending}>
-              {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} Create
-            </Button>
+            <Button variant="primary" onClick={handleCreate} loading={isPending}>Create</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

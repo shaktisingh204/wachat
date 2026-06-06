@@ -1,20 +1,41 @@
 import React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, CardBody, PageHeader, PageTitle, PageActions, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardBody,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Badge,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 import { Plus, Building2 } from 'lucide-react';
 import { getSabworkerlyClients } from '@/app/actions/sabworkerly.actions';
 
 export default async function ClientsListPage() {
     const clients = await getSabworkerlyClients({ status: 'all', limit: 200 });
     return (
-        <div className="zoruui flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
             <PageHeader>
-                <PageTitle>Clients</PageTitle>
+                <PageHeaderHeading>
+                    <PageTitle>Clients</PageTitle>
+                    <PageDescription>
+                        Businesses that book temp workers from your agency.
+                    </PageDescription>
+                </PageHeaderHeading>
                 <PageActions>
                     <Link href="/dashboard/sabworkerly/clients/new">
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
+                        <Button variant="primary" iconLeft={Plus}>
                             Add client
                         </Button>
                     </Link>
@@ -26,11 +47,16 @@ export default async function ClientsListPage() {
                     icon={Building2}
                     title="No clients yet"
                     description="Add the businesses that book temp workers from your agency."
-                    actionLabel="Add client"
-                    actionHref="/dashboard/sabworkerly/clients/new"
+                    action={
+                        <Link href="/dashboard/sabworkerly/clients/new">
+                            <Button variant="primary" iconLeft={Plus}>
+                                Add client
+                            </Button>
+                        </Link>
+                    }
                 />
             ) : (
-                <Card>
+                <Card padding="none">
                     <CardBody className="p-0">
                         <Table>
                             <THead>
@@ -53,13 +79,13 @@ export default async function ClientsListPage() {
                                                 {c.name}
                                             </Link>
                                         </Td>
-                                        <Td>{c.contactName ?? '—'}</Td>
+                                        <Td>{c.contactName ?? '-'}</Td>
                                         <Td className="text-[color:var(--st-text-secondary)]">
-                                            {c.contactEmail ?? '—'}
+                                            {c.contactEmail ?? '-'}
                                         </Td>
                                         <Td>NET-{c.paymentTermsDays}</Td>
                                         <Td>
-                                            <Badge variant={c.status === 'active' ? 'default' : 'outline'}>
+                                            <Badge tone={c.status === 'active' ? 'success' : 'neutral'} kind={c.status === 'active' ? 'soft' : 'outline'}>
                                                 {c.status}
                                             </Badge>
                                         </Td>

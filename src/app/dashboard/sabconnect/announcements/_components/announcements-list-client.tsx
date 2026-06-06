@@ -1,14 +1,14 @@
 'use client';
 
 /**
- * AnnouncementsListClient — full-feature list (§1B W7).
+ * AnnouncementsListClient, full-feature list (rebuilt on the 20ui design system).
  *
  * Features:
- *  - KPI strip: total · active/pinned · published this month · drafts
- *  - Filters: title search · status · audience · pinned toggle · date range
- *  - Table: Title · Published by · Audience · Pinned · Published at · Status ·
- *           Views · Actions (edit / delete)
- *  - Bulk: publish · archive · delete
+ *  - KPI strip: total, active/pinned, published this month, total views
+ *  - Filters: title search, status, audience, pinned toggle, date range
+ *  - Table: Title, Published by, Audience, Pinned, Published at, Status,
+ *           Views, Actions (edit / delete)
+ *  - Bulk: publish, archive, delete
  *  - Export CSV via crm-list-export
  */
 
@@ -20,6 +20,7 @@ import {
     Megaphone,
     Pin,
     Plus,
+    Search,
     Send,
     Trash2,
     X,
@@ -28,8 +29,36 @@ import {
     PenTool,
 } from 'lucide-react';
 
-import { Badge, Button, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Card, useToast } from '@/components/sabcrm/20ui';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardTitle,
+    Checkbox,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    StatCard,
+    Table,
+    TBody,
+    Td,
+    THead,
+    Th,
+    Tr,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
@@ -47,6 +76,7 @@ import type {
     CrmAnnouncementStatus,
 } from '@/lib/rust-client/crm-announcements';
 import type { AnnouncementKpis } from '@/app/actions/crm-announcements.actions.types';
+
 interface ListClientProps {
     initialItems: CrmAnnouncementDoc[];
     initialKpis: AnnouncementKpis;
@@ -59,10 +89,12 @@ const STATUS_TONE: Record<CrmAnnouncementStatus, StatusTone> = {
     archived: 'neutral',
 };
 
+const EMPTY_CELL = '-';
+
 function fmtDate(v: string | undefined): string {
-    if (!v) return '—';
+    if (!v) return EMPTY_CELL;
     const d = new Date(v);
-    if (Number.isNaN(d.getTime())) return '—';
+    if (Number.isNaN(d.getTime())) return EMPTY_CELL;
     return d.toISOString().slice(0, 10);
 }
 
@@ -184,8 +216,9 @@ export function AnnouncementsListClient({
         setToIso('');
     };
 
-    // ── Selection ──
+    // -- Selection --
     const allSelected = visible.length > 0 && visible.every((a) => selected.has(a._id));
+    const someSelected = visible.some((a) => selected.has(a._id));
     const toggleOne = (id: string) =>
         setSelected((prev) => {
             const next = new Set(prev);
@@ -196,20 +229,20 @@ export function AnnouncementsListClient({
     const toggleAll = (on: boolean) =>
         setSelected(on ? new Set(visible.map((a) => a._id)) : new Set());
 
-    // ── Single delete ──
+    // -- Single delete --
     const confirmDelete = async () => {
         if (!pendingDelete) return;
         const r = await deleteAnnouncement(pendingDelete);
         if (r.success) {
-            toast({ title: 'Announcement deleted' });
+            toast.success('Announcement deleted');
             refetch();
         } else {
-            toast({ title: 'Delete failed', description: r.error, variant: 'destructive' });
+            toast.error({ title: 'Delete failed', description: r.error });
         }
         setPendingDelete(null);
     };
 
-    // ── Bulk actions ──
+    // -- Bulk actions --
     const runBulk = React.useCallback(async () => {
         const ids = Array.from(selected);
         if (ids.length === 0 || !bulkConfirmMode) return;
@@ -220,14 +253,14 @@ export function AnnouncementsListClient({
         toast({
             title: `Bulk ${bulkConfirmMode}`,
             description: `${result.ok} succeeded${result.fail ? `, ${result.fail} failed` : ''}`,
-            variant: result.fail > 0 ? 'destructive' : undefined,
+            tone: result.fail > 0 ? 'danger' : 'success',
         });
         setSelected(new Set());
         setBulkConfirmMode(null);
         refetch();
     }, [selected, bulkConfirmMode, refetch, toast]);
 
-    // ── Export ──
+    // -- Export --
     const exportCsv = React.useCallback(() => {
         const rows = (selected.size > 0 ? items.filter((a) => selected.has(a._id)) : visible).map(
             (a) => ({
@@ -255,308 +288,328 @@ export function AnnouncementsListClient({
               ? `Archive ${selected.size} announcement(s)?`
               : `Delete ${selected.size} announcement(s)?`;
 
+    const showEmpty = !loading && items.length === 0;
+
     return (
         <>
-            <EntityListShell
-                title="Announcements"
-                subtitle="Broadcast updates, schedule rollouts, and track who has acknowledged."
-                search={{
-                    value: searchDraft,
-                    onChange: (v) => {
-                        setSearchDraft(v);
-                        onSearch(v);
-                    },
-                    placeholder: 'Search title or body…',
-                }}
-                primaryAction={
-                    <Button asChild>
-                        <Link href="/dashboard/sabconnect/announcements/new">
-                            <Plus className="h-4 w-4" /> New announcement
+            <div className="flex w-full flex-col gap-4">
+                {/* Page header */}
+                <PageHeader>
+                    <PageHeaderHeading>
+                        <PageTitle>Announcements</PageTitle>
+                        <PageDescription>
+                            Broadcast updates, schedule rollouts, and track who has acknowledged.
+                        </PageDescription>
+                    </PageHeaderHeading>
+                    <PageActions>
+                        <div className="w-full sm:w-64">
+                            <Field label="Search announcements">
+                                <Input
+                                    type="search"
+                                    value={searchDraft}
+                                    onChange={(e) => {
+                                        setSearchDraft(e.target.value);
+                                        onSearch(e.target.value);
+                                    }}
+                                    placeholder="Search title or body"
+                                    iconLeft={Search}
+                                />
+                            </Field>
+                        </div>
+                        <Link
+                            href="/dashboard/sabconnect/announcements/new"
+                            className="u-btn u-btn--primary u-btn--md"
+                        >
+                            <Plus size={14} aria-hidden="true" />
+                            <span className="u-btn__label">New announcement</span>
                         </Link>
-                    </Button>
-                }
-                filters={
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Select
-                            value={statusFilter}
-                            onValueChange={(v) =>
-                                setStatusFilter(v as CrmAnnouncementStatus | 'all')
-                            }
-                        >
-                            <SelectTrigger className="h-9 w-[150px]">
-                                <SelectValue placeholder="Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All statuses</SelectItem>
-                                <SelectItem value="draft">Draft</SelectItem>
-                                <SelectItem value="scheduled">Scheduled</SelectItem>
-                                <SelectItem value="published">Published</SelectItem>
-                                <SelectItem value="archived">Archived</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <Select
-                            value={audienceFilter}
-                            onValueChange={(v) => setAudienceFilter(v)}
-                        >
-                            <SelectTrigger className="h-9 w-[160px]">
-                                <SelectValue placeholder="Audience" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Any audience</SelectItem>
-                                <SelectItem value="everyone">Everyone</SelectItem>
-                                <SelectItem value="department">Department</SelectItem>
-                                <SelectItem value="team">Team</SelectItem>
-                                <SelectItem value="role">Role</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <label className="flex cursor-pointer items-center gap-1.5 text-[13px] text-[var(--st-text)]">
-                            <Checkbox
-                                checked={pinnedOnly}
-                                onCheckedChange={(v) => setPinnedOnly(!!v)}
-                                aria-label="Pinned only"
-                            />
-                            Pinned only
-                        </label>
+                    </PageActions>
+                </PageHeader>
+
+                {/* Filters row */}
+                <div className="flex flex-wrap items-end gap-2">
+                    <Select
+                        value={statusFilter}
+                        onValueChange={(v) =>
+                            setStatusFilter(v as CrmAnnouncementStatus | 'all')
+                        }
+                    >
+                        <SelectTrigger aria-label="Status filter" className="w-[150px]">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All statuses</SelectItem>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="scheduled">Scheduled</SelectItem>
+                            <SelectItem value="published">Published</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Select value={audienceFilter} onValueChange={(v) => setAudienceFilter(v)}>
+                        <SelectTrigger aria-label="Audience filter" className="w-[160px]">
+                            <SelectValue placeholder="Audience" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Any audience</SelectItem>
+                            <SelectItem value="everyone">Everyone</SelectItem>
+                            <SelectItem value="department">Department</SelectItem>
+                            <SelectItem value="team">Team</SelectItem>
+                            <SelectItem value="role">Role</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Checkbox
+                        checked={pinnedOnly}
+                        onChange={(e) => setPinnedOnly(e.target.checked)}
+                        label="Pinned only"
+                    />
+                    <Field label="Published from">
                         <Input
                             type="date"
                             value={fromIso}
                             onChange={(e) => setFromIso(e.target.value)}
-                            className="h-9 w-[150px]"
-                            aria-label="Published from"
+                            className="w-[150px]"
                         />
+                    </Field>
+                    <Field label="Published to">
                         <Input
                             type="date"
                             value={toIso}
                             onChange={(e) => setToIso(e.target.value)}
-                            className="h-9 w-[150px]"
-                            aria-label="Published to"
+                            className="w-[150px]"
                         />
-                        {hasActiveFilters ? (
-                            <Button variant="ghost" size="sm" onClick={clear}>
-                                <X className="h-3.5 w-3.5" /> Clear
-                            </Button>
-                        ) : null}
-                        <Button variant="ghost" size="sm" onClick={exportCsv}>
-                            Export CSV
+                    </Field>
+                    {hasActiveFilters ? (
+                        <Button variant="ghost" size="sm" iconLeft={X} onClick={clear}>
+                            Clear
                         </Button>
-                    </div>
-                }
-                bulkBar={
-                    selected.size > 0 ? (
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="text-[13px] text-[var(--st-text-secondary)]">
-                                {selected.size} selected
-                            </span>
-                            <div className="flex flex-wrap gap-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setBulkConfirmMode('publish')}
-                                >
-                                    <Send className="h-3.5 w-3.5" /> Publish
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setBulkConfirmMode('archive')}
-                                >
-                                    <Archive className="h-3.5 w-3.5" /> Archive
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setBulkConfirmMode('delete')}
-                                >
-                                    <Trash2 className="h-3.5 w-3.5" /> Delete
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setSelected(new Set())}
-                                >
-                                    Clear
-                                </Button>
-                            </div>
-                        </div>
-                    ) : null
-                }
-                empty={
-                    !loading && items.length === 0 ? (
-                        <div className="flex flex-col items-center gap-3 p-4">
-                            <h3 className="text-base font-medium text-[var(--st-text)]">
-                                No announcements yet
-                            </h3>
-                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
-                                Draft and publish your first company announcement.
-                            </p>
-                            <Button asChild>
-                                <Link href="/dashboard/sabconnect/announcements/new">
-                                    <Plus className="h-4 w-4" /> Create announcement
-                                </Link>
+                    ) : null}
+                    <Button variant="ghost" size="sm" onClick={exportCsv}>
+                        Export CSV
+                    </Button>
+                </div>
+
+                {/* Bulk action banner */}
+                {selected.size > 0 ? (
+                    <div
+                        role="region"
+                        aria-label="Bulk actions"
+                        className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--st-shadow-sm)]"
+                    >
+                        <span className="text-[13px] text-[var(--st-text-secondary)]">
+                            {selected.size} selected
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                iconLeft={Send}
+                                onClick={() => setBulkConfirmMode('publish')}
+                            >
+                                Publish
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                iconLeft={Archive}
+                                onClick={() => setBulkConfirmMode('archive')}
+                            >
+                                Archive
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                iconLeft={Trash2}
+                                onClick={() => setBulkConfirmMode('delete')}
+                            >
+                                Delete
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelected(new Set())}
+                            >
+                                Clear
                             </Button>
                         </div>
-                    ) : null
-                }
-                loading={loading && items.length === 0}
-            >
-                <div className="flex flex-col gap-4">
-                    {/* Dashboard Strip */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* KPIs */}
-                        <div className="md:col-span-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                            <StatCard
-                                label="Total"
-                                value={kpis.total}
-                                icon={<Megaphone className="h-4 w-4" />}
-                            />
-                            <StatCard
-                                label="Active / Pinned"
-                                value={kpis.activeOrPinned}
-                                icon={<Pin className="h-4 w-4" />}
-                            />
-                            <StatCard
-                                label="Published this month"
-                                value={kpis.publishedThisMonth}
-                                icon={<Send className="h-4 w-4" />}
-                            />
-                            <StatCard
-                                label="Total Views"
-                                value={totalViews}
-                                icon={<Eye className="h-4 w-4" />}
-                            />
+                    </div>
+                ) : null}
+
+                {/* Body */}
+                {showEmpty ? (
+                    <Card className="flex min-h-[240px] items-center justify-center">
+                        <EmptyState
+                            icon={Megaphone}
+                            title="No announcements yet"
+                            description="Draft and publish your first company announcement."
+                            action={
+                                <Link
+                                    href="/dashboard/sabconnect/announcements/new"
+                                    className="u-btn u-btn--primary u-btn--md"
+                                >
+                                    <Plus size={14} aria-hidden="true" />
+                                    <span className="u-btn__label">Create announcement</span>
+                                </Link>
+                            }
+                        />
+                    </Card>
+                ) : (
+                    <div className="flex flex-col gap-4">
+                        {/* Dashboard strip */}
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            {/* KPIs */}
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:col-span-2">
+                                <StatCard label="Total" value={kpis.total} icon={Megaphone} />
+                                <StatCard
+                                    label="Active / Pinned"
+                                    value={kpis.activeOrPinned}
+                                    icon={Pin}
+                                />
+                                <StatCard
+                                    label="Published this month"
+                                    value={kpis.publishedThisMonth}
+                                    icon={Send}
+                                />
+                                <StatCard label="Total Views" value={totalViews} icon={Eye} />
+                            </div>
+
+                            {/* Quick actions */}
+                            <Card padding="md" className="flex flex-col justify-center gap-3">
+                                <CardTitle className="text-[13px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]">
+                                    Quick Actions
+                                </CardTitle>
+                                <CardBody className="flex flex-col gap-2 sm:flex-row md:flex-col lg:flex-row">
+                                    <Link
+                                        href="/dashboard/sabconnect/announcements/new?audience=all"
+                                        className="u-btn u-btn--outline u-btn--sm flex-1 justify-start"
+                                    >
+                                        <Zap size={13} aria-hidden="true" />
+                                        <span className="u-btn__label">Company Update</span>
+                                    </Link>
+                                    <Link
+                                        href="/dashboard/sabconnect/announcements/new?status=draft"
+                                        className="u-btn u-btn--outline u-btn--sm flex-1 justify-start"
+                                    >
+                                        <PenTool size={13} aria-hidden="true" />
+                                        <span className="u-btn__label">Draft Post</span>
+                                    </Link>
+                                </CardBody>
+                            </Card>
                         </div>
 
-                        {/* Quick Actions */}
-                        <Card className="flex flex-col p-4 justify-center gap-3 shadow-none border-[var(--st-border)] bg-[var(--st-bg-muted)]/50">
-                            <h3 className="text-[13px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wider">Quick Actions</h3>
-                            <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-2">
-                                <Button variant="outline" size="sm" className="flex-1 justify-start bg-[var(--st-bg)]" asChild>
-                                    <Link href="/dashboard/sabconnect/announcements/new?audience=all">
-                                        <Zap className="mr-2 h-3.5 w-3.5" /> Company Update
-                                    </Link>
-                                </Button>
-                                <Button variant="outline" size="sm" className="flex-1 justify-start bg-[var(--st-bg)]" asChild>
-                                    <Link href="/dashboard/sabconnect/announcements/new?status=draft">
-                                        <PenTool className="mr-2 h-3.5 w-3.5" /> Draft Post
-                                    </Link>
-                                </Button>
-                            </div>
-                        </Card>
-                    </div>
-
-                    {/* Table */}
-                    <div className="overflow-x-auto rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
-                        <table className="w-full min-w-[900px] text-[13px]">
-                            <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                                <tr>
-                                    <th className="px-3 py-2">
-                                        <Checkbox
-                                            aria-label="Select all"
-                                            checked={allSelected}
-                                            onCheckedChange={(v) => toggleAll(!!v)}
-                                        />
-                                    </th>
-                                    {[
-                                        'Title',
-                                        'Published by',
-                                        'Audience',
-                                        'Pinned',
-                                        'Published at',
-                                        'Status',
-                                        'Views',
-                                        '',
-                                    ].map((h) => (
-                                        <th
-                                            key={h}
-                                            className="px-3 py-2 text-left font-medium"
-                                        >
-                                            {h}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-[var(--st-border)] bg-[var(--st-bg)]">
-                                {visible.length === 0 ? (
-                                    <tr>
-                                        <td
-                                            colSpan={9}
-                                            className="p-6 text-center text-[var(--st-text-secondary)]"
-                                        >
-                                            No announcements match the current filters.
-                                        </td>
-                                    </tr>
-                                ) : null}
-                                {visible.map((a) => {
-                                    const tone =
-                                        STATUS_TONE[a.status as CrmAnnouncementStatus] ??
-                                        'neutral';
-                                    const checked = selected.has(a._id);
-                                    return (
-                                        <tr key={a._id} className="hover:bg-[var(--st-bg-secondary)]">
-                                            <td className="px-3 py-2">
-                                                <Checkbox
-                                                    aria-label={`Select ${a.title}`}
-                                                    checked={checked}
-                                                    onCheckedChange={() => toggleOne(a._id)}
-                                                />
-                                            </td>
-                                            <td className="px-3 py-2">
-                                                <EntityRowLink
-                                                    href={`/dashboard/sabconnect/announcements/${a._id}`}
-                                                    label={a.title}
-                                                />
-                                            </td>
-                                            <td className="px-3 py-2 text-[var(--st-text-secondary)]">
-                                                {a.authorName ?? a.authorId ?? '—'}
-                                            </td>
-                                            <td className="px-3 py-2 capitalize text-[var(--st-text-secondary)]">
-                                                {a.audience ?? '—'}
-                                            </td>
-                                            <td className="px-3 py-2">
-                                                {a.pinned ? (
-                                                    <Badge variant="warning">
-                                                        <Pin className="h-3 w-3" /> Pinned
-                                                    </Badge>
-                                                ) : (
-                                                    <span className="text-[var(--st-text-secondary)]">—</span>
-                                                )}
-                                            </td>
-                                            <td className="px-3 py-2 text-[var(--st-text-secondary)]">
-                                                {fmtDate(a.publishedAt ?? a.publishAt)}
-                                            </td>
-                                            <td className="px-3 py-2">
-                                                <StatusPill label={a.status} tone={tone} />
-                                            </td>
-                                            <td className="px-3 py-2 text-[var(--st-text-secondary)]">
-                                                {a.viewCount ?? '—'}
-                                            </td>
-                                            <td className="px-3 py-2 text-right">
-                                                <div className="flex justify-end gap-1">
-                                                    <Button variant="ghost" size="sm" asChild>
+                        {/* Table */}
+                        <div className="overflow-x-auto rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
+                            <Table className="min-w-[900px]" hover>
+                                <THead>
+                                    <Tr>
+                                        <Th align="center">
+                                            <Checkbox
+                                                aria-label="Select all"
+                                                checked={allSelected}
+                                                indeterminate={someSelected && !allSelected}
+                                                onChange={(e) => toggleAll(e.target.checked)}
+                                            />
+                                        </Th>
+                                        <Th>Title</Th>
+                                        <Th>Published by</Th>
+                                        <Th>Audience</Th>
+                                        <Th>Pinned</Th>
+                                        <Th>Published at</Th>
+                                        <Th>Status</Th>
+                                        <Th>Views</Th>
+                                        <Th align="right">Actions</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
+                                    {visible.length === 0 ? (
+                                        <Tr>
+                                            <Td colSpan={9} align="center">
+                                                <span className="text-[var(--st-text-secondary)]">
+                                                    No announcements match the current filters.
+                                                </span>
+                                            </Td>
+                                        </Tr>
+                                    ) : null}
+                                    {visible.map((a) => {
+                                        const tone =
+                                            STATUS_TONE[a.status as CrmAnnouncementStatus] ??
+                                            'neutral';
+                                        const checked = selected.has(a._id);
+                                        return (
+                                            <Tr key={a._id} selected={checked}>
+                                                <Td align="center">
+                                                    <Checkbox
+                                                        aria-label={`Select ${a.title}`}
+                                                        checked={checked}
+                                                        onChange={() => toggleOne(a._id)}
+                                                    />
+                                                </Td>
+                                                <Td>
+                                                    <EntityRowLink
+                                                        href={`/dashboard/sabconnect/announcements/${a._id}`}
+                                                        label={a.title}
+                                                    />
+                                                </Td>
+                                                <Td>
+                                                    <span className="text-[var(--st-text-secondary)]">
+                                                        {a.authorName ?? a.authorId ?? EMPTY_CELL}
+                                                    </span>
+                                                </Td>
+                                                <Td>
+                                                    <span className="capitalize text-[var(--st-text-secondary)]">
+                                                        {a.audience ?? EMPTY_CELL}
+                                                    </span>
+                                                </Td>
+                                                <Td>
+                                                    {a.pinned ? (
+                                                        <Badge tone="warning">
+                                                            <Pin className="h-3 w-3" aria-hidden="true" />
+                                                            Pinned
+                                                        </Badge>
+                                                    ) : (
+                                                        <span className="text-[var(--st-text-secondary)]">
+                                                            {EMPTY_CELL}
+                                                        </span>
+                                                    )}
+                                                </Td>
+                                                <Td>
+                                                    <span className="text-[var(--st-text-secondary)]">
+                                                        {fmtDate(a.publishedAt ?? a.publishAt)}
+                                                    </span>
+                                                </Td>
+                                                <Td>
+                                                    <StatusPill label={a.status} tone={tone} />
+                                                </Td>
+                                                <Td>
+                                                    <span className="text-[var(--st-text-secondary)]">
+                                                        {a.viewCount ?? EMPTY_CELL}
+                                                    </span>
+                                                </Td>
+                                                <Td align="right">
+                                                    <div className="flex justify-end gap-1">
                                                         <Link
                                                             href={`/dashboard/sabconnect/announcements/${a._id}/edit`}
+                                                            className="u-btn u-btn--ghost u-btn--sm"
                                                         >
-                                                            Edit
+                                                            <span className="u-btn__label">Edit</span>
                                                         </Link>
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => setPendingDelete(a._id)}
-                                                        aria-label={`Delete ${a.title}`}
-                                                    >
-                                                        <Trash2 className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                                                        <IconButton
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            icon={Trash2}
+                                                            label={`Delete ${a.title}`}
+                                                            onClick={() => setPendingDelete(a._id)}
+                                                        />
+                                                    </div>
+                                                </Td>
+                                            </Tr>
+                                        );
+                                    })}
+                                </TBody>
+                            </Table>
+                        </div>
                     </div>
-                </div>
-            </EntityListShell>
+                )}
+            </div>
 
             {/* Single delete */}
             <ConfirmDialog
@@ -587,7 +640,7 @@ export function AnnouncementsListClient({
                           ? 'Archive'
                           : 'Delete'
                 }
-                confirmTone={bulkConfirmMode === 'delete' ? 'danger' : undefined}
+                confirmTone={bulkConfirmMode === 'delete' ? 'danger' : 'primary'}
                 onConfirm={() => {
                     void runBulk();
                 }}
