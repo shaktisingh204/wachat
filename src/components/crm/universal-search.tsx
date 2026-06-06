@@ -11,7 +11,7 @@ import {
   ZoruPopoverContent,
 } from '@/components/sabcrm/20ui/compat';
 import { searchAll, type UniversalSearchResult } from '@/app/actions/universal-search.actions';
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 const SECTIONS: Array<{
   key: keyof UniversalSearchResult;

@@ -54,7 +54,13 @@ import {
 } from 'lucide-react';
 
 import { getFlowsForProject,
-  deleteFlow , cloneFlow, bulkDeleteFlows, bulkUpdateFlowStatus, getFlowMetrics } from '@/app/actions/flow.actions';
+  deleteFlow , cloneFlow, bulkDeleteFlows, bulkUpdateFlowStatus } from '@/app/actions/flow.actions';
+import {
+  getProjectFlowMetrics,
+  getFlowEventMetrics,
+  EMPTY_METRICS,
+} from '@/app/actions/wachat-flow-events.actions';
+import type { FlowMetrics } from '@/lib/rust-client/wachat-flow-events';
 import type { Flow } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 
@@ -77,7 +83,15 @@ export default function FlowBuilderListPage() {
   const [query, setQuery] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [analyticsModalOpen, setAnalyticsModalOpen] = useState(false);
-  const [analyticsData, setAnalyticsData] = useState<{ flowName: string, metrics: any } | null>(null);
+  const [analyticsData, setAnalyticsData] = useState<{ flowName: string; metrics: FlowMetrics } | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
+
+  // Real per-flow trigger metrics (flowId hex → metrics), batch-fetched from the
+  // wachat-flow-events Rust crate. Flows with no events are absent from the map
+  // and fall back to the zero baseline.
+  const [metrics, setMetrics] = useState<Record<string, FlowMetrics>>({});
+  const [metricsLoading, setMetricsLoading] = useState(false);
 
   const fetchFlows = useCallback(() => {
     if (!activeProjectId) return;
@@ -85,7 +99,16 @@ export default function FlowBuilderListPage() {
       const data = await getFlowsForProject(activeProjectId);
       setFlows(data);
     });
-  }, [activeProjectId]);
+    setMetricsLoading(true);
+    void getProjectFlowMetrics(activeProjectId)
+      .then((res) => {
+        setMetrics(res.success ? res.metrics : {});
+        if (!res.success) {
+          toast({ title: 'Metrics unavailable', description: res.error, tone: 'warning' });
+        }
+      })
+      .finally(() => setMetricsLoading(false));
+  }, [activeProjectId, toast]);
 
   useEffect(() => {
     if (activeProjectId) fetchFlows();
@@ -126,19 +149,17 @@ export default function FlowBuilderListPage() {
   };
 
   const handleViewAnalytics = async (flowId: string, flowName: string) => {
-    const metrics = await getFlowMetrics(flowId);
-    setAnalyticsData({ flowName, metrics });
+    setAnalyticsData(null);
+    setAnalyticsError(null);
+    setAnalyticsLoading(true);
     setAnalyticsModalOpen(true);
-  };
-
-  // Deterministic mock generator for metrics
-  const getMockMetrics = (id: string) => {
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) hash = hash * 31 + id.charCodeAt(i);
-    return {
-      today: Math.abs(hash % 20),
-      total: Math.abs(hash % 1000) + 100
-    };
+    const res = await getFlowEventMetrics(flowId);
+    if (res.success) {
+      setAnalyticsData({ flowName, metrics: res.metrics });
+    } else {
+      setAnalyticsError(res.error);
+    }
+    setAnalyticsLoading(false);
   };
 
   const handleDelete = async (flowId: string) => {
@@ -354,12 +375,21 @@ export default function FlowBuilderListPage() {
                             </div>
                           </Td>
                           <Td>
-                            <div className="flex flex-col text-[11.5px] u-text-tertiary">
-                              <span className="font-medium u-text">
-                                {getMockMetrics(flow._id.toString()).today} today
-                              </span>
-                              <span>{getMockMetrics(flow._id.toString()).total} total</span>
-                            </div>
+                            {metricsLoading && !metrics[flow._id.toString()] ? (
+                              <Skeleton height={28} width={64} />
+                            ) : (
+                              (() => {
+                                const m = metrics[flow._id.toString()] ?? EMPTY_METRICS;
+                                return (
+                                  <div className="flex flex-col text-[11.5px] u-text-tertiary">
+                                    <span className="font-medium u-text">
+                                      {m.triggersToday} today
+                                    </span>
+                                    <span>{m.totalTriggers} total</span>
+                                  </div>
+                                );
+                              })()
+                            )}
                           </Td>
                           <Td>
                             <span className="text-[11.5px] u-text-tertiary">
@@ -425,19 +455,33 @@ export default function FlowBuilderListPage() {
           </Button>
         }
       >
-        {analyticsData && (
+        {analyticsLoading ? (
           <div className="grid gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <StatCard label="Triggers Today" value={String(analyticsData.metrics.triggersToday ?? 0)} />
-              <StatCard label="Total Triggers" value={String(analyticsData.metrics.totalTriggers ?? 0)} />
+              <Skeleton height={72} width="100%" />
+              <Skeleton height={72} width="100%" />
             </div>
-            {analyticsData.metrics.lastTriggeredAt && (
-              <p className="text-xs text-center mt-2 u-text-tertiary">
-                Last triggered: {formatUTC(analyticsData.metrics.lastTriggeredAt, true)}
-              </p>
-            )}
           </div>
-        )}
+        ) : analyticsError ? (
+          <EmptyState
+            icon={CircleAlert}
+            tone="warning"
+            title="Couldn’t load analytics"
+            description={analyticsError}
+          />
+        ) : analyticsData ? (
+          <div className="grid gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <StatCard label="Triggers Today" value={String(analyticsData.metrics.triggersToday)} />
+              <StatCard label="Total Triggers" value={String(analyticsData.metrics.totalTriggers)} />
+            </div>
+            <p className="text-xs text-center mt-2 u-text-tertiary">
+              {analyticsData.metrics.lastTriggeredAt
+                ? `Last triggered: ${formatUTC(analyticsData.metrics.lastTriggeredAt, true)}`
+                : 'No triggers recorded yet.'}
+            </p>
+          </div>
+        ) : null}
       </Modal>
     </WachatPage>
   );

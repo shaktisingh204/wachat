@@ -18,7 +18,7 @@ import {
 } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { KbSearch } from '@/components/client-portal/kb-search';
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 function fmtDate(iso: string | null): string {
     if (!iso) return '';

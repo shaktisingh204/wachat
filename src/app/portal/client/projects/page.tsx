@@ -22,7 +22,7 @@ import {
 } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { Progress } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 import { buttonVariants } from '@/components/sabcrm/20ui/compat';
 import { ClientProject } from '@/lib/client-portal/types';
 

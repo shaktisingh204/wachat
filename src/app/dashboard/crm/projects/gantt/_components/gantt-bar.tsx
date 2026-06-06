@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 export const GANTT_BAR_HEIGHT = 22;
 

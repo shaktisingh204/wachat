@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 
 export function useCollaborativeRotation(rotationId?: string) {
     const { toast } = useZoruToast();

@@ -58,6 +58,14 @@ wachat-public-api = { path = "../wachat-public-api" }
 wachat-projects = { path = "../wachat-projects" }
 wachat-contacts = { path = "../wachat-contacts" }
 wachat-number-routing = { path = "../wachat-number-routing" }
+wachat-ab-testing = { path = "../wachat-ab-testing" }
+wachat-contact-merge = { path = "../wachat-contact-merge" }
+wachat-auto-reply-settings = { path = "../wachat-auto-reply-settings" }
+wachat-project-agents = { path = "../wachat-project-agents" }
+wachat-project-attributes = { path = "../wachat-project-attributes" }
+wachat-link-generator = { path = "../wachat-link-generator" }
+wachat-widget-tracking = { path = "../wachat-widget-tracking" }
+wachat-integrations-hub = { path = "../wachat-integrations-hub" }
 wachat-canned-messages = { path = "../wachat-canned-messages" }
 wachat-ai-training = { path = "../wachat-ai-training" }
 wachat-interactive-builder = { path = "../wachat-interactive-builder" }

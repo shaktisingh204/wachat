@@ -6,7 +6,7 @@ import * as React from "react"
 import type {
   ZoruToastActionElement as ToastActionElement,
   ZoruToastProps as ToastProps,
-} from '@/components/zoruui'
+} from '@/components/sabcrm/20ui/compat'
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 5000

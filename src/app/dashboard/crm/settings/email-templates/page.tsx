@@ -26,7 +26,7 @@ import {
     ZoruPageHeading,
     ZoruPageTitle,
 } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 import {
     getEmailTemplate,

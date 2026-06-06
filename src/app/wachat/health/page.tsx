@@ -133,14 +133,48 @@ function categorizeError(err: any) {
   return { type: 'System Error', variant: 'neutral' as const };
 }
 
-const MOCK_QUALITY_HISTORY = [
-  { date: 'Oct 01', value: 3, rating: 'High', event: null },
-  { date: 'Oct 05', value: 3, rating: 'High', event: null },
-  { date: 'Oct 10', value: 2, rating: 'Medium', event: 'Diwali Promo (Spam reports increased)' },
-  { date: 'Oct 15', value: 1, rating: 'Low', event: 'Mass Broadcast (High block rate)' },
-  { date: 'Oct 20', value: 2, rating: 'Medium', event: null },
-  { date: 'Oct 25', value: 3, rating: 'High', event: null },
-];
+/** One charted quality-history point, derived from a real Rust snapshot. */
+type QualityPoint = {
+  date: string;
+  /** 1 = Low (RED), 2 = Medium (YELLOW), 3 = High (GREEN). */
+  value: number;
+  rating: string;
+  event: string | null;
+};
+
+/** Map a Rust rating label (GREEN | YELLOW | RED) to the chart's value/label. */
+function ratingToChart(raw: string): { value: number; label: string } {
+  switch ((raw || '').toUpperCase()) {
+    case 'GREEN':
+      return { value: 3, label: 'High' };
+    case 'YELLOW':
+      return { value: 2, label: 'Medium' };
+    case 'RED':
+      return { value: 1, label: 'Low' };
+    default:
+      return { value: 0, label: raw || 'Unknown' };
+  }
+}
+
+/** Short axis date label, e.g. "Oct 25", from an ISO timestamp. */
+function formatSnapshotDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(undefined, { month: 'short', day: '2-digit' });
+}
+
+/** Convert real snapshots (date asc) into chart points. */
+function snapshotsToChart(snapshots: QualitySnapshot[]): QualityPoint[] {
+  return snapshots.map((s) => {
+    const { value, label } = ratingToChart(s.rating);
+    return {
+      date: formatSnapshotDate(s.date),
+      value,
+      rating: label,
+      event: s.event ?? null,
+    };
+  });
+}
 
 const QUALITY_CHART_CONFIG = {
   value: { label: 'Quality', color: 'var(--st-text)' },
@@ -192,6 +226,14 @@ export default function HealthPage() {
   const [phoneHealths, setPhoneHealths] = useState<PhoneHealth[]>([]);
   const [pinInput, setPinInput] = useState('');
   const [pinPhoneId, setPinPhoneId] = useState<string | null>(null);
+  /** Real quality time-series per phoneNumberId (empty array = honest no-data). */
+  const [qualityHistory, setQualityHistory] = useState<
+    Record<string, QualityPoint[]>
+  >({});
+  /** phoneNumberIds whose quality history is still loading. */
+  const [qualityLoading, setQualityLoading] = useState<Record<string, boolean>>({});
+  /** phoneNumberIds whose quality-history fetch failed. */
+  const [qualityErrors, setQualityErrors] = useState<Record<string, string>>({});
 
   const fetchHealth = useCallback(() => {
     if (!activeProject?._id) return;
@@ -203,12 +245,29 @@ export default function HealthPage() {
 
       const phones = activeProject.phoneNumbers || [];
       if (phones.length > 0) {
+        // Mark every phone's quality history as loading up front so the cards
+        // render a spinner instead of a fabricated chart while we fetch.
+        setQualityLoading(
+          Object.fromEntries(phones.map((p: any) => [p.id, true])),
+        );
+        setQualityErrors({});
         const healthResults = await Promise.all(
           phones.map(async (phone: any) => {
-            const [healthResult, commerceResult] = await Promise.all([
+            const [healthResult, commerceResult, qualityResult] = await Promise.all([
               getPhoneNumberHealthStatus(activeProject._id.toString(), phone.id),
               getCommerceSettings(activeProject._id.toString(), phone.id),
+              getQualityHistory(phone.id),
             ]);
+            if (qualityResult.error) {
+              setQualityErrors((prev) => ({ ...prev, [phone.id]: qualityResult.error! }));
+              setQualityHistory((prev) => ({ ...prev, [phone.id]: [] }));
+            } else {
+              setQualityHistory((prev) => ({
+                ...prev,
+                [phone.id]: snapshotsToChart(qualityResult.snapshots ?? []),
+              }));
+            }
+            setQualityLoading((prev) => ({ ...prev, [phone.id]: false }));
             return {
               phoneNumberId: phone.id,
               displayName: phone.verified_name || 'Unknown',
@@ -461,72 +520,112 @@ export default function HealthPage() {
                     </SimpleTooltip>
                   </div>
 
-                  <ChartContainer
-                    config={QUALITY_CHART_CONFIG}
-                    className="h-[140px] aspect-auto"
-                  >
-                    <LineChart data={MOCK_QUALITY_HISTORY} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
-                      <XAxis
-                        dataKey="date"
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fill: 'var(--st-text-secondary)', fontSize: 10 }}
-                        dy={5}
-                      />
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={yAxisFormatter}
-                        tick={{ fill: 'var(--st-text-secondary)', fontSize: 10 }}
-                        domain={[1, 3]}
-                        ticks={[1, 2, 3]}
-                      />
-                      <ChartTooltip
-                        content={({ active, payload, label }: any) => {
-                          if (!active || !payload?.length) return null;
-                          const data = payload[0].payload;
-                          // data-driven swatch colour kept as inline style (value-driven)
-                          const swatchBg =
-                            data.value === 3
-                              ? 'var(--st-status-ok)'
-                              : data.value === 2
-                                ? 'var(--st-warn)'
-                                : 'var(--st-danger)';
-                          return (
-                            <div className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs shadow-[var(--st-shadow-sm)]">
-                              <p className="mb-1 font-medium text-[var(--st-text)]">{label}</p>
-                              <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
-                                <span
-                                  className="h-1.5 w-1.5 rounded-full"
-                                  style={{ background: swatchBg }}
-                                  aria-hidden="true"
-                                />
-                                <span>Rating:</span>
-                                <span className="font-medium text-[var(--st-text)]">
-                                  {data.rating}
-                                </span>
-                              </div>
-                              {data.event && (
-                                <div className="mt-1 flex items-start gap-1.5 border-t border-[var(--st-border)] pt-1 text-[10px] text-[var(--st-warn)]">
-                                  <TrendingDown className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
-                                  <span className="max-w-[120px] leading-tight">{data.event}</span>
+                  {(() => {
+                    const points = qualityHistory[phone.phoneNumberId] ?? [];
+                    const loading = qualityLoading[phone.phoneNumberId];
+                    const fetchError = qualityErrors[phone.phoneNumberId];
+
+                    if (loading) {
+                      return (
+                        <div className="flex h-[140px] flex-col items-center justify-center gap-2 text-[var(--st-text-secondary)]">
+                          <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
+                          <span className="text-[11px]">Loading quality history…</span>
+                        </div>
+                      );
+                    }
+
+                    if (fetchError) {
+                      return (
+                        <Alert
+                          tone="warning"
+                          icon={TriangleAlert}
+                          title="Couldn't load quality history"
+                        >
+                          <span className="text-[11px]">{fetchError}</span>
+                        </Alert>
+                      );
+                    }
+
+                    if (points.length === 0) {
+                      return (
+                        <EmptyState
+                          icon={Activity}
+                          title="No quality history yet"
+                          description="Quality snapshots will appear here as ratings are recorded over time."
+                          className="py-6"
+                        />
+                      );
+                    }
+
+                    return (
+                      <ChartContainer
+                        config={QUALITY_CHART_CONFIG}
+                        className="h-[140px] aspect-auto"
+                      >
+                        <LineChart data={points} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
+                          <XAxis
+                            dataKey="date"
+                            tickLine={false}
+                            axisLine={false}
+                            tick={{ fill: 'var(--st-text-secondary)', fontSize: 10 }}
+                            dy={5}
+                          />
+                          <YAxis
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={yAxisFormatter}
+                            tick={{ fill: 'var(--st-text-secondary)', fontSize: 10 }}
+                            domain={[1, 3]}
+                            ticks={[1, 2, 3]}
+                          />
+                          <ChartTooltip
+                            content={({ active, payload, label }: any) => {
+                              if (!active || !payload?.length) return null;
+                              const data = payload[0].payload;
+                              // data-driven swatch colour kept as inline style (value-driven)
+                              const swatchBg =
+                                data.value === 3
+                                  ? 'var(--st-status-ok)'
+                                  : data.value === 2
+                                    ? 'var(--st-warn)'
+                                    : 'var(--st-danger)';
+                              return (
+                                <div className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs shadow-[var(--st-shadow-sm)]">
+                                  <p className="mb-1 font-medium text-[var(--st-text)]">{label}</p>
+                                  <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+                                    <span
+                                      className="h-1.5 w-1.5 rounded-full"
+                                      style={{ background: swatchBg }}
+                                      aria-hidden="true"
+                                    />
+                                    <span>Rating:</span>
+                                    <span className="font-medium text-[var(--st-text)]">
+                                      {data.rating}
+                                    </span>
+                                  </div>
+                                  {data.event && (
+                                    <div className="mt-1 flex items-start gap-1.5 border-t border-[var(--st-border)] pt-1 text-[10px] text-[var(--st-warn)]">
+                                      <TrendingDown className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
+                                      <span className="max-w-[120px] leading-tight">{data.event}</span>
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          );
-                        }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="value"
-                        stroke="var(--st-text)"
-                        strokeWidth={2}
-                        dot={{ r: 3, fill: 'var(--st-bg)', strokeWidth: 2 }}
-                        activeDot={{ r: 5 }}
-                      />
-                    </LineChart>
-                  </ChartContainer>
+                              );
+                            }}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="value"
+                            stroke="var(--st-text)"
+                            strokeWidth={2}
+                            dot={{ r: 3, fill: 'var(--st-bg)', strokeWidth: 2 }}
+                            activeDot={{ r: 5 }}
+                          />
+                        </LineChart>
+                      </ChartContainer>
+                    );
+                  })()}
 
                   <Separator className="my-4" />
 

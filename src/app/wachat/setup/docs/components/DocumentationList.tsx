@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardHeader,
@@ -14,8 +14,11 @@ import {
   Skeleton,
   EmptyState,
 } from '@/components/sabcrm/20ui';
-import { DocArticle, SortOption, ApiError } from '../lib/types';
-import { fetchArticles } from '../lib/mockApi';
+import { SortOption, ApiError } from '../lib/types';
+import {
+  listSetupKbArticles,
+  type SetupKbArticleView,
+} from '@/app/actions/wachat-setup-kb.actions';
 import { AlertCircle, Search, RefreshCw } from 'lucide-react';
 
 // Custom hook to handle isomorphic dates (preventing hydration mismatch)
@@ -47,7 +50,7 @@ const SORT_OPTIONS = [
 ];
 
 export function DocumentationList() {
-  const [articles, setArticles] = useState<DocArticle[]>([]);
+  const [articles, setArticles] = useState<SetupKbArticleView[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
 
@@ -55,47 +58,38 @@ export function DocumentationList() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [sortOption, setSortOption] = useState<SortOption>('date-desc');
 
-  const loadArticles = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await fetchArticles();
-      setArticles(data);
-    } catch (err: any) {
-      setError({
-        message: err?.message || 'Failed to fetch documentation articles',
-        code: err?.code || 'UNKNOWN_ERROR',
-      });
-    } finally {
+  // Search / category / sort all run server-side in the Rust KB handler, so the
+  // current filter state IS the query. Search is debounced to avoid a request
+  // per keystroke.
+  const loadArticles = useCallback(
+    async (q: string, category: string, sort: SortOption) => {
+      setLoading(true);
+      setError(null);
+      const result = await listSetupKbArticles({ q, category, sort });
+      if ('error' in result && result.error) {
+        setError({ message: result.error, code: 'KB_FETCH_ERROR' });
+        setArticles([]);
+      } else {
+        setArticles(result.articles ?? []);
+      }
       setLoading(false);
-    }
-  };
+    },
+    [],
+  );
 
+  const reload = useCallback(() => {
+    void loadArticles(searchQuery, categoryFilter, sortOption);
+  }, [loadArticles, searchQuery, categoryFilter, sortOption]);
+
+  // Re-fetch when category or sort change immediately; debounce the search box.
   useEffect(() => {
-    loadArticles();
-  }, []);
+    const handle = setTimeout(() => {
+      void loadArticles(searchQuery, categoryFilter, sortOption);
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [loadArticles, searchQuery, categoryFilter, sortOption]);
 
-  const filteredArticles = articles.filter(article => {
-    const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          article.content.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || article.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
-
-  const sortedArticles = [...filteredArticles].sort((a, b) => {
-    switch (sortOption) {
-      case 'date-desc':
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-      case 'date-asc':
-        return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
-      case 'title-asc':
-        return a.title.localeCompare(b.title);
-      case 'title-desc':
-        return b.title.localeCompare(a.title);
-      default:
-        return 0;
-    }
-  });
+  const sortedArticles = articles;
 
   return (
     <div className="space-y-6">
@@ -141,7 +135,7 @@ export function DocumentationList() {
         >
           <div className="flex flex-col gap-2">
             <p>{error.message}</p>
-            <Button variant="outline" size="sm" iconLeft={RefreshCw} onClick={loadArticles} className="w-fit">
+            <Button variant="outline" size="sm" iconLeft={RefreshCw} onClick={reload} className="w-fit">
               Try Again
             </Button>
           </div>
@@ -184,7 +178,7 @@ export function DocumentationList() {
   );
 }
 
-function ArticleCard({ article }: { article: DocArticle }) {
+function ArticleCard({ article }: { article: SetupKbArticleView }) {
   const formattedDate = useIsomorphicDate(article.updatedAt);
 
   return (

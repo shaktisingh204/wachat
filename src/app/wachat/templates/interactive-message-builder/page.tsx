@@ -14,13 +14,19 @@ import {
   Textarea,
   EmptyState,
   Separator,
+  Spinner,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { useState, useEffect } from 'react';
-import { Plus, Trash2, Eye, Copy, Send, Save, Download } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, Trash2, Eye, Copy, Send, Save, Download, AlertCircle, RefreshCw } from 'lucide-react';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
+import {
+  getInteractiveTemplates,
+  saveInteractiveTemplate,
+  deleteInteractiveTemplate,
+} from '@/app/actions/wachat-interactive-builder.actions';
 import {
   MsgType,
   ListSection,
@@ -40,8 +46,16 @@ const TYPE_OPTIONS: { value: MsgType; label: string; desc: string }[] = [
   { value: 'carousel', label: 'Carousel', desc: 'Scrollable cards' },
 ];
 
+/** A saved interactive template as held client-side (server-backed). */
+interface SavedTemplate {
+  id: string;
+  name: string;
+  state: InteractiveMessageState;
+}
+
 export default function InteractiveMessagesPage() {
   const { activeProject } = useProject();
+  const projectId = activeProject?._id ? String(activeProject._id) : '';
   const { toast } = useToast();
 
   const [msgType, setMsgType] = useState<MsgType>('buttons');
@@ -71,18 +85,43 @@ export default function InteractiveMessagesPage() {
   const [testOpen, setTestOpen] = useState(false);
   const [testNumber, setTestNumber] = useState('');
 
-  // Templates State
+  // Templates State (server-backed via the wachat-interactive-builder crate)
   const [templateName, setTemplateName] = useState('');
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
-  const [savedTemplates, setSavedTemplates] = useState<{name: string, state: InteractiveMessageState}[]>([]);
+  const [savedTemplates, setSavedTemplates] = useState<SavedTemplate[]>([]);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [templatesError, setTemplatesError] = useState<string | null>(null);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const loadTemplates = useCallback(async () => {
+    if (!projectId) {
+      setSavedTemplates([]);
+      setTemplatesError(null);
+      return;
+    }
+    setTemplatesLoading(true);
+    setTemplatesError(null);
+    const res = await getInteractiveTemplates(projectId);
+    if (res.error) {
+      setTemplatesError(res.error);
+      setSavedTemplates([]);
+    } else {
+      setSavedTemplates(
+        (res.templates ?? []).map((t) => ({
+          id: t.id,
+          name: t.name,
+          state: (t.payload as InteractiveMessageState) ?? ({} as InteractiveMessageState),
+        })),
+      );
+    }
+    setTemplatesLoading(false);
+  }, [projectId]);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('wachat_interactive_templates');
-      if (stored) setSavedTemplates(JSON.parse(stored));
-    } catch(e) {}
-  }, []);
+    void loadTemplates();
+  }, [loadTemplates]);
 
   const getState = (): InteractiveMessageState => ({
     msgType,
@@ -108,23 +147,46 @@ export default function InteractiveMessagesPage() {
     toast({ title: 'Template loaded' });
   };
 
-  const handleSaveTemplate = () => {
+  const handleSaveTemplate = async () => {
     if (!templateName.trim()) {
       toast({ title: 'Template name required', tone: 'danger' });
       return;
     }
-    const newTemplates = [...savedTemplates, { name: templateName, state: getState() }];
-    setSavedTemplates(newTemplates);
-    localStorage.setItem('wachat_interactive_templates', JSON.stringify(newTemplates));
+    if (!projectId) {
+      toast({ title: 'No active project', description: 'Select a project before saving.', tone: 'danger' });
+      return;
+    }
+    setSavingTemplate(true);
+    const res = await saveInteractiveTemplate(projectId, templateName.trim(), getState());
+    setSavingTemplate(false);
+    if (res.error || !res.template) {
+      toast({ title: 'Save failed', description: res.error ?? 'Could not save template.', tone: 'danger' });
+      return;
+    }
+    const created = res.template;
+    setSavedTemplates((prev) => [
+      ...prev,
+      {
+        id: created.id,
+        name: created.name,
+        state: (created.payload as InteractiveMessageState) ?? getState(),
+      },
+    ]);
     setTemplateName('');
     setSaveTemplateOpen(false);
     toast({ title: 'Template saved' });
   };
 
-  const handleDeleteTemplate = (i: number) => {
-    const newTemplates = savedTemplates.filter((_, idx) => idx !== i);
-    setSavedTemplates(newTemplates);
-    localStorage.setItem('wachat_interactive_templates', JSON.stringify(newTemplates));
+  const handleDeleteTemplate = async (id: string) => {
+    setDeletingId(id);
+    const res = await deleteInteractiveTemplate(id);
+    setDeletingId(null);
+    if (!res.success) {
+      toast({ title: 'Delete failed', description: res.error ?? 'Could not delete template.', tone: 'danger' });
+      return;
+    }
+    setSavedTemplates((prev) => prev.filter((t) => t.id !== id));
+    toast({ title: 'Template deleted' });
   };
 
   const validateState = (): boolean => {
@@ -240,7 +302,14 @@ export default function InteractiveMessagesPage() {
       description="Build interactive WhatsApp messages with buttons, lists, and more."
       actions={
         <>
-          <Button variant="outline" iconLeft={Download} onClick={() => setTemplatesOpen(true)}>
+          <Button
+            variant="outline"
+            iconLeft={Download}
+            onClick={() => {
+              setTemplatesOpen(true);
+              void loadTemplates();
+            }}
+          >
             Load template
           </Button>
           <Button variant="outline" iconLeft={Save} onClick={() => setSaveTemplateOpen(true)}>
@@ -590,10 +659,16 @@ export default function InteractiveMessagesPage() {
         description="Save this interactive message layout for future use."
         footer={
           <>
-            <Button variant="outline" onClick={() => setSaveTemplateOpen(false)}>
+            <Button variant="outline" onClick={() => setSaveTemplateOpen(false)} disabled={savingTemplate}>
               Cancel
             </Button>
-            <Button variant="primary" iconLeft={Save} onClick={handleSaveTemplate}>
+            <Button
+              variant="primary"
+              iconLeft={Save}
+              onClick={() => void handleSaveTemplate()}
+              loading={savingTemplate}
+              disabled={savingTemplate}
+            >
               Save
             </Button>
           </>
@@ -620,20 +695,41 @@ export default function InteractiveMessagesPage() {
         }
       >
         <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
-          {savedTemplates.length === 0 ? (
+          {templatesLoading ? (
+            <div className="flex flex-col items-center justify-center gap-2 py-8">
+              <Spinner size="md" label="Loading templates" />
+              <span className="text-sm u-card__desc">Loading saved templates…</span>
+            </div>
+          ) : templatesError ? (
+            <div className="flex flex-col items-center gap-3 py-6 text-center">
+              <AlertCircle className="h-5 w-5 u-card__desc" aria-hidden="true" />
+              <p className="text-sm u-card__title">Couldn’t load templates</p>
+              <p className="text-xs u-card__desc">{templatesError}</p>
+              <Button size="sm" variant="outline" iconLeft={RefreshCw} onClick={() => void loadTemplates()}>
+                Retry
+              </Button>
+            </div>
+          ) : savedTemplates.length === 0 ? (
             <EmptyState
               title="No saved templates"
               description="Saved interactive message layouts will appear here."
             />
           ) : (
-            savedTemplates.map((t, i) => (
-              <Card key={i} variant="outlined" padding="sm" className="flex items-center justify-between">
+            savedTemplates.map((t) => (
+              <Card key={t.id} variant="outlined" padding="sm" className="flex items-center justify-between">
                 <span className="text-sm font-medium u-card__title">{t.name}</span>
                 <div className="flex items-center gap-2">
                   <Button size="sm" variant="outline" onClick={() => loadState(t.state)}>
                     Load
                   </Button>
-                  <IconButton size="sm" variant="ghost" label="Delete template" icon={Trash2} onClick={() => handleDeleteTemplate(i)} />
+                  <IconButton
+                    size="sm"
+                    variant="ghost"
+                    label="Delete template"
+                    icon={Trash2}
+                    disabled={deletingId === t.id}
+                    onClick={() => void handleDeleteTemplate(t.id)}
+                  />
                 </div>
               </Card>
             ))

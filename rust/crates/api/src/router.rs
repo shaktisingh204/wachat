@@ -330,6 +330,14 @@ pub fn build(state: AppState) -> Router {
     let wachat_projects = wachat_projects::router::<AppState>();
     let wachat_contacts = wachat_contacts::router::<AppState>();
     let wachat_number_routing = wachat_number_routing::router::<AppState>();
+    let wachat_ab_testing = wachat_ab_testing::router::<AppState>();
+    let wachat_contact_merge = wachat_contact_merge::router::<AppState>();
+    let wachat_auto_reply_settings = wachat_auto_reply_settings::router::<AppState>();
+    let wachat_project_agents = wachat_project_agents::router::<AppState>();
+    let wachat_project_attributes = wachat_project_attributes::router::<AppState>();
+    let wachat_link_generator = wachat_link_generator::router::<AppState>();
+    let wachat_widget_tracking = wachat_widget_tracking::router::<AppState>();
+    let wachat_integrations_hub = wachat_integrations_hub::router::<AppState>();
     let wachat_canned_messages = wachat_canned_messages::router::<AppState>();
     let wachat_ai_training = wachat_ai_training::router::<AppState>();
     let wachat_interactive_builder = wachat_interactive_builder::router::<AppState>();
@@ -601,6 +609,14 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/wachat/analytics", wachat_analytics)
         .nest("/v1/wachat/public", wachat_public)
         .nest("/v1/wachat/number-routing", wachat_number_routing)
+        .nest("/v1/wachat/ab-tests", wachat_ab_testing)
+        .nest("/v1/wachat/contact-merge", wachat_contact_merge)
+        .nest("/v1/wachat/auto-reply-settings", wachat_auto_reply_settings)
+        .nest("/v1/wachat/project-agents", wachat_project_agents)
+        .nest("/v1/wachat/project-attributes", wachat_project_attributes)
+        .nest("/v1/wachat/link-generator", wachat_link_generator)
+        .nest("/v1/wachat/widget", wachat_widget_tracking)
+        .nest("/v1/wachat/integrations", wachat_integrations_hub)
         .nest("/v1/wachat/canned-messages", wachat_canned_messages)
         .nest("/v1/wachat/ai-training", wachat_ai_training)
         .nest("/v1/wachat/interactive-builder", wachat_interactive_builder)

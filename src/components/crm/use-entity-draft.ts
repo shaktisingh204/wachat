@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 
 export function draftKey(entityName: string, id: string | null | undefined, userId: string | null | undefined): string {
   return `crm.${entityName}.draft.${userId ?? 'anon'}.${id ?? 'new'}`;

@@ -22,7 +22,7 @@ import {
   actionUpdateWarmupRun,
   type WarmupRunDoc,
 } from '@/app/actions/email/deliverability.actions';
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 interface WarmupScheduleProps {
   runs: WarmupRunDoc[];

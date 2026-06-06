@@ -86,6 +86,21 @@
       "ident": "wachat_integrations_hub",
       "state": "WachatIntegrationsHubState",
       "mount": "/v1/wachat/integrations"
+    },
+    "wachat-razorpay": {
+      "ident": "wachat_razorpay",
+      "state": "WachatRazorpayState",
+      "mount": "/v1/wachat/razorpay"
+    },
+    "wachat-post-generator": {
+      "ident": "wachat_post_generator",
+      "state": "WachatPostGeneratorState",
+      "mount": "/v1/wachat/post-generator"
+    },
+    "wachat-contacts-export-sync": {
+      "ident": "wachat_contacts_export_sync",
+      "state": "WachatContactsExportSyncState",
+      "mount": "/v1/wachat/contacts-export-sync"
     }
   }
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import {
   getWeeklyTimesheetsPaginated,
   deleteWeeklyTimesheet,

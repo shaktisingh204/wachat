@@ -1265,6 +1265,46 @@ impl FromRef<AppState> for wachat_number_routing::WachatNumberRoutingState {
         wachat_number_routing::WachatNumberRoutingState::new(s.mongo.clone())
     }
 }
+impl FromRef<AppState> for wachat_ab_testing::WachatAbTestingState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_ab_testing::WachatAbTestingState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_contact_merge::WachatContactMergeState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_contact_merge::WachatContactMergeState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_auto_reply_settings::WachatAutoReplySettingsState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_auto_reply_settings::WachatAutoReplySettingsState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_project_agents::WachatProjectAgentsState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_project_agents::WachatProjectAgentsState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_project_attributes::WachatProjectAttributesState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_project_attributes::WachatProjectAttributesState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_link_generator::WachatLinkGeneratorState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_link_generator::WachatLinkGeneratorState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_widget_tracking::WachatWidgetTrackingState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_widget_tracking::WachatWidgetTrackingState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for wachat_integrations_hub::WachatIntegrationsHubState {
+    fn from_ref(s: &AppState) -> Self {
+        wachat_integrations_hub::WachatIntegrationsHubState::new(s.mongo.clone())
+    }
+}
 impl FromRef<AppState> for wachat_canned_messages::WachatCannedMessagesState {
     fn from_ref(s: &AppState) -> Self {
         wachat_canned_messages::WachatCannedMessagesState::new(s.mongo.clone())

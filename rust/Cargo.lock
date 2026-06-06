@@ -13312,16 +13312,19 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "url-shortener",
+ "wachat-ab-testing",
  "wachat-ads-roadmap",
  "wachat-ai-training",
  "wachat-analytics",
  "wachat-api-keys-admin",
+ "wachat-auto-reply-settings",
  "wachat-broadcast",
  "wachat-calling",
  "wachat-canned-messages",
  "wachat-chat-mark",
  "wachat-chat-read",
  "wachat-config",
+ "wachat-contact-merge",
  "wachat-contacts",
  "wachat-contacts-resolve",
  "wachat-facebook-agents",
@@ -13340,13 +13343,17 @@ dependencies = [
  "wachat-flow-events",
  "wachat-flows",
  "wachat-instagram",
+ "wachat-integrations-hub",
  "wachat-interactive-builder",
+ "wachat-link-generator",
  "wachat-media",
  "wachat-meta-client",
  "wachat-number-routing",
  "wachat-opt-out-settings",
  "wachat-pay",
  "wachat-payment-request",
+ "wachat-project-agents",
+ "wachat-project-attributes",
  "wachat-projects",
  "wachat-public-api",
  "wachat-quality-history",
@@ -13376,6 +13383,7 @@ dependencies = [
  "wachat-webhook-status",
  "wachat-webhook-template-events",
  "wachat-webhook-verify",
+ "wachat-widget-tracking",
 ]
 
 [[package]]
@@ -19027,6 +19035,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-contacts-export-sync"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "wachat-contacts-resolve"
 version = "0.1.0"
 dependencies = [
@@ -19600,6 +19628,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-post-generator"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "wachat-project-agents"
 version = "0.1.0"
 dependencies = [
@@ -19737,6 +19785,26 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "wachat-razorpay"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
 ]
 
 [[package]]

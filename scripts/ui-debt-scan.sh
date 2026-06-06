@@ -19,7 +19,9 @@ LIST="${1:-}"
 EXCL='src/components/sabcrm/20ui/|src/components/zoruui/|src/components/ui/|src/components/clay|src/components/sab-ui|src/app/\(landing|src/app/features/|src/app/pricing/|src/app/blog/|src/app/partners/|src/app/about-us/|src/app/customers/|src/app/resources/|src/app/enterprise/|src/app/how-it-works/|src/app/compare/'
 
 scan_imports() {
-  grep -rlE "from ['\"](@/components/(zoruui|ui|clay|sab-ui)|wabasimplify)" src \
+  # Match the ZoruUI design system (zoruui' or zoruui/...) but NOT the
+  # zoruui-domain feature folder; plus shadcn ui/, clay, sab-ui, wabasimplify.
+  grep -rlE "from ['\"](@/components/zoruui['/]|@/components/(ui/|clay|sab-ui)|wabasimplify)" src \
     --include="*.tsx" --include="*.ts" 2>/dev/null | grep -vE "$EXCL" || true
 }
 

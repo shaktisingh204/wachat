@@ -49,6 +49,21 @@ import {
   handleDeleteConversationalAutomation,
   handleUpdateConversationalAutomation,
   } from '@/app/actions/whatsapp.actions';
+import {
+  createAiTrainingSample,
+  deleteAiTrainingSample,
+  getAiModelConfig,
+  getAiTrainingSamples,
+  saveAiModelConfig,
+} from '@/app/actions/wachat-ai-training.actions';
+
+import { Spinner } from '@/components/sabcrm/20ui';
+
+interface TrainingSampleView {
+  _id: string;
+  question: string;
+  answer: string;
+}
 
 /**
  * /wachat/automation — Conversational AI overview (20ui).
@@ -86,8 +101,18 @@ export default function AutomationPage() {
   const [newCommandName, setNewCommandName] = useState('');
   const [newCommandDesc, setNewCommandDesc] = useState('');
   const [model, setModel] = useState<string>('meta-native');
+  const [modelSaving, setModelSaving] = useState(false);
   const [trainOpen, setTrainOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
+
+  // AI training samples (backed by the wachat-ai-training Rust crate).
+  const [samples, setSamples] = useState<TrainingSampleView[]>([]);
+  const [samplesLoading, setSamplesLoading] = useState(false);
+  const [samplesError, setSamplesError] = useState<string | null>(null);
+  const [sampleQuestion, setSampleQuestion] = useState('');
+  const [sampleAnswer, setSampleAnswer] = useState('');
+  const [sampleSaving, setSampleSaving] = useState(false);
+  const [deletingSampleId, setDeletingSampleId] = useState<string | null>(null);
 
   const selectedPhoneId = activeProject?.phoneNumbers?.[0]?.id;
 
@@ -118,6 +143,135 @@ export default function AutomationPage() {
   useEffect(() => {
     fetchAutomation();
   }, [fetchAutomation]);
+
+  // Load the persisted model choice for this project + phone number.
+  const projectId = activeProject?._id ? activeProject._id.toString() : null;
+
+  useEffect(() => {
+    if (!projectId || !selectedPhoneId) return;
+    let cancelled = false;
+    (async () => {
+      const result = await getAiModelConfig(projectId, selectedPhoneId);
+      if (cancelled) return;
+      if ('model' in result) {
+        setModel(result.model);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId, selectedPhoneId]);
+
+  const loadSamples = useCallback(async () => {
+    if (!projectId || !selectedPhoneId) return;
+    setSamplesLoading(true);
+    setSamplesError(null);
+    const result = await getAiTrainingSamples(projectId, selectedPhoneId);
+    if ('error' in result) {
+      setSamplesError(result.error);
+      setSamples([]);
+    } else {
+      setSamples(
+        result.samples.map((s) => ({
+          _id: s._id,
+          question: s.question,
+          answer: s.answer,
+        })),
+      );
+    }
+    setSamplesLoading(false);
+  }, [projectId, selectedPhoneId]);
+
+  // Persist the model choice whenever the user picks a different engine.
+  const handleModelChange = useCallback(
+    (next: string) => {
+      const previous = model;
+      setModel(next);
+      if (!projectId || !selectedPhoneId) return;
+      setModelSaving(true);
+      startTransition(async () => {
+        const result = await saveAiModelConfig(projectId, selectedPhoneId, next);
+        setModelSaving(false);
+        if (!result.success) {
+          setModel(previous);
+          toast({
+            title: 'Error',
+            description: result.error || 'Could not save model choice.',
+            tone: 'danger',
+          });
+        } else {
+          toast({ title: 'Saved', description: 'Automation model updated.', tone: 'success' });
+        }
+      });
+    },
+    [model, projectId, selectedPhoneId, toast],
+  );
+
+  const openTrainDialog = useCallback(() => {
+    setSampleQuestion('');
+    setSampleAnswer('');
+    setTrainOpen(true);
+    void loadSamples();
+  }, [loadSamples]);
+
+  const handleSaveSample = useCallback(() => {
+    if (!projectId || !selectedPhoneId) return;
+    if (!sampleQuestion.trim() || !sampleAnswer.trim()) {
+      toast({
+        title: 'Missing fields',
+        description: 'Both a sample question and an ideal answer are required.',
+        tone: 'danger',
+      });
+      return;
+    }
+    setSampleSaving(true);
+    startTransition(async () => {
+      const result = await createAiTrainingSample(
+        projectId,
+        selectedPhoneId,
+        sampleQuestion,
+        sampleAnswer,
+      );
+      setSampleSaving(false);
+      if ('error' in result) {
+        toast({ title: 'Error', description: result.error, tone: 'danger' });
+        return;
+      }
+      setSamples((prev) => [
+        ...prev,
+        {
+          _id: result.sample._id,
+          question: result.sample.question,
+          answer: result.sample.answer,
+        },
+      ]);
+      setSampleQuestion('');
+      setSampleAnswer('');
+      toast({ title: 'Saved', description: 'Training sample saved.', tone: 'success' });
+    });
+  }, [projectId, selectedPhoneId, sampleQuestion, sampleAnswer, toast]);
+
+  const handleDeleteSample = useCallback(
+    (sampleId: string) => {
+      if (!projectId || !selectedPhoneId) return;
+      setDeletingSampleId(sampleId);
+      startTransition(async () => {
+        const result = await deleteAiTrainingSample(projectId, selectedPhoneId, sampleId);
+        setDeletingSampleId(null);
+        if (!result.success) {
+          toast({
+            title: 'Error',
+            description: result.error || 'Could not delete sample.',
+            tone: 'danger',
+          });
+          return;
+        }
+        setSamples((prev) => prev.filter((s) => s._id !== sampleId));
+        toast({ title: 'Deleted', description: 'Training sample removed.', tone: 'success' });
+      });
+    },
+    [projectId, selectedPhoneId, toast],
+  );
 
   const handleSave = () => {
     if (!activeProject?._id || !selectedPhoneId) return;
@@ -215,7 +369,7 @@ export default function AutomationPage() {
             variant="outline"
             size="sm"
             iconLeft={Sparkles}
-            onClick={() => setTrainOpen(true)}
+            onClick={openTrainDialog}
             disabled={!selectedPhoneId}
           >
             Train
@@ -248,7 +402,7 @@ export default function AutomationPage() {
             </CardDescription>
             <RadioCardGroup
               value={model}
-              onChange={setModel}
+              onChange={handleModelChange}
               label="Automation model"
               className="mt-4 grid gap-3 sm:grid-cols-2"
             >
@@ -261,6 +415,12 @@ export default function AutomationPage() {
                 />
               ))}
             </RadioCardGroup>
+            {modelSaving && (
+              <p className="mt-3 flex items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
+                <Spinner size="sm" aria-hidden="true" />
+                Saving model choice…
+              </p>
+            )}
           </Card>
 
           {/* Welcome */}
@@ -461,42 +621,107 @@ export default function AutomationPage() {
         open={trainOpen}
         onClose={() => setTrainOpen(false)}
         title="Train conversational AI"
-        description="Add training samples that teach the AI how to respond. Saved samples will be available next time the assistant runs."
+        description="Add training samples that teach the AI how to respond. Saved samples are stored against this number and used the next time the assistant runs."
         footer={
           <>
             <Button variant="ghost" onClick={() => setTrainOpen(false)}>
-              Cancel
+              Close
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                toast({
-                  title: 'Saved',
-                  description: 'Training sample queued.',
-                  tone: 'success',
-                });
-                setTrainOpen(false);
-              }}
+              iconLeft={Plus}
+              onClick={handleSaveSample}
+              disabled={
+                sampleSaving || !sampleQuestion.trim() || !sampleAnswer.trim()
+              }
             >
-              Save sample
+              {sampleSaving ? 'Saving…' : 'Save sample'}
             </Button>
           </>
         }
       >
-        <div className="flex flex-col gap-3">
-          <Field label="Sample question">
-            <Input
-              id="train-question"
-              placeholder="What are your business hours?"
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
+            <Field label="Sample question">
+              <Input
+                id="train-question"
+                value={sampleQuestion}
+                onChange={(e) => setSampleQuestion(e.target.value)}
+                placeholder="What are your business hours?"
+              />
+            </Field>
+            <Field label="Ideal answer">
+              <Textarea
+                id="train-answer"
+                value={sampleAnswer}
+                onChange={(e) => setSampleAnswer(e.target.value)}
+                placeholder="We're open Mon–Fri, 9am–6pm IST."
+                rows={3}
+              />
+            </Field>
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <p className="text-[13px] font-medium text-[var(--st-text)]">
+              Saved samples
+            </p>
+            <Badge kind="outline">{samples.length}</Badge>
+          </div>
+
+          {samplesLoading ? (
+            <div className="flex items-center justify-center gap-2 py-6 text-[13px] text-[var(--st-text-secondary)]">
+              <Spinner size="sm" label="Loading training samples" />
+              Loading samples…
+            </div>
+          ) : samplesError ? (
+            <div className="flex flex-col items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border-danger,var(--st-border))] bg-[var(--st-bg)] px-3 py-3">
+              <p className="text-[13px] text-[var(--st-text-danger,var(--st-text))]">
+                {samplesError}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                iconLeft={RefreshCw}
+                onClick={() => void loadSamples()}
+              >
+                Retry
+              </Button>
+            </div>
+          ) : samples.length === 0 ? (
+            <EmptyState
+              icon={Sparkles}
+              title="No training samples yet"
+              description="Add a question/answer pair above to start teaching the assistant."
             />
-          </Field>
-          <Field label="Ideal answer">
-            <Textarea
-              id="train-answer"
-              placeholder="We're open Mon–Fri, 9am–6pm IST."
-              rows={3}
-            />
-          </Field>
+          ) : (
+            <ul className="flex max-h-64 flex-col gap-2 overflow-y-auto">
+              {samples.map((sample) => (
+                <li
+                  key={sample._id}
+                  className="flex items-start gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
+                >
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <span className="text-sm font-medium text-[var(--st-text)]">
+                      {sample.question}
+                    </span>
+                    <span className="text-[13px] text-[var(--st-text-secondary)]">
+                      {sample.answer}
+                    </span>
+                  </div>
+                  <IconButton
+                    label="Delete sample"
+                    icon={Trash2}
+                    variant="ghost"
+                    size="sm"
+                    disabled={deletingSampleId === sample._id}
+                    onClick={() => handleDeleteSample(sample._id)}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </Modal>
 

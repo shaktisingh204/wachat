@@ -23,7 +23,7 @@ import type {
   WidgetKey,
   WidgetPref,
 } from '@/app/actions/dashboard-widgets.config';
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 export interface WidgetConfigDrawerProps {
   dashboardType: DashboardType;

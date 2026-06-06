@@ -32,7 +32,7 @@ import {
     ZoruTableRow,
 } from '@/components/sabcrm/20ui/compat';
 import { Progress } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 type TabKey = 'overview' | 'tasks' | 'milestones' | 'files' | 'invoices' | 'rating';
 

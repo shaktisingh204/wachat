@@ -50,7 +50,7 @@ import {
     ZoruTooltipProvider
 } from '@/components/sabcrm/20ui/compat';
 
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 import { AiCopilotPanel } from './ai-copilot-panel';
 import { VersionHistoryPanel } from './version-history-panel';
 import {

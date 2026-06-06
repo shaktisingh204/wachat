@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 import type { WsWeeklyTimesheetEntry } from '@/lib/worksuite/time-types';
 
 export function useCollaborativeSync(

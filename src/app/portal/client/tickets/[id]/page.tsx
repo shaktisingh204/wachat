@@ -17,7 +17,7 @@ import {
     ZoruCardTitle,
 } from '@/components/sabcrm/20ui/compat';
 import { TicketReplyForm } from '@/components/client-portal/ticket-reply-form';
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 function fmtDateTime(iso: string | null): string {
     if (!iso) return '';

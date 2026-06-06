@@ -12,7 +12,7 @@ import {
   Skeleton,
   zoruToast,
 } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 import {
   actionListEmailApiKeys,
   actionListEmailWebhooks,

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Textarea } from '@/components/sabcrm/20ui/compat';
-import { cn } from '@/components/zoruui/lib/cn';
+import { cn } from '@/components/sabcrm/20ui/compat';
 
 export type MentionUser = {
   id: string;

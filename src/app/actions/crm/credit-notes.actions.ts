@@ -1,6 +1,6 @@
 'use server';
 
-import { cn } from '@/components/zoruui';
+import { cn } from '@/components/sabcrm/20ui/compat';
 /**
  * CRM Credit Note server actions.
  *

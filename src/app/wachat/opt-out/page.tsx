@@ -41,6 +41,10 @@ import {
   getOptOutList,
   removeFromOptOut,
   } from '@/app/actions/wachat-features.actions';
+import {
+  getOptOutSettings,
+  saveOptOutSettings,
+  } from '@/app/actions/wachat-opt-out-settings.actions';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
@@ -81,6 +85,9 @@ export default function OptOutPage() {
   const [bulkText, setBulkText] = useState('');
   const [uploadItems, setUploadItems] = useState<UploadItem[]>([]);
   const [autoSentiment, setAutoSentiment] = useState(false);
+  const [settingsLoading, setSettingsLoading] = useState(true);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
+  const [savingSettings, setSavingSettings] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(() => {
@@ -102,6 +109,52 @@ export default function OptOutPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Project-level AI opt-out settings (backed by the wachat-opt-out-settings
+  // Rust crate). Separate from the opt-out LIST above, which lives in
+  // wachat-features.
+  const loadSettings = useCallback(() => {
+    if (!activeProject?._id) return;
+    setSettingsLoading(true);
+    setSettingsError(null);
+    startTransition(async () => {
+      const res = await getOptOutSettings(String(activeProject._id));
+      if (res.error) {
+        setSettingsError(res.error);
+        setSettingsLoading(false);
+        return;
+      }
+      setAutoSentiment(Boolean(res.settings?.sentimentAutoOptOut));
+      setSettingsLoading(false);
+    });
+  }, [activeProject?._id]);
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
+
+  const handleToggleSentiment = async (checked: boolean) => {
+    if (!activeProject?._id) return;
+    // Optimistic flip; revert on failure.
+    const previous = autoSentiment;
+    setAutoSentiment(checked);
+    setSavingSettings(true);
+    const res = await saveOptOutSettings(String(activeProject._id), checked);
+    setSavingSettings(false);
+    if (!res.success) {
+      setAutoSentiment(previous);
+      toast({
+        title: 'Error',
+        description: res.error,
+        variant: 'destructive',
+      });
+      return;
+    }
+    toast({
+      title: checked ? 'Enabled' : 'Disabled',
+      description: 'Sentiment analysis auto opt-out updated.',
+    });
+  };
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -566,26 +619,44 @@ export default function OptOutPage() {
               </CardDescription>
             </CardHeader>
             <CardBody>
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="auto-sentiment-switch"
-                  className="cursor-pointer text-[13px] text-[var(--st-text)]"
-                >
-                  Enable Sentiment Auto-Opt-Out
-                </label>
-                <Switch
-                  id="auto-sentiment-switch"
-                  checked={autoSentiment}
-                  aria-label="Enable Sentiment Auto-Opt-Out"
-                  onCheckedChange={(c) => {
-                    setAutoSentiment(c);
-                    toast({
-                      title: c ? 'Enabled' : 'Disabled',
-                      description: 'Sentiment analysis auto opt-out updated.',
-                    });
-                  }}
-                />
-              </div>
+              {settingsLoading ? (
+                <div className="flex items-center justify-between">
+                  <Skeleton height={16} width={200} />
+                  <Skeleton height={22} width={40} />
+                </div>
+              ) : settingsError ? (
+                <div className="flex flex-col items-start gap-2">
+                  <span className="text-[12.5px] text-[var(--st-danger)]">
+                    {settingsError}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadSettings}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="auto-sentiment-switch"
+                    className="flex cursor-pointer items-center gap-2 text-[13px] text-[var(--st-text)]"
+                  >
+                    Enable Sentiment Auto-Opt-Out
+                    {savingSettings ? (
+                      <Spinner size="sm" label="Saving setting" />
+                    ) : null}
+                  </label>
+                  <Switch
+                    id="auto-sentiment-switch"
+                    checked={autoSentiment}
+                    disabled={savingSettings}
+                    aria-label="Enable Sentiment Auto-Opt-Out"
+                    onCheckedChange={handleToggleSentiment}
+                  />
+                </div>
+              )}
             </CardBody>
           </Card>
         </div>

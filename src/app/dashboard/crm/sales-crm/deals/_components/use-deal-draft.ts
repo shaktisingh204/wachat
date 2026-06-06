@@ -1,6 +1,6 @@
 'use client';
 
-import { useZoruToast } from '@/components/zoruui';
+import { useZoruToast } from '@/components/sabcrm/20ui/compat';
 /**
  * useDealDraft — localStorage-backed draft auto-save for the New Deal
  * form. Detects an existing draft on mount, persists periodically while
