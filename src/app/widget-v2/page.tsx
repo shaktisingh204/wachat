@@ -16,7 +16,7 @@ import {
   Textarea,
   ScrollArea,
   Badge,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { 
   MessageSquare, 
   X, 

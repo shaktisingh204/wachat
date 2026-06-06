@@ -49,7 +49,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { toast } from "sonner";
 
 import {
@@ -72,7 +72,7 @@ import {
   ZoruDropdownMenuTrigger,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 // Mock Data Types
 type AuditAction = "template-approved" | "suppression-added" | "consent-changed" | "send-blocked" | "campaign-launched";

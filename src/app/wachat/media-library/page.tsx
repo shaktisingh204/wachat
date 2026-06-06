@@ -3,7 +3,7 @@
 import {
   ZoruFilesPage,
   type ZoruFileEntity,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/zoru';
 import {
   EmptyState,
   Skeleton,

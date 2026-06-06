@@ -8,7 +8,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { ProposalActionsPanel } from "./proposal-actions-panel";
 import { fmtDate, fmtINR } from "@/lib/utils";
 

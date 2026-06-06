@@ -55,7 +55,7 @@ import {
   Input,
   Label,
   Switch,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   SabsmsDataTable,
   SabsmsDetailDrawer,

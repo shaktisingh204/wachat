@@ -27,7 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 const MOCK_COLLECTIONS = [
   {

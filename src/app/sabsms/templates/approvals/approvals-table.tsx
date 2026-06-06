@@ -60,7 +60,7 @@ import {
   Switch,
   Textarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import {
   approveTemplate,

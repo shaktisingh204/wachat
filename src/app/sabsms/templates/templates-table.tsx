@@ -63,7 +63,7 @@ import {
   ZoruTooltipProvider,
   ZoruTooltipTrigger,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import {
   duplicateTemplate,

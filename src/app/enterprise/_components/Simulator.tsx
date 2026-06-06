@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button, Input, Textarea, Label } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button, Input, Textarea, Label } from '@/components/sabcrm/20ui/zoru';
 import { Terminal, CheckCircle, AlertTriangle } from 'lucide-react';
 import { InquiryRecord, EnterpriseResponse } from '../types';
 

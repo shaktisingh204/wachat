@@ -36,7 +36,7 @@ import {
   ZoruZoruDropdownMenuSeparator,
   ZoruZoruDropdownMenuTrigger,
   cn,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { formatJid, type JidResolver } from "@/lib/sabwa/format-jid";
 import type { SabwaMessage, SabwaMessageStatus } from "@/lib/sabwa/types";
 

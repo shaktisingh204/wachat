@@ -26,7 +26,7 @@ import {
   ZoruDrawerTitle,
   Switch,
   Label,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   AlertCircle,
   Inbox,

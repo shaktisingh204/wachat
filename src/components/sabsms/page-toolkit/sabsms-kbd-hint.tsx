@@ -11,7 +11,7 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruKbd,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 export interface SabsmsShortcut {
   keys: string[];

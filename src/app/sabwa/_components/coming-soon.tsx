@@ -30,7 +30,7 @@ import {
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 export interface ComingSoonProps {
   /** Page title (e.g. "Inbox", "Bulk sender"). */

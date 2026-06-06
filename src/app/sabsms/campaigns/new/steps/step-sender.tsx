@@ -12,7 +12,7 @@ import {
   Checkbox,
   ZoruRadioCard,
   RadioGroup,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import type { CampaignDraft, SenderStrategy } from "../types";
 

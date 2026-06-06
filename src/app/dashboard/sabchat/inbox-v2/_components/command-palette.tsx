@@ -9,7 +9,7 @@ import {
     ZoruCommandGroup,
     ZoruCommandItem,
     ZoruCommandShortcut
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { SabChatConversation } from "@/lib/rust-client/sabchat";
 
 interface CommandPaletteProps {

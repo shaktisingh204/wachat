@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, useZoruToast } from "@/components/zoruui";
+import { Button, useZoruToast } from "@/components/sabcrm/20ui/zoru";
 import { useDebouncedCallback } from "use-debounce";
 import { Plus } from "lucide-react";
 import type { DateRange } from "react-day-picker";

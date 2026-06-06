@@ -20,7 +20,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent
-} from "@/components/zoruui/card";
+} from "@/components/sabcrm/20ui/zoru/card";
 import {
   Table,
   TableHeader,
@@ -28,11 +28,11 @@ import {
   TableHead,
   TableRow,
   TableCell
-} from "@/components/zoruui/table";
-import { Button } from "@/components/zoruui/button";
-import { Badge } from "@/components/zoruui/badge";
-import { Input } from "@/components/zoruui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/zoruui/avatar";
+} from "@/components/sabcrm/20ui/zoru/table";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { Input } from "@/components/sabcrm/20ui/zoru/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/sabcrm/20ui/zoru/avatar";
 
 const mockReviews = [
   {

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ZoruFilesPage, type ZoruFileEntity } from '@/components/zoruui';
+import { ZoruFilesPage, type ZoruFileEntity } from '@/components/sabcrm/20ui/zoru';
 import { getAdminBuilderAssets } from './actions';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';

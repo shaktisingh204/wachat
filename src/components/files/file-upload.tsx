@@ -32,7 +32,7 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { useFileUpload, formatBytes, type FileMetadata } from "./use-file-upload";
 
 // ---------- Demo initial files (safe to remove) ----------

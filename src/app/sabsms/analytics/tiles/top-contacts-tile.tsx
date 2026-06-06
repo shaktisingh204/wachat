@@ -12,7 +12,7 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsTopContact } from "../aggregations";

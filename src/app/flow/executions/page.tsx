@@ -5,15 +5,15 @@ import { useReactTable, getCoreRowModel, getFilteredRowModel, getPaginationRowMo
 import { useQuery, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fmtDate, formatUTC } from "@/lib/utils";
 import { Search, Filter, Play, CheckCircle2, Clock, AlertCircle, MoreHorizontal, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, Activity, Zap, MousePointer2, Calendar, Eye, Trash2, XCircle } from "lucide-react";
-import { Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from "@/components/zoruui/table";
-import { Button } from "@/components/zoruui/button";
-import { Input } from "@/components/zoruui/input";
-import { Badge } from "@/components/zoruui/badge";
-import { Card, ZoruCardContent } from "@/components/zoruui/card";
-import { Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from "@/components/zoruui/select";
-import { Checkbox } from "@/components/zoruui/checkbox";
-import { DropdownMenu, ZoruDropdownMenuTrigger, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuSeparator, ZoruDropdownMenuLabel } from "@/components/zoruui/dropdown-menu";
-import { Avatar, ZoruAvatarFallback } from "@/components/zoruui/avatar";
+import { Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from "@/components/sabcrm/20ui/zoru/table";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
+import { Input } from "@/components/sabcrm/20ui/zoru/input";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { Card, ZoruCardContent } from "@/components/sabcrm/20ui/zoru/card";
+import { Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from "@/components/sabcrm/20ui/zoru/select";
+import { Checkbox } from "@/components/sabcrm/20ui/zoru/checkbox";
+import { DropdownMenu, ZoruDropdownMenuTrigger, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuSeparator, ZoruDropdownMenuLabel } from "@/components/sabcrm/20ui/zoru/dropdown-menu";
+import { Avatar, ZoruAvatarFallback } from "@/components/sabcrm/20ui/zoru/avatar";
 
 type ExecutionTriggerMode = "webhook" | "schedule" | "manual" | "app_event";
 type ExecutionStatus = "completed" | "running" | "failed" | "canceled";

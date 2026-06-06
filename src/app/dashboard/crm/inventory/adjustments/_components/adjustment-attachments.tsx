@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruFileCardCollections, type ZoruFileCardItem } from '@/components/zoruui/file-card-collections';
+import { ZoruFileCardCollections, type ZoruFileCardItem } from '@/components/sabcrm/20ui/zoru/file-card-collections';
 
 export function AdjustmentAttachments({ attachments }: { attachments: string[] }) {
     if (!attachments || attachments.length === 0) return null;

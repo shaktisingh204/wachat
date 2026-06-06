@@ -26,7 +26,7 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
   StatCard,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
 import { SabsmsFilterBar, type SabsmsFacet } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";

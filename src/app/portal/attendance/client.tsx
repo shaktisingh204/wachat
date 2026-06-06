@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/zoruui/card";
-import { Button } from "@/components/zoruui/button";
-import { Badge } from "@/components/zoruui/badge";
-import { useZoruToast } from "@/components/zoruui/use-zoru-toast";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/sabcrm/20ui/zoru/card";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { useZoruToast } from "@/components/sabcrm/20ui/zoru/use-zoru-toast";
 import { punchInAction, punchOutAction } from '@/app/actions/crm/attendance.actions';
 import { CrmAttendanceDoc } from '@/lib/rust-client/crm-attendance';
 

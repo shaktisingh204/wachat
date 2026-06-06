@@ -19,12 +19,12 @@ import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, LogOut } from 'lucide-react';
 
-import { ZORU_APPS } from '@/components/zoruui/shell/zoru-apps';
+import { ZORU_APPS } from '@/components/sabcrm/20ui/zoru/shell/zoru-apps';
 import { AppRail, AppHeader, type AppRailItem } from '@/components/sabcrm/20ui';
 import type { LucideIcon } from 'lucide-react';
-import { useHtmlDark, AppThemeToggle } from '@/components/zoruui/shell/app-theme';
-import { ZoruNotificationPopover } from '@/components/zoruui/notification-popover';
-import { ZoruUserDropdown } from '@/components/zoruui/user-dropdown';
+import { useHtmlDark, AppThemeToggle } from '@/components/sabcrm/20ui/zoru/shell/app-theme';
+import { ZoruNotificationPopover } from '@/components/sabcrm/20ui/zoru/notification-popover';
+import { ZoruUserDropdown } from '@/components/sabcrm/20ui/zoru/user-dropdown';
 import { CommandPaletteProvider } from '@/components/crm/command-palette';
 import { UniversalSearch } from '@/components/crm/universal-search';
 

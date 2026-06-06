@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Card } from "@/components/zoruui";
+import { Badge, Card } from "@/components/sabcrm/20ui/zoru";
 import { formatDistanceToNow } from "date-fns";
 import { BookOpen, FolderOpen } from "lucide-react";
 

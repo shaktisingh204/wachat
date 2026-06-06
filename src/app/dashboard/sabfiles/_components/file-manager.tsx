@@ -19,8 +19,8 @@ import {
     ZoruDialogTitle, 
     ZoruDialogDescription, 
     ZoruDialogFooter 
-} from '@/components/zoruui';
-import { ZoruFilesPage, type ZoruFileEntity } from '@/components/zoruui/files-module';
+} from '@/components/sabcrm/20ui/zoru';
+import { ZoruFilesPage, type ZoruFileEntity } from '@/components/sabcrm/20ui/zoru/files-module';
 
 import {
     confirmUpload,

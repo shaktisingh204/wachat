@@ -8,7 +8,7 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { notFound, redirect } from "next/navigation";
 import { Pencil } from "lucide-react";
 

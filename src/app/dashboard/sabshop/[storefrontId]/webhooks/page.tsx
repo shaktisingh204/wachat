@@ -8,18 +8,18 @@ import {
   ZoruPageTitle,
   ZoruPageDescription,
   ZoruPageActions,
-} from "@/components/zoruui/page-header";
-import { Button } from "@/components/zoruui/button";
-import { StatCard } from "@/components/zoruui/stat-card";
-import { Badge } from "@/components/zoruui/badge";
-import { Switch } from "@/components/zoruui/switch";
+} from "@/components/sabcrm/20ui/zoru/page-header";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
+import { StatCard } from "@/components/sabcrm/20ui/zoru/stat-card";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { Switch } from "@/components/sabcrm/20ui/zoru/switch";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "@/components/zoruui/dropdown-menu";
+} from "@/components/sabcrm/20ui/zoru/dropdown-menu";
 import {
   Table,
   TableHeader,
@@ -27,7 +27,7 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from "@/components/zoruui/table";
+} from "@/components/sabcrm/20ui/zoru/table";
 import {
   Plus,
   Webhook,
@@ -41,7 +41,7 @@ import {
   ShieldCheck,
   Zap
 } from "lucide-react";
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from "@/components/zoruui/card";
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from "@/components/sabcrm/20ui/zoru/card";
 
 const mockWebhooks = [
   {

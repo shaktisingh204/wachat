@@ -3,7 +3,7 @@ import { getCachedSession } from "@/lib/server-cache";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { loadWebhooks, type WebhookListFilters } from "./actions";
 import { WebhooksTable } from "./webhooks-table";
-import { StatCard } from "@/components/zoruui";
+import { StatCard } from "@/components/sabcrm/20ui/zoru";
 import { fmtQty } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";

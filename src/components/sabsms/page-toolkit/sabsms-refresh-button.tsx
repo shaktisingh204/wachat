@@ -13,7 +13,7 @@ import {
   ZoruDropdownMenuRadioItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 const INTERVALS = [
   { value: "off", label: "Off" },

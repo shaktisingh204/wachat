@@ -1,4 +1,4 @@
-import { Button } from "@/components/zoruui";
+import { Button } from "@/components/sabcrm/20ui/zoru";
 import { redirect } from "next/navigation";
 import type { WithId } from "mongodb";
 

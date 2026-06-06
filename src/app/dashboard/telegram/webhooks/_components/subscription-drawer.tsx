@@ -17,7 +17,7 @@ import {
   ZoruDrawerDescription,
   ZoruDrawerHeader,
   ZoruDrawerTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import type { WebhookSubscriptionRow } from "@/lib/rust-client/telegram-webhooks";
 import { TELEGRAM_ALLOWED_UPDATES } from "@/lib/rust-client/telegram-webhooks-shared";

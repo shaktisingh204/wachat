@@ -37,7 +37,7 @@ export {
 // Tabs + Slider — Re-export from the legacy `@/components/ui` Radix wrappers
 // while the ZoruUI-native primitives are still in design. Mid-migration
 // callers (sabchat/*, etc.) import {Tabs, ZoruTabsList, ZoruTabsTrigger,
-// ZoruTabsContent, Slider} from "@/components/zoruui" — wire those names
+// ZoruTabsContent, Slider} from "@/components/sabcrm/20ui/zoru" — wire those names
 // here so nothing has to change at the call site.
 export {
   Tabs,

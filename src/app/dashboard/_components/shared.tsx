@@ -3,7 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { Button, Card, cn } from "@/components/zoruui";
+import { Button, Card, cn } from "@/components/sabcrm/20ui/zoru";
 
 export function BigStatCard({
   title,

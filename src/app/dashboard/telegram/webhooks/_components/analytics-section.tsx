@@ -7,7 +7,7 @@ import {
   EmptyState,
   Skeleton,
   ZORU_CHART_PALETTE,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { AlertCircle } from "lucide-react";
 import {
   Bar,

@@ -21,7 +21,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function ProviderConfigPage({ params }: { params: { id: string } }) {

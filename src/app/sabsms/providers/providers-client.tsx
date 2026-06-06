@@ -15,7 +15,7 @@ import {
   ZoruDialogHeader, 
   ZoruDialogTitle, 
   ZoruDialogDescription 
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { pingProvidersAction } from "./actions";
 
 export interface ProviderRow {

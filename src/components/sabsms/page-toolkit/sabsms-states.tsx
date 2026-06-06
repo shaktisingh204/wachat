@@ -8,7 +8,7 @@ import {
   Button,
   EmptyState,
   Skeleton,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 export interface SabsmsEmptyProps {
   icon?: React.ReactNode;

@@ -25,11 +25,11 @@ import { getBrandMentions } from '@/app/actions/seo.actions';
 import type { BrandMention } from '@/lib/definitions';
 import { formatDistanceToNow } from 'date-fns';
 
-const ChartContainer = dynamic(() => import('@/components/zoruui').then((mod) => mod.ZoruChartContainer), {
+const ChartContainer = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ZoruChartContainer), {
     ssr: false,
     loading: () => <Skeleton className="h-64 w-full" />,
 });
-const ChartTooltip = dynamic(() => import('@/components/zoruui').then((mod) => mod.ZoruChartTooltip), { ssr: false });
+const ChartTooltip = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ZoruChartTooltip), { ssr: false });
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 const chartConfigSentiment = { count: { label: 'Count', color: 'hsl(var(--chart-2))' } };

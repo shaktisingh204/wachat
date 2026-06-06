@@ -21,7 +21,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { ChevronDown, ListChecks, UserPlus, X } from "lucide-react";
 
 /**

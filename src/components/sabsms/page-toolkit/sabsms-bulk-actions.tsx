@@ -9,7 +9,7 @@ import {
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 export interface SabsmsBulkAction<T> {
   label: string;

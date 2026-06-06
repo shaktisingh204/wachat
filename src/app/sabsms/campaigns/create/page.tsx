@@ -54,7 +54,7 @@ import {
   SelectTrigger,
   SelectValue,
   cn,
-} from "@/components/zoruui"
+} from "@/components/sabcrm/20ui/zoru"
 
 const MOCK_SEGMENTS = [
   { id: 'seg-1', name: 'High Value Customers', count: 12450, lastSync: '2 hours ago', type: 'Dynamic', engagement: 'High' },

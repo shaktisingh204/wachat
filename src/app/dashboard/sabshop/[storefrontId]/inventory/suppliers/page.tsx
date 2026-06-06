@@ -2,15 +2,15 @@
 
 import React from "react";
 import { Plus, Search, Building, Clock, Star, Users, MoreHorizontal, Mail, Phone } from "lucide-react";
-import { PageHeader } from "@/components/zoruui/page-header";
-import { Button } from "@/components/zoruui/button";
-import { Input } from "@/components/zoruui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/zoruui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/zoruui/table";
-import { Badge } from "@/components/zoruui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/zoruui/dropdown-menu";
-import { StatCard } from "@/components/zoruui/stat-card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/zoruui/avatar";
+import { PageHeader } from "@/components/sabcrm/20ui/zoru/page-header";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
+import { Input } from "@/components/sabcrm/20ui/zoru/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/sabcrm/20ui/zoru/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/sabcrm/20ui/zoru/table";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/sabcrm/20ui/zoru/dropdown-menu";
+import { StatCard } from "@/components/sabcrm/20ui/zoru/stat-card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/sabcrm/20ui/zoru/avatar";
 
 const mockSuppliers = [
   {

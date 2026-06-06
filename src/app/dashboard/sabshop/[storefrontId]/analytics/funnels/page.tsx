@@ -8,9 +8,9 @@ import {
   CardContent, 
   CardDescription,
   CardFooter
-} from "@/components/zoruui/card";
-import { PageHeader, PageHeaderHeading, PageHeaderDescription } from "@/components/zoruui/page-header";
-import { Progress } from "@/components/zoruui/progress";
+} from "@/components/sabcrm/20ui/zoru/card";
+import { PageHeader, PageHeaderHeading, PageHeaderDescription } from "@/components/sabcrm/20ui/zoru/page-header";
+import { Progress } from "@/components/sabcrm/20ui/zoru/progress";
 import { 
   ShoppingCart, 
   CreditCard, 
@@ -21,8 +21,8 @@ import {
   TrendingUp,
   TrendingDown
 } from "lucide-react";
-import { Badge } from "@/components/zoruui/badge";
-import { Separator } from "@/components/zoruui/separator";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { Separator } from "@/components/sabcrm/20ui/zoru/separator";
 
 export default function FunnelsPage() {
   const funnelSteps = [

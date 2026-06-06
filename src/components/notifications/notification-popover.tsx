@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition, useRef } from 'react';
 import * as React from 'react';
-import { Button, Popover, ZoruPopoverContent, ZoruPopoverTrigger, Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger, ScrollArea } from "@/components/zoruui";
+import { Button, Popover, ZoruPopoverContent, ZoruPopoverTrigger, Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger, ScrollArea } from "@/components/sabcrm/20ui/zoru";
 import { Bell, Check, Loader2, Info, Target, ChevronLeft, ChevronRight } from "lucide-react";
 import { WhatsAppIcon, MetaIcon, CrmIcon, SabChatIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 import { cn } from "@/lib/utils";

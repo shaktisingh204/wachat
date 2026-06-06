@@ -10,7 +10,7 @@ import {
     ZoruPageTitle,
     ZoruPageDescription,
     StatCard,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
     listSabopsEndpoints,
     listSabopsAlerts,

@@ -46,14 +46,14 @@ import {
   Separator,
   Textarea,
   useZoruToast,
-} from "@/components/zoruui";
-import { EmptyState } from "@/components/zoruui/empty-state";
+} from "@/components/sabcrm/20ui/zoru";
+import { EmptyState } from "@/components/sabcrm/20ui/zoru/empty-state";
 import {
   DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-} from "@/components/zoruui/dropdown-menu";
+} from "@/components/sabcrm/20ui/zoru/dropdown-menu";
 
 import type { CrmTicketDoc } from "@/lib/rust-client/crm-tickets";
 import type { CrmReplyTemplateDoc } from "@/lib/rust-client/crm-reply-templates";

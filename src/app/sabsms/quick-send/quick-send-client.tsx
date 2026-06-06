@@ -39,7 +39,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   Textarea,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit";
 
 import type {

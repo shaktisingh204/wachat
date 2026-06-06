@@ -6,7 +6,7 @@ import {
   ZoruFeatureCard,
   ZoruBadge,
   StatCard,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { MessageSquare, CheckCircle2, Clock } from "lucide-react";
 import { fmtQty } from "@/lib/utils";
 

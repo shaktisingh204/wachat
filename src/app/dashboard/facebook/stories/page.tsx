@@ -29,7 +29,7 @@ import {
   ZoruPageTitle,
   Skeleton,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/zoru';
 import {
   useCallback,
   useEffect,
@@ -54,8 +54,8 @@ import {
   publishVideoStory,
 } from "@/app/actions/facebook.actions";
 import { uploadLibraryFile } from "@/app/actions/files.actions";
-import { ZoruFileUploadCard, ZoruFileUploadItem } from "@/components/zoruui/file-upload-card";
-import { RadioGroup, ZoruRadioCard } from "@/components/zoruui/radio-group";
+import { ZoruFileUploadCard, ZoruFileUploadItem } from "@/components/sabcrm/20ui/zoru/file-upload-card";
+import { RadioGroup, ZoruRadioCard } from "@/components/sabcrm/20ui/zoru/radio-group";
 import { useProject } from "@/context/project-context";
 
 /**

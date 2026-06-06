@@ -7,7 +7,7 @@ import {
   ZoruCardContent,
   ZoruDateRangePicker,
   Label,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { EnumFilterField } from "@/components/crm/enum-filter-field";
 import { X } from "lucide-react";
 

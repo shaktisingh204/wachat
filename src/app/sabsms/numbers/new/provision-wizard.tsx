@@ -54,7 +54,7 @@ import {
   ZoruSelectValue,
   Textarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import type { SabsmsNumberType, SabsmsProviderId } from "@/lib/sabsms/types";
 

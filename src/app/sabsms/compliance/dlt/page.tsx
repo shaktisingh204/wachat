@@ -35,7 +35,7 @@ import {
   Lock
 } from "lucide-react";
 
-import { cn } from "@/components/zoruui/lib/cn";
+import { cn } from "@/components/sabcrm/20ui/zoru/lib/cn";
 
 import {
   Badge,
@@ -61,7 +61,7 @@ import {
   ZoruAccordionItem,
   ZoruAccordionTrigger,
   ZoruAccordionContent,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
 

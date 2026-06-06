@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   Card,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 const giftCardData = [
   {

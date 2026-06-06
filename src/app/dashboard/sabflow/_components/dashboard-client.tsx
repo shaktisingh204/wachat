@@ -11,28 +11,28 @@ import {
   Play,
   RefreshCcw
 } from "lucide-react";
-import { StatCard } from "@/components/zoruui/stat-card";
+import { StatCard } from "@/components/sabcrm/20ui/zoru/stat-card";
 import { 
   PageHeader, 
   ZoruPageHeading, 
   ZoruPageTitle, 
   ZoruPageDescription, 
   ZoruPageActions 
-} from "@/components/zoruui/page-header";
+} from "@/components/sabcrm/20ui/zoru/page-header";
 import { 
   Card, 
   ZoruCardHeader, 
   ZoruCardTitle, 
   ZoruCardDescription, 
   ZoruCardContent 
-} from "@/components/zoruui/card";
+} from "@/components/sabcrm/20ui/zoru/card";
 import { 
   ZoruChart, 
   ZoruChartContainer, 
   ZoruChartTooltip 
-} from "@/components/zoruui/chart";
-import { Button } from "@/components/zoruui/button";
-import { Badge } from "@/components/zoruui/badge";
+} from "@/components/sabcrm/20ui/zoru/chart";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
 import { 
   Table, 
   ZoruTableHeader, 
@@ -40,9 +40,9 @@ import {
   ZoruTableHead, 
   ZoruTableBody, 
   ZoruTableCell 
-} from "@/components/zoruui/table";
-import { Input } from "@/components/zoruui/input";
-import { ZoruDateRangePicker } from "@/components/zoruui/date-picker";
+} from "@/components/sabcrm/20ui/zoru/table";
+import { Input } from "@/components/sabcrm/20ui/zoru/input";
+import { ZoruDateRangePicker } from "@/components/sabcrm/20ui/zoru/date-picker";
 import type { DateRange } from "react-day-picker";
 import Link from "next/link";
 import { getSabflowDashboardData, retryExecution } from "../actions";

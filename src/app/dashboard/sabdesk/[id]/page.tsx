@@ -5,7 +5,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MessageSquare, Paperclip, Ticket } from "lucide-react";
 

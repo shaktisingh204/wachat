@@ -8,7 +8,7 @@ import {
     ZoruSheetDescription,
     ZoruSheetHeader,
     ZoruSheetTitle,
-} from "@/components/zoruui/sheet";
+} from "@/components/sabcrm/20ui/zoru/sheet";
 import { cn } from "@/lib/utils";
 
 type DrawerWidth = "sm" | "md" | "lg";

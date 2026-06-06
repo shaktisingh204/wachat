@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Sparkles } from "lucide-react";
-import { ZoruHeroPill } from "@/components/zoruui";
+import { ZoruHeroPill } from "@/components/sabcrm/20ui/zoru";
 import { Section } from "./components/Section";
 import { SnippetDemo } from "./components/SnippetDemo";
 

@@ -24,7 +24,7 @@ import {
   ZoruSelectItem,
   Textarea,
   Checkbox,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { Key, ShieldAlert, Settings, Activity, Upload, Download, Sparkles, MessageSquare, Filter, Code2, ShieldCheck, ListFilter, Globe2 } from "lucide-react";
 
 export default function KeywordsPage() {

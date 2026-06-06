@@ -6,7 +6,7 @@ import {
   ZoruPopoverContent,
   ZoruPopoverTrigger,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { useRouter } from "next/navigation";
 import {
   Activity,

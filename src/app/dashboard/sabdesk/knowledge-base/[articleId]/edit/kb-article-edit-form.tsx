@@ -7,7 +7,7 @@ import {
   Label,
   Textarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { ArrowLeft, Save, LoaderCircle } from "lucide-react";

@@ -9,7 +9,7 @@ import {
   EmptyState,
   Label,
   Skeleton,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   AlertCircle,
   Copy,

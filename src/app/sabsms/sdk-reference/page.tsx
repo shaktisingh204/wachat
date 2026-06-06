@@ -21,7 +21,7 @@ import {
   SelectValue,
   Badge,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   BookOpen,
   Github,

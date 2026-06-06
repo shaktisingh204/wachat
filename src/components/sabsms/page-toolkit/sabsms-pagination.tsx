@@ -10,7 +10,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 const PAGE_SIZES = [25, 50, 100, 250] as const;
 

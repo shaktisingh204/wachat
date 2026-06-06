@@ -14,7 +14,7 @@ import {
   ZoruChart,
   ZoruChartContainer,
   ZORU_CHART_PALETTE
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 export type MetricData = {
   id: string;

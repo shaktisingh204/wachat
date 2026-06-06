@@ -20,7 +20,7 @@ import {
   Checkbox,
   ScrollArea,
   cn,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   SabsmsBulkActionsBar,
   SabsmsEmpty,

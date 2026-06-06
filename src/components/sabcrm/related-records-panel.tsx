@@ -48,7 +48,7 @@ import {
   Input,
   Badge,
   EmptyState,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import type {
   ActionResult,

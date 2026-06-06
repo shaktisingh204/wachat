@@ -7,7 +7,7 @@ import {
   Label,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/zoru';
 import {
   useActionState,
   useEffect,
@@ -27,7 +27,7 @@ import { ArrowLeft,
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityFormField } from '@/components/crm/entity-form-field';
-import { ZoruFileInput } from '@/components/zoruui/file-picker';
+import { ZoruFileInput } from '@/components/sabcrm/20ui/zoru/file-picker';
 import { type LibraryFile } from '@/app/actions/files.actions';
 
 import {

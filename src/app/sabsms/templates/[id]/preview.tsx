@@ -11,7 +11,7 @@ import {
   ZoruCardTitle,
   Progress,
   Separator,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import type { TemplateEditorMetadata, VariableDefault } from "./types";
 

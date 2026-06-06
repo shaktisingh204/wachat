@@ -27,7 +27,7 @@ import {
   Switch,
   Separator,
   Badge,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 export default function NewProductPage() {
   const params = useParams();

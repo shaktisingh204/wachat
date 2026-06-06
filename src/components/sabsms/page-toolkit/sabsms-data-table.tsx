@@ -16,7 +16,7 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { SabsmsBulkActionsBar, type SabsmsBulkAction } from "./sabsms-bulk-actions";
 import { SabsmsPagination } from "./sabsms-pagination";

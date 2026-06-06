@@ -1,5 +1,5 @@
 import React from "react";
-import { RouteComingSoon } from "@/components/zoruui";
+import { RouteComingSoon } from "@/components/sabcrm/20ui/zoru";
 
 export const dynamic = "force-dynamic";
 

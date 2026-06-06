@@ -22,11 +22,11 @@ import {
   CardDescription,
   CardContent,
   CardFooter
-} from "@/components/zoruui/card";
-import { Button } from "@/components/zoruui/button";
-import { Badge } from "@/components/zoruui/badge";
-import { Input } from "@/components/zoruui/input";
-import { Switch } from "@/components/zoruui/switch";
+} from "@/components/sabcrm/20ui/zoru/card";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { Input } from "@/components/sabcrm/20ui/zoru/input";
+import { Switch } from "@/components/sabcrm/20ui/zoru/switch";
 
 const mockTiers = [
   {

@@ -26,7 +26,7 @@ import {
   ZoruDialogTitle,
   ZoruDialogDescription,
   Textarea,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { Sparkles, Copy, Plus, Activity, AlertTriangle, Workflow, Settings, FileCode2, Code, Download, Upload } from "lucide-react";
 import { MOCK_BLOCKS, MOCK_TEMPLATES, type SabflowBlock, type SabflowTemplate } from "./mock-data";
 

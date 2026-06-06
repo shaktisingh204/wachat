@@ -14,7 +14,7 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 

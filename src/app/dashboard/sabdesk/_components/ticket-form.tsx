@@ -7,7 +7,7 @@ import {
   Label,
   Textarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";

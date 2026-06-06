@@ -58,7 +58,7 @@ import {
   StatCard,
   Textarea,
   zoruSonnerToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 
 import {

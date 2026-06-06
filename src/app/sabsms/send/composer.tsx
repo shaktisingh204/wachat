@@ -16,7 +16,7 @@ import {
   ZoruSelectValue,
   Separator,
   Textarea,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import type {
   SabsmsMessage,

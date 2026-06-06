@@ -12,7 +12,7 @@ import {
 } from "./actions";
 import type { InboxFilters } from "./types";
 
-import { Card, ZoruCardTitle, ZoruCardDescription } from "@/components/zoruui";
+import { Card, ZoruCardTitle, ZoruCardDescription } from "@/components/sabcrm/20ui/zoru";
 import { InboxLayout } from "./inbox-layout";
 
 export const dynamic = "force-dynamic";

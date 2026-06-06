@@ -66,7 +66,7 @@ import {
   ZoruSheetTitle,
   ZoruSheetTrigger,
   cn,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 type NavItem = {
   href: string;

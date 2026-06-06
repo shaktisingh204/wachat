@@ -54,7 +54,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   StatCard,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import {
   SabsmsDataTable,

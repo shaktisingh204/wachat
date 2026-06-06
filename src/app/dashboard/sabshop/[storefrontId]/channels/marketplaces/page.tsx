@@ -8,10 +8,10 @@ import {
   CardHeader, 
   CardTitle,
   CardFooter
-} from "@/components/zoruui/card";
-import { Button } from "@/components/zoruui/button";
-import { Badge } from "@/components/zoruui/badge";
-import { Switch } from "@/components/zoruui/switch";
+} from "@/components/sabcrm/20ui/zoru/card";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { Switch } from "@/components/sabcrm/20ui/zoru/switch";
 import { 
   Store, 
   ShoppingCart, 

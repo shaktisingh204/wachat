@@ -8,7 +8,7 @@ import {
   ZoruSheetDescription,
   ZoruSheetHeader,
   ZoruSheetTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 export interface SabsmsDetailDrawerProps {
   open: boolean;

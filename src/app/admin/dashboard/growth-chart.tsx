@@ -6,7 +6,7 @@ import {
   ZoruChartContainer,
   ZoruChartTooltip,
   ZORU_CHART_PALETTE,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 const data = [
   { date: "Jan", users: 400, revenue: 2400 },

@@ -14,7 +14,7 @@ import {
   Label,
   Separator,
   Switch,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import type { CampaignDraft, QuietHoursWindow } from "../types";
 

@@ -18,7 +18,7 @@ import {
   Separator,
   Avatar,
   AvatarFallback,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { 
   ArrowLeft, 
   Package, 

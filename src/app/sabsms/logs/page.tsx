@@ -27,7 +27,7 @@ import {
   ZoruDialogContent,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
 import { connectToDatabase } from "@/lib/mongodb";

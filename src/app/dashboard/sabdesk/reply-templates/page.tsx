@@ -38,7 +38,7 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { EntityListShell } from "@/components/crm/entity-list-shell";
 import { EntityRowLink } from "@/components/crm/entity-row-link";

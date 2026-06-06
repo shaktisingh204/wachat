@@ -4,7 +4,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
 

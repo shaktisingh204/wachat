@@ -22,7 +22,7 @@ import {
   TabsList,
   TabsTrigger,
   StatCard,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   ChartContainer,
   ChartTooltip,

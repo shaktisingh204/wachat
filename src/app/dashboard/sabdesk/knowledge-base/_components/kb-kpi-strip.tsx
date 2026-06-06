@@ -1,6 +1,6 @@
 "use client";
 
-import { StatCard } from "@/components/zoruui";
+import { StatCard } from "@/components/sabcrm/20ui/zoru";
 import { BookOpen, CheckCircle2, Eye, FileText, ThumbsUp } from "lucide-react";
 
 /**

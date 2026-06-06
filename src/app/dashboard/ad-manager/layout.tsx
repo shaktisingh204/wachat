@@ -10,7 +10,7 @@ import {
   ZoruPopoverTrigger,
   ScrollArea,
   Select,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/zoru';
 import {
   useRouter } from 'next/navigation';
 import { format } from 'date-fns';
@@ -45,7 +45,7 @@ import {
 
 import * as React from 'react';
 
-import { Calendar } from '@/components/zoruui';
+import { Calendar } from '@/components/sabcrm/20ui/zoru';
 import { DATE_PRESETS } from '@/components/zoruui-domain/ad-manager/constants';
 
 /* ── Feature lock overlay ──────────────────────────────────────── */

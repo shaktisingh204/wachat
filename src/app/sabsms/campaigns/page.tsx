@@ -42,14 +42,14 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from "@/components/zoruui/table";
+} from "@/components/sabcrm/20ui/zoru/table";
 
-import { Button } from "@/components/zoruui/button";
-import { Input } from "@/components/zoruui/input";
-import { Badge } from "@/components/zoruui/badge";
-import { Card, ZoruCardContent } from "@/components/zoruui/card";
-import { Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from "@/components/zoruui/select";
-import { Checkbox } from "@/components/zoruui/checkbox";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
+import { Input } from "@/components/sabcrm/20ui/zoru/input";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { Card, ZoruCardContent } from "@/components/sabcrm/20ui/zoru/card";
+import { Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from "@/components/sabcrm/20ui/zoru/select";
+import { Checkbox } from "@/components/sabcrm/20ui/zoru/checkbox";
 import {
   DropdownMenu,
   ZoruDropdownMenuTrigger,
@@ -57,8 +57,8 @@ import {
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuLabel
-} from "@/components/zoruui/dropdown-menu";
-import { Avatar, ZoruAvatarFallback } from "@/components/zoruui/avatar";
+} from "@/components/sabcrm/20ui/zoru/dropdown-menu";
+import { Avatar, ZoruAvatarFallback } from "@/components/sabcrm/20ui/zoru/avatar";
 
 type Campaign = {
   id: string;

@@ -28,7 +28,7 @@ import {
   RadioGroup,
   ZoruRadioCard,
   Separator,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { SabsmsDataTable } from "@/components/sabsms/page-toolkit";
 import {
   Building2,

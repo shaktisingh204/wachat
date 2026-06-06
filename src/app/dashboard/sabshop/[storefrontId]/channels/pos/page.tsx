@@ -8,12 +8,12 @@ import {
   CardHeader, 
   CardTitle,
   CardFooter
-} from "@/components/zoruui/card";
-import { Button } from "@/components/zoruui/button";
-import { Input } from "@/components/zoruui/input";
-import { Label } from "@/components/zoruui/label";
-import { Switch } from "@/components/zoruui/switch";
-import { Badge } from "@/components/zoruui/badge";
+} from "@/components/sabcrm/20ui/zoru/card";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
+import { Input } from "@/components/sabcrm/20ui/zoru/input";
+import { Label } from "@/components/sabcrm/20ui/zoru/label";
+import { Switch } from "@/components/sabcrm/20ui/zoru/switch";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
 import { 
   Table, 
   TableBody, 
@@ -21,8 +21,8 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from "@/components/zoruui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/zoruui/select";
+} from "@/components/sabcrm/20ui/zoru/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/sabcrm/20ui/zoru/select";
 import { 
   Store, 
   MonitorSmartphone, 

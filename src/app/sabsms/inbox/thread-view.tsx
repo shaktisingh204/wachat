@@ -58,7 +58,7 @@ import {
   Textarea,
   cn,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 

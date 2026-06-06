@@ -37,8 +37,8 @@ import {
   ZoruAccordionItem,
   ZoruAccordionTrigger,
   ZoruAccordionContent,
-} from "@/components/zoruui";
-import { cn } from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
+import { cn } from "@/components/sabcrm/20ui/zoru";
 
 // ---------------------------------------------------------------------------
 // DATA MODEL

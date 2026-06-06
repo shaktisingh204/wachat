@@ -50,7 +50,7 @@ import {
   ZoruChartContainer,
   ZoruChartTooltip,
   ZORU_CHART_PALETTE,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import {
   SabsmsPageShell,

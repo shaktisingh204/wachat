@@ -13,7 +13,7 @@ import {
   ZoruSelectValue,
   Skeleton,
   Badge,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   ChevronRight,
   RotateCcw,

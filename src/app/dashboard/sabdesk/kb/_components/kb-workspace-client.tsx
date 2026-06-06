@@ -42,7 +42,7 @@ import {
   Separator,
   Textarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   Dialog,
   ZoruDialogContent,
@@ -50,7 +50,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from "@/components/zoruui/dialog";
+} from "@/components/sabcrm/20ui/zoru/dialog";
 
 import {
   saveKbArticle,

@@ -6,7 +6,7 @@ import {
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsCohortCell } from "../aggregations";

@@ -43,7 +43,7 @@ import {
   ZoruSelectValue,
   Separator,
   Switch,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import type { DraftDripNode } from "./validate";
 

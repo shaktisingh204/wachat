@@ -19,7 +19,7 @@ import {
   ZoruDropdownMenuTrigger,
   Input,
   Label,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { useSabsmsUrlState } from "./use-sabsms-url-state";
 

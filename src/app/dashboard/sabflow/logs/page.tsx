@@ -4,16 +4,16 @@ import React, { useMemo, useState, useEffect, useRef, useCallback } from "react"
 import { ColumnDef } from "@tanstack/react-table";
 import { LuDownload, LuRefreshCw, LuTerminal, LuActivity, LuServer, LuCircle } from "react-icons/lu";
 
-import { DataTable } from "@/components/zoruui/data-table";
-import { Badge } from "@/components/zoruui/badge";
-import { Button } from "@/components/zoruui/button";
+import { DataTable } from "@/components/sabcrm/20ui/zoru/data-table";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
 import {
   Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from "@/components/zoruui/select";
+} from "@/components/sabcrm/20ui/zoru/select";
 import {
   PageHeader,
   ZoruPageHeading,
@@ -21,8 +21,8 @@ import {
   ZoruPageTitle,
   ZoruPageDescription,
   ZoruPageActions,
-} from "@/components/zoruui/page-header";
-import { Card } from "@/components/zoruui/card";
+} from "@/components/sabcrm/20ui/zoru/page-header";
+import { Card } from "@/components/sabcrm/20ui/zoru/card";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

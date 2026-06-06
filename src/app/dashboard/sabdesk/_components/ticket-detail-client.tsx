@@ -14,7 +14,7 @@ import {
   ZoruDropdownMenuTrigger,
   Label,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 

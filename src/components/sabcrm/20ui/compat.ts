@@ -11,7 +11,7 @@ export * from './index';
 // ZoruToaster is ZoruUI's self-contained (Sonner-style) toaster — it needs NO
 // provider, unlike the 20ui Toaster. Keep it pointing at the real ZoruUI one so
 // standalone <ZoruToaster/> renders don't break during the migration.
-export { ZoruToaster } from '@/components/zoruui';
+export { ZoruToaster } from '@/components/sabcrm/20ui/zoru';
 
 export {
   Accordion as ZoruAccordion,

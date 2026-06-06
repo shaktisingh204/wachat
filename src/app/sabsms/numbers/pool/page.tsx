@@ -31,7 +31,7 @@ import {
   StatCard,
   Switch,
   Label,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   Search,
   Filter,

@@ -23,7 +23,7 @@ import {
   Webhook,
 } from "lucide-react";
 
-import { type ZoruSidebarGroup } from "@/components/zoruui";
+import { type ZoruSidebarGroup } from "@/components/sabcrm/20ui/zoru";
 
 /**
  * SabSMS sidebar — grouped menu configuration.

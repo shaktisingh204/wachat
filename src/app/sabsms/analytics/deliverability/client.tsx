@@ -20,7 +20,7 @@ import {
   SabsmsSavedViews,
   useSabsmsUrlState,
 } from "@/components/sabsms/page-toolkit";
-import { Badge, Button } from "@/components/zoruui";
+import { Badge, Button } from "@/components/sabcrm/20ui/zoru";
 import {
   ChartContainer,
   ChartTooltip,

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Label, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, DatePicker, ZoruDateRangePicker } from "@/components/zoruui";
+import { Label, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, DatePicker, ZoruDateRangePicker } from "@/components/sabcrm/20ui/zoru";
 
 export function Field({
   label,
@@ -61,7 +61,7 @@ import {
   ZoruCommandGroup,
   ZoruCommandItem,
   ZoruCommandShortcut
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { Search, Check, Inbox, Settings, User } from "lucide-react";
 
 export function CommandAndToastDemo() {

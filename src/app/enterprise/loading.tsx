@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui/zoru';
 
 export default function Loading() {
   return (

@@ -21,8 +21,8 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import { icons as lucideIcons, Database, Plus } from "lucide-react";
 
-import { ZoruHomeShell } from "@/components/zoruui";
-import type { ZoruSidebarGroup, ZoruSidebarLeaf } from "@/components/zoruui";
+import { ZoruHomeShell } from "@/components/sabcrm/20ui/zoru";
+import type { ZoruSidebarGroup, ZoruSidebarLeaf } from "@/components/sabcrm/20ui/zoru";
 import { listObjectsAction } from "@/app/actions/sabcrm.actions";
 import type { ObjectMetadata } from "@/lib/sabcrm/types";
 import { SabcrmCommand } from "./sabcrm-command";

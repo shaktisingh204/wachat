@@ -30,7 +30,7 @@ import {
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuCheckboxItem
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { ModuleTile } from "./shared";
 import { compact, curr } from "./utils";
 import {

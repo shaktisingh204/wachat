@@ -29,7 +29,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/zoru';
 import { useCallback, useState } from 'react';
 import {
   CheckCircle2,

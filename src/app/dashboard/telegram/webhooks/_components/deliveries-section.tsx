@@ -15,7 +15,7 @@ import {
   ZoruDateRangePicker,
   Skeleton,
   Badge,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   ChevronDown,
   Eye,

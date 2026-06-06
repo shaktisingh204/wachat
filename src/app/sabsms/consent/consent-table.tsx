@@ -57,7 +57,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   Textarea,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import {
   type CohortPoint,

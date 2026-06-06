@@ -35,13 +35,13 @@ import {
   Progress,
   ZoruStatCard,
   ZoruDataTable,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   CreditCard,
   Download,
@@ -64,7 +64,7 @@ import {
   ShieldAlert,
   MoreHorizontal
 } from "lucide-react";
-import { cn } from "@/components/zoruui/lib/cn";
+import { cn } from "@/components/sabcrm/20ui/zoru/lib/cn";
 import { fmtDate, fmtINR } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 

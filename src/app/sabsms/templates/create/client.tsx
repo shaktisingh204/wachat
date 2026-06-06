@@ -26,7 +26,7 @@ import {
   ZoruResizablePanelGroup as ResizablePanelGroup,
   ZoruResizablePanel as ResizablePanel,
   ZoruResizableHandle as ResizableHandle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { 
   MessageSquare, 
   Save, 

@@ -60,7 +60,7 @@ import {
   ZoruSelectValue,
   StatCard,
   Textarea,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import {
   type AuditTrailEntry,

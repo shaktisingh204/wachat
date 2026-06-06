@@ -34,7 +34,7 @@ import { SabsmsColumnPicker } from "@/components/sabsms/page-toolkit/sabsms-colu
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit/sabsms-kbd-hint";
 import { SabsmsTableSkeleton, SabsmsEmpty } from "@/components/sabsms/page-toolkit/sabsms-states";
 
-import { Badge, Button, Switch, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardFooter } from "@/components/zoruui";
+import { Badge, Button, Switch, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardFooter } from "@/components/sabcrm/20ui/zoru";
 
 /** Mock data for Routing Rules */
 const MOCK_RULES = [

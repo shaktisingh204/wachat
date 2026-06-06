@@ -16,7 +16,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import type { SabsmsMessageCategory } from "@/lib/sabsms/types";
 
 import type { CampaignDraft } from "../types";

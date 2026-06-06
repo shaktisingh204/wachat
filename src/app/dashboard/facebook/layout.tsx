@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui/zoru';
 import { Pencil } from "lucide-react";
 
 /**

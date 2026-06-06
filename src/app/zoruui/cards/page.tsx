@@ -153,7 +153,7 @@ import {
   zoruToast,
   ZoruProvider,
 
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   ArrowRight,
   Activity,
@@ -328,7 +328,7 @@ export default function CardsPage() {
                 <ZoruAccordion03Content>
                   Wrap the page (or layout) in <code>&lt;ZoruProvider&gt;</code>
                   and replace <code>@/components/ui/*</code> imports with
-                  <code> @/components/zoruui/*</code>.
+                  <code> @/components/sabcrm/20ui/zoru/*</code>.
                 </ZoruAccordion03Content>
               </ZoruAccordion03Item>
               <ZoruAccordion03Item value="b">
@@ -371,7 +371,7 @@ export default function CardsPage() {
                 <ZoruAccordion03Content>
                   Wrap the page (or layout) in <code>&lt;ZoruProvider&gt;</code>
                   and replace <code>@/components/ui/*</code> imports with
-                  <code> @/components/zoruui/*</code>.
+                  <code> @/components/sabcrm/20ui/zoru/*</code>.
                 </ZoruAccordion03Content>
               </ZoruAccordion03Item>
               <ZoruAccordion03Item value="b">

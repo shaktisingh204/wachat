@@ -9,7 +9,7 @@ import {
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { useDebouncedCallback } from "use-debounce";
 import { ChevronDown, LayoutList, ListChecks, Plus } from "lucide-react";
 import type { DateRange } from "react-day-picker";

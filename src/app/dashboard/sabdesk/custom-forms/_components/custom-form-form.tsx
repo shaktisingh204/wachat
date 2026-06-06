@@ -8,7 +8,7 @@ import {
   Switch,
   Textarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

@@ -1,5 +1,5 @@
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
-import { Skeleton, Card, ZoruCardHeader, ZoruCardContent } from "@/components/zoruui";
+import { Skeleton, Card, ZoruCardHeader, ZoruCardContent } from "@/components/sabcrm/20ui/zoru";
 
 export default function Loading() {
   return (

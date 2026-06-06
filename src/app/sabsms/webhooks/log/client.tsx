@@ -21,7 +21,7 @@ import {
   ZoruResizablePanel,
   ZoruResizableHandle,
   Input,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import {
   useSabsmsUrlState,

@@ -2,7 +2,7 @@ import { GitBranch, PlayCircle, Users, Zap, Activity, BarChart3, Workflow } from
 import { getCachedSession } from "@/lib/server-cache";
 import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from "@/components/zoruui";
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from "@/components/sabcrm/20ui/zoru";
 
 import { DripsTable } from "./drips-table";
 import {

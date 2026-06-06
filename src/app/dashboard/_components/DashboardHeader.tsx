@@ -27,7 +27,7 @@ import {
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { greeting } from "./utils";
 
 type DashboardHeaderProps = {

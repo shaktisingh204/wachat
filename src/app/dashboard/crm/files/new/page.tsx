@@ -15,7 +15,7 @@ import {
   Checkbox,
   ZoruFileUploadCard,
   type ZoruFileUploadItem
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui/zoru';
 import {
   useActionState,
   useEffect,

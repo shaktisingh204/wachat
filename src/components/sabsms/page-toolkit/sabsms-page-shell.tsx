@@ -23,7 +23,7 @@ import {
   Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 /**
  * Common page shell for every `/sabsms/*` route.

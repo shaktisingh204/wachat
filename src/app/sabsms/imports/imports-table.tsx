@@ -38,7 +38,7 @@ import {
   Badge,
   Progress,
   zoruSonnerToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { ImportsWizard } from "./wizard";
 import {

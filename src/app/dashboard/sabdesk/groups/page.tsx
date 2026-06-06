@@ -36,7 +36,7 @@ import {
   Textarea,
   cn,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { EntityFormField } from "@/components/crm/entity-form-field";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";

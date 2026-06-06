@@ -24,7 +24,7 @@ import {
   ZoruTableHead,
   ZoruTableCell,
   ZoruStatCard,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   Download,
   Shield,

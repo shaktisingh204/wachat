@@ -10,7 +10,7 @@ import {
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import type { CampaignDraft, ValidationIssue, WizardStepId } from "../types";
 

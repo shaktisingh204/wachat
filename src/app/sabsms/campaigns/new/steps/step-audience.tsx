@@ -18,7 +18,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { SabFilePickerButton } from "@/components/sabfiles";
 
 import type { AudienceDraft, CampaignDraft } from "../types";

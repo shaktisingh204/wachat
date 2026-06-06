@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Copy, Check } from "lucide-react";
-import { Button } from "@/components/zoruui";
+import { Button } from "@/components/sabcrm/20ui/zoru";
 
 export function SnippetDemo({ code, children }: { code: string; children: React.ReactNode }) {
   const [copied, setCopied] = useState(false);

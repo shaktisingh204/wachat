@@ -54,7 +54,7 @@ import {
   Separator,
   StatCard,
   Textarea,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 
 import {

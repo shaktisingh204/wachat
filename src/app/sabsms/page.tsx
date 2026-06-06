@@ -14,7 +14,7 @@ import {
   ZoruTableHead,
   ZoruTableBody,
   ZoruTableCell,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { SabsmsDashboardWidgets, type MetricData } from "./_components/sabsms-dashboard-widgets";

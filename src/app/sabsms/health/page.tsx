@@ -29,7 +29,7 @@ import {
   Label,
   Input,
   Checkbox,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { SabsmsPageShell, SabsmsRefreshButton } from "@/components/sabsms/page-toolkit";
 import {
   BarChart,

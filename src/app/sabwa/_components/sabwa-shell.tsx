@@ -1,6 +1,6 @@
 "use client";
 
-import { ZoruHomeShell } from '@/components/zoruui';
+import { ZoruHomeShell } from '@/components/sabcrm/20ui/zoru';
 import { usePathname } from "next/navigation";
 
 /**

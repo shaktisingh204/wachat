@@ -11,7 +11,7 @@ import {
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 export interface SabsmsExportMenuProps {
   /** CSV exporter — return text to download. */

@@ -12,7 +12,7 @@ import {
   ZoruChart,
   ZoruChartContainer,
   ZoruChartTooltip,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsCostPoint } from "../aggregations";

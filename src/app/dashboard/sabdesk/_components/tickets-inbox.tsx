@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Card, Badge, Input, ScrollArea } from "@/components/zoruui";
+import { Card, Badge, Input, ScrollArea } from "@/components/sabcrm/20ui/zoru";
 import type { CrmTicketDoc } from "@/lib/rust-client/crm-tickets";
 import { Search } from "lucide-react";
 import { TicketDetailClient } from "./ticket-detail-client";

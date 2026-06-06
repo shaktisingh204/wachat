@@ -73,7 +73,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { Dock, DockIcon, type DockAccent } from "@/components/ui/dock";
 import { useTabsOptional } from "@/components/tabs";
 import { cn } from "@/lib/utils";
-import { ZoruCollapsible, ZoruCollapsibleContent, ZoruCollapsibleTrigger } from "@/components/zoruui";
+import { ZoruCollapsible, ZoruCollapsibleContent, ZoruCollapsibleTrigger } from "@/components/sabcrm/20ui/zoru";
 import { ChevronRight } from "lucide-react";
 
 const COLLAPSED_KEY = "sabnode:two-line-sidebar:collapsed";

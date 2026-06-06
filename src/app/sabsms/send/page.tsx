@@ -8,7 +8,7 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import { SabsmsSendComposer } from "./composer";
 

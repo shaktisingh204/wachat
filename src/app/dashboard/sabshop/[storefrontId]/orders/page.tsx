@@ -18,7 +18,7 @@ import {
   Tabs,
   TabsList,
   TabsTrigger,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { Filter, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 

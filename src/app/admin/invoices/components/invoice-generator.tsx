@@ -2,13 +2,13 @@
 
 import React, { useState, useRef } from "react";
 import { Plus, Trash, Download, Eye, FileText, Send } from "lucide-react";
-import { Button } from "@/components/zoruui/button";
-import { Input } from "@/components/zoruui/input";
-import { Textarea } from "@/components/zoruui/textarea";
-import { Label } from "@/components/zoruui/label";
-import { Card } from "@/components/zoruui/card";
-import { Separator } from "@/components/zoruui/separator";
-import { zoruSonnerToast as toast } from "@/components/zoruui/sonner";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
+import { Input } from "@/components/sabcrm/20ui/zoru/input";
+import { Textarea } from "@/components/sabcrm/20ui/zoru/textarea";
+import { Label } from "@/components/sabcrm/20ui/zoru/label";
+import { Card } from "@/components/sabcrm/20ui/zoru/card";
+import { Separator } from "@/components/sabcrm/20ui/zoru/separator";
+import { zoruSonnerToast as toast } from "@/components/sabcrm/20ui/zoru/sonner";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 

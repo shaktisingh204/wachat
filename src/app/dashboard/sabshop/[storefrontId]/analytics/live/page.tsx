@@ -9,10 +9,10 @@ import {
   CardContent, 
   CardDescription,
   CardFooter
-} from "@/components/zoruui/card";
-import { Badge } from "@/components/zoruui/badge";
-import { PageHeader, PageHeaderHeading, PageHeaderDescription } from "@/components/zoruui/page-header";
-import { Progress } from "@/components/zoruui/progress";
+} from "@/components/sabcrm/20ui/zoru/card";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
+import { PageHeader, PageHeaderHeading, PageHeaderDescription } from "@/components/sabcrm/20ui/zoru/page-header";
+import { Progress } from "@/components/sabcrm/20ui/zoru/progress";
 
 export default function LiveAnalyticsPage() {
   const [activeVisitors, setActiveVisitors] = useState(142);

@@ -7,8 +7,8 @@ import {
   CardTitle, 
   CardContent, 
   CardDescription 
-} from "@/components/zoruui/card";
-import { PageHeader, PageHeaderHeading, PageHeaderDescription } from "@/components/zoruui/page-header";
+} from "@/components/sabcrm/20ui/zoru/card";
+import { PageHeader, PageHeaderHeading, PageHeaderDescription } from "@/components/sabcrm/20ui/zoru/page-header";
 import { 
   Table, 
   TableHeader, 
@@ -16,7 +16,7 @@ import {
   TableHead, 
   TableRow, 
   TableCell 
-} from "@/components/zoruui/table";
+} from "@/components/sabcrm/20ui/zoru/table";
 import { DollarSign, UserCheck, BarChart3, TrendingUp } from "lucide-react";
 
 export default function CohortsPage() {

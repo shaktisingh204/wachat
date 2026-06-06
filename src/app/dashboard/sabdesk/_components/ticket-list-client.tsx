@@ -20,7 +20,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import {
   AlertCircle,

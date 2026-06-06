@@ -3,7 +3,7 @@
 import * as React from "react";
 import { usePathname } from "next/navigation";
 
-import { ZoruHomeShell } from "@/components/zoruui";
+import { ZoruHomeShell } from "@/components/sabcrm/20ui/zoru";
 
 import { buildSabsmsSidebarGroups } from "./sabsms-sidebar-config";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/components/zoruui/button";
+import { Button } from "@/components/sabcrm/20ui/zoru/button";
 import { AlertCircle } from "lucide-react";
 
 export default function SabFlowError({

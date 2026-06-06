@@ -12,7 +12,7 @@ import {
   Users,
 } from "lucide-react";
 
-import { cn, useZoruToast } from "@/components/zoruui";
+import { cn, useZoruToast } from "@/components/sabcrm/20ui/zoru";
 import {
   Button,
   IconButton,

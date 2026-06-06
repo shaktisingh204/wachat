@@ -48,7 +48,7 @@ import {
   Separator,
   Switch,
   Textarea,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { SabsmsDetailDrawer, SabsmsKbdHint } from "@/components/sabsms/page-toolkit";
 
 import { AiRewriteToolbar } from "./ai-rewrite";

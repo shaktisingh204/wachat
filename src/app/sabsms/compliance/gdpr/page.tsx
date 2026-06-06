@@ -39,7 +39,7 @@ import {
   ZoruSelectItem,
   StatCard,
   Separator,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 type RequestType = "SAR" | "Erasure" | "Rectification";
 

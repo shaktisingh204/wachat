@@ -21,7 +21,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { ZORU_APPS } from '@/components/zoruui/shell/zoru-apps';
+import { ZORU_APPS } from '@/components/sabcrm/20ui/zoru/shell/zoru-apps';
 
 const SABNODE_HOME = '/dashboard';
 

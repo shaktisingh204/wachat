@@ -47,7 +47,7 @@ import {
   ZoruDialogTitle,
   Input,
   Label,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   SabsmsDataTable,
   SabsmsDetailDrawer,

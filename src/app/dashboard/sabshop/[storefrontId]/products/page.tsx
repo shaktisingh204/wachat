@@ -32,7 +32,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 const MOCK_PRODUCTS = [
   {

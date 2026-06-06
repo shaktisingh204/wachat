@@ -1,6 +1,6 @@
 import "@/components/sabcrm/20ui/zoru-legacy.css";
 
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, ZoruCardDescription } from "@/components/zoruui";
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, ZoruCardDescription } from "@/components/sabcrm/20ui/zoru";
 import { Clock, Mail } from "lucide-react";
 
 export default function PendingApprovalPage() {

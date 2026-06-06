@@ -1,5 +1,5 @@
-import { PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription } from "@/components/zoruui/page-header";
-import { Skeleton } from "@/components/zoruui/skeleton";
+import { PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription } from "@/components/sabcrm/20ui/zoru/page-header";
+import { Skeleton } from "@/components/sabcrm/20ui/zoru/skeleton";
 
 export default function SabFlowLoading() {
   return (

@@ -36,7 +36,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { toast } from "sonner";
 import { searchNumbers, getRecommendedNumbers, checkoutNumbers, PhoneNumber } from "./actions";
 

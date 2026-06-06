@@ -18,7 +18,7 @@ import {
   rowsToCsv
 } from "@/components/sabsms/page-toolkit";
 
-import { Badge, Button } from "@/components/zoruui";
+import { Badge, Button } from "@/components/sabcrm/20ui/zoru";
 import { syncNumbersWithProvider, bulkUpdateNumbersConfig } from "./actions";
 
 export interface NumberRow {

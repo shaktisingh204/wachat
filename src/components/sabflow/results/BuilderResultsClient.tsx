@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { ZoruDataTable } from "@/components/zoruui";
-import { ZoruChartContainer, ZoruChartTooltip, ZORU_CHART_PALETTE, ZoruChart } from "@/components/zoruui/chart";
+import { ZoruDataTable } from "@/components/sabcrm/20ui/zoru";
+import { ZoruChartContainer, ZoruChartTooltip, ZORU_CHART_PALETTE, ZoruChart } from "@/components/sabcrm/20ui/zoru/chart";
 import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { Badge } from "@/components/zoruui/badge";
+import { Badge } from "@/components/sabcrm/20ui/zoru/badge";
 
 const { BarChart, CartesianGrid, XAxis, YAxis, Bar, Tooltip } = ZoruChart;
 

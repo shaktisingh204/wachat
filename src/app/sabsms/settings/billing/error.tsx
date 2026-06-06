@@ -1,7 +1,7 @@
 "use client";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, ZoruCardFooter, Button } from "@/components/zoruui";
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, ZoruCardFooter, Button } from "@/components/sabcrm/20ui/zoru";
 import { AlertTriangle } from "lucide-react";
 import { useEffect } from "react";
 

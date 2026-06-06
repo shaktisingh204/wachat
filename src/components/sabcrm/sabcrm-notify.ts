@@ -40,7 +40,7 @@
  * pulling in server-only code.
  */
 
-import { zoruToast, type ZoruToastInput } from "@/components/zoruui";
+import { zoruToast, type ZoruToastInput } from "@/components/sabcrm/20ui/zoru";
 
 // ── Public input shapes ─────────────────────────────────────────────────────
 // These are intentionally UI-facing (already-resolved labels/names), not raw

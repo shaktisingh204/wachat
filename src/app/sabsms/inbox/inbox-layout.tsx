@@ -39,7 +39,7 @@ import {
   ZoruResizableHandle,
   ZoruResizablePanel,
   ZoruResizablePanelGroup,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   SabsmsFilterBar,
   SabsmsKbdHint,

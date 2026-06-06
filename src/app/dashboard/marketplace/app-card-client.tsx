@@ -17,7 +17,7 @@ import {
   ZoruDialogFooter,
   Button,
   useZoruToast
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
 import type { App, AppPricing } from "@/lib/marketplace";

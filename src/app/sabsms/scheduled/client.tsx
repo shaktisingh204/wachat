@@ -27,7 +27,7 @@ import {
   Button, Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle,
   Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogDescription, ZoruDialogFooter,
   Input, Label
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 import {
   loadScheduledSends,

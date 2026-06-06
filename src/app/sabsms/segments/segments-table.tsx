@@ -28,7 +28,7 @@ import {
   Input,
   Label,
   Separator,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   SabsmsDataTable,
   SabsmsDetailDrawer,

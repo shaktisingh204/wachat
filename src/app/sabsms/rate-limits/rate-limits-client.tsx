@@ -19,7 +19,7 @@ import {
   Alert,
   ZoruAlertTitle,
   ZoruAlertDescription,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import { Zap, Bell, Settings2, RefreshCw, BarChart2, List, Shield, Download, FileText } from "lucide-react";
 
 export default function RateLimitsClient({ workspaceId }: { workspaceId: string }) {

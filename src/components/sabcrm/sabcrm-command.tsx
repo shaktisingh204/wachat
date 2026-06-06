@@ -40,7 +40,7 @@ import {
   ZoruCommandGroup,
   ZoruCommandItem,
   ZoruCommandShortcut,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 import {
   createRecordAction,
   searchRecordsForPickerAction,

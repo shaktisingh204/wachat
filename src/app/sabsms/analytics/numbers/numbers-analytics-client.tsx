@@ -26,7 +26,7 @@ import {
   rowsToCsv
 } from "@/components/sabsms/page-toolkit";
 
-import { Badge, Button, Progress } from "@/components/zoruui";
+import { Badge, Button, Progress } from "@/components/sabcrm/20ui/zoru";
 
 export interface NumberTrendData {
   date: string;

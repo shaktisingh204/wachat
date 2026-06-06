@@ -10,7 +10,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import { LogOut, UserCircle } from 'lucide-react';
 
-import { ZoruUserDropdown } from '@/components/zoruui/user-dropdown';
+import { ZoruUserDropdown } from '@/components/sabcrm/20ui/zoru/user-dropdown';
 
 export interface ClientPortalTopbarProps {
     brandName: string;

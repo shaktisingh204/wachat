@@ -22,7 +22,7 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
-} from "@/components/zoruui";
+} from "@/components/sabcrm/20ui/zoru";
 
 const discountData = [
   {
