@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
 import {
   MessageSquare } from 'lucide-react';
 
@@ -10,8 +10,8 @@ import { EmptyState } from '@/app/sabwa/_components/empty-state';
 
 /**
  * ChartMessagesByDay — line chart showing inbound vs outbound messages by day.
- * Falls back to <EmptyState> when there is no data. Built on ZoruChart with
- * the greyscale ZORU_CHART_PALETTE.
+ * Falls back to <EmptyState> when there is no data. Built on Recharts with
+ * the greyscale CHART_PALETTE.
  */
 
 import * as React from 'react';
@@ -32,41 +32,41 @@ export function ChartMessagesByDay({ data }: ChartMessagesByDayProps) {
   }
   return (
     <ChartContainer height={288}>
-      <ZoruChart.LineChart
+      <Recharts.LineChart
         data={data}
         margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
       >
-        <ZoruChart.CartesianGrid
+        <Recharts.CartesianGrid
           strokeDasharray="3 3"
           className="stroke-[var(--st-border)]"
         />
-        <ZoruChart.XAxis
+        <Recharts.XAxis
           dataKey="date"
           fontSize={11}
           tickLine={false}
           axisLine={false}
         />
-        <ZoruChart.YAxis fontSize={11} tickLine={false} axisLine={false} />
-        <ZoruChart.Tooltip content={<ChartTooltip />} />
-        <ZoruChart.Legend wrapperStyle={{ fontSize: 12 }} />
-        <ZoruChart.Line
+        <Recharts.YAxis fontSize={11} tickLine={false} axisLine={false} />
+        <Recharts.Tooltip content={<ChartTooltip />} />
+        <Recharts.Legend wrapperStyle={{ fontSize: 12 }} />
+        <Recharts.Line
           type="monotone"
           dataKey="in"
-          stroke={ZORU_CHART_PALETTE[0]}
+          stroke={CHART_PALETTE[0]}
           strokeWidth={2}
           dot={false}
           name="Inbound"
         />
-        <ZoruChart.Line
+        <Recharts.Line
           type="monotone"
           dataKey="out"
-          stroke={ZORU_CHART_PALETTE[1]}
+          stroke={CHART_PALETTE[1]}
           strokeWidth={2}
           strokeDasharray="4 3"
           dot={false}
           name="Outbound"
         />
-      </ZoruChart.LineChart>
+      </Recharts.LineChart>
     </ChartContainer>
   );
 }

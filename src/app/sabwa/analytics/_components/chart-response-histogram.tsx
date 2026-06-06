@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
 import {
   Timer } from 'lucide-react';
 
@@ -30,28 +30,28 @@ export function ChartResponseHistogram({ data }: ChartResponseHistogramProps) {
   }
   return (
     <ChartContainer height={288}>
-      <ZoruChart.BarChart
+      <Recharts.BarChart
         data={data}
         margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
       >
-        <ZoruChart.CartesianGrid
+        <Recharts.CartesianGrid
           strokeDasharray="3 3"
           className="stroke-[var(--st-border)]"
         />
-        <ZoruChart.XAxis
+        <Recharts.XAxis
           dataKey="bucket"
           fontSize={11}
           tickLine={false}
           axisLine={false}
         />
-        <ZoruChart.YAxis fontSize={11} tickLine={false} axisLine={false} />
-        <ZoruChart.Tooltip content={<ChartTooltip />} />
-        <ZoruChart.Bar
+        <Recharts.YAxis fontSize={11} tickLine={false} axisLine={false} />
+        <Recharts.Tooltip content={<ChartTooltip />} />
+        <Recharts.Bar
           dataKey="count"
-          fill={ZORU_CHART_PALETTE[0]}
+          fill={CHART_PALETTE[0]}
           radius={[4, 4, 0, 0]}
         />
-      </ZoruChart.BarChart>
+      </Recharts.BarChart>
     </ChartContainer>
   );
 }

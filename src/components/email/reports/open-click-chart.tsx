@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, EmptyState } from '@/components/sabcrm/20ui';
 import { LineChart } from 'lucide-react';
 import type { EmailTimeseriesPoint } from '@/lib/rust-client/email-reports';
 
@@ -10,8 +10,8 @@ interface OpenClickChartProps {
   description?: string;
 }
 
-const { CartesianGrid, Line, XAxis, YAxis, Tooltip } = ZoruChart as unknown as typeof import('recharts');
-const RechartsLineChart = (ZoruChart as unknown as typeof import('recharts')).LineChart;
+const { CartesianGrid, Line, XAxis, YAxis, Tooltip } = Recharts as unknown as typeof import('recharts');
+const RechartsLineChart = (Recharts as unknown as typeof import('recharts')).LineChart;
 
 function formatTick(t: string): string {
   try {
@@ -61,7 +61,7 @@ export function OpenClickChart({
                 type="monotone"
                 dataKey="opened"
                 name="Opened"
-                stroke={ZORU_CHART_PALETTE[0]}
+                stroke={CHART_PALETTE[0]}
                 strokeWidth={2}
                 dot={false}
               />
@@ -69,7 +69,7 @@ export function OpenClickChart({
                 type="monotone"
                 dataKey="clicked"
                 name="Clicked"
-                stroke={ZORU_CHART_PALETTE[1]}
+                stroke={CHART_PALETTE[1]}
                 strokeWidth={2}
                 strokeDasharray="4 4"
                 dot={false}

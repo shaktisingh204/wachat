@@ -28,7 +28,7 @@ import {
   Activity
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr, ZoruChart, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr, Recharts, ChartContainer, ChartTooltip, CHART_PALETTE } from '@/components/sabcrm/20ui';
 
 import {
   SabsmsPageShell,
@@ -316,26 +316,26 @@ export default function FunnelAnalyticsPage() {
           <CardBody className="p-6 flex-1 flex flex-col">
             <div className="h-[320px] w-full mb-8 relative">
               <ChartContainer height="100%">
-                <ZoruChart.ComposedChart
+                <Recharts.ComposedChart
                   data={funnelChartData}
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                 >
-                  <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-[var(--st-border)]/40" />
-                  <ZoruChart.XAxis 
+                  <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-[var(--st-border)]/40" />
+                  <Recharts.XAxis 
                     dataKey="name" 
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: 'var(--st-text-secondary)', fontSize: 13 }}
                     dy={10}
                   />
-                  <ZoruChart.YAxis 
+                  <Recharts.YAxis 
                     yAxisId="left"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }}
                     tickFormatter={(value) => `${(value / 1000)}k`}
                   />
-                  <ZoruChart.YAxis 
+                  <Recharts.YAxis 
                     yAxisId="right"
                     orientation="right"
                     axisLine={false}
@@ -343,11 +343,11 @@ export default function FunnelAnalyticsPage() {
                     tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }}
                     tickFormatter={(value) => `${value}%`}
                   />
-                  <ZoruChart.Tooltip 
+                  <Recharts.Tooltip 
                     content={<ChartTooltip />}
                     cursor={{ fill: 'var(--st-bg-muted)', opacity: 0.4 }}
                   />
-                  <ZoruChart.Bar 
+                  <Recharts.Bar 
                     yAxisId="left"
                     dataKey="users" 
                     fill="var(--st-accent)" 
@@ -356,13 +356,13 @@ export default function FunnelAnalyticsPage() {
                     name="Users Retained"
                   >
                     {funnelChartData.map((entry, index) => (
-                      <ZoruChart.Cell 
+                      <Recharts.Cell 
                         key={`cell-${index}`} 
                         fill={index === 0 ? "var(--st-accent)" : `color-mix(in srgb, var(--st-accent) calc(${1 - (index * 0.2)} * 100%), transparent)`} 
                       />
                     ))}
-                  </ZoruChart.Bar>
-                  <ZoruChart.Line 
+                  </Recharts.Bar>
+                  <Recharts.Line 
                     yAxisId="right"
                     type="monotone" 
                     dataKey="conversion" 
@@ -372,7 +372,7 @@ export default function FunnelAnalyticsPage() {
                     activeDot={{ r: 8 }}
                     name="Conversion Rate"
                   />
-                </ZoruChart.ComposedChart>
+                </Recharts.ComposedChart>
               </ChartContainer>
             </div>
 
@@ -479,15 +479,15 @@ export default function FunnelAnalyticsPage() {
             <CardBody>
               <div className="h-[120px] w-full mt-2">
                 <ChartContainer height="100%">
-                  <ZoruChart.AreaChart data={FUNNEL_TREND_DATA} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+                  <Recharts.AreaChart data={FUNNEL_TREND_DATA} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorConv" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="var(--st-accent)" stopOpacity={0.3}/>
                         <stop offset="95%" stopColor="var(--st-accent)" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <ZoruChart.Tooltip content={<ChartTooltip />} />
-                    <ZoruChart.Area 
+                    <Recharts.Tooltip content={<ChartTooltip />} />
+                    <Recharts.Area 
                       type="monotone" 
                       dataKey="conversion" 
                       stroke="var(--st-accent)" 
@@ -495,7 +495,7 @@ export default function FunnelAnalyticsPage() {
                       fillOpacity={1} 
                       fill="url(#colorConv)" 
                     />
-                  </ZoruChart.AreaChart>
+                  </Recharts.AreaChart>
                 </ChartContainer>
               </div>
               <div className="mt-4 flex items-center justify-between text-sm">

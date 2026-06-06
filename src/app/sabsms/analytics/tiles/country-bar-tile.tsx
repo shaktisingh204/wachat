@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { ZORU_CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsCountryBar } from "../aggregations";
@@ -48,22 +48,22 @@ export function CountryBarTile({
           </p>
         ) : (
           <ChartContainer height={Math.max(180, rows.length * 20)}>
-            <ZoruChart.BarChart
+            <Recharts.BarChart
               data={rows.slice(0, 20)}
               layout="vertical"
               margin={{ top: 4, right: 16, bottom: 0, left: 8 }}
             >
-              <ZoruChart.CartesianGrid
+              <Recharts.CartesianGrid
                 strokeDasharray="3 3"
                 className="stroke-[var(--st-border)]"
               />
-              <ZoruChart.XAxis
+              <Recharts.XAxis
                 type="number"
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
               />
-              <ZoruChart.YAxis
+              <Recharts.YAxis
                 type="category"
                 dataKey="country"
                 fontSize={11}
@@ -71,13 +71,13 @@ export function CountryBarTile({
                 axisLine={false}
                 width={50}
               />
-              <ZoruChart.Tooltip content={<ChartTooltip />} />
-              <ZoruChart.Bar
+              <Recharts.Tooltip content={<ChartTooltip />} />
+              <Recharts.Bar
                 dataKey="sent"
-                fill={ZORU_CHART_PALETTE[0]}
+                fill={CHART_PALETTE[0]}
                 radius={[2, 2, 2, 2]}
               />
-            </ZoruChart.BarChart>
+            </Recharts.BarChart>
           </ChartContainer>
         )}
       </CardBody>

@@ -25,7 +25,7 @@ import type {
   SumByFieldResult,
   TaskKpi,
 } from '@/app/actions/sabcrm.actions.types';
-import { Card, CardBody, CardHeader, CardTitle, CardDescription, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, EmptyState, Separator, type ZoruChartTooltipProps } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription, ChartContainer, ChartTooltip, CHART_PALETTE, EmptyState, Separator, type ZoruChartTooltipProps } from '@/components/sabcrm/20ui/compat';
 
 // Local bucket shapes that match CountByFieldResult.buckets / SumByFieldResult.buckets
 // (re-declared here to avoid importing the server-only analytics lib in a client component)
@@ -96,7 +96,7 @@ function StageCountChart({ data }: StageCountChartProps) {
         <Recharts.Bar
           dataKey="count"
           name="Opportunities"
-          fill={ZORU_CHART_PALETTE[0]}
+          fill={CHART_PALETTE[0]}
           radius={[3, 3, 0, 0]}
           maxBarSize={48}
         />
@@ -172,7 +172,7 @@ function PipelineValueChart({ data }: PipelineValueChartProps) {
         <Recharts.Bar
           dataKey="value"
           name="Pipeline Value"
-          fill={ZORU_CHART_PALETTE[1]}
+          fill={CHART_PALETTE[1]}
           radius={[3, 3, 0, 0]}
           maxBarSize={48}
         />

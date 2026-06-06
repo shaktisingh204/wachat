@@ -45,7 +45,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, cn, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator, Skeleton, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, cn, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator, Skeleton, ChartContainer, ChartTooltip, CHART_PALETTE, useToast } from '@/components/sabcrm/20ui';
 
 import {
   listObjectsAction,
@@ -864,13 +864,13 @@ function PreviewPane({
           <Recharts.Bar
             dataKey="value"
             name={valueLabel}
-            fill={ZORU_CHART_PALETTE[0]}
+            fill={CHART_PALETTE[0]}
             radius={[3, 3, 0, 0]}
           >
             {series.rows.map((row, idx) => (
               <Recharts.Cell
                 key={row.key}
-                fill={row.color ?? ZORU_CHART_PALETTE[idx % ZORU_CHART_PALETTE.length]}
+                fill={row.color ?? CHART_PALETTE[idx % CHART_PALETTE.length]}
               />
             ))}
           </Recharts.Bar>
@@ -904,9 +904,9 @@ function PreviewPane({
             type="monotone"
             dataKey="value"
             name={valueLabel}
-            stroke={ZORU_CHART_PALETTE[0]}
+            stroke={CHART_PALETTE[0]}
             strokeWidth={2}
-            dot={{ r: 3, fill: ZORU_CHART_PALETTE[0] }}
+            dot={{ r: 3, fill: CHART_PALETTE[0] }}
             activeDot={{ r: 5 }}
           />
         </Recharts.LineChart>
@@ -942,7 +942,7 @@ function PreviewPane({
             {series.rows.map((row, idx) => (
               <Recharts.Cell
                 key={row.key}
-                fill={row.color ?? ZORU_CHART_PALETTE[idx % ZORU_CHART_PALETTE.length]}
+                fill={row.color ?? CHART_PALETTE[idx % CHART_PALETTE.length]}
               />
             ))}
           </Recharts.Pie>

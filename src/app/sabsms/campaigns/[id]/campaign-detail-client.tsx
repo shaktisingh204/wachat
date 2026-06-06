@@ -24,7 +24,7 @@ import {
   StopCircle,
 } from "lucide-react";
 
-import { ZORU_CHART_PALETTE, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 import {
   SabsmsDataTable,
@@ -429,50 +429,50 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             </p>
           ) : (
             <ChartContainer height={240}>
-              <ZoruChart.LineChart
+              <Recharts.LineChart
                 data={bundle.timeline}
                 margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
               >
-                <ZoruChart.CartesianGrid
+                <Recharts.CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-[var(--st-border)]"
                 />
-                <ZoruChart.XAxis
+                <Recharts.XAxis
                   dataKey="bucket"
                   fontSize={10}
                   tickLine={false}
                   axisLine={false}
                 />
-                <ZoruChart.YAxis fontSize={10} tickLine={false} axisLine={false} />
-                <ZoruChart.Tooltip content={<ChartTooltip />} />
-                <ZoruChart.Legend wrapperStyle={{ fontSize: 12 }} />
-                <ZoruChart.Line
+                <Recharts.YAxis fontSize={10} tickLine={false} axisLine={false} />
+                <Recharts.Tooltip content={<ChartTooltip />} />
+                <Recharts.Legend wrapperStyle={{ fontSize: 12 }} />
+                <Recharts.Line
                   type="monotone"
                   dataKey="sent"
-                  stroke={ZORU_CHART_PALETTE[0]}
+                  stroke={CHART_PALETTE[0]}
                   strokeWidth={2}
                   dot={false}
                   name="Sent"
                 />
-                <ZoruChart.Line
+                <Recharts.Line
                   type="monotone"
                   dataKey="delivered"
-                  stroke={ZORU_CHART_PALETTE[1]}
+                  stroke={CHART_PALETTE[1]}
                   strokeWidth={2}
                   strokeDasharray="4 3"
                   dot={false}
                   name="Delivered"
                 />
-                <ZoruChart.Line
+                <Recharts.Line
                   type="monotone"
                   dataKey="failed"
-                  stroke={ZORU_CHART_PALETTE[3]}
+                  stroke={CHART_PALETTE[3]}
                   strokeWidth={2}
                   strokeDasharray="2 3"
                   dot={false}
                   name="Failed"
                 />
-              </ZoruChart.LineChart>
+              </Recharts.LineChart>
             </ChartContainer>
           )}
         </CardBody>
@@ -489,17 +489,17 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
           </CardHeader>
           <CardBody>
             <ChartContainer height={220}>
-              <ZoruChart.BarChart
+              <Recharts.BarChart
                 data={bundle.funnel}
                 layout="vertical"
                 margin={{ top: 8, right: 16, bottom: 0, left: 16 }}
               >
-                <ZoruChart.CartesianGrid
+                <Recharts.CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-[var(--st-border)]"
                 />
-                <ZoruChart.XAxis type="number" fontSize={10} hide />
-                <ZoruChart.YAxis
+                <Recharts.XAxis type="number" fontSize={10} hide />
+                <Recharts.YAxis
                   type="category"
                   dataKey="label"
                   fontSize={10}
@@ -507,13 +507,13 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                   tickLine={false}
                   axisLine={false}
                 />
-                <ZoruChart.Tooltip content={<ChartTooltip />} />
-                <ZoruChart.Bar
+                <Recharts.Tooltip content={<ChartTooltip />} />
+                <Recharts.Bar
                   dataKey="count"
-                  fill={ZORU_CHART_PALETTE[0]}
+                  fill={CHART_PALETTE[0]}
                   radius={[0, 4, 4, 0]}
                 />
-              </ZoruChart.BarChart>
+              </Recharts.BarChart>
             </ChartContainer>
           </CardBody>
         </Card>
@@ -532,32 +532,32 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </p>
             ) : (
               <ChartContainer height={220}>
-                <ZoruChart.BarChart
+                <Recharts.BarChart
                   data={bundle.providers}
                   margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
                 >
-                  <ZoruChart.CartesianGrid
+                  <Recharts.CartesianGrid
                     strokeDasharray="3 3"
                     className="stroke-[var(--st-border)]"
                   />
-                  <ZoruChart.XAxis
+                  <Recharts.XAxis
                     dataKey="provider"
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
                   />
-                  <ZoruChart.YAxis
+                  <Recharts.YAxis
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
                   />
-                  <ZoruChart.Tooltip content={<ChartTooltip />} />
-                  <ZoruChart.Bar
+                  <Recharts.Tooltip content={<ChartTooltip />} />
+                  <Recharts.Bar
                     dataKey="count"
-                    fill={ZORU_CHART_PALETTE[1]}
+                    fill={CHART_PALETTE[1]}
                     radius={[2, 2, 0, 0]}
                   />
-                </ZoruChart.BarChart>
+                </Recharts.BarChart>
               </ChartContainer>
             )}
           </CardBody>
@@ -578,32 +578,32 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </p>
             ) : (
               <ChartContainer height={200}>
-                <ZoruChart.BarChart
+                <Recharts.BarChart
                   data={bundle.countries}
                   margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
                 >
-                  <ZoruChart.CartesianGrid
+                  <Recharts.CartesianGrid
                     strokeDasharray="3 3"
                     className="stroke-[var(--st-border)]"
                   />
-                  <ZoruChart.XAxis
+                  <Recharts.XAxis
                     dataKey="country"
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
                   />
-                  <ZoruChart.YAxis
+                  <Recharts.YAxis
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
                   />
-                  <ZoruChart.Tooltip content={<ChartTooltip />} />
-                  <ZoruChart.Bar
+                  <Recharts.Tooltip content={<ChartTooltip />} />
+                  <Recharts.Bar
                     dataKey="count"
-                    fill={ZORU_CHART_PALETTE[2]}
+                    fill={CHART_PALETTE[2]}
                     radius={[2, 2, 0, 0]}
                   />
-                </ZoruChart.BarChart>
+                </Recharts.BarChart>
               </ChartContainer>
             )}
           </CardBody>
@@ -623,8 +623,8 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </p>
             ) : (
               <ChartContainer height={200}>
-                <ZoruChart.PieChart>
-                  <ZoruChart.Pie
+                <Recharts.PieChart>
+                  <Recharts.Pie
                     data={bundle.senderRotation}
                     dataKey="count"
                     nameKey="sender"
@@ -632,16 +632,16 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                     innerRadius={32}
                   >
                     {bundle.senderRotation.map((entry, i) => (
-                      <ZoruChart.Cell
+                      <Recharts.Cell
                         key={entry.sender}
                         fill={
-                          ZORU_CHART_PALETTE[i % ZORU_CHART_PALETTE.length]
+                          CHART_PALETTE[i % CHART_PALETTE.length]
                         }
                       />
                     ))}
-                  </ZoruChart.Pie>
-                  <ZoruChart.Tooltip content={<ChartTooltip />} />
-                </ZoruChart.PieChart>
+                  </Recharts.Pie>
+                  <Recharts.Tooltip content={<ChartTooltip />} />
+                </Recharts.PieChart>
               </ChartContainer>
             )}
           </CardBody>
@@ -693,33 +693,33 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </p>
             ) : (
               <ChartContainer height={160}>
-                <ZoruChart.AreaChart
+                <Recharts.AreaChart
                   data={bundle.replies}
                   margin={{ top: 4, right: 12, bottom: 0, left: -20 }}
                 >
-                  <ZoruChart.CartesianGrid
+                  <Recharts.CartesianGrid
                     strokeDasharray="3 3"
                     className="stroke-[var(--st-border)]"
                   />
-                  <ZoruChart.XAxis
+                  <Recharts.XAxis
                     dataKey="bucket"
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
                   />
-                  <ZoruChart.YAxis
+                  <Recharts.YAxis
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
                     allowDecimals={false}
                   />
-                  <ZoruChart.Tooltip content={<ChartTooltip />} />
-                  <ZoruChart.Area
+                  <Recharts.Tooltip content={<ChartTooltip />} />
+                  <Recharts.Area
                     dataKey="count"
-                    fill={ZORU_CHART_PALETTE[1]}
-                    stroke={ZORU_CHART_PALETTE[0]}
+                    fill={CHART_PALETTE[1]}
+                    stroke={CHART_PALETTE[0]}
                   />
-                </ZoruChart.AreaChart>
+                </Recharts.AreaChart>
               </ChartContainer>
             )}
           </CardBody>
@@ -740,33 +740,33 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               </p>
             ) : (
               <ChartContainer height={160}>
-                <ZoruChart.AreaChart
+                <Recharts.AreaChart
                   data={bundle.optOuts}
                   margin={{ top: 4, right: 12, bottom: 0, left: -20 }}
                 >
-                  <ZoruChart.CartesianGrid
+                  <Recharts.CartesianGrid
                     strokeDasharray="3 3"
                     className="stroke-[var(--st-border)]"
                   />
-                  <ZoruChart.XAxis
+                  <Recharts.XAxis
                     dataKey="bucket"
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
                   />
-                  <ZoruChart.YAxis
+                  <Recharts.YAxis
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
                     allowDecimals={false}
                   />
-                  <ZoruChart.Tooltip content={<ChartTooltip />} />
-                  <ZoruChart.Area
+                  <Recharts.Tooltip content={<ChartTooltip />} />
+                  <Recharts.Area
                     dataKey="count"
-                    fill={ZORU_CHART_PALETTE[3]}
-                    stroke={ZORU_CHART_PALETTE[3]}
+                    fill={CHART_PALETTE[3]}
+                    stroke={CHART_PALETTE[3]}
                   />
-                </ZoruChart.AreaChart>
+                </Recharts.AreaChart>
               </ChartContainer>
             )}
           </CardBody>

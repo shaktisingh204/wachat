@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
 import {
   Users } from 'lucide-react';
 
@@ -10,7 +10,7 @@ import { EmptyState } from '@/app/sabwa/_components/empty-state';
 
 /**
  * ChartTopContacts — horizontal-style bar chart for top contacts by volume.
- * Greyscale palette via ZoruChart.
+ * Greyscale palette via Recharts.
  */
 
 import * as React from 'react';
@@ -35,22 +35,22 @@ export function ChartTopContacts({ data }: ChartTopContactsProps) {
   }));
   return (
     <ChartContainer height={288}>
-      <ZoruChart.BarChart
+      <Recharts.BarChart
         data={chartData}
         layout="vertical"
         margin={{ top: 8, right: 16, bottom: 0, left: 8 }}
       >
-        <ZoruChart.CartesianGrid
+        <Recharts.CartesianGrid
           strokeDasharray="3 3"
           className="stroke-[var(--st-border)]"
         />
-        <ZoruChart.XAxis
+        <Recharts.XAxis
           type="number"
           fontSize={11}
           tickLine={false}
           axisLine={false}
         />
-        <ZoruChart.YAxis
+        <Recharts.YAxis
           type="category"
           dataKey="label"
           fontSize={11}
@@ -58,13 +58,13 @@ export function ChartTopContacts({ data }: ChartTopContactsProps) {
           axisLine={false}
           width={110}
         />
-        <ZoruChart.Tooltip content={<ChartTooltip />} />
-        <ZoruChart.Bar
+        <Recharts.Tooltip content={<ChartTooltip />} />
+        <Recharts.Bar
           dataKey="count"
-          fill={ZORU_CHART_PALETTE[0]}
+          fill={CHART_PALETTE[0]}
           radius={[0, 4, 4, 0]}
         />
-      </ZoruChart.BarChart>
+      </Recharts.BarChart>
     </ChartContainer>
   );
 }

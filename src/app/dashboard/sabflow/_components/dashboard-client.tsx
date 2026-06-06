@@ -11,15 +11,15 @@ import {
   Play,
   RefreshCcw
 } from "lucide-react";
-import { StatCard } from '@/components/sabcrm/20ui/compat';
-import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui/compat';
-import { ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
-import { Button } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { DateRangePicker } from '@/components/sabcrm/20ui/compat';
+import { StatCard } from '@/components/sabcrm/20ui';
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui';
+import { Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { DateRangePicker } from '@/components/sabcrm/20ui';
 import type { DateRange } from "react-day-picker";
 import Link from "next/link";
 import { getSabflowDashboardData, retryExecution } from "../actions";
@@ -150,7 +150,7 @@ export function DashboardClient({ initialData }: { initialData: any }) {
           </CardHeader>
           <CardBody>
             <ChartContainer height={300}>
-              <ZoruChart.AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <Recharts.AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="var(--st-status-ok)" stopOpacity={0.3} />
@@ -161,21 +161,21 @@ export function DashboardClient({ initialData }: { initialData: any }) {
                     <stop offset="95%" stopColor="var(--st-danger)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
-                <ZoruChart.XAxis 
+                <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
+                <Recharts.XAxis 
                   dataKey="time" 
                   axisLine={false} 
                   tickLine={false} 
                   tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }} 
                   dy={10} 
                 />
-                <ZoruChart.YAxis 
+                <Recharts.YAxis 
                   axisLine={false} 
                   tickLine={false} 
                   tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }} 
                 />
-                <ZoruChart.Tooltip content={<ChartTooltip />} />
-                <ZoruChart.Area 
+                <Recharts.Tooltip content={<ChartTooltip />} />
+                <Recharts.Area 
                   type="monotone" 
                   dataKey="success" 
                   stroke="var(--st-status-ok)" 
@@ -183,7 +183,7 @@ export function DashboardClient({ initialData }: { initialData: any }) {
                   fill="url(#colorSuccess)" 
                   strokeWidth={2}
                 />
-                <ZoruChart.Area 
+                <Recharts.Area 
                   type="monotone" 
                   dataKey="failed" 
                   stroke="var(--st-danger)" 
@@ -191,7 +191,7 @@ export function DashboardClient({ initialData }: { initialData: any }) {
                   fill="url(#colorFailed)" 
                   strokeWidth={2}
                 />
-              </ZoruChart.AreaChart>
+              </Recharts.AreaChart>
             </ChartContainer>
           </CardBody>
         </Card>

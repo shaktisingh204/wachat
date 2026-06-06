@@ -3,18 +3,18 @@ import { fmtINR } from "@/lib/utils";
 
 import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { Plus, Edit2, Trash2, Globe, Eye, MousePointerClick, Percent } from 'lucide-react';
-import { Table, THead, TBody, Tr, Th, Td, StatCard, Switch } from '@/components/sabcrm/20ui/compat';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td, StatCard, Switch } from '@/components/sabcrm/20ui';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
 import { createLandingPage, updateLandingPage, deleteLandingPage } from '@/app/actions/marketing/landing-page-builder.actions';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
-import { ChartContainer, ChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
+import { ChartContainer, ChartTooltip, Recharts, CHART_PALETTE } from '@/components/sabcrm/20ui';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
 
 export function LandingPageClient({ initialData }: { initialData: any[] }) {
   const [data, setData] = useState(initialData);
@@ -160,14 +160,14 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
               </CardHeader>
               <CardBody>
                 <ChartContainer height={300}>
-                  <ZoruChart.BarChart data={mockChannelData}>
-                    <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <ZoruChart.XAxis dataKey="channel" axisLine={false} tickLine={false} />
-                    <ZoruChart.YAxis axisLine={false} tickLine={false} tickFormatter={(val: number) => `$${val/1000}k`} />
-                    <ZoruChart.Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--zoru-bg-zoru-surface-2)' }} />
-                    <ZoruChart.Bar dataKey="revenue" name="Revenue" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
-                    <ZoruChart.Bar dataKey="spend" name="Spend" fill={ZORU_CHART_PALETTE[3]} radius={[4, 4, 0, 0]} />
-                  </ZoruChart.BarChart>
+                  <Recharts.BarChart data={mockChannelData}>
+                    <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <Recharts.XAxis dataKey="channel" axisLine={false} tickLine={false} />
+                    <Recharts.YAxis axisLine={false} tickLine={false} tickFormatter={(val: number) => `$${val/1000}k`} />
+                    <Recharts.Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--zoru-bg-zoru-surface-2)' }} />
+                    <Recharts.Bar dataKey="revenue" name="Revenue" fill={CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
+                    <Recharts.Bar dataKey="spend" name="Spend" fill={CHART_PALETTE[3]} radius={[4, 4, 0, 0]} />
+                  </Recharts.BarChart>
                 </ChartContainer>
               </CardBody>
             </Card>
@@ -178,13 +178,13 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
               </CardHeader>
               <CardBody>
                 <ChartContainer height={300}>
-                  <ZoruChart.LineChart data={mockChannelData}>
-                    <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <ZoruChart.XAxis dataKey="channel" axisLine={false} tickLine={false} />
-                    <ZoruChart.YAxis axisLine={false} tickLine={false} />
-                    <ZoruChart.Tooltip content={<ChartTooltip />} />
-                    <ZoruChart.Line type="monotone" dataKey="roi" name="ROI (%)" stroke={ZORU_CHART_PALETTE[0]} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                  </ZoruChart.LineChart>
+                  <Recharts.LineChart data={mockChannelData}>
+                    <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <Recharts.XAxis dataKey="channel" axisLine={false} tickLine={false} />
+                    <Recharts.YAxis axisLine={false} tickLine={false} />
+                    <Recharts.Tooltip content={<ChartTooltip />} />
+                    <Recharts.Line type="monotone" dataKey="roi" name="ROI (%)" stroke={CHART_PALETTE[0]} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                  </Recharts.LineChart>
                 </ChartContainer>
               </CardBody>
             </Card>

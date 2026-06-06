@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Activity, AlertCircle, PlayCircle, CheckCircle2, DollarSign, TrendingUp, UserMinus, Settings2 } from "lucide-react";
-import { StatCard, Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, ZoruChart, ChartContainer, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { StatCard, Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, Recharts, ChartContainer, CHART_PALETTE } from '@/components/sabcrm/20ui';
 
 export type MetricData = {
   id: string;
@@ -31,16 +31,16 @@ const mockSparklineData = [
 function Sparkline() {
   return (
     <ChartContainer height={40} className="w-full mt-2">
-      <ZoruChart.LineChart data={mockSparklineData} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
-        <ZoruChart.Line
+      <Recharts.LineChart data={mockSparklineData} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
+        <Recharts.Line
           type="monotone"
           dataKey="val"
-          stroke={ZORU_CHART_PALETTE[0]}
+          stroke={CHART_PALETTE[0]}
           strokeWidth={2}
           dot={false}
           isAnimationActive={false}
         />
-      </ZoruChart.LineChart>
+      </Recharts.LineChart>
     </ChartContainer>
   );
 }

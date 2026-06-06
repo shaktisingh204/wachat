@@ -39,7 +39,7 @@ import {
 } from 'lucide-react';
 import * as Recharts from 'recharts';
 
-import { Button, Input, Label, Textarea, Badge, Skeleton, EmptyState, Card, CardHeader, CardTitle, CardBody, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Table, THead, TBody, Tr, Th, Td, Separator, ScrollArea, Alert, AlertTitle, AlertDescription, useToast, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Badge, Skeleton, EmptyState, Card, CardHeader, CardTitle, CardBody, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Table, THead, TBody, Tr, Th, Td, Separator, ScrollArea, Alert, AlertTitle, AlertDescription, useToast, ChartContainer, ChartTooltip, CHART_PALETTE, cn } from '@/components/sabcrm/20ui';
 
 import {
   listObjectsAction,
@@ -284,7 +284,7 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
     const pieData = rows.map((row, idx) => ({
       name: row.label,
       value: row.value,
-      fill: row.color ?? ZORU_CHART_PALETTE[idx % ZORU_CHART_PALETTE.length],
+      fill: row.color ?? CHART_PALETTE[idx % CHART_PALETTE.length],
     }));
     return (
       <ChartContainer height={280}>
@@ -354,7 +354,7 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
                 payload={props.payload?.map((p) => ({
                   name: METRIC_LABELS[series.metric],
                   value: typeof p.value === 'number' ? p.value : 0,
-                  color: ZORU_CHART_PALETTE[0],
+                  color: CHART_PALETTE[0],
                   dataKey: String(p.dataKey ?? ''),
                 }))}
                 label={props.label as string | undefined}
@@ -364,7 +364,7 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
           <Recharts.Line
             type="monotone"
             dataKey="value"
-            stroke={ZORU_CHART_PALETTE[0]}
+            stroke={CHART_PALETTE[0]}
             strokeWidth={2}
             dot={false}
             activeDot={{ r: 4 }}
@@ -396,14 +396,14 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
                 payload={props.payload?.map((p) => ({
                   name: METRIC_LABELS[series.metric],
                   value: typeof p.value === 'number' ? p.value : 0,
-                  color: ZORU_CHART_PALETTE[0],
+                  color: CHART_PALETTE[0],
                   dataKey: String(p.dataKey ?? ''),
                 }))}
                 label={props.label as string | undefined}
               />
             )}
           />
-          <Recharts.Bar dataKey="value" fill={ZORU_CHART_PALETTE[0]} radius={[3, 3, 0, 0]} />
+          <Recharts.Bar dataKey="value" fill={CHART_PALETTE[0]} radius={[3, 3, 0, 0]} />
         </Recharts.BarChart>
       )}
     </ChartContainer>

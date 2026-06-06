@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, DataTable, EmptyState, Skeleton, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, CHART_PALETTE, DataTable, EmptyState, Skeleton, StatCard } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -32,7 +32,7 @@ import type { FacebookOrder } from "@/lib/definitions";
  * a 30-day order/revenue trend, status mix and a top-buyers breakdown
  * client-side — no separate analytics endpoint.
  *
- * Pure ZoruUI primitives. Charts use ZORU_CHART_PALETTE and series are
+ * Pure ZoruUI primitives. Charts use CHART_PALETTE and series are
  * differentiated by stroke-dasharray (no hue).
  */
 
@@ -330,55 +330,55 @@ export default function CommerceAnalyticsPage() {
             />
           ) : (
             <ChartContainer height={320}>
-              <ZoruChart.LineChart data={trend}>
-                <ZoruChart.CartesianGrid
+              <Recharts.LineChart data={trend}>
+                <Recharts.CartesianGrid
                   strokeDasharray="3 3"
                   stroke="var(--st-border)"
                 />
-                <ZoruChart.XAxis
+                <Recharts.XAxis
                   dataKey="date"
                   stroke="var(--st-text-tertiary)"
                   tick={{ fontSize: 11 }}
                 />
-                <ZoruChart.YAxis
+                <Recharts.YAxis
                   yAxisId="orders"
                   stroke="var(--st-text-tertiary)"
                   tick={{ fontSize: 11 }}
                 />
-                <ZoruChart.YAxis
+                <Recharts.YAxis
                   yAxisId="revenue"
                   orientation="right"
                   stroke="var(--st-text-tertiary)"
                   tick={{ fontSize: 11 }}
                 />
-                <ZoruChart.Tooltip content={<ChartTooltip />} />
-                <ZoruChart.Legend
+                <Recharts.Tooltip content={<ChartTooltip />} />
+                <Recharts.Legend
                   wrapperStyle={{ fontSize: 11 }}
                   iconType="line"
                 />
-                <ZoruChart.Line
+                <Recharts.Line
                   yAxisId="orders"
                   type="monotone"
                   dataKey="orders"
                   name="Orders"
-                  stroke={ZORU_CHART_PALETTE[0]}
+                  stroke={CHART_PALETTE[0]}
                   strokeDasharray="0"
                   strokeWidth={2}
                   dot={false}
                   activeDot={{ r: 4 }}
                 />
-                <ZoruChart.Line
+                <Recharts.Line
                   yAxisId="revenue"
                   type="monotone"
                   dataKey="revenue"
                   name="Revenue"
-                  stroke={ZORU_CHART_PALETTE[1]}
+                  stroke={CHART_PALETTE[1]}
                   strokeDasharray="5 4"
                   strokeWidth={2}
                   dot={false}
                   activeDot={{ r: 4 }}
                 />
-              </ZoruChart.LineChart>
+              </Recharts.LineChart>
             </ChartContainer>
           )}
         </CardBody>

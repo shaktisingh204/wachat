@@ -15,13 +15,13 @@
  *  8.  Stop test early                → row action
  *  9.  Force-pick winner              → row action (confirm dialog)
  *  10. Per-variant CTR/reply/conv     → inline mini-table in drawer
- *  11. Funnel comparison              → inline ZoruChart per row
+ *  11. Funnel comparison              → inline Recharts per row
  *  12. Cost comparison                → StatCard pair
  *  13. Export raw event log           → SabsmsExportMenu per detail
  *  14. Clone test                     → row action
  *  15. Schedule next test             → row action (date dialog)
  *  16. Test history archive           → status filter chip + archived facet
- *  17. Significance simulation graph  → ZoruChart line
+ *  17. Significance simulation graph  → Recharts line
  *  18. Per-segment lift analysis      → `computeSegmentLifts` table
  *  19. Bayesian vs frequentist mode   → Switch in drawer (flag-only)
  *  20. Audit trail                    → "Audit" tab in drawer
@@ -41,7 +41,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { ZORU_CHART_PALETTE, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Switch, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Switch, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 
 import {
   SabsmsDataTable,
@@ -721,7 +721,7 @@ function AbTestDetailDrawer({
               </CardHeader>
               <CardBody>
                 <ChartContainer height={180}>
-                  <ZoruChart.BarChart
+                  <Recharts.BarChart
                     data={row.variants.map((v) => ({
                       name: v.label,
                       sent: v.total,
@@ -729,38 +729,38 @@ function AbTestDetailDrawer({
                       replied: v.replies,
                     }))}
                   >
-                    <ZoruChart.CartesianGrid
+                    <Recharts.CartesianGrid
                       strokeDasharray="3 3"
                       className="stroke-[var(--st-border)]"
                     />
-                    <ZoruChart.XAxis
+                    <Recharts.XAxis
                       dataKey="name"
                       fontSize={10}
                       tickLine={false}
                       axisLine={false}
                     />
-                    <ZoruChart.YAxis
+                    <Recharts.YAxis
                       fontSize={10}
                       tickLine={false}
                       axisLine={false}
                     />
-                    <ZoruChart.Tooltip content={<ChartTooltip />} />
-                    <ZoruChart.Bar
+                    <Recharts.Tooltip content={<ChartTooltip />} />
+                    <Recharts.Bar
                       dataKey="sent"
-                      fill={ZORU_CHART_PALETTE[0]}
+                      fill={CHART_PALETTE[0]}
                       radius={[2, 2, 0, 0]}
                     />
-                    <ZoruChart.Bar
+                    <Recharts.Bar
                       dataKey="clicked"
-                      fill={ZORU_CHART_PALETTE[1]}
+                      fill={CHART_PALETTE[1]}
                       radius={[2, 2, 0, 0]}
                     />
-                    <ZoruChart.Bar
+                    <Recharts.Bar
                       dataKey="replied"
-                      fill={ZORU_CHART_PALETTE[2]}
+                      fill={CHART_PALETTE[2]}
                       radius={[2, 2, 0, 0]}
                     />
-                  </ZoruChart.BarChart>
+                  </Recharts.BarChart>
                 </ChartContainer>
               </CardBody>
             </Card>
@@ -776,32 +776,32 @@ function AbTestDetailDrawer({
                 </CardHeader>
                 <CardBody>
                   <ChartContainer height={140}>
-                    <ZoruChart.LineChart data={row.simulation}>
-                      <ZoruChart.CartesianGrid
+                    <Recharts.LineChart data={row.simulation}>
+                      <Recharts.CartesianGrid
                         strokeDasharray="3 3"
                         className="stroke-[var(--st-border)]"
                       />
-                      <ZoruChart.XAxis
+                      <Recharts.XAxis
                         dataKey="iter"
                         fontSize={10}
                         tickLine={false}
                         axisLine={false}
                       />
-                      <ZoruChart.YAxis
+                      <Recharts.YAxis
                         domain={[0, 1]}
                         fontSize={10}
                         tickLine={false}
                         axisLine={false}
                       />
-                      <ZoruChart.Tooltip content={<ChartTooltip />} />
-                      <ZoruChart.Line
+                      <Recharts.Tooltip content={<ChartTooltip />} />
+                      <Recharts.Line
                         type="monotone"
                         dataKey="pValue"
-                        stroke={ZORU_CHART_PALETTE[3]}
+                        stroke={CHART_PALETTE[3]}
                         strokeWidth={2}
                         dot={false}
                       />
-                    </ZoruChart.LineChart>
+                    </Recharts.LineChart>
                   </ChartContainer>
                 </CardBody>
               </Card>

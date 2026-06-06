@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { DataTable } from '@/components/sabcrm/20ui/compat';
-import { ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, ZoruChart } from '@/components/sabcrm/20ui/compat';
+import { DataTable } from '@/components/sabcrm/20ui';
+import { ChartContainer, ChartTooltip, CHART_PALETTE, Recharts } from '@/components/sabcrm/20ui';
 import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { Badge } from '@/components/sabcrm/20ui/compat';
+import { Badge } from '@/components/sabcrm/20ui';
 
-const { BarChart, CartesianGrid, XAxis, YAxis, Bar, Tooltip } = ZoruChart;
+const { BarChart, CartesianGrid, XAxis, YAxis, Bar, Tooltip } = Recharts;
 
 export function BuilderResultsChart({ data }: { data: { date: string; total: number; completed: number }[] }) {
   return (
@@ -33,8 +33,8 @@ export function BuilderResultsChart({ data }: { data: { date: string; total: num
           tickFormatter={(val) => `${val}`}
         />
         <Tooltip content={<ChartTooltip />} />
-        <Bar dataKey="total" name="Total Sessions" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
-        <Bar dataKey="completed" name="Completed" fill={ZORU_CHART_PALETTE[3]} radius={[4, 4, 0, 0]} />
+        <Bar dataKey="total" name="Total Sessions" fill={CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
+        <Bar dataKey="completed" name="Completed" fill={CHART_PALETTE[3]} radius={[4, 4, 0, 0]} />
       </BarChart>
     </ChartContainer>
   );

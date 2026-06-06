@@ -28,7 +28,7 @@ import {
   Webhook,
 } from "lucide-react";
 
-import { ZORU_CHART_PALETTE, Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, ZoruChart, ChartContainer, ChartTooltip, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Recharts, ChartContainer, ChartTooltip, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui';
 
 import {
   SabsmsDataTable,
@@ -382,32 +382,32 @@ export function NumberDetailClient({ detail }: Props) {
           </CardHeader>
           <CardBody>
             <ChartContainer height={220}>
-              <ZoruChart.LineChart data={detail.health}>
-                <ZoruChart.CartesianGrid
+              <Recharts.LineChart data={detail.health}>
+                <Recharts.CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-[var(--st-border)]"
                 />
-                <ZoruChart.XAxis dataKey="date" fontSize={10} />
-                <ZoruChart.YAxis fontSize={10} unit="%" />
-                <ZoruChart.Tooltip content={<ChartTooltip />} />
-                <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
-                <ZoruChart.Line
+                <Recharts.XAxis dataKey="date" fontSize={10} />
+                <Recharts.YAxis fontSize={10} unit="%" />
+                <Recharts.Tooltip content={<ChartTooltip />} />
+                <Recharts.Legend wrapperStyle={{ fontSize: 11 }} />
+                <Recharts.Line
                   type="monotone"
                   dataKey="dlrRate"
-                  stroke={ZORU_CHART_PALETTE[1]}
+                  stroke={CHART_PALETTE[1]}
                   strokeWidth={2}
                   dot={false}
                   name="DLR %"
                 />
-                <ZoruChart.Line
+                <Recharts.Line
                   type="monotone"
                   dataKey="complaintRate"
-                  stroke={ZORU_CHART_PALETTE[3]}
+                  stroke={CHART_PALETTE[3]}
                   strokeWidth={2}
                   dot={false}
                   name="Complaint %"
                 />
-              </ZoruChart.LineChart>
+              </Recharts.LineChart>
             </ChartContainer>
           </CardBody>
         </Card>
@@ -420,37 +420,37 @@ export function NumberDetailClient({ detail }: Props) {
           </CardHeader>
           <CardBody>
             <ChartContainer height={220}>
-              <ZoruChart.LineChart data={detail.volume}>
-                <ZoruChart.CartesianGrid
+              <Recharts.LineChart data={detail.volume}>
+                <Recharts.CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-[var(--st-border)]"
                 />
-                <ZoruChart.XAxis dataKey="date" fontSize={10} />
-                <ZoruChart.YAxis fontSize={10} />
-                <ZoruChart.Tooltip content={<ChartTooltip />} />
-                <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
-                <ZoruChart.Line
+                <Recharts.XAxis dataKey="date" fontSize={10} />
+                <Recharts.YAxis fontSize={10} />
+                <Recharts.Tooltip content={<ChartTooltip />} />
+                <Recharts.Legend wrapperStyle={{ fontSize: 11 }} />
+                <Recharts.Line
                   type="monotone"
                   dataKey="sent"
-                  stroke={ZORU_CHART_PALETTE[0]}
+                  stroke={CHART_PALETTE[0]}
                   strokeWidth={2}
                   dot={false}
                 />
-                <ZoruChart.Line
+                <Recharts.Line
                   type="monotone"
                   dataKey="delivered"
-                  stroke={ZORU_CHART_PALETTE[1]}
+                  stroke={CHART_PALETTE[1]}
                   strokeWidth={2}
                   dot={false}
                 />
-                <ZoruChart.Line
+                <Recharts.Line
                   type="monotone"
                   dataKey="failed"
-                  stroke={ZORU_CHART_PALETTE[3]}
+                  stroke={CHART_PALETTE[3]}
                   strokeWidth={2}
                   dot={false}
                 />
-              </ZoruChart.LineChart>
+              </Recharts.LineChart>
             </ChartContainer>
           </CardBody>
         </Card>
@@ -461,32 +461,32 @@ export function NumberDetailClient({ detail }: Props) {
           </CardHeader>
           <CardBody>
             <ChartContainer height={220}>
-              <ZoruChart.LineChart data={detail.cost}>
-                <ZoruChart.CartesianGrid
+              <Recharts.LineChart data={detail.cost}>
+                <Recharts.CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-[var(--st-border)]"
                 />
-                <ZoruChart.XAxis dataKey="date" fontSize={10} />
-                <ZoruChart.YAxis fontSize={10} unit="$" />
-                <ZoruChart.Tooltip content={<ChartTooltip />} />
-                <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
-                <ZoruChart.Line
+                <Recharts.XAxis dataKey="date" fontSize={10} />
+                <Recharts.YAxis fontSize={10} unit="$" />
+                <Recharts.Tooltip content={<ChartTooltip />} />
+                <Recharts.Legend wrapperStyle={{ fontSize: 11 }} />
+                <Recharts.Line
                   type="monotone"
                   dataKey="cost"
-                  stroke={ZORU_CHART_PALETTE[2]}
+                  stroke={CHART_PALETTE[2]}
                   strokeWidth={2}
                   dot={false}
                   name="Cost"
                 />
-                <ZoruChart.Line
+                <Recharts.Line
                   type="monotone"
                   dataKey="revenue"
-                  stroke={ZORU_CHART_PALETTE[0]}
+                  stroke={CHART_PALETTE[0]}
                   strokeWidth={2}
                   dot={false}
                   name="Revenue"
                 />
-              </ZoruChart.LineChart>
+              </Recharts.LineChart>
             </ChartContainer>
           </CardBody>
         </Card>
@@ -501,24 +501,24 @@ export function NumberDetailClient({ detail }: Props) {
           </CardHeader>
           <CardBody>
             <ChartContainer height={220}>
-              <ZoruChart.LineChart data={detail.health}>
-                <ZoruChart.CartesianGrid
+              <Recharts.LineChart data={detail.health}>
+                <Recharts.CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-[var(--st-border)]"
                 />
-                <ZoruChart.XAxis dataKey="date" fontSize={10} />
-                <ZoruChart.YAxis fontSize={10} unit="%" />
-                <ZoruChart.Tooltip content={<ChartTooltip />} />
-                <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
-                <ZoruChart.Line
+                <Recharts.XAxis dataKey="date" fontSize={10} />
+                <Recharts.YAxis fontSize={10} unit="%" />
+                <Recharts.Tooltip content={<ChartTooltip />} />
+                <Recharts.Legend wrapperStyle={{ fontSize: 11 }} />
+                <Recharts.Line
                   type="monotone"
                   dataKey="dlrRate"
-                  stroke={ZORU_CHART_PALETTE[1]}
+                  stroke={CHART_PALETTE[1]}
                   strokeWidth={2}
                   dot={false}
                   name="Deliverability %"
                 />
-              </ZoruChart.LineChart>
+              </Recharts.LineChart>
             </ChartContainer>
           </CardBody>
         </Card>
@@ -529,24 +529,24 @@ export function NumberDetailClient({ detail }: Props) {
           </CardHeader>
           <CardBody>
             <ChartContainer height={220}>
-              <ZoruChart.LineChart data={detail.health}>
-                <ZoruChart.CartesianGrid
+              <Recharts.LineChart data={detail.health}>
+                <Recharts.CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-[var(--st-border)]"
                 />
-                <ZoruChart.XAxis dataKey="date" fontSize={10} />
-                <ZoruChart.YAxis fontSize={10} unit="%" />
-                <ZoruChart.Tooltip content={<ChartTooltip />} />
-                <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
-                <ZoruChart.Line
+                <Recharts.XAxis dataKey="date" fontSize={10} />
+                <Recharts.YAxis fontSize={10} unit="%" />
+                <Recharts.Tooltip content={<ChartTooltip />} />
+                <Recharts.Legend wrapperStyle={{ fontSize: 11 }} />
+                <Recharts.Line
                   type="monotone"
                   dataKey="complaintRate"
-                  stroke={ZORU_CHART_PALETTE[3]}
+                  stroke={CHART_PALETTE[3]}
                   strokeWidth={2}
                   dot={false}
                   name="Bounce Rate %"
                 />
-              </ZoruChart.LineChart>
+              </Recharts.LineChart>
             </ChartContainer>
           </CardBody>
         </Card>

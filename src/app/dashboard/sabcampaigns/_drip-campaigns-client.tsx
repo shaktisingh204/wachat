@@ -2,16 +2,16 @@
 
 import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui';
 import { Plus, Edit2, Trash2, TrendingUp, Mail, MousePointerClick, Target, Activity } from 'lucide-react';
-import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui/compat';
-import { Input } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { Badge } from '@/components/sabcrm/20ui/compat';
-import { useToast } from '@/components/sabcrm/20ui/compat';
-import { StatCard } from '@/components/sabcrm/20ui/compat';
-import { ZoruChart, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { Badge } from '@/components/sabcrm/20ui';
+import { useToast } from '@/components/sabcrm/20ui';
+import { StatCard } from '@/components/sabcrm/20ui';
+import { Recharts, ChartContainer, ChartTooltip, CHART_PALETTE } from '@/components/sabcrm/20ui';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { createDripCampaign, updateDripCampaign, deleteDripCampaign } from '@/app/actions/marketing/drip-campaigns.actions';
 
@@ -227,7 +227,7 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
               tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }}
             />
             <Tooltip content={<ChartTooltip />} cursor={{ fill: "var(--st-border-strong)", opacity: 0.2 }} />
-            <Bar dataKey="roi" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} barSize={40} />
+            <Bar dataKey="roi" fill={CHART_PALETTE[0]} radius={[4, 4, 0, 0]} barSize={40} />
           </BarChart>
         </ChartContainer>
       </div>

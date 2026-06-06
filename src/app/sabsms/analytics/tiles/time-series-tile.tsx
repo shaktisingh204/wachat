@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { ZORU_CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsTimeSeriesPoint } from "../aggregations";
@@ -48,54 +48,54 @@ export function TimeSeriesTile({
           </p>
         ) : (
           <ChartContainer height={260}>
-            <ZoruChart.LineChart
+            <Recharts.LineChart
               data={data}
               margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
             >
-              <ZoruChart.CartesianGrid
+              <Recharts.CartesianGrid
                 strokeDasharray="3 3"
                 className="stroke-[var(--st-border)]"
               />
-              <ZoruChart.XAxis
+              <Recharts.XAxis
                 dataKey="date"
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
               />
-              <ZoruChart.YAxis
+              <Recharts.YAxis
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
               />
-              <ZoruChart.Tooltip content={<ChartTooltip />} />
-              <ZoruChart.Legend wrapperStyle={{ fontSize: 12 }} />
-              <ZoruChart.Line
+              <Recharts.Tooltip content={<ChartTooltip />} />
+              <Recharts.Legend wrapperStyle={{ fontSize: 12 }} />
+              <Recharts.Line
                 type="monotone"
                 dataKey="sent"
-                stroke={ZORU_CHART_PALETTE[0]}
+                stroke={CHART_PALETTE[0]}
                 strokeWidth={2}
                 dot={false}
                 name="Sent"
               />
-              <ZoruChart.Line
+              <Recharts.Line
                 type="monotone"
                 dataKey="delivered"
-                stroke={ZORU_CHART_PALETTE[1]}
+                stroke={CHART_PALETTE[1]}
                 strokeWidth={2}
                 strokeDasharray="4 3"
                 dot={false}
                 name="Delivered"
               />
-              <ZoruChart.Line
+              <Recharts.Line
                 type="monotone"
                 dataKey="failed"
-                stroke={ZORU_CHART_PALETTE[3]}
+                stroke={CHART_PALETTE[3]}
                 strokeWidth={2}
                 strokeDasharray="2 3"
                 dot={false}
                 name="Failed"
               />
-            </ZoruChart.LineChart>
+            </Recharts.LineChart>
           </ChartContainer>
         )}
       </CardBody>

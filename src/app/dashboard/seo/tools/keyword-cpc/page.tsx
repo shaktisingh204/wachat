@@ -1,10 +1,10 @@
 'use client';
 
-import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
-import { Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
-import { Switch } from '@/components/sabcrm/20ui/compat';
-import { Label } from '@/components/sabcrm/20ui/compat';
-import { ChartContainer, ChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui';
+import { Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
+import { Switch } from '@/components/sabcrm/20ui';
+import { Label } from '@/components/sabcrm/20ui';
+import { ChartContainer, ChartTooltip, Recharts, CHART_PALETTE } from '@/components/sabcrm/20ui';
 import { useMemo, useState } from 'react';
 import { fmtINR } from '@/lib/utils';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -213,38 +213,38 @@ export default function KeywordCpcPage() {
           <CardBody className="p-6">
             <h4 className="text-sm font-semibold mb-4">Monthly Search Volume Trend</h4>
             <ChartContainer height={300}>
-              <ZoruChart.ResponsiveContainer>
-                <ZoruChart.AreaChart
+              <Recharts.ResponsiveContainer>
+                <Recharts.AreaChart
                   data={apiResult.monthly_searches.map(m => ({
                     date: `${m.month}/${m.year}`,
                     volume: m.search_volume
                   }))}
                   margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                 >
-                  <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
-                  <ZoruChart.XAxis 
+                  <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
+                  <Recharts.XAxis 
                     dataKey="date" 
                     tickLine={false} 
                     axisLine={false} 
                     tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                     dy={10}
                   />
-                  <ZoruChart.YAxis 
+                  <Recharts.YAxis 
                     tickLine={false} 
                     axisLine={false} 
                     tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                   />
-                  <ZoruChart.Tooltip content={<ChartTooltip />} />
-                  <ZoruChart.Area
+                  <Recharts.Tooltip content={<ChartTooltip />} />
+                  <Recharts.Area
                     type="monotone"
                     dataKey="volume"
                     name="Search Volume"
-                    stroke={ZORU_CHART_PALETTE[0]}
-                    fill={ZORU_CHART_PALETTE[0]}
+                    stroke={CHART_PALETTE[0]}
+                    fill={CHART_PALETTE[0]}
                     fillOpacity={0.1}
                   />
-                </ZoruChart.AreaChart>
-              </ZoruChart.ResponsiveContainer>
+                </Recharts.AreaChart>
+              </Recharts.ResponsiveContainer>
             </ChartContainer>
           </CardBody>
         </Card>

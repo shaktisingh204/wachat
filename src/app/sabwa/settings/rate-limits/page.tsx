@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Label, Input, Badge, RadioGroup, ZoruRadioGroupItem, Separator, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { ChartContainer, ChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { ChartContainer, ChartTooltip, Recharts, CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 import {
   Gauge,
   AlertTriangle,
@@ -202,40 +202,40 @@ export default function RateLimitsPage() {
         </CardHeader>
         <CardBody>
           <ChartContainer height={240}>
-            <ZoruChart.LineChart data={MOCK_USAGE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
-              <ZoruChart.XAxis 
+            <Recharts.LineChart data={MOCK_USAGE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
+              <Recharts.XAxis 
                 dataKey="date" 
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }}
                 dy={10}
               />
-              <ZoruChart.YAxis 
+              <Recharts.YAxis 
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }}
               />
-              <ZoruChart.Tooltip content={<ChartTooltip />} />
-              <ZoruChart.Line 
+              <Recharts.Tooltip content={<ChartTooltip />} />
+              <Recharts.Line 
                 type="monotone" 
                 dataKey="sent" 
                 name="Messages Sent"
-                stroke={ZORU_CHART_PALETTE[0]} 
+                stroke={CHART_PALETTE[0]} 
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}
               />
-              <ZoruChart.Line 
+              <Recharts.Line 
                 type="stepAfter" 
                 dataKey="cap" 
                 name="Daily Cap"
-                stroke={ZORU_CHART_PALETTE[2]} 
+                stroke={CHART_PALETTE[2]} 
                 strokeWidth={2}
                 strokeDasharray="4 4"
                 dot={false}
               />
-            </ZoruChart.LineChart>
+            </Recharts.LineChart>
           </ChartContainer>
         </CardBody>
       </Card>

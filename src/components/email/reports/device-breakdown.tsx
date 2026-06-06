@@ -1,7 +1,7 @@
 'use client';
 
 import { PieChart as PieIcon } from 'lucide-react';
-import { ZORU_CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, EmptyState } from '@/components/sabcrm/20ui';
 import type { EmailDeviceBreakdown } from '@/lib/rust-client/email-reports';
 
 interface DeviceBreakdownProps {
@@ -9,8 +9,8 @@ interface DeviceBreakdownProps {
   title?: string;
 }
 
-const { Pie, Tooltip, Cell } = ZoruChart as unknown as typeof import('recharts');
-const RechartsPieChart = (ZoruChart as unknown as typeof import('recharts')).PieChart;
+const { Pie, Tooltip, Cell } = Recharts as unknown as typeof import('recharts');
+const RechartsPieChart = (Recharts as unknown as typeof import('recharts')).PieChart;
 
 export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBreakdownProps) {
   const rows = data ?? [];
@@ -43,7 +43,7 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
                   {rows.map((_, i) => (
                     <Cell
                       key={i}
-                      fill={ZORU_CHART_PALETTE[i % ZORU_CHART_PALETTE.length]}
+                      fill={CHART_PALETTE[i % CHART_PALETTE.length]}
                     />
                   ))}
                 </Pie>
@@ -56,7 +56,7 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
                   <span
                     aria-hidden
                     className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: ZORU_CHART_PALETTE[i % ZORU_CHART_PALETTE.length] }}
+                    style={{ backgroundColor: CHART_PALETTE[i % CHART_PALETTE.length] }}
                   />
                   <span className="capitalize text-[var(--st-text-secondary)]">{d.device}</span>
                   <span className="ml-auto font-medium text-[var(--st-text)]">

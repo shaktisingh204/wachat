@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { StatCard, ChartContainer, ChartTooltip, ZoruChart, DataTable, Badge } from '@/components/sabcrm/20ui/compat';
+import { StatCard, ChartContainer, ChartTooltip, Recharts, DataTable, Badge } from '@/components/sabcrm/20ui';
 import { Users, CheckCircle, Activity, MessageSquare, XCircle } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
@@ -112,25 +112,25 @@ export function ResultsDashboard({ stats, dailyCounts, sessions }: Props) {
             <p className="text-sm text-[var(--st-text-secondary)]">Aggregate statistics per flow over the last 30 days.</p>
           </div>
           <ChartContainer height={300}>
-            <ZoruChart.BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-              <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
-              <ZoruChart.XAxis 
+            <Recharts.BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+              <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
+              <Recharts.XAxis 
                 dataKey="date" 
                 tickLine={false} 
                 axisLine={false} 
                 tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }} 
                 dy={10}
               />
-              <ZoruChart.YAxis 
+              <Recharts.YAxis 
                 tickLine={false} 
                 axisLine={false} 
                 tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }} 
               />
-              <ZoruChart.Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--st-bg-muted)' }} />
-              <ZoruChart.Legend wrapperStyle={{ fontSize: 12, paddingTop: 20 }} />
-              <ZoruChart.Bar dataKey="success" name="Completed" stackId="a" fill="hsl(var(--zoru-success, 142.1 70.6% 45.3%))" radius={[0, 0, 4, 4]} />
-              <ZoruChart.Bar dataKey="failure" name="Failed/Abandoned" stackId="a" fill="hsl(var(--zoru-danger, 0 84.2% 60.2%))" radius={[4, 4, 0, 0]} />
-            </ZoruChart.BarChart>
+              <Recharts.Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--st-bg-muted)' }} />
+              <Recharts.Legend wrapperStyle={{ fontSize: 12, paddingTop: 20 }} />
+              <Recharts.Bar dataKey="success" name="Completed" stackId="a" fill="hsl(var(--zoru-success, 142.1 70.6% 45.3%))" radius={[0, 0, 4, 4]} />
+              <Recharts.Bar dataKey="failure" name="Failed/Abandoned" stackId="a" fill="hsl(var(--zoru-danger, 0 84.2% 60.2%))" radius={[4, 4, 0, 0]} />
+            </Recharts.BarChart>
           </ChartContainer>
         </div>
 

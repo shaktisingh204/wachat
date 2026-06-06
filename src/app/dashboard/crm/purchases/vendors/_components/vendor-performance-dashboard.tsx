@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardBody, ChartContainer, ChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, ChartContainer, ChartTooltip, Recharts, CHART_PALETTE } from '@/components/sabcrm/20ui';
 
 export function VendorPerformanceDashboard({ vendors }: { vendors: any[] }) {
   // Aggregate mock performance metrics based on vendors
@@ -20,21 +20,21 @@ export function VendorPerformanceDashboard({ vendors }: { vendors: any[] }) {
         </CardHeader>
         <CardBody>
           <ChartContainer height={200}>
-            <ZoruChart.BarChart data={monthlyData}>
-              <ZoruChart.XAxis 
+            <Recharts.BarChart data={monthlyData}>
+              <Recharts.XAxis 
                 dataKey="name" 
                 tickLine={false}
                 axisLine={false}
                 tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }} 
               />
-              <ZoruChart.YAxis 
+              <Recharts.YAxis 
                 tickLine={false}
                 axisLine={false}
                 tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }}
               />
-              <ZoruChart.Tooltip content={<ChartTooltip />} />
-              <ZoruChart.Bar dataKey="orders" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
-            </ZoruChart.BarChart>
+              <Recharts.Tooltip content={<ChartTooltip />} />
+              <Recharts.Bar dataKey="orders" fill={CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
+            </Recharts.BarChart>
           </ChartContainer>
         </CardBody>
       </Card>
@@ -45,21 +45,21 @@ export function VendorPerformanceDashboard({ vendors }: { vendors: any[] }) {
         </CardHeader>
         <CardBody>
           <ChartContainer height={200}>
-            <ZoruChart.LineChart data={monthlyData}>
-              <ZoruChart.XAxis 
+            <Recharts.LineChart data={monthlyData}>
+              <Recharts.XAxis 
                 dataKey="name" 
                 tickLine={false}
                 axisLine={false}
                 tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }} 
               />
-              <ZoruChart.YAxis 
+              <Recharts.YAxis 
                 tickLine={false}
                 axisLine={false}
                 tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }}
               />
-              <ZoruChart.Tooltip content={<ChartTooltip />} />
-              <ZoruChart.Line type="monotone" dataKey="value" stroke={ZORU_CHART_PALETTE[0]} strokeWidth={2} dot={false} />
-            </ZoruChart.LineChart>
+              <Recharts.Tooltip content={<ChartTooltip />} />
+              <Recharts.Line type="monotone" dataKey="value" stroke={CHART_PALETTE[0]} strokeWidth={2} dot={false} />
+            </Recharts.LineChart>
           </ChartContainer>
         </CardBody>
       </Card>

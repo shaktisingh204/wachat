@@ -37,6 +37,18 @@ import type { LucideIcon } from 'lucide-react';
 
 import './chart.css';
 
+/** Raw recharts namespace, re-exported for charts that compose primitives directly. */
+export { Recharts };
+
+/** Quiet greyscale series palette (20ui tokens). Use shape/stroke for separation, not hue. */
+export const CHART_PALETTE = [
+  'var(--st-text)',
+  'var(--st-text-secondary)',
+  'var(--st-text-tertiary)',
+  'var(--st-border-strong)',
+  'var(--st-border)',
+] as const;
+
 /* ------------------------------------------------------------------ *
  * Config + context
  * ------------------------------------------------------------------ */

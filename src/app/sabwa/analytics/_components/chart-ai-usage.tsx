@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
 import {
   Sparkles } from 'lucide-react';
 
@@ -10,7 +10,7 @@ import { EmptyState } from '@/app/sabwa/_components/empty-state';
 
 /**
  * ChartAiUsage — stacked bar chart for daily AI calls broken down by kind
- * (suggest, summarise, translate). Greyscale palette via ZoruChart.
+ * (suggest, summarise, translate). Greyscale palette via Recharts.
  */
 
 import * as React from 'react';
@@ -31,43 +31,43 @@ export function ChartAiUsage({ data }: ChartAiUsageProps) {
   }
   return (
     <ChartContainer height={288}>
-      <ZoruChart.BarChart
+      <Recharts.BarChart
         data={data}
         margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
       >
-        <ZoruChart.CartesianGrid
+        <Recharts.CartesianGrid
           strokeDasharray="3 3"
           className="stroke-[var(--st-border)]"
         />
-        <ZoruChart.XAxis
+        <Recharts.XAxis
           dataKey="date"
           fontSize={11}
           tickLine={false}
           axisLine={false}
         />
-        <ZoruChart.YAxis fontSize={11} tickLine={false} axisLine={false} />
-        <ZoruChart.Tooltip content={<ChartTooltip />} />
-        <ZoruChart.Legend wrapperStyle={{ fontSize: 12 }} />
-        <ZoruChart.Bar
+        <Recharts.YAxis fontSize={11} tickLine={false} axisLine={false} />
+        <Recharts.Tooltip content={<ChartTooltip />} />
+        <Recharts.Legend wrapperStyle={{ fontSize: 12 }} />
+        <Recharts.Bar
           dataKey="suggest"
           stackId="ai"
           name="Suggest"
-          fill={ZORU_CHART_PALETTE[0]}
+          fill={CHART_PALETTE[0]}
         />
-        <ZoruChart.Bar
+        <Recharts.Bar
           dataKey="summarise"
           stackId="ai"
           name="Summarise"
-          fill={ZORU_CHART_PALETTE[1]}
+          fill={CHART_PALETTE[1]}
         />
-        <ZoruChart.Bar
+        <Recharts.Bar
           dataKey="translate"
           stackId="ai"
           name="Translate"
-          fill={ZORU_CHART_PALETTE[2]}
+          fill={CHART_PALETTE[2]}
           radius={[3, 3, 0, 0]}
         />
-      </ZoruChart.BarChart>
+      </Recharts.BarChart>
     </ChartContainer>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
 import {
   Clock } from 'lucide-react';
 
@@ -13,7 +13,7 @@ import { EmptyState } from '@/app/sabwa/_components/empty-state';
  * with annotation bands for "safe" (under 60/h), "elevated" (60-100/h),
  * and "risky" (100+/h) — anti-ban tuning aid.
  *
- * Bars use the neutral ZoruChart palette; risk tier is communicated by
+ * Bars use the neutral Recharts palette; risk tier is communicated by
  * fill density (not hue), to stay within the greyscale chart policy.
  */
 
@@ -23,10 +23,10 @@ const SAFE_LIMIT = 60;
 const ELEVATED_LIMIT = 100;
 
 function barColor(count: number): string {
-  // Neutral tiers — darker = riskier — within ZORU_CHART_PALETTE.
-  if (count <= SAFE_LIMIT) return ZORU_CHART_PALETTE[3];
-  if (count <= ELEVATED_LIMIT) return ZORU_CHART_PALETTE[2];
-  return ZORU_CHART_PALETTE[0];
+  // Neutral tiers — darker = riskier — within CHART_PALETTE.
+  if (count <= SAFE_LIMIT) return CHART_PALETTE[3];
+  if (count <= ELEVATED_LIMIT) return CHART_PALETTE[2];
+  return CHART_PALETTE[0];
 }
 
 export interface ChartHourlySendPatternProps {
@@ -57,72 +57,72 @@ export function ChartHourlySendPattern({ data }: ChartHourlySendPatternProps) {
   return (
     <div className="space-y-2">
       <ChartContainer height={288}>
-        <ZoruChart.BarChart
+        <Recharts.BarChart
           data={filled}
           margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
         >
-          <ZoruChart.CartesianGrid
+          <Recharts.CartesianGrid
             strokeDasharray="3 3"
             className="stroke-[var(--st-border)]"
           />
-          <ZoruChart.XAxis
+          <Recharts.XAxis
             dataKey="hour"
             fontSize={11}
             tickLine={false}
             axisLine={false}
           />
-          <ZoruChart.YAxis fontSize={11} tickLine={false} axisLine={false} />
-          <ZoruChart.Tooltip
+          <Recharts.YAxis fontSize={11} tickLine={false} axisLine={false} />
+          <Recharts.Tooltip
             content={<ChartTooltip />}
             formatter={(value: unknown) =>
               [`${value} msgs`, 'Sent'] as [string, string]
             }
             labelFormatter={(label: unknown) => `Hour ${label}`}
           />
-          <ZoruChart.ReferenceArea
+          <Recharts.ReferenceArea
             y1={0}
             y2={SAFE_LIMIT}
-            fill={ZORU_CHART_PALETTE[4]}
+            fill={CHART_PALETTE[4]}
             fillOpacity={0.4}
           />
-          <ZoruChart.ReferenceArea
+          <Recharts.ReferenceArea
             y1={SAFE_LIMIT}
             y2={ELEVATED_LIMIT}
-            fill={ZORU_CHART_PALETTE[3]}
+            fill={CHART_PALETTE[3]}
             fillOpacity={0.3}
           />
-          <ZoruChart.ReferenceArea
+          <Recharts.ReferenceArea
             y1={ELEVATED_LIMIT}
             y2={maxCount}
-            fill={ZORU_CHART_PALETTE[2]}
+            fill={CHART_PALETTE[2]}
             fillOpacity={0.25}
           />
-          <ZoruChart.Bar dataKey="count" radius={[3, 3, 0, 0]}>
+          <Recharts.Bar dataKey="count" radius={[3, 3, 0, 0]}>
             {filled.map((entry, idx) => (
-              <ZoruChart.Cell key={idx} fill={barColor(entry.count)} />
+              <Recharts.Cell key={idx} fill={barColor(entry.count)} />
             ))}
-          </ZoruChart.Bar>
-        </ZoruChart.BarChart>
+          </Recharts.Bar>
+        </Recharts.BarChart>
       </ChartContainer>
       <div className="flex flex-wrap items-center gap-3 px-2 text-[11px] text-[var(--st-text-secondary)]">
         <span className="inline-flex items-center gap-1.5">
           <span
             className="h-2 w-2 rounded-sm"
-            style={{ backgroundColor: ZORU_CHART_PALETTE[3] }}
+            style={{ backgroundColor: CHART_PALETTE[3] }}
           />
           Safe (&le; {SAFE_LIMIT}/h)
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span
             className="h-2 w-2 rounded-sm"
-            style={{ backgroundColor: ZORU_CHART_PALETTE[2] }}
+            style={{ backgroundColor: CHART_PALETTE[2] }}
           />
           Elevated ({SAFE_LIMIT + 1}–{ELEVATED_LIMIT}/h)
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span
             className="h-2 w-2 rounded-sm"
-            style={{ backgroundColor: ZORU_CHART_PALETTE[0] }}
+            style={{ backgroundColor: CHART_PALETTE[0] }}
           />
           Risky (&gt; {ELEVATED_LIMIT}/h)
         </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardBody, ChartContainer, EmptyState, Skeleton, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, ChartContainer, EmptyState, Skeleton, CHART_PALETTE } from '@/components/sabcrm/20ui';
 import { AlertCircle } from "lucide-react";
 import {
   Bar,
@@ -39,7 +39,7 @@ export function AnalyticsSection({
       />
     );
   }
-  const palette = ZORU_CHART_PALETTE;
+  const palette = CHART_PALETTE;
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
       <TelegramProjectGate />

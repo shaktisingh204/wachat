@@ -1,6 +1,6 @@
 "use client";
 
-import { cn, ZORU_CHART_PALETTE, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, CardBody, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, Button, Table, TBody, Td, Th, THead, Tr, Avatar, AvatarFallback, PageActions, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Badge } from '@/components/sabcrm/20ui/compat';
+import { cn, CHART_PALETTE, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, CardBody, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, Button, Table, TBody, Td, Th, THead, Tr, Avatar, AvatarFallback, PageActions, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Badge } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -60,15 +60,15 @@ const MOCK_CSAT_DATA = [
 ];
 
 const MOCK_DEVICE_DATA = [
-  { name: "Desktop", value: 65, fill: ZORU_CHART_PALETTE[0] },
-  { name: "Mobile", value: 35, fill: ZORU_CHART_PALETTE[1] },
+  { name: "Desktop", value: 65, fill: CHART_PALETTE[0] },
+  { name: "Mobile", value: 35, fill: CHART_PALETTE[1] },
 ];
 
 const MOCK_TAGS_DATA = [
-  { name: "Support", value: 45, fill: ZORU_CHART_PALETTE[0] },
-  { name: "Sales", value: 30, fill: ZORU_CHART_PALETTE[2] },
-  { name: "Billing", value: 15, fill: ZORU_CHART_PALETTE[3] },
-  { name: "Bug", value: 10, fill: ZORU_CHART_PALETTE[4] },
+  { name: "Support", value: 45, fill: CHART_PALETTE[0] },
+  { name: "Sales", value: 30, fill: CHART_PALETTE[2] },
+  { name: "Billing", value: 15, fill: CHART_PALETTE[3] },
+  { name: "Bug", value: 10, fill: CHART_PALETTE[4] },
 ];
 
 const MOCK_AGENTS = [
@@ -211,13 +211,13 @@ export default function SabChatAnalyticsPage() {
               </CardHeader>
               <CardBody>
                 <ChartContainer height={300}>
-                  <ZoruChart.AreaChart data={data.dailyChatVolume}>
-                    <ZoruChart.CartesianGrid vertical={false} stroke="var(--st-border)" strokeDasharray="3 3" />
-                    <ZoruChart.XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="var(--st-text-secondary)" />
-                    <ZoruChart.YAxis tickLine={false} axisLine={false} fontSize={11} stroke="var(--st-text-secondary)" />
-                    <ZoruChart.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ChartTooltip />} />
-                    <ZoruChart.Area type="monotone" dataKey="count" name="Total Chats" stroke={ZORU_CHART_PALETTE[0]} fill={ZORU_CHART_PALETTE[0]} fillOpacity={0.2} strokeWidth={2} />
-                  </ZoruChart.AreaChart>
+                  <Recharts.AreaChart data={data.dailyChatVolume}>
+                    <Recharts.CartesianGrid vertical={false} stroke="var(--st-border)" strokeDasharray="3 3" />
+                    <Recharts.XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="var(--st-text-secondary)" />
+                    <Recharts.YAxis tickLine={false} axisLine={false} fontSize={11} stroke="var(--st-text-secondary)" />
+                    <Recharts.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ChartTooltip />} />
+                    <Recharts.Area type="monotone" dataKey="count" name="Total Chats" stroke={CHART_PALETTE[0]} fill={CHART_PALETTE[0]} fillOpacity={0.2} strokeWidth={2} />
+                  </Recharts.AreaChart>
                 </ChartContainer>
               </CardBody>
             </Card>
@@ -230,11 +230,11 @@ export default function SabChatAnalyticsPage() {
               </CardHeader>
               <CardBody className="flex flex-col items-center justify-center">
                 <ChartContainer height={220}>
-                  <ZoruChart.PieChart>
-                    <ZoruChart.Tooltip content={<ChartTooltip />} />
-                    <ZoruChart.Pie data={MOCK_CSAT_DATA} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
-                    </ZoruChart.Pie>
-                  </ZoruChart.PieChart>
+                  <Recharts.PieChart>
+                    <Recharts.Tooltip content={<ChartTooltip />} />
+                    <Recharts.Pie data={MOCK_CSAT_DATA} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
+                    </Recharts.Pie>
+                  </Recharts.PieChart>
                 </ChartContainer>
                 <div className="flex gap-4 mt-4 w-full justify-center">
                   <div className="flex items-center gap-1.5"><Smile className="h-4 w-4 text-[var(--st-status-ok)]" /><span className="text-sm font-medium">75%</span></div>
@@ -253,10 +253,10 @@ export default function SabChatAnalyticsPage() {
               </CardHeader>
               <CardBody>
                 <ChartContainer height={220}>
-                  <ZoruChart.PieChart>
-                    <ZoruChart.Tooltip content={<ChartTooltip />} />
-                    <ZoruChart.Pie data={MOCK_TAGS_DATA} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} />
-                  </ZoruChart.PieChart>
+                  <Recharts.PieChart>
+                    <Recharts.Tooltip content={<ChartTooltip />} />
+                    <Recharts.Pie data={MOCK_TAGS_DATA} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} />
+                  </Recharts.PieChart>
                 </ChartContainer>
               </CardBody>
             </Card>
@@ -297,12 +297,12 @@ export default function SabChatAnalyticsPage() {
               </CardHeader>
               <CardBody>
                 <ChartContainer height={220}>
-                  <ZoruChart.BarChart data={MOCK_HOURS_HEATMAP}>
-                    <ZoruChart.XAxis dataKey="day" tickLine={false} axisLine={false} fontSize={10} stroke="var(--st-text-secondary)" />
-                    <ZoruChart.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ChartTooltip />} />
-                    <ZoruChart.Bar dataKey="h12" name="Noon chats" fill={ZORU_CHART_PALETTE[1]} radius={[2, 2, 0, 0]} stackId="a" />
-                    <ZoruChart.Bar dataKey="h15" name="Afternoon chats" fill={ZORU_CHART_PALETTE[0]} radius={[2, 2, 0, 0]} stackId="a" />
-                  </ZoruChart.BarChart>
+                  <Recharts.BarChart data={MOCK_HOURS_HEATMAP}>
+                    <Recharts.XAxis dataKey="day" tickLine={false} axisLine={false} fontSize={10} stroke="var(--st-text-secondary)" />
+                    <Recharts.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ChartTooltip />} />
+                    <Recharts.Bar dataKey="h12" name="Noon chats" fill={CHART_PALETTE[1]} radius={[2, 2, 0, 0]} stackId="a" />
+                    <Recharts.Bar dataKey="h15" name="Afternoon chats" fill={CHART_PALETTE[0]} radius={[2, 2, 0, 0]} stackId="a" />
+                  </Recharts.BarChart>
                 </ChartContainer>
               </CardBody>
             </Card>

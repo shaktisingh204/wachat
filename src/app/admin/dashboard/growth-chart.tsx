@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ZoruChart, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Recharts, ChartContainer, ChartTooltip, CHART_PALETTE } from '@/components/sabcrm/20ui';
 
 const data = [
   { date: "Jan", users: 400, revenue: 2400 },
@@ -25,64 +25,64 @@ export function GrowthChart() {
         </p>
       </div>
       <ChartContainer height={300}>
-        <ZoruChart.LineChart
+        <Recharts.LineChart
           data={data}
           margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
         >
-          <ZoruChart.CartesianGrid
+          <Recharts.CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
             stroke="var(--st-border)"
           />
-          <ZoruChart.XAxis
+          <Recharts.XAxis
             dataKey="date"
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 12, fill: "var(--st-text-secondary)" }}
             dy={10}
           />
-          <ZoruChart.YAxis
+          <Recharts.YAxis
             yAxisId="left"
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 12, fill: "var(--st-text-secondary)" }}
           />
-          <ZoruChart.YAxis
+          <Recharts.YAxis
             yAxisId="right"
             orientation="right"
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 12, fill: "var(--st-text-secondary)" }}
           />
-          <ZoruChart.Tooltip
+          <Recharts.Tooltip
             content={<ChartTooltip />}
             cursor={{ stroke: "var(--st-border-strong)" }}
           />
-          <ZoruChart.Legend
+          <Recharts.Legend
             iconType="circle"
             wrapperStyle={{ fontSize: 12, paddingTop: 20 }}
           />
-          <ZoruChart.Line
+          <Recharts.Line
             yAxisId="left"
             type="monotone"
             dataKey="users"
             name="Users"
-            stroke={ZORU_CHART_PALETTE[0]}
+            stroke={CHART_PALETTE[0]}
             strokeWidth={2}
             dot={false}
             activeDot={{ r: 4 }}
           />
-          <ZoruChart.Line
+          <Recharts.Line
             yAxisId="right"
             type="monotone"
             dataKey="revenue"
             name="Revenue ($)"
-            stroke={ZORU_CHART_PALETTE[2]}
+            stroke={CHART_PALETTE[2]}
             strokeWidth={2}
             dot={false}
             activeDot={{ r: 4 }}
           />
-        </ZoruChart.LineChart>
+        </Recharts.LineChart>
       </ChartContainer>
     </div>
   );

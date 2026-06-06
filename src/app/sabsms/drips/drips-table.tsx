@@ -28,7 +28,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Switch } from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Switch } from '@/components/sabcrm/20ui';
 import {
   SabsmsDataTable,
   SabsmsDetailDrawer,
@@ -587,13 +587,13 @@ function DropoffChart({
   }
   return (
     <ChartContainer height={180}>
-      <ZoruChart.BarChart data={rows} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
-        <ZoruChart.CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
-        <ZoruChart.XAxis dataKey="step" tick={{ fontSize: 11 }} />
-        <ZoruChart.YAxis tick={{ fontSize: 11 }} width={28} />
-        <ZoruChart.Tooltip />
-        <ZoruChart.Bar dataKey="delivered" fill="var(--st-text)" />
-      </ZoruChart.BarChart>
+      <Recharts.BarChart data={rows} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
+        <Recharts.CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
+        <Recharts.XAxis dataKey="step" tick={{ fontSize: 11 }} />
+        <Recharts.YAxis tick={{ fontSize: 11 }} width={28} />
+        <Recharts.Tooltip />
+        <Recharts.Bar dataKey="delivered" fill="var(--st-text)" />
+      </Recharts.BarChart>
     </ChartContainer>
   );
 }

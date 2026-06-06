@@ -1,10 +1,10 @@
 'use client';
 
-import { ChartContainer, ChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui/compat';
+import { ChartContainer, ChartTooltip, Recharts, CHART_PALETTE } from '@/components/sabcrm/20ui';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui';
 
 export function SabsmsHistoricalChart({ data }: { data: any[] }) {
-  const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } = ZoruChart;
+  const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } = Recharts;
   
   return (
     <Card>
@@ -39,10 +39,10 @@ export function SabsmsHistoricalChart({ data }: { data: any[] }) {
               />
               <Tooltip content={<ChartTooltip />} />
               <Legend wrapperStyle={{ fontSize: 12, color: 'var(--st-text-secondary)', paddingTop: 10 }} />
-              <Line name="Sent" type="monotone" dataKey="sent" stroke={ZORU_CHART_PALETTE[0]} strokeWidth={2} dot={false} />
-              <Line name="Delivered" type="monotone" dataKey="delivered" stroke={ZORU_CHART_PALETTE[1]} strokeWidth={2} dot={false} />
-              <Line name="Queued" type="monotone" dataKey="queued" stroke={ZORU_CHART_PALETTE[2]} strokeWidth={2} dot={false} />
-              <Line name="Failed" type="monotone" dataKey="failed" stroke={ZORU_CHART_PALETTE[3]} strokeWidth={2} dot={false} />
+              <Line name="Sent" type="monotone" dataKey="sent" stroke={CHART_PALETTE[0]} strokeWidth={2} dot={false} />
+              <Line name="Delivered" type="monotone" dataKey="delivered" stroke={CHART_PALETTE[1]} strokeWidth={2} dot={false} />
+              <Line name="Queued" type="monotone" dataKey="queued" stroke={CHART_PALETTE[2]} strokeWidth={2} dot={false} />
+              <Line name="Failed" type="monotone" dataKey="failed" stroke={CHART_PALETTE[3]} strokeWidth={2} dot={false} />
             </LineChart>
           </ChartContainer>
         )}

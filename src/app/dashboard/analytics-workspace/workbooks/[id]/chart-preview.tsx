@@ -6,7 +6,7 @@
  * KPI renders the first measure as a big number. map / heatmap show a
  * raw-rows table with a TODO badge.
  */
-import { Badge, Table, TBody, THead, ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { Badge, Table, TBody, THead, CHART_PALETTE, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
 import type { BiChartColumn, BiChartType } from '@/lib/rust-client/bi-charts';
 
 interface Props {
@@ -84,23 +84,23 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
   if (chartType === 'pie') {
     return (
       <ChartContainer height={280}>
-        <ZoruChart.PieChart>
-          <ZoruChart.Pie
+        <Recharts.PieChart>
+          <Recharts.Pie
             data={rows}
             dataKey={measureKey}
             nameKey={dimKey}
             outerRadius={100}
           >
             {rows.map((_, i) => (
-              <ZoruChart.Cell
+              <Recharts.Cell
                 key={i}
-                fill={ZORU_CHART_PALETTE[i % ZORU_CHART_PALETTE.length]}
+                fill={CHART_PALETTE[i % CHART_PALETTE.length]}
               />
             ))}
-          </ZoruChart.Pie>
-          <ZoruChart.Tooltip content={<ChartTooltip />} />
-          <ZoruChart.Legend />
-        </ZoruChart.PieChart>
+          </Recharts.Pie>
+          <Recharts.Tooltip content={<ChartTooltip />} />
+          <Recharts.Legend />
+        </Recharts.PieChart>
       </ChartContainer>
     );
   }
@@ -108,18 +108,18 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
   if (chartType === 'line') {
     return (
       <ChartContainer height={280}>
-        <ZoruChart.LineChart data={rows}>
-          <ZoruChart.CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
-          <ZoruChart.XAxis dataKey={dimKey} />
-          <ZoruChart.YAxis />
-          <ZoruChart.Tooltip content={<ChartTooltip />} />
-          <ZoruChart.Line
+        <Recharts.LineChart data={rows}>
+          <Recharts.CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
+          <Recharts.XAxis dataKey={dimKey} />
+          <Recharts.YAxis />
+          <Recharts.Tooltip content={<ChartTooltip />} />
+          <Recharts.Line
             type="monotone"
             dataKey={measureKey}
-            stroke={ZORU_CHART_PALETTE[0]}
+            stroke={CHART_PALETTE[0]}
             dot={false}
           />
-        </ZoruChart.LineChart>
+        </Recharts.LineChart>
       </ChartContainer>
     );
   }
@@ -127,13 +127,13 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
   // bar (default)
   return (
     <ChartContainer height={280}>
-      <ZoruChart.BarChart data={rows}>
-        <ZoruChart.CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
-        <ZoruChart.XAxis dataKey={dimKey} />
-        <ZoruChart.YAxis />
-        <ZoruChart.Tooltip content={<ChartTooltip />} />
-        <ZoruChart.Bar dataKey={measureKey} fill={ZORU_CHART_PALETTE[0]} />
-      </ZoruChart.BarChart>
+      <Recharts.BarChart data={rows}>
+        <Recharts.CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
+        <Recharts.XAxis dataKey={dimKey} />
+        <Recharts.YAxis />
+        <Recharts.Tooltip content={<ChartTooltip />} />
+        <Recharts.Bar dataKey={measureKey} fill={CHART_PALETTE[0]} />
+      </Recharts.BarChart>
     </ChartContainer>
   );
 }

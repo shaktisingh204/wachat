@@ -32,7 +32,7 @@ import {
   SabsmsSavedViews,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import { ZORU_CHART_PALETTE, Badge, Button, Card, CardBody, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
+import { CHART_PALETTE, Badge, Button, Card, CardBody, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui';
 
 import {
   type CohortPoint,
@@ -370,35 +370,35 @@ export function ConsentTable({
           </CardHeader>
           <CardBody>
             <ChartContainer height={180}>
-              <ZoruChart.BarChart data={cohort} margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
-                <ZoruChart.CartesianGrid
+              <Recharts.BarChart data={cohort} margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
+                <Recharts.CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-[var(--st-border)]"
                 />
-                <ZoruChart.XAxis
+                <Recharts.XAxis
                   dataKey="bucket"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
                 />
-                <ZoruChart.YAxis
+                <Recharts.YAxis
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
                   width={36}
                 />
-                <ZoruChart.Tooltip content={<ChartTooltip />} />
-                <ZoruChart.Bar
+                <Recharts.Tooltip content={<ChartTooltip />} />
+                <Recharts.Bar
                   dataKey="totalOptIn"
-                  fill={ZORU_CHART_PALETTE[0]}
+                  fill={CHART_PALETTE[0]}
                   radius={[2, 2, 0, 0]}
                 />
-                <ZoruChart.Bar
+                <Recharts.Bar
                   dataKey="retained"
-                  fill={ZORU_CHART_PALETTE[1]}
+                  fill={CHART_PALETTE[1]}
                   radius={[2, 2, 0, 0]}
                 />
-              </ZoruChart.BarChart>
+              </Recharts.BarChart>
             </ChartContainer>
           </CardBody>
         </Card>

@@ -7,12 +7,12 @@
  */
 import { useMemo } from 'react';
 
-import { Card, EmptyState, ZoruChart, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Card, EmptyState, Recharts, ChartContainer, ChartTooltip, CHART_PALETTE } from '@/components/sabcrm/20ui';
 import type { AgileBurndownSampleDoc } from '@/lib/rust-client/agile-burndown';
 import type { AgileSprintDoc } from '@/lib/rust-client/agile-sprints';
 
 const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } =
-  ZoruChart;
+  Recharts;
 
 interface Props {
   sprint: AgileSprintDoc;
@@ -73,7 +73,7 @@ export function BurndownChart({ sprint, samples, totalPoints }: Props) {
             type="monotone"
             dataKey="ideal"
             name="Ideal"
-            stroke={ZORU_CHART_PALETTE[2]}
+            stroke={CHART_PALETTE[2]}
             strokeDasharray="5 4"
             dot={false}
           />
@@ -81,7 +81,7 @@ export function BurndownChart({ sprint, samples, totalPoints }: Props) {
             type="monotone"
             dataKey="actual"
             name="Actual"
-            stroke={ZORU_CHART_PALETTE[0]}
+            stroke={CHART_PALETTE[0]}
             strokeWidth={2}
             connectNulls
           />
