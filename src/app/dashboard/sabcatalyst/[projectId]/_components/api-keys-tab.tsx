@@ -94,7 +94,7 @@ export function ApiKeysTab({ projectId, initialKeys }: Props) {
                                         {k.status}
                                     </Badge>
                                 </div>
-                                <p className="text-xs text-[var(--zoru-muted-foreground)] font-mono mt-1 truncate">
+                                <p className="text-xs text-[var(--st-text-secondary)] font-mono mt-1 truncate">
                                     hash: {k.keyHash.slice(0, 12)}…
                                 </p>
                             </div>
@@ -118,7 +118,7 @@ export function ApiKeysTab({ projectId, initialKeys }: Props) {
                             <p className="text-sm">
                                 Copy this secret now — it will not be shown again.
                             </p>
-                            <code className="block bg-[var(--zoru-muted)] p-3 rounded text-sm break-all font-mono">
+                            <code className="block bg-[var(--st-bg-muted)] p-3 rounded text-sm break-all font-mono">
                                 {reveal}
                             </code>
                         </div>

@@ -212,8 +212,8 @@ export default function CustomEcommerceAppearancePage() {
           <div
             className="mt-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-6"
             style={{
-              backgroundColor: "var(--zoru-bg)",
-              color: "var(--zoru-ink)",
+              backgroundColor: "var(--st-bg)",
+              color: "var(--st-text)",
             }}
           >
             <div className="flex items-center justify-between">

@@ -37,31 +37,31 @@ export function GrowthChart() {
           <ZoruChart.CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke="hsl(var(--zoru-line))"
+            stroke="var(--st-border)"
           />
           <ZoruChart.XAxis
             dataKey="date"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "hsl(var(--zoru-ink-muted))" }}
+            tick={{ fontSize: 12, fill: "var(--st-text-secondary)" }}
             dy={10}
           />
           <ZoruChart.YAxis
             yAxisId="left"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "hsl(var(--zoru-ink-muted))" }}
+            tick={{ fontSize: 12, fill: "var(--st-text-secondary)" }}
           />
           <ZoruChart.YAxis
             yAxisId="right"
             orientation="right"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "hsl(var(--zoru-ink-muted))" }}
+            tick={{ fontSize: 12, fill: "var(--st-text-secondary)" }}
           />
           <ZoruChart.Tooltip
             content={<ZoruChartTooltip />}
-            cursor={{ stroke: "hsl(var(--zoru-line-strong))" }}
+            cursor={{ stroke: "var(--st-border-strong)" }}
           />
           <ZoruChart.Legend
             iconType="circle"

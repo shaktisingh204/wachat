@@ -176,32 +176,32 @@ export function DashboardClient({ initialData }: { initialData: any }) {
               <ZoruChart.AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--zoru-success))" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(var(--zoru-success))" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--st-status-ok)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--st-status-ok)" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorFailed" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--zoru-danger))" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(var(--zoru-danger))" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--st-danger)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--st-danger)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+                <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
                 <ZoruChart.XAxis 
                   dataKey="time" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: "hsl(var(--zoru-ink-muted))", fontSize: 12 }} 
+                  tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }} 
                   dy={10} 
                 />
                 <ZoruChart.YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: "hsl(var(--zoru-ink-muted))", fontSize: 12 }} 
+                  tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }} 
                 />
                 <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
                 <ZoruChart.Area 
                   type="monotone" 
                   dataKey="success" 
-                  stroke="hsl(var(--zoru-success))" 
+                  stroke="var(--st-status-ok)" 
                   fillOpacity={1} 
                   fill="url(#colorSuccess)" 
                   strokeWidth={2}
@@ -209,7 +209,7 @@ export function DashboardClient({ initialData }: { initialData: any }) {
                 <ZoruChart.Area 
                   type="monotone" 
                   dataKey="failed" 
-                  stroke="hsl(var(--zoru-danger))" 
+                  stroke="var(--st-danger)" 
                   fillOpacity={1} 
                   fill="url(#colorFailed)" 
                   strokeWidth={2}

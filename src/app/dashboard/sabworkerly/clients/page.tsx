@@ -69,7 +69,7 @@ export default async function ClientsListPage() {
                                             </Link>
                                         </TableCell>
                                         <TableCell>{c.contactName ?? '—'}</TableCell>
-                                        <TableCell className="text-[color:var(--zoru-muted-fg)]">
+                                        <TableCell className="text-[color:var(--st-text-secondary)]">
                                             {c.contactEmail ?? '—'}
                                         </TableCell>
                                         <TableCell>NET-{c.paymentTermsDays}</TableCell>

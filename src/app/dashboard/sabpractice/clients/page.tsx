@@ -28,7 +28,7 @@ async function ClientsData({ status }: { status?: string }) {
                 <div className="flex w-full items-start justify-between gap-4">
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
-                        <p className="text-sm text-[var(--zoru-ink-muted)]">
+                        <p className="text-sm text-[var(--st-text-secondary)]">
                             Business entities whose books you manage.
                         </p>
                     </div>
@@ -64,13 +64,13 @@ async function ClientsData({ status }: { status?: string }) {
                                                 {c.name}
                                             </Link>
                                         </TableCell>
-                                        <TableCell className="text-sm text-[var(--zoru-ink-muted)]">
+                                        <TableCell className="text-sm text-[var(--st-text-secondary)]">
                                             {c.industry ?? '—'}
                                         </TableCell>
                                         <TableCell className="text-sm">
                                             {c.primaryContactName ?? '—'}
                                             {c.primaryContactEmail ? (
-                                                <span className="block text-xs text-[var(--zoru-ink-muted)]">
+                                                <span className="block text-xs text-[var(--st-text-secondary)]">
                                                     {c.primaryContactEmail}
                                                 </span>
                                             ) : null}
@@ -93,7 +93,7 @@ export default function SabpracticeClientsPage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--zoru-ink-muted)]">Loading clients…</div>
+                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading clients…</div>
             }
         >
             <ClientsData />

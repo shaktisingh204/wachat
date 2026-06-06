@@ -1,2 +1,0 @@
-import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-console.log("temp");

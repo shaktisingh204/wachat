@@ -56,7 +56,7 @@ export function FormsClient({ site, forms }: Props) {
 
     if (!site) {
         return (
-            <div className="zoruui p-8 text-sm text-[color:var(--zoru-fg-muted)]">
+            <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
                 Site not found.
             </div>
         );
@@ -143,7 +143,7 @@ export function FormsClient({ site, forms }: Props) {
                                 <Progress value={Math.round((f.completionRate || 0) * 100)} />
                                 <div className="mt-4">
                                     {f.perFieldDropoff.length === 0 ? (
-                                        <p className="text-xs text-[color:var(--zoru-fg-muted)]">
+                                        <p className="text-xs text-[color:var(--st-text-secondary)]">
                                             No per-field data yet. (Snippet form
                                             instrumentation is TODO.)
                                         </p>

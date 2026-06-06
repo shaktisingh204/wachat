@@ -30,7 +30,7 @@ export default function BugTrackerLayout({
         <span className="ml-auto" />
         <Link
           href="/dashboard/sabbugs/new"
-          className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--zoru-accent)] px-3 text-sm font-medium text-[var(--zoru-on-accent)] shadow hover:opacity-90"
+          className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--st-accent)] px-3 text-sm font-medium text-[var(--zoru-on-accent)] shadow hover:opacity-90"
         >
           + New bug
         </Link>
@@ -44,7 +44,7 @@ function SubNavLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="rounded-md px-3 py-1.5 text-sm text-[var(--zoru-ink-muted)] hover:bg-[var(--zoru-surface-2)] hover:text-[var(--zoru-ink)]"
+      className="rounded-md px-3 py-1.5 text-sm text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
     >
       {label}
     </Link>

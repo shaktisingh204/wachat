@@ -221,18 +221,18 @@ export default function KeywordCpcPage() {
                   }))}
                   margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                 >
-                  <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+                  <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
                   <ZoruChart.XAxis 
                     dataKey="date" 
                     tickLine={false} 
                     axisLine={false} 
-                    tick={{ fontSize: 12, fill: 'hsl(var(--zoru-ink-muted))' }}
+                    tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                     dy={10}
                   />
                   <ZoruChart.YAxis 
                     tickLine={false} 
                     axisLine={false} 
-                    tick={{ fontSize: 12, fill: 'hsl(var(--zoru-ink-muted))' }}
+                    tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                   />
                   <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
                   <ZoruChart.Area

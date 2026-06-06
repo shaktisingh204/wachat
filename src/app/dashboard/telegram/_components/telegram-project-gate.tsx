@@ -39,7 +39,7 @@ export function TelegramProjectGate({
     return (
         <div
             className="flex items-start gap-3 rounded-2xl border p-4"
-            style={{ borderColor: 'var(--zoru-line)', background: 'var(--zoru-surface-2)' }}
+            style={{ borderColor: 'var(--st-border)', background: 'var(--st-bg-muted)' }}
         >
             <Info className="mt-0.5 h-4 w-4 text-[var(--st-text)]" />
             <div className="flex-1 text-[12.5px] leading-relaxed text-[var(--st-text)]">

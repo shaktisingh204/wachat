@@ -869,16 +869,16 @@ function PreviewPane({
           data={series.rows}
           margin={{ top: 8, right: 8, bottom: 40, left: 8 }}
         >
-          <Recharts.CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
+          <Recharts.CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
           <Recharts.XAxis
             dataKey="label"
-            tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 11 }}
+            tick={{ fill: 'var(--st-text-secondary)', fontSize: 11 }}
             angle={-35}
             textAnchor="end"
             interval={0}
           />
           <Recharts.YAxis
-            tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 11 }}
+            tick={{ fill: 'var(--st-text-secondary)', fontSize: 11 }}
             tickFormatter={(v: number) => formatValue(v, metric)}
           />
           <Recharts.Tooltip content={<ZoruChartTooltip />} />
@@ -908,16 +908,16 @@ function PreviewPane({
           data={series.rows}
           margin={{ top: 8, right: 8, bottom: 40, left: 8 }}
         >
-          <Recharts.CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
+          <Recharts.CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
           <Recharts.XAxis
             dataKey="label"
-            tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 11 }}
+            tick={{ fill: 'var(--st-text-secondary)', fontSize: 11 }}
             angle={-35}
             textAnchor="end"
             interval={0}
           />
           <Recharts.YAxis
-            tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 11 }}
+            tick={{ fill: 'var(--st-text-secondary)', fontSize: 11 }}
             tickFormatter={(v: number) => formatValue(v, metric)}
           />
           <Recharts.Tooltip content={<ZoruChartTooltip />} />
@@ -945,7 +945,7 @@ function PreviewPane({
             iconType="circle"
             iconSize={8}
             formatter={(value: string) => (
-              <span style={{ fontSize: 11, color: 'hsl(var(--zoru-ink-muted))' }}>
+              <span style={{ fontSize: 11, color: 'var(--st-text-secondary)' }}>
                 {value}
               </span>
             )}
@@ -958,7 +958,7 @@ function PreviewPane({
             cy="50%"
             outerRadius={90}
             strokeWidth={1}
-            stroke="hsl(var(--zoru-bg))"
+            stroke="var(--st-bg)"
           >
             {series.rows.map((row, idx) => (
               <Recharts.Cell

@@ -38,7 +38,7 @@ export function SketchEditor({ value, onChange, disabled }: SketchEditorProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2 rounded-md border border-dashed border-[var(--zoru-border)] bg-[var(--zoru-muted)] p-4 text-sm text-[var(--zoru-muted-foreground)]">
+      <div className="flex items-center gap-2 rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text-secondary)]">
         <Brush className="h-4 w-4" />
         <span>
           Canvas drawing is on its way. For now, attach an existing sketch
@@ -61,7 +61,7 @@ export function SketchEditor({ value, onChange, disabled }: SketchEditorProps) {
         )}
       </div>
       {value?.url && (
-        <div className="relative aspect-video w-full overflow-hidden rounded-md border border-[var(--zoru-border)]">
+        <div className="relative aspect-video w-full overflow-hidden rounded-md border border-[var(--st-border)]">
           <Image
             src={value.url}
             alt={value.name ?? 'Sketch'}

@@ -352,22 +352,22 @@ export default function CommerceAnalyticsPage() {
               <ZoruChart.LineChart data={trend}>
                 <ZoruChart.CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="hsl(var(--zoru-line))"
+                  stroke="var(--st-border)"
                 />
                 <ZoruChart.XAxis
                   dataKey="date"
-                  stroke="hsl(var(--zoru-ink-subtle))"
+                  stroke="var(--st-text-tertiary)"
                   tick={{ fontSize: 11 }}
                 />
                 <ZoruChart.YAxis
                   yAxisId="orders"
-                  stroke="hsl(var(--zoru-ink-subtle))"
+                  stroke="var(--st-text-tertiary)"
                   tick={{ fontSize: 11 }}
                 />
                 <ZoruChart.YAxis
                   yAxisId="revenue"
                   orientation="right"
-                  stroke="hsl(var(--zoru-ink-subtle))"
+                  stroke="var(--st-text-tertiary)"
                   tick={{ fontSize: 11 }}
                 />
                 <ZoruChart.Tooltip content={<ZoruChartTooltip />} />

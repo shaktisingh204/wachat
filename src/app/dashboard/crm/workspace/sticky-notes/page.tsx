@@ -40,13 +40,13 @@ export default async function NotesHubPage() {
       />
       <section
         id="quick-notes"
-        className="border-t border-[var(--zoru-border)] pt-6"
+        className="border-t border-[var(--st-border)] pt-6"
       >
         <div className="px-4 md:px-6">
           <h2 className="mb-2 text-lg font-semibold tracking-tight">
             Quick Notes
           </h2>
-          <p className="mb-4 text-sm text-[var(--zoru-muted-foreground)]">
+          <p className="mb-4 text-sm text-[var(--st-text-secondary)]">
             Lightweight sticky notes for everything that doesn&rsquo;t need
             its own notebook.
           </p>

@@ -351,12 +351,12 @@ export default function PayrollRunsListPage() {
                         <div className="h-64 w-full text-xs">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
-                                    <XAxis dataKey="name" tick={{ fill: 'hsl(var(--zoru-ink-subtle))' }} axisLine={{ stroke: 'hsl(var(--zoru-line))' }} tickLine={false} />
-                                    <YAxis tickFormatter={(val) => `₹${(val / 1000)}k`} tick={{ fill: 'hsl(var(--zoru-ink-subtle))' }} axisLine={false} tickLine={false} />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
+                                    <XAxis dataKey="name" tick={{ fill: 'var(--st-text-tertiary)' }} axisLine={{ stroke: 'var(--st-border)' }} tickLine={false} />
+                                    <YAxis tickFormatter={(val) => `₹${(val / 1000)}k`} tick={{ fill: 'var(--st-text-tertiary)' }} axisLine={false} tickLine={false} />
                                     <Tooltip 
                                         formatter={(value: number) => inr.format(value)}
-                                        contentStyle={{ backgroundColor: 'hsl(var(--zoru-surface))', borderColor: 'hsl(var(--zoru-line))', borderRadius: '6px' }}
+                                        contentStyle={{ backgroundColor: 'var(--st-bg-secondary)', borderColor: 'var(--st-border)', borderRadius: '6px' }}
                                     />
                                     <Legend wrapperStyle={{ paddingTop: '10px' }} />
                                     <Bar dataKey="Gross" fill="#18181b" radius={[4, 4, 0, 0]} />

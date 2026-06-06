@@ -63,7 +63,7 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
 
     if (!site) {
         return (
-            <div className="zoruui p-8 text-sm text-[color:var(--zoru-fg-muted)]">
+            <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
                 Site not found.
             </div>
         );
@@ -197,7 +197,7 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                                                               <span>
                                                                   {i + 1}. {step.name}
                                                               </span>
-                                                              <span className="text-[color:var(--zoru-fg-muted)]">
+                                                              <span className="text-[color:var(--st-text-secondary)]">
                                                                   {step.count} ·{' '}
                                                                   {Math.round(step.dropoffRate * 100)}% drop
                                                               </span>
@@ -220,7 +220,7 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                                                   </div>
                                               ))}
                                         {!latest && (
-                                            <p className="pt-2 text-xs text-[color:var(--zoru-fg-muted)]">
+                                            <p className="pt-2 text-xs text-[color:var(--st-text-secondary)]">
                                                 No runs yet. Click Run to compute step counts.
                                             </p>
                                         )}

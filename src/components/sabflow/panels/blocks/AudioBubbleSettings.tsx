@@ -37,7 +37,7 @@ function AudioPreview({ url }: { url: string }) {
         src={url}
         controls
         className="w-full h-8"
-        style={{ accentColor: 'var(--zoru-ink)' }}
+        style={{ accentColor: 'var(--st-text)' }}
       />
     </div>
   );

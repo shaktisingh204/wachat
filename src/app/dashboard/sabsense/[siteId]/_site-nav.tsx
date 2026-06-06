@@ -26,7 +26,7 @@ export function PagesenseSiteNav({ siteId }: Props) {
     const pathname = usePathname() || '';
     return (
         <nav
-            className="flex flex-wrap gap-1 rounded-md border border-[color:var(--zoru-border)] bg-[color:var(--zoru-surface-1)] p-1"
+            className="flex flex-wrap gap-1 rounded-md border border-[color:var(--st-border)] bg-[color:var(--st-bg-secondary)] p-1"
             aria-label="PageSense site sections"
         >
             {TABS.map((t) => {
@@ -39,8 +39,8 @@ export function PagesenseSiteNav({ siteId }: Props) {
                         className={cn(
                             'rounded-sm px-3 py-1.5 text-sm transition-colors',
                             active
-                                ? 'bg-[color:var(--zoru-accent)] text-[color:var(--zoru-accent-fg)]'
-                                : 'text-[color:var(--zoru-fg-muted)] hover:bg-[color:var(--zoru-surface-2)]',
+                                ? 'bg-[color:var(--st-accent)] text-[color:var(--zoru-accent-fg)]'
+                                : 'text-[color:var(--st-text-secondary)] hover:bg-[color:var(--st-bg-muted)]',
                         )}
                     >
                         {t.label}

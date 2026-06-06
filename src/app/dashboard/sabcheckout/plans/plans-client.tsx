@@ -226,7 +226,7 @@ export function SabcheckoutPlansClient({
               <p className="text-xs text-[var(--st-text-secondary)] mt-1">Add your first subscription plan above.</p>
             </div>
           ) : (
-            <ul className="divide-y divide-[var(--zoru-border)]">
+            <ul className="divide-y divide-[var(--st-border)]">
               {initial.map((p) => (
                 <li
                   key={p._id}
@@ -244,7 +244,7 @@ export function SabcheckoutPlansClient({
                         {p.status}
                       </Badge>
                     </div>
-                    <div className="mt-1 flex items-center gap-3 text-sm text-[var(--zoru-muted-fg)]">
+                    <div className="mt-1 flex items-center gap-3 text-sm text-[var(--st-text-secondary)]">
                       <span className="font-semibold text-[var(--st-text)]">
                         {p.currency} {(p.amountMinor / 100).toFixed(2)}
                       </span>

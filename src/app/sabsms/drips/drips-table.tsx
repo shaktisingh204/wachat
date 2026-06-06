@@ -619,7 +619,7 @@ function DropoffChart({
         <ZoruChart.XAxis dataKey="step" tick={{ fontSize: 11 }} />
         <ZoruChart.YAxis tick={{ fontSize: 11 }} width={28} />
         <ZoruChart.Tooltip />
-        <ZoruChart.Bar dataKey="delivered" fill="hsl(var(--zoru-ink))" />
+        <ZoruChart.Bar dataKey="delivered" fill="var(--st-text)" />
       </ZoruChart.BarChart>
     </ZoruChartContainer>
   );

@@ -31,8 +31,8 @@ export function SabpracticeNav() {
                         className={cn(
                             'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
                             active
-                                ? 'bg-[var(--zoru-accent)] text-[var(--zoru-accent-contrast)]'
-                                : 'text-[var(--zoru-ink-muted)] hover:bg-[var(--zoru-surface-2)] hover:text-[var(--zoru-ink)]',
+                                ? 'bg-[var(--st-accent)] text-[var(--zoru-accent-contrast)]'
+                                : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                         )}
                     >
                         {it.label}

@@ -101,7 +101,7 @@ export function BasesListClient({ workspace, initialItems }: Props) {
                 <div className="flex items-start gap-3">
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: b.color || 'var(--zoru-ink)', color: 'var(--zoru-surface)' }}
+                    style={{ backgroundColor: b.color || 'var(--st-text)', color: 'var(--st-bg-secondary)' }}
                   >
                     <Database className="w-5 h-5" />
                   </div>

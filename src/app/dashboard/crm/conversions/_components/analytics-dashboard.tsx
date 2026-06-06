@@ -84,7 +84,7 @@ export function AnalyticsDashboard() {
                                         ))}
                                     </Pie>
                                     <Tooltip 
-                                        contentStyle={{ borderRadius: '8px', border: '1px solid var(--zoru-line)' }}
+                                        contentStyle={{ borderRadius: '8px', border: '1px solid var(--st-border)' }}
                                     />
                                     <Legend verticalAlign="bottom" height={36}/>
                                 </PieChart>

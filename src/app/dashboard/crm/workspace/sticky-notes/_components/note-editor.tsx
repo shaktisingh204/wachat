@@ -235,7 +235,7 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
 
   return (
     <div className="flex h-full flex-col gap-3">
-      <header className="flex flex-wrap items-center gap-2 border-b border-[var(--zoru-border)] pb-3">
+      <header className="flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] pb-3">
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -364,7 +364,7 @@ function TagInlineEditor({
             type="button"
             onClick={() => removeTag(t)}
             aria-label={`Remove tag ${t}`}
-            className="text-[var(--zoru-muted-foreground)] hover:text-[var(--zoru-foreground)]"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             ×
           </button>

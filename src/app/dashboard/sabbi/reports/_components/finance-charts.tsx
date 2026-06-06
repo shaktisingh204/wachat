@@ -30,8 +30,8 @@ const fmtINR = (n: number): string =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n || 0);
 
 const tooltipStyle = {
-  backgroundColor: 'hsl(var(--zoru-surface))',
-  border: '1px solid hsl(var(--zoru-line))',
+  backgroundColor: 'var(--st-bg-secondary)',
+  border: '1px solid var(--st-border)',
   borderRadius: 8,
   fontSize: 12,
 };
@@ -49,7 +49,7 @@ export function MonthlyTrendLine({
   return (
     <ResponsiveContainer width="100%" height={260}>
       <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
         <XAxis dataKey="period" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${Math.round(v / 1000)}k`} />
         <Tooltip contentStyle={tooltipStyle} formatter={((v: number) => fmtINR(v)) as never} />
@@ -97,7 +97,7 @@ export function ProfitLossStackedBar({
   return (
     <ResponsiveContainer width="100%" height={320}>
       <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
         <XAxis dataKey="period" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${Math.round(v / 1000)}k`} />
         <Tooltip contentStyle={tooltipStyle} formatter={((v: number) => fmtINR(v)) as never} />
@@ -120,7 +120,7 @@ export function TaxBar({
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
         <XAxis dataKey="period" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${Math.round(v / 1000)}k`} />
         <Tooltip contentStyle={tooltipStyle} formatter={((v: number) => fmtINR(v)) as never} />
@@ -141,7 +141,7 @@ export function AgingStackedBar({
   return (
     <ResponsiveContainer width="100%" height={320}>
       <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
         <XAxis dataKey="clientName" tick={{ fontSize: 11 }} angle={-20} textAnchor="end" height={60} interval={0} />
         <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${Math.round(v / 1000)}k`} />
         <Tooltip contentStyle={tooltipStyle} formatter={((v: number) => fmtINR(v)) as never} />
@@ -164,7 +164,7 @@ export function PaymentMtdLine({
   return (
     <ResponsiveContainer width="100%" height={260}>
       <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
         <XAxis dataKey="period" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${Math.round(v / 1000)}k`} />
         <Tooltip contentStyle={tooltipStyle} formatter={((v: number) => fmtINR(v)) as never} />
@@ -185,7 +185,7 @@ export function PaymentMethodBar({
   return (
     <ResponsiveContainer width="100%" height={260}>
       <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
         <XAxis dataKey="method" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${Math.round(v / 1000)}k`} />
         <Tooltip contentStyle={tooltipStyle} formatter={((v: number) => fmtINR(v)) as never} />

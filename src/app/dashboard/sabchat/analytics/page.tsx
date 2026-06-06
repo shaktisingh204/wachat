@@ -93,9 +93,9 @@ function AnalyticsSkeleton() {
 
 // Mocks for new advanced features
 const MOCK_CSAT_DATA = [
-  { name: "Positive", value: 75, fill: "hsl(var(--zoru-success))" },
-  { name: "Neutral", value: 15, fill: "hsl(var(--zoru-warning))" },
-  { name: "Negative", value: 10, fill: "hsl(var(--zoru-destructive))" },
+  { name: "Positive", value: 75, fill: "var(--st-status-ok)" },
+  { name: "Neutral", value: 15, fill: "var(--st-warn)" },
+  { name: "Negative", value: 10, fill: "var(--st-danger)" },
 ];
 
 const MOCK_DEVICE_DATA = [
@@ -251,10 +251,10 @@ export default function SabChatAnalyticsPage() {
               <ZoruCardContent>
                 <ZoruChartContainer height={300}>
                   <ZoruChart.AreaChart data={data.dailyChatVolume}>
-                    <ZoruChart.CartesianGrid vertical={false} stroke="hsl(var(--zoru-line))" strokeDasharray="3 3" />
-                    <ZoruChart.XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="hsl(var(--zoru-ink-muted))" />
-                    <ZoruChart.YAxis tickLine={false} axisLine={false} fontSize={11} stroke="hsl(var(--zoru-ink-muted))" />
-                    <ZoruChart.Tooltip cursor={{ fill: "hsl(var(--zoru-surface))" }} content={<ZoruChartTooltip />} />
+                    <ZoruChart.CartesianGrid vertical={false} stroke="var(--st-border)" strokeDasharray="3 3" />
+                    <ZoruChart.XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="var(--st-text-secondary)" />
+                    <ZoruChart.YAxis tickLine={false} axisLine={false} fontSize={11} stroke="var(--st-text-secondary)" />
+                    <ZoruChart.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ZoruChartTooltip />} />
                     <ZoruChart.Area type="monotone" dataKey="count" name="Total Chats" stroke={ZORU_CHART_PALETTE[0]} fill={ZORU_CHART_PALETTE[0]} fillOpacity={0.2} strokeWidth={2} />
                   </ZoruChart.AreaChart>
                 </ZoruChartContainer>
@@ -337,8 +337,8 @@ export default function SabChatAnalyticsPage() {
               <ZoruCardContent>
                 <ZoruChartContainer height={220}>
                   <ZoruChart.BarChart data={MOCK_HOURS_HEATMAP}>
-                    <ZoruChart.XAxis dataKey="day" tickLine={false} axisLine={false} fontSize={10} stroke="hsl(var(--zoru-ink-muted))" />
-                    <ZoruChart.Tooltip cursor={{ fill: "hsl(var(--zoru-surface))" }} content={<ZoruChartTooltip />} />
+                    <ZoruChart.XAxis dataKey="day" tickLine={false} axisLine={false} fontSize={10} stroke="var(--st-text-secondary)" />
+                    <ZoruChart.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ZoruChartTooltip />} />
                     <ZoruChart.Bar dataKey="h12" name="Noon chats" fill={ZORU_CHART_PALETTE[1]} radius={[2, 2, 0, 0]} stackId="a" />
                     <ZoruChart.Bar dataKey="h15" name="Afternoon chats" fill={ZORU_CHART_PALETTE[0]} radius={[2, 2, 0, 0]} stackId="a" />
                   </ZoruChart.BarChart>

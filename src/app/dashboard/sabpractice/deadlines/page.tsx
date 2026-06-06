@@ -32,7 +32,7 @@ async function DeadlinesData() {
             <PageHeader>
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight">Deadlines</h1>
-                    <p className="text-sm text-[var(--zoru-ink-muted)]">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Compliance calendar — soonest first.
                     </p>
                 </div>
@@ -98,7 +98,7 @@ export default function DeadlinesPage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--zoru-ink-muted)]">Loading…</div>
+                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading…</div>
             }
         >
             <DeadlinesData />

@@ -126,7 +126,7 @@ export function FunctionsTab({ projectId, initialItems }: Props) {
                                     <Badge variant="secondary">{fn.runtime}</Badge>
                                     {fn.status === 'paused' ? <Badge variant="destructive">paused</Badge> : null}
                                 </div>
-                                <p className="text-xs text-[var(--zoru-muted-foreground)] font-mono mt-1 truncate">
+                                <p className="text-xs text-[var(--st-text-secondary)] font-mono mt-1 truncate">
                                     {fn.entrypoint}
                                     {fn.schedule ? ` • ${fn.schedule}` : ''}
                                 </p>

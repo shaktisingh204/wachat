@@ -57,10 +57,10 @@ export function BugDetailClient({
     <div className="flex flex-col gap-4">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-wide text-[var(--zoru-ink-muted)]">
+          <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
             Bug · {bug._id.slice(-8)}
           </p>
-          <h1 className="text-xl font-semibold text-[var(--zoru-ink)]">
+          <h1 className="text-xl font-semibold text-[var(--st-text)]">
             {bugTitle(bug)}
           </h1>
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -107,7 +107,7 @@ function SegmentedNav({
     { id: 'related', label: 'Related' },
   ];
   return (
-    <div className="inline-flex items-center gap-1 rounded-md border border-[var(--zoru-divider)] bg-[var(--zoru-surface-2)] p-1">
+    <div className="inline-flex items-center gap-1 rounded-md border border-[var(--zoru-divider)] bg-[var(--st-bg-muted)] p-1">
       {items.map((it) => (
         <button
           key={it.id}
@@ -115,8 +115,8 @@ function SegmentedNav({
           onClick={() => onChange(it.id)}
           className={
             active === it.id
-              ? 'rounded bg-[var(--zoru-surface)] px-3 py-1 text-sm font-medium text-[var(--zoru-ink)] shadow-sm'
-              : 'rounded px-3 py-1 text-sm text-[var(--zoru-ink-muted)] hover:text-[var(--zoru-ink)]'
+              ? 'rounded bg-[var(--st-bg-secondary)] px-3 py-1 text-sm font-medium text-[var(--st-text)] shadow-sm'
+              : 'rounded px-3 py-1 text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
           }
         >
           {it.label}
@@ -221,7 +221,7 @@ function CommentsTab({
           {attachments.map((id) => (
             <span
               key={id}
-              className="inline-flex items-center gap-1 rounded-md border border-[var(--zoru-divider)] bg-[var(--zoru-surface-2)] px-2 py-1 text-xs"
+              className="inline-flex items-center gap-1 rounded-md border border-[var(--zoru-divider)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs"
             >
               <code className="font-mono">{id.slice(-6)}</code>
               <button
@@ -243,11 +243,11 @@ function CommentsTab({
       </Card>
 
       {comments.length === 0 ? (
-        <p className="text-sm text-[var(--zoru-ink-muted)]">No comments yet.</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">No comments yet.</p>
       ) : (
         comments.map((c) => (
           <Card key={c._id} className="flex flex-col gap-2 p-4">
-            <div className="flex items-center justify-between text-xs text-[var(--zoru-ink-muted)]">
+            <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
               <span>
                 {c.authorId.slice(-6)} ·{' '}
                 {c.createdAt
@@ -256,17 +256,17 @@ function CommentsTab({
               </span>
               <button
                 type="button"
-                className="text-[var(--zoru-ink-muted)] hover:text-[var(--st-text)]"
+                className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                 onClick={() => remove(c._id)}
               >
                 Delete
               </button>
             </div>
-            <pre className="whitespace-pre-wrap font-sans text-sm text-[var(--zoru-ink)]">
+            <pre className="whitespace-pre-wrap font-sans text-sm text-[var(--st-text)]">
               {c.body}
             </pre>
             {c.attachmentIds && c.attachmentIds.length > 0 ? (
-              <div className="flex flex-wrap gap-1 text-xs text-[var(--zoru-ink-muted)]">
+              <div className="flex flex-wrap gap-1 text-xs text-[var(--st-text-secondary)]">
                 {c.attachmentIds.length} attachment
                 {c.attachmentIds.length === 1 ? '' : 's'}
               </div>
@@ -281,7 +281,7 @@ function CommentsTab({
 function HistoryTab({ entries }: { entries: BugHistoryEntryDoc[] }) {
   if (entries.length === 0) {
     return (
-      <p className="text-sm text-[var(--zoru-ink-muted)]">
+      <p className="text-sm text-[var(--st-text-secondary)]">
         No history yet — changes are recorded as you edit the bug.
       </p>
     );
@@ -294,16 +294,16 @@ function HistoryTab({ entries }: { entries: BugHistoryEntryDoc[] }) {
             key={h._id}
             className="flex flex-col gap-1 border-l-2 border-[var(--zoru-divider)] pl-3 text-sm"
           >
-            <span className="text-xs text-[var(--zoru-ink-muted)]">
+            <span className="text-xs text-[var(--st-text-secondary)]">
               {new Date(h.ts).toLocaleString()} · actor {h.actorId.slice(-6)}
             </span>
-            <span className="text-[var(--zoru-ink)]">
+            <span className="text-[var(--st-text)]">
               <strong>{h.field}</strong> changed from{' '}
-              <code className="rounded bg-[var(--zoru-surface-2)] px-1">
+              <code className="rounded bg-[var(--st-bg-muted)] px-1">
                 {formatHistoryValue(h.oldValue)}
               </code>{' '}
               to{' '}
-              <code className="rounded bg-[var(--zoru-surface-2)] px-1">
+              <code className="rounded bg-[var(--st-bg-muted)] px-1">
                 {formatHistoryValue(h.newValue)}
               </code>
             </span>
@@ -323,7 +323,7 @@ function formatHistoryValue(v: unknown): string {
 function RelatedTab({ bugs }: { bugs: BugDoc[] }) {
   if (bugs.length === 0) {
     return (
-      <p className="text-sm text-[var(--zoru-ink-muted)]">
+      <p className="text-sm text-[var(--st-text-secondary)]">
         No related bugs found in the same project.
       </p>
     );
@@ -338,7 +338,7 @@ function RelatedTab({ bugs }: { bugs: BugDoc[] }) {
           >
             <Link
               href={`/dashboard/sabbugs/${b._id}`}
-              className="font-medium text-[var(--zoru-ink)] hover:underline"
+              className="font-medium text-[var(--st-text)] hover:underline"
             >
               {bugTitle(b)}
             </Link>

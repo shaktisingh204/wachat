@@ -121,7 +121,7 @@ export function ShareDialogClient({
                             </ZoruSelectContent>
                         </Select>
                     </div>
-                    {error ? <div className="text-sm text-[var(--zoru-danger)]">{error}</div> : null}
+                    {error ? <div className="text-sm text-[var(--st-danger)]">{error}</div> : null}
                     <Button type="submit" disabled={busy}>
                         {busy ? 'Granting…' : 'Grant access'}
                     </Button>

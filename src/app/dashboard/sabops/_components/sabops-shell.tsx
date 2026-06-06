@@ -21,7 +21,7 @@ const TABS = [
 export function SabopsNav() {
     const pathname = usePathname();
     return (
-        <nav className="zoruui flex gap-1 overflow-x-auto border-b border-[var(--zoru-border)] pb-2">
+        <nav className="zoruui flex gap-1 overflow-x-auto border-b border-[var(--st-border)] pb-2">
             {TABS.map((t) => {
                 const active =
                     t.href === "/dashboard/sabops"
@@ -34,8 +34,8 @@ export function SabopsNav() {
                         className={cn(
                             "rounded-md px-3 py-1.5 text-sm transition-colors whitespace-nowrap",
                             active
-                                ? "bg-[var(--zoru-accent)] text-[var(--zoru-accent-foreground)]"
-                                : "text-[var(--zoru-muted-foreground)] hover:text-[var(--zoru-foreground)]",
+                                ? "bg-[var(--st-accent)] text-[var(--zoru-accent-foreground)]"
+                                : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]",
                         )}
                     >
                         {t.label}

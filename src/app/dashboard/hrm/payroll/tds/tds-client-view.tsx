@@ -333,7 +333,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                             )}
                         </tbody>
                         {filteredRows.length > 0 && (
-                            <tfoot className="sticky bottom-0 bg-[var(--st-bg-muted)] shadow-[0_-1px_0_var(--zoru-line)]">
+                            <tfoot className="sticky bottom-0 bg-[var(--st-bg-muted)] shadow-[0_-1px_0_var(--st-border)]">
                                 <tr>
                                     <td colSpan={4} className="px-4 py-3 text-[12.5px] text-[var(--st-text)] font-medium">Total for view</td>
                                     <td className="px-4 py-3 text-right text-[12.5px] text-[var(--st-text)] font-medium">--</td>

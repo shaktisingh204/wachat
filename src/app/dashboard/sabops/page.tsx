@@ -90,9 +90,9 @@ export default async function SabopsOverviewPage() {
                             {(["online", "offline", "stale", "disabled"] as const).map((s) => (
                                 <li
                                     key={s}
-                                    className="flex items-center justify-between rounded border border-[var(--zoru-border)] px-3 py-2"
+                                    className="flex items-center justify-between rounded border border-[var(--st-border)] px-3 py-2"
                                 >
-                                    <span className="capitalize text-[var(--zoru-muted-foreground)]">
+                                    <span className="capitalize text-[var(--st-text-secondary)]">
                                         {s}
                                     </span>
                                     <span className="font-semibold">{byStatus[s] ?? 0}</span>
@@ -111,9 +111,9 @@ export default async function SabopsOverviewPage() {
                             {(["critical", "high", "medium", "low"] as const).map((s) => (
                                 <li
                                     key={s}
-                                    className="flex items-center justify-between rounded border border-[var(--zoru-border)] px-3 py-2"
+                                    className="flex items-center justify-between rounded border border-[var(--st-border)] px-3 py-2"
                                 >
-                                    <span className="capitalize text-[var(--zoru-muted-foreground)]">
+                                    <span className="capitalize text-[var(--st-text-secondary)]">
                                         {s}
                                     </span>
                                     <span className="font-semibold">{bySeverity[s] ?? 0}</span>

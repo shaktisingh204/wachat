@@ -31,7 +31,7 @@ export function OverviewTab({ project, counts }: Props) {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {kpis.map((k) => (
                     <Card key={k.label} className="p-4">
-                        <p className="text-xs text-[var(--zoru-muted-foreground)]">{k.label}</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">{k.label}</p>
                         <p className="text-3xl font-bold mt-2">{k.value}</p>
                     </Card>
                 ))}
@@ -40,23 +40,23 @@ export function OverviewTab({ project, counts }: Props) {
                 <h3 className="font-semibold mb-3">Project details</h3>
                 <dl className="grid sm:grid-cols-2 gap-3 text-sm">
                     <div>
-                        <dt className="text-[var(--zoru-muted-foreground)]">Slug</dt>
+                        <dt className="text-[var(--st-text-secondary)]">Slug</dt>
                         <dd className="font-mono">{project.slug}</dd>
                     </div>
                     <div>
-                        <dt className="text-[var(--zoru-muted-foreground)]">Runtime</dt>
+                        <dt className="text-[var(--st-text-secondary)]">Runtime</dt>
                         <dd>{project.runtime}</dd>
                     </div>
                     <div>
-                        <dt className="text-[var(--zoru-muted-foreground)]">Status</dt>
+                        <dt className="text-[var(--st-text-secondary)]">Status</dt>
                         <dd>{project.status}</dd>
                     </div>
                     <div>
-                        <dt className="text-[var(--zoru-muted-foreground)]">Region</dt>
+                        <dt className="text-[var(--st-text-secondary)]">Region</dt>
                         <dd>{project.region || '—'}</dd>
                     </div>
                     <div className="sm:col-span-2">
-                        <dt className="text-[var(--zoru-muted-foreground)]">Description</dt>
+                        <dt className="text-[var(--st-text-secondary)]">Description</dt>
                         <dd>{project.description || '—'}</dd>
                     </div>
                 </dl>

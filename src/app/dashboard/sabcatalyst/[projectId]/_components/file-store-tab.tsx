@@ -66,7 +66,7 @@ export function FileStoreTab({ projectId, initialFiles }: Props) {
                         <Card key={f._id} className="p-4 flex items-center justify-between gap-4">
                             <div className="min-w-0">
                                 <p className="font-mono text-sm truncate">{f.key}</p>
-                                <p className="text-xs text-[var(--zoru-muted-foreground)] mt-1">
+                                <p className="text-xs text-[var(--st-text-secondary)] mt-1">
                                     {f.contentType} • {(f.sizeBytes / 1024).toFixed(1)} KB
                                     {f.public ? <Badge className="ml-2" variant="outline">public</Badge> : null}
                                 </p>

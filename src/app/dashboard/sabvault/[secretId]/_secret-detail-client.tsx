@@ -178,7 +178,7 @@ export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
                     </Button>
                 )}
 
-                {error ? <div className="mt-3 text-sm text-[var(--zoru-danger)]">{error}</div> : null}
+                {error ? <div className="mt-3 text-sm text-[var(--st-danger)]">{error}</div> : null}
             </ZoruCard>
         </div>
     );

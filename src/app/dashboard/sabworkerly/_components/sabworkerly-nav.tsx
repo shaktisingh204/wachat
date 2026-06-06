@@ -28,7 +28,7 @@ const items = [
 export function SabworkerlyNav() {
     const pathname = usePathname() ?? '';
     return (
-        <nav className="zoruui flex flex-wrap items-center gap-1 border-b border-[color:var(--zoru-border)] px-6 pt-3">
+        <nav className="zoruui flex flex-wrap items-center gap-1 border-b border-[color:var(--st-border)] px-6 pt-3">
             {items.map((it) => {
                 const active = it.exact
                     ? pathname === it.href
@@ -41,8 +41,8 @@ export function SabworkerlyNav() {
                         className={cn(
                             'flex items-center gap-2 rounded-t-md border-b-2 px-3 py-2 text-sm transition-colors',
                             active
-                                ? 'border-[color:var(--zoru-accent)] text-[color:var(--zoru-fg)]'
-                                : 'border-transparent text-[color:var(--zoru-muted-fg)] hover:text-[color:var(--zoru-fg)]',
+                                ? 'border-[color:var(--st-accent)] text-[color:var(--st-text)]'
+                                : 'border-transparent text-[color:var(--st-text-secondary)] hover:text-[color:var(--st-text)]',
                         )}
                     >
                         <Icon className="h-4 w-4" />

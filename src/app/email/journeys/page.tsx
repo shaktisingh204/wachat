@@ -414,7 +414,7 @@ function JourneyCanvasContent() {
               return '#64748b';
             }}
             maskColor="rgba(12, 12, 14, 0.7)"
-            style={{ backgroundColor: 'var(--zoru-ink)', border: '1px solid var(--zoru-line)' }}
+            style={{ backgroundColor: 'var(--st-text)', border: '1px solid var(--st-border)' }}
             className="rounded-lg overflow-hidden"
           />
           <Panel position="top-left" className="m-4">

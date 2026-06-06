@@ -59,7 +59,7 @@ export function PlaceWorkerForm({
 
     if (workers.length === 0) {
         return (
-            <p className="text-sm text-[color:var(--zoru-muted-fg)]">
+            <p className="text-sm text-[color:var(--st-text-secondary)]">
                 No active workers yet — add one first.
             </p>
         );

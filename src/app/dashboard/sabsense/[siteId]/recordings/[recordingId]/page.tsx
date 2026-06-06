@@ -32,7 +32,7 @@ export default async function RecordingDetailPage({ params }: PageProps) {
 
     if (!site || !recording) {
         return (
-            <div className="zoruui p-8 text-sm text-[color:var(--zoru-fg-muted)]">
+            <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
                 Recording not found.
             </div>
         );
@@ -63,7 +63,7 @@ export default async function RecordingDetailPage({ params }: PageProps) {
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div
-                        className="flex h-[480px] items-center justify-center rounded-md border border-dashed border-[color:var(--zoru-border)] bg-[color:var(--zoru-surface-2)] text-sm text-[color:var(--zoru-fg-muted)]"
+                        className="flex h-[480px] items-center justify-center rounded-md border border-dashed border-[color:var(--st-border)] bg-[color:var(--st-bg-muted)] text-sm text-[color:var(--st-text-secondary)]"
                         data-rrweb-player-container
                         data-events-file-id={recording.eventsFileId || ''}
                     >

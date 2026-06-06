@@ -322,29 +322,29 @@ export default function FacebookInsightsPage(): React.JSX.Element {
                     <linearGradient id="fbInsightsArea" x1="0" y1="0" x2="0" y2="1">
                       <stop
                         offset="5%"
-                        stopColor="hsl(var(--zoru-ink))"
+                        stopColor="var(--st-text)"
                         stopOpacity={0.32}
                       />
                       <stop
                         offset="95%"
-                        stopColor="hsl(var(--zoru-ink))"
+                        stopColor="var(--st-text)"
                         stopOpacity={0}
                       />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="hsl(var(--zoru-line))"
+                    stroke="var(--st-border)"
                     vertical={false}
                   />
                   <XAxis
                     dataKey="date"
-                    tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+                    tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
                     tickLine={false}
                     axisLine={false}
                   />
                   <YAxis
-                    tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+                    tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
                     tickLine={false}
                     axisLine={false}
                     width={48}
@@ -354,7 +354,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
                     type="monotone"
                     dataKey="value"
                     name={primaryLabel}
-                    stroke="hsl(var(--zoru-ink))"
+                    stroke="var(--st-text)"
                     fill="url(#fbInsightsArea)"
                     strokeWidth={2}
                   />

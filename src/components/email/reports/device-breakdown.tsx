@@ -49,7 +49,7 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
                   innerRadius={50}
                   outerRadius={80}
                   paddingAngle={2}
-                  stroke="hsl(var(--zoru-bg))"
+                  stroke="var(--st-bg)"
                 >
                   {rows.map((_, i) => (
                     <Cell

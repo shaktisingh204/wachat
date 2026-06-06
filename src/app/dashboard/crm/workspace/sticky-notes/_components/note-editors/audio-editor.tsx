@@ -122,8 +122,8 @@ export function AudioEditor({ value, onChange, disabled }: AudioEditorProps) {
       </div>
 
       {localBlobUrl && !value?.fileId && (
-        <div className="rounded-md border border-[var(--zoru-border)] p-3">
-          <p className="mb-2 text-xs text-[var(--zoru-muted-foreground)]">
+        <div className="rounded-md border border-[var(--st-border)] p-3">
+          <p className="mb-2 text-xs text-[var(--st-text-secondary)]">
             Local recording preview — save it to SabFiles using &ldquo;Pick
             from SabFiles&rdquo; → Upload tab to attach it to the note.
           </p>
@@ -132,8 +132,8 @@ export function AudioEditor({ value, onChange, disabled }: AudioEditorProps) {
       )}
 
       {value?.fileId && value.url && (
-        <div className="rounded-md border border-[var(--zoru-border)] p-3">
-          <p className="mb-2 text-xs text-[var(--zoru-muted-foreground)]">
+        <div className="rounded-md border border-[var(--st-border)] p-3">
+          <p className="mb-2 text-xs text-[var(--st-text-secondary)]">
             {value.name ?? 'Audio attachment'}
           </p>
           <audio src={value.url} controls className="w-full" />

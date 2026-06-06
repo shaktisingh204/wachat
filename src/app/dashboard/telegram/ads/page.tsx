@@ -546,7 +546,7 @@ export default function TelegramAdsPage() {
                 ) : analytics && analytics.byDay.length > 0 ? (
                     <ZoruChartContainer height={280}>
                         <ComposedChart data={analytics.byDay} margin={{ top: 8, right: 12, bottom: 4, left: 0 }}>
-                            <CartesianGrid stroke="hsl(var(--zoru-line))" strokeDasharray="3 3" />
+                            <CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
                             <XAxis dataKey="date" tick={{ fontSize: 11 }} />
                             <YAxis yAxisId="left" tick={{ fontSize: 11 }} />
                             <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
@@ -571,7 +571,7 @@ export default function TelegramAdsPage() {
                                 type="monotone"
                                 dataKey="spendCents"
                                 name="Spend (¢)"
-                                stroke="hsl(var(--zoru-ink))"
+                                stroke="var(--st-text)"
                                 strokeWidth={1.5}
                                 dot={false}
                             />

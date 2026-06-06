@@ -148,7 +148,7 @@ function WhatsAppProjectsContent() {
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[color:var(--zoru-line)]">
+                        <tbody className="divide-y divide-[color:var(--st-border)]">
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={5} className="px-6 py-12 text-center">

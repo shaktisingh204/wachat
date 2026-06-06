@@ -382,17 +382,17 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
         <Recharts.LineChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 4 }}>
           <Recharts.CartesianGrid
             strokeDasharray="3 3"
-            stroke="hsl(var(--zoru-line))"
+            stroke="var(--st-border)"
             vertical={false}
           />
           <Recharts.XAxis
             dataKey="name"
-            tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
-            axisLine={{ stroke: 'hsl(var(--zoru-line))' }}
+            tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
+            axisLine={{ stroke: 'var(--st-border)' }}
             tickLine={false}
           />
           <Recharts.YAxis
-            tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+            tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
             axisLine={false}
             tickLine={false}
             tickFormatter={formatValue}
@@ -424,17 +424,17 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
         <Recharts.BarChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 4 }}>
           <Recharts.CartesianGrid
             strokeDasharray="3 3"
-            stroke="hsl(var(--zoru-line))"
+            stroke="var(--st-border)"
             vertical={false}
           />
           <Recharts.XAxis
             dataKey="name"
-            tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
-            axisLine={{ stroke: 'hsl(var(--zoru-line))' }}
+            tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
+            axisLine={{ stroke: 'var(--st-border)' }}
             tickLine={false}
           />
           <Recharts.YAxis
-            tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+            tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
             axisLine={false}
             tickLine={false}
             tickFormatter={formatValue}

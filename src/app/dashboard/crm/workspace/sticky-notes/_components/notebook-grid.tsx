@@ -127,7 +127,7 @@ export function NotebookGrid({
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Notes</h1>
-          <p className="text-sm text-[var(--zoru-muted-foreground)]">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Quick sticky notes, structured notebooks, audio captures, sketches
             — all in one place.
           </p>
@@ -160,12 +160,12 @@ export function NotebookGrid({
             <CardTitle className="line-clamp-1">Quick Notes</CardTitle>
           </CardHeader>
           <CardContent className="min-h-[60px]">
-            <p className="line-clamp-3 text-sm text-[var(--zoru-muted-foreground)]">
+            <p className="line-clamp-3 text-sm text-[var(--st-text-secondary)]">
               Your sticky-notes board. Jump-in for quick reminders without
               picking a section.
             </p>
           </CardContent>
-          <CardFooter className="flex items-center justify-between text-xs text-[var(--zoru-muted-foreground)]">
+          <CardFooter className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
             <Badge variant="secondary">Always pinned</Badge>
           </CardFooter>
         </Card>
@@ -184,15 +184,15 @@ export function NotebookGrid({
               aria-label={`Open ${nb.name}`}
             />
             <CardHeader className="flex flex-row items-center gap-2">
-              <Notebook className="h-4 w-4 text-[var(--zoru-muted-foreground)]" />
+              <Notebook className="h-4 w-4 text-[var(--st-text-secondary)]" />
               <CardTitle className="line-clamp-1">{nb.name}</CardTitle>
             </CardHeader>
             <CardContent className="min-h-[60px]">
-              <p className="line-clamp-3 text-sm text-[var(--zoru-muted-foreground)]">
+              <p className="line-clamp-3 text-sm text-[var(--st-text-secondary)]">
                 {nb.description ?? 'No description.'}
               </p>
             </CardContent>
-            <CardFooter className="flex items-center justify-between text-xs text-[var(--zoru-muted-foreground)]">
+            <CardFooter className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
               <Badge variant="secondary">{nb.noteCount ?? 0} notes</Badge>
               <Button
                 variant="ghost"
@@ -269,7 +269,7 @@ export function NotebookGrid({
                       backgroundColor: c.value,
                       borderColor:
                         color === c.value
-                          ? 'var(--zoru-foreground)'
+                          ? 'var(--st-text)'
                           : 'transparent',
                     }}
                   />

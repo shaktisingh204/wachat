@@ -62,7 +62,7 @@ export default async function TimesheetsPage() {
                         Pending approvals ({pending.length})
                     </h2>
                     {pending.length === 0 ? (
-                        <p className="text-sm text-[color:var(--zoru-muted-fg)]">All caught up.</p>
+                        <p className="text-sm text-[color:var(--st-text-secondary)]">All caught up.</p>
                     ) : (
                         <Table>
                             <TableHeader>

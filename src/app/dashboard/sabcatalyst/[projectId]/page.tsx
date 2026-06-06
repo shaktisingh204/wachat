@@ -65,7 +65,7 @@ export default async function ProjectConsolePage({ params }: PageProps) {
                             {project.status}
                         </Badge>
                     </div>
-                    <p className="text-sm text-[var(--zoru-muted-foreground)] font-mono mt-1">
+                    <p className="text-sm text-[var(--st-text-secondary)] font-mono mt-1">
                         /api/catalyst/{project.slug}/…
                     </p>
                 </div>

@@ -78,7 +78,7 @@ export function BaseShellClient({
         <div className="flex items-center gap-2 font-semibold">
           <div
             className="w-6 h-6 rounded flex items-center justify-center"
-            style={{ backgroundColor: base.color || 'var(--zoru-ink)', color: 'var(--zoru-surface)' }}
+            style={{ backgroundColor: base.color || 'var(--st-text)', color: 'var(--st-bg-secondary)' }}
           >
             <Database className="w-3.5 h-3.5" />
           </div>

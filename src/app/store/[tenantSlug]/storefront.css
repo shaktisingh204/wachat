@@ -3,8 +3,8 @@
 /* `src/app/store/[tenantSlug]/layout.tsx`. */
 
 .storefront {
-    color: var(--store-fg, var(--zoru-ink));
-    background: var(--store-bg, var(--zoru-surface));
+    color: var(--store-fg, var(--st-text));
+    background: var(--store-bg, var(--st-bg-secondary));
     font-family: var(--store-font, system-ui, sans-serif);
     min-height: 100vh;
     display: flex;
@@ -19,11 +19,11 @@
 }
 
 .storefront-header {
-    border-bottom: 1px solid var(--zoru-line);
+    border-bottom: 1px solid var(--st-border);
 }
 
 .storefront-footer {
-    border-top: 1px solid var(--zoru-line);
+    border-top: 1px solid var(--st-border);
     margin-top: auto;
 }
 
@@ -42,22 +42,22 @@
 }
 
 .storefront-card {
-    border: 1px solid var(--zoru-line);
+    border: 1px solid var(--st-border);
     border-radius: 12px;
-    background: var(--zoru-surface);
+    background: var(--st-bg-secondary);
     overflow: hidden;
     transition: box-shadow 0.15s ease;
 }
 
 .storefront-card:hover {
-    box-shadow: 0 10px 24px var(--zoru-line);
+    box-shadow: 0 10px 24px var(--st-border);
 }
 
 .storefront-card img {
     width: 100%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
-    background: var(--zoru-surface-2);
+    background: var(--st-bg-muted);
 }
 
 .storefront-card .body {
@@ -103,8 +103,8 @@
     width: 100%;
     padding: 0.5rem 0.75rem;
     border-radius: 8px;
-    border: 1px solid var(--zoru-line);
-    background: var(--zoru-surface);
+    border: 1px solid var(--st-border);
+    background: var(--st-bg-secondary);
     font: inherit;
 }
 
@@ -118,7 +118,7 @@
 .storefront-steps .step {
     padding: 0.35rem 0.75rem;
     border-radius: 999px;
-    background: var(--zoru-surface-2);
+    background: var(--st-bg-muted);
 }
 
 .storefront-steps .step.active {

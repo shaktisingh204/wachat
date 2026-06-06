@@ -2,17 +2,17 @@
   font-family: inherit;
 }
 .rbc-toolbar button {
-  color: var(--zoru-ink);
+  color: var(--st-text);
   border-radius: var(--st-radius);
-  border-color: var(--zoru-line);
+  border-color: var(--st-border);
 }
 .rbc-toolbar button.rbc-active {
-  background-color: var(--zoru-surface-2);
-  color: var(--zoru-ink);
+  background-color: var(--st-bg-muted);
+  color: var(--st-text);
 }
 .rbc-event {
   border-radius: var(--st-radius);
 }
 .rbc-today {
-  background-color: var(--zoru-surface-2);
+  background-color: var(--st-bg-muted);
 }

@@ -85,7 +85,7 @@ export function RunResultsTable({ reportName, columns, rows }: RunResultsTablePr
                 style={{ maxHeight: containerHeight }}
             >
                 <table className="w-full text-sm relative border-collapse">
-                    <thead className="text-left text-[var(--st-text-secondary)] sticky top-0 bg-[var(--st-bg)] z-10 shadow-[0_1px_0_var(--zoru-line)]">
+                    <thead className="text-left text-[var(--st-text-secondary)] sticky top-0 bg-[var(--st-bg)] z-10 shadow-[0_1px_0_var(--st-border)]">
                         <tr>
                             {columns.map((c) => (
                                 <th key={c} className="px-3 py-2 font-medium">

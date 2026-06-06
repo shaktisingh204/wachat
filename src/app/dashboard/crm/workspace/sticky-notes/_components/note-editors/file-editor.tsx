@@ -76,14 +76,14 @@ export function FileEditor({ value, onChange, disabled }: FileEditorProps) {
           href={value.url}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-3 rounded-md border border-[var(--zoru-border)] p-3 hover:bg-[var(--zoru-muted)]"
+          className="flex items-center gap-3 rounded-md border border-[var(--st-border)] p-3 hover:bg-[var(--st-bg-muted)]"
         >
-          <FileIcon className="h-6 w-6 text-[var(--zoru-muted-foreground)]" />
+          <FileIcon className="h-6 w-6 text-[var(--st-text-secondary)]" />
           <div className="flex min-w-0 flex-col">
             <span className="truncate text-sm font-medium">
               {value.name ?? 'Attachment'}
             </span>
-            <span className="text-xs text-[var(--zoru-muted-foreground)]">
+            <span className="text-xs text-[var(--st-text-secondary)]">
               {value.mime ?? '—'} {value.size ? `· ${fmtSize(value.size)}` : ''}
             </span>
           </div>

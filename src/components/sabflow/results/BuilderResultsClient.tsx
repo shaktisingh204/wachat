@@ -13,10 +13,10 @@ export function BuilderResultsChart({ data }: { data: { date: string; total: num
   return (
     <ZoruChartContainer config={{}} className="h-72 w-full">
       <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--zoru-line)" />
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
         <XAxis 
           dataKey="date" 
-          stroke="var(--zoru-ink-muted)" 
+          stroke="var(--st-text-secondary)" 
           fontSize={12} 
           tickLine={false} 
           axisLine={false} 
@@ -26,7 +26,7 @@ export function BuilderResultsChart({ data }: { data: { date: string; total: num
           }}
         />
         <YAxis 
-          stroke="var(--zoru-ink-muted)" 
+          stroke="var(--st-text-secondary)" 
           fontSize={12} 
           tickLine={false} 
           axisLine={false} 

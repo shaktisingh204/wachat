@@ -33,9 +33,31 @@ Helper scripts: `register-crates.py` (api wiring), `register-barrel.py` (rust-cl
 ai-ad-copy is intentionally **Next-only** (LLM generation reuses the existing AI route pattern;
 no persistence → no crate).
 
+## Phase 2 — all remaining follow-ups completed (same day)
+- **A/B test results are now REAL**: `wachat-ab-testing` computes per-variant sent/delivered/read/failed
+  live from `broadcast_contacts`/`broadcast_logs`; the Next launch action links each variant's broadcast
+  via `POST /{id}/variants/{variant}/broadcast` (by unique `fileName`). The page shows real metrics + a
+  "not launched yet" state.
+- **`/wachat/chat/kanban`** now uses a real contacts-domain endpoint (`GET /v1/contacts/kanban` +
+  `POST /v1/contacts/kanban/statuses` on `wachat-contacts`), off native-mongo.
+- **Scheduled email reports** (response-time-tracker) wired to the `wachat-features` scheduled-reports
+  endpoints (real persistence, not a mock toast).
+- **Phone display-name + WhatsApp Flows encryption** (`wachat-config`, Graph + RSA-2048 seams) and
+  **multi-language template clone** (`wachat-templates-actions`, Graph seam) built + wired — code-complete,
+  degrade gracefully without live Meta creds.
+- **Public developer API**: 4 themed `api-manifest` modules (rust-fwd, existing scopes only) →
+  `npm run api:gen` emitted **80 new `/api/v1/wachat/*` proxy routes** + OpenAPI + TS SDK. `api:lint` OK
+  (11,932 endpoints), `tsc` clean.
+- **Backfill**: `scripts/wachat/backfill/canned-messages.ts` (legacy `canned_messages` → `wa_canned_messages`,
+  dry-run default, `--apply`, idempotent). It was the only genuine collection rename; other migrated features
+  reuse the same collection (`projects`) or already-correct `wa_*` names.
+
+Final verification: `cargo check -p sabnode-api` GREEN; `tsc --noEmit` reports only the 10 pre-existing
+CRM `*.actions.types.ts` syntax errors (unrelated to WaChat — codegen artifacts in the CRM module).
+
 ## Verified vs. runtime follow-ups
 The code compiles + typechecks and follows the established patterns. It was NOT runtime-tested
-(no live Rust API + Mongo in this environment). Remaining runtime/integration items:
+(no live Rust API + Mongo in this environment). Truly external (need real creds/runtime, can't finish here):
 
 1. **A/B test results**: the crate seeds zeroed `wa_ab_test_results`; a broadcast delivery/reply
    **webhook** must increment sent/opened/replied per `{testId, variant}`.

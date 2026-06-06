@@ -152,13 +152,13 @@ function isWachatRoute(pathname: string | null): boolean {
 
 function ShellSkeleton() {
   return (
-    <div className="flex min-h-screen w-full bg-[var(--zoru-surface)]">
+    <div className="flex min-h-screen w-full bg-[var(--st-bg-secondary)]">
       <div
-        className="hidden lg:block w-14 shrink-0 border-r border-black/5 bg-[var(--zoru-surface-2)]"
+        className="hidden lg:block w-14 shrink-0 border-r border-black/5 bg-[var(--st-bg-muted)]"
         aria-hidden
       />
       <div
-        className="hidden lg:block w-72 lg:w-80 shrink-0 border-r border-black/5 bg-[var(--zoru-surface)]"
+        className="hidden lg:block w-72 lg:w-80 shrink-0 border-r border-black/5 bg-[var(--st-bg-secondary)]"
         aria-hidden
       />
       <div className="flex-1" aria-hidden />
@@ -245,7 +245,7 @@ function ShellLayout({ children }: { children: React.ReactNode }) {
   useTabsKeyboard();
 
   return (
-    <div className="flex min-h-screen w-full bg-[var(--zoru-surface)]">
+    <div className="flex min-h-screen w-full bg-[var(--st-bg-secondary)]">
       <SabNodeSidebar />
       <div className="flex-1 min-w-0 flex flex-col">
         <TabsBar />

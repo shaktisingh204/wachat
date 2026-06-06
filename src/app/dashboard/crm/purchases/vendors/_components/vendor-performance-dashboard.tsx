@@ -25,12 +25,12 @@ export function VendorPerformanceDashboard({ vendors }: { vendors: any[] }) {
                 dataKey="name" 
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "hsl(var(--zoru-ink-muted))", fontSize: 12 }} 
+                tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }} 
               />
               <ZoruChart.YAxis 
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "hsl(var(--zoru-ink-muted))", fontSize: 12 }}
+                tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }}
               />
               <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
               <ZoruChart.Bar dataKey="orders" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
@@ -50,12 +50,12 @@ export function VendorPerformanceDashboard({ vendors }: { vendors: any[] }) {
                 dataKey="name" 
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "hsl(var(--zoru-ink-muted))", fontSize: 12 }} 
+                tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }} 
               />
               <ZoruChart.YAxis 
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "hsl(var(--zoru-ink-muted))", fontSize: 12 }}
+                tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }}
               />
               <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
               <ZoruChart.Line type="monotone" dataKey="value" stroke={ZORU_CHART_PALETTE[0]} strokeWidth={2} dot={false} />

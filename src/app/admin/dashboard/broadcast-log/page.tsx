@@ -153,7 +153,7 @@ function BroadcastLogContent() {
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[color:var(--zoru-line)]">
+                        <tbody className="divide-y divide-[color:var(--st-border)]">
                             {isLoading ? (
                                 [...Array(6)].map((_, i) => (
                                     <tr key={i}>

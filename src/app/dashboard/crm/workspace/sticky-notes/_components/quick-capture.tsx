@@ -109,7 +109,7 @@ export function QuickCapture({ notebookId, sectionId }: QuickCaptureProps) {
           rows={10}
           placeholder="What's on your mind?"
         />
-        <p className="text-xs text-[var(--zoru-muted-foreground)]">
+        <p className="text-xs text-[var(--st-text-secondary)]">
           Audio, sketch, and file kinds are available from the full editor.
         </p>
       </Card>

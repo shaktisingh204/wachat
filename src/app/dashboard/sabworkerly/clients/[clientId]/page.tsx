@@ -68,15 +68,15 @@ export default async function ClientDetailPage({
                     <CardHeader><CardTitle>Contact</CardTitle></CardHeader>
                     <CardContent className="space-y-1 text-sm">
                         <div>{client.contactName ?? '—'}</div>
-                        <div className="text-[color:var(--zoru-muted-fg)]">{client.contactEmail ?? '—'}</div>
-                        <div className="text-[color:var(--zoru-muted-fg)]">{client.contactPhone ?? '—'}</div>
+                        <div className="text-[color:var(--st-text-secondary)]">{client.contactEmail ?? '—'}</div>
+                        <div className="text-[color:var(--st-text-secondary)]">{client.contactPhone ?? '—'}</div>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>Terms</CardTitle></CardHeader>
                     <CardContent>
                         <div className="text-2xl font-semibold">NET-{client.paymentTermsDays}</div>
-                        <div className="text-xs text-[color:var(--zoru-muted-fg)]">payment terms</div>
+                        <div className="text-xs text-[color:var(--st-text-secondary)]">payment terms</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -91,7 +91,7 @@ export default async function ClientDetailPage({
                 <CardHeader><CardTitle>Jobs posted ({jobs.length})</CardTitle></CardHeader>
                 <CardContent className="p-0">
                     {jobs.length === 0 ? (
-                        <p className="p-6 text-sm text-[color:var(--zoru-muted-fg)]">No jobs yet.</p>
+                        <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">No jobs yet.</p>
                     ) : (
                         <Table>
                             <TableHeader>
@@ -127,7 +127,7 @@ export default async function ClientDetailPage({
                 <CardHeader><CardTitle>Active placements ({placements.length})</CardTitle></CardHeader>
                 <CardContent className="p-0">
                     {placements.length === 0 ? (
-                        <p className="p-6 text-sm text-[color:var(--zoru-muted-fg)]">No active placements.</p>
+                        <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">No active placements.</p>
                     ) : (
                         <Table>
                             <TableHeader>
@@ -157,7 +157,7 @@ export default async function ClientDetailPage({
                 <CardHeader><CardTitle>Invoices ({invoices.length})</CardTitle></CardHeader>
                 <CardContent className="p-0">
                     {invoices.length === 0 ? (
-                        <p className="p-6 text-sm text-[color:var(--zoru-muted-fg)]">No invoices yet.</p>
+                        <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">No invoices yet.</p>
                     ) : (
                         <Table>
                             <TableHeader>

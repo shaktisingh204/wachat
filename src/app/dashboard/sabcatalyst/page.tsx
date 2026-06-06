@@ -23,7 +23,7 @@ export default async function SabcatalystHomePage() {
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">SabCatalyst</h1>
-                    <p className="text-sm text-[var(--zoru-muted-foreground)] mt-1">
+                    <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                         Spin up project-scoped functions, datastore tables, auth users,
                         file stores, and HTTP APIs — all in one place.
                     </p>
@@ -40,11 +40,11 @@ export default async function SabcatalystHomePage() {
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {items.map((p) => (
                         <Link key={p._id} href={`/dashboard/sabcatalyst/${p._id}`}>
-                            <Card className="p-4 hover:bg-[var(--zoru-accent)] transition-colors h-full">
+                            <Card className="p-4 hover:bg-[var(--st-accent)] transition-colors h-full">
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
                                         <h3 className="font-semibold truncate">{p.name}</h3>
-                                        <p className="text-xs text-[var(--zoru-muted-foreground)] font-mono mt-0.5 truncate">
+                                        <p className="text-xs text-[var(--st-text-secondary)] font-mono mt-0.5 truncate">
                                             {p.slug}
                                         </p>
                                     </div>
@@ -53,11 +53,11 @@ export default async function SabcatalystHomePage() {
                                     </Badge>
                                 </div>
                                 {p.description ? (
-                                    <p className="text-sm text-[var(--zoru-muted-foreground)] mt-3 line-clamp-2">
+                                    <p className="text-sm text-[var(--st-text-secondary)] mt-3 line-clamp-2">
                                         {p.description}
                                     </p>
                                 ) : null}
-                                <div className="flex items-center gap-3 mt-4 text-xs text-[var(--zoru-muted-foreground)]">
+                                <div className="flex items-center gap-3 mt-4 text-xs text-[var(--st-text-secondary)]">
                                     <span>Runtime: {p.runtime}</span>
                                     {p.region ? <span>Region: {p.region}</span> : null}
                                 </div>

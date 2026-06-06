@@ -445,16 +445,16 @@ export default function CardsPage() {
                 <ZoruChart.LineChart data={CHART_DATA}>
                   <ZoruChart.CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="hsl(var(--zoru-line))"
+                    stroke="var(--st-border)"
                   />
                   <ZoruChart.XAxis
                     dataKey="day"
-                    tick={{ fontSize: 11, fill: "hsl(var(--zoru-ink-muted))" }}
+                    tick={{ fontSize: 11, fill: "var(--st-text-secondary)" }}
                     tickLine={false}
-                    axisLine={{ stroke: "hsl(var(--zoru-line))" }}
+                    axisLine={{ stroke: "var(--st-border)" }}
                   />
                   <ZoruChart.YAxis
-                    tick={{ fontSize: 11, fill: "hsl(var(--zoru-ink-muted))" }}
+                    tick={{ fontSize: 11, fill: "var(--st-text-secondary)" }}
                     tickLine={false}
                     axisLine={false}
                   />
@@ -539,16 +539,16 @@ export default function CardsPage() {
                 <ZoruChart.LineChart data={CHART_DATA}>
                   <ZoruChart.CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="hsl(var(--zoru-line))"
+                    stroke="var(--st-border)"
                   />
                   <ZoruChart.XAxis
                     dataKey="day"
-                    tick={{ fontSize: 11, fill: "hsl(var(--zoru-ink-muted))" }}
+                    tick={{ fontSize: 11, fill: "var(--st-text-secondary)" }}
                     tickLine={false}
-                    axisLine={{ stroke: "hsl(var(--zoru-line))" }}
+                    axisLine={{ stroke: "var(--st-border)" }}
                   />
                   <ZoruChart.YAxis
-                    tick={{ fontSize: 11, fill: "hsl(var(--zoru-ink-muted))" }}
+                    tick={{ fontSize: 11, fill: "var(--st-text-secondary)" }}
                     tickLine={false}
                     axisLine={false}
                   />

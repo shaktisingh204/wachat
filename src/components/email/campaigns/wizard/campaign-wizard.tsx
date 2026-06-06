@@ -210,17 +210,17 @@ function StepperBar({ current }: { current: WizardState['step'] }) {
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-medium ${
                 isDone
-                  ? 'border-transparent bg-[color:var(--zoru-accent)] text-[color:var(--zoru-accent-foreground)]'
+                  ? 'border-transparent bg-[color:var(--st-accent)] text-[color:var(--zoru-accent-foreground)]'
                   : isActive
-                    ? 'border-[color:var(--zoru-accent)] text-[color:var(--zoru-accent)]'
-                    : 'border-[color:var(--zoru-border)] text-[color:var(--zoru-muted-foreground)]'
+                    ? 'border-[color:var(--st-accent)] text-[color:var(--st-accent)]'
+                    : 'border-[color:var(--st-border)] text-[color:var(--st-text-secondary)]'
               }`}
             >
               {isDone ? <Check className="h-4 w-4" /> : num}
             </div>
             <span
               className={`text-sm font-medium ${
-                isActive ? 'text-[color:var(--zoru-foreground)]' : 'text-[color:var(--zoru-muted-foreground)]'
+                isActive ? 'text-[color:var(--st-text)]' : 'text-[color:var(--st-text-secondary)]'
               }`}
             >
               {label}
@@ -299,8 +299,8 @@ function TypeChoice({
       htmlFor={`type-${value}`}
       className={`flex cursor-pointer flex-col gap-2 rounded-lg border p-4 ${
         selected
-          ? 'border-[color:var(--zoru-accent)] bg-[color:var(--zoru-accent)]/5'
-          : 'border-[color:var(--zoru-border)]'
+          ? 'border-[color:var(--st-accent)] bg-[color:var(--st-accent)]/5'
+          : 'border-[color:var(--st-border)]'
       }`}
     >
       <div className="flex items-center gap-2">
@@ -308,7 +308,7 @@ function TypeChoice({
         <span className="font-semibold">{title}</span>
         {selected && <Badge variant="default">Selected</Badge>}
       </div>
-      <p className="text-sm text-[color:var(--zoru-muted-foreground)]">{description}</p>
+      <p className="text-sm text-[color:var(--st-text-secondary)]">{description}</p>
     </Label>
   );
 }
@@ -351,7 +351,7 @@ function StepAudience({
           onChange={(e) => setSegmentInput(e.target.value)}
           onBlur={commitSegments}
         />
-        <p className="text-xs text-[color:var(--zoru-muted-foreground)]">
+        <p className="text-xs text-[color:var(--st-text-secondary)]">
           Build new segments under{' '}
           <a className="underline" href="/dashboard/email/audience/segments/new">
             /audience/segments/new
@@ -493,7 +493,7 @@ function StepSchedule({
               <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
             </ZoruSelectContent>
           </Select>
-          <p className="text-xs text-[color:var(--zoru-muted-foreground)]">
+          <p className="text-xs text-[color:var(--st-text-secondary)]">
             Recurring schedules persist on the campaign and run via the email-sender worker.
           </p>
         </div>
@@ -520,7 +520,7 @@ function StepPreview({ state }: { state: WizardState }) {
       </div>
       <Separator />
       <Label>Body preview</Label>
-      <div className="rounded border bg-[color:var(--zoru-card)] p-4">
+      <div className="rounded border bg-[color:var(--st-bg)] p-4">
         <iframe
           title="Campaign HTML preview"
           srcDoc={state.body}
@@ -535,7 +535,7 @@ function StepPreview({ state }: { state: WizardState }) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-xs uppercase text-[color:var(--zoru-muted-foreground)]">{label}</div>
+      <div className="text-xs uppercase text-[color:var(--st-text-secondary)]">{label}</div>
       <div className="font-medium">{value || '—'}</div>
     </div>
   );

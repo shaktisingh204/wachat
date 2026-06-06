@@ -865,9 +865,9 @@ export default function TelegramBroadcastsPage() {
         <div className="flex flex-col gap-6 p-4 md:p-6">
             <PageHeader>
                 <ZoruPageHeading>
-                    <ZoruPageEyebrow className="text-[var(--zoru-ink)]">Telegram</ZoruPageEyebrow>
+                    <ZoruPageEyebrow className="text-[var(--st-text)]">Telegram</ZoruPageEyebrow>
                     <ZoruPageTitle className="flex items-center gap-2">
-                        <Megaphone className="text-[var(--zoru-ink)]" />
+                        <Megaphone className="text-[var(--st-text)]" />
                         Telegram Broadcasts
                     </ZoruPageTitle>
                     <ZoruPageDescription>
@@ -879,7 +879,7 @@ export default function TelegramBroadcastsPage() {
                     <Button
                         type="button"
                         onClick={openNewComposer}
-                        className="bg-[var(--zoru-ink)] text-white"
+                        className="bg-[var(--st-text)] text-white"
                     >
                         <Plus /> New broadcast
                     </Button>
@@ -1438,7 +1438,7 @@ function Composer(props: ComposerProps) {
                                     onClick={() => update('audienceKind', k.value)}
                                     className={`rounded-md border px-3 py-2 text-left text-sm transition ${
                                         composer.audienceKind === k.value
-                                            ? 'border-[var(--zoru-ink)] bg-[var(--zoru-ink)]/10'
+                                            ? 'border-[var(--st-text)] bg-[var(--st-text)]/10'
                                             : 'border-[var(--st-border)] hover:bg-zoru-bg-[var(--st-bg-muted)]'
                                     }`}
                                 >
@@ -1870,7 +1870,7 @@ function Composer(props: ComposerProps) {
                             type="button"
                             onClick={onSendNow}
                             disabled={saving}
-                            className="bg-[var(--zoru-ink)] text-white"
+                            className="bg-[var(--st-text)] text-white"
                         >
                             {saving ? <Loader2 className="animate-spin" /> : <Send />}
                             Save & send now
@@ -1967,7 +1967,7 @@ function DetailDrawer(props: DetailDrawerProps) {
             <ZoruDrawerContent className="max-h-[92vh]">
                 <ZoruDrawerHeader>
                     <ZoruDrawerTitle className="flex items-center gap-2">
-                        <Megaphone className="text-[var(--zoru-ink)]" />
+                        <Megaphone className="text-[var(--st-text)]" />
                         {row.name}
                     </ZoruDrawerTitle>
                     <ZoruDrawerDescription>

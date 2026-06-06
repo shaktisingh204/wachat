@@ -62,7 +62,7 @@ async function TimeData() {
             <PageHeader>
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight">Time</h1>
-                    <p className="text-sm text-[var(--zoru-ink-muted)]">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Week of {weekStart.toLocaleDateString()} —{' '}
                         {weekEnd.toLocaleDateString()}
                     </p>
@@ -153,7 +153,7 @@ async function TimeData() {
                                             {tl.taskId.slice(-6)}
                                         </TableCell>
                                         <TableCell>{tl.hours.toFixed(2)}</TableCell>
-                                        <TableCell className="text-sm text-[var(--zoru-ink-muted)]">
+                                        <TableCell className="text-sm text-[var(--st-text-secondary)]">
                                             {tl.notes ?? '—'}
                                         </TableCell>
                                         <TableCell>
@@ -174,7 +174,7 @@ export default function TimePage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--zoru-ink-muted)]">Loading…</div>
+                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading…</div>
             }
         >
             <TimeData />

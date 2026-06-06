@@ -104,7 +104,7 @@ export function DevicePreview({
             sandbox=""
             title="Email preview"
             srcDoc={srcDoc}
-            style={{ width, maxWidth: '100%', height: '100%', border: '1px solid var(--zoru-line)', borderRadius: 8, background: 'var(--zoru-surface)' }}
+            style={{ width, maxWidth: '100%', height: '100%', border: '1px solid var(--st-border)', borderRadius: 8, background: 'var(--st-bg-secondary)' }}
           />
         </div>
       </ZoruDrawerContent>

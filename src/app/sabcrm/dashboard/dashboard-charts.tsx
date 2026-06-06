@@ -86,24 +86,24 @@ function StageCountChart({ data }: StageCountChartProps) {
       >
         <Recharts.CartesianGrid
           strokeDasharray="3 3"
-          stroke="hsl(var(--zoru-line))"
+          stroke="var(--st-border)"
           vertical={false}
         />
         <Recharts.XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+          tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
           axisLine={false}
           tickLine={false}
         />
         <Recharts.YAxis
           allowDecimals={false}
-          tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+          tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
           axisLine={false}
           tickLine={false}
         />
         <Recharts.Tooltip
           content={<ZoruChartTooltip />}
-          cursor={{ fill: 'hsl(var(--zoru-surface-2))' }}
+          cursor={{ fill: 'var(--st-bg-muted)' }}
         />
         <Recharts.Bar
           dataKey="count"
@@ -149,18 +149,18 @@ function PipelineValueChart({ data }: PipelineValueChartProps) {
       >
         <Recharts.CartesianGrid
           strokeDasharray="3 3"
-          stroke="hsl(var(--zoru-line))"
+          stroke="var(--st-border)"
           vertical={false}
         />
         <Recharts.XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+          tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
           axisLine={false}
           tickLine={false}
         />
         <Recharts.YAxis
           tickFormatter={formatCurrencyShort}
-          tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+          tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
           axisLine={false}
           tickLine={false}
           width={56}
@@ -179,7 +179,7 @@ function PipelineValueChart({ data }: PipelineValueChartProps) {
               />
             );
           }}
-          cursor={{ fill: 'hsl(var(--zoru-surface-2))' }}
+          cursor={{ fill: 'var(--st-bg-muted)' }}
         />
         <Recharts.Bar
           dataKey="value"

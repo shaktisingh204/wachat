@@ -155,7 +155,7 @@ function AccountPill() {
     >
       <span
         className="mr-1.5 flex h-4 w-4 items-center justify-center rounded text-[8px] font-bold text-white"
-        style={{ background: 'var(--zoru-ink)' }}
+        style={{ background: 'var(--st-text)' }}
       >
         {(activeAccount?.name || 'AD').slice(0, 2).toUpperCase()}
       </span>

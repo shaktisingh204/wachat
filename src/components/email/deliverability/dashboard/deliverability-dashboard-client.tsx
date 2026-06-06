@@ -193,7 +193,7 @@ export function DeliverabilityDashboardClient() {
         </Card>
       )}
 
-      <p className="text-xs text-[color:var(--zoru-muted-foreground)]">
+      <p className="text-xs text-[color:var(--st-text-secondary)]">
         Per-domain engagement counters source from the `email_deliverability` Mongo collection populated
         by the `email-events` fanout. DNS status itself is refreshed by the `email-deliverability` Rust
         crate&apos;s scheduled checker — the dashboard renders the last persisted snapshot.

@@ -150,7 +150,7 @@ export function SegmentBuilderClient() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold">Filter rules</h2>
-            <p className="text-sm text-[color:var(--zoru-muted-foreground)]">
+            <p className="text-sm text-[color:var(--st-text-secondary)]">
               Nest groups to combine AND with OR.
             </p>
           </div>
@@ -212,7 +212,7 @@ function GroupNode({
   return (
     <div
       className={`rounded-lg border p-4 ${
-        depth > 0 ? 'border-dashed bg-[color:var(--zoru-muted)]/30' : ''
+        depth > 0 ? 'border-dashed bg-[color:var(--st-bg-muted)]/30' : ''
       }`}
     >
       <div className="mb-3 flex items-center gap-2">
@@ -225,7 +225,7 @@ function GroupNode({
             <ZoruSelectItem value="OR">OR</ZoruSelectItem>
           </ZoruSelectContent>
         </Select>
-        <span className="text-xs text-[color:var(--zoru-muted-foreground)]">
+        <span className="text-xs text-[color:var(--st-text-secondary)]">
           {group.combinator === 'AND' ? 'All of the following must match' : 'Any of the following can match'}
         </span>
       </div>
@@ -278,7 +278,7 @@ function LeafRow({
   const noValueOps: EmailFilterOp[] = ['exists', 'not_exists'];
   const showValue = !noValueOps.includes(leaf.op);
   return (
-    <div className="flex items-center gap-2 rounded border bg-[color:var(--zoru-card)] p-2">
+    <div className="flex items-center gap-2 rounded border bg-[color:var(--st-bg)] p-2">
       <Select value={leaf.field} onValueChange={(v) => onChange({ ...leaf, field: v })}>
         <ZoruSelectTrigger className="w-56">
           <ZoruSelectValue />

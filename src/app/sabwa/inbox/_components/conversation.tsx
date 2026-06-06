@@ -362,7 +362,7 @@ export function Conversation({
       <div
         ref={scrollerRef}
         onScroll={onScroll}
-        className="relative flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_hsl(var(--zoru-surface))_0%,_transparent_60%)]"
+        className="relative flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_var(--st-bg-secondary)_0%,_transparent_60%)]"
       >
         {loadingMore ? (
           <div className="flex items-center justify-center py-2 text-xs text-[var(--st-text-secondary)]">

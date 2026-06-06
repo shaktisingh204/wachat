@@ -62,21 +62,21 @@ export default async function WorkerDetailPage({
                     </CardHeader>
                     <CardContent className="flex flex-col gap-2 text-sm">
                         <div className="flex justify-between">
-                            <span className="text-[color:var(--zoru-muted-fg)]">Email</span>
+                            <span className="text-[color:var(--st-text-secondary)]">Email</span>
                             <span>{worker.email}</span>
                         </div>
                         {worker.phone && (
                             <div className="flex justify-between">
-                                <span className="text-[color:var(--zoru-muted-fg)]">Phone</span>
+                                <span className="text-[color:var(--st-text-secondary)]">Phone</span>
                                 <span>{worker.phone}</span>
                             </div>
                         )}
                         <div className="flex justify-between">
-                            <span className="text-[color:var(--zoru-muted-fg)]">Status</span>
+                            <span className="text-[color:var(--st-text-secondary)]">Status</span>
                             <Badge variant="secondary">{worker.status}</Badge>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-[color:var(--zoru-muted-fg)]">Pay rate</span>
+                            <span className="text-[color:var(--st-text-secondary)]">Pay rate</span>
                             <span>{money(worker.hourlyRateMinor, worker.currency)}/h</span>
                         </div>
                         <div className="flex flex-wrap gap-1 pt-2">
@@ -92,13 +92,13 @@ export default async function WorkerDetailPage({
                     </CardHeader>
                     <CardContent>
                         {(worker.documentIds ?? []).length === 0 ? (
-                            <p className="text-sm text-[color:var(--zoru-muted-fg)]">
+                            <p className="text-sm text-[color:var(--st-text-secondary)]">
                                 No documents attached.
                             </p>
                         ) : (
                             <ul className="flex flex-col gap-1 text-sm">
                                 {(worker.documentIds ?? []).map((id) => (
-                                    <li key={id} className="rounded-md border border-[color:var(--zoru-border)] px-3 py-2 font-mono text-xs">
+                                    <li key={id} className="rounded-md border border-[color:var(--st-border)] px-3 py-2 font-mono text-xs">
                                         {id}
                                     </li>
                                 ))}
@@ -114,7 +114,7 @@ export default async function WorkerDetailPage({
                         <div className="text-3xl font-semibold">
                             {money(earningsMinor, worker.currency)}
                         </div>
-                        <div className="text-xs text-[color:var(--zoru-muted-fg)]">
+                        <div className="text-xs text-[color:var(--st-text-secondary)]">
                             {timesheets.length} timesheet(s) on file
                         </div>
                     </CardContent>
@@ -127,7 +127,7 @@ export default async function WorkerDetailPage({
                 </CardHeader>
                 <CardContent className="p-0">
                     {placements.length === 0 ? (
-                        <p className="p-6 text-sm text-[color:var(--zoru-muted-fg)]">
+                        <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">
                             No placements yet.
                         </p>
                     ) : (

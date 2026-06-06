@@ -44,25 +44,25 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
                             <AreaChart data={sorted} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="pfEmployerColor" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--zoru-ink-muted))" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="hsl(var(--zoru-ink-muted))" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="var(--st-text-secondary)" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="var(--st-text-secondary)" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="pfEmployeeColor" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--zoru-ink))" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="hsl(var(--zoru-ink))" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="var(--st-text)" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="var(--st-text)" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
                                 <XAxis
                                     dataKey="month"
                                     tickLine={false}
                                     axisLine={false}
-                                    tick={{ fontSize: 12, fill: 'hsl(var(--zoru-ink-muted))' }}
+                                    tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                                 />
                                 <YAxis
                                     tickLine={false}
                                     axisLine={false}
-                                    tick={{ fontSize: 12, fill: 'hsl(var(--zoru-ink-muted))' }}
+                                    tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                                     tickFormatter={(v) => `₹${v}`}
                                 />
                                 <Tooltip content={<ZoruChartTooltip />} />
@@ -71,7 +71,7 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
                                     type="monotone"
                                     dataKey="pfEmployer"
                                     name="Employer PF"
-                                    stroke="hsl(var(--zoru-ink-muted))"
+                                    stroke="var(--st-text-secondary)"
                                     fillOpacity={1}
                                     fill="url(#pfEmployerColor)"
                                 />
@@ -79,7 +79,7 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
                                     type="monotone"
                                     dataKey="pfEmployee"
                                     name="Employee PF"
-                                    stroke="hsl(var(--zoru-ink))"
+                                    stroke="var(--st-text)"
                                     fillOpacity={1}
                                     fill="url(#pfEmployeeColor)"
                                 />
@@ -95,25 +95,25 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
                             <AreaChart data={sorted} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="esiEmployerColor" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--zoru-ink-muted))" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="hsl(var(--zoru-ink-muted))" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="var(--st-text-secondary)" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="var(--st-text-secondary)" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="esiEmployeeColor" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--zoru-ink))" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="hsl(var(--zoru-ink))" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="var(--st-text)" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="var(--st-text)" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
                                 <XAxis
                                     dataKey="month"
                                     tickLine={false}
                                     axisLine={false}
-                                    tick={{ fontSize: 12, fill: 'hsl(var(--zoru-ink-muted))' }}
+                                    tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                                 />
                                 <YAxis
                                     tickLine={false}
                                     axisLine={false}
-                                    tick={{ fontSize: 12, fill: 'hsl(var(--zoru-ink-muted))' }}
+                                    tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                                     tickFormatter={(v) => `₹${v}`}
                                 />
                                 <Tooltip content={<ZoruChartTooltip />} />
@@ -122,7 +122,7 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
                                     type="monotone"
                                     dataKey="esiEmployer"
                                     name="Employer ESI"
-                                    stroke="hsl(var(--zoru-ink-muted))"
+                                    stroke="var(--st-text-secondary)"
                                     fillOpacity={1}
                                     fill="url(#esiEmployerColor)"
                                 />
@@ -130,7 +130,7 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
                                     type="monotone"
                                     dataKey="esiEmployee"
                                     name="Employee ESI"
-                                    stroke="hsl(var(--zoru-ink))"
+                                    stroke="var(--st-text)"
                                     fillOpacity={1}
                                     fill="url(#esiEmployeeColor)"
                                 />

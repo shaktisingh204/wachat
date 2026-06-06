@@ -120,20 +120,20 @@ export function ResultsDashboard({ stats, dailyCounts, sessions }: Props) {
           </div>
           <ZoruChartContainer height={300}>
             <ZoruChart.BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-              <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+              <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
               <ZoruChart.XAxis 
                 dataKey="date" 
                 tickLine={false} 
                 axisLine={false} 
-                tick={{ fontSize: 12, fill: 'hsl(var(--zoru-ink-muted))' }} 
+                tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }} 
                 dy={10}
               />
               <ZoruChart.YAxis 
                 tickLine={false} 
                 axisLine={false} 
-                tick={{ fontSize: 12, fill: 'hsl(var(--zoru-ink-muted))' }} 
+                tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }} 
               />
-              <ZoruChart.Tooltip content={<ZoruChartTooltip />} cursor={{ fill: 'hsl(var(--zoru-surface-2))' }} />
+              <ZoruChart.Tooltip content={<ZoruChartTooltip />} cursor={{ fill: 'var(--st-bg-muted)' }} />
               <ZoruChart.Legend wrapperStyle={{ fontSize: 12, paddingTop: 20 }} />
               <ZoruChart.Bar dataKey="success" name="Completed" stackId="a" fill="hsl(var(--zoru-success, 142.1 70.6% 45.3%))" radius={[0, 0, 4, 4]} />
               <ZoruChart.Bar dataKey="failure" name="Failed/Abandoned" stackId="a" fill="hsl(var(--zoru-danger, 0 84.2% 60.2%))" radius={[4, 4, 0, 0]} />

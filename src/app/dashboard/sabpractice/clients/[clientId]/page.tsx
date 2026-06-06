@@ -62,14 +62,14 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                     <div>
                         <Link
                             href="/dashboard/sabpractice/clients"
-                            className="text-xs text-[var(--zoru-ink-muted)] underline-offset-2 hover:underline"
+                            className="text-xs text-[var(--st-text-secondary)] underline-offset-2 hover:underline"
                         >
                             ← All clients
                         </Link>
                         <h1 className="mt-1 text-2xl font-semibold tracking-tight">
                             {client.name}
                         </h1>
-                        <p className="text-sm text-[var(--zoru-ink-muted)]">
+                        <p className="text-sm text-[var(--st-text-secondary)]">
                             {client.industry ?? '—'} · {client.primaryContactName ?? 'No contact'}
                         </p>
                     </div>
@@ -86,23 +86,23 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                 <CardContent>
                     <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
                         <div>
-                            <dt className="text-[var(--zoru-ink-muted)]">Engagements</dt>
+                            <dt className="text-[var(--st-text-secondary)]">Engagements</dt>
                             <dd className="text-lg font-semibold">{engagements.items.length}</dd>
                         </div>
                         <div>
-                            <dt className="text-[var(--zoru-ink-muted)]">Open tasks</dt>
+                            <dt className="text-[var(--st-text-secondary)]">Open tasks</dt>
                             <dd className="text-lg font-semibold">
                                 {tasks.items.filter((t) => t.status !== 'done').length}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-[var(--zoru-ink-muted)]">Hours logged</dt>
+                            <dt className="text-[var(--st-text-secondary)]">Hours logged</dt>
                             <dd className="text-lg font-semibold">
                                 {(timeLogs.totalHours ?? 0).toFixed(1)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-[var(--zoru-ink-muted)]">Open deadlines</dt>
+                            <dt className="text-[var(--st-text-secondary)]">Open deadlines</dt>
                             <dd className="text-lg font-semibold">
                                 {deadlines.items.filter((d) => d.status !== 'filed').length}
                             </dd>
@@ -135,7 +135,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                                 >
                                     <div className="flex flex-col">
                                         <span className="font-medium">{e.name}</span>
-                                        <span className="text-xs text-[var(--zoru-ink-muted)]">
+                                        <span className="text-xs text-[var(--st-text-secondary)]">
                                             {e.billingCadence ?? 'no cadence'} ·{' '}
                                             {e.hourlyRateMinor
                                                 ? `${(e.hourlyRateMinor / 100).toFixed(2)} ${e.currency ?? ''}`
@@ -179,7 +179,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                                         <div>
                                             <p className="text-sm font-medium">{r.title}</p>
                                             {r.dueDate ? (
-                                                <p className="text-xs text-[var(--zoru-ink-muted)]">
+                                                <p className="text-xs text-[var(--st-text-secondary)]">
                                                     Due{' '}
                                                     {new Date(r.dueDate).toLocaleDateString()}
                                                 </p>
@@ -231,7 +231,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                                 >
                                     <div className="flex flex-col">
                                         <span className="font-medium">{t.title}</span>
-                                        <span className="text-xs text-[var(--zoru-ink-muted)]">
+                                        <span className="text-xs text-[var(--st-text-secondary)]">
                                             {t.assigneeUserId ?? 'unassigned'} ·{' '}
                                             {(t.hoursSpent ?? 0).toFixed(1)}h ·{' '}
                                             {t.billable ? 'billable' : 'non-billable'}
@@ -276,7 +276,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                                         <span className="font-medium">
                                             {tl.hours.toFixed(2)}h
                                         </span>
-                                        <span className="ml-2 text-xs text-[var(--zoru-ink-muted)]">
+                                        <span className="ml-2 text-xs text-[var(--st-text-secondary)]">
                                             {new Date(tl.date).toLocaleDateString()} ·{' '}
                                             {tl.loggerUserId}
                                         </span>
@@ -316,7 +316,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
                                             <p className="text-sm font-medium">{n.title}</p>
-                                            <p className="text-xs text-[var(--zoru-ink-muted)]">
+                                            <p className="text-xs text-[var(--st-text-secondary)]">
                                                 {n.kind ?? 'insight'} ·{' '}
                                                 {n.status === 'shared'
                                                     ? `shared ${n.sharedAt ? new Date(n.sharedAt).toLocaleDateString() : ''}`
@@ -330,7 +330,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                                         )}
                                     </div>
                                     {n.body ? (
-                                        <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--zoru-ink)]">
+                                        <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--st-text)]">
                                             {n.body}
                                         </p>
                                     ) : null}
@@ -367,7 +367,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
                                 >
                                     <div className="flex flex-col">
                                         <span className="font-medium">{d.name}</span>
-                                        <span className="text-xs text-[var(--zoru-ink-muted)]">
+                                        <span className="text-xs text-[var(--st-text-secondary)]">
                                             {d.kind ?? 'custom'} · due{' '}
                                             {new Date(d.dueDate).toLocaleDateString()}
                                         </span>
@@ -388,7 +388,7 @@ export default async function ClientCockpitPage({ params }: Props) {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--zoru-ink-muted)]">Loading client…</div>
+                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading client…</div>
             }
         >
             <ClientCockpit clientId={clientId} />

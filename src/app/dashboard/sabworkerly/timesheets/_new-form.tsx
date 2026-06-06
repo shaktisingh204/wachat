@@ -46,7 +46,7 @@ export function NewTimesheetForm({ placements }: { placements: PlacementOpt[] })
 
     if (placements.length === 0) {
         return (
-            <p className="text-sm text-[color:var(--zoru-muted-fg)]">
+            <p className="text-sm text-[color:var(--st-text-secondary)]">
                 No active placements — place a worker into a job first.
             </p>
         );
@@ -128,8 +128,8 @@ export function NewTimesheetForm({ placements }: { placements: PlacementOpt[] })
             </div>
 
             <div className="flex items-center justify-between pt-2">
-                <span className="text-sm text-[color:var(--zoru-muted-fg)]">
-                    Total: <span className="font-semibold text-[color:var(--zoru-fg)]">{total.toFixed(2)} h</span>
+                <span className="text-sm text-[color:var(--st-text-secondary)]">
+                    Total: <span className="font-semibold text-[color:var(--st-text)]">{total.toFixed(2)} h</span>
                 </span>
                 <Button type="submit" disabled={pending}>
                     {pending ? 'Saving…' : 'Save draft'}

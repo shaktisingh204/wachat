@@ -250,7 +250,7 @@ export function ShiftRotationClient({ initialData, getShiftRotationsAction }: { 
           className="overflow-auto rounded-lg border border-[var(--st-border)] print:border-none print:shadow-none print:overflow-visible max-h-[600px]"
         >
           <table className="w-full border-collapse text-[13px] relative">
-            <thead className="sticky top-0 z-10 bg-[var(--st-bg-muted)] print:static print:bg-transparent shadow-[0_1px_0_0_var(--zoru-line)]">
+            <thead className="sticky top-0 z-10 bg-[var(--st-bg-muted)] print:static print:bg-transparent shadow-[0_1px_0_0_var(--st-border)]">
               <tr>
                 <th className="px-4 py-2.5 text-left w-10">
                   <Checkbox 

@@ -99,7 +99,7 @@ export default async function HomePage() {
             <div className="flex items-center gap-3 min-w-0">
               <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
               <div className="min-w-0">
-                <h1 className="truncate text-lg font-semibold tracking-tight text-[hsl(var(--zoru-ink))]">
+                <h1 className="truncate text-lg font-semibold tracking-tight text-[var(--st-text)]">
                   Good to see you, {userName}
                 </h1>
                 <p className="mt-0.5 text-xs text-zinc-500">

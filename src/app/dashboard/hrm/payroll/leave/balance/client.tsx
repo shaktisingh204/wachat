@@ -179,7 +179,7 @@ export default function LeaveBalanceClient({
                     const byType = new Map<string, typeof r.rows[0]>(r.rows.map((x) => [x.leave_type_id, x]));
                     return (
                       <tr key={r.employee_id} className="border-b border-[var(--st-border)] last:border-0 group">
-                        <td className="px-4 py-3 text-[var(--st-text)] sticky left-0 z-10 bg-[var(--st-bg-secondary)] border-r border-[var(--st-border)] shadow-[1px_0_0_0_var(--zoru-line)]">
+                        <td className="px-4 py-3 text-[var(--st-text)] sticky left-0 z-10 bg-[var(--st-bg-secondary)] border-r border-[var(--st-border)] shadow-[1px_0_0_0_var(--st-border)]">
                           {r.employee_name}
                         </td>
                         {types.map((t) => {

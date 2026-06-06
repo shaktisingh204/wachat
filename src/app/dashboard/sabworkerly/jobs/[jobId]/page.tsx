@@ -102,7 +102,7 @@ export default async function JobDetailPage({
                 <CardHeader><CardTitle>Placements ({placements.length})</CardTitle></CardHeader>
                 <CardContent className="p-0">
                     {placements.length === 0 ? (
-                        <p className="p-6 text-sm text-[color:var(--zoru-muted-fg)]">
+                        <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">
                             No workers placed yet.
                         </p>
                     ) : (

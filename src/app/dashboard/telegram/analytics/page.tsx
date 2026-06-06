@@ -111,7 +111,7 @@ import type { BotRow } from '@/lib/rust-client/telegram-bots';
 
 const ACCENT = '#229ED9';
 const ACCENT_SOFT = 'rgba(34, 158, 217, 0.16)';
-const DANGER = 'hsl(var(--zoru-danger))';
+const DANGER = 'var(--st-danger)';
 
 type View =
     | 'overview'
@@ -638,20 +638,20 @@ function OverviewView({
                                 <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
                             </linearGradient>
                             <linearGradient id="tgOut" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="hsl(var(--zoru-ink-muted))" stopOpacity={0.3} />
-                                <stop offset="100%" stopColor="hsl(var(--zoru-ink-muted))" stopOpacity={0} />
+                                <stop offset="0%" stopColor="var(--st-text-secondary)" stopOpacity={0.3} />
+                                <stop offset="100%" stopColor="var(--st-text-secondary)" stopOpacity={0} />
                             </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
-                        <XAxis dataKey="ts" stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
-                        <YAxis stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+                        <XAxis dataKey="ts" stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
+                        <YAxis stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
                         <Tooltip />
                         <Legend />
                         <Area type="monotone" dataKey="in" stroke={ACCENT} fill="url(#tgIn)" name="Incoming" />
                         <Area
                             type="monotone"
                             dataKey="out"
-                            stroke="hsl(var(--zoru-ink-muted))"
+                            stroke="var(--st-text-secondary)"
                             fill="url(#tgOut)"
                             name="Outgoing"
                         />
@@ -681,9 +681,9 @@ function OverviewView({
                             },
                         ]}
                     >
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
-                        <XAxis dataKey="kind" stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
-                        <YAxis stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+                        <XAxis dataKey="kind" stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
+                        <YAxis stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
                         <Tooltip />
                         <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                             <Cell fill={ACCENT} />
@@ -768,13 +768,13 @@ function MessagesView({
                                 <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
                             </linearGradient>
                             <linearGradient id="tgOutLarge" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="hsl(var(--zoru-ink-muted))" stopOpacity={0.3} />
-                                <stop offset="100%" stopColor="hsl(var(--zoru-ink-muted))" stopOpacity={0} />
+                                <stop offset="0%" stopColor="var(--st-text-secondary)" stopOpacity={0.3} />
+                                <stop offset="100%" stopColor="var(--st-text-secondary)" stopOpacity={0} />
                             </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
-                        <XAxis dataKey="ts" stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
-                        <YAxis stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+                        <XAxis dataKey="ts" stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
+                        <YAxis stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
                         <Tooltip />
                         <Legend />
                         <Area
@@ -789,7 +789,7 @@ function MessagesView({
                             type="monotone"
                             dataKey="out"
                             stackId="1"
-                            stroke="hsl(var(--zoru-ink-muted))"
+                            stroke="var(--st-text-secondary)"
                             fill="url(#tgOutLarge)"
                             name="Outgoing"
                         />
@@ -854,9 +854,9 @@ function BroadcastsView({
             >
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={series}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
-                        <XAxis dataKey="ts" stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
-                        <YAxis stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+                        <XAxis dataKey="ts" stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
+                        <YAxis stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
                         <Tooltip />
                         <Legend />
                         <Line
@@ -921,17 +921,17 @@ function CommandsView({
             <ChartCard title="Top commands" isLoading={isLoading} empty={!chartData.length} height={320}>
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
                         <XAxis
                             type="number"
-                            stroke="hsl(var(--zoru-ink-muted))"
+                            stroke="var(--st-text-secondary)"
                             tick={{ fontSize: 10 }}
                         />
                         <YAxis
                             dataKey="name"
                             type="category"
                             width={120}
-                            stroke="hsl(var(--zoru-ink-muted))"
+                            stroke="var(--st-text-secondary)"
                             tick={{ fontSize: 11 }}
                         />
                         <Tooltip />
@@ -1012,9 +1012,9 @@ function ContactsView({
                                 <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
                             </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
-                        <XAxis dataKey="ts" stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
-                        <YAxis stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+                        <XAxis dataKey="ts" stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
+                        <YAxis stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
                         <Tooltip />
                         <Area
                             type="monotone"

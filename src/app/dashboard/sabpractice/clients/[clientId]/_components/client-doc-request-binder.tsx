@@ -43,7 +43,7 @@ export function ClientDocRequestBinder({
                         href={currentFileUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-xs text-[var(--zoru-ink-muted)] underline-offset-2 hover:underline"
+                        className="text-xs text-[var(--st-text-secondary)] underline-offset-2 hover:underline"
                     >
                         View
                     </a>

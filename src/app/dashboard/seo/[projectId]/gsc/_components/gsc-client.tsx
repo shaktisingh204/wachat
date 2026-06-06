@@ -227,7 +227,7 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
                     ) : chartData.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--zoru-line)" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
                                 <XAxis
                                     dataKey="keys[0]"
                                     tickFormatter={(val) =>
@@ -242,7 +242,7 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
                                 <YAxis yAxisId="right" orientation="right" stroke="#16a34a" fontSize={12} tickLine={false} axisLine={false} dx={10} />
                                 <Tooltip 
                                     labelFormatter={(label) => fmtDate(label)}
-                                    contentStyle={{ borderRadius: 'var(--st-radius)', border: '1px solid var(--zoru-line)', backgroundColor: 'var(--zoru-surface)' }}
+                                    contentStyle={{ borderRadius: 'var(--st-radius)', border: '1px solid var(--st-border)', backgroundColor: 'var(--st-bg-secondary)' }}
                                 />
                                 <Bar yAxisId="left" dataKey="clicks" fill="#2563eb" name="Clicks" radius={[4, 4, 0, 0]} maxBarSize={40} />
                                 <Bar

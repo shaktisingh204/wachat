@@ -21,7 +21,7 @@ export default async function NewBugPage() {
   }));
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold text-[var(--zoru-ink)]">Report a bug</h1>
+      <h1 className="text-xl font-semibold text-[var(--st-text)]">Report a bug</h1>
       <BugForm
         bug={null}
         projectOptions={projectOptions}

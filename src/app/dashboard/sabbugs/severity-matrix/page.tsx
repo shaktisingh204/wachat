@@ -46,10 +46,10 @@ export default async function SeverityMatrixPage() {
   return (
     <div className="flex flex-col gap-4">
       <header>
-        <h1 className="text-xl font-semibold text-[var(--zoru-ink)]">
+        <h1 className="text-xl font-semibold text-[var(--st-text)]">
           Severity × Priority matrix
         </h1>
-        <p className="text-sm text-[var(--zoru-ink-muted)]">
+        <p className="text-sm text-[var(--st-text-secondary)]">
           {active.length} active bug{active.length === 1 ? '' : 's'} grouped by
           severity and priority.
         </p>
@@ -65,13 +65,13 @@ export default async function SeverityMatrixPage() {
         <table className="w-full border-separate border-spacing-1 text-sm">
           <thead>
             <tr>
-              <th className="px-2 py-1 text-left text-xs uppercase text-[var(--zoru-ink-muted)]">
+              <th className="px-2 py-1 text-left text-xs uppercase text-[var(--st-text-secondary)]">
                 Severity \ Priority
               </th>
               {BUG_PRIORITIES.map((p) => (
                 <th
                   key={p}
-                  className="px-2 py-1 text-center text-xs uppercase text-[var(--zoru-ink-muted)]"
+                  className="px-2 py-1 text-center text-xs uppercase text-[var(--st-text-secondary)]"
                 >
                   {p}
                 </th>
@@ -81,7 +81,7 @@ export default async function SeverityMatrixPage() {
           <tbody>
             {BUG_SEVERITIES.map((s) => (
               <tr key={s}>
-                <th className="px-2 py-1 text-left text-xs uppercase text-[var(--zoru-ink-muted)]">
+                <th className="px-2 py-1 text-left text-xs uppercase text-[var(--st-text-secondary)]">
                   {s}
                 </th>
                 {BUG_PRIORITIES.map((p) => {
@@ -114,7 +114,7 @@ export default async function SeverityMatrixPage() {
 function cellColor(intensity: number): string {
   // Plain CSS so we don't pull in another library; ranges from neutral
   // to a saturated red as intensity rises.
-  if (intensity <= 0) return 'var(--zoru-surface-2)';
+  if (intensity <= 0) return 'var(--st-bg-muted)';
   if (intensity < 25) return '#fef3c7';
   if (intensity < 50) return '#fdba74';
   if (intensity < 75) return '#f97316';

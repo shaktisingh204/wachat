@@ -184,7 +184,7 @@ export function BacklogBoard({
                 <span
                   aria-hidden
                   className="inline-block h-2.5 w-2.5 rounded-full"
-                  style={{ backgroundColor: row.color ?? 'var(--zoru-line-strong)' }}
+                  style={{ backgroundColor: row.color ?? 'var(--st-border-strong)' }}
                 />
                 <h2 className="text-sm font-semibold text-[var(--st-text)]">
                   {row.epicName}

@@ -44,14 +44,14 @@ function statusColor(status?: CrmBookingStatus) {
   switch (status) {
     case 'confirmed':
     case 'completed':
-      return 'var(--zoru-success)';
+      return 'var(--st-status-ok)';
     case 'cancelled':
     case 'no_show':
-      return 'var(--zoru-danger)';
+      return 'var(--st-danger)';
     case 'pending':
       return '#f59e0b'; // amber-500
     default:
-      return 'var(--zoru-ink-muted)';
+      return 'var(--st-text-secondary)';
   }
 }
 

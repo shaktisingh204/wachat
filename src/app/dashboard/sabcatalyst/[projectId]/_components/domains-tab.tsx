@@ -73,12 +73,12 @@ export function DomainsTab({ projectId, initialDomains }: Props) {
                                         <Badge variant="outline">ssl: {d.sslStatus}</Badge>
                                     </div>
                                     {!d.verified ? (
-                                        <div className="text-xs text-[var(--zoru-muted-foreground)] mt-2 space-y-1">
+                                        <div className="text-xs text-[var(--st-text-secondary)] mt-2 space-y-1">
                                             <p>To verify, add these DNS records:</p>
-                                            <code className="block bg-[var(--zoru-muted)] p-2 rounded mt-1">
+                                            <code className="block bg-[var(--st-bg-muted)] p-2 rounded mt-1">
                                                 CNAME {d.hostname} → sabcatalyst.sabnode.io
                                             </code>
-                                            <code className="block bg-[var(--zoru-muted)] p-2 rounded">
+                                            <code className="block bg-[var(--st-bg-muted)] p-2 rounded">
                                                 TXT _sabcatalyst-verify.{d.hostname} → {d._id}
                                             </code>
                                         </div>

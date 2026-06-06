@@ -270,7 +270,7 @@ export default function TelegramConnectionsPage() {
             {!projectId ? (
                 <div
                     className="flex items-start gap-3 rounded-2xl border p-4"
-                    style={{ borderColor: 'var(--zoru-line)', background: 'var(--zoru-surface-2)' }}
+                    style={{ borderColor: 'var(--st-border)', background: 'var(--st-bg-muted)' }}
                 >
                     <Info className="mt-0.5 h-4 w-4 text-[var(--st-text)]" />
                     <div className="flex-1 text-[12.5px] leading-relaxed text-[var(--st-text)]">
@@ -627,7 +627,7 @@ export default function TelegramConnectionsPage() {
                 {/* Preview note */}
                 <div
                     className="mt-4 flex items-start gap-3 rounded-2xl border p-3"
-                    style={{ borderColor: 'var(--zoru-line)', background: 'var(--zoru-surface-2)' }}
+                    style={{ borderColor: 'var(--st-border)', background: 'var(--st-bg-muted)' }}
                 >
                     <AlertTriangle className="mt-0.5 h-4 w-4 text-[var(--st-text)]" />
                     <p className="text-[12.5px] leading-relaxed text-[var(--st-text)]">

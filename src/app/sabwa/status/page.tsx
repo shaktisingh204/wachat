@@ -396,7 +396,7 @@ export default function SabWaStatusPage() {
                           backgroundColor: c.value,
                           borderColor:
                             composerBg === c.value
-                              ? "var(--zoru-ink)"
+                              ? "var(--st-text)"
                               : "transparent",
                         }}
                         aria-label={c.label}

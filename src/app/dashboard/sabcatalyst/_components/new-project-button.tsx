@@ -83,7 +83,7 @@ export function NewProjectButton() {
                                 onChange={(e) => setSlug(e.target.value.toLowerCase())}
                                 placeholder="my-backend"
                             />
-                            <p className="text-xs text-[var(--zoru-muted-foreground)] mt-1">
+                            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
                                 Used in the runtime URL:{' '}
                                 <code>/api/catalyst/{slug || 'your-slug'}/...</code>
                             </p>

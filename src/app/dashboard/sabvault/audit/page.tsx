@@ -100,7 +100,7 @@ function FilterChip({ current, value, label }: { current?: string; value?: strin
             className={`rounded-md border px-3 py-1 ${
                 active
                     ? 'bg-[var(--zoru-bg-subtle)] font-medium'
-                    : 'border-[var(--zoru-border)]'
+                    : 'border-[var(--st-border)]'
             }`}
         >
             {label}

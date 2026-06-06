@@ -156,13 +156,13 @@ export function NotebookShell({
 
   return (
     <div className="zoruui flex h-[calc(100vh-4rem)] flex-col">
-      <header className="flex items-center gap-2 border-b border-[var(--zoru-border)] px-4 py-2 text-sm">
+      <header className="flex items-center gap-2 border-b border-[var(--st-border)] px-4 py-2 text-sm">
         <Link href={BASE}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4" /> Notes
           </Button>
         </Link>
-        <ChevronRight className="h-3 w-3 text-[var(--zoru-muted-foreground)]" />
+        <ChevronRight className="h-3 w-3 text-[var(--st-text-secondary)]" />
         <span
           className="inline-block h-3 w-3 rounded-full"
           style={{ backgroundColor: notebook.color ?? '#6366f1' }}
@@ -172,7 +172,7 @@ export function NotebookShell({
       </header>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[220px_320px_1fr]">
-        <aside className="hidden border-r border-[var(--zoru-border)] md:block">
+        <aside className="hidden border-r border-[var(--st-border)] md:block">
           <SectionList
             notebookId={notebook._id}
             sections={sections}
@@ -184,7 +184,7 @@ export function NotebookShell({
             onChanged={reloadSections}
           />
         </aside>
-        <section className="hidden border-r border-[var(--zoru-border)] md:block">
+        <section className="hidden border-r border-[var(--st-border)] md:block">
           <NoteList
             notebookId={notebook._id}
             sectionId={selectedSectionId}

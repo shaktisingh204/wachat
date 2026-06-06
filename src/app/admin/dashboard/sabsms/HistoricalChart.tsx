@@ -22,23 +22,23 @@ export function SabsmsHistoricalChart({ data }: { data: any[] }) {
         ) : (
           <ZoruChartContainer height={300}>
             <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
               <XAxis 
                 dataKey="_id" 
-                stroke="hsl(var(--zoru-ink-muted))" 
+                stroke="var(--st-text-secondary)" 
                 fontSize={12} 
                 tickLine={false} 
                 axisLine={false}
               />
               <YAxis 
-                stroke="hsl(var(--zoru-ink-muted))" 
+                stroke="var(--st-text-secondary)" 
                 fontSize={12} 
                 tickLine={false} 
                 axisLine={false} 
                 tickFormatter={(value: number) => `${value}`} 
               />
               <Tooltip content={<ZoruChartTooltip />} />
-              <Legend wrapperStyle={{ fontSize: 12, color: 'hsl(var(--zoru-ink-muted))', paddingTop: 10 }} />
+              <Legend wrapperStyle={{ fontSize: 12, color: 'var(--st-text-secondary)', paddingTop: 10 }} />
               <Line name="Sent" type="monotone" dataKey="sent" stroke={ZORU_CHART_PALETTE[0]} strokeWidth={2} dot={false} />
               <Line name="Delivered" type="monotone" dataKey="delivered" stroke={ZORU_CHART_PALETTE[1]} strokeWidth={2} dot={false} />
               <Line name="Queued" type="monotone" dataKey="queued" stroke={ZORU_CHART_PALETTE[2]} strokeWidth={2} dot={false} />

@@ -77,7 +77,7 @@ export default async function WorkersListPage() {
                                                 {w.name}
                                             </Link>
                                         </TableCell>
-                                        <TableCell className="text-[color:var(--zoru-muted-fg)]">
+                                        <TableCell className="text-[color:var(--st-text-secondary)]">
                                             {w.email}
                                         </TableCell>
                                         <TableCell>

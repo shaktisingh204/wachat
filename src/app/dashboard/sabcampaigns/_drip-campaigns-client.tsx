@@ -227,20 +227,20 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
         <h3 className="mb-4 text-sm font-medium text-[var(--st-text)]">Cross-Channel ROI (%)</h3>
         <ZoruChartContainer height={250}>
           <BarChart data={roiData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
             <XAxis 
               dataKey="channel" 
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "hsl(var(--zoru-ink-muted))", fontSize: 12 }}
+              tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }}
               dy={10}
             />
             <YAxis 
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "hsl(var(--zoru-ink-muted))", fontSize: 12 }}
+              tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }}
             />
-            <Tooltip content={<ZoruChartTooltip />} cursor={{ fill: "hsl(var(--zoru-line-strong))", opacity: 0.2 }} />
+            <Tooltip content={<ZoruChartTooltip />} cursor={{ fill: "var(--st-border-strong)", opacity: 0.2 }} />
             <Bar dataKey="roi" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} barSize={40} />
           </BarChart>
         </ZoruChartContainer>

@@ -347,14 +347,14 @@ export default function FunnelAnalyticsPage() {
                     dataKey="name" 
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 13 }}
+                    tick={{ fill: 'var(--st-text-secondary)', fontSize: 13 }}
                     dy={10}
                   />
                   <ZoruChart.YAxis 
                     yAxisId="left"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 12 }}
+                    tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }}
                     tickFormatter={(value) => `${(value / 1000)}k`}
                   />
                   <ZoruChart.YAxis 
@@ -362,17 +362,17 @@ export default function FunnelAnalyticsPage() {
                     orientation="right"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 12 }}
+                    tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }}
                     tickFormatter={(value) => `${value}%`}
                   />
                   <ZoruChart.Tooltip 
                     content={<ZoruChartTooltip />}
-                    cursor={{ fill: 'hsl(var(--zoru-surface-2))', opacity: 0.4 }}
+                    cursor={{ fill: 'var(--st-bg-muted)', opacity: 0.4 }}
                   />
                   <ZoruChart.Bar 
                     yAxisId="left"
                     dataKey="users" 
-                    fill="hsl(var(--zoru-brand))" 
+                    fill="var(--st-accent)" 
                     radius={[4, 4, 0, 0]}
                     barSize={60}
                     name="Users Retained"
@@ -380,7 +380,7 @@ export default function FunnelAnalyticsPage() {
                     {funnelChartData.map((entry, index) => (
                       <ZoruChart.Cell 
                         key={`cell-${index}`} 
-                        fill={index === 0 ? "hsl(var(--zoru-brand))" : `hsl(var(--zoru-brand) / ${1 - (index * 0.2)})`} 
+                        fill={index === 0 ? "var(--st-accent)" : `color-mix(in srgb, var(--st-accent) calc(${1 - (index * 0.2)} * 100%), transparent)`} 
                       />
                     ))}
                   </ZoruChart.Bar>
@@ -388,9 +388,9 @@ export default function FunnelAnalyticsPage() {
                     yAxisId="right"
                     type="monotone" 
                     dataKey="conversion" 
-                    stroke="hsl(var(--zoru-ink))" 
+                    stroke="var(--st-text)" 
                     strokeWidth={3}
-                    dot={{ r: 6, fill: "hsl(var(--zoru-bg))", strokeWidth: 2 }}
+                    dot={{ r: 6, fill: "var(--st-bg)", strokeWidth: 2 }}
                     activeDot={{ r: 8 }}
                     name="Conversion Rate"
                   />
@@ -504,15 +504,15 @@ export default function FunnelAnalyticsPage() {
                   <ZoruChart.AreaChart data={FUNNEL_TREND_DATA} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorConv" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--zoru-brand))" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="hsl(var(--zoru-brand))" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="var(--st-accent)" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="var(--st-accent)" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
                     <ZoruChart.Area 
                       type="monotone" 
                       dataKey="conversion" 
-                      stroke="hsl(var(--zoru-brand))" 
+                      stroke="var(--st-accent)" 
                       strokeWidth={2}
                       fillOpacity={1} 
                       fill="url(#colorConv)" 

@@ -71,9 +71,9 @@ export function BurndownChart({ sprint, samples, totalPoints }: Props) {
       </div>
       <ZoruChartContainer height={320}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
-          <XAxis dataKey="day" stroke="hsl(var(--zoru-ink-muted))" />
-          <YAxis stroke="hsl(var(--zoru-ink-muted))" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+          <XAxis dataKey="day" stroke="var(--st-text-secondary)" />
+          <YAxis stroke="var(--st-text-secondary)" />
           <Tooltip content={<ZoruChartTooltip />} />
           <Legend />
           <Line

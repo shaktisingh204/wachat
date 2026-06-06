@@ -150,7 +150,7 @@ export function TransactionalTemplatesClient() {
                     )}
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <code className="rounded bg-[color:var(--zoru-muted)] px-1.5 py-0.5 text-xs">
+                    <code className="rounded bg-[color:var(--st-bg-muted)] px-1.5 py-0.5 text-xs">
                       {item.key}
                     </code>
                   </ZoruTableCell>

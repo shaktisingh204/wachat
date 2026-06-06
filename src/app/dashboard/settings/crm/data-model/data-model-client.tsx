@@ -207,11 +207,11 @@ export function DataModelClient({
           <div>
             <h2
               id="dm-custom-heading"
-              className="text-sm font-semibold text-[var(--zoru-fg)]"
+              className="text-sm font-semibold text-[var(--st-text)]"
             >
               Custom objects
             </h2>
-            <p className="text-xs text-[var(--zoru-fg-muted)]">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Objects you defined for this project. Fully editable.
             </p>
           </div>
@@ -252,11 +252,11 @@ export function DataModelClient({
         <div className="mb-4">
           <h2
             id="dm-standard-heading"
-            className="text-sm font-semibold text-[var(--zoru-fg)]"
+            className="text-sm font-semibold text-[var(--st-text)]"
           >
             Standard objects
           </h2>
-          <p className="text-xs text-[var(--zoru-fg-muted)]">
+          <p className="text-xs text-[var(--st-text-secondary)]">
             Built-in objects. You can add custom fields, but their identity and
             standard fields are fixed.
           </p>
@@ -347,7 +347,7 @@ function ObjectSummaryCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="mt-auto flex items-center justify-between gap-2">
-        <span className="text-xs text-[var(--zoru-fg-muted)]">
+        <span className="text-xs text-[var(--st-text-secondary)]">
           {fieldCount} {fieldCount === 1 ? 'field' : 'fields'}
         </span>
         <Button type="button" size="sm" variant="outline" onClick={onOpen}>
@@ -498,7 +498,7 @@ function CreateObjectDialog({
                 autoComplete="off"
                 aria-invalid={slugTaken}
               />
-              <p className="text-[11px] text-[var(--zoru-fg-muted)]">
+              <p className="text-[11px] text-[var(--st-text-secondary)]">
                 Lowercase kebab-case. Used in URLs and storage; cannot be changed
                 later.
               </p>
@@ -746,8 +746,8 @@ function ManageObjectDialog({
               </Button>
             </div>
 
-            <div className="mt-3 max-h-[55vh] overflow-y-auto rounded-md border border-[var(--zoru-border)]">
-              <ul className="list-none divide-y divide-[var(--zoru-border)] p-0">
+            <div className="mt-3 max-h-[55vh] overflow-y-auto rounded-md border border-[var(--st-border)]">
+              <ul className="list-none divide-y divide-[var(--st-border)] p-0">
                 {object.fields.map((field) => {
                   const isCustom = isCustomField(field);
                   const customIdx = customFieldKeys.indexOf(field.key);
@@ -759,7 +759,7 @@ function ManageObjectDialog({
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="truncate text-sm font-medium text-[var(--zoru-fg)]">
+                          <span className="truncate text-sm font-medium text-[var(--st-text)]">
                             {field.label}
                           </span>
                           {field.isLabel ? (
@@ -773,10 +773,10 @@ function ManageObjectDialog({
                             </Badge>
                           ) : null}
                           {field.system ? (
-                            <Lock className="h-3 w-3 text-[var(--zoru-fg-muted)]" />
+                            <Lock className="h-3 w-3 text-[var(--st-text-secondary)]" />
                           ) : null}
                         </div>
-                        <div className="flex items-center gap-2 text-[11px] text-[var(--zoru-fg-muted)]">
+                        <div className="flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
                           <span className="font-mono">{field.key}</span>
                           <span aria-hidden>·</span>
                           <span>{fieldTypeLabel(field.type)}</span>
@@ -846,7 +846,7 @@ function ManageObjectDialog({
                             </Button>
                           </>
                         ) : (
-                          <span className="px-2 text-[10px] uppercase tracking-wide text-[var(--zoru-fg-muted)]">
+                          <span className="px-2 text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                             {field.system ? 'System' : 'Standard'}
                           </span>
                         )}
@@ -1075,7 +1075,7 @@ function FieldForm({
             aria-invalid={keyConflict}
           />
           {editing ? (
-            <p className="text-[11px] text-[var(--zoru-fg-muted)]">
+            <p className="text-[11px] text-[var(--st-text-secondary)]">
               The key is immutable once a field exists.
             </p>
           ) : keyConflict ? (
@@ -1106,7 +1106,7 @@ function FieldForm({
             </SelectContent>
           </Select>
           {editing ? (
-            <p className="text-[11px] text-[var(--zoru-fg-muted)]">
+            <p className="text-[11px] text-[var(--st-text-secondary)]">
               Type can&apos;t change. Remove and re-add to switch types.
             </p>
           ) : null}
@@ -1131,7 +1131,7 @@ function FieldForm({
       </div>
 
       {needsOptions ? (
-        <div className="grid gap-2 rounded-md border border-[var(--zoru-border)] p-3">
+        <div className="grid gap-2 rounded-md border border-[var(--st-border)] p-3">
           <div className="flex items-center justify-between">
             <Label>Options</Label>
             <Button type="button" size="sm" variant="outline" onClick={addOption}>
@@ -1140,7 +1140,7 @@ function FieldForm({
             </Button>
           </div>
           {draft.options.length === 0 ? (
-            <p className="text-[11px] text-[var(--zoru-fg-muted)]">
+            <p className="text-[11px] text-[var(--st-text-secondary)]">
               Add at least one option for a select field.
             </p>
           ) : (
@@ -1330,7 +1330,7 @@ function RelationForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <p className="text-xs text-[var(--zoru-fg-muted)]">
+      <p className="text-xs text-[var(--st-text-secondary)]">
         Link <span className="font-medium">{object.labelSingular}</span> records
         to another object. A reciprocal field is created on the target unless you
         turn it off.

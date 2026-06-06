@@ -70,7 +70,7 @@ export function AuthTab({ projectId, initialUsers }: Props) {
                                     </Badge>
                                     {u.emailVerified ? <Badge variant="outline">verified</Badge> : null}
                                 </div>
-                                <p className="text-xs text-[var(--zoru-muted-foreground)] mt-1">
+                                <p className="text-xs text-[var(--st-text-secondary)] mt-1">
                                     Last sign-in:{' '}
                                     {u.lastSignInAt ? new Date(u.lastSignInAt).toLocaleString() : 'never'}
                                 </p>
@@ -115,7 +115,7 @@ export function AuthTab({ projectId, initialUsers }: Props) {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
-                            <p className="text-xs text-[var(--zoru-muted-foreground)] mt-1">
+                            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
                                 Hashed (SHA-256) server-side before being sent to Rust.
                             </p>
                         </div>

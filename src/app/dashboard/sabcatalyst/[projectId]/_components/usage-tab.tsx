@@ -32,27 +32,27 @@ export function UsageTab({ initialRows }: Props) {
         <div className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <Card className="p-4">
-                    <p className="text-xs text-[var(--zoru-muted-foreground)]">Function invocations</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">Function invocations</p>
                     <p className="text-3xl font-bold mt-2">{fmt(latest.functionInvocations)}</p>
                 </Card>
                 <Card className="p-4">
-                    <p className="text-xs text-[var(--zoru-muted-foreground)]">Billable ms</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">Billable ms</p>
                     <p className="text-3xl font-bold mt-2">{fmt(latest.functionBillableMs)}</p>
                 </Card>
                 <Card className="p-4">
-                    <p className="text-xs text-[var(--zoru-muted-foreground)]">Datastore writes</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">Datastore writes</p>
                     <p className="text-3xl font-bold mt-2">{fmt(latest.datastoreWrites)}</p>
                 </Card>
                 <Card className="p-4">
-                    <p className="text-xs text-[var(--zoru-muted-foreground)]">Datastore reads</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">Datastore reads</p>
                     <p className="text-3xl font-bold mt-2">{fmt(latest.datastoreReads)}</p>
                 </Card>
                 <Card className="p-4">
-                    <p className="text-xs text-[var(--zoru-muted-foreground)]">File storage</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">File storage</p>
                     <p className="text-3xl font-bold mt-2">{gb(latest.fileStorageBytes)} GB</p>
                 </Card>
                 <Card className="p-4">
-                    <p className="text-xs text-[var(--zoru-muted-foreground)]">Bandwidth</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">Bandwidth</p>
                     <p className="text-3xl font-bold mt-2">{gb(latest.bandwidthBytes)} GB</p>
                 </Card>
             </div>
@@ -61,7 +61,7 @@ export function UsageTab({ initialRows }: Props) {
                 <h3 className="font-semibold mb-3">Monthly history</h3>
                 <div className="overflow-auto">
                     <table className="w-full text-sm">
-                        <thead className="text-left text-xs text-[var(--zoru-muted-foreground)]">
+                        <thead className="text-left text-xs text-[var(--st-text-secondary)]">
                             <tr>
                                 <th className="py-1 pr-4">Period</th>
                                 <th className="py-1 pr-4">Invocations</th>
@@ -74,7 +74,7 @@ export function UsageTab({ initialRows }: Props) {
                         </thead>
                         <tbody>
                             {rows.map((r) => (
-                                <tr key={r._id} className="border-t border-[var(--zoru-border)]">
+                                <tr key={r._id} className="border-t border-[var(--st-border)]">
                                     <td className="py-2 pr-4 font-mono">{r.periodKey}</td>
                                     <td className="py-2 pr-4">{fmt(r.functionInvocations)}</td>
                                     <td className="py-2 pr-4">{fmt(r.functionBillableMs)}</td>

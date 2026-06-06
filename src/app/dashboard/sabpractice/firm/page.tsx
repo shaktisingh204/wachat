@@ -14,7 +14,7 @@ async function FirmData() {
             <PageHeader>
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight">Firm settings</h1>
-                    <p className="text-sm text-[var(--zoru-ink-muted)]">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Your accounting firm's profile.
                     </p>
                 </div>
@@ -35,7 +35,7 @@ export default function FirmSettingsPage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--zoru-ink-muted)]">Loading firm…</div>
+                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading firm…</div>
             }
         >
             <FirmData />

@@ -75,13 +75,13 @@ function ProjectCard({
                         <div
                             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                             style={{
-                                background: 'var(--zoru-surface-2)',
+                                background: 'var(--st-bg-muted)',
                             }}
                         >
                             <Plug
                                 className="h-4 w-4"
                                 strokeWidth={1.75}
-                                style={{ color: 'var(--zoru-ink)' }}
+                                style={{ color: 'var(--st-text)' }}
                             />
                         </div>
                         <div className="min-w-0">

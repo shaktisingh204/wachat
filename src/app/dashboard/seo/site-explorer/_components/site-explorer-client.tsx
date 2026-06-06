@@ -308,7 +308,7 @@ export default function SiteExplorerPage() {
                 <ZoruCardContent>
                     <div ref={parentRef} className="h-[400px] overflow-auto border border-[var(--st-border)] rounded-[var(--st-radius)] bg-transparent">
                         <div className="w-full text-sm">
-                            <div className="flex border-b border-[var(--st-border)] sticky top-0 bg-[var(--zoru-background)] z-10 font-medium">
+                            <div className="flex border-b border-[var(--st-border)] sticky top-0 bg-[var(--st-bg)] z-10 font-medium">
                                 <div className="p-3 w-1/2 text-left text-[var(--st-text)]">Domain / URL</div>
                                 <div className="p-3 w-1/2 text-right text-[var(--st-text)]">Type</div>
                             </div>

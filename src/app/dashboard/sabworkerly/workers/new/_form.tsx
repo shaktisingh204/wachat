@@ -190,7 +190,7 @@ export function WorkerForm() {
 
                     <div className="flex flex-col gap-2">
                         <Label>Documents (ID, visa, certs)</Label>
-                        <p className="text-xs text-[color:var(--zoru-muted-fg)]">
+                        <p className="text-xs text-[color:var(--st-text-secondary)]">
                             Sourced from SabFiles. Use the picker to attach uploaded documents.
                         </p>
                         <div>
@@ -207,17 +207,17 @@ export function WorkerForm() {
                                 {docs.map((d) => (
                                     <li
                                         key={d.id}
-                                        className="flex items-center justify-between rounded-md border border-[color:var(--zoru-border)] px-3 py-2 text-sm"
+                                        className="flex items-center justify-between rounded-md border border-[color:var(--st-border)] px-3 py-2 text-sm"
                                     >
                                         <span className="flex items-center gap-2">
-                                            <FileIcon className="h-4 w-4 text-[color:var(--zoru-muted-fg)]" />
+                                            <FileIcon className="h-4 w-4 text-[color:var(--st-text-secondary)]" />
                                             {d.name}
                                         </span>
                                         <button
                                             type="button"
                                             aria-label={`Remove ${d.name}`}
                                             onClick={() => setDocs((prev) => prev.filter((x) => x.id !== d.id))}
-                                            className="text-[color:var(--zoru-muted-fg)] hover:text-[color:var(--zoru-fg)]"
+                                            className="text-[color:var(--st-text-secondary)] hover:text-[color:var(--st-text)]"
                                         >
                                             <X className="h-4 w-4" />
                                         </button>

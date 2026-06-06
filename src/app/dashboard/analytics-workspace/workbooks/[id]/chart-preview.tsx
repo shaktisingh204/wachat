@@ -118,7 +118,7 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
     return (
       <ZoruChartContainer height={280}>
         <ZoruChart.LineChart data={rows}>
-          <ZoruChart.CartesianGrid stroke="hsl(var(--zoru-line))" strokeDasharray="3 3" />
+          <ZoruChart.CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
           <ZoruChart.XAxis dataKey={dimKey} />
           <ZoruChart.YAxis />
           <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
@@ -137,7 +137,7 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
   return (
     <ZoruChartContainer height={280}>
       <ZoruChart.BarChart data={rows}>
-        <ZoruChart.CartesianGrid stroke="hsl(var(--zoru-line))" strokeDasharray="3 3" />
+        <ZoruChart.CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
         <ZoruChart.XAxis dataKey={dimKey} />
         <ZoruChart.YAxis />
         <ZoruChart.Tooltip content={<ZoruChartTooltip />} />

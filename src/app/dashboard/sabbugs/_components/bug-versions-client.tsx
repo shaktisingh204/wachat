@@ -91,7 +91,7 @@ export function BugVersionsClient({
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold text-[var(--zoru-ink)]">
+      <h1 className="text-xl font-semibold text-[var(--st-text)]">
         Versions & releases
       </h1>
       {initialError ? (
@@ -101,7 +101,7 @@ export function BugVersionsClient({
       ) : null}
 
       <Card className="flex flex-col gap-3 p-4">
-        <h2 className="text-sm font-semibold text-[var(--zoru-ink)]">
+        <h2 className="text-sm font-semibold text-[var(--st-text)]">
           New version
         </h2>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -166,7 +166,7 @@ export function BugVersionsClient({
           <TableBody>
             {versions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-sm text-[var(--zoru-ink-muted)]">
+                <TableCell colSpan={5} className="text-center text-sm text-[var(--st-text-secondary)]">
                   No versions yet.
                 </TableCell>
               </TableRow>
@@ -174,7 +174,7 @@ export function BugVersionsClient({
             {versions.map((v) => (
               <TableRow key={v._id}>
                 <TableCell className="font-medium">{v.name}</TableCell>
-                <TableCell className="text-xs text-[var(--zoru-ink-muted)]">
+                <TableCell className="text-xs text-[var(--st-text-secondary)]">
                   {projectOptions.find((p) => p.id === v.projectId)?.name ?? '—'}
                 </TableCell>
                 <TableCell>
@@ -196,7 +196,7 @@ export function BugVersionsClient({
                     </ZoruSelectContent>
                   </Select>
                 </TableCell>
-                <TableCell className="text-xs text-[var(--zoru-ink-muted)]">
+                <TableCell className="text-xs text-[var(--st-text-secondary)]">
                   {v.releasedAt
                     ? new Date(v.releasedAt).toLocaleDateString()
                     : '—'}

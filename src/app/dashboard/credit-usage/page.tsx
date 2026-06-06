@@ -166,14 +166,14 @@ export default function CreditUsagePage() {
                     data={dailyUsage.map((d) => ({ date: d._id, count: d.count }))}
                     margin={{ top: 5, right: 12, left: 0, bottom: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
-                    <XAxis dataKey="date" stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
-                    <YAxis stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+                    <XAxis dataKey="date" stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
+                    <YAxis stroke="var(--st-text-secondary)" tick={{ fontSize: 10 }} />
                     <Tooltip />
                     <Line
                       type="monotone"
                       dataKey="count"
-                      stroke="hsl(var(--zoru-warning))"
+                      stroke="var(--st-warn)"
                       strokeWidth={2}
                       dot={false}
                       name="Credits used"

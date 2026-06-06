@@ -121,15 +121,15 @@ export function FunnelChart({ data }: { data: FunnelStep[] }) {
                                         width="50" 
                                         height="24" 
                                         rx="12" 
-                                        fill="var(--zoru-surface-2)" 
-                                        stroke="var(--zoru-line)"
+                                        fill="var(--st-bg-muted)" 
+                                        stroke="var(--st-border)"
                                     />
                                     <text 
                                         x={width - 35} 
                                         y={p.midY - rowHeight / 2 + 1} 
                                         textAnchor="middle" 
                                         alignmentBaseline="middle"
-                                        fill="var(--zoru-ink-muted)"
+                                        fill="var(--st-text-secondary)"
                                         fontSize="11"
                                         fontWeight="500"
                                     >

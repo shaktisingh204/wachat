@@ -196,13 +196,13 @@ export function BugForm({ bug, projectOptions, versions }: BugFormProps) {
             {(state.attachmentIds ?? []).map((id) => (
               <span
                 key={id}
-                className="inline-flex items-center gap-1 rounded-md border border-[var(--zoru-divider)] bg-[var(--zoru-surface-2)] px-2 py-1 text-xs"
+                className="inline-flex items-center gap-1 rounded-md border border-[var(--zoru-divider)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs"
               >
                 <code className="font-mono">{id.slice(-6)}</code>
                 <button
                   type="button"
                   aria-label="Remove attachment"
-                  className="text-[var(--zoru-ink-muted)] hover:text-[var(--st-text)]"
+                  className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                   onClick={() => removeAttachment(id)}
                 >
                   ×

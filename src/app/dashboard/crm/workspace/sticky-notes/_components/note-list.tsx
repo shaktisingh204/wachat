@@ -118,10 +118,10 @@ export function NoteList({
 
   return (
     <div className="flex h-full flex-col gap-2">
-      <header className="flex flex-col gap-2 border-b border-[var(--zoru-border)] p-2">
+      <header className="flex flex-col gap-2 border-b border-[var(--st-border)] p-2">
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--zoru-muted-foreground)]" />
+            <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
@@ -145,8 +145,8 @@ export function NoteList({
               className={[
                 'rounded-full px-2 py-0.5 text-[11px]',
                 tagFilter === null
-                  ? 'bg-[var(--zoru-foreground)] text-[var(--zoru-background)]'
-                  : 'bg-[var(--zoru-muted)] text-[var(--zoru-muted-foreground)]',
+                  ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                  : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
               ].join(' ')}
             >
               All
@@ -161,8 +161,8 @@ export function NoteList({
                 className={[
                   'rounded-full px-2 py-0.5 text-[11px]',
                   tagFilter === t
-                    ? 'bg-[var(--zoru-foreground)] text-[var(--zoru-background)]'
-                    : 'bg-[var(--zoru-muted)] text-[var(--zoru-muted-foreground)]',
+                    ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                    : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
                 ].join(' ')}
               >
                 #{t}
@@ -174,8 +174,8 @@ export function NoteList({
               className={[
                 'ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px]',
                 showArchived
-                  ? 'bg-[var(--zoru-foreground)] text-[var(--zoru-background)]'
-                  : 'bg-[var(--zoru-muted)] text-[var(--zoru-muted-foreground)]',
+                  ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                  : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
               ].join(' ')}
               aria-pressed={showArchived}
             >
@@ -195,10 +195,10 @@ export function NoteList({
                   type="button"
                   onClick={() => onSelect(n._id)}
                   className={[
-                    'flex w-full flex-col gap-1 border-b border-[var(--zoru-border)] px-3 py-2 text-left',
+                    'flex w-full flex-col gap-1 border-b border-[var(--st-border)] px-3 py-2 text-left',
                     active
-                      ? 'bg-[var(--zoru-accent)] text-[var(--zoru-accent-foreground)]'
-                      : 'hover:bg-[var(--zoru-muted)]',
+                      ? 'bg-[var(--st-accent)] text-[var(--zoru-accent-foreground)]'
+                      : 'hover:bg-[var(--st-bg-muted)]',
                   ].join(' ')}
                 >
                   <div className="flex items-center gap-1.5">
@@ -211,7 +211,7 @@ export function NoteList({
                     )}
                   </div>
                   {n.preview && (
-                    <p className="line-clamp-2 text-xs text-[var(--zoru-muted-foreground)]">
+                    <p className="line-clamp-2 text-xs text-[var(--st-text-secondary)]">
                       {n.preview}
                     </p>
                   )}
@@ -233,7 +233,7 @@ export function NoteList({
             );
           })}
           {sorted.length === 0 && (
-            <li className="p-4 text-center text-sm text-[var(--zoru-muted-foreground)]">
+            <li className="p-4 text-center text-sm text-[var(--st-text-secondary)]">
               {sectionId
                 ? 'No notes here yet.'
                 : 'Pick a section to see its notes.'}

@@ -52,13 +52,13 @@ export function ChecklistEditor({
   return (
     <div className="flex flex-col gap-1.5">
       {items.length === 0 && (
-        <p className="text-sm text-[var(--zoru-muted-foreground)]">
+        <p className="text-sm text-[var(--st-text-secondary)]">
           No items yet. Click &ldquo;Add item&rdquo; to start a checklist.
         </p>
       )}
       {items.map((it) => (
         <div key={it.id} className="flex items-center gap-2">
-          <GripVertical className="h-4 w-4 cursor-grab text-[var(--zoru-muted-foreground)]" />
+          <GripVertical className="h-4 w-4 cursor-grab text-[var(--st-text-secondary)]" />
           <Checkbox
             checked={it.done}
             onCheckedChange={(v) => updateItem(it.id, { done: v === true })}
@@ -72,7 +72,7 @@ export function ChecklistEditor({
             disabled={disabled}
             className={
               it.done
-                ? 'flex-1 line-through text-[var(--zoru-muted-foreground)]'
+                ? 'flex-1 line-through text-[var(--st-text-secondary)]'
                 : 'flex-1'
             }
           />

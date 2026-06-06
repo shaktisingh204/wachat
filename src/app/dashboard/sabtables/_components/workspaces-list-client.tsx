@@ -90,7 +90,7 @@ export function WorkspacesListClient({ initialItems }: Props) {
                 <div className="flex items-start gap-3">
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: w.color || 'var(--zoru-ink)', color: 'var(--zoru-surface)' }}
+                    style={{ backgroundColor: w.color || 'var(--st-text)', color: 'var(--st-bg-secondary)' }}
                   >
                     <Layers className="w-5 h-5" />
                   </div>

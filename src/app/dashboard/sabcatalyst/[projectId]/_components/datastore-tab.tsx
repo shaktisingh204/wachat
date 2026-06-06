@@ -85,7 +85,7 @@ export function DatastoreTab({ projectId, initialTables }: Props) {
                         <Card key={t._id} className="p-4 flex items-center justify-between gap-4">
                             <div className="min-w-0">
                                 <h3 className="font-semibold">{t.name}</h3>
-                                <p className="text-xs text-[var(--zoru-muted-foreground)] mt-1">
+                                <p className="text-xs text-[var(--st-text-secondary)] mt-1">
                                     {t.schemaJson.fields.length} fields • {t.recordsCount} records
                                 </p>
                                 <div className="flex flex-wrap gap-1 mt-2">
@@ -134,7 +134,7 @@ export function DatastoreTab({ projectId, initialTables }: Props) {
                                         <select
                                             value={f.type}
                                             onChange={(e) => updateField(i, { type: e.target.value })}
-                                            className="bg-[var(--zoru-background)] border border-[var(--zoru-border)] rounded px-2 py-1 text-sm"
+                                            className="bg-[var(--st-bg)] border border-[var(--st-border)] rounded px-2 py-1 text-sm"
                                         >
                                             {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                                         </select>

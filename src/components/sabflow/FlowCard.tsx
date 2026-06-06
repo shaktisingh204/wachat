@@ -101,7 +101,7 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
     >
       {/* ── Thumbnail ─────────────────────────────────────────────────── */}
       <div className="relative flex h-[130px] items-center justify-center overflow-hidden border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
-        <div className="absolute inset-0 opacity-60 [background-image:linear-gradient(hsl(var(--zoru-line))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--zoru-line))_1px,transparent_1px)] [background-size:22px_22px]" />
+        <div className="absolute inset-0 opacity-60 [background-image:linear-gradient(var(--st-border)_1px,transparent_1px),linear-gradient(90deg,var(--st-border)_1px,transparent_1px)] [background-size:22px_22px]" />
         <div className="relative flex w-44 items-center justify-between">
           {[0, 1, 2].map((node) => (
             <React.Fragment key={node}>

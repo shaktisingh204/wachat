@@ -83,8 +83,8 @@ export function BugListClient({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-[var(--zoru-ink)]">Bugs</h1>
-          <p className="text-sm text-[var(--zoru-ink-muted)]">
+          <h1 className="text-xl font-semibold text-[var(--st-text)]">Bugs</h1>
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Internal developer bug tracker — {bugs.length} result
             {bugs.length === 1 ? '' : 's'}
             {hasMore ? '+' : ''}
@@ -102,7 +102,7 @@ export function BugListClient({
 
         {filtersList.length > 0 ? (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs uppercase tracking-wide text-[var(--zoru-ink-muted)]">
+            <span className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
               Saved:
             </span>
             {filtersList.map((f) => (
@@ -150,10 +150,10 @@ function SavedFilterChip({
   onDelete: () => void;
 }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-[var(--zoru-divider)] bg-[var(--zoru-surface-2)] px-2 py-1 text-xs">
+    <span className="inline-flex items-center gap-1 rounded-md border border-[var(--zoru-divider)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs">
       <button
         type="button"
-        className="text-[var(--zoru-ink)] hover:underline"
+        className="text-[var(--st-text)] hover:underline"
         onClick={onApply}
       >
         {filter.name}
@@ -162,7 +162,7 @@ function SavedFilterChip({
       <button
         type="button"
         aria-label={`Remove saved filter ${filter.name}`}
-        className="text-[var(--zoru-ink-muted)] hover:text-[var(--st-text)]"
+        className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
         onClick={onDelete}
       >
         ×
@@ -174,7 +174,7 @@ function SavedFilterChip({
 function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
   if (loading && bugs.length === 0) {
     return (
-      <Card className="p-6 text-sm text-[var(--zoru-ink-muted)]">Loading bugs…</Card>
+      <Card className="p-6 text-sm text-[var(--st-text-secondary)]">Loading bugs…</Card>
     );
   }
   if (bugs.length === 0) {
@@ -203,7 +203,7 @@ function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
               <TableCell>
                 <Link
                   href={`/dashboard/sabbugs/${b._id}`}
-                  className="font-medium text-[var(--zoru-ink)] hover:underline"
+                  className="font-medium text-[var(--st-text)] hover:underline"
                 >
                   {bugTitle(b)}
                 </Link>
@@ -212,7 +212,7 @@ function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
                     {b.labels.map((l) => (
                       <span
                         key={l}
-                        className="rounded bg-[var(--zoru-surface-2)] px-1.5 py-0.5 text-[10px] text-[var(--zoru-ink-muted)]"
+                        className="rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]"
                       >
                         {l}
                       </span>
@@ -229,7 +229,7 @@ function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
               <TableCell>
                 <BugPriorityBadge priority={b.priority} />
               </TableCell>
-              <TableCell className="text-xs text-[var(--zoru-ink-muted)]">
+              <TableCell className="text-xs text-[var(--st-text-secondary)]">
                 {b.createdAt
                   ? new Date(b.createdAt).toLocaleDateString()
                   : '—'}

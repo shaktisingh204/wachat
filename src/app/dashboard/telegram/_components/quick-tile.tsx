@@ -17,9 +17,9 @@ export function QuickTile({ href, label, description, icon: Icon }: QuickTilePro
                 <div className="flex items-start gap-3">
                     <div
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-                        style={{ background: 'var(--zoru-surface-2)' }}
+                        style={{ background: 'var(--st-bg-muted)' }}
                     >
-                        <Icon className="h-4 w-4" strokeWidth={1.75} style={{ color: 'var(--zoru-ink)' }} />
+                        <Icon className="h-4 w-4" strokeWidth={1.75} style={{ color: 'var(--st-text)' }} />
                     </div>
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">

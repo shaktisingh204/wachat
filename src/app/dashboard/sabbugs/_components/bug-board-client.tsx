@@ -65,7 +65,7 @@ export function BugBoardClient({
 
   return (
     <div className="flex flex-col gap-3">
-      <h1 className="text-xl font-semibold text-[var(--zoru-ink)]">
+      <h1 className="text-xl font-semibold text-[var(--st-text)]">
         Bug board
       </h1>
       {initialError ? (
@@ -98,13 +98,13 @@ function BoardColumn({
 }) {
   return (
     <Card className="flex flex-col gap-2 p-3">
-      <header className="flex items-center justify-between text-xs uppercase tracking-wide text-[var(--zoru-ink-muted)]">
+      <header className="flex items-center justify-between text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
         <span>{status.replace('_', ' ')}</span>
         <span>{bugs.length}</span>
       </header>
       <div className="flex flex-col gap-2">
         {bugs.length === 0 ? (
-          <p className="rounded-md border border-dashed border-[var(--zoru-divider)] p-3 text-center text-xs text-[var(--zoru-ink-muted)]">
+          <p className="rounded-md border border-dashed border-[var(--zoru-divider)] p-3 text-center text-xs text-[var(--st-text-secondary)]">
             Empty
           </p>
         ) : (
@@ -123,10 +123,10 @@ function BoardCard({
   onMove: (bug: BugDoc, next: BugStatus) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-[var(--zoru-divider)] bg-[var(--zoru-surface)] p-2 text-sm">
+    <div className="flex flex-col gap-2 rounded-md border border-[var(--zoru-divider)] bg-[var(--st-bg-secondary)] p-2 text-sm">
       <Link
         href={`/dashboard/sabbugs/${bug._id}`}
-        className="font-medium text-[var(--zoru-ink)] hover:underline"
+        className="font-medium text-[var(--st-text)] hover:underline"
       >
         {bugTitle(bug)}
       </Link>

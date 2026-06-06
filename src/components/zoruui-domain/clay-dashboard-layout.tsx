@@ -2995,7 +2995,7 @@ export function ClayDashboardLayout({
               className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[linear-gradient(180deg,rgba(236,72,153,0.08)_0%,rgba(236,72,153,0.02)_100%)] pl-2 pr-3 text-[12px] font-medium text-[var(--st-text)] transition-colors hover:border-[var(--st-border)]"
             >
               <span
-                className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--zoru-ink)] text-white"
+                className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-text)] text-white"
               >
                 <LuStar className="h-3 w-3" strokeWidth={2.5} />
               </span>
@@ -3553,7 +3553,7 @@ function ClayAdManagerBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
         >
           <LuMegaphone className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3583,7 +3583,7 @@ function ClayInstagramBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
         >
           <LuImage className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3613,7 +3613,7 @@ function ClaySabFlowBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
         >
           <LuWorkflow className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3643,7 +3643,7 @@ function ClaySettingsBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
         >
           <LuSettings className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3671,7 +3671,7 @@ function ClayTeamBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
         >
           <LuUsers className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3699,7 +3699,7 @@ function ClayTelegramBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
         >
           <LuSend className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3729,7 +3729,7 @@ function ClayMetaBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
         >
           <LuGlobe className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3759,7 +3759,7 @@ function ClayUrlShortenerBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
         >
           <LuLink className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3789,7 +3789,7 @@ function ClayCrmBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
         >
           <LuBriefcase className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3819,7 +3819,7 @@ function ClaySabFlowExtraBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
         >
           <LuZap className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
@@ -3849,7 +3849,7 @@ function ClayQrCodeMakerBrand() {
       </button>
       <div className="flex items-center gap-2.5 px-1">
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--zoru-ink)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
         >
           <LuQrCode className="h-4 w-4 text-white" strokeWidth={2} />
         </div>

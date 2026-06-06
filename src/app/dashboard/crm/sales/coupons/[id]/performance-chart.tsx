@@ -66,25 +66,25 @@ export function PerformanceChart({ usedCount, createdAt }: PerformanceChartProps
         {usedCount > 0 ? (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--zoru-line)" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
               <XAxis 
                 dataKey="date" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: 'var(--zoru-ink-muted)' }}
+                tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                 dy={10}
               />
               <YAxis 
                 allowDecimals={false}
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: 'var(--zoru-ink-muted)' }}
+                tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                 dx={-10}
               />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'var(--zoru-surface)', 
-                  borderColor: 'var(--zoru-line)',
+                  backgroundColor: 'var(--st-bg-secondary)', 
+                  borderColor: 'var(--st-border)',
                   borderRadius: 'var(--st-radius)',
                   fontSize: '13px'
                 }} 
@@ -92,9 +92,9 @@ export function PerformanceChart({ usedCount, createdAt }: PerformanceChartProps
               <Line 
                 type="monotone" 
                 dataKey="redemptions" 
-                stroke="var(--zoru-accent)" 
+                stroke="var(--st-accent)" 
                 strokeWidth={2}
-                dot={{ r: 4, fill: 'var(--zoru-surface)', strokeWidth: 2 }}
+                dot={{ r: 4, fill: 'var(--st-bg-secondary)', strokeWidth: 2 }}
                 activeDot={{ r: 6 }}
               />
             </LineChart>

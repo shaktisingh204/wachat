@@ -119,8 +119,8 @@ function colorStyle(color?: string): React.CSSProperties | undefined {
     return { backgroundColor: `${color}1a`, color, borderColor: `${color}55` };
   }
   return {
-    backgroundColor: `var(--zoru-${color}-soft, var(--zoru-surface))`,
-    color: `var(--zoru-${color}, var(--zoru-ink))`,
+    backgroundColor: `var(--zoru-${color}-soft, var(--st-bg-secondary))`,
+    color: `var(--zoru-${color}, var(--st-text))`,
   };
 }
 

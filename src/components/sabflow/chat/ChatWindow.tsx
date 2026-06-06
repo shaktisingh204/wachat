@@ -526,7 +526,7 @@ export function ChatWindow({ flow }: ChatWindowProps) {
                 <div
                   key={i}
                   className="text-center text-[12px] italic px-2 py-1"
-                  style={{ color: 'var(--zoru-ink)' }}
+                  style={{ color: 'var(--st-text)' }}
                 >
                   {msg.text}
                 </div>

@@ -53,7 +53,7 @@ export function RecordingsClient({
 
     if (!site) {
         return (
-            <div className="zoruui p-8 text-sm text-[color:var(--zoru-fg-muted)]">
+            <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
                 Site not found.
             </div>
         );

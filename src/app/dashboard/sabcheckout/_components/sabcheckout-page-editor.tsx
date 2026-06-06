@@ -228,7 +228,7 @@ export function SabcheckoutPageEditor({
           <h1 className="text-2xl font-semibold tracking-tight">
             {isNew ? 'New payment page' : form.displayName || 'Edit page'}
           </h1>
-          <p className="text-sm text-[var(--zoru-muted-fg)]">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             {isNew
               ? 'Build a branded, shareable payment page.'
               : `Public URL: /pay/${form.slug || initial?.slug || ''}`}
@@ -352,7 +352,7 @@ export function SabcheckoutPageEditor({
               {form.logoFileId ? 'Change logo' : 'Choose logo'}
             </SabFilePickerButton>
             {form.logoFileId ? (
-              <p className="text-xs text-[var(--zoru-muted-fg)]">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 File: {form.logoFileId}
               </p>
             ) : null}
@@ -381,7 +381,7 @@ export function SabcheckoutPageEditor({
           {form.items.map((it, i) => (
             <div
               key={i}
-              className="grid items-end gap-3 rounded-md border border-[var(--zoru-border)] p-3 sm:grid-cols-[120px_1fr_180px_120px_auto]"
+              className="grid items-end gap-3 rounded-md border border-[var(--st-border)] p-3 sm:grid-cols-[120px_1fr_180px_120px_auto]"
             >
               <div className="space-y-1">
                 <Label className="text-xs">Type</Label>
@@ -472,7 +472,7 @@ export function SabcheckoutPageEditor({
           {form.requireFields.map((f, i) => (
             <div
               key={i}
-              className="grid items-end gap-3 rounded-md border border-[var(--zoru-border)] p-3 sm:grid-cols-[1fr_1fr_100px_auto]"
+              className="grid items-end gap-3 rounded-md border border-[var(--st-border)] p-3 sm:grid-cols-[1fr_1fr_100px_auto]"
             >
               <div className="space-y-1">
                 <Label className="text-xs">Key</Label>

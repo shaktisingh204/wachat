@@ -23,12 +23,12 @@ function intensityStyle(
   max: number,
 ): React.CSSProperties {
   if (max <= 0 || value <= 0) {
-    return { backgroundColor: 'hsl(var(--zoru-surface))' };
+    return { backgroundColor: 'var(--st-bg-secondary)' };
   }
   const ratio = value / max;
   // Map intensity to alpha against the ink token.
   const alpha = 0.1 + ratio * 0.8;
-  return { backgroundColor: `hsla(var(--zoru-ink) / ${alpha})` };
+  return { backgroundColor: `hsla(var(--st-text) / ${alpha})` };
 }
 
 export interface ChartGroupHeatmapProps {
@@ -95,7 +95,7 @@ export function ChartGroupHeatmap({ data }: ChartGroupHeatmapProps) {
           <span
             key={stop}
             className="h-3 w-3 rounded-[var(--st-radius-sm)]"
-            style={{ backgroundColor: `hsla(var(--zoru-ink) / ${stop})` }}
+            style={{ backgroundColor: `hsla(var(--st-text) / ${stop})` }}
           />
         ))}
         <span>High</span>

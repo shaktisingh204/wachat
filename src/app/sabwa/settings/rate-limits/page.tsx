@@ -229,18 +229,18 @@ export default function RateLimitsPage() {
         <ZoruCardContent>
           <ZoruChartContainer height={240}>
             <ZoruChart.LineChart data={MOCK_USAGE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+              <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
               <ZoruChart.XAxis 
                 dataKey="date" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 12 }}
+                tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }}
                 dy={10}
               />
               <ZoruChart.YAxis 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 12 }}
+                tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }}
               />
               <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
               <ZoruChart.Line 

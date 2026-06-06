@@ -161,7 +161,7 @@ export function CampaignAnalyticsClient({ campaignId }: { campaignId: string }) 
       <Card className="space-y-3 p-6">
         <h2 className="text-base font-semibold">Conversion</h2>
         <Separator />
-        <p className="text-sm text-[color:var(--zoru-muted-foreground)]">
+        <p className="text-sm text-[color:var(--st-text-secondary)]">
           Conversion is recorded against any CRM deal whose contact engaged with this campaign and
           subsequently advanced through the linked pipeline. Link a pipeline on the campaign settings
           to start tracking attribution.
@@ -176,7 +176,7 @@ export function CampaignAnalyticsClient({ campaignId }: { campaignId: string }) 
       <Card className="space-y-3 p-6">
         <h2 className="text-base font-semibold">Event stream</h2>
         <Separator />
-        <p className="text-sm text-[color:var(--zoru-muted-foreground)]">
+        <p className="text-sm text-[color:var(--st-text-secondary)]">
           Live time-series of opens / clicks / bounces / unsubscribes from the `email-events` crate
           surfaces here. (Component pending — backend already emits to `email_events`.)
         </p>

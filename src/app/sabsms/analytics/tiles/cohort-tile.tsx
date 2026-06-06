@@ -84,9 +84,9 @@ export function CohortTile({
                         title={`${cohort} · w+${c.weekOffset}: ${c.retained}`}
                         className="h-6 flex-1 rounded-sm border border-[var(--st-border)]"
                         style={{
-                          backgroundColor: `hsl(var(--zoru-ink) / ${
+                          backgroundColor: `color-mix(in srgb, var(--st-text) calc(${
                             0.08 + intensity * 0.72
-                          })`,
+                          } * 100%), transparent)`,
                         }}
                       />
                     );

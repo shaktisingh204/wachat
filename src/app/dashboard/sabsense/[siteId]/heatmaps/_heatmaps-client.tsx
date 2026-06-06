@@ -104,7 +104,7 @@ export function HeatmapsClient({
 
     if (!site) {
         return (
-            <div className="zoruui p-8 text-sm text-[color:var(--zoru-fg-muted)]">
+            <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
                 Site not found.
             </div>
         );
@@ -189,7 +189,7 @@ export function HeatmapsClient({
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div
-                        className="relative mx-auto overflow-hidden rounded-md border border-[color:var(--zoru-border)] bg-[color:var(--zoru-surface-2)]"
+                        className="relative mx-auto overflow-hidden rounded-md border border-[color:var(--st-border)] bg-[color:var(--st-bg-muted)]"
                         style={{ width, aspectRatio: '4 / 3' }}
                     >
                         {/* Stub screenshot — TODO: real screenshot service. */}
@@ -201,7 +201,7 @@ export function HeatmapsClient({
                                 className="absolute inset-0 h-full w-full object-cover opacity-70"
                             />
                         ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-xs text-[color:var(--zoru-fg-muted)]">
+                            <div className="absolute inset-0 flex items-center justify-center text-xs text-[color:var(--st-text-secondary)]">
                                 No screenshot yet — overlay shows click density on a blank canvas.
                             </div>
                         )}

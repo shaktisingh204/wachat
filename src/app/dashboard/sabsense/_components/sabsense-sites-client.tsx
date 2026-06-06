@@ -137,7 +137,7 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                                         <ZoruTableCell>
                                             <Link
                                                 href={`/dashboard/pagesense/${s._id}/heatmaps`}
-                                                className="font-medium text-[color:var(--zoru-fg)] hover:underline"
+                                                className="font-medium text-[color:var(--st-text)] hover:underline"
                                             >
                                                 {s.name}
                                             </Link>
@@ -220,11 +220,11 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                     </ZoruDialogHeader>
                     {snippetSite && (
                         <div className="space-y-3 py-2">
-                            <p className="text-sm text-[color:var(--zoru-fg-muted)]">
+                            <p className="text-sm text-[color:var(--st-text-secondary)]">
                                 Add this snippet to the &lt;head&gt; of every page on
                                 <span className="font-mono"> {snippetSite.domain}</span>.
                             </p>
-                            <pre className="rounded-md bg-[color:var(--zoru-surface-2)] p-3 text-xs overflow-x-auto">
+                            <pre className="rounded-md bg-[color:var(--st-bg-muted)] p-3 text-xs overflow-x-auto">
 {`<script async
   src="/pagesense-snippet.js"
   data-snippet-key="${snippetSite.snippetKey}"

@@ -55,9 +55,9 @@ export function VelocityChart({ items }: Props) {
       </div>
       <ZoruChartContainer height={320}>
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
-          <XAxis dataKey="name" stroke="hsl(var(--zoru-ink-muted))" />
-          <YAxis stroke="hsl(var(--zoru-ink-muted))" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+          <XAxis dataKey="name" stroke="var(--st-text-secondary)" />
+          <YAxis stroke="var(--st-text-secondary)" />
           <Tooltip content={<ZoruChartTooltip />} />
           <Legend />
           <Bar dataKey="planned" name="Planned" fill={ZORU_CHART_PALETTE[2]} />

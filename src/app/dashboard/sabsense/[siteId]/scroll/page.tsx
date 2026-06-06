@@ -40,7 +40,7 @@ export default function ScrollPage(props: PageProps) {
     return (
         <Suspense
             fallback={
-                <div className="zoruui p-8 text-sm text-[color:var(--zoru-fg-muted)]">
+                <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
                     Loading scroll map…
                 </div>
             }

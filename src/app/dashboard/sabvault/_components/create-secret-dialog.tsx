@@ -175,7 +175,7 @@ export function CreateSecretDialog({ keyRecord }: { keyRecord: SabvaultUserKeyRe
                         <Label htmlFor="sv-note">Note</Label>
                         <Textarea id="sv-note" value={note} onChange={(e) => setNote(e.target.value)} rows={3} />
                     </div>
-                    {error ? <div className="text-sm text-[var(--zoru-danger)]">{error}</div> : null}
+                    {error ? <div className="text-sm text-[var(--st-danger)]">{error}</div> : null}
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                             Cancel

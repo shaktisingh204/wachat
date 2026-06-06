@@ -49,7 +49,7 @@ export default async function SabworkerlyOverviewPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm text-[color:var(--zoru-muted-fg)]">
+                        <CardTitle className="text-sm text-[color:var(--st-text-secondary)]">
                             Active Workers
                         </CardTitle>
                     </CardHeader>
@@ -59,7 +59,7 @@ export default async function SabworkerlyOverviewPage() {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm text-[color:var(--zoru-muted-fg)]">
+                        <CardTitle className="text-sm text-[color:var(--st-text-secondary)]">
                             Open Jobs
                         </CardTitle>
                     </CardHeader>
@@ -69,7 +69,7 @@ export default async function SabworkerlyOverviewPage() {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm text-[color:var(--zoru-muted-fg)]">
+                        <CardTitle className="text-sm text-[color:var(--st-text-secondary)]">
                             Pending Timesheets
                         </CardTitle>
                     </CardHeader>
@@ -79,13 +79,13 @@ export default async function SabworkerlyOverviewPage() {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm text-[color:var(--zoru-muted-fg)]">
+                        <CardTitle className="text-sm text-[color:var(--st-text-secondary)]">
                             Unpaid Invoices
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-semibold">{stats.unpaidInvoices}</div>
-                        <div className="mt-1 text-xs text-[color:var(--zoru-muted-fg)]">
+                        <div className="mt-1 text-xs text-[color:var(--st-text-secondary)]">
                             {money(stats.unpaidTotalMinor)} outstanding
                         </div>
                     </CardContent>
@@ -99,7 +99,7 @@ export default async function SabworkerlyOverviewPage() {
                     </CardHeader>
                     <CardContent>
                         {pendingTs.length === 0 ? (
-                            <p className="text-sm text-[color:var(--zoru-muted-fg)]">
+                            <p className="text-sm text-[color:var(--st-text-secondary)]">
                                 No timesheets awaiting approval.
                             </p>
                         ) : (
@@ -107,7 +107,7 @@ export default async function SabworkerlyOverviewPage() {
                                 {pendingTs.map((t) => (
                                     <li
                                         key={t._id}
-                                        className="flex items-center justify-between rounded-md border border-[color:var(--zoru-border)] px-3 py-2 text-sm"
+                                        className="flex items-center justify-between rounded-md border border-[color:var(--st-border)] px-3 py-2 text-sm"
                                     >
                                         <span>Week of {new Date(t.weekStart).toLocaleDateString()}</span>
                                         <Badge variant="secondary">{t.totalHours.toFixed(1)} h</Badge>
@@ -123,7 +123,7 @@ export default async function SabworkerlyOverviewPage() {
                     </CardHeader>
                     <CardContent>
                         {unpaidInv.length === 0 ? (
-                            <p className="text-sm text-[color:var(--zoru-muted-fg)]">
+                            <p className="text-sm text-[color:var(--st-text-secondary)]">
                                 No outstanding invoices.
                             </p>
                         ) : (
@@ -131,7 +131,7 @@ export default async function SabworkerlyOverviewPage() {
                                 {unpaidInv.map((inv) => (
                                     <li
                                         key={inv._id}
-                                        className="flex items-center justify-between rounded-md border border-[color:var(--zoru-border)] px-3 py-2 text-sm"
+                                        className="flex items-center justify-between rounded-md border border-[color:var(--st-border)] px-3 py-2 text-sm"
                                     >
                                         <span>
                                             {new Date(inv.periodStart).toLocaleDateString()} —{' '}

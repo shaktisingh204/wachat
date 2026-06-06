@@ -23,7 +23,7 @@ async function EngagementsData() {
             <PageHeader>
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight">Engagements</h1>
-                    <p className="text-sm text-[var(--zoru-ink-muted)]">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Cross-client engagement list. Open a client to add a new one.
                     </p>
                 </div>
@@ -77,7 +77,7 @@ export default function EngagementsPage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--zoru-ink-muted)]">Loading…</div>
+                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading…</div>
             }
         >
             <EngagementsData />

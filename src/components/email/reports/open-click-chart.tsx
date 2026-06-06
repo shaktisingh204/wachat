@@ -60,12 +60,12 @@ export function OpenClickChart({
               <XAxis
                 dataKey="t"
                 tickFormatter={formatTick}
-                tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 11 }}
-                stroke="hsl(var(--zoru-line))"
+                tick={{ fill: 'var(--st-text-secondary)', fontSize: 11 }}
+                stroke="var(--st-border)"
               />
               <YAxis
-                tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 11 }}
-                stroke="hsl(var(--zoru-line))"
+                tick={{ fill: 'var(--st-text-secondary)', fontSize: 11 }}
+                stroke="var(--st-border)"
               />
               <Tooltip content={<ZoruChartTooltip />} />
               <Line

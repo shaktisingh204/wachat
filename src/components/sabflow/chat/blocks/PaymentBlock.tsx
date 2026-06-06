@@ -522,7 +522,7 @@ export function PaymentBlock({
     <div className="flex flex-col items-start gap-2 py-1">
       <div
         className="flex items-center gap-2 rounded-xl border px-3 py-2 text-[12.5px]"
-        style={{ borderColor: 'var(--zoru-line)', backgroundColor: 'var(--zoru-surface-2)', color: 'var(--zoru-ink)' }}
+        style={{ borderColor: 'var(--st-border)', backgroundColor: 'var(--st-bg-muted)', color: 'var(--st-text)' }}
       >
         <span>{errorMessage ?? 'Payment failed. Please try again.'}</span>
       </div>

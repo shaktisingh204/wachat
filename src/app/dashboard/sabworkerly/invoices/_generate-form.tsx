@@ -31,7 +31,7 @@ export function GenerateInvoiceForm({ clients }: { clients: ClientOpt[] }) {
 
     if (clients.length === 0) {
         return (
-            <p className="text-sm text-[color:var(--zoru-muted-fg)]">
+            <p className="text-sm text-[color:var(--st-text-secondary)]">
                 Add a client first to generate an invoice.
             </p>
         );

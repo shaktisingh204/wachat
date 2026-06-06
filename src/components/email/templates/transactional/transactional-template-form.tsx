@@ -234,7 +234,7 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
               onChange={(e) => setKey(e.target.value.replace(/[^a-z0-9_]/g, ''))}
               placeholder="order_confirmation"
             />
-            <p className="text-xs text-[color:var(--zoru-muted-foreground)]">
+            <p className="text-xs text-[color:var(--st-text-secondary)]">
               Lowercase identifier; used by dispatchers. Must be unique per workspace.
             </p>
           </div>
@@ -294,7 +294,7 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold">Variables schema</h2>
-            <p className="text-sm text-[color:var(--zoru-muted-foreground)]">
+            <p className="text-sm text-[color:var(--st-text-secondary)]">
               Declare merge variables referenced in the body via `{`{{name}}`}`.
             </p>
           </div>
@@ -314,7 +314,7 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
         </div>
         <Separator />
         {vars.length === 0 ? (
-          <p className="text-sm text-[color:var(--zoru-muted-foreground)]">No variables declared.</p>
+          <p className="text-sm text-[color:var(--st-text-secondary)]">No variables declared.</p>
         ) : (
           <div className="space-y-2">
             {vars.map((v, idx) => (
@@ -430,7 +430,7 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
             <div className="space-y-2">
               <Label>Variables payload</Label>
               {declaredNames.length === 0 ? (
-                <p className="text-sm text-[color:var(--zoru-muted-foreground)]">
+                <p className="text-sm text-[color:var(--st-text-secondary)]">
                   Declare variables above to render with merge values.
                 </p>
               ) : (
@@ -458,14 +458,14 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
                 onChange={(e) => setTestEmails(e.target.value)}
               />
               {missing.length > 0 && (
-                <div className="text-xs text-[color:var(--zoru-destructive)]">
+                <div className="text-xs text-[color:var(--st-danger)]">
                   Missing variables: {missing.join(', ')}
                 </div>
               )}
             </div>
             <div className="space-y-2">
               <Label>Rendered subject</Label>
-              <div className="rounded border bg-[color:var(--zoru-card)] p-3 font-medium">
+              <div className="rounded border bg-[color:var(--st-bg)] p-3 font-medium">
                 {previewSubject || <Badge variant="outline">Render to see output</Badge>}
               </div>
               <Label>Rendered HTML</Label>

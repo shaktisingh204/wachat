@@ -74,7 +74,7 @@ export function SectionList({
 
   return (
     <div className="flex h-full flex-col gap-2">
-      <header className="px-2 pt-2 text-xs font-semibold uppercase tracking-wide text-[var(--zoru-muted-foreground)]">
+      <header className="px-2 pt-2 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Sections
       </header>
       <ScrollArea className="min-h-0 flex-1">
@@ -89,8 +89,8 @@ export function SectionList({
                   className={[
                     'group flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm',
                     active
-                      ? 'bg-[var(--zoru-accent)] text-[var(--zoru-accent-foreground)]'
-                      : 'hover:bg-[var(--zoru-muted)]',
+                      ? 'bg-[var(--st-accent)] text-[var(--zoru-accent-foreground)]'
+                      : 'hover:bg-[var(--st-bg-muted)]',
                   ].join(' ')}
                 >
                   <span className="flex min-w-0 items-center gap-2">
@@ -110,7 +110,7 @@ export function SectionList({
                         handleDelete(s._id);
                       }
                     }}
-                    className="invisible rounded p-1 hover:bg-[var(--zoru-muted)] group-hover:visible"
+                    className="invisible rounded p-1 hover:bg-[var(--st-bg-muted)] group-hover:visible"
                     aria-label={`Delete section ${s.name}`}
                   >
                     <Trash2 className="h-3 w-3" />
@@ -120,13 +120,13 @@ export function SectionList({
             );
           })}
           {sections.length === 0 && (
-            <li className="px-2 py-1.5 text-sm text-[var(--zoru-muted-foreground)]">
+            <li className="px-2 py-1.5 text-sm text-[var(--st-text-secondary)]">
               No sections yet.
             </li>
           )}
         </ul>
       </ScrollArea>
-      <div className="flex items-center gap-1 border-t border-[var(--zoru-border)] p-2">
+      <div className="flex items-center gap-1 border-t border-[var(--st-border)] p-2">
         <Input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}

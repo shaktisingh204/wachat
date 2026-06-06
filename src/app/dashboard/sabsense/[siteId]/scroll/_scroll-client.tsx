@@ -60,7 +60,7 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
 
     if (!site) {
         return (
-            <div className="zoruui p-8 text-sm text-[color:var(--zoru-fg-muted)]">
+            <div className="zoruui p-8 text-sm text-[color:var(--st-text-secondary)]">
                 Site not found.
             </div>
         );
@@ -117,7 +117,7 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
                     <div className="space-y-3">
                         {deciles.pct.map((pct, i) => (
                             <div key={i} className="space-y-1">
-                                <div className="flex justify-between text-xs text-[color:var(--zoru-fg-muted)]">
+                                <div className="flex justify-between text-xs text-[color:var(--st-text-secondary)]">
                                     <span>Past {(i + 1) * 10}%</span>
                                     <span>{pct}%</span>
                                 </div>

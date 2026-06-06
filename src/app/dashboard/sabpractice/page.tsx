@@ -46,7 +46,7 @@ async function OverviewData() {
             <PageHeader>
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight">SabPractice</h1>
-                    <p className="text-sm text-[var(--zoru-ink-muted)]">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Your firm overview — clients, engagements, and what is due next.
                     </p>
                 </div>
@@ -86,7 +86,7 @@ async function OverviewData() {
                                 >
                                     <div className="flex flex-col">
                                         <span className="font-medium">{d.name}</span>
-                                        <span className="text-xs text-[var(--zoru-ink-muted)]">
+                                        <span className="text-xs text-[var(--st-text-secondary)]">
                                             {d.kind ?? 'custom'} ·{' '}
                                             {new Date(d.dueDate).toLocaleDateString()}
                                         </span>
@@ -106,7 +106,7 @@ export default function SabpracticeOverviewPage() {
     return (
         <Suspense
             fallback={
-                <div className="p-6 text-sm text-[var(--zoru-ink-muted)]">Loading…</div>
+                <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading…</div>
             }
         >
             <OverviewData />
