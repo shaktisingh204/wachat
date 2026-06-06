@@ -1,9 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { Card, Badge, Input, ScrollArea } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  Badge,
+  Button,
+  Field,
+  Input,
+  EmptyState,
+} from "@/components/sabcrm/20ui";
 import type { CrmTicketDoc } from "@/lib/rust-client/crm-tickets";
-import { Search } from "lucide-react";
+import { Search, Inbox } from "lucide-react";
 import { TicketDetailClient } from "./ticket-detail-client";
 
 interface TicketsInboxProps {
@@ -28,26 +35,33 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
 
   if (tickets.length === 0) {
     return (
-      <Card className="p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
-        No tickets found for your inbox.
+      <Card padding="lg">
+        <EmptyState
+          icon={Inbox}
+          title="No tickets found"
+          description="There are no tickets in your inbox right now. New requests will appear here."
+        />
       </Card>
     );
   }
 
   return (
-    <Card className="flex h-[calc(100vh-200px)] min-h-[600px] flex-row overflow-hidden p-0">
+    <Card
+      padding="none"
+      className="flex h-[calc(100vh-200px)] min-h-[600px] flex-row overflow-hidden"
+    >
       {/* Left rail - Ticket list */}
-      <div className="flex w-80 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-muted)]/30">
+      <div className="flex w-80 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <div className="border-b border-[var(--st-border)] p-3">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+          <Field label="Filter inbox" className="[&>.u-field__label]:sr-only">
             <Input
+              inputSize="sm"
+              iconLeft={Search}
               placeholder="Filter inbox..."
-              className="h-8 w-full pl-8 text-xs"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-          </div>
+          </Field>
         </div>
         <div className="flex-1 overflow-y-auto">
           <ul className="flex flex-col divide-y divide-[var(--st-border)]">
@@ -56,42 +70,43 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
               const isActive = selectedTicketId === id;
               return (
                 <li key={id}>
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    block
+                    aria-pressed={isActive}
                     onClick={() => setSelectedTicketId(id)}
                     className={[
-                      "flex w-full flex-col gap-1 p-3 text-left transition-colors",
+                      "!h-auto !justify-start !rounded-none !px-3 !py-3 text-left [&>.u-btn__label]:w-full [&>.u-btn__label]:flex-1",
                       isActive
-                        ? "bg-[var(--st-bg-secondary)] shadow-sm"
-                        : "hover:bg-[var(--st-bg-secondary)]/50",
+                        ? "!bg-[var(--st-bg)] shadow-sm"
+                        : "",
                     ].join(" ")}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="truncate text-[13px] font-medium text-[var(--st-text)]">
-                        {t.subject || "Untitled"}
+                    <span className="flex w-full flex-col gap-1">
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="truncate text-[13px] font-medium text-[var(--st-text)]">
+                          {t.subject || "Untitled"}
+                        </span>
+                        {t.status ? (
+                          <Badge kind="outline" className="text-[10px] uppercase">
+                            {t.status.replace(/_/g, " ")}
+                          </Badge>
+                        ) : null}
                       </span>
-                      {t.status ? (
-                        <Badge
-                          variant="ghost"
-                          className="text-[10px] uppercase"
-                        >
-                          {t.status.replace(/_/g, " ")}
-                        </Badge>
-                      ) : null}
-                    </div>
-                    <div className="flex items-center justify-between text-[11px] text-[var(--st-text-secondary)]">
-                      <span className="truncate">
-                        {t.requesterId
-                          ? `Requester: ${t.requesterId.slice(-6)}`
-                          : "No requester"}
+                      <span className="flex items-center justify-between gap-2 text-[11px] text-[var(--st-text-secondary)]">
+                        <span className="truncate">
+                          {t.requesterId
+                            ? `Requester: ${t.requesterId.slice(-6)}`
+                            : "No requester"}
+                        </span>
+                        <span>
+                          {t.createdAt
+                            ? new Date(t.createdAt).toLocaleDateString()
+                            : ""}
+                        </span>
                       </span>
-                      <span>
-                        {t.createdAt
-                          ? new Date(t.createdAt).toLocaleDateString()
-                          : ""}
-                      </span>
-                    </div>
-                  </button>
+                    </span>
+                  </Button>
                 </li>
               );
             })}
@@ -105,18 +120,18 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
       </div>
 
       {/* Main pane - Ticket detail */}
-      <div className="flex-1 overflow-y-auto bg-[var(--st-bg-secondary)] p-6">
+      <div className="flex-1 overflow-y-auto bg-[var(--st-bg)] p-6">
         {selectedTicket ? (
           <div className="w-full space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <h2 className="text-xl font-semibold text-[var(--st-text)]">
                 {selectedTicket.subject}
               </h2>
-              {selectedTicket.priority && (
-                <Badge variant="secondary">{selectedTicket.priority}</Badge>
-              )}
+              {selectedTicket.priority ? (
+                <Badge tone="neutral">{selectedTicket.priority}</Badge>
+              ) : null}
             </div>
-            {/* We reuse the Client Interactive portion of the ticket page here */}
+            {/* Reuse the interactive client portion of the ticket page here */}
             <TicketDetailClient ticket={selectedTicket} />
           </div>
         ) : (

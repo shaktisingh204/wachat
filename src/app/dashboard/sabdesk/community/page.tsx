@@ -15,471 +15,466 @@ import {
   Eye,
   Clock,
   CheckCircle,
-  XCircle,
   AlertTriangle,
   Ban,
   Settings,
   Star,
   Award,
   Activity,
-  ArrowRight,
   UserCheck,
   Flag,
   Trash2,
-  Lock,
-  Unlock,
-  Pin,
+  Pencil,
+  type LucideIcon,
 } from "lucide-react";
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  StatCard,
+  EmptyState,
+  Pagination,
+} from "@/components/sabcrm/20ui";
 
 // Mock Data
 const forums = [
-  { id: 1, name: "General Discussion", desc: "Talk about anything related to our products.", topics: 1245, posts: 8432, lastActive: "2 mins ago" },
-  { id: 2, name: "Feature Requests", desc: "Submit and vote on new features.", topics: 856, posts: 4120, lastActive: "15 mins ago" },
-  { id: 3, name: "Bug Reports", desc: "Report issues and get help from the community.", topics: 432, posts: 2150, lastActive: "1 hour ago" },
-  { id: 4, name: "Showcase", desc: "Show off what you've built using our platform.", topics: 215, posts: 1045, lastActive: "3 hours ago" },
-  { id: 5, name: "Developer API", desc: "Technical discussions and integration help.", topics: 643, posts: 3210, lastActive: "5 hours ago" },
+  { id: 1, name: "General Discussion", desc: "Talk about anything related to our products.", topics: 1245, posts: 8432, lastActive: "2 mins ago", pinned: true },
+  { id: 2, name: "Feature Requests", desc: "Submit and vote on new features.", topics: 856, posts: 4120, lastActive: "15 mins ago", pinned: false },
+  { id: 3, name: "Bug Reports", desc: "Report issues and get help from the community.", topics: 432, posts: 2150, lastActive: "1 hour ago", pinned: false },
+  { id: 4, name: "Showcase", desc: "Show off what you've built using our platform.", topics: 215, posts: 1045, lastActive: "3 hours ago", pinned: false },
+  { id: 5, name: "Developer API", desc: "Technical discussions and integration help.", topics: 643, posts: 3210, lastActive: "5 hours ago", pinned: false },
 ];
 
 const flaggedPosts = [
-  { id: 101, user: "AlexD", avatar: "AD", content: "This software is absolute garbage and everyone who uses it is stupid...", reason: "Harassment", date: "10 mins ago", severity: "high" },
-  { id: 102, user: "SpamBot99", avatar: "SB", content: "CLICK HERE FOR FREE CRYPTO 100% LEGIT NO SCAM!! http://spam...", reason: "Spam", date: "1 hour ago", severity: "high" },
-  { id: 103, user: "JohnSmith", avatar: "JS", content: "I can't believe the customer support here. It took 2 whole hours...", reason: "Inappropriate Language", date: "3 hours ago", severity: "low" },
+  { id: 101, user: "AlexD", avatar: "AD", content: "This software is absolute garbage and everyone who uses it is stupid...", reason: "Harassment", date: "10 mins ago", severity: "high" as const },
+  { id: 102, user: "SpamBot99", avatar: "SB", content: "CLICK HERE FOR FREE CRYPTO 100% LEGIT NO SCAM!! http://spam...", reason: "Spam", date: "1 hour ago", severity: "high" as const },
+  { id: 103, user: "JohnSmith", avatar: "JS", content: "I can't believe the customer support here. It took 2 whole hours...", reason: "Inappropriate Language", date: "3 hours ago", severity: "low" as const },
 ];
 
+const memberNames = ["Alice Cooper", "Bob Builder", "Charlie Day", "Diana Prince", "Eve Adams"];
 const members = Array.from({ length: 20 }).map((_, i) => ({
   id: `mem-${i}`,
-  name: ["Alice Cooper", "Bob Builder", "Charlie Day", "Diana Prince", "Eve Adams"][i % 5],
+  name: memberNames[i % 5],
   role: i === 0 ? "Admin" : i < 3 ? "Moderator" : "Member",
-  joined: `202${i % 3 + 1}-0${i % 9 + 1}-15`,
-  posts: Math.floor(Math.random() * 500),
-  reputation: Math.floor(Math.random() * 1000),
-  status: ["Active", "Banned", "Muted", "Active", "Active"][i % 5]
+  joined: `202${(i % 3) + 1}-0${(i % 9) + 1}-15`,
+  // Deterministic, realistic-looking values (no Math.random, stable across renders).
+  posts: 37 + ((i * 53) % 460),
+  reputation: 120 + ((i * 137) % 880),
+  status: ["Active", "Banned", "Muted", "Active", "Active"][i % 5],
 }));
 
-const badges = [
-  { id: 1, name: "Helpful Hero", icon: <ThumbsUp className="w-5 h-5" />, color: "bg-blue-500", desc: "Received 100 upvotes" },
-  { id: 2, name: "Solution Master", icon: <CheckCircle className="w-5 h-5" />, color: "bg-emerald-500", desc: "Provided 50 accepted answers" },
-  { id: 3, name: "Bug Hunter", icon: <AlertTriangle className="w-5 h-5" />, color: "bg-rose-500", desc: "Reported 10 confirmed bugs" },
-  { id: 4, name: "Community Pillar", icon: <Users className="w-5 h-5" />, color: "bg-purple-500", desc: "Active for 1 consecutive year" },
+type BadgeDef = { id: number; name: string; icon: LucideIcon; accent: string; desc: string };
+const communityBadges: BadgeDef[] = [
+  { id: 1, name: "Helpful Hero", icon: ThumbsUp, accent: "#2b6ef2", desc: "Received 100 upvotes" },
+  { id: 2, name: "Solution Master", icon: CheckCircle, accent: "#2e7d32", desc: "Provided 50 accepted answers" },
+  { id: 3, name: "Bug Hunter", icon: AlertTriangle, accent: "#c13c2c", desc: "Reported 10 confirmed bugs" },
+  { id: 4, name: "Community Pillar", icon: Users, accent: "#7c3aed", desc: "Active for 1 consecutive year" },
 ];
+
+const pointRules = [
+  { action: "Creating a new topic", points: "+10", positive: true, limit: "5 per day" },
+  { action: "Replying to a topic", points: "+2", positive: true, limit: "No limit" },
+  { action: "Receiving an upvote", points: "+5", positive: true, limit: "No limit" },
+  { action: "Having an answer accepted", points: "+15", positive: true, limit: "No limit" },
+  { action: "Post deleted by moderator", points: "-20", positive: false, limit: "-" },
+];
+
+function roleTone(role: string): "accent" | "info" | "neutral" {
+  if (role === "Admin") return "accent";
+  if (role === "Moderator") return "info";
+  return "neutral";
+}
+
+function statusTone(status: string): "success" | "danger" | "warning" {
+  if (status === "Active") return "success";
+  if (status === "Banned") return "danger";
+  return "warning";
+}
 
 export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState("forums");
-  const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-6 font-sans">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-400 flex items-center gap-3">
-            <MessageSquare className="w-8 h-8 text-emerald-400" />
-            Community & Forums
-          </h1>
-          <p className="text-slate-400 mt-1">Manage discussion boards, moderation queues, and user engagement.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg flex items-center gap-2 transition-colors border border-slate-700 shadow-sm">
-            <Eye className="w-4 h-4" />
+    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle className="flex items-center gap-3">
+            <MessageSquare className="w-7 h-7 text-[var(--st-accent)]" aria-hidden="true" />
+            Community &amp; Forums
+          </PageTitle>
+          <PageDescription>
+            Manage discussion boards, moderation queues, and user engagement.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="secondary" iconLeft={Eye}>
             View Live Forum
-          </button>
-          <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg flex items-center gap-2 transition-colors shadow-lg shadow-emerald-500/20">
-            <Plus className="w-4 h-4" />
+          </Button>
+          <Button variant="primary" iconLeft={Plus}>
             New Board
-          </button>
-        </div>
-      </div>
+          </Button>
+        </PageActions>
+      </PageHeader>
 
-      {/* Tabs */}
-      <div className="flex overflow-x-auto border-b border-slate-800 mb-6 pb-2 gap-6 scrollbar-hide">
-        <button
-          onClick={() => setActiveTab("forums")}
-          className={`pb-2 border-b-2 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "forums" ? "border-emerald-500 text-emerald-400" : "border-transparent text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <MessageSquare className="w-4 h-4" /> Boards & Topics
-        </button>
-        <button
-          onClick={() => setActiveTab("moderation")}
-          className={`pb-2 border-b-2 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "moderation" ? "border-emerald-500 text-emerald-400" : "border-transparent text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <Shield className="w-4 h-4" /> Moderation Queue
-          <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold ml-1">3</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("members")}
-          className={`pb-2 border-b-2 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "members" ? "border-emerald-500 text-emerald-400" : "border-transparent text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <Users className="w-4 h-4" /> Members & Roles
-        </button>
-        <button
-          onClick={() => setActiveTab("gamification")}
-          className={`pb-2 border-b-2 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "gamification" ? "border-emerald-500 text-emerald-400" : "border-transparent text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <Trophy className="w-4 h-4" /> Gamification
-        </button>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+        <TabsList>
+          <TabsTrigger value="forums">Boards &amp; Topics</TabsTrigger>
+          <TabsTrigger value="moderation">Moderation Queue</TabsTrigger>
+          <TabsTrigger value="members">Members &amp; Roles</TabsTrigger>
+          <TabsTrigger value="gamification">Gamification</TabsTrigger>
+        </TabsList>
 
-      {/* Content */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-[700px] flex flex-col">
-        
         {/* Forums Tab */}
-        {activeTab === "forums" && (
-          <>
-            <div className="p-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between gap-4 bg-slate-900/50">
-              <div className="relative max-w-md w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input
-                  type="text"
-                  placeholder="Search boards..."
-                  className="w-full bg-slate-950 border border-slate-800 text-slate-200 pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:border-emerald-500"
-                />
+        <TabsContent value="forums" className="mt-6">
+          <Card padding="none">
+            <div className="p-4 border-b border-[var(--st-border)] flex flex-col sm:flex-row justify-between gap-4">
+              <div className="max-w-md w-full">
+                <Field>
+                  <Input iconLeft={Search} placeholder="Search boards..." aria-label="Search boards" />
+                </Field>
               </div>
-              <button className="px-4 py-2 border border-slate-800 text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2">
-                <Filter className="w-4 h-4" /> Filter
-              </button>
+              <Button variant="outline" iconLeft={Filter}>
+                Filter
+              </Button>
             </div>
-            
-            <div className="flex-1 overflow-auto p-4 space-y-4 bg-slate-950">
+
+            <div className="p-4 space-y-4">
               {forums.map((forum) => (
-                <div key={forum.id} className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors group flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <Card key={forum.id} variant="interactive" className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                        <MessageSquare className="w-5 h-5 text-emerald-400" />
-                      </div>
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-10 rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] flex items-center justify-center border border-[var(--st-border)]">
+                        <MessageSquare className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
+                      </span>
                       <div>
-                        <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+                        <h3 className="text-base font-semibold text-[var(--st-text)] flex items-center gap-2">
                           {forum.name}
-                          {forum.id === 1 && <Pin className="w-4 h-4 text-slate-500 fill-slate-500" />}
+                          {forum.pinned && <Badge tone="accent" kind="soft">Pinned</Badge>}
                         </h3>
-                        <p className="text-slate-400 text-sm">{forum.desc}</p>
+                        <p className="text-[var(--st-text-secondary)] text-sm">{forum.desc}</p>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-8 md:gap-12">
                     <div className="flex gap-6 text-center">
                       <div>
-                        <div className="text-lg font-bold text-slate-200">{forum.topics.toLocaleString()}</div>
-                        <div className="text-xs text-slate-500 uppercase tracking-wider">Topics</div>
+                        <div className="text-lg font-bold text-[var(--st-text)]">{forum.topics.toLocaleString()}</div>
+                        <div className="text-xs text-[var(--st-text-tertiary)] uppercase tracking-wider">Topics</div>
                       </div>
                       <div>
-                        <div className="text-lg font-bold text-slate-200">{forum.posts.toLocaleString()}</div>
-                        <div className="text-xs text-slate-500 uppercase tracking-wider">Posts</div>
+                        <div className="text-lg font-bold text-[var(--st-text)]">{forum.posts.toLocaleString()}</div>
+                        <div className="text-xs text-[var(--st-text-tertiary)] uppercase tracking-wider">Posts</div>
                       </div>
                     </div>
-                    
+
                     <div className="hidden md:block w-32 text-right">
-                      <div className="text-sm text-slate-300">Last Post</div>
-                      <div className="text-xs text-slate-500 flex items-center justify-end gap-1 mt-1">
-                        <Clock className="w-3 h-3" /> {forum.lastActive}
+                      <div className="text-sm text-[var(--st-text-secondary)]">Last Post</div>
+                      <div className="text-xs text-[var(--st-text-tertiary)] flex items-center justify-end gap-1 mt-1">
+                        <Clock className="w-3 h-3" aria-hidden="true" /> {forum.lastActive}
                       </div>
                     </div>
-                    
-                    <div className="md:opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors">
-                        <Settings className="w-5 h-5" />
-                      </button>
-                    </div>
+
+                    <IconButton label={`Settings for ${forum.name}`} icon={Settings} variant="ghost" />
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
-          </>
-        )}
+          </Card>
+        </TabsContent>
 
         {/* Moderation Tab */}
-        {activeTab === "moderation" && (
-          <div className="flex h-full flex-col">
-            <div className="p-6 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
+        <TabsContent value="moderation" className="mt-6">
+          <Card padding="none">
+            <CardHeader className="flex flex-row justify-between items-center gap-4">
               <div>
-                <h2 className="text-xl font-bold text-slate-200">Moderation Queue</h2>
-                <p className="text-sm text-slate-400">Review flagged content and reported users.</p>
+                <CardTitle>Moderation Queue</CardTitle>
+                <CardDescription>Review flagged content and reported users.</CardDescription>
               </div>
               <div className="flex gap-2">
-                <button className="px-4 py-2 border border-slate-800 text-slate-300 hover:bg-slate-800 rounded-lg text-sm">Auto-Mod Rules</button>
-                <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-sm border border-slate-700">Clear All</button>
+                <Button variant="outline" size="sm">Auto-Mod Rules</Button>
+                <Button variant="secondary" size="sm">Clear All</Button>
               </div>
-            </div>
-            
-            <div className="flex-1 overflow-auto p-6 space-y-6 bg-slate-950">
-              {flaggedPosts.map((post) => (
-                <div key={post.id} className={`border rounded-xl p-5 relative overflow-hidden ${
-                  post.severity === 'high' ? 'border-rose-500/30 bg-rose-500/5' : 'border-amber-500/30 bg-amber-500/5'
-                }`}>
-                  <div className={`absolute top-0 left-0 w-1 h-full ${
-                    post.severity === 'high' ? 'bg-rose-500' : 'bg-amber-500'
-                  }`}></div>
-                  
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-300 border border-slate-700">
-                        {post.avatar}
-                      </div>
-                      <div>
-                        <div className="font-medium text-slate-200">{post.user}</div>
-                        <div className="text-xs text-slate-500 flex items-center gap-2">
-                          <Flag className="w-3 h-3 text-rose-400" />
-                          Reported for: <span className="text-slate-300">{post.reason}</span> • {post.date}
+            </CardHeader>
+
+            <div className="p-6 space-y-6">
+              {flaggedPosts.length === 0 ? (
+                <EmptyState
+                  icon={Shield}
+                  tone="success"
+                  title="The moderation queue is empty."
+                  description="Nice work. Flagged content will appear here when reported."
+                />
+              ) : (
+                flaggedPosts.map((post) => (
+                  <Card
+                    key={post.id}
+                    className={
+                      post.severity === "high"
+                        ? "border-l-2 border-l-[var(--st-danger)]"
+                        : "border-l-2 border-l-[var(--st-warn)]"
+                    }
+                  >
+                    <div className="flex justify-between items-start gap-4 mb-4">
+                      <div className="flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-[var(--st-radius-pill)] bg-[var(--st-bg-muted)] flex items-center justify-center font-bold text-[var(--st-text-secondary)] border border-[var(--st-border)]">
+                          {post.avatar}
+                        </span>
+                        <div>
+                          <div className="font-medium text-[var(--st-text)]">{post.user}</div>
+                          <div className="text-xs text-[var(--st-text-tertiary)] flex items-center gap-2">
+                            <Flag className="w-3 h-3 text-[var(--st-danger)]" aria-hidden="true" />
+                            Reported for: <span className="text-[var(--st-text-secondary)]">{post.reason}</span> . {post.date}
+                          </div>
                         </div>
                       </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" iconLeft={CheckCircle}>
+                          Ignore
+                        </Button>
+                        <Button variant="danger" size="sm" iconLeft={Trash2}>
+                          Delete Post
+                        </Button>
+                        <IconButton label={`More actions for ${post.user}`} icon={MoreHorizontal} variant="outline" />
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <button className="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 rounded-lg text-sm font-medium border border-emerald-500/20 flex items-center gap-1.5 transition-colors">
-                        <CheckCircle className="w-4 h-4" /> Ignore
-                      </button>
-                      <button className="px-3 py-1.5 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 rounded-lg text-sm font-medium border border-rose-500/20 flex items-center gap-1.5 transition-colors">
-                        <Trash2 className="w-4 h-4" /> Delete Post
-                      </button>
-                      <button className="p-1.5 text-slate-400 hover:text-slate-200 border border-slate-700 hover:bg-slate-800 rounded-lg transition-colors">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </button>
+
+                    <div className="bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)] p-4 text-[var(--st-text-secondary)] text-sm italic">
+                      &quot;{post.content}&quot;
                     </div>
-                  </div>
-                  
-                  <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 text-slate-300 text-sm italic">
-                    "{post.content}"
-                  </div>
-                  
-                  <div className="mt-4 flex gap-4 text-sm">
-                    <button className="text-slate-400 hover:text-slate-200 flex items-center gap-1">
-                      <Ban className="w-4 h-4" /> Ban User
-                    </button>
-                    <button className="text-slate-400 hover:text-slate-200 flex items-center gap-1">
-                      <MessageCircle className="w-4 h-4" /> Send Warning
-                    </button>
-                  </div>
-                </div>
-              ))}
-              
-              {flaggedPosts.length === 0 && (
-                <div className="flex flex-col items-center justify-center h-64 text-slate-500">
-                  <Shield className="w-12 h-12 mb-4 opacity-50" />
-                  <p>Hooray! The moderation queue is empty.</p>
-                </div>
+
+                    <div className="mt-4 flex gap-2">
+                      <Button variant="ghost" size="sm" iconLeft={Ban}>
+                        Ban User
+                      </Button>
+                      <Button variant="ghost" size="sm" iconLeft={MessageCircle}>
+                        Send Warning
+                      </Button>
+                    </div>
+                  </Card>
+                ))
               )}
             </div>
-          </div>
-        )}
+          </Card>
+        </TabsContent>
 
         {/* Members Tab */}
-        {activeTab === "members" && (
-          <div className="flex flex-col h-full">
-            <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-              <div className="relative max-w-sm w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input
-                  type="text"
-                  placeholder="Search members..."
-                  className="w-full bg-slate-950 border border-slate-800 text-slate-200 pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:border-emerald-500"
-                />
+        <TabsContent value="members" className="mt-6">
+          <Card padding="none">
+            <div className="p-4 border-b border-[var(--st-border)] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+              <div className="max-w-sm w-full">
+                <Field>
+                  <Input iconLeft={Search} placeholder="Search members..." aria-label="Search members" />
+                </Field>
               </div>
-              <select className="bg-slate-950 border border-slate-800 text-slate-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500">
-                <option>All Roles</option>
-                <option>Admins</option>
-                <option>Moderators</option>
-                <option>Members</option>
-              </select>
+              <div className="w-full sm:w-48">
+                <Field>
+                  <Select defaultValue="all">
+                    <SelectTrigger aria-label="Filter by role">
+                      <SelectValue placeholder="All Roles" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Roles</SelectItem>
+                      <SelectItem value="admins">Admins</SelectItem>
+                      <SelectItem value="moderators">Moderators</SelectItem>
+                      <SelectItem value="members">Members</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
             </div>
-            
-            <div className="flex-1 overflow-auto">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-950/50 sticky top-0 z-10">
-                  <tr>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">Member</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">Role</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">Activity</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">Status</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800 bg-slate-900">
-                  {members.map((member) => (
-                    <tr key={member.id} className="hover:bg-slate-800/50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center font-bold text-indigo-400 text-xs">
-                            {member.name.substring(0, 2).toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="font-medium text-slate-200">{member.name}</div>
-                            <div className="text-xs text-slate-500">Joined {member.joined}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${
-                          member.role === 'Admin' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' :
-                          member.role === 'Moderator' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
-                          'bg-slate-700/30 text-slate-300 border-slate-700'
-                        }`}>
-                          {member.role === 'Admin' && <Shield className="w-3 h-3 mr-1" />}
-                          {member.role === 'Moderator' && <UserCheck className="w-3 h-3 mr-1" />}
-                          {member.role}
+
+            <Table stickyHeader>
+              <THead>
+                <Tr>
+                  <Th>Member</Th>
+                  <Th>Role</Th>
+                  <Th>Activity</Th>
+                  <Th>Status</Th>
+                  <Th align="right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {members.map((member) => (
+                  <Tr key={member.id}>
+                    <Td>
+                      <div className="flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-[var(--st-radius-pill)] bg-[var(--st-accent-soft)] flex items-center justify-center font-bold text-[var(--st-accent)] text-xs">
+                          {member.name.substring(0, 2).toUpperCase()}
                         </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-slate-300">
-                          <span className="font-medium">{member.posts}</span> posts
+                        <div>
+                          <div className="font-medium text-[var(--st-text)]">{member.name}</div>
+                          <div className="text-xs text-[var(--st-text-tertiary)]">Joined {member.joined}</div>
                         </div>
-                        <div className="text-xs text-emerald-400/80 flex items-center gap-1 mt-0.5">
-                          <Star className="w-3 h-3" /> {member.reputation} rep
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${
-                          member.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                          member.status === 'Banned' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
-                          'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                        }`}>
-                          {member.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-md transition-colors">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            
-            <div className="p-4 border-t border-slate-800 bg-slate-950/50 flex items-center justify-between text-sm text-slate-400">
+                      </div>
+                    </Td>
+                    <Td>
+                      <Badge tone={roleTone(member.role)} kind="soft">
+                        {member.role === "Admin" && <Shield className="w-3 h-3 mr-1" aria-hidden="true" />}
+                        {member.role === "Moderator" && <UserCheck className="w-3 h-3 mr-1" aria-hidden="true" />}
+                        {member.role}
+                      </Badge>
+                    </Td>
+                    <Td>
+                      <div className="text-sm text-[var(--st-text-secondary)]">
+                        <span className="font-medium text-[var(--st-text)]">{member.posts}</span> posts
+                      </div>
+                      <div className="text-xs text-[var(--st-status-ok)] flex items-center gap-1 mt-0.5">
+                        <Star className="w-3 h-3" aria-hidden="true" /> {member.reputation} rep
+                      </div>
+                    </Td>
+                    <Td>
+                      <Badge tone={statusTone(member.status)} kind="soft">
+                        {member.status}
+                      </Badge>
+                    </Td>
+                    <Td align="right">
+                      <IconButton label={`More actions for ${member.name}`} icon={MoreHorizontal} variant="ghost" size="sm" />
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+
+            <div className="p-4 border-t border-[var(--st-border)] flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-[var(--st-text-secondary)]">
               <span>Showing 20 of 1,248 members</span>
-              <div className="flex items-center gap-2">
-                <button className="px-3 py-1 border border-slate-800 rounded hover:bg-slate-800">Prev</button>
-                <button className="px-3 py-1 bg-emerald-600 text-white border border-emerald-500 rounded hover:bg-emerald-500">1</button>
-                <button className="px-3 py-1 border border-slate-800 rounded hover:bg-slate-800">2</button>
-                <button className="px-3 py-1 border border-slate-800 rounded hover:bg-slate-800">Next</button>
-              </div>
+              <Pagination page={1} pageCount={63} onPageChange={() => {}} />
             </div>
-          </div>
-        )}
+          </Card>
+        </TabsContent>
 
         {/* Gamification Tab */}
-        {activeTab === "gamification" && (
-          <div className="p-8 overflow-auto h-full bg-slate-950">
-            <div className="max-w-4xl mx-auto space-y-10">
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/5 border border-emerald-500/20 rounded-2xl p-6 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-20"><Activity className="w-24 h-24" /></div>
-                  <h3 className="text-emerald-400 font-semibold mb-2">Engagement Score</h3>
-                  <p className="text-3xl font-bold text-white mb-1">84/100</p>
-                  <p className="text-sm text-emerald-400/80">Excellent community health</p>
-                </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                  <h3 className="text-slate-400 font-semibold mb-2">Badges Awarded</h3>
-                  <p className="text-3xl font-bold text-white mb-1">1,432</p>
-                  <p className="text-sm text-emerald-400 flex items-center gap-1">+124 this month</p>
-                </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                  <h3 className="text-slate-400 font-semibold mb-2">Top Contributor</h3>
-                  <div className="flex items-center gap-3 mt-2">
-                    <div className="w-10 h-10 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold">AC</div>
-                    <div>
-                      <p className="font-bold text-slate-200">Alice Cooper</p>
-                      <p className="text-xs text-slate-400">12.4k points</p>
-                    </div>
+        <TabsContent value="gamification" className="mt-6">
+          <div className="max-w-4xl mx-auto space-y-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <StatCard
+                label="Engagement Score"
+                value="84/100"
+                icon={Activity}
+                accent="#2e7d32"
+                delta={{ value: "Excellent", tone: "up" }}
+              />
+              <StatCard
+                label="Badges Awarded"
+                value="1,432"
+                icon={Award}
+                accent="#2b6ef2"
+                delta={{ value: "+124 this month", tone: "up" }}
+              />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm text-[var(--st-text-secondary)]">Top Contributor</CardTitle>
+                </CardHeader>
+                <div className="flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-[var(--st-radius-pill)] bg-[var(--st-accent-soft)] border border-[var(--st-border)] flex items-center justify-center text-[var(--st-accent)] font-bold">
+                    AC
+                  </span>
+                  <div>
+                    <p className="font-bold text-[var(--st-text)]">Alice Cooper</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">12.4k points</p>
                   </div>
                 </div>
+              </Card>
+            </div>
+
+            <div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-[var(--st-border)] pb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-[var(--st-text)] flex items-center gap-2">
+                    <Award className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
+                    Badges &amp; Achievements
+                  </h2>
+                  <p className="text-sm text-[var(--st-text-secondary)] mt-1">Configure rewards for user behavior.</p>
+                </div>
+                <Button variant="outline" iconLeft={Plus}>
+                  Create Badge
+                </Button>
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-6 border-b border-slate-800 pb-4">
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-200 flex items-center gap-2">
-                      <Award className="w-5 h-5 text-emerald-400" />
-                      Badges & Achievements
-                    </h2>
-                    <p className="text-sm text-slate-400 mt-1">Configure rewards for user behavior.</p>
-                  </div>
-                  <button className="px-4 py-2 bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 rounded-lg flex items-center gap-2 transition-colors">
-                    <Plus className="w-4 h-4" /> Create Badge
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {badges.map((badge) => (
-                    <div key={badge.id} className="flex items-start gap-4 p-4 border border-slate-800 bg-slate-900 rounded-xl hover:border-slate-700 transition-colors cursor-pointer">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg ${badge.color}`}>
-                        {badge.icon}
-                      </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {communityBadges.map((badge) => {
+                  const BadgeIcon = badge.icon;
+                  return (
+                    <Card key={badge.id} variant="interactive" className="flex items-start gap-4">
+                      <span
+                        className="w-12 h-12 rounded-[var(--st-radius-lg)] flex items-center justify-center text-white shrink-0"
+                        style={{ background: badge.accent }}
+                      >
+                        <BadgeIcon className="w-5 h-5" aria-hidden="true" />
+                      </span>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-slate-200">{badge.name}</h4>
-                        <p className="text-sm text-slate-400 mt-1">{badge.desc}</p>
+                        <h4 className="font-semibold text-[var(--st-text)]">{badge.name}</h4>
+                        <p className="text-sm text-[var(--st-text-secondary)] mt-1">{badge.desc}</p>
                         <div className="mt-3 flex items-center gap-4 text-xs font-medium">
-                          <span className="text-slate-500">Level 1+</span>
-                          <span className="text-emerald-400">Awarded to 45 users</span>
+                          <span className="text-[var(--st-text-tertiary)]">Level 1+</span>
+                          <span className="text-[var(--st-accent)]">Awarded to 45 users</span>
                         </div>
                       </div>
-                      <button className="text-slate-500 hover:text-slate-300"><Edit className="w-4 h-4" /></button>
-                    </div>
-                  ))}
-                </div>
+                      <IconButton label={`Edit ${badge.name}`} icon={Pencil} variant="ghost" size="sm" />
+                    </Card>
+                  );
+                })}
               </div>
+            </div>
 
-              <div>
-                <h2 className="text-xl font-bold text-slate-200 mb-6 border-b border-slate-800 pb-4">Point System Rules</h2>
-                <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-950/50">
-                      <tr>
-                        <th className="px-6 py-3 text-xs font-semibold text-slate-400 uppercase">Action</th>
-                        <th className="px-6 py-3 text-xs font-semibold text-slate-400 uppercase">Points</th>
-                        <th className="px-6 py-3 text-xs font-semibold text-slate-400 uppercase">Limit</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800">
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-slate-200">Creating a new topic</td>
-                        <td className="px-6 py-4"><span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded text-sm font-bold">+10</span></td>
-                        <td className="px-6 py-4 text-sm text-slate-400">5 per day</td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-slate-200">Replying to a topic</td>
-                        <td className="px-6 py-4"><span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded text-sm font-bold">+2</span></td>
-                        <td className="px-6 py-4 text-sm text-slate-400">No limit</td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-slate-200">Receiving an upvote</td>
-                        <td className="px-6 py-4"><span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded text-sm font-bold">+5</span></td>
-                        <td className="px-6 py-4 text-sm text-slate-400">No limit</td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-slate-200">Having an answer accepted</td>
-                        <td className="px-6 py-4"><span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded text-sm font-bold">+15</span></td>
-                        <td className="px-6 py-4 text-sm text-slate-400">No limit</td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-slate-200">Post deleted by moderator</td>
-                        <td className="px-6 py-4"><span className="px-2 py-1 bg-rose-500/10 text-rose-400 rounded text-sm font-bold">-20</span></td>
-                        <td className="px-6 py-4 text-sm text-slate-400">-</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
+            <div>
+              <h2 className="text-lg font-bold text-[var(--st-text)] mb-6 border-b border-[var(--st-border)] pb-4">
+                Point System Rules
+              </h2>
+              <Card padding="none">
+                <Table>
+                  <THead>
+                    <Tr>
+                      <Th>Action</Th>
+                      <Th>Points</Th>
+                      <Th>Limit</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    {pointRules.map((rule) => (
+                      <Tr key={rule.action}>
+                        <Td>{rule.action}</Td>
+                        <Td>
+                          <Badge tone={rule.positive ? "success" : "danger"} kind="soft">
+                            {rule.points}
+                          </Badge>
+                        </Td>
+                        <Td className="text-[var(--st-text-secondary)]">{rule.limit}</Td>
+                      </Tr>
+                    ))}
+                  </TBody>
+                </Table>
+              </Card>
             </div>
           </div>
-        )}
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
-
-// Dummy Edit icon as it was used but not imported
-const Edit = ({ className }: { className?: string }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-);

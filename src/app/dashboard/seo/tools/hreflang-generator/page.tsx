@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState, useRef } from 'react';
-import { Download, Upload, X, Copy } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Download, X, Copy } from 'lucide-react';
 import {
   Button,
   IconButton,
@@ -16,6 +16,7 @@ import {
   useToast,
   type ComboboxOption,
 } from '@/components/sabcrm/20ui';
+import { SabFileToFileButton } from '@/components/sabfiles';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 const LANGUAGES: ComboboxOption[] = [
@@ -126,7 +127,6 @@ export default function HreflangGeneratorPage() {
     { lang: 'x-default', url: '' },
     { lang: 'en', url: '' },
   ]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const add = () => setRows((r) => [...r, { lang: '', url: '' }]);
   const remove = (i: number) => setRows((r) => r.filter((_, idx) => idx !== i));
@@ -157,13 +157,15 @@ export default function HreflangGeneratorPage() {
     URL.revokeObjectURL(url);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const importFromFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = (evt) => {
       const text = evt.target?.result as string;
       const lines = text.split('\n').map((l) => l.trim()).filter((l) => l);
+      if (lines.length === 0) {
+        toast.error('That file has no rows to import.');
+        return;
+      }
       const newRows = [];
       let start = 0;
       if (lines[0].toLowerCase().includes('lang')) {
@@ -181,12 +183,11 @@ export default function HreflangGeneratorPage() {
       if (newRows.length > 0) {
         setRows(newRows);
         toast.success(`Imported ${newRows.length} locales from CSV.`);
+      } else {
+        toast.error('Could not find any lang,url rows in that file.');
       }
     };
     reader.readAsText(file);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   };
 
   const searchLocales = async (query: string): Promise<ComboboxOption[]> => {
@@ -210,19 +211,14 @@ export default function HreflangGeneratorPage() {
       description="Generate hreflang alternate links for multilingual pages."
     >
       <div className="flex flex-wrap gap-2 justify-end mb-4">
-        {/* Visually-hidden CSV picker; triggered by the Import button below. */}
-        <input
-          type="file"
-          accept=".csv"
-          className="hidden"
-          ref={fileInputRef}
-          onChange={handleFileUpload}
-          aria-hidden="true"
-          tabIndex={-1}
-        />
-        <Button variant="outline" iconLeft={Upload} onClick={() => fileInputRef.current?.click()}>
+        <SabFileToFileButton
+          accept="document"
+          variant="outline"
+          onPickFile={(file) => importFromFile(file)}
+          onError={() => toast.error('Could not load that file. Please try again.')}
+        >
           Import CSV
-        </Button>
+        </SabFileToFileButton>
         <Button variant="outline" iconLeft={Download} onClick={exportCSV}>
           Export CSV
         </Button>

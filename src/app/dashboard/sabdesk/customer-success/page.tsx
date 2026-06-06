@@ -12,38 +12,59 @@ import {
   Filter,
   Plus,
   MoreVertical,
-  ArrowUpRight,
-  ArrowDownRight,
   Clock,
   CheckCircle,
-  XCircle,
   BarChart2,
-  PieChart,
-  TrendingUp,
-  Mail,
-  Phone,
   FileText,
   Zap,
   ShieldAlert,
-  Target,
-  RefreshCw,
   UserCheck,
-  Building,
   HeartPulse,
   DollarSign,
+  TrendingUp,
   TrendingDown,
-  MessageSquare,
   Settings,
   Bell,
   Star,
-  Award,
-  Layers,
-  MapPin,
   PlayCircle,
   Download,
-  UploadCloud,
-  Globe
+  Eye,
+  ArrowRight,
 } from "lucide-react";
+
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  StatCard,
+  Badge,
+  type BadgeTone,
+  Field,
+  Input,
+  Progress,
+  type ZoruProgressTone,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/sabcrm/20ui";
 
 // --- MOCK DATA ---
 const ACCOUNTS_DATA = [
@@ -75,469 +96,410 @@ const QBR_SCHEDULE = [
 
 const PLAYBOOKS = [
   { id: 301, name: "New Enterprise Onboarding", description: "Standard 30-60-90 day onboarding flow for Enterprise.", triggers: "Contract Signed", successRate: 94, activeRuns: 12 },
-  { id: 302, name: "Low Adoption Recovery", description: "Engagement sequence for accounts with <30% MAU.", triggers: "Health Score < 50", successRate: 68, activeRuns: 5 },
+  { id: 302, name: "Low Adoption Recovery", description: "Engagement sequence for accounts with under 30% MAU.", triggers: "Health Score < 50", successRate: 68, activeRuns: 5 },
   { id: 303, name: "Executive Sponsor Transition", description: "Steps to secure new championship when sponsor leaves.", triggers: "Contact Role Change", successRate: 45, activeRuns: 2 },
   { id: 304, name: "QBR Preparation", description: "Automated data collection and presentation template generation.", triggers: "90 days since last QBR", successRate: 100, activeRuns: 8 },
   { id: 305, name: "Renewal Risk Mitigation", description: "Intensive 60-day sequence for at-risk renewals.", triggers: "Renewal < 90 days & Risk High", successRate: 72, activeRuns: 3 },
 ];
 
-// --- REUSABLE COMPONENTS ---
+// --- HELPERS ---
 
-const MetricCard = ({ title, value, change, trend, icon: Icon, colorClass }: any) => (
-  <div className="bg-[#111111] border border-white/10 rounded-2xl p-6 relative overflow-hidden group">
-    <div className={`absolute -right-12 -top-12 w-32 h-32 bg-gradient-to-br ${colorClass} opacity-20 rounded-full blur-3xl transition-transform group-hover:scale-150`} />
-    <div className="flex justify-between items-start mb-4 relative z-10">
-      <div className={`p-3 rounded-xl bg-white/5 border border-white/10 text-gray-300`}>
-        <Icon className="w-5 h-5" />
-      </div>
-      {change && (
-        <span className={`flex items-center text-xs font-medium px-2 py-1 rounded-full border ${trend === 'up' ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-rose-400 bg-rose-400/10 border-rose-400/20'}`}>
-          {trend === 'up' ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
-          {change}
-        </span>
-      )}
-    </div>
-    <div className="relative z-10">
-      <h3 className="text-gray-400 text-sm font-medium mb-1">{title}</h3>
-      <p className="text-3xl font-semibold text-white tracking-tight">{value}</p>
-    </div>
-  </div>
-);
-
-const ProgressBar = ({ value, color = "bg-indigo-500" }: { value: number, color?: string }) => (
-  <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-    <div className={`${color} h-full rounded-full transition-all duration-1000 ease-in-out`} style={{ width: `${value}%` }}></div>
-  </div>
-);
-
-const Badge = ({ children, color = "gray" }: { children: React.ReactNode, color?: string }) => {
-  const colorStyles: Record<string, string> = {
-    gray: "bg-gray-500/10 text-gray-400 border-gray-500/20",
-    emerald: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    rose: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    amber: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    indigo: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-    blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  };
-  
-  return (
-    <span className={`px-2.5 py-1 text-xs font-medium rounded-full border ${colorStyles[color] || colorStyles.gray}`}>
-      {children}
-    </span>
-  );
-};
+/** Map a health score to a 20ui progress tone. */
+function healthTone(score: number): ZoruProgressTone {
+  if (score < 40) return "danger";
+  if (score < 70) return "warning";
+  return "success";
+}
 
 const HealthScoreIndicator = ({ score }: { score: number }) => {
-  let color = "bg-emerald-500";
-  if (score < 40) color = "bg-rose-500";
-  else if (score < 70) color = "bg-amber-500";
-  
+  const tone = healthTone(score);
+  const textClass =
+    score >= 70
+      ? "text-[var(--st-status-ok)]"
+      : score >= 40
+        ? "text-[var(--st-warn)]"
+        : "text-[var(--st-danger)]";
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex items-center gap-3">
       <div className="flex-1">
-        <ProgressBar value={score} color={color} />
+        <Progress value={score} tone={tone} size="sm" aria-label={`Health score ${score}`} />
       </div>
-      <span className={`text-sm font-semibold w-8 text-right ${
-        score >= 70 ? "text-emerald-400" : score >= 40 ? "text-amber-400" : "text-rose-400"
-      }`}>{score}</span>
+      <span className={`text-sm font-semibold w-8 text-right ${textClass}`}>{score}</span>
     </div>
   );
-}
+};
 
 // --- SUBVIEWS ---
 
 const OverviewTab = () => (
-  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <div className="space-y-6">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <MetricCard title="Total ARR Managed" value="$151,200" change="+12.5%" trend="up" icon={DollarSign} colorClass="from-emerald-500 to-teal-500" />
-      <MetricCard title="Avg. Health Score" value="68.4" change="-2.1%" trend="down" icon={HeartPulse} colorClass="from-blue-500 to-indigo-500" />
-      <MetricCard title="Accounts at Risk" value="4" change="+1" trend="down" icon={ShieldAlert} colorClass="from-rose-500 to-orange-500" />
-      <MetricCard title="Upcoming QBRs" value="3" change="Next 30 days" trend="up" icon={Calendar} colorClass="from-amber-500 to-yellow-500" />
+      <StatCard label="Total ARR Managed" value="$151,200" icon={DollarSign} delta={{ value: "+12.5%", tone: "up" }} accent="var(--st-status-ok)" />
+      <StatCard label="Avg. Health Score" value="68.4" icon={HeartPulse} delta={{ value: "-2.1%", tone: "down" }} accent="var(--st-accent)" />
+      <StatCard label="Accounts at Risk" value="4" icon={ShieldAlert} delta={{ value: "+1", tone: "down" }} accent="var(--st-danger)" />
+      <StatCard label="Upcoming QBRs" value="3" icon={Calendar} delta={{ value: "Next 30 days", tone: "neutral" }} accent="var(--st-warn)" />
     </div>
 
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 bg-[#111111] border border-white/10 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-white">Health Score Distribution</h3>
-          <button className="text-sm text-gray-400 hover:text-white flex items-center transition-colors">
-            View Details <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
-        </div>
-        <div className="h-64 flex items-end justify-between space-x-2">
-          {/* Mock Chart Bars */}
-          {[12, 5, 8, 15, 22, 35, 45, 60, 85, 40].map((val, i) => (
-            <div key={i} className="w-full flex flex-col items-center group relative">
-              <div 
-                className={`w-full rounded-t-sm transition-all duration-500 ${
-                  i < 3 ? 'bg-rose-500/80 hover:bg-rose-400' : 
-                  i < 6 ? 'bg-amber-500/80 hover:bg-amber-400' : 
-                  'bg-emerald-500/80 hover:bg-emerald-400'
-                }`}
-                style={{ height: `${val}%` }}
-              ></div>
-              <span className="text-[10px] text-gray-500 mt-2 block">{i * 10}</span>
-              {/* Tooltip */}
-              <div className="opacity-0 group-hover:opacity-100 absolute -top-10 bg-black border border-white/20 text-white text-xs py-1 px-2 rounded pointer-events-none transition-opacity whitespace-nowrap z-10">
-                {val} accounts
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="bg-[#111111] border border-white/10 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
-          <button className="p-1 hover:bg-white/10 rounded-md transition-colors"><MoreVertical className="w-4 h-4 text-gray-400" /></button>
-        </div>
-        <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-white/10 before:to-transparent">
-          {[
-            { title: "QBR Completed", desc: "Stark Industries", time: "2 hours ago", icon: CheckCircle, color: "text-emerald-400 bg-emerald-400/10" },
-            { title: "Risk Alert Triggered", desc: "Cyberdyne Systems", time: "5 hours ago", icon: AlertTriangle, color: "text-rose-400 bg-rose-400/10" },
-            { title: "Playbook Activated", desc: "New Enterprise Onboarding", time: "1 day ago", icon: PlayCircle, color: "text-indigo-400 bg-indigo-400/10" },
-            { title: "NPS Survey Received", desc: "Acme Corp (Score: 9)", time: "2 days ago", icon: Star, color: "text-amber-400 bg-amber-400/10" }
-          ].map((item, i) => (
-            <div key={i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full border border-white/10 ${item.color} shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-xl z-10`}>
-                <item.icon className="w-5 h-5" />
-              </div>
-              <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-white/5 bg-white/5 backdrop-blur-sm shadow-sm">
-                <div className="flex items-center justify-between mb-1">
-                  <h4 className="text-sm font-medium text-white">{item.title}</h4>
-                  <span className="text-xs text-gray-500">{item.time}</span>
+      <Card variant="elevated" padding="lg" className="lg:col-span-2">
+        <CardHeader className="flex items-center justify-between">
+          <CardTitle>Health Score Distribution</CardTitle>
+          <Button variant="ghost" size="sm" iconRight={ChevronRight}>
+            View Details
+          </Button>
+        </CardHeader>
+        <CardBody>
+          <div className="h-64 flex items-end justify-between gap-2">
+            {[12, 5, 8, 15, 22, 35, 45, 60, 85, 40].map((val, i) => (
+              <div key={i} className="w-full flex flex-col items-center group relative">
+                <div
+                  className={`w-full rounded-t-[var(--st-radius-sm)] transition-all duration-500 ${
+                    i < 3
+                      ? "bg-[var(--st-danger)]"
+                      : i < 6
+                        ? "bg-[var(--st-warn)]"
+                        : "bg-[var(--st-status-ok)]"
+                  }`}
+                  style={{ height: `${val}%` }}
+                />
+                <span className="text-[10px] text-[var(--st-text-tertiary)] mt-2 block">{i * 10}</span>
+                <div className="opacity-0 group-hover:opacity-100 absolute -top-10 bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)] text-xs py-1 px-2 rounded-[var(--st-radius)] pointer-events-none transition-opacity whitespace-nowrap z-10">
+                  {val} accounts
                 </div>
-                <p className="text-sm text-gray-400">{item.desc}</p>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </CardBody>
+      </Card>
+
+      <Card variant="elevated" padding="lg">
+        <CardHeader className="flex items-center justify-between">
+          <CardTitle>Recent Activity</CardTitle>
+          <IconButton label="More activity options" icon={MoreVertical} size="sm" />
+        </CardHeader>
+        <CardBody>
+          <div className="space-y-4">
+            {[
+              { title: "QBR Completed", desc: "Stark Industries", time: "2 hours ago", icon: CheckCircle, tone: "var(--st-status-ok)" },
+              { title: "Risk Alert Triggered", desc: "Cyberdyne Systems", time: "5 hours ago", icon: AlertTriangle, tone: "var(--st-danger)" },
+              { title: "Playbook Activated", desc: "New Enterprise Onboarding", time: "1 day ago", icon: PlayCircle, tone: "var(--st-accent)" },
+              { title: "NPS Survey Received", desc: "Acme Corp (Score: 9)", time: "2 days ago", icon: Star, tone: "var(--st-warn)" },
+            ].map((item, i) => (
+              <div key={i} className="flex items-start gap-3 p-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                <span
+                  className="flex items-center justify-center w-9 h-9 rounded-full shrink-0"
+                  style={{ background: `color-mix(in srgb, ${item.tone} 12%, transparent)`, color: item.tone }}
+                  aria-hidden="true"
+                >
+                  <item.icon className="w-5 h-5" />
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-0.5">
+                    <h4 className="text-sm font-medium text-[var(--st-text)] truncate">{item.title}</h4>
+                    <span className="text-xs text-[var(--st-text-tertiary)] shrink-0">{item.time}</span>
+                  </div>
+                  <p className="text-sm text-[var(--st-text-secondary)] truncate">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardBody>
+      </Card>
     </div>
   </div>
 );
 
 const AccountHealthTab = () => (
-  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <div className="space-y-6">
     <div className="flex flex-col sm:flex-row justify-between gap-4">
-      <div className="relative flex-1 max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-        <input 
-          type="text" 
-          placeholder="Search accounts..." 
-          className="w-full bg-[#111111] border border-white/10 text-white text-sm rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
-        />
+      <div className="flex-1 max-w-md">
+        <Field label="Search accounts">
+          <Input type="text" placeholder="Search accounts..." iconLeft={Search} />
+        </Field>
       </div>
-      <div className="flex space-x-3">
-        <button className="flex items-center space-x-2 bg-[#111111] border border-white/10 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors">
-          <Filter className="w-4 h-4" />
-          <span>Filters</span>
-        </button>
-        <button className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-indigo-500/20">
-          <Plus className="w-4 h-4" />
-          <span>Add Account</span>
-        </button>
+      <div className="flex gap-3 sm:items-end">
+        <Button variant="outline" iconLeft={Filter}>
+          Filters
+        </Button>
+        <Button variant="primary" iconLeft={Plus}>
+          Add Account
+        </Button>
       </div>
     </div>
 
-    <div className="bg-[#111111] border border-white/10 rounded-2xl overflow-hidden">
+    <Card variant="outlined" padding="none" className="overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-white/10 bg-white/5">
-              <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Account</th>
-              <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Plan & MRR</th>
-              <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider w-1/4">Health Score</th>
-              <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Last Contact</th>
-              <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider">CSM</th>
-              <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
+        <Table hover>
+          <THead>
+            <Tr>
+              <Th>Account</Th>
+              <Th>Plan &amp; MRR</Th>
+              <Th width="25%">Health Score</Th>
+              <Th>Last Contact</Th>
+              <Th>CSM</Th>
+              <Th align="right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {ACCOUNTS_DATA.map((account) => (
-              <tr key={account.id} className="hover:bg-white/5 transition-colors group">
-                <td className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center text-sm font-bold text-white shadow-inner">
+              <Tr key={account.id}>
+                <Td>
+                  <div className="flex items-center gap-3">
+                    <span className="w-10 h-10 rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] border border-[var(--st-border)] flex items-center justify-center text-sm font-bold text-[var(--st-accent)]">
                       {account.logo}
-                    </div>
+                    </span>
                     <div>
-                      <div className="font-medium text-white flex items-center">
+                      <div className="font-medium text-[var(--st-text)] flex items-center">
                         {account.name}
-                        {account.trend === 'up' && <TrendingUp className="w-3 h-3 text-emerald-400 ml-2" />}
-                        {account.trend === 'down' && <TrendingDown className="w-3 h-3 text-rose-400 ml-2" />}
+                        {account.trend === "up" && <TrendingUp className="w-3 h-3 text-[var(--st-status-ok)] ml-2" aria-hidden="true" />}
+                        {account.trend === "down" && <TrendingDown className="w-3 h-3 text-[var(--st-danger)] ml-2" aria-hidden="true" />}
                       </div>
-                      <div className="text-xs text-gray-500 mt-0.5">ID: ACC-{account.id.toString().padStart(4, '0')}</div>
+                      <div className="text-xs text-[var(--st-text-tertiary)] mt-0.5">ID: ACC-{account.id.toString().padStart(4, "0")}</div>
                     </div>
                   </div>
-                </td>
-                <td className="p-4">
-                  <div className="text-sm font-medium text-white mb-1">${account.mrr.toLocaleString()}/mo</div>
-                  <Badge color={account.plan === 'Enterprise' ? 'indigo' : account.plan === 'Pro' ? 'blue' : 'gray'}>
+                </Td>
+                <Td>
+                  <div className="text-sm font-medium text-[var(--st-text)] mb-1">${account.mrr.toLocaleString()}/mo</div>
+                  <Badge tone={account.plan === "Enterprise" ? "accent" : account.plan === "Pro" ? "info" : "neutral"}>
                     {account.plan}
                   </Badge>
-                </td>
-                <td className="p-4">
+                </Td>
+                <Td>
                   <HealthScoreIndicator score={account.healthScore} />
-                </td>
-                <td className="p-4 text-sm text-gray-400">
-                  <div className="flex items-center">
-                    <Clock className="w-3.5 h-3.5 mr-1.5 text-gray-500" />
+                </Td>
+                <Td>
+                  <div className="flex items-center text-sm text-[var(--st-text-secondary)]">
+                    <Clock className="w-3.5 h-3.5 mr-1.5 text-[var(--st-text-tertiary)]" aria-hidden="true" />
                     {account.lastContact}
                   </div>
-                </td>
-                <td className="p-4">
-                  <div className="flex items-center space-x-2 text-sm text-gray-300">
-                    <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold border border-white/10">
-                      {account.csm.split(' ').map(n => n[0]).join('')}
-                    </div>
+                </Td>
+                <Td>
+                  <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                    <Avatar name={account.csm} size="sm" shape="round" />
                     <span>{account.csm}</span>
                   </div>
-                </td>
-                <td className="p-4 text-right">
-                  <button className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
+                </Td>
+                <Td align="right">
+                  <IconButton label={`Actions for ${account.name}`} icon={MoreVertical} size="sm" />
+                </Td>
+              </Tr>
             ))}
-          </tbody>
-        </table>
+          </TBody>
+        </Table>
       </div>
-      <div className="p-4 border-t border-white/10 flex items-center justify-between text-sm text-gray-400">
+      <div className="p-4 border-t border-[var(--st-border)] flex items-center justify-between text-sm text-[var(--st-text-secondary)]">
         <span>Showing 1 to 10 of 42 accounts</span>
-        <div className="flex space-x-1">
-          <button className="px-3 py-1 rounded-md hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Previous</button>
-          <button className="px-3 py-1 rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">1</button>
-          <button className="px-3 py-1 rounded-md hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">2</button>
-          <button className="px-3 py-1 rounded-md hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">3</button>
-          <span className="px-2 py-1">...</span>
-          <button className="px-3 py-1 rounded-md hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Next</button>
+        <div className="flex gap-1">
+          <Button variant="ghost" size="sm">Previous</Button>
+          <Button variant="primary" size="sm">1</Button>
+          <Button variant="ghost" size="sm">2</Button>
+          <Button variant="ghost" size="sm">3</Button>
+          <span className="px-2 py-1 text-[var(--st-text-tertiary)]">...</span>
+          <Button variant="ghost" size="sm">Next</Button>
         </div>
       </div>
-    </div>
+    </Card>
   </div>
 );
 
-const ChurnRiskTab = () => (
-  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-    <div className="flex justify-between items-end mb-6">
-      <div>
-        <h2 className="text-xl font-semibold text-white mb-2">Churn Risk Management</h2>
-        <p className="text-gray-400 text-sm">Track and mitigate accounts at risk of cancellation or downgrade.</p>
-      </div>
-      <button className="flex items-center space-x-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
-        <AlertTriangle className="w-4 h-4" />
-        <span>Report Risk</span>
-      </button>
-    </div>
+const ChurnRiskTab = () => {
+  const severityTone = (severity: string): BadgeTone =>
+    severity === "Critical" ? "danger" : severity === "High" ? "warning" : "neutral";
+  const severityBar = (severity: string): string =>
+    severity === "Critical" ? "bg-[var(--st-danger)]" : severity === "High" ? "bg-[var(--st-warn)]" : "bg-[var(--st-text-tertiary)]";
 
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* Kanban Board Mockup */}
-      {['Investigating', 'Action Required', 'Monitoring'].map((statusColumn) => (
-        <div key={statusColumn} className="flex flex-col bg-[#0a0a0a] border border-white/5 rounded-xl h-[600px] overflow-hidden">
-          <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-            <h3 className="font-semibold text-white text-sm">{statusColumn}</h3>
-            <span className="bg-white/10 text-gray-300 text-xs px-2 py-0.5 rounded-full font-medium">
-              {CHURN_RISKS.filter(r => r.status === statusColumn).length}
-            </span>
-          </div>
-          <div className="p-3 flex-1 overflow-y-auto space-y-3">
-            {CHURN_RISKS.filter(r => r.status === statusColumn).map((risk) => (
-              <div key={risk.id} className="bg-[#111111] border border-white/10 rounded-lg p-4 cursor-grab hover:border-white/30 transition-colors shadow-sm relative overflow-hidden group">
-                <div className={`absolute top-0 left-0 w-1 h-full ${
-                  risk.severity === 'Critical' ? 'bg-rose-500' : 
-                  risk.severity === 'High' ? 'bg-orange-500' : 'bg-amber-500'
-                }`} />
-                <div className="flex justify-between items-start mb-2 pl-2">
-                  <h4 className="font-medium text-white text-sm">{risk.account}</h4>
-                  <Badge color={
-                    risk.severity === 'Critical' ? 'rose' : 
-                    risk.severity === 'High' ? 'amber' : 'gray'
-                  }>
-                    {risk.severity}
-                  </Badge>
-                </div>
-                <p className="text-xs text-gray-400 mb-4 pl-2 line-clamp-2">{risk.reason}</p>
-                
-                <div className="flex items-center justify-between text-xs pt-3 border-t border-white/10 pl-2">
-                  <div className="flex items-center text-gray-400">
-                    <DollarSign className="w-3.5 h-3.5 mr-1" />
-                    ${(risk.mrr / 1000).toFixed(1)}k MRR
-                  </div>
-                  <div className="flex items-center text-rose-400 bg-rose-400/10 px-2 py-1 rounded-md">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {risk.daysAtRisk}d at risk
-                  </div>
-                </div>
-                
-                {/* Action overlay on hover */}
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-opacity">
-                  <button className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition-colors" title="View Details">
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <button className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg transition-colors" title="Move Status">
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-end">
+        <div>
+          <h2 className="text-xl font-semibold text-[var(--st-text)] mb-2">Churn Risk Management</h2>
+          <p className="text-[var(--st-text-secondary)] text-sm">Track and mitigate accounts at risk of cancellation or downgrade.</p>
         </div>
-      ))}
+        <Button variant="danger" iconLeft={AlertTriangle}>
+          Report Risk
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {["Investigating", "Action Required", "Monitoring"].map((statusColumn) => (
+          <Card key={statusColumn} variant="outlined" padding="none" className="flex flex-col h-[600px] overflow-hidden">
+            <div className="p-4 border-b border-[var(--st-border)] flex justify-between items-center bg-[var(--st-bg-secondary)]">
+              <h3 className="font-semibold text-[var(--st-text)] text-sm">{statusColumn}</h3>
+              <Badge tone="neutral">{CHURN_RISKS.filter((r) => r.status === statusColumn).length}</Badge>
+            </div>
+            <div className="p-3 flex-1 overflow-y-auto space-y-3">
+              {CHURN_RISKS.filter((r) => r.status === statusColumn).map((risk) => (
+                <Card key={risk.id} variant="outlined" padding="none" className="relative overflow-hidden group">
+                  <div className={`absolute top-0 left-0 w-1 h-full ${severityBar(risk.severity)}`} aria-hidden="true" />
+                  <div className="p-4">
+                    <div className="flex justify-between items-start mb-2 pl-2">
+                      <h4 className="font-medium text-[var(--st-text)] text-sm">{risk.account}</h4>
+                      <Badge tone={severityTone(risk.severity)}>{risk.severity}</Badge>
+                    </div>
+                    <p className="text-xs text-[var(--st-text-secondary)] mb-4 pl-2 line-clamp-2">{risk.reason}</p>
+
+                    <div className="flex items-center justify-between text-xs pt-3 border-t border-[var(--st-border)] pl-2">
+                      <div className="flex items-center text-[var(--st-text-secondary)]">
+                        <DollarSign className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
+                        ${(risk.mrr / 1000).toFixed(1)}k MRR
+                      </div>
+                      <div className="flex items-center text-[var(--st-danger)]">
+                        <Clock className="w-3 h-3 mr-1" aria-hidden="true" />
+                        {risk.daysAtRisk}d at risk
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="absolute inset-0 bg-[var(--st-bg)]/85 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-opacity">
+                    <IconButton label="View risk details" icon={Eye} variant="primary" />
+                    <IconButton label="Move status" icon={ArrowRight} variant="secondary" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </Card>
+        ))}
+      </div>
     </div>
-  </div>
-);
-
-// Minimal icons needed for local scope
-const Eye = ({ className }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
-const ArrowRight = ({ className }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
-
+  );
+};
 
 const QBRTab = () => (
-  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <div className="space-y-6">
     <div className="flex flex-col lg:flex-row gap-6">
       <div className="lg:w-2/3 space-y-6">
-        <div className="bg-[#111111] border border-white/10 rounded-2xl p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-semibold text-white flex items-center">
-              <Calendar className="w-5 h-5 mr-2 text-indigo-400" />
+        <Card variant="elevated" padding="lg">
+          <CardHeader className="flex justify-between items-center">
+            <CardTitle className="flex items-center">
+              <Calendar className="w-5 h-5 mr-2 text-[var(--st-accent)]" aria-hidden="true" />
               Upcoming QBRs
-            </h3>
-            <button className="text-sm bg-white/5 hover:bg-white/10 border border-white/10 text-white px-3 py-1.5 rounded-lg transition-colors">
-              Schedule QBR
-            </button>
-          </div>
-          
-          <div className="space-y-4">
-            {QBR_SCHEDULE.map((qbr) => (
-              <div key={qbr.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors group">
-                <div className="flex items-start space-x-4 mb-4 sm:mb-0">
-                  <div className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 p-3 rounded-xl text-center min-w-[70px]">
-                    <div className="text-xs uppercase font-bold">{new Date(qbr.date).toLocaleString('default', { month: 'short' })}</div>
-                    <div className="text-xl font-bold">{new Date(qbr.date).getDate()}</div>
+            </CardTitle>
+            <Button variant="outline" size="sm">Schedule QBR</Button>
+          </CardHeader>
+
+          <CardBody>
+            <div className="space-y-4">
+              {QBR_SCHEDULE.map((qbr) => (
+                <div key={qbr.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                  <div className="flex items-start gap-4 mb-4 sm:mb-0">
+                    <div className="bg-[var(--st-accent-soft)] border border-[var(--st-border)] text-[var(--st-accent)] p-3 rounded-[var(--st-radius)] text-center min-w-[70px]">
+                      <div className="text-xs uppercase font-bold">{new Date(qbr.date).toLocaleString("default", { month: "short" })}</div>
+                      <div className="text-xl font-bold">{new Date(qbr.date).getDate()}</div>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-[var(--st-text)] text-lg">{qbr.account}</h4>
+                      <div className="flex items-center text-sm text-[var(--st-text-secondary)] mt-1 gap-4">
+                        <span className="flex items-center"><Clock className="w-3.5 h-3.5 mr-1" aria-hidden="true" /> {qbr.time}</span>
+                        <span className="flex items-center"><UserCheck className="w-3.5 h-3.5 mr-1" aria-hidden="true" /> {qbr.owner}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-medium text-white text-lg">{qbr.account}</h4>
-                    <div className="flex items-center text-sm text-gray-400 mt-1 space-x-4">
-                      <span className="flex items-center"><Clock className="w-3.5 h-3.5 mr-1" /> {qbr.time}</span>
-                      <span className="flex items-center"><UserCheck className="w-3.5 h-3.5 mr-1" /> {qbr.owner}</span>
+
+                  <div className="flex flex-col sm:items-end w-full sm:w-auto gap-2 sm:gap-3">
+                    <Badge tone={qbr.status === "Completed" ? "success" : qbr.status === "Scheduled" ? "accent" : "warning"}>
+                      {qbr.status}
+                    </Badge>
+                    <div className="flex gap-2 w-full justify-end">
+                      <IconButton label="Edit QBR" icon={Settings} size="sm" />
+                      <IconButton label="Generate deck" icon={FileText} size="sm" />
                     </div>
                   </div>
                 </div>
-                
-                <div className="flex flex-col sm:items-end w-full sm:w-auto space-y-2 sm:space-y-3">
-                  <Badge color={
-                    qbr.status === 'Completed' ? 'emerald' : 
-                    qbr.status === 'Scheduled' ? 'indigo' : 'amber'
-                  }>
-                    {qbr.status}
-                  </Badge>
-                  <div className="flex space-x-2 w-full justify-end">
-                    <button className="p-2 text-gray-400 hover:text-white bg-black/20 hover:bg-black/40 rounded-lg transition-colors" title="Edit">
-                      <Settings className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-gray-400 hover:text-indigo-400 bg-black/20 hover:bg-black/40 rounded-lg transition-colors" title="Generate Deck">
-                      <FileText className="w-4 h-4" />
-                    </button>
-                  </div>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      <div className="lg:w-1/3 space-y-6">
+        <Card variant="elevated" padding="lg">
+          <CardHeader>
+            <CardTitle>QBR Readiness</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-[var(--st-text-secondary)]">Data Collection</span>
+                  <span className="text-[var(--st-status-ok)]">100%</span>
+                </div>
+                <Progress value={100} tone="success" size="sm" aria-label="Data collection progress" />
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-[var(--st-text-secondary)]">Slide Deck Generation</span>
+                  <span className="text-[var(--st-warn)]">65%</span>
+                </div>
+                <Progress value={65} tone="warning" size="sm" aria-label="Slide deck generation progress" />
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-[var(--st-text-secondary)]">Executive Summary</span>
+                  <span className="text-[var(--st-text-tertiary)]">0%</span>
+                </div>
+                <Progress value={0} size="sm" aria-label="Executive summary progress" />
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 bg-[var(--st-accent-soft)] border border-[var(--st-border)] rounded-[var(--st-radius)]">
+              <div className="flex items-start gap-3">
+                <Zap className="w-5 h-5 text-[var(--st-accent)] shrink-0 mt-0.5" aria-hidden="true" />
+                <div>
+                  <h4 className="text-sm font-medium text-[var(--st-text)] mb-1">Automate Prep</h4>
+                  <p className="text-xs text-[var(--st-text-secondary)] mb-3">Connect SabDesk to your CRM and Analytics to auto-generate QBR decks.</p>
+                  <Button variant="primary" size="sm">Setup Integration</Button>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      
-      <div className="lg:w-1/3 space-y-6">
-        <div className="bg-[#111111] border border-white/10 rounded-2xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">QBR Readiness</h3>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-400">Data Collection</span>
-                <span className="text-emerald-400">100%</span>
-              </div>
-              <ProgressBar value={100} color="bg-emerald-500" />
             </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-400">Slide Deck Generation</span>
-                <span className="text-amber-400">65%</span>
-              </div>
-              <ProgressBar value={65} color="bg-amber-500" />
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-400">Executive Summary</span>
-                <span className="text-gray-500">0%</span>
-              </div>
-              <ProgressBar value={0} color="bg-gray-600" />
-            </div>
-          </div>
-          
-          <div className="mt-6 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
-            <div className="flex items-start space-x-3">
-              <Zap className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
-              <div>
-                <h4 className="text-sm font-medium text-white mb-1">Automate Prep</h4>
-                <p className="text-xs text-gray-400 mb-3">Connect SabDesk to your CRM and Analytics to auto-generate QBR decks.</p>
-                <button className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition-colors">
-                  Setup Integration
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+          </CardBody>
+        </Card>
       </div>
     </div>
   </div>
 );
 
 const PlaybooksTab = () => (
-  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <div className="space-y-6">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {PLAYBOOKS.map((playbook) => (
-        <div key={playbook.id} className="bg-[#111111] border border-white/10 rounded-2xl p-6 hover:border-indigo-500/30 transition-all group flex flex-col h-full relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-bl-full group-hover:bg-indigo-500/10 transition-colors" />
-          
-          <div className="flex items-start justify-between mb-4 relative z-10">
-            <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-indigo-400">
+        <Card key={playbook.id} variant="elevated" padding="lg" className="flex flex-col h-full">
+          <div className="flex items-start justify-between mb-4">
+            <span className="p-3 rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] border border-[var(--st-border)] text-[var(--st-accent)]" aria-hidden="true">
               <BookOpen className="w-6 h-6" />
-            </div>
-            <Badge color="gray">{playbook.activeRuns} Active Runs</Badge>
+            </span>
+            <Badge tone="neutral">{playbook.activeRuns} Active Runs</Badge>
           </div>
-          
-          <h3 className="text-lg font-semibold text-white mb-2 relative z-10">{playbook.name}</h3>
-          <p className="text-sm text-gray-400 mb-6 flex-1 relative z-10">{playbook.description}</p>
-          
-          <div className="space-y-3 relative z-10">
-            <div className="flex items-center text-xs text-gray-300 bg-white/5 p-2 rounded-lg border border-white/5">
-              <Activity className="w-4 h-4 mr-2 text-gray-500" />
-              <span className="text-gray-500 mr-1">Trigger:</span> {playbook.triggers}
+
+          <h3 className="text-lg font-semibold text-[var(--st-text)] mb-2">{playbook.name}</h3>
+          <p className="text-sm text-[var(--st-text-secondary)] mb-6 flex-1">{playbook.description}</p>
+
+          <div className="space-y-3">
+            <div className="flex items-center text-xs text-[var(--st-text-secondary)] bg-[var(--st-bg-secondary)] p-2 rounded-[var(--st-radius)] border border-[var(--st-border)]">
+              <Activity className="w-4 h-4 mr-2 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+              <span className="text-[var(--st-text-tertiary)] mr-1">Trigger:</span> {playbook.triggers}
             </div>
-            
-            <div className="flex items-center justify-between pt-4 border-t border-white/10">
+
+            <div className="flex items-center justify-between pt-4 border-t border-[var(--st-border)]">
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">Success Rate</span>
-                <span className="text-lg font-bold text-emerald-400">{playbook.successRate}%</span>
+                <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-tertiary)] font-semibold mb-1">Success Rate</span>
+                <span className="text-lg font-bold text-[var(--st-status-ok)]">{playbook.successRate}%</span>
               </div>
-              
-              <button className="flex items-center space-x-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-3 py-1.5 rounded-lg text-sm transition-colors">
-                <PlayCircle className="w-4 h-4" />
-                <span>Run</span>
-              </button>
+
+              <Button variant="outline" size="sm" iconLeft={PlayCircle}>
+                Run
+              </Button>
             </div>
           </div>
-        </div>
+        </Card>
       ))}
-      
-      {/* Add New Playbook Card */}
-      <div className="bg-transparent border-2 border-dashed border-white/10 rounded-2xl p-6 hover:border-white/30 hover:bg-white/5 transition-all cursor-pointer flex flex-col items-center justify-center min-h-[300px] group text-center">
-        <div className="p-4 rounded-full bg-white/5 mb-4 group-hover:scale-110 transition-transform">
-          <Plus className="w-8 h-8 text-gray-400 group-hover:text-white" />
-        </div>
-        <h3 className="text-lg font-semibold text-white mb-2">Create New Playbook</h3>
-        <p className="text-sm text-gray-400 max-w-[200px]">Define automated actions and workflows for your team.</p>
-      </div>
+
+      <Card variant="ghost" padding="lg" className="border-2 border-dashed border-[var(--st-border)] flex flex-col items-center justify-center min-h-[300px] text-center cursor-pointer">
+        <span className="p-4 rounded-full bg-[var(--st-bg-secondary)] mb-4" aria-hidden="true">
+          <Plus className="w-8 h-8 text-[var(--st-text-secondary)]" />
+        </span>
+        <h3 className="text-lg font-semibold text-[var(--st-text)] mb-2">Create New Playbook</h3>
+        <p className="text-sm text-[var(--st-text-secondary)] max-w-[200px]">Define automated actions and workflows for your team.</p>
+      </Card>
     </div>
   </div>
 );
@@ -556,86 +518,69 @@ export default function CustomerSuccessDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-gray-100 font-sans selection:bg-indigo-500/30 selection:text-indigo-200 pb-20">
+    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] pb-20">
       {/* Top Navigation Bar / Header */}
-      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
+      <header className="sticky top-0 z-50 bg-[var(--st-bg)]/80 backdrop-blur-xl border-b border-[var(--st-border)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <Users className="w-5 h-5 text-white" />
-            </div>
-            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 tracking-tight">
-              Customer Success
-            </h1>
+          <div className="flex items-center gap-3">
+            <span className="w-8 h-8 bg-[var(--st-accent)] rounded-[var(--st-radius)] flex items-center justify-center" aria-hidden="true">
+              <Users className="w-5 h-5 text-[var(--st-text-inverted)]" />
+            </span>
+            <span className="text-xl font-bold text-[var(--st-text)] tracking-tight">Customer Success</span>
           </div>
-          
-          <div className="flex items-center space-x-4">
-            <button className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-colors relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border border-black"></span>
-            </button>
-            <div className="h-6 w-px bg-white/10"></div>
-            <div className="flex items-center space-x-2">
-              <img 
-                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" 
-                alt="User avatar" 
-                className="w-8 h-8 rounded-full bg-white/10 border border-white/20"
-              />
-            </div>
+
+          <div className="flex items-center gap-4">
+            <span className="relative inline-flex">
+              <IconButton label="Notifications" icon={Bell} />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--st-danger)] rounded-full border border-[var(--st-bg)]" aria-hidden="true" />
+            </span>
+            <span className="h-6 w-px bg-[var(--st-border)]" aria-hidden="true" />
+            <Avatar shape="round" size="md">
+              <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Sarah Jenkins avatar" />
+              <AvatarFallback>SJ</AvatarFallback>
+            </Avatar>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {/* Page Header Area */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <div>
-            <h2 className="text-3xl font-bold text-white tracking-tight mb-1">Success Hub</h2>
-            <p className="text-gray-400 text-sm">Monitor health, manage risks, and drive adoption across your portfolio.</p>
-          </div>
-          <div className="flex space-x-3">
-            <button className="flex items-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-              <Download className="w-4 h-4" />
-              <span>Export Report</span>
-            </button>
-            <button className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-indigo-500/20">
-              <Plus className="w-4 h-4" />
-              <span>New Action</span>
-            </button>
-          </div>
-        </div>
+        <PageHeader bordered={false} className="mb-8">
+          <PageHeaderHeading>
+            <PageTitle>Success Hub</PageTitle>
+            <PageDescription>Monitor health, manage risks, and drive adoption across your portfolio.</PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button variant="outline" iconLeft={Download}>
+              Export Report
+            </Button>
+            <Button variant="primary" iconLeft={Plus}>
+              New Action
+            </Button>
+          </PageActions>
+        </PageHeader>
 
-        {/* Custom Tab Navigation */}
-        <div className="mb-8 overflow-x-auto scrollbar-hide">
-          <div className="flex space-x-1 border-b border-white/10 min-w-max pb-px">
+        {/* Tab Navigation */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-8">
             {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 px-5 py-3 text-sm font-medium transition-all relative ${
-                  activeTab === tab.id
-                    ? "text-indigo-400"
-                    : "text-gray-400 hover:text-gray-200 hover:bg-white/5 rounded-t-lg"
-                }`}
-              >
-                <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'animate-pulse' : ''}`} />
-                <span>{tab.label}</span>
-                {activeTab === tab.id && (
-                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-500 rounded-t-full shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-                )}
-              </button>
+              <TabsTrigger key={tab.id} value={tab.id}>
+                <span className="flex items-center gap-2">
+                  <tab.icon className="w-4 h-4" aria-hidden="true" />
+                  {tab.label}
+                </span>
+              </TabsTrigger>
             ))}
-          </div>
-        </div>
+          </TabsList>
 
-        {/* Tab Content Render */}
-        <div className="relative min-h-[500px]">
-          {activeTab === "overview" && <OverviewTab />}
-          {activeTab === "health" && <AccountHealthTab />}
-          {activeTab === "risk" && <ChurnRiskTab />}
-          {activeTab === "qbr" && <QBRTab />}
-          {activeTab === "playbooks" && <PlaybooksTab />}
-        </div>
+          <div className="relative min-h-[500px]">
+            <TabsContent value="overview"><OverviewTab /></TabsContent>
+            <TabsContent value="health"><AccountHealthTab /></TabsContent>
+            <TabsContent value="risk"><ChurnRiskTab /></TabsContent>
+            <TabsContent value="qbr"><QBRTab /></TabsContent>
+            <TabsContent value="playbooks"><PlaybooksTab /></TabsContent>
+          </div>
+        </Tabs>
       </main>
     </div>
   );

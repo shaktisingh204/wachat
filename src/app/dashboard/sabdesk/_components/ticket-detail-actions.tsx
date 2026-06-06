@@ -17,18 +17,17 @@ import {
 } from "lucide-react";
 
 /**
- * <TicketDetailActions> — header action group for the ticket detail
- * page (§1D.2 — 10 actions).
+ * <TicketDetailActions> - header action group for the ticket detail
+ * page (1D.2 - 10 actions).
  *
- *   Edit · Reply · Forward · Assign · Merge · Resolve · Close ·
- *   Re-open · Print · Activity.
+ *   Edit, Reply, Forward, Assign, Merge, Resolve, Close,
+ *   Re-open, Print, Activity.
  *
  * Status changes (Resolve / Close / Re-open) optimistically call
  * `updateTicket` and refresh the page; failures toast and revert.
  */
 
 import * as React from "react";
-import Link from "next/link";
 
 import { EntityFormField } from "@/components/crm/entity-form-field";
 import { updateTicket } from "@/app/actions/crm/tickets.actions";
@@ -60,13 +59,13 @@ export function TicketDetailActions({
     startTransition(async () => {
       try {
         await updateTicket(id, { status: next });
-        toast({ title: `${label} — ticket updated` });
+        toast({ title: `${label}, ticket updated`, tone: "success" });
         router.refresh();
       } catch (e) {
         toast({
           title: `${label} failed`,
           description: e instanceof Error ? e.message : "Unknown error",
-          variant: "destructive",
+          tone: "danger",
         });
       }
     });
@@ -75,13 +74,13 @@ export function TicketDetailActions({
     startTransition(async () => {
       try {
         await updateTicket(id, { assigneeId: userId ?? "" });
-        toast({ title: userId ? "Assignee updated" : "Unassigned" });
+        toast({ title: userId ? "Assignee updated" : "Unassigned", tone: "success" });
         router.refresh();
       } catch (e) {
         toast({
           title: "Assign failed",
           description: e instanceof Error ? e.message : "Unknown error",
-          variant: "destructive",
+          tone: "danger",
         });
       } finally {
         setAssignOpen(false);
@@ -90,22 +89,25 @@ export function TicketDetailActions({
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <Button variant="outline" size="sm" asChild>
-        <Link href={`/dashboard/sabdesk/${id}/edit`}>
-          <Pencil className="h-3.5 w-3.5" /> Edit
-        </Link>
+      <Button
+        variant="outline"
+        size="sm"
+        iconLeft={Pencil}
+        onClick={() => router.push(`/dashboard/sabdesk/${id}/edit`)}
+      >
+        Edit
       </Button>
-      <Button variant="outline" size="sm" onClick={onReplyClick}>
-        <Reply className="h-3.5 w-3.5" /> Reply
+      <Button variant="outline" size="sm" iconLeft={Reply} onClick={onReplyClick}>
+        Reply
       </Button>
-      <Button variant="outline" size="sm" onClick={onForwardClick}>
-        <Forward className="h-3.5 w-3.5" /> Forward
+      <Button variant="outline" size="sm" iconLeft={Forward} onClick={onForwardClick}>
+        Forward
       </Button>
 
       <Popover open={assignOpen} onOpenChange={setAssignOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm">
-            <UserPlus className="h-3.5 w-3.5" /> Assign
+          <Button variant="outline" size="sm" iconLeft={UserPlus}>
+            Assign
           </Button>
         </PopoverTrigger>
         <PopoverContent align="end" className="w-72 space-y-2">
@@ -116,78 +118,90 @@ export function TicketDetailActions({
             entity="user"
             name="assignAgent"
             initialId={ticket.assigneeId ?? null}
-            placeholder="Pick a user…"
+            placeholder="Pick a user"
             onChange={(next) => runAssign(next)}
           />
-          <button
-            type="button"
-            className="text-[12px] text-[var(--st-text-secondary)] hover:underline"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => runAssign(null)}
           >
             Unassign
-          </button>
+          </Button>
         </PopoverContent>
       </Popover>
 
-      <Button variant="outline" size="sm" onClick={onMergeClick}>
-        <Combine className="h-3.5 w-3.5" /> Merge
+      <Button variant="outline" size="sm" iconLeft={Combine} onClick={onMergeClick}>
+        Merge
       </Button>
 
       {!resolvedish ? (
         <Button
           size="sm"
+          iconLeft={CheckCircle2}
           onClick={() => runStatusChange("resolved", "Resolved")}
           disabled={pending}
         >
-          <CheckCircle2 className="h-3.5 w-3.5" /> Resolve
+          Resolve
         </Button>
       ) : null}
       {status !== "closed" ? (
         <Button
           variant="outline"
           size="sm"
+          iconLeft={Lock}
           onClick={() => runStatusChange("closed", "Closed")}
           disabled={pending}
         >
-          <Lock className="h-3.5 w-3.5" /> Close
+          Close
         </Button>
       ) : null}
       {resolvedish ? (
         <Button
           variant="outline"
           size="sm"
+          iconLeft={RotateCcw}
           onClick={() => runStatusChange("reopened", "Re-opened")}
           disabled={pending}
         >
-          <RotateCcw className="h-3.5 w-3.5" /> Re-open
+          Re-open
         </Button>
       ) : null}
 
       <Button
         variant="outline"
         size="sm"
+        iconLeft={Printer}
         onClick={() => {
           if (typeof window !== "undefined") window.print();
         }}
       >
-        <Printer className="h-3.5 w-3.5" /> Print
+        Print
       </Button>
 
-      <Button variant="outline" size="sm" asChild>
-        <Link href={`/dashboard/sabdesk/${id}/activity`}>
-          <Activity className="h-3.5 w-3.5" /> Activity
-        </Link>
+      <Button
+        variant="outline"
+        size="sm"
+        iconLeft={Activity}
+        onClick={() => router.push(`/dashboard/sabdesk/${id}/activity`)}
+      >
+        Activity
       </Button>
 
       {ticket.requesterId ? (
-        <Button variant="ghost" size="sm" asChild>
-          <Link
-            href={`mailto:?subject=${encodeURIComponent(
-              `Re: ${ticket.subject ?? ""}`,
-            )}`}
-          >
-            <Mail className="h-3.5 w-3.5" /> Email
-          </Link>
+        <Button
+          variant="ghost"
+          size="sm"
+          iconLeft={Mail}
+          onClick={() => {
+            if (typeof window !== "undefined") {
+              window.location.href = `mailto:?subject=${encodeURIComponent(
+                `Re: ${ticket.subject ?? ""}`,
+              )}`;
+            }
+          }}
+        >
+          Email
         </Button>
       ) : null}
     </div>

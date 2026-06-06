@@ -6,8 +6,16 @@
  */
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
-import { Button } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+} from '@/components/sabcrm/20ui';
 import {
     getSabshowDeck,
     listSabshowPublications,
@@ -29,16 +37,20 @@ export default async function PublishPage({ params }: PublishPageProps) {
     const existing = publications[0] ?? null;
 
     return (
-        <div className="zoruui mx-auto w-full max-w-2xl space-y-4 p-6">
-            <header className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-xl font-semibold">{deck.title}</h1>
-                    <p className="text-sm text-[var(--st-text-secondary)]">Publish settings</p>
-                </div>
-                <Button variant="outline" asChild>
-                    <Link href={`/dashboard/sabshow/${deckId}`}>Back to editor</Link>
-                </Button>
-            </header>
+        <div className="ui20 mx-auto w-full max-w-2xl space-y-4 p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>{deck.title}</PageTitle>
+                    <PageDescription>Publish settings</PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Link href={`/dashboard/sabshow/${deckId}`}>
+                        <Button variant="outline" iconLeft={ArrowLeft}>
+                            Back to editor
+                        </Button>
+                    </Link>
+                </PageActions>
+            </PageHeader>
 
             <PublishForm deckId={deckId} existing={existing} />
         </div>

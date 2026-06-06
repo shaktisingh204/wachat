@@ -1,12 +1,10 @@
 'use client';
 
-import { Button, Textarea, Card, CardBody, cn } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo } from 'react';
+import { Button, Textarea, Alert, SegmentedControl } from '@/components/sabcrm/20ui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { JsonTreeView } from '@/components/sabflow/inspector/JsonTreeView';
-import { LuUpload, LuDownload, LuCode, LuFileJson, LuListTree } from 'react-icons/lu';
-
-void _zoruCn;
+import { Upload, Download, Code, FileJson, ListTree } from 'lucide-react';
 
 function getPosFromLineCol(text: string, line: number, col: number) {
   const lines = text.split('\n');
@@ -22,13 +20,13 @@ function getPosFromLineCol(text: string, line: number, col: number) {
 function parseJsonError(e: unknown, text: string) {
   const msg = e instanceof Error ? e.message : 'Invalid JSON';
   let line, col, pos;
-  
+
   const v8Pos = msg.match(/at position (\d+)/);
   if (v8Pos) pos = parseInt(v8Pos[1], 10);
-  
+
   const v8LineCol = msg.match(/\(line (\d+) column (\d+)\)/);
   const ffLineCol = msg.match(/line (\d+) column (\d+)/);
-  
+
   if (v8LineCol) {
     line = parseInt(v8LineCol[1], 10);
     col = parseInt(v8LineCol[2], 10);
@@ -40,7 +38,7 @@ function parseJsonError(e: unknown, text: string) {
   if (pos === undefined && line !== undefined && col !== undefined) {
     pos = getPosFromLineCol(text, line, col);
   }
-  
+
   return { message: msg, pos };
 }
 
@@ -66,19 +64,27 @@ function JsonHighlighter({ jsonString }: { jsonString: string }) {
   }, [jsonString]);
 
   return (
-    <pre 
-      className="p-4 bg-[var(--gray-2)] rounded-md font-mono text-xs overflow-auto min-h-[300px] max-h-[600px] border border-[var(--st-border)]"
-      dangerouslySetInnerHTML={{ __html: highlighted }} 
+    <pre
+      className="p-4 bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)] font-mono text-xs overflow-auto min-h-[300px] max-h-[600px] border border-[var(--st-border)]"
+      dangerouslySetInnerHTML={{ __html: highlighted }}
     />
   );
 }
 
+type ViewMode = 'raw' | 'highlighted' | 'tree';
+
+const VIEW_ITEMS = [
+  { value: 'raw' as const, label: 'Raw', icon: Code },
+  { value: 'highlighted' as const, label: 'Highlighted', icon: FileJson },
+  { value: 'tree' as const, label: 'Tree Viewer', icon: ListTree },
+];
+
 export default function JsonFormatterPage() {
   const [text, setText] = useState('');
   const [error, setError] = useState<{ message: string; pos?: number } | null>(null);
-  const [viewMode, setViewMode] = useState<'raw' | 'highlighted' | 'tree'>('raw');
+  const [viewMode, setViewMode] = useState<ViewMode>('raw');
   const [parsedData, setParsedData] = useState<unknown>(null);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const processJson = (action: 'format' | 'minify' | 'validate' = 'validate', currentText = text) => {
@@ -126,7 +132,7 @@ export default function JsonFormatterPage() {
     URL.revokeObjectURL(url);
   };
 
-  const handleViewChange = (mode: 'raw' | 'highlighted' | 'tree') => {
+  const handleViewChange = (mode: ViewMode) => {
     if (mode === 'tree' || mode === 'highlighted') {
       if (!processJson('validate')) return;
     }
@@ -136,91 +142,72 @@ export default function JsonFormatterPage() {
   return (
     <ToolShell title="JSON Formatter" description="Format, minify, and visualize JSON with validation.">
       <div className="flex flex-col sm:flex-row gap-4 mb-4 justify-between items-start sm:items-center">
-        <div className="flex gap-1 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] p-1 rounded-lg">
-          <Button 
-            variant={viewMode === 'raw' ? 'default' : 'ghost'} 
-            size="sm" 
-            onClick={() => handleViewChange('raw')}
-          >
-            <LuCode className="w-4 h-4 mr-2" /> Raw
-          </Button>
-          <Button 
-            variant={viewMode === 'highlighted' ? 'default' : 'ghost'} 
-            size="sm" 
-            onClick={() => handleViewChange('highlighted')}
-          >
-            <LuFileJson className="w-4 h-4 mr-2" /> Highlighted
-          </Button>
-          <Button 
-            variant={viewMode === 'tree' ? 'default' : 'ghost'} 
-            size="sm" 
-            onClick={() => handleViewChange('tree')}
-          >
-            <LuListTree className="w-4 h-4 mr-2" /> Tree Viewer
-          </Button>
-        </div>
+        <SegmentedControl<ViewMode>
+          items={VIEW_ITEMS}
+          value={viewMode}
+          onChange={handleViewChange}
+          aria-label="JSON view mode"
+        />
 
         <div className="flex gap-2">
-          <input 
-            type="file" 
-            accept=".json,application/json" 
-            className="hidden" 
-            ref={fileInputRef} 
-            onChange={handleUpload} 
+          <input
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleUpload}
           />
-          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-            <LuUpload className="w-4 h-4 mr-2" /> Upload
+          <Button variant="outline" size="sm" iconLeft={Upload} onClick={() => fileInputRef.current?.click()}>
+            Upload
           </Button>
-          <Button variant="outline" size="sm" onClick={handleDownload} disabled={!text}>
-            <LuDownload className="w-4 h-4 mr-2" /> Download
+          <Button variant="outline" size="sm" iconLeft={Download} onClick={handleDownload} disabled={!text}>
+            Download
           </Button>
         </div>
       </div>
 
       <div className="mb-4">
         {viewMode === 'raw' && (
-          <Textarea 
-            value={text} 
+          <Textarea
+            value={text}
             onChange={(e) => {
                setText(e.target.value);
                if (error) setError(null);
-            }} 
-            className="min-h-[300px] font-mono text-xs" 
-            placeholder='{"hello": "world"}' 
+            }}
+            className="min-h-[300px] font-mono text-xs"
+            placeholder='{"hello": "world"}'
+            aria-label="JSON input"
           />
         )}
         {viewMode === 'highlighted' && (
           <JsonHighlighter jsonString={text} />
         )}
         {viewMode === 'tree' && (
-          <div className="min-h-[300px] max-h-[600px] overflow-auto border border-[var(--st-border)] rounded-md bg-[var(--gray-1)] p-4">
+          <div className="min-h-[300px] max-h-[600px] overflow-auto border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg)] p-4">
             <JsonTreeView data={parsedData} />
           </div>
         )}
       </div>
 
       <div className="flex gap-2 mb-4">
-        <Button onClick={format}>Format</Button>
+        <Button variant="primary" onClick={format}>Format</Button>
         <Button variant="outline" onClick={minify}>Minify</Button>
       </div>
 
       {error && (
-        <Card className="border-[var(--st-border)] overflow-hidden">
-          <CardBody className="p-4 bg-[var(--st-bg-muted)]/50">
-            <p className="text-[var(--st-text)] font-semibold mb-2">{error.message}</p>
-            {error.pos !== undefined && text && (
-              <pre className="text-xs font-mono text-[var(--st-text)] bg-[var(--st-bg-muted)] p-2 rounded overflow-x-auto whitespace-pre-wrap break-words">
-                {Math.max(0, error.pos - 40) > 0 && '...'}
-                {text.slice(Math.max(0, error.pos - 40), error.pos)}
-                <span className="bg-[var(--st-text)] text-white font-bold px-1 rounded shadow-sm">
-                  {text[error.pos] === '\n' ? '↵' : text[error.pos] === ' ' ? '␣' : (text[error.pos] || 'EOF')}
-                </span>
-                {text.slice(error.pos + 1, Math.min(text.length, error.pos + 40))}
-                {Math.min(text.length, error.pos + 40) < text.length && '...'}
-              </pre>
-            )}
-          </CardBody>
-        </Card>
+        <Alert tone="danger" title={error.message}>
+          {error.pos !== undefined && text && (
+            <pre className="mt-1 text-xs font-mono text-[var(--st-text)] bg-[var(--st-bg-secondary)] p-2 rounded-[var(--st-radius)] overflow-x-auto whitespace-pre-wrap break-words">
+              {Math.max(0, error.pos - 40) > 0 && '...'}
+              {text.slice(Math.max(0, error.pos - 40), error.pos)}
+              <span className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] font-bold px-1 rounded-[var(--st-radius)] shadow-sm">
+                {text[error.pos] === '\n' ? '↵' : text[error.pos] === ' ' ? '␣' : (text[error.pos] || 'EOF')}
+              </span>
+              {text.slice(error.pos + 1, Math.min(text.length, error.pos + 40))}
+              {Math.min(text.length, error.pos + 40) < text.length && '...'}
+            </pre>
+          )}
+        </Alert>
       )}
     </ToolShell>
   );

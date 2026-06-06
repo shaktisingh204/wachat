@@ -1,32 +1,47 @@
 'use client';
 
-import { Card, CardBody, Input, Badge, cn } from '@/components/sabcrm/20ui';
-import {
-  cn as _zoruCn,
-  useMemo,
-  useState,
-  useEffect,
-  ElementType
-} from 'react';
+import { useMemo, useState, useEffect, type ElementType } from 'react';
 import Link from 'next/link';
-
-void _zoruCn;
-
-import { 
-  Wrench, Search, Star, 
-  FileText, Key, Tag, Link as LinkIcon, Globe, 
-  Image as ImageIcon, Code, LineChart, MousePointerClick, Settings 
+import {
+  Wrench,
+  Search,
+  Star,
+  FileText,
+  Key,
+  Tag as TagIcon,
+  Link as LinkIcon,
+  Globe,
+  Image as ImageIcon,
+  Code,
+  LineChart,
+  MousePointerClick,
+  Settings,
+  type LucideIcon,
 } from 'lucide-react';
+
+import {
+  Card,
+  CardBody,
+  Input,
+  Badge,
+  Button,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+} from '@/components/sabcrm/20ui';
+
 import {
   SEO_TOOLS,
   SEO_TOOL_CATEGORIES,
   type SeoToolCategory,
 } from '@/lib/seo-tools/registry';
 
-const CATEGORY_ICONS: Record<SeoToolCategory, ElementType> = {
+const CATEGORY_ICONS: Record<SeoToolCategory, LucideIcon> = {
   text: FileText,
   keyword: Key,
-  meta: Tag,
+  meta: TagIcon,
   url: LinkIcon,
   domain: Globe,
   image: ImageIcon,
@@ -49,7 +64,7 @@ export default function SeoToolsHubPage() {
       const favs = JSON.parse(localStorage.getItem('seo-tools-favorites') || '[]');
       setFavorites(new Set(favs));
     } catch {}
-    
+
     try {
       const cls = JSON.parse(localStorage.getItem('seo-tools-clicks') || '{}');
       setClicks(cls);
@@ -110,49 +125,49 @@ export default function SeoToolsHubPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-          <Wrench className="h-8 w-8 text-[var(--st-text)]" />
-          SEO Tools
-        </h1>
-        <p className="text-[var(--st-text-secondary)] mt-1">
-          {SEO_TOOLS.length} tools across {SEO_TOOL_CATEGORIES.length} categories · {readyCount} ready
-        </p>
-      </div>
+      <PageHeader bordered={false}>
+        <PageHeaderHeading>
+          <PageTitle className="flex items-center gap-3">
+            <Wrench className="h-7 w-7" aria-hidden="true" />
+            SEO Tools
+          </PageTitle>
+          <PageDescription>
+            {SEO_TOOLS.length} tools across {SEO_TOOL_CATEGORIES.length} categories, {readyCount} ready
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
+      <div className="max-w-md">
         <Input
-          className="pl-9"
-          placeholder="Search tools…"
+          iconLeft={Search}
+          placeholder="Search tools..."
+          aria-label="Search SEO tools"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button
+          size="sm"
+          variant={category === 'all' ? 'primary' : 'secondary'}
           onClick={() => setCategory('all')}
-          className={`px-3 py-1.5 text-sm rounded-full border transition flex items-center gap-2 ${
-            category === 'all' ? 'bg-[var(--st-text)] text-white border-primary' : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]'
-          }`}
         >
           All ({SEO_TOOLS.length})
-        </button>
+        </Button>
         {SEO_TOOL_CATEGORIES.map((c) => {
           const count = SEO_TOOLS.filter((t) => t.category === c.id).length;
           const Icon = CATEGORY_ICONS[c.id];
           return (
-            <button
+            <Button
               key={c.id}
+              size="sm"
+              variant={category === c.id ? 'primary' : 'secondary'}
+              iconLeft={Icon}
               onClick={() => setCategory(c.id)}
-              className={`px-3 py-1.5 text-sm rounded-full border transition flex items-center gap-2 ${
-                category === c.id ? 'bg-[var(--st-text)] text-white border-primary' : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]'
-              }`}
             >
-              {Icon && <Icon className="w-4 h-4" />}
               {c.label} ({count})
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -165,43 +180,53 @@ export default function SeoToolsHubPage() {
           const isFav = favorites.has(tool.slug);
 
           return (
-            <Wrapper 
-              key={tool.slug} 
-              href={href} 
+            <Wrapper
+              key={tool.slug}
+              href={href}
               className="block"
               onClick={() => {
                 if (tool.status === 'ready') trackClick(tool.slug);
               }}
             >
               <Card
-                className={`h-full transition relative group ${
-                  tool.status === 'ready'
-                    ? 'hover:border-primary hover:shadow-md cursor-pointer'
-                    : 'opacity-70 cursor-not-allowed'
+                variant={tool.status === 'ready' ? 'interactive' : 'outlined'}
+                padding="none"
+                className={`relative h-full group ${
+                  tool.status === 'ready' ? 'cursor-pointer' : 'opacity-70 cursor-not-allowed'
                 }`}
               >
-                <button
-                  type="button"
-                  onClick={(e) => toggleFavorite(e, tool.slug)}
-                  className={`absolute top-3 right-3 p-1.5 rounded-md transition-opacity z-10 ${
-                    isFav ? 'opacity-100 text-[var(--st-text)] hover:text-[var(--st-text)]' : 'opacity-0 group-hover:opacity-100 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]'
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`absolute top-2 right-2 z-10 ${
+                    isFav ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                   }`}
-                  aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+                  aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                  aria-pressed={isFav}
+                  onClick={(e) => toggleFavorite(e, tool.slug)}
                 >
-                  <Star className="w-4 h-4" fill={isFav ? "currentColor" : "none"} />
-                </button>
-                <CardBody className="p-4 flex flex-col gap-2 h-full">
+                  <Star
+                    className="h-4 w-4"
+                    fill={isFav ? 'currentColor' : 'none'}
+                    aria-hidden="true"
+                  />
+                </Button>
+                <CardBody className="flex h-full flex-col gap-2 p-4">
                   <div className="flex items-start justify-between gap-2 pr-8">
-                    <h3 className="font-semibold text-sm leading-tight">{tool.name}</h3>
+                    <h3 className="text-sm font-semibold leading-tight text-[var(--st-text)]">
+                      {tool.name}
+                    </h3>
                     {tool.status === 'soon' && (
-                      <Badge variant="outline" className="text-[10px]">
+                      <Badge tone="neutral" kind="outline" className="text-[10px]">
                         Soon
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-[var(--st-text-secondary)] flex-1">{tool.description}</p>
-                  <div className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)] flex items-center gap-1.5 mt-2">
-                    {Icon && <Icon className="w-3.5 h-3.5" />}
+                  <p className="flex-1 text-xs text-[var(--st-text-secondary)]">
+                    {tool.description}
+                  </p>
+                  <div className="mt-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
+                    {Icon && <Icon className="h-3.5 w-3.5" aria-hidden="true" />}
                     {SEO_TOOL_CATEGORIES.find((c) => c.id === tool.category)?.label}
                   </div>
                 </CardBody>
@@ -212,11 +237,11 @@ export default function SeoToolsHubPage() {
       </div>
 
       {filtered.length === 0 && (
-        <Card className="border-dashed">
-          <CardBody className="p-12 text-center text-[var(--st-text-secondary)]">
-            No tools match your search.
-          </CardBody>
-        </Card>
+        <EmptyState
+          icon={Search}
+          title="No tools match your search"
+          description="Try a different keyword or clear the category filter."
+        />
       )}
     </div>
   );

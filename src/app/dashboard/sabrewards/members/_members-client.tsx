@@ -4,13 +4,41 @@
  * Rewards members table with per-row "Adjust points" drawer. Each row
  * exposes the customer's current balance, lifetime total, and current
  * tier (the tier label comes from the program's referenced loyalty
- * engine — we don't recompute tiers here, the engine is authoritative).
+ * engine; we don't recompute tiers here, the engine is authoritative).
  */
 
 import * as React from 'react';
 import { Sparkles } from 'lucide-react';
 
-import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 import { adjustRewardsMember } from '@/app/actions/rewards.actions';
 import type { RewardsMemberDoc } from '@/lib/rust-client/rewards-members';
@@ -77,13 +105,13 @@ export function MembersClient({
             : m,
         ),
       );
-      toast({ title: 'Member balance updated' });
+      toast.success('Member balance updated');
       setAdjustOpen(false);
     } catch (e) {
       toast({
         title: 'Adjustment failed',
         description: e instanceof Error ? e.message : 'Unknown error',
-        variant: 'destructive',
+        tone: 'danger',
       });
     } finally {
       setSaving(false);
@@ -91,18 +119,18 @@ export function MembersClient({
   }, [target, delta, newTier, toast]);
 
   return (
-    <div className="zoruui flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-[var(--st-text)]">Members</h2>
-          <p className="text-sm text-[var(--st-text-secondary)]">
+    <div className="flex flex-col gap-4">
+      <PageHeader bordered={false} compact className="flex items-center justify-between gap-4">
+        <PageHeaderHeading>
+          <PageTitle>Members</PageTitle>
+          <PageDescription>
             Each customer who has joined a rewards program. Adjust balances or
             promote tiers manually here.
-          </p>
-        </div>
+          </PageDescription>
+        </PageHeaderHeading>
         <div className="w-48">
           <Select value={programFilter} onValueChange={setProgramFilter}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filter by program">
               <SelectValue placeholder="All programs" />
             </SelectTrigger>
             <SelectContent>
@@ -115,20 +143,20 @@ export function MembersClient({
             </SelectContent>
           </Select>
         </div>
-      </div>
+      </PageHeader>
 
-      <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg">
+      <Card padding="none">
+        <div className="overflow-x-auto rounded-[var(--st-radius)]">
           <Table>
             <THead>
-              <Tr className="border-[var(--st-border)]">
+              <Tr>
                 <Th>Customer</Th>
                 <Th>Program</Th>
                 <Th>Tier</Th>
-                <Th>Current points</Th>
-                <Th>Lifetime points</Th>
+                <Th align="right">Current points</Th>
+                <Th align="right">Lifetime points</Th>
                 <Th>Joined</Th>
-                <Th className="text-right">Actions</Th>
+                <Th align="right">Actions</Th>
               </Tr>
             </THead>
             <TBody>
@@ -143,30 +171,37 @@ export function MembersClient({
                 </Tr>
               ) : (
                 filtered.map((m) => (
-                  <Tr key={m._id} className="border-[var(--st-border)]">
+                  <Tr key={m._id}>
                     <Td className="text-[var(--st-text)]">
                       Customer {m.customerId.slice(-6)}
                     </Td>
                     <Td className="text-[var(--st-text)]">
-                      {programNameById.get(m.programId) ?? '—'}
+                      {programNameById.get(m.programId) ?? 'Unassigned'}
                     </Td>
                     <Td>
-                      <Badge variant={m.currentTier ? 'success' : 'ghost'}>
+                      <Badge tone={m.currentTier ? 'success' : 'neutral'}>
                         {m.currentTier ?? 'Base'}
                       </Badge>
                     </Td>
-                    <Td className="text-[var(--st-text)]">
+                    <Td align="right" className="text-[var(--st-text)]">
                       {(m.currentPoints ?? 0).toLocaleString()}
                     </Td>
-                    <Td className="text-[var(--st-text)]">
+                    <Td align="right" className="text-[var(--st-text)]">
                       {(m.lifetimePoints ?? 0).toLocaleString()}
                     </Td>
                     <Td className="text-[var(--st-text)]">
-                      {m.joinedAt ? new Date(m.joinedAt).toLocaleDateString() : '—'}
+                      {m.joinedAt
+                        ? new Date(m.joinedAt).toLocaleDateString()
+                        : 'Not recorded'}
                     </Td>
-                    <Td className="text-right">
-                      <Button variant="outline" size="sm" onClick={() => openAdjust(m)}>
-                        <Sparkles className="h-4 w-4" /> Adjust
+                    <Td align="right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        iconLeft={Sparkles}
+                        onClick={() => openAdjust(m)}
+                      >
+                        Adjust
                       </Button>
                     </Td>
                   </Tr>
@@ -183,34 +218,30 @@ export function MembersClient({
             <DialogTitle>Adjust points</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-3 py-2">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="adjust-delta">Delta (use negative to debit)</Label>
+            <Field
+              label="Delta (use negative to debit)"
+              help="Positive deltas also bump lifetime points; negative deltas do not."
+            >
               <Input
-                id="adjust-delta"
                 type="number"
                 value={delta}
                 onChange={(e) => setDelta(Number(e.target.value))}
               />
-              <p className="text-[12px] text-[var(--st-text-secondary)]">
-                Positive deltas also bump lifetime points; negative deltas do not.
-              </p>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="adjust-tier">New tier (optional)</Label>
+            </Field>
+            <Field label="New tier (optional)">
               <Input
-                id="adjust-tier"
                 value={newTier}
                 onChange={(e) => setNewTier(e.target.value)}
                 placeholder="e.g. Gold"
               />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setAdjustOpen(false)} disabled={saving}>
               Cancel
             </Button>
-            <Button onClick={handleApply} disabled={saving}>
-              {saving ? 'Applying…' : 'Apply'}
+            <Button onClick={handleApply} loading={saving} disabled={saving}>
+              {saving ? 'Applying' : 'Apply'}
             </Button>
           </DialogFooter>
         </DialogContent>

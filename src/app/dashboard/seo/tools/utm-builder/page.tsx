@@ -1,17 +1,32 @@
 'use client';
 
-import { Button, Input, Label, cn } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Copy, Link2, Plus, Save, Trash2, X } from 'lucide-react';
 
-void _zoruCn;
-
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  Label,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
+type UtmParams = { source: string; medium: string; campaign: string; term: string; content: string };
+
 export default function UtmBuilderPage() {
+  const { toast } = useToast();
   const [base, setBase] = useState('');
-  const [u, setU] = useState({ source: '', medium: '', campaign: '', term: '', content: '' });
-  
-  const [presets, setPresets] = useState<{name: string, data: typeof u}[]>([]);
+  const [u, setU] = useState<UtmParams>({ source: '', medium: '', campaign: '', term: '', content: '' });
+
+  const [presets, setPresets] = useState<{ name: string; data: UtmParams }[]>([]);
+  const [presetName, setPresetName] = useState('');
   const [shortUrl, setShortUrl] = useState('');
   const [isShortening, setIsShortening] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -20,12 +35,16 @@ export default function UtmBuilderPage() {
     setIsMounted(true);
     const saved = localStorage.getItem('utm-presets');
     if (saved) {
-      try { setPresets(JSON.parse(saved)); } catch (e) {}
+      try {
+        setPresets(JSON.parse(saved));
+      } catch {
+        /* ignore malformed cache */
+      }
     }
   }, []);
 
-  const set = (k: string, v: string) => setU((s) => ({ ...s, [k]: v }));
-  
+  const set = (k: keyof UtmParams, v: string) => setU((s) => ({ ...s, [k]: v }));
+
   let out = '';
   let baseUrlError = '';
 
@@ -56,18 +75,27 @@ export default function UtmBuilderPage() {
   }, [out]);
 
   const savePreset = () => {
-    const name = prompt('Enter a name for this preset (e.g., Email Newsletter):');
-    if (name) {
-      const newPresets = [...presets, { name, data: u }];
-      setPresets(newPresets);
-      localStorage.setItem('utm-presets', JSON.stringify(newPresets));
+    const name = presetName.trim();
+    if (!name) {
+      toast.error('Enter a name for this preset first.');
+      return;
     }
+    const newPresets = [...presets, { name, data: u }];
+    setPresets(newPresets);
+    localStorage.setItem('utm-presets', JSON.stringify(newPresets));
+    setPresetName('');
+    toast.success(`Preset "${name}" saved.`);
   };
 
   const deletePreset = (index: number) => {
     const newPresets = presets.filter((_, i) => i !== index);
     setPresets(newPresets);
     localStorage.setItem('utm-presets', JSON.stringify(newPresets));
+  };
+
+  const copy = (value: string, label: string) => {
+    navigator.clipboard.writeText(value);
+    toast.success(`${label} copied to clipboard.`);
   };
 
   const handleShorten = async () => {
@@ -81,8 +109,8 @@ export default function UtmBuilderPage() {
       } else {
         throw new Error('Failed to shorten');
       }
-    } catch (e) {
-      // Fallback
+    } catch {
+      // Fallback when the shortener is unreachable.
       setShortUrl(`https://short.link/${Math.random().toString(36).substring(2, 8)}`);
     } finally {
       setIsShortening(false);
@@ -91,74 +119,142 @@ export default function UtmBuilderPage() {
 
   return (
     <ToolShell title="UTM Link Builder" description="Generate a UTM-tagged URL for campaign tracking.">
-      <div className="space-y-1">
-        <Label>Base URL</Label>
-        <Input 
-          value={base} 
-          onChange={(e) => setBase(e.target.value)} 
-          placeholder="https://example.com/landing" 
-          className={baseUrlError ? 'border-[var(--st-border)]' : ''}
+      <Field
+        label="Base URL"
+        error={baseUrlError || undefined}
+        help={baseUrlError ? undefined : 'The landing page you want to track.'}
+      >
+        <Input
+          value={base}
+          onChange={(e) => setBase(e.target.value)}
+          placeholder="https://example.com/landing"
         />
-        {baseUrlError && <p className="text-sm text-[var(--st-text)]">{baseUrlError}</p>}
-      </div>
+      </Field>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1"><Label>utm_source</Label><Input value={u.source} onChange={(e) => set('source', e.target.value)} placeholder="google" /></div>
-        <div className="space-y-1"><Label>utm_medium</Label><Input value={u.medium} onChange={(e) => set('medium', e.target.value)} placeholder="cpc" /></div>
-        <div className="space-y-1 md:col-span-2"><Label>utm_campaign</Label><Input value={u.campaign} onChange={(e) => set('campaign', e.target.value)} placeholder="spring_sale" /></div>
-        <div className="space-y-1"><Label>utm_term</Label><Input value={u.term} onChange={(e) => set('term', e.target.value)} /></div>
-        <div className="space-y-1"><Label>utm_content</Label><Input value={u.content} onChange={(e) => set('content', e.target.value)} /></div>
-      </div>
-
-      <div className="flex flex-col gap-2 mt-2">
-        <div className="flex justify-between items-center">
-          <Label className="text-[var(--st-text-secondary)]">Saved Presets</Label>
-          <Button variant="outline" size="sm" onClick={savePreset}>Save Current as Preset</Button>
+        <Field label="utm_source">
+          <Input value={u.source} onChange={(e) => set('source', e.target.value)} placeholder="google" />
+        </Field>
+        <Field label="utm_medium">
+          <Input value={u.medium} onChange={(e) => set('medium', e.target.value)} placeholder="cpc" />
+        </Field>
+        <div className="md:col-span-2">
+          <Field label="utm_campaign">
+            <Input
+              value={u.campaign}
+              onChange={(e) => set('campaign', e.target.value)}
+              placeholder="spring_sale"
+            />
+          </Field>
         </div>
-        {isMounted && (
-          presets.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {presets.map((p, i) => (
-                <div key={i} className="flex items-center bg-[var(--st-bg-muted)] border rounded-md text-sm">
-                  <button onClick={() => setU(p.data)} className="px-3 py-1.5 hover:bg-[var(--st-bg-secondary)]/50 rounded-l-md transition-colors">
-                    {p.name}
-                  </button>
-                  <div className="w-px h-4 bg-border"></div>
-                  <button onClick={() => deletePreset(i)} className="px-2 py-1.5 hover:text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]/50 rounded-r-md transition-colors" title="Delete preset">
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-[var(--st-text-secondary)] italic">No presets saved. Configure your parameters and save them for quick access.</p>
-          )
-        )}
+        <Field label="utm_term">
+          <Input value={u.term} onChange={(e) => set('term', e.target.value)} placeholder="running shoes" />
+        </Field>
+        <Field label="utm_content">
+          <Input value={u.content} onChange={(e) => set('content', e.target.value)} placeholder="hero_cta" />
+        </Field>
       </div>
 
-      {out && (
-        <div className="space-y-3 mt-4">
-          <div className="space-y-2">
-            <Label>Generated URL</Label>
-            <div className="font-mono text-xs bg-[var(--st-bg-muted)] p-3 rounded break-all border">{out}</div>
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={() => navigator.clipboard.writeText(out)}>Copy URL</Button>
-              <Button variant="secondary" onClick={handleShorten} disabled={isShortening}>
-                {isShortening ? 'Shortening...' : 'Shorten URL'}
+      <Card variant="outlined" padding="md" className="mt-2">
+        <CardHeader>
+          <CardTitle>Saved presets</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
+              <div className="flex-1">
+                <Field label="Preset name">
+                  <Input
+                    value={presetName}
+                    onChange={(e) => setPresetName(e.target.value)}
+                    placeholder="Email Newsletter"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        savePreset();
+                      }
+                    }}
+                  />
+                </Field>
+              </div>
+              <Button variant="outline" iconLeft={Save} onClick={savePreset}>
+                Save current
               </Button>
             </div>
+
+            {isMounted &&
+              (presets.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {presets.map((p, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] pl-1"
+                    >
+                      <Button variant="ghost" size="sm" iconLeft={Plus} onClick={() => setU(p.data)}>
+                        {p.name}
+                      </Button>
+                      <IconButton
+                        label={`Delete preset ${p.name}`}
+                        icon={X}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deletePreset(i)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={Save}
+                  size="sm"
+                  title="No presets saved"
+                  description="Configure your parameters and save them for quick access."
+                />
+              ))}
           </div>
-          
-          {shortUrl && (
-            <div className="space-y-2 mt-4 p-3 border rounded-md bg-[var(--st-bg-muted)]/50">
-              <Label>Shortened URL</Label>
-              <div className="flex items-center gap-2">
-                <Input value={shortUrl} readOnly className="font-mono bg-[var(--st-bg-secondary)]" />
-                <Button variant="outline" onClick={() => navigator.clipboard.writeText(shortUrl)}>Copy</Button>
+        </CardBody>
+      </Card>
+
+      {out && (
+        <Card variant="outlined" padding="md" className="mt-4">
+          <CardHeader>
+            <CardTitle>Generated URL</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="flex flex-col gap-3">
+              <div className="font-mono text-xs break-all rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]">
+                {out}
               </div>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="primary" iconLeft={Copy} onClick={() => copy(out, 'URL')}>
+                  Copy URL
+                </Button>
+                <Button
+                  variant="secondary"
+                  iconLeft={Link2}
+                  onClick={handleShorten}
+                  loading={isShortening}
+                >
+                  {isShortening ? 'Shortening' : 'Shorten URL'}
+                </Button>
+              </div>
+
+              {shortUrl && (
+                <div className="mt-2 flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                  <Label>Shortened URL</Label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <Input value={shortUrl} readOnly className="font-mono" />
+                    </div>
+                    <Button variant="outline" iconLeft={Copy} onClick={() => copy(shortUrl, 'Short URL')}>
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </CardBody>
+        </Card>
       )}
     </ToolShell>
   );

@@ -1,10 +1,20 @@
 'use client';
 
-import { Button, Input, Textarea, cn } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Plus, Trash2, ArrowRight } from 'lucide-react';
 
-void _zoruCn;
+import {
+  Button,
+  IconButton,
+  Input,
+  Textarea,
+  Field,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -22,13 +32,13 @@ interface Rule {
 }
 
 export default function NginxRedirectPage() {
-  const [rows, setRows] = useState<Rule[]>([{ 
-    id: '1', 
-    from: '/old', 
-    to: '/new', 
+  const [rows, setRows] = useState<Rule[]>([{
+    id: '1',
+    from: '/old',
+    to: '/new',
     matchType: 'exact',
     method: 'return',
-    status: '301'
+    status: '301',
   }]);
 
   const updateRow = <K extends keyof Rule>(id: string, key: K, value: Rule[K]) => {
@@ -55,18 +65,18 @@ export default function NginxRedirectPage() {
 
   const out = useMemo(() => {
     const lines = ['server {', '    listen 80;', '    server_name example.com;', ''];
-    
+
     for (const r of rows) {
       if (!r.from || !r.to) continue;
-      
+
       const statusCode = r.status;
       const rwStatus = statusCode === '301' ? 'permanent' : 'redirect';
-      
+
       if (r.method === 'return') {
         let mod = '';
         if (r.matchType === 'exact') mod = '= ';
         else if (r.matchType === 'regex') mod = '~ ';
-        
+
         lines.push(`    location ${mod}${r.from} {`);
         lines.push(`        return ${statusCode} ${r.to};`);
         lines.push(`    }`);
@@ -83,7 +93,7 @@ export default function NginxRedirectPage() {
         lines.push('');
       }
     }
-    
+
     if (lines[lines.length - 1] === '') lines.pop(); // Remove trailing empty line
     lines.push('}');
     return lines.join('\n');
@@ -94,76 +104,104 @@ export default function NginxRedirectPage() {
       <div className="space-y-4">
         <div className="space-y-3">
           {rows.map((r) => (
-            <div key={r.id} className="flex flex-col xl:flex-row gap-2 items-start xl:items-center bg-[var(--st-bg-muted)]/30 p-3 xl:p-0 xl:bg-transparent rounded-lg">
-              <select 
-                className="border rounded-md h-9 px-2 bg-[var(--st-bg-secondary)] text-sm min-w-[110px] w-full xl:w-auto" 
-                value={r.matchType} 
-                onChange={(e) => updateRow(r.id, 'matchType', e.target.value as MatchType)}
-              >
-                <option value="exact">Exact (=)</option>
-                <option value="prefix">Prefix</option>
-                <option value="regex">Regex (~)</option>
-              </select>
+            <div
+              key={r.id}
+              className="flex flex-col xl:flex-row gap-2 items-start xl:items-end bg-[var(--st-bg-muted)] p-3 xl:p-0 xl:bg-transparent rounded-[var(--st-radius)]"
+            >
+              <Field label="Match" className="w-full xl:w-auto">
+                <Select
+                  value={r.matchType}
+                  onValueChange={(value) => updateRow(r.id, 'matchType', value as MatchType)}
+                >
+                  <SelectTrigger aria-label="Match type" className="min-w-[110px] w-full xl:w-auto">
+                    <SelectValue placeholder="Match" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="exact">Exact (=)</SelectItem>
+                    <SelectItem value="prefix">Prefix</SelectItem>
+                    <SelectItem value="regex">Regex (~)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
 
-              <div className="flex-1 flex flex-col md:flex-row gap-2 items-center w-full">
-                <Input 
-                  value={r.from} 
-                  onChange={(e) => updateRow(r.id, 'from', e.target.value)} 
-                  placeholder="/old-path" 
-                  className="w-full"
+              <div className="flex-1 flex flex-col md:flex-row gap-2 items-end w-full">
+                <Field label="From" className="w-full">
+                  <Input
+                    value={r.from}
+                    onChange={(e) => updateRow(r.id, 'from', e.target.value)}
+                    placeholder="/old-path"
+                    className="w-full"
+                  />
+                </Field>
+                <ArrowRight
+                  className="w-4 h-4 text-[var(--st-text-secondary)] shrink-0 hidden md:block mb-2.5"
+                  aria-hidden="true"
                 />
-                <ArrowRight className="w-4 h-4 text-[var(--st-text-secondary)] shrink-0 hidden md:block" />
-                <Input 
-                  value={r.to} 
-                  onChange={(e) => updateRow(r.id, 'to', e.target.value)} 
-                  placeholder="/new-path" 
-                  className="w-full"
-                />
+                <Field label="To" className="w-full">
+                  <Input
+                    value={r.to}
+                    onChange={(e) => updateRow(r.id, 'to', e.target.value)}
+                    placeholder="/new-path"
+                    className="w-full"
+                  />
+                </Field>
               </div>
 
-              <div className="flex gap-2 items-center w-full xl:w-auto justify-end">
-                <select 
-                  className="border rounded-md h-9 px-2 bg-[var(--st-bg-secondary)] text-sm" 
-                  value={r.method} 
-                  onChange={(e) => updateRow(r.id, 'method', e.target.value as MethodType)}
-                >
-                  <option value="return">Return</option>
-                  <option value="rewrite">Rewrite</option>
-                </select>
+              <div className="flex gap-2 items-end w-full xl:w-auto justify-end">
+                <Field label="Method">
+                  <Select
+                    value={r.method}
+                    onValueChange={(value) => updateRow(r.id, 'method', value as MethodType)}
+                  >
+                    <SelectTrigger aria-label="Method">
+                      <SelectValue placeholder="Method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="return">Return</SelectItem>
+                      <SelectItem value="rewrite">Rewrite</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
 
-                <select 
-                  className="border rounded-md h-9 px-2 bg-[var(--st-bg-secondary)] text-sm" 
-                  value={r.status} 
-                  onChange={(e) => updateRow(r.id, 'status', e.target.value as StatusType)}
-                >
-                  <option value="301">301</option>
-                  <option value="302">302</option>
-                </select>
+                <Field label="Status">
+                  <Select
+                    value={r.status}
+                    onValueChange={(value) => updateRow(r.id, 'status', value as StatusType)}
+                  >
+                    <SelectTrigger aria-label="Status code">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="301">301</SelectItem>
+                      <SelectItem value="302">302</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
 
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="shrink-0 text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10"
+                <IconButton
+                  label="Remove rule"
+                  icon={Trash2}
+                  variant="ghost"
+                  className="shrink-0 mb-0.5"
                   onClick={() => removeRow(r.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                />
               </div>
             </div>
           ))}
         </div>
-        
-        <Button variant="outline" onClick={addRow} className="gap-2">
-          <Plus className="w-4 h-4" /> Add Rule
+
+        <Button variant="outline" iconLeft={Plus} onClick={addRow}>
+          Add Rule
         </Button>
       </div>
 
       <div className="mt-8 space-y-2">
-        <h3 className="text-sm font-medium">Generated Configuration</h3>
-        <Textarea 
-          readOnly 
-          value={out} 
-          className="min-h-[260px] font-mono text-sm bg-[var(--st-bg-muted)]/50 p-4" 
+        <h3 className="text-sm font-medium text-[var(--st-text)]">Generated Configuration</h3>
+        <Textarea
+          readOnly
+          value={out}
+          rows={12}
+          className="min-h-[260px] font-mono text-sm"
         />
       </div>
     </ToolShell>

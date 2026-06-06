@@ -24,6 +24,7 @@ import {
     THead,
     Tr,
 } from '@/components/sabcrm/20ui';
+import { SabFileToFileButton } from '@/components/sabfiles';
 import {
     Table2,
     Upload,
@@ -109,7 +110,6 @@ export default function BulkEditorPage() {
     const [loading, setLoading] = React.useState(true);
     const [saving, setSaving] = React.useState(false);
     const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
-    const csvRef = React.useRef<HTMLInputElement>(null);
 
     const [entityType, setEntityType] = React.useState<'campaigns' | 'adsets' | 'ads'>('campaigns');
 
@@ -319,6 +319,36 @@ export default function BulkEditorPage() {
         URL.revokeObjectURL(url);
     };
 
+    const importCsvFile = (file: File) => {
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+                const imported: EditableRow[] = [];
+                for (const row of results.data as any[]) {
+                    if (row.id) {
+                        imported.push({
+                            id: row.id,
+                            name: row.name || '',
+                            status: row.status || 'PAUSED',
+                            daily_budget: Number(row.daily_budget) || 0,
+                            dirty: true,
+                        });
+                    }
+                }
+                if (imported.length > 0) {
+                    pushHistory(imported);
+                    toast({ title: `Imported ${imported.length} items from CSV` });
+                } else {
+                    toast({ title: 'No valid items found in CSV' });
+                }
+            },
+            error: (error: Error) => {
+                toast({ title: 'Error parsing CSV', description: error.message, variant: 'destructive' });
+            },
+        });
+    };
+
     if (!activeAccount) {
         return (
             <div className="space-y-6">
@@ -331,6 +361,7 @@ export default function BulkEditorPage() {
     }
 
     const dirtyCount = rows.filter((r) => r.dirty).length;
+    const columnCount = entityType !== 'ads' ? 5 : 4;
     const virtualItems = rowVirtualizer.getVirtualItems();
     const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0;
     const paddingBottom = virtualItems.length > 0 ? rowVirtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end : 0;
@@ -362,47 +393,15 @@ export default function BulkEditorPage() {
                         <Button variant="outline" iconLeft={Download} onClick={exportCsv}>
                             Export
                         </Button>
-                        <input
-                            ref={csvRef}
-                            type="file"
-                            accept=".csv"
-                            className="hidden"
-                            onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                Papa.parse(file, {
-                                    header: true,
-                                    skipEmptyLines: true,
-                                    complete: (results) => {
-                                        const imported: EditableRow[] = [];
-                                        for (const row of results.data as any[]) {
-                                            if (row.id) {
-                                                imported.push({
-                                                    id: row.id,
-                                                    name: row.name || '',
-                                                    status: row.status || 'PAUSED',
-                                                    daily_budget: Number(row.daily_budget) || 0,
-                                                    dirty: true,
-                                                });
-                                            }
-                                        }
-                                        if (imported.length > 0) {
-                                            pushHistory(imported);
-                                            toast({ title: `Imported ${imported.length} items from CSV` });
-                                        } else {
-                                            toast({ title: 'No valid items found in CSV' });
-                                        }
-                                    },
-                                    error: (error: Error) => {
-                                        toast({ title: 'Error parsing CSV', description: error.message, variant: 'destructive' });
-                                    }
-                                });
-                                e.target.value = '';
-                            }}
-                        />
-                        <Button variant="outline" iconLeft={Upload} onClick={() => csvRef.current?.click()}>
-                            Import
-                        </Button>
+                        <SabFileToFileButton
+                            accept="document"
+                            variant="outline"
+                            onPickFile={importCsvFile}
+                            onError={(error) => toast({ title: 'Error reading file', description: error.message, variant: 'destructive' })}
+                        >
+                            <Upload size={14} aria-hidden="true" />
+                            <span>Import</span>
+                        </SabFileToFileButton>
                         <Button
                             variant="outline"
                             iconLeft={RotateCcw}
@@ -431,7 +430,7 @@ export default function BulkEditorPage() {
             />
 
             <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)] flex-wrap">
-                <Table2 className="h-4 w-4" />
+                <Table2 className="h-4 w-4" aria-hidden="true" />
                 <span>Edit {entityType} inline. Use bulk tools below for selected items.</span>
 
                 <div className="ml-auto flex items-center gap-2">
@@ -461,10 +460,10 @@ export default function BulkEditorPage() {
             >
                 <div className="space-y-4">
                     <Field label="Find">
-                        <Input value={findText} onChange={e => setFindText(e.target.value)} placeholder="Text to search for..." />
+                        <Input value={findText} onChange={e => setFindText(e.target.value)} placeholder="Text to search for" />
                     </Field>
                     <Field label="Replace with">
-                        <Input value={replaceText} onChange={e => setReplaceText(e.target.value)} placeholder="Replacement text..." />
+                        <Input value={replaceText} onChange={e => setReplaceText(e.target.value)} placeholder="Replacement text" />
                     </Field>
                 </div>
             </Modal>
@@ -520,7 +519,11 @@ export default function BulkEditorPage() {
                                     </Tr>
                                 </THead>
                                 <TBody>
-                                    {paddingTop > 0 && <tr><td style={{ height: paddingTop }} /></tr>}
+                                    {paddingTop > 0 && (
+                                        <Tr aria-hidden="true">
+                                            <Td colSpan={columnCount} style={{ height: paddingTop }} />
+                                        </Tr>
+                                    )}
                                     {virtualItems.map((virtualRow) => {
                                         const r = rows[virtualRow.index];
                                         return (
@@ -554,7 +557,11 @@ export default function BulkEditorPage() {
                                             </Tr>
                                         );
                                     })}
-                                    {paddingBottom > 0 && <tr><td style={{ height: paddingBottom }} /></tr>}
+                                    {paddingBottom > 0 && (
+                                        <Tr aria-hidden="true">
+                                            <Td colSpan={columnCount} style={{ height: paddingBottom }} />
+                                        </Tr>
+                                    )}
                                 </TBody>
                             </Table>
                         </div>

@@ -23,14 +23,13 @@ import {
   PageHeaderHeading,
   PageTitle,
   PageDescription,
-  PageActions,
   useToast,
 } from '@/components/sabcrm/20ui';
+import { SabFileToFileButton } from '@/components/sabfiles';
 import {
   UserPlus,
   Upload,
-  AlertCircle,
-  FileText } from 'lucide-react';
+  AlertCircle } from 'lucide-react';
 
 import * as React from 'react';
 import Papa from 'papaparse';
@@ -89,7 +88,6 @@ export default function CustomerListsPage() {
     const [isDragging, setIsDragging] = React.useState(false);
 
     // Refs for lifecycle
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
     const abortControllerRef = React.useRef<AbortController | null>(null);
     const workerRef = React.useRef<Worker | null>(null);
 
@@ -334,28 +332,14 @@ export default function CustomerListsPage() {
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between gap-2">
                         Upload data
-                        <Button
+                        <SabFileToFileButton
+                            accept="document"
                             variant="outline"
-                            size="sm"
-                            iconLeft={FileText}
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={uploading}
+                            onPickFile={(file) => handleFileUpload(file)}
+                            onError={(err) => toast({ title: 'CSV error', description: err.message, tone: 'danger' })}
                         >
                             Load from CSV
-                        </Button>
-                        <input
-                            type="file"
-                            accept=".csv"
-                            className="hidden"
-                            ref={fileInputRef}
-                            aria-hidden="true"
-                            tabIndex={-1}
-                            onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleFileUpload(file);
-                                e.target.value = '';
-                            }}
-                        />
+                        </SabFileToFileButton>
                     </CardTitle>
                 </CardHeader>
                 <CardBody className="space-y-4">

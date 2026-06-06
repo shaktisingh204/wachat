@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import {
   Megaphone,
-  Calendar,
   BarChart,
   Bell,
   Users,
@@ -13,26 +12,55 @@ import {
   MoreVertical,
   Play,
   Pause,
-  Eye,
   Trash2,
   Edit2,
   Layout,
   Type,
   Image as ImageIcon,
-  Link as LinkIcon,
-  MousePointerClick,
-  XCircle,
   Clock,
   Target,
   Smartphone,
-  Globe,
-  Settings,
-  ArrowRight,
+  XCircle,
   Maximize2,
   Monitor,
   LayoutTemplate,
-  ChevronDown
+  Lock,
 } from "lucide-react";
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Card,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Field,
+  Input,
+  Textarea,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Switch,
+  SegmentedControl,
+  Badge,
+  StatCard,
+  EmptyState,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  useToast,
+  type BadgeTone,
+} from "@/components/sabcrm/20ui";
 
 // Mock Data
 const announcements = [
@@ -43,456 +71,514 @@ const announcements = [
   { id: 5, title: "Webinar: Best Practices", type: "Email + Push", status: "Ended", audience: "Admins", views: "15k", clicks: "3.1k", ctr: "20.6%" },
 ];
 
+const analyticsStats: Array<{
+  label: string;
+  value: string;
+  change: string;
+  trend: "up" | "down";
+}> = [
+  { label: "Total Impressions", value: "2.4M", change: "+15.2% vs last month", trend: "up" },
+  { label: "Average CTR", value: "8.4%", change: "+2.1% vs last month", trend: "up" },
+  { label: "Dismissal Rate", value: "42.1%", change: "-5.4% vs last month", trend: "down" },
+  { label: "Conversion Rate", value: "3.2%", change: "+0.8% vs last month", trend: "up" },
+];
+
+const STATUS_TONE: Record<string, BadgeTone> = {
+  Active: "success",
+  Scheduled: "info",
+  Draft: "neutral",
+  Ended: "danger",
+};
+
+const STATUS_ICON: Record<string, typeof Play> = {
+  Active: Play,
+  Scheduled: Clock,
+  Draft: Edit2,
+  Ended: Pause,
+};
+
+const FORMAT_OPTIONS = [
+  { value: "banner", label: "Top Banner", icon: Layout },
+  { value: "modal", label: "Modal Popup", icon: Maximize2 },
+  { value: "push", label: "Push Notif", icon: Bell },
+  { value: "inapp", label: "In-App Msg", icon: Smartphone },
+];
+
+const BG_SWATCHES = [
+  { value: "bg-indigo-600", color: "#4f46e5" },
+  { value: "bg-slate-900", color: "#0f172a" },
+  { value: "bg-rose-600", color: "#e11d48" },
+  { value: "bg-emerald-600", color: "#059669" },
+  { value: "bg-amber-600", color: "#d97706" },
+  { value: "bg-blue-600", color: "#2563eb" },
+  { value: "bg-purple-600", color: "#9333ea" },
+];
+
 export default function AnnouncementsPage() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("campaigns");
-  const [isComposerOpen, setIsComposerOpen] = useState(false);
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
+  const [campaignName, setCampaignName] = useState("New Campaign");
+  const [format, setFormat] = useState("banner");
   const [bannerConfig, setBannerConfig] = useState({
-    text: "We just launched SabDesk v2.0! Check out what's new.",
+    text: "We just launched SabDesk v2.0. Check out what's new.",
     ctaText: "Read Announcement",
+    ctaUrl: "",
     bgColor: "bg-indigo-600",
     textColor: "text-white",
     position: "top",
     hasCloseBtn: true,
   });
 
+  const openComposer = () => setActiveTab("composer");
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-6 font-sans">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-400 flex items-center gap-3">
-            <Megaphone className="w-8 h-8 text-amber-400" />
-            Announcements & Campaigns
-          </h1>
-          <p className="text-slate-400 mt-1">Design, target, and measure announcements across your product.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => { setActiveTab("composer"); setIsComposerOpen(true); }}
-            className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg flex items-center gap-2 transition-colors shadow-lg shadow-amber-500/20 font-medium"
-          >
-            <Plus className="w-5 h-5" />
+    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle className="flex items-center gap-3">
+            <Megaphone className="w-7 h-7 text-[var(--st-accent)]" aria-hidden="true" />
+            Announcements &amp; Campaigns
+          </PageTitle>
+          <PageDescription>
+            Design, target, and measure announcements across your product.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus} onClick={openComposer}>
             New Campaign
-          </button>
-        </div>
-      </div>
+          </Button>
+        </PageActions>
+      </PageHeader>
 
-      {/* Tabs */}
-      <div className="flex overflow-x-auto border-b border-slate-800 mb-6 pb-2 gap-6 scrollbar-hide">
-        <button
-          onClick={() => { setActiveTab("campaigns"); setIsComposerOpen(false); }}
-          className={`pb-2 border-b-2 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "campaigns" ? "border-amber-500 text-amber-400" : "border-transparent text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <Megaphone className="w-4 h-4" /> All Campaigns
-        </button>
-        <button
-          onClick={() => { setActiveTab("analytics"); setIsComposerOpen(false); }}
-          className={`pb-2 border-b-2 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "analytics" ? "border-amber-500 text-amber-400" : "border-transparent text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <BarChart className="w-4 h-4" /> Performance Analytics
-        </button>
-        <button
-          onClick={() => { setActiveTab("audience"); setIsComposerOpen(false); }}
-          className={`pb-2 border-b-2 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "audience" ? "border-amber-500 text-amber-400" : "border-transparent text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <Target className="w-4 h-4" /> Audience Segments
-        </button>
-        {isComposerOpen && (
-          <button
-            className="pb-2 border-b-2 font-medium transition-colors whitespace-nowrap flex items-center gap-2 border-amber-500 text-amber-400 ml-auto"
-          >
-            <LayoutTemplate className="w-4 h-4" /> Campaign Builder
-          </button>
-        )}
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+        <TabsList>
+          <TabsTrigger value="campaigns">
+            <span className="flex items-center gap-2">
+              <Megaphone className="w-4 h-4" aria-hidden="true" /> All Campaigns
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="analytics">
+            <span className="flex items-center gap-2">
+              <BarChart className="w-4 h-4" aria-hidden="true" /> Performance Analytics
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="audience">
+            <span className="flex items-center gap-2">
+              <Target className="w-4 h-4" aria-hidden="true" /> Audience Segments
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="composer">
+            <span className="flex items-center gap-2">
+              <LayoutTemplate className="w-4 h-4" aria-hidden="true" /> Campaign Builder
+            </span>
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Content Area */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-[700px]">
-        
         {/* Campaigns List */}
-        {activeTab === "campaigns" && (
-          <div className="flex flex-col h-full">
-            <div className="p-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between gap-4 bg-slate-900/50">
+        <TabsContent value="campaigns" className="mt-6">
+          <Card padding="none" className="overflow-hidden">
+            <div className="p-4 border-b border-[var(--st-border)] flex flex-col sm:flex-row justify-between gap-4">
               <div className="flex gap-2">
-                <div className="relative max-w-sm w-full">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                  <input
-                    type="text"
-                    placeholder="Search campaigns..."
-                    className="w-full bg-slate-950 border border-slate-800 text-slate-200 pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:border-amber-500"
-                  />
+                <div className="max-w-sm w-full">
+                  <Field label="Search campaigns" className="[&_.u-field\\_\\_label]:sr-only">
+                    <Input
+                      type="text"
+                      placeholder="Search campaigns..."
+                      iconLeft={Search}
+                    />
+                  </Field>
                 </div>
-                <button className="px-4 py-2 border border-slate-800 text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2">
-                  <Filter className="w-4 h-4" /> Filters
-                </button>
+                <Button variant="outline" iconLeft={Filter}>
+                  Filters
+                </Button>
               </div>
               <div className="flex gap-2">
-                <select className="bg-slate-950 border border-slate-800 text-slate-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500">
-                  <option>All Types</option>
-                  <option>Banner</option>
-                  <option>Modal</option>
-                  <option>Push Notification</option>
-                </select>
-                <select className="bg-slate-950 border border-slate-800 text-slate-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500">
-                  <option>All Statuses</option>
-                  <option>Active</option>
-                  <option>Scheduled</option>
-                  <option>Draft</option>
-                  <option>Ended</option>
-                </select>
+                <Select defaultValue="all-types">
+                  <SelectTrigger aria-label="Filter by type">
+                    <SelectValue placeholder="All Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all-types">All Types</SelectItem>
+                    <SelectItem value="banner">Banner</SelectItem>
+                    <SelectItem value="modal">Modal</SelectItem>
+                    <SelectItem value="push">Push Notification</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select defaultValue="all-statuses">
+                  <SelectTrigger aria-label="Filter by status">
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all-statuses">All Statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="scheduled">Scheduled</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="ended">Ended</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-950/50 sticky top-0 z-10">
-                  <tr>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">Campaign Name</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">Status</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">Target Audience</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">Performance</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800 bg-slate-900">
-                  {announcements.map((ann) => (
-                    <tr key={ann.id} className="hover:bg-slate-800/50 transition-colors group">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${
-                            ann.type === 'Banner' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' :
-                            ann.type === 'Modal' ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' :
-                            'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                          }`}>
-                            {ann.type === 'Banner' ? <Layout className="w-5 h-5" /> : 
-                             ann.type === 'Modal' ? <Maximize2 className="w-5 h-5" /> : 
-                             <Bell className="w-5 h-5" />}
+            <div className="overflow-auto">
+              <Table stickyHeader hover>
+                <THead>
+                  <Tr>
+                    <Th>Campaign Name</Th>
+                    <Th>Status</Th>
+                    <Th>Target Audience</Th>
+                    <Th>Performance</Th>
+                    <Th align="right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {announcements.map((ann) => {
+                    const StatusIcon = STATUS_ICON[ann.status];
+                    const FormatIcon =
+                      ann.type === "Banner" ? Layout : ann.type === "Modal" ? Maximize2 : Bell;
+                    return (
+                      <Tr key={ann.id} className="group">
+                        <Td>
+                          <div className="flex items-center gap-3">
+                            <span className="w-10 h-10 rounded-[var(--st-radius)] flex items-center justify-center border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-accent)]">
+                              <FormatIcon className="w-5 h-5" aria-hidden="true" />
+                            </span>
+                            <div>
+                              <div className="font-medium text-[var(--st-text)]">{ann.title}</div>
+                              <div className="text-xs text-[var(--st-text-secondary)]">{ann.type}</div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="font-medium text-slate-200">{ann.title}</div>
-                            <div className="text-xs text-slate-500">{ann.type}</div>
+                        </Td>
+                        <Td>
+                          <Badge tone={STATUS_TONE[ann.status]} dot>
+                            <span className="inline-flex items-center gap-1">
+                              {StatusIcon ? <StatusIcon className="w-3 h-3" aria-hidden="true" /> : null}
+                              {ann.status}
+                            </span>
+                          </Badge>
+                        </Td>
+                        <Td>
+                          <span className="flex items-center gap-2 text-sm text-[var(--st-text)]">
+                            <Users className="w-4 h-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+                            {ann.audience}
+                          </span>
+                        </Td>
+                        <Td>
+                          <div className="flex gap-4">
+                            <div>
+                              <div className="text-xs text-[var(--st-text-secondary)]">Views</div>
+                              <div className="text-sm font-medium text-[var(--st-text)]">{ann.views}</div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-[var(--st-text-secondary)]">Clicks</div>
+                              <div className="text-sm font-medium text-[var(--st-text)]">{ann.clicks}</div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-[var(--st-text-secondary)]">CTR</div>
+                              <div className="text-sm font-medium text-[var(--st-accent)]">{ann.ctr}</div>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
-                          ann.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                          ann.status === 'Scheduled' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
-                          ann.status === 'Draft' ? 'bg-slate-700/30 text-slate-400 border-slate-700' :
-                          'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                        }`}>
-                          {ann.status === 'Active' && <Play className="w-3 h-3 mr-1" />}
-                          {ann.status === 'Scheduled' && <Clock className="w-3 h-3 mr-1" />}
-                          {ann.status === 'Draft' && <Edit2 className="w-3 h-3 mr-1" />}
-                          {ann.status === 'Ended' && <Pause className="w-3 h-3 mr-1" />}
-                          {ann.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 text-sm text-slate-300">
-                          <Users className="w-4 h-4 text-slate-500" /> {ann.audience}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-4">
-                          <div>
-                            <div className="text-xs text-slate-500">Views</div>
-                            <div className="text-sm font-medium text-slate-200">{ann.views}</div>
+                        </Td>
+                        <Td align="right">
+                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <IconButton
+                              label="Edit campaign"
+                              icon={Edit2}
+                              size="sm"
+                              onClick={() => toast.info(`Editing "${ann.title}"`)}
+                            />
+                            <IconButton
+                              label="Delete campaign"
+                              icon={Trash2}
+                              size="sm"
+                              variant="danger"
+                              onClick={() => toast.error(`Deleted "${ann.title}"`)}
+                            />
+                            <IconButton label="More actions" icon={MoreVertical} size="sm" />
                           </div>
-                          <div>
-                            <div className="text-xs text-slate-500">Clicks</div>
-                            <div className="text-sm font-medium text-slate-200">{ann.clicks}</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-slate-500">CTR</div>
-                            <div className="text-sm font-medium text-amber-400">{ann.ctr}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 rounded-md transition-colors" title="Edit">
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-colors" title="Delete">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                          <button className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-md transition-colors">
-                            <MoreVertical className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        </Td>
+                      </Tr>
+                    );
+                  })}
+                </TBody>
+              </Table>
             </div>
-          </div>
-        )}
+          </Card>
+        </TabsContent>
 
         {/* Analytics Tab */}
-        {activeTab === "analytics" && (
-          <div className="p-8">
-            <h2 className="text-xl font-bold text-slate-200 mb-6">Global Engagement Analytics</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              {[
-                { label: "Total Impressions", value: "2.4M", change: "+15.2%", trend: "up" },
-                { label: "Average CTR", value: "8.4%", change: "+2.1%", trend: "up" },
-                { label: "Dismissal Rate", value: "42.1%", change: "-5.4%", trend: "down" },
-                { label: "Conversion Rate", value: "3.2%", change: "+0.8%", trend: "up" },
-              ].map((stat, i) => (
-                <div key={i} className="bg-slate-950 border border-slate-800 rounded-xl p-5">
-                  <div className="text-sm text-slate-400 mb-1">{stat.label}</div>
-                  <div className="text-3xl font-bold text-slate-100">{stat.value}</div>
-                  <div className={`text-xs mt-2 font-medium ${stat.trend === 'up' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {stat.change} vs last month
-                  </div>
-                </div>
-              ))}
-            </div>
+        <TabsContent value="analytics" className="mt-6">
+          <h2 className="text-xl font-bold text-[var(--st-text)] mb-6">Global Engagement Analytics</h2>
 
-            <div className="h-64 border border-dashed border-slate-700 rounded-xl flex items-center justify-center flex-col text-slate-500 bg-slate-950/50">
-              <BarChart className="w-12 h-12 mb-4 opacity-50" />
-              <p>Chart Component Placeholder (Impressions vs Clicks over time)</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {analyticsStats.map((stat) => (
+              <StatCard
+                key={stat.label}
+                label={stat.label}
+                value={stat.value}
+                delta={{ value: stat.change, tone: stat.trend }}
+              />
+            ))}
           </div>
-        )}
+
+          <Card variant="outlined" padding="lg">
+            <EmptyState
+              icon={BarChart}
+              title="Impressions vs Clicks over time"
+              description="The engagement chart will render here once campaign data is collected."
+            />
+          </Card>
+        </TabsContent>
+
+        {/* Audience Segments Tab */}
+        <TabsContent value="audience" className="mt-6">
+          <Card variant="outlined" padding="lg">
+            <EmptyState
+              icon={Target}
+              title="No audience segments yet"
+              description="Create reusable segments to target announcements at the right users."
+              action={
+                <Button variant="primary" iconLeft={Plus} onClick={() => toast.info("New segment")}>
+                  New Segment
+                </Button>
+              }
+            />
+          </Card>
+        </TabsContent>
 
         {/* Campaign Builder (Composer Tab) */}
-        {activeTab === "composer" && (
-          <div className="flex h-full flex-col xl:flex-row">
-            {/* Editor Sidebar */}
-            <div className="w-full xl:w-[400px] border-r border-slate-800 bg-slate-900 overflow-auto flex-shrink-0 flex flex-col">
-              <div className="p-4 border-b border-slate-800">
-                <input 
-                  type="text" 
-                  defaultValue="New Campaign" 
-                  className="w-full bg-transparent text-xl font-bold text-slate-200 border-none focus:outline-none focus:ring-0 placeholder:text-slate-600"
-                />
-              </div>
-
-              <div className="flex-1 overflow-auto p-4 space-y-6">
-                
-                {/* Type Selection */}
-                <div className="space-y-3">
-                  <label className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Format</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-amber-500 bg-amber-500/10 text-amber-400">
-                      <Layout className="w-6 h-6" />
-                      <span className="text-sm font-medium">Top Banner</span>
-                    </button>
-                    <button className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-slate-800 hover:border-slate-700 bg-slate-950 text-slate-400 hover:text-slate-200 transition-colors">
-                      <Maximize2 className="w-6 h-6" />
-                      <span className="text-sm font-medium">Modal Popup</span>
-                    </button>
-                    <button className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-slate-800 hover:border-slate-700 bg-slate-950 text-slate-400 hover:text-slate-200 transition-colors">
-                      <Bell className="w-6 h-6" />
-                      <span className="text-sm font-medium">Push Notif</span>
-                    </button>
-                    <button className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-slate-800 hover:border-slate-700 bg-slate-950 text-slate-400 hover:text-slate-200 transition-colors">
-                      <Smartphone className="w-6 h-6" />
-                      <span className="text-sm font-medium">In-App Msg</span>
-                    </button>
-                  </div>
+        <TabsContent value="composer" className="mt-6">
+          <Card padding="none" className="overflow-hidden">
+            <div className="flex flex-col xl:flex-row min-h-[700px]">
+              {/* Editor Sidebar */}
+              <div className="w-full xl:w-[400px] border-b xl:border-b-0 xl:border-r border-[var(--st-border)] flex-shrink-0 flex flex-col">
+                <div className="p-4 border-b border-[var(--st-border)]">
+                  <Field label="Campaign name" className="[&_.u-field\\_\\_label]:sr-only">
+                    <Input
+                      type="text"
+                      value={campaignName}
+                      onChange={(e) => setCampaignName(e.target.value)}
+                      placeholder="Campaign name"
+                    />
+                  </Field>
                 </div>
 
-                {/* Content Configuration */}
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <Type className="w-4 h-4" /> Content
-                  </label>
-                  
-                  <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1.5">Announcement Message</label>
-                    <textarea 
-                      rows={3} 
-                      value={bannerConfig.text}
-                      onChange={(e) => setBannerConfig({...bannerConfig, text: e.target.value})}
-                      className="w-full bg-slate-950 border border-slate-800 text-slate-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500 resize-none"
-                    ></textarea>
+                <div className="flex-1 overflow-auto p-4 space-y-6">
+                  {/* Type Selection */}
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold text-[var(--st-text)]">Format</p>
+                    <SegmentedControl
+                      aria-label="Announcement format"
+                      items={FORMAT_OPTIONS}
+                      value={format}
+                      onChange={setFormat}
+                    />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-slate-400 mb-1.5">Call to Action (CTA)</label>
-                      <input 
-                        type="text" 
-                        value={bannerConfig.ctaText}
-                        onChange={(e) => setBannerConfig({...bannerConfig, ctaText: e.target.value})}
-                        className="w-full bg-slate-950 border border-slate-800 text-slate-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500" 
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-slate-400 mb-1.5">CTA Link URL</label>
-                      <input 
-                        type="text" 
-                        placeholder="https://"
-                        className="w-full bg-slate-950 border border-slate-800 text-slate-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500" 
-                      />
-                    </div>
-                  </div>
-                </div>
+                  {/* Content Configuration */}
+                  <div className="space-y-4">
+                    <p className="text-sm font-semibold text-[var(--st-text)] flex items-center gap-2">
+                      <Type className="w-4 h-4" aria-hidden="true" /> Content
+                    </p>
 
-                {/* Appearance */}
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4" /> Appearance
-                  </label>
-                  
-                  <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1.5">Background Color</label>
-                    <div className="flex gap-2">
-                      {['bg-indigo-600', 'bg-slate-900', 'bg-rose-600', 'bg-emerald-600', 'bg-amber-600', 'bg-blue-600', 'bg-purple-600'].map((color) => (
-                        <button 
-                          key={color}
-                          onClick={() => setBannerConfig({...bannerConfig, bgColor: color})}
-                          className={`w-8 h-8 rounded-full border-2 ${color} ${bannerConfig.bgColor === color ? 'ring-2 ring-amber-500 ring-offset-2 ring-offset-slate-900 border-white/20' : 'border-transparent'}`}
+                    <Field label="Announcement Message">
+                      <Textarea
+                        rows={3}
+                        value={bannerConfig.text}
+                        onChange={(e) => setBannerConfig({ ...bannerConfig, text: e.target.value })}
+                      />
+                    </Field>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field label="Call to Action (CTA)">
+                        <Input
+                          type="text"
+                          value={bannerConfig.ctaText}
+                          onChange={(e) => setBannerConfig({ ...bannerConfig, ctaText: e.target.value })}
                         />
-                      ))}
+                      </Field>
+                      <Field label="CTA Link URL">
+                        <Input
+                          type="text"
+                          prefix="https://"
+                          placeholder="app.sabdesk.com/whats-new"
+                          value={bannerConfig.ctaUrl}
+                          onChange={(e) => setBannerConfig({ ...bannerConfig, ctaUrl: e.target.value })}
+                        />
+                      </Field>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 border border-slate-800 rounded-lg bg-slate-950">
-                    <div>
-                      <div className="text-sm font-medium text-slate-200">Allow Dismissal</div>
-                      <div className="text-xs text-slate-500">Show a close button</div>
+                  {/* Appearance */}
+                  <div className="space-y-4">
+                    <p className="text-sm font-semibold text-[var(--st-text)] flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4" aria-hidden="true" /> Appearance
+                    </p>
+
+                    <Field label="Background Color">
+                      <div className="flex gap-2">
+                        {BG_SWATCHES.map((swatch) => {
+                          const selected = bannerConfig.bgColor === swatch.value;
+                          const swatchName = swatch.value.replace("bg-", "").replace("-", " ");
+                          return (
+                            <Button
+                              key={swatch.value}
+                              variant="ghost"
+                              size="sm"
+                              aria-label={`Background ${swatchName}`}
+                              aria-pressed={selected}
+                              title={swatchName}
+                              onClick={() => setBannerConfig({ ...bannerConfig, bgColor: swatch.value })}
+                              className={`h-8 w-8 rounded-full border border-[var(--st-border)] p-0${
+                                selected
+                                  ? " ring-2 ring-[var(--st-accent)] ring-offset-2 ring-offset-[var(--st-bg-secondary)]"
+                                  : ""
+                              }`}
+                              style={{ background: swatch.color }}
+                            />
+                          );
+                        })}
+                      </div>
+                    </Field>
+
+                    <div className="flex items-center justify-between p-3 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
+                      <div>
+                        <div className="text-sm font-medium text-[var(--st-text)]">Allow Dismissal</div>
+                        <div className="text-xs text-[var(--st-text-secondary)]">Show a close button</div>
+                      </div>
+                      <Switch
+                        aria-label="Allow dismissal"
+                        checked={bannerConfig.hasCloseBtn}
+                        onCheckedChange={(checked) => setBannerConfig({ ...bannerConfig, hasCloseBtn: checked })}
+                      />
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" checked={bannerConfig.hasCloseBtn} onChange={(e) => setBannerConfig({...bannerConfig, hasCloseBtn: e.target.checked})} />
-                      <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                    </label>
+                  </div>
+
+                  {/* Targeting */}
+                  <div className="space-y-4">
+                    <p className="text-sm font-semibold text-[var(--st-text)] flex items-center gap-2">
+                      <Target className="w-4 h-4" aria-hidden="true" /> Targeting &amp; Schedule
+                    </p>
+
+                    <Field label="Audience Segment">
+                      <Select defaultValue="all">
+                        <SelectTrigger aria-label="Audience segment">
+                          <SelectValue placeholder="All Users" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Users</SelectItem>
+                          <SelectItem value="premium">Premium Subscribers</SelectItem>
+                          <SelectItem value="new">New Users (Last 30 Days)</SelectItem>
+                          <SelectItem value="custom">Custom Segment...</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field label="Start Date">
+                        <Input type="datetime-local" />
+                      </Field>
+                      <Field label="End Date">
+                        <Input type="datetime-local" />
+                      </Field>
+                    </div>
                   </div>
                 </div>
 
-                {/* Targeting */}
-                <div className="space-y-4">
-                  <label className="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <Target className="w-4 h-4" /> Targeting & Schedule
-                  </label>
-                  
-                  <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1.5">Audience Segment</label>
-                    <select className="w-full bg-slate-950 border border-slate-800 text-slate-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500">
-                      <option>All Users</option>
-                      <option>Premium Subscribers</option>
-                      <option>New Users (Last 30 Days)</option>
-                      <option>Custom Segment...</option>
-                    </select>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-slate-400 mb-1.5">Start Date</label>
-                      <input type="datetime-local" className="w-full bg-slate-950 border border-slate-800 text-slate-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-slate-400 mb-1.5">End Date</label>
-                      <input type="datetime-local" className="w-full bg-slate-950 border border-slate-800 text-slate-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500" />
-                    </div>
-                  </div>
+                {/* Actions */}
+                <div className="p-4 border-t border-[var(--st-border)] flex justify-end gap-3 mt-auto">
+                  <Button variant="outline" onClick={() => toast.success("Draft saved")}>
+                    Save Draft
+                  </Button>
+                  <Button variant="primary" iconLeft={Play} onClick={() => toast.success("Campaign launched")}>
+                    Launch Campaign
+                  </Button>
                 </div>
-
               </div>
 
-              {/* Actions */}
-              <div className="p-4 border-t border-slate-800 bg-slate-900 flex justify-end gap-3 mt-auto">
-                <button className="px-4 py-2 border border-slate-700 text-slate-300 hover:bg-slate-800 rounded-lg text-sm font-medium transition-colors">Save Draft</button>
-                <button className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
-                  <Play className="w-4 h-4" /> Launch Campaign
-                </button>
-              </div>
-            </div>
-
-            {/* Preview Area */}
-            <div className="flex-1 bg-slate-950 p-8 flex flex-col relative">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                  <Monitor className="w-4 h-4" /> Live Preview
-                </h2>
-                <div className="flex gap-2">
-                  <button className="p-2 bg-slate-800 text-slate-200 rounded border border-slate-700"><Monitor className="w-4 h-4" /></button>
-                  <button className="p-2 bg-slate-900 text-slate-400 rounded border border-slate-800 hover:bg-slate-800"><Smartphone className="w-4 h-4" /></button>
+              {/* Preview Area */}
+              <div className="flex-1 bg-[var(--st-bg-secondary)] p-8 flex flex-col">
+                <div className="flex justify-between items-center mb-6">
+                  <p className="text-sm font-semibold text-[var(--st-text-secondary)] flex items-center gap-2">
+                    <Monitor className="w-4 h-4" aria-hidden="true" /> Live Preview
+                  </p>
+                  <SegmentedControl
+                    size="sm"
+                    aria-label="Preview device"
+                    items={[
+                      { value: "desktop", label: "", icon: Monitor },
+                      { value: "mobile", label: "", icon: Smartphone },
+                    ]}
+                    value={previewDevice}
+                    onChange={setPreviewDevice}
+                  />
                 </div>
-              </div>
 
-              {/* Fake Browser Window */}
-              <div className="flex-1 border border-slate-800 rounded-xl overflow-hidden bg-white shadow-2xl flex flex-col relative max-w-5xl mx-auto w-full">
-                {/* Browser Chrome */}
-                <div className="h-10 bg-slate-100 border-b border-slate-200 flex items-center px-4 gap-2">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-rose-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
-                  </div>
-                  <div className="flex-1 mx-4">
-                    <div className="bg-white border border-slate-200 h-6 rounded text-[10px] text-slate-400 flex items-center px-3 justify-center">
-                      <Lock className="w-3 h-3 mr-1" /> your-app.sabdesk.com
+                {/* Fake Browser Window */}
+                <div className="flex-1 border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-hidden bg-white shadow-2xl flex flex-col max-w-5xl mx-auto w-full">
+                  {/* Browser Chrome */}
+                  <div className="h-10 bg-slate-100 border-b border-slate-200 flex items-center px-4 gap-2">
+                    <div className="flex gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-rose-400" aria-hidden="true" />
+                      <span className="w-3 h-3 rounded-full bg-amber-400" aria-hidden="true" />
+                      <span className="w-3 h-3 rounded-full bg-emerald-400" aria-hidden="true" />
+                    </div>
+                    <div className="flex-1 mx-4">
+                      <div className="bg-white border border-slate-200 h-6 rounded text-[10px] text-slate-400 flex items-center px-3 justify-center">
+                        <Lock className="w-3 h-3 mr-1" aria-hidden="true" /> your-app.sabdesk.com
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Simulated App Area */}
-                <div className="flex-1 bg-slate-50 relative flex flex-col">
-                  
-                  {/* LIVE BANNER PREVIEW */}
-                  {bannerConfig.position === 'top' && (
-                    <div className={`${bannerConfig.bgColor} ${bannerConfig.textColor} px-4 py-3 flex items-center justify-between text-sm font-medium shadow-md relative z-50`}>
-                      <div className="flex-1 text-center flex justify-center items-center gap-4">
-                        <span>{bannerConfig.text || "Your announcement text goes here"}</span>
-                        {bannerConfig.ctaText && (
-                          <button className="px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-xs font-bold transition-colors">
-                            {bannerConfig.ctaText}
-                          </button>
+                  {/* Simulated App Area */}
+                  <div className="flex-1 bg-slate-50 relative flex flex-col">
+                    {/* LIVE BANNER PREVIEW */}
+                    {bannerConfig.position === "top" && (
+                      <div
+                        className={`${bannerConfig.bgColor} ${bannerConfig.textColor} px-4 py-3 flex items-center justify-between text-sm font-medium shadow-md relative z-50`}
+                      >
+                        <div className="flex-1 text-center flex justify-center items-center gap-4">
+                          <span>{bannerConfig.text || "Your announcement text goes here"}</span>
+                          {bannerConfig.ctaText && (
+                            <span className="px-3 py-1 bg-white/20 rounded text-xs font-bold">
+                              {bannerConfig.ctaText}
+                            </span>
+                          )}
+                        </div>
+                        {bannerConfig.hasCloseBtn && (
+                          <XCircle className="w-4 h-4 text-white/70" aria-hidden="true" />
                         )}
                       </div>
-                      {bannerConfig.hasCloseBtn && (
-                        <button className="text-white/70 hover:text-white p-1">
-                          <XCircle className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  )}
+                    )}
 
-                  {/* App Mock Content */}
-                  <div className="flex-1 p-8 flex gap-8 opacity-40 grayscale pointer-events-none">
-                    <div className="w-64 bg-white border border-slate-200 rounded-xl h-full p-4 space-y-4">
-                      <div className="h-8 bg-slate-200 rounded w-3/4 mb-8"></div>
-                      <div className="h-4 bg-slate-200 rounded w-full"></div>
-                      <div className="h-4 bg-slate-200 rounded w-5/6"></div>
-                      <div className="h-4 bg-slate-200 rounded w-full"></div>
-                      <div className="h-4 bg-slate-200 rounded w-4/6"></div>
-                    </div>
-                    <div className="flex-1 space-y-6">
-                      <div className="h-12 bg-white border border-slate-200 rounded-xl w-full"></div>
-                      <div className="h-64 bg-white border border-slate-200 rounded-xl w-full p-6">
-                        <div className="h-6 bg-slate-200 rounded w-1/4 mb-6"></div>
-                        <div className="space-y-3">
-                          <div className="h-4 bg-slate-200 rounded w-full"></div>
-                          <div className="h-4 bg-slate-200 rounded w-full"></div>
-                          <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+                    {/* App Mock Content */}
+                    <div className="flex-1 p-8 flex gap-8 opacity-40 grayscale pointer-events-none">
+                      <div className="w-64 bg-white border border-slate-200 rounded-xl h-full p-4 space-y-4">
+                        <div className="h-8 bg-slate-200 rounded w-3/4 mb-8" />
+                        <div className="h-4 bg-slate-200 rounded w-full" />
+                        <div className="h-4 bg-slate-200 rounded w-5/6" />
+                        <div className="h-4 bg-slate-200 rounded w-full" />
+                        <div className="h-4 bg-slate-200 rounded w-4/6" />
+                      </div>
+                      <div className="flex-1 space-y-6">
+                        <div className="h-12 bg-white border border-slate-200 rounded-xl w-full" />
+                        <div className="h-64 bg-white border border-slate-200 rounded-xl w-full p-6">
+                          <div className="h-6 bg-slate-200 rounded w-1/4 mb-6" />
+                          <div className="space-y-3">
+                            <div className="h-4 bg-slate-200 rounded w-full" />
+                            <div className="h-4 bg-slate-200 rounded w-full" />
+                            <div className="h-4 bg-slate-200 rounded w-3/4" />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
-
-// Ensure Lock is imported for the browser mock
-const Lock = ({ className }: { className?: string }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-);

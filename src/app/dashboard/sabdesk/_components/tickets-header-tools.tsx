@@ -3,15 +3,24 @@
 /**
  * Compound header tool group for the Tickets list page:
  *   • Saved-view dropdown (TicketsViewsMenu)
- *   • Table / Kanban / Queue view switcher
+ *   • Table / Kanban / Queue / Inbox view switcher
  */
 
 import * as React from "react";
 import { KanbanSquare, LayoutList, List } from "lucide-react";
 
+import { SegmentedControl, type SegmentedItem } from "@/components/sabcrm/20ui";
+
 import { TicketsViewsMenu } from "./tickets-filters";
 
 export type TicketsViewMode = "table" | "kanban" | "queue" | "inbox";
+
+const VIEW_ITEMS: ReadonlyArray<SegmentedItem<TicketsViewMode>> = [
+  { value: "table", label: "Table", icon: List },
+  { value: "kanban", label: "Kanban", icon: KanbanSquare },
+  { value: "queue", label: "Queue", icon: LayoutList },
+  { value: "inbox", label: "Inbox", icon: List },
+];
 
 interface TicketsHeaderToolsProps {
   view: TicketsViewMode;
@@ -32,61 +41,14 @@ export function TicketsHeaderTools({
         activePresetId={activePresetId}
         onSelect={onSelectPreset}
       />
-      <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
-        <ViewToggle
-          label="Table"
-          icon={<List className="h-3.5 w-3.5" />}
-          active={view === "table"}
-          onClick={() => onViewChange("table")}
-        />
-        <ViewToggle
-          label="Kanban"
-          icon={<KanbanSquare className="h-3.5 w-3.5" />}
-          active={view === "kanban"}
-          onClick={() => onViewChange("kanban")}
-        />
-        <ViewToggle
-          label="Queue"
-          icon={<LayoutList className="h-3.5 w-3.5" />}
-          active={view === "queue"}
-          onClick={() => onViewChange("queue")}
-        />
-        <ViewToggle
-          label="Inbox"
-          icon={<List className="h-3.5 w-3.5" />}
-          active={view === "inbox"}
-          onClick={() => onViewChange("inbox")}
-        />
-      </div>
+      <SegmentedControl<TicketsViewMode>
+        items={VIEW_ITEMS}
+        value={view}
+        onChange={onViewChange}
+        size="sm"
+        aria-label="Tickets view mode"
+      />
     </div>
-  );
-}
-
-function ViewToggle({
-  label,
-  icon,
-  active,
-  onClick,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={[
-        "inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]",
-        active
-          ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
-          : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]",
-      ].join(" ")}
-    >
-      {icon} {label}
-    </button>
   );
 }
 

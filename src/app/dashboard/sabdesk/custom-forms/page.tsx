@@ -8,7 +8,6 @@ import {
   CheckSquare,
   List as ListIcon,
   Calendar,
-  Image as ImageIcon,
   UploadCloud,
   GripVertical,
   Settings,
@@ -19,15 +18,35 @@ import {
   Eye,
   Smartphone,
   Monitor,
-  ChevronDown,
   Hash,
   Mail,
   Phone,
   ToggleLeft,
   FormInput,
 } from "lucide-react";
+import {
+  Button,
+  IconButton,
+  Badge,
+  Card,
+  Field,
+  Input,
+  Textarea,
+  Switch,
+  Checkbox,
+  Radio,
+  SegmentedControl,
+  EmptyState,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from "@/components/sabcrm/20ui";
+import { SabFilePickerButton } from "@/components/sabfiles";
 
-// Massive Custom Forms Drag and Drop Mock Simulator
+// Custom Forms drag-and-drop builder simulator.
 const toolBoxItems = [
   { id: "text", label: "Short Text", icon: Type },
   { id: "textarea", label: "Long Text", icon: AlignLeft },
@@ -36,7 +55,7 @@ const toolBoxItems = [
   { id: "phone", label: "Phone", icon: Phone },
   { id: "select", label: "Dropdown", icon: ListIcon },
   { id: "checkbox", label: "Checkboxes", icon: CheckSquare },
-  { id: "radio", label: "Radio Buttons", icon: CheckSquare }, // Reusing icon for mock
+  { id: "radio", label: "Radio Buttons", icon: CheckSquare },
   { id: "date", label: "Date Picker", icon: Calendar },
   { id: "file", label: "File Upload", icon: UploadCloud },
   { id: "toggle", label: "Toggle Switch", icon: ToggleLeft },
@@ -54,20 +73,21 @@ interface FormField {
 }
 
 export default function CustomFormsPage() {
+  const { toast } = useToast();
   const [fields, setFields] = useState<FormField[]>([
     { id: "f1", type: "heading", label: "Customer Details", required: false },
     {
       id: "f2",
       type: "text",
       label: "Full Name",
-      placeholder: "John Doe",
+      placeholder: "Jane Cooper",
       required: true,
     },
     {
       id: "f3",
       type: "email",
       label: "Email Address",
-      placeholder: "john@example.com",
+      placeholder: "jane@example.com",
       required: true,
     },
     {
@@ -108,6 +128,23 @@ export default function CustomFormsPage() {
   const removeField = (id: string) => {
     setFields(fields.filter((f) => f.id !== id));
     if (selectedFieldId === id) setSelectedFieldId(null);
+    toast.success("Field removed");
+  };
+
+  const duplicateField = (id: string) => {
+    const source = fields.find((f) => f.id === id);
+    if (!source) return;
+    const copy: FormField = {
+      ...source,
+      id: `f_${Date.now()}`,
+      label: `${source.label} copy`,
+      options: source.options ? [...source.options] : undefined,
+    };
+    const idx = fields.findIndex((f) => f.id === id);
+    const next = [...fields];
+    next.splice(idx + 1, 0, copy);
+    setFields(next);
+    setSelectedFieldId(copy.id);
   };
 
   const updateField = (id: string, updates: Partial<FormField>) => {
@@ -116,175 +153,185 @@ export default function CustomFormsPage() {
 
   const selectedField = fields.find((f) => f.id === selectedFieldId);
 
-  // Render Field Input Mock based on type
+  // Render a non-interactive preview of a field based on its type.
   const renderFieldMock = (field: FormField) => {
-    const baseInputClass =
-      "w-full bg-neutral-950 border border-neutral-800 rounded-md px-3 py-2 text-sm text-neutral-300 mt-1 focus:outline-none focus:border-blue-500 cursor-default";
-
     switch (field.type) {
       case "heading":
         return (
-          <h3 className="text-xl font-bold text-white mt-4 border-b border-neutral-800 pb-2">
+          <h3 className="text-xl font-bold text-[var(--st-text)] mt-4 border-b border-[var(--st-border)] pb-2">
             {field.label}
           </h3>
         );
       case "textarea":
         return (
-          <textarea
-            className={baseInputClass}
+          <Textarea
+            className="mt-1"
             placeholder={field.placeholder}
             rows={3}
             readOnly
+            aria-label={field.label}
           />
         );
       case "select":
         return (
-          <div className="relative">
-            <select className={`${baseInputClass} appearance-none`} readOnly>
-              <option>Select an option...</option>
-              {field.options?.map((opt, i) => (
-                <option key={i}>{opt}</option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+          <div className="mt-1">
+            <Select>
+              <SelectTrigger aria-label={field.label}>
+                <SelectValue placeholder="Select an option..." />
+              </SelectTrigger>
+              <SelectContent>
+                {field.options?.map((opt, i) => (
+                  <SelectItem key={i} value={`opt-${i}`}>
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         );
       case "checkbox":
+        return (
+          <div className="space-y-2 mt-2">
+            {field.options?.map((opt, i) => (
+              <Checkbox key={i} label={opt} readOnly />
+            ))}
+          </div>
+        );
       case "radio":
         return (
           <div className="space-y-2 mt-2">
             {field.options?.map((opt, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <input
-                  type={field.type}
-                  className="w-4 h-4 accent-blue-500 bg-neutral-900 border-neutral-700"
-                  readOnly
-                />
-                <span className="text-sm text-neutral-300">{opt}</span>
-              </div>
+              <Radio key={i} value={`opt-${i}`} name={field.id} label={opt} />
             ))}
           </div>
         );
       case "file":
         return (
-          <div className="mt-1 border-2 border-dashed border-neutral-700 rounded-lg p-6 flex flex-col items-center justify-center text-neutral-500 bg-neutral-950">
-            <UploadCloud className="w-6 h-6 mb-2" />
-            <span className="text-sm">
-              Click or drag file to this area to upload
+          <div className="mt-1 border-2 border-dashed border-[var(--st-border)] rounded-[var(--st-radius)] p-6 flex flex-col items-center justify-center text-[var(--st-text-tertiary)] bg-[var(--st-bg-secondary)] gap-2">
+            <UploadCloud className="w-6 h-6" aria-hidden="true" />
+            <span className="text-sm text-[var(--st-text-secondary)]">
+              Pick a file from your library or upload a new one.
             </span>
+            <SabFilePickerButton onPick={() => {}}>
+              Choose file
+            </SabFilePickerButton>
           </div>
         );
       case "toggle":
         return (
-          <div className="mt-2 flex items-center gap-2">
-            <div className="w-10 h-5 bg-neutral-700 rounded-full relative">
-              <div className="w-4 h-4 bg-neutral-400 rounded-full absolute left-0.5 top-0.5"></div>
-            </div>
-            <span className="text-sm text-neutral-400">Off / On</span>
+          <div className="mt-2">
+            <Switch label="Off / On" aria-label={field.label} />
           </div>
         );
       default:
         return (
-          <input
+          <Input
+            className="mt-1"
             type="text"
-            className={baseInputClass}
             placeholder={field.placeholder}
             readOnly
+            aria-label={field.label}
           />
         );
     }
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#0a0a0a] text-neutral-200 font-sans overflow-hidden">
-      {/* Top Navbar */}
-      <header className="h-16 flex-none bg-neutral-950 border-b border-neutral-800 flex items-center justify-between px-6">
+    <div className="ui20 dark h-screen flex flex-col bg-[var(--st-bg)] text-[var(--st-text)] font-sans overflow-hidden">
+      {/* Top bar */}
+      <header className="h-16 flex-none bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)] flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
-          <div className="p-2 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-lg border border-indigo-500/20">
-            <FormInput className="w-5 h-5 text-indigo-400" />
+          <div className="p-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-accent-soft)]">
+            <FormInput
+              className="w-5 h-5 text-[var(--st-accent)]"
+              aria-hidden="true"
+            />
           </div>
-          <div>
-            <h1 className="font-bold text-white flex items-center gap-2">
-              Support Ticket Form{" "}
-              <span className="text-xs bg-neutral-800 text-neutral-400 px-2 py-0.5 rounded">
-                Draft
-              </span>
-            </h1>
-          </div>
+          <h1 className="font-bold text-[var(--st-text)] flex items-center gap-2">
+            Support Ticket Form
+            <Badge tone="neutral">Draft</Badge>
+          </h1>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center bg-neutral-900 border border-neutral-800 rounded-lg p-1 mr-4">
-            <button
-              onClick={() => setPreviewMode(null)}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${!previewMode ? "bg-neutral-800 text-white" : "text-neutral-400 hover:text-white"}`}
-            >
-              Builder
-            </button>
-            <button
-              onClick={() => setPreviewMode("desktop")}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${previewMode ? "bg-neutral-800 text-white" : "text-neutral-400 hover:text-white"}`}
-            >
-              <Eye className="w-4 h-4" /> Preview
-            </button>
-          </div>
-          <button className="text-sm font-medium text-neutral-400 hover:text-white px-3 py-2 transition-colors">
+          <SegmentedControl
+            value={previewMode ? "preview" : "builder"}
+            onChange={(v) =>
+              setPreviewMode(v === "preview" ? "desktop" : null)
+            }
+            items={[
+              { value: "builder", label: "Builder" },
+              { value: "preview", label: "Preview", icon: Eye },
+            ]}
+            aria-label="Editor mode"
+          />
+          <Button variant="ghost" onClick={() => toast.message("Changes discarded")}>
             Discard
-          </button>
-          <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg shadow-blue-500/20 transition-all">
-            <Save className="w-4 h-4" /> Save & Publish
-          </button>
+          </Button>
+          <Button
+            variant="primary"
+            iconLeft={Save}
+            onClick={() => toast.success("Form saved and published")}
+          >
+            Save &amp; Publish
+          </Button>
         </div>
       </header>
 
-      {/* Main Workspace */}
+      {/* Workspace */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar - Toolbox (Hidden in preview) */}
+        {/* Toolbox (hidden in preview) */}
         {!previewMode && (
-          <div className="w-72 flex-none bg-neutral-950 border-r border-neutral-800 flex flex-col">
-            <div className="p-4 border-b border-neutral-800">
-              <h2 className="font-semibold text-neutral-200">Form Elements</h2>
-              <p className="text-xs text-neutral-500 mt-1">
+          <div className="w-72 flex-none bg-[var(--st-bg-secondary)] border-r border-[var(--st-border)] flex flex-col">
+            <div className="p-4 border-b border-[var(--st-border)]">
+              <h2 className="font-semibold text-[var(--st-text)]">
+                Form Elements
+              </h2>
+              <p className="text-xs text-[var(--st-text-tertiary)] mt-1">
                 Click to add to your form.
               </p>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4">
               <div className="grid grid-cols-2 gap-2">
-                {toolBoxItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => addField(item.id)}
-                    className="flex flex-col items-center justify-center p-3 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-blue-500 hover:bg-blue-500/5 transition-all group"
-                  >
-                    <item.icon className="w-6 h-6 text-neutral-400 group-hover:text-blue-400 mb-2 transition-colors" />
-                    <span className="text-xs text-neutral-300 font-medium text-center">
-                      {item.label}
-                    </span>
-                  </button>
-                ))}
+                {toolBoxItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Button
+                      key={item.id}
+                      variant="outline"
+                      onClick={() => addField(item.id)}
+                      className="flex-col h-auto py-3 gap-2"
+                    >
+                      <Icon className="w-6 h-6" aria-hidden="true" />
+                      <span className="text-xs font-medium text-center">
+                        {item.label}
+                      </span>
+                    </Button>
+                  );
+                })}
               </div>
             </div>
           </div>
         )}
 
-        {/* Center - Canvas */}
+        {/* Canvas */}
         <div
-          className={`flex-1 overflow-y-auto bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-neutral-900/50 p-8 custom-scrollbar ${previewMode === "mobile" ? "flex justify-center" : ""}`}
+          className={`flex-1 overflow-y-auto bg-[var(--st-bg-subtle)] p-8 ${previewMode === "mobile" ? "flex justify-center" : ""}`}
         >
           <div
-            className={`mx-auto bg-neutral-950 rounded-2xl shadow-2xl border border-neutral-800 min-h-[600px] flex flex-col transition-all duration-300 ${previewMode === "mobile" ? "w-[375px] h-[812px] rounded-[3rem] border-8 border-neutral-900 overflow-y-auto" : "max-w-3xl w-full"}`}
+            className={`mx-auto bg-[var(--st-bg-secondary)] rounded-2xl shadow-2xl border border-[var(--st-border)] min-h-[600px] flex flex-col transition-all duration-300 ${previewMode === "mobile" ? "w-[375px] h-[812px] rounded-[3rem] border-8 overflow-y-auto" : "max-w-3xl w-full"}`}
           >
-            {/* Form Header */}
-            <div className="p-8 border-b border-neutral-800 bg-neutral-900/30 rounded-t-2xl">
+            {/* Form header */}
+            <div className="p-8 border-b border-[var(--st-border)] rounded-t-2xl">
               <h1
-                className="text-3xl font-bold text-white mb-2 outline-none focus:bg-neutral-800/50 p-2 -ml-2 rounded"
+                className="text-3xl font-bold text-[var(--st-text)] mb-2 outline-none focus:bg-[var(--st-bg)] p-2 -ml-2 rounded-[var(--st-radius)]"
                 contentEditable={!previewMode}
                 suppressContentEditableWarning
               >
                 Submit a Request
               </h1>
               <p
-                className="text-neutral-400 outline-none focus:bg-neutral-800/50 p-2 -ml-2 rounded"
+                className="text-[var(--st-text-secondary)] outline-none focus:bg-[var(--st-bg)] p-2 -ml-2 rounded-[var(--st-radius)]"
                 contentEditable={!previewMode}
                 suppressContentEditableWarning
               >
@@ -293,37 +340,34 @@ export default function CustomFormsPage() {
               </p>
             </div>
 
-            {/* Form Fields Canvas */}
+            {/* Fields canvas */}
             <div className="p-8 space-y-2 flex-1">
               {fields.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-neutral-500 border-2 border-dashed border-neutral-800 rounded-xl p-12 bg-neutral-900/20">
-                  <Layout className="w-12 h-12 mb-4 text-neutral-600" />
-                  <p className="text-lg font-medium">Your form is empty</p>
-                  <p className="text-sm mt-1 text-center">
-                    Add fields from the elements panel on the left to start
-                    building.
-                  </p>
-                </div>
+                <EmptyState
+                  icon={Layout}
+                  title="Your form is empty"
+                  description="Add fields from the elements panel on the left to start building."
+                />
               ) : (
-                fields.map((field, index) => (
+                fields.map((field) => (
                   <div
                     key={field.id}
-                    onClick={() => !previewMode && setSelectedFieldId(field.id)}
-                    className={`relative p-4 rounded-xl transition-all border ${!previewMode && selectedFieldId === field.id ? "bg-blue-500/5 border-blue-500 shadow-[0_0_0_1px_rgba(59,130,246,1)]" : !previewMode ? "border-transparent hover:bg-neutral-900 hover:border-neutral-800" : "border-transparent"}`}
+                    onClick={() =>
+                      !previewMode && setSelectedFieldId(field.id)
+                    }
+                    className={`relative p-4 rounded-xl transition-all border ${!previewMode && selectedFieldId === field.id ? "bg-[var(--st-accent-soft)] border-[var(--st-accent)]" : !previewMode ? "border-transparent hover:bg-[var(--st-bg)] hover:border-[var(--st-border)]" : "border-transparent"}`}
                   >
-                    {!previewMode && (
-                      <div
-                        className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-3 p-1 bg-neutral-800 text-neutral-400 rounded cursor-grab opacity-0 transition-opacity ${selectedFieldId === field.id ? "opacity-100" : "group-hover:opacity-100"}`}
-                      >
-                        <GripVertical className="w-4 h-4" />
+                    {!previewMode && selectedFieldId === field.id && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 -ml-3 p-1 bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text-tertiary)] rounded-[var(--st-radius)] cursor-grab">
+                        <GripVertical className="w-4 h-4" aria-hidden="true" />
                       </div>
                     )}
 
                     {field.type !== "heading" && (
-                      <label className="block text-sm font-medium text-neutral-200 mb-1">
-                        {field.label}{" "}
+                      <label className="block text-sm font-medium text-[var(--st-text)] mb-1">
+                        {field.label}
                         {field.required && (
-                          <span className="text-red-400">*</span>
+                          <span className="text-[var(--st-danger)]"> *</span>
                         )}
                       </label>
                     )}
@@ -331,64 +375,64 @@ export default function CustomFormsPage() {
                     {renderFieldMock(field)}
 
                     {field.helpText && (
-                      <p className="text-xs text-neutral-500 mt-1.5">
+                      <p className="text-xs text-[var(--st-text-tertiary)] mt-1.5">
                         {field.helpText}
                       </p>
                     )}
 
                     {!previewMode && selectedFieldId === field.id && (
-                      <div className="absolute right-2 top-2 flex bg-neutral-800 border border-neutral-700 rounded-md overflow-hidden shadow-lg">
-                        <button
-                          className="p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-700"
-                          title="Duplicate"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </button>
-                        <button
+                      <div className="absolute right-2 top-2 flex gap-1">
+                        <IconButton
+                          label="Duplicate field"
+                          icon={Copy}
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            duplicateField(field.id);
+                          }}
+                        />
+                        <IconButton
+                          label="Delete field"
+                          icon={Trash2}
+                          size="sm"
+                          variant="danger"
                           onClick={(e) => {
                             e.stopPropagation();
                             removeField(field.id);
                           }}
-                          className="p-1.5 text-red-400 hover:text-white hover:bg-red-500"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        />
                       </div>
                     )}
                   </div>
                 ))
               )}
 
-              {/* Submit Button Mock */}
-              <div className="pt-6 mt-4 border-t border-neutral-800">
-                <button className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium w-full sm:w-auto">
-                  Submit Request
-                </button>
+              {/* Submit button preview */}
+              <div className="pt-6 mt-4 border-t border-[var(--st-border)]">
+                <Button variant="primary">Submit Request</Button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Sidebar - Field Properties (Hidden in preview) */}
+        {/* Field properties (hidden in preview) */}
         {!previewMode && (
-          <div className="w-80 flex-none bg-neutral-950 border-l border-neutral-800 flex flex-col">
-            <div className="p-4 border-b border-neutral-800 flex items-center gap-2">
-              <Settings className="w-5 h-5 text-neutral-400" />
-              <h2 className="font-semibold text-neutral-200">
+          <div className="w-80 flex-none bg-[var(--st-bg-secondary)] border-l border-[var(--st-border)] flex flex-col">
+            <div className="p-4 border-b border-[var(--st-border)] flex items-center gap-2">
+              <Settings
+                className="w-5 h-5 text-[var(--st-text-secondary)]"
+                aria-hidden="true"
+              />
+              <h2 className="font-semibold text-[var(--st-text)]">
                 Field Properties
               </h2>
             </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
+            <div className="flex-1 overflow-y-auto p-4">
               {selectedField ? (
                 <div className="space-y-6">
-                  {/* Common Properties */}
                   <div className="space-y-4">
-                    <div>
-                      <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider block mb-2">
-                        Field Label
-                      </label>
-                      <input
+                    <Field label="Field Label">
+                      <Input
                         type="text"
                         value={selectedField.label}
                         onChange={(e) =>
@@ -396,16 +440,12 @@ export default function CustomFormsPage() {
                             label: e.target.value,
                           })
                         }
-                        className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:border-blue-500 focus:outline-none"
                       />
-                    </div>
+                    </Field>
 
                     {selectedField.type !== "heading" && (
-                      <div>
-                        <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider block mb-2">
-                          Help Text
-                        </label>
-                        <input
+                      <Field label="Help Text">
+                        <Input
                           type="text"
                           placeholder="Optional sub-label..."
                           value={selectedField.helpText || ""}
@@ -414,19 +454,15 @@ export default function CustomFormsPage() {
                               helpText: e.target.value,
                             })
                           }
-                          className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:border-blue-500 focus:outline-none"
                         />
-                      </div>
+                      </Field>
                     )}
 
                     {["text", "textarea", "email", "phone", "number"].includes(
                       selectedField.type,
                     ) && (
-                      <div>
-                        <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider block mb-2">
-                          Placeholder
-                        </label>
-                        <input
+                      <Field label="Placeholder">
+                        <Input
                           type="text"
                           value={selectedField.placeholder || ""}
                           onChange={(e) =>
@@ -434,63 +470,68 @@ export default function CustomFormsPage() {
                               placeholder: e.target.value,
                             })
                           }
-                          className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:border-blue-500 focus:outline-none"
                         />
-                      </div>
+                      </Field>
                     )}
 
                     {selectedField.type !== "heading" && (
-                      <div className="flex items-center justify-between p-3 bg-neutral-900 border border-neutral-800 rounded-lg">
-                        <div>
-                          <p className="text-sm font-medium text-neutral-200">
-                            Required Field
-                          </p>
-                          <p className="text-xs text-neutral-500">
-                            User must fill this out
-                          </p>
-                        </div>
-                        <button
-                          onClick={() =>
-                            updateField(selectedField.id, {
-                              required: !selectedField.required,
-                            })
-                          }
-                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus:outline-none ${selectedField.required ? "bg-blue-600" : "bg-neutral-700"}`}
-                        >
-                          <span
-                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${selectedField.required ? "translate-x-2" : "-translate-x-2"}`}
+                      <Card variant="outlined" padding="sm">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-medium text-[var(--st-text)]">
+                              Required Field
+                            </p>
+                            <p className="text-xs text-[var(--st-text-tertiary)]">
+                              User must fill this out.
+                            </p>
+                          </div>
+                          <Switch
+                            checked={selectedField.required}
+                            onCheckedChange={(next) =>
+                              updateField(selectedField.id, { required: next })
+                            }
+                            aria-label="Required field"
                           />
-                        </button>
-                      </div>
+                        </div>
+                      </Card>
                     )}
                   </div>
 
-                  {/* Options for Select/Radio/Checkbox */}
+                  {/* Choices for select / radio / checkbox */}
                   {["select", "radio", "checkbox"].includes(
                     selectedField.type,
                   ) && (
-                    <div className="space-y-3 pt-4 border-t border-neutral-800">
-                      <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider block">
+                    <div className="space-y-3 pt-4 border-t border-[var(--st-border)]">
+                      <p className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
                         Choices
-                      </label>
+                      </p>
                       {selectedField.options?.map((opt, idx) => (
                         <div key={idx} className="flex items-center gap-2">
-                          <GripVertical className="w-4 h-4 text-neutral-600 cursor-grab" />
-                          <input
-                            type="text"
-                            value={opt}
-                            onChange={(e) => {
-                              const newOpts = [
-                                ...(selectedField.options || []),
-                              ];
-                              newOpts[idx] = e.target.value;
-                              updateField(selectedField.id, {
-                                options: newOpts,
-                              });
-                            }}
-                            className="flex-1 bg-neutral-900 border border-neutral-800 rounded-md px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none"
+                          <GripVertical
+                            className="w-4 h-4 text-[var(--st-text-tertiary)] cursor-grab"
+                            aria-hidden="true"
                           />
-                          <button
+                          <div className="flex-1">
+                            <Input
+                              inputSize="sm"
+                              type="text"
+                              value={opt}
+                              aria-label={`Choice ${idx + 1}`}
+                              onChange={(e) => {
+                                const newOpts = [
+                                  ...(selectedField.options || []),
+                                ];
+                                newOpts[idx] = e.target.value;
+                                updateField(selectedField.id, {
+                                  options: newOpts,
+                                });
+                              }}
+                            />
+                          </div>
+                          <IconButton
+                            label={`Remove choice ${idx + 1}`}
+                            icon={Trash2}
+                            size="sm"
                             onClick={() => {
                               const newOpts = selectedField.options?.filter(
                                 (_, i) => i !== idx,
@@ -499,13 +540,13 @@ export default function CustomFormsPage() {
                                 options: newOpts,
                               });
                             }}
-                            className="text-neutral-500 hover:text-red-400"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
+                          />
                         </div>
                       ))}
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconLeft={Plus}
                         onClick={() => {
                           updateField(selectedField.id, {
                             options: [
@@ -514,62 +555,42 @@ export default function CustomFormsPage() {
                             ],
                           });
                         }}
-                        className="flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300 mt-2"
                       >
-                        <Plus className="w-4 h-4" /> Add Option
-                      </button>
+                        Add Option
+                      </Button>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-neutral-500 opacity-50">
-                  <Settings className="w-12 h-12 mb-4" />
-                  <p className="text-center text-sm">
-                    Select a field on the canvas to edit its properties.
-                  </p>
-                </div>
+                <EmptyState
+                  icon={Settings}
+                  size="sm"
+                  title="No field selected"
+                  description="Select a field on the canvas to edit its properties."
+                />
               )}
             </div>
           </div>
         )}
       </div>
 
-      {/* Preview Device Controls (Only visible in preview mode) */}
+      {/* Preview device controls (only in preview mode) */}
       {previewMode && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex bg-neutral-800 p-1.5 rounded-full border border-neutral-700 shadow-2xl">
-          <button
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1 bg-[var(--st-bg-secondary)] p-1.5 rounded-full border border-[var(--st-border)] shadow-2xl">
+          <IconButton
+            label="Desktop preview"
+            icon={Monitor}
+            variant={previewMode === "desktop" ? "primary" : "ghost"}
             onClick={() => setPreviewMode("desktop")}
-            className={`p-2 rounded-full transition-colors ${previewMode === "desktop" ? "bg-neutral-700 text-white shadow" : "text-neutral-400 hover:text-white"}`}
-          >
-            <Monitor className="w-5 h-5" />
-          </button>
-          <button
+          />
+          <IconButton
+            label="Mobile preview"
+            icon={Smartphone}
+            variant={previewMode === "mobile" ? "primary" : "ghost"}
             onClick={() => setPreviewMode("mobile")}
-            className={`p-2 rounded-full transition-colors ${previewMode === "mobile" ? "bg-neutral-700 text-white shadow" : "text-neutral-400 hover:text-white"}`}
-          >
-            <Smartphone className="w-5 h-5" />
-          </button>
+          />
         </div>
       )}
     </div>
   );
 }
-
-// Helper icon component since X was missing from imports
-const X = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M18 6 6 18" />
-    <path d="m6 6 12 12" />
-  </svg>
-);

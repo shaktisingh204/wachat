@@ -1,9 +1,32 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+    ArrowLeft,
+    Copy,
+    Eye,
+    EyeOff,
+    ExternalLink,
+    Share2,
+    Archive,
+    ShieldCheck,
+    KeyRound,
+} from 'lucide-react';
 
-import { Button, Card, Badge, Separator } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    IconButton,
+    Card,
+    CardBody,
+    Badge,
+    Separator,
+    Alert,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageActions,
+} from '@/components/sabcrm/20ui';
 import {
     decryptPayload,
     hibpKAnonymityHash,
@@ -24,6 +47,7 @@ interface DecryptedLogin {
 }
 
 export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
+    const router = useRouter();
     const { key, isUnlocked, touch } = useVaultKey();
     const [revealed, setRevealed] = React.useState<DecryptedLogin | null>(null);
     const [showPassword, setShowPassword] = React.useState(false);
@@ -59,7 +83,7 @@ export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
         touch();
         await logSabvaultAccess({ secretId: secret._id, action: 'copy', meta: { field } });
         window.setTimeout(() => {
-            // Clear clipboard after 30s — best effort.
+            // Clear clipboard after 30s, best effort.
             navigator.clipboard.writeText('').catch(() => {});
         }, 30_000);
     }
@@ -70,8 +94,8 @@ export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
         setError(null);
         try {
             const { prefix, suffix } = await hibpKAnonymityHash(revealed.password);
-            // Client-side fetch — only the prefix goes to HIBP.
-            // NOTE: deferred — the HIBP provider call is not wired here.
+            // Client-side fetch, only the prefix goes to HIBP.
+            // NOTE: deferred, the HIBP provider call is not wired here.
             // Caller-side integration would:
             //   const r = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
             //   const lines = (await r.text()).split('\n');
@@ -96,84 +120,122 @@ export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
         if (!secret._id) return;
         const out = await deleteSabvaultSecret(secret._id);
         if (out.error) setError(out.error);
-        else window.location.href = '/dashboard/sabvault';
+        else router.push('/dashboard/sabvault');
     }
 
     return (
-        <div className="zoruui mx-auto flex max-w-3xl flex-col gap-4 p-6">
-            <div className="flex items-center justify-between">
-                <Link href="/dashboard/sabvault" className="text-sm text-[var(--st-text-secondary)]">
-                    ← Back to vault
-                </Link>
-                <div className="flex gap-2">
-                    <Link href={`/dashboard/sabvault/share/${secret._id}`}>
-                        <Button variant="outline">Share</Button>
-                    </Link>
-                    <Button variant="outline" onClick={onDelete}>
+        <div className="ui20 mx-auto flex max-w-3xl flex-col gap-4 p-6">
+            <PageHeader bordered={false} compact>
+                <PageHeaderHeading>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        iconLeft={ArrowLeft}
+                        onClick={() => router.push('/dashboard/sabvault')}
+                    >
+                        Back to vault
+                    </Button>
+                    <PageTitle>{secret.name}</PageTitle>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Button
+                        variant="outline"
+                        iconLeft={Share2}
+                        onClick={() => router.push(`/dashboard/sabvault/share/${secret._id}`)}
+                    >
+                        Share
+                    </Button>
+                    <Button variant="outline" iconLeft={Archive} onClick={onDelete}>
                         Archive
                     </Button>
-                </div>
-            </div>
+                </PageActions>
+            </PageHeader>
 
-            <Card className="p-5">
-                <div className="mb-3 flex items-center gap-3">
-                    <h1 className="text-lg font-semibold">{secret.name}</h1>
-                    <Badge>{secret.kind}</Badge>
-                    {secret.breached ? <Badge variant="destructive">Breached</Badge> : null}
-                    {secret.reused ? <Badge>Reused</Badge> : null}
-                </div>
-                {secret.url ? (
-                    <div className="mb-3 text-sm">
-                        <span className="text-[var(--st-text-secondary)]">URL · </span>
-                        <a href={secret.url} target="_blank" rel="noreferrer" className="underline">
-                            {secret.url}
-                        </a>
+            <Card padding="lg">
+                <CardBody>
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                        <Badge tone="accent">{secret.kind}</Badge>
+                        {secret.breached ? <Badge tone="danger">Breached</Badge> : null}
+                        {secret.reused ? <Badge tone="warning">Reused</Badge> : null}
                     </div>
-                ) : null}
+                    {secret.url ? (
+                        <div className="mb-3 flex items-center gap-1.5 text-sm">
+                            <span className="text-[var(--st-text-secondary)]">URL</span>
+                            <a
+                                href={secret.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 text-[var(--st-accent)] underline"
+                            >
+                                {secret.url}
+                                <ExternalLink size={13} aria-hidden="true" />
+                            </a>
+                        </div>
+                    ) : null}
 
-                <Separator className="my-3" />
+                    <Separator className="my-3" />
 
-                {!isUnlocked ? (
-                    <div className="flex items-center justify-between gap-3">
-                        <div className="text-sm">Vault is locked — unlock to reveal.</div>
-                        <Link href="/dashboard/sabvault/unlock">
-                            <Button>Unlock</Button>
-                        </Link>
-                    </div>
-                ) : revealed ? (
-                    <div className="flex flex-col gap-3">
-                        {revealed.username ? (
-                            <FieldRow label="Username" value={revealed.username} onCopy={() => copyField('username')} />
-                        ) : null}
-                        {revealed.password ? (
-                            <FieldRow
-                                label="Password"
-                                value={showPassword ? revealed.password : '••••••••••••'}
-                                onCopy={() => copyField('password')}
-                                onToggle={() => setShowPassword((v) => !v)}
-                            />
-                        ) : null}
-                        {revealed.note ? (
-                            <div className="text-sm">
-                                <div className="mb-1 text-[var(--st-text-secondary)]">Note</div>
-                                <div className="whitespace-pre-wrap rounded-md bg-[var(--st-bg-secondary)] p-3">
-                                    {revealed.note}
-                                </div>
+                    {!isUnlocked ? (
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="text-sm text-[var(--st-text-secondary)]">
+                                Vault is locked. Unlock to reveal.
                             </div>
-                        ) : null}
-                        <div>
-                            <Button variant="outline" onClick={runBreachCheck} disabled={busy}>
-                                {busy ? 'Checking…' : 'Run breach check'}
+                            <Button
+                                iconLeft={KeyRound}
+                                onClick={() => router.push('/dashboard/sabvault/unlock')}
+                            >
+                                Unlock
                             </Button>
                         </div>
-                    </div>
-                ) : (
-                    <Button onClick={reveal} disabled={busy}>
-                        {busy ? 'Decrypting…' : 'Reveal'}
-                    </Button>
-                )}
+                    ) : revealed ? (
+                        <div className="flex flex-col gap-3">
+                            {revealed.username ? (
+                                <FieldRow
+                                    label="Username"
+                                    value={revealed.username}
+                                    onCopy={() => copyField('username')}
+                                />
+                            ) : null}
+                            {revealed.password ? (
+                                <FieldRow
+                                    label="Password"
+                                    value={showPassword ? revealed.password : '••••••••••••'}
+                                    revealed={showPassword}
+                                    onCopy={() => copyField('password')}
+                                    onToggle={() => setShowPassword((v) => !v)}
+                                />
+                            ) : null}
+                            {revealed.note ? (
+                                <div className="text-sm">
+                                    <div className="mb-1 text-[var(--st-text-secondary)]">Note</div>
+                                    <div className="whitespace-pre-wrap rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3">
+                                        {revealed.note}
+                                    </div>
+                                </div>
+                            ) : null}
+                            <div>
+                                <Button
+                                    variant="outline"
+                                    iconLeft={ShieldCheck}
+                                    onClick={runBreachCheck}
+                                    loading={busy}
+                                >
+                                    {busy ? 'Checking' : 'Run breach check'}
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <Button iconLeft={Eye} onClick={reveal} loading={busy}>
+                            {busy ? 'Decrypting' : 'Reveal'}
+                        </Button>
+                    )}
 
-                {error ? <div className="mt-3 text-sm text-[var(--st-danger)]">{error}</div> : null}
+                    {error ? (
+                        <Alert tone="danger" className="mt-3">
+                            {error}
+                        </Alert>
+                    ) : null}
+                </CardBody>
             </Card>
         </div>
     );
@@ -182,26 +244,36 @@ export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
 function FieldRow({
     label,
     value,
+    revealed,
     onCopy,
     onToggle,
 }: {
     label: string;
     value: string;
+    revealed?: boolean;
     onCopy: () => void;
     onToggle?: () => void;
 }) {
     return (
         <div className="flex items-center gap-3">
             <div className="w-24 text-xs uppercase text-[var(--st-text-secondary)]">{label}</div>
-            <div className="flex-1 font-mono text-sm">{value}</div>
+            <div className="flex-1 font-mono text-sm text-[var(--st-text)]">{value}</div>
             {onToggle ? (
-                <Button variant="ghost" size="sm" onClick={onToggle}>
-                    Toggle
-                </Button>
+                <IconButton
+                    variant="ghost"
+                    size="sm"
+                    icon={revealed ? EyeOff : Eye}
+                    label={revealed ? 'Hide password' : 'Show password'}
+                    onClick={onToggle}
+                />
             ) : null}
-            <Button variant="outline" size="sm" onClick={onCopy}>
-                Copy
-            </Button>
+            <IconButton
+                variant="outline"
+                size="sm"
+                icon={Copy}
+                label={`Copy ${label.toLowerCase()}`}
+                onClick={onCopy}
+            />
         </div>
     );
 }

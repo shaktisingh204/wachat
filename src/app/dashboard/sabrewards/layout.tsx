@@ -1,5 +1,13 @@
 import * as React from 'react';
 
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+} from '@/components/sabcrm/20ui';
+
 import { RewardsNav } from './_components/rewards-nav';
 
 /**
@@ -13,17 +21,17 @@ export default function RewardsLayout({
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <div className="zoruui flex flex-col gap-4 p-4 md:p-6">
-      <header className="flex flex-col gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
-          CRM · Sales
-        </p>
-        <h1 className="text-2xl font-semibold text-[var(--st-text)]">Rewards</h1>
-        <p className="max-w-2xl text-sm text-[var(--st-text-secondary)]">
-          Unified loyalty, referral and redemption surface. Programs reuse the
-          existing tier engine; catalog images come from SabFiles.
-        </p>
-      </header>
+    <div className="flex flex-col gap-4 p-4 md:p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>CRM / Sales</PageEyebrow>
+          <PageTitle>Rewards</PageTitle>
+          <PageDescription>
+            Unified loyalty, referral and redemption surface. Programs reuse the
+            existing tier engine; catalog images come from SabFiles.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
       <RewardsNav />
       <div>{children}</div>
     </div>

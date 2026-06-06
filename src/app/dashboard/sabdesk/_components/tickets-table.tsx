@@ -1,7 +1,23 @@
 "use client";
 
-import { Badge, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
-import { formatDistanceToNow } from "date-fns";
+import {
+  Badge,
+  Checkbox,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  IconButton,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  type BadgeTone,
+} from "@/components/sabcrm/20ui";
 import {
   AlertTriangle,
   ChevronDown,
@@ -13,11 +29,11 @@ import {
 } from "lucide-react";
 
 /**
- * <TicketsTable> — dense table view for the Tickets list (§1D.1).
+ * <TicketsTable> - dense table view for the Tickets list (1D.1).
  *
- * 13 columns: select · # · Subject (chip) · Requester (polymorphic
- * chip) · Channel · Category · Priority · Severity · Status · Assignee ·
- * Due by · Created · Actions.
+ * 13 columns: select, #, Subject (chip), Requester (polymorphic
+ * chip), Channel, Category, Priority, Severity, Status, Assignee,
+ * Due by, Created, Actions.
  *
  * `Due by` cell turns red when overdue (past + not resolved). Status
  * cell uses `StatusPill` (statusToTone). Per-row dropdown supplies the
@@ -33,14 +49,29 @@ import { StatusPill, statusToTone } from "@/components/crm/status-pill";
 import type { CrmTicketDoc } from "@/lib/rust-client/crm-tickets";
 import type { TicketRequesterKind } from "./tickets-filters";
 
-type BadgeVariant = React.ComponentProps<typeof ZoruBadge>["variant"];
-
-const PRIORITY_VARIANTS: Record<string, BadgeVariant> = {
-  low: "ghost",
+const PRIORITY_TONES: Record<string, BadgeTone> = {
+  low: "neutral",
   medium: "success",
   high: "warning",
   critical: "danger",
 };
+
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+const EMPTY = "-";
 
 interface TicketsTableProps {
   tickets: CrmTicketDoc[];
@@ -67,6 +98,28 @@ function ticketNumber(t: CrmTicketDoc): string {
   return `#${id.slice(-6).toUpperCase()}`;
 }
 
+function formatDate(value: unknown): string {
+  if (!value) return EMPTY;
+  const date = new Date(value as string);
+  if (Number.isNaN(date.getTime())) return EMPTY;
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const month = MONTHS[date.getUTCMonth()];
+  const year = date.getUTCFullYear();
+  return `${day} ${month} ${year}`;
+}
+
+function formatDateTimeTitle(value: unknown): string {
+  if (!value) return "";
+  const date = new Date(value as string);
+  if (Number.isNaN(date.getTime())) return "";
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const month = MONTHS[date.getUTCMonth()];
+  const year = date.getUTCFullYear();
+  const hours = String(date.getUTCHours()).padStart(2, "0");
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+  return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
+}
+
 export function TicketsTable({
   tickets,
   loading,
@@ -83,17 +136,16 @@ export function TicketsTable({
     !allSelected && tickets.some((t) => selectedIds.has(String(t._id)));
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
+    <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
       <Table>
         <THead>
           <Tr className="border-[var(--st-border)] hover:bg-transparent">
             <Th className="w-[36px]">
               <Checkbox
                 aria-label="Select all tickets on this page"
-                checked={
-                  allSelected ? true : someSelected ? "indeterminate" : false
-                }
-                onCheckedChange={(c) => onToggleAll(c === true)}
+                checked={allSelected}
+                indeterminate={someSelected}
+                onChange={(e) => onToggleAll(e.target.checked)}
               />
             </Th>
             <Th>#</Th>
@@ -139,16 +191,14 @@ export function TicketsTable({
               return (
                 <Tr
                   key={id}
-                  className={[
-                    "border-[var(--st-border)] transition-colors",
-                    isSel ? "bg-[var(--st-bg-muted)]/70" : "",
-                  ].join(" ")}
+                  selected={isSel}
+                  className="border-[var(--st-border)] transition-colors"
                 >
                   <Td>
                     <Checkbox
                       aria-label={`Select ticket ${t.subject || id}`}
                       checked={isSel}
-                      onCheckedChange={() => onToggleOne(id)}
+                      onChange={() => onToggleOne(id)}
                     />
                   </Td>
                   <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
@@ -156,8 +206,8 @@ export function TicketsTable({
                   </Td>
                   <Td>
                     <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                        <LifeBuoy className="h-3.5 w-3.5" />
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
+                        <LifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />
                       </span>
                       <EntityRowLink
                         href={`/dashboard/sabdesk/${id}`}
@@ -174,34 +224,38 @@ export function TicketsTable({
                     {t.requesterId ? (
                       <EntityPickerChip entity={kind} id={t.requesterId} />
                     ) : (
-                      "—"
+                      EMPTY
                     )}
                   </Td>
                   <Td>
                     {t.channel ? (
                       <Badge variant="secondary">{t.channel}</Badge>
                     ) : (
-                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
+                        {EMPTY}
+                      </span>
                     )}
                   </Td>
                   <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {t.category ? (
                       <EntityPickerChip entity="category" id={t.category} />
                     ) : (
-                      "—"
+                      EMPTY
                     )}
                   </Td>
                   <Td>
                     {priority ? (
-                      <Badge variant={PRIORITY_VARIANTS[priority] ?? "ghost"}>
+                      <Badge tone={PRIORITY_TONES[priority] ?? "neutral"}>
                         {priority}
                       </Badge>
                     ) : (
-                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
+                        {EMPTY}
+                      </span>
                     )}
                   </Td>
                   <Td className="text-[12.5px] uppercase text-[var(--st-text-secondary)]">
-                    {t.severity ?? "—"}
+                    {t.severity ?? EMPTY}
                   </Td>
                   <Td>
                     {status ? (
@@ -210,7 +264,9 @@ export function TicketsTable({
                         tone={statusToTone(status)}
                       />
                     ) : (
-                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
+                        {EMPTY}
+                      </span>
                     )}
                   </Td>
                   <Td>
@@ -237,131 +293,64 @@ export function TicketsTable({
                     {t.dueBy ? (
                       <span className="inline-flex items-center gap-1">
                         {overdue ? (
-                          <AlertTriangle className="h-3.5 w-3.5" />
+                          <AlertTriangle
+                            className="h-3.5 w-3.5"
+                            aria-hidden="true"
+                          />
                         ) : null}
-                        {(() => {
-                          const date = new Date(t.dueBy);
-                          if (Number.isNaN(date.getTime())) return "—";
-                          const day = String(date.getUTCDate()).padStart(
-                            2,
-                            "0",
-                          );
-                          const months = [
-                            "Jan",
-                            "Feb",
-                            "Mar",
-                            "Apr",
-                            "May",
-                            "Jun",
-                            "Jul",
-                            "Aug",
-                            "Sep",
-                            "Oct",
-                            "Nov",
-                            "Dec",
-                          ];
-                          const month = months[date.getUTCMonth()];
-                          const year = date.getUTCFullYear();
-                          return `${day} ${month} ${year}`;
-                        })()}
+                        {formatDate(t.dueBy)}
                       </span>
                     ) : (
-                      "—"
+                      EMPTY
                     )}
                   </Td>
                   <Td
                     className="text-[12.5px] text-[var(--st-text-secondary)]"
-                    title={(() => {
-                      if (!t.createdAt) return "";
-                      const date = new Date(t.createdAt);
-                      if (Number.isNaN(date.getTime())) return "";
-                      const day = String(date.getUTCDate()).padStart(2, "0");
-                      const months = [
-                        "Jan",
-                        "Feb",
-                        "Mar",
-                        "Apr",
-                        "May",
-                        "Jun",
-                        "Jul",
-                        "Aug",
-                        "Sep",
-                        "Oct",
-                        "Nov",
-                        "Dec",
-                      ];
-                      const month = months[date.getUTCMonth()];
-                      const year = date.getUTCFullYear();
-                      const hours = String(date.getUTCHours()).padStart(2, "0");
-                      const minutes = String(date.getUTCMinutes()).padStart(
-                        2,
-                        "0",
-                      );
-                      return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
-                    })()}
+                    title={formatDateTimeTitle(t.createdAt)}
                   >
-                    {t.createdAt
-                      ? (() => {
-                          const date = new Date(t.createdAt);
-                          if (Number.isNaN(date.getTime())) return "—";
-                          const day = String(date.getUTCDate()).padStart(
-                            2,
-                            "0",
-                          );
-                          const months = [
-                            "Jan",
-                            "Feb",
-                            "Mar",
-                            "Apr",
-                            "May",
-                            "Jun",
-                            "Jul",
-                            "Aug",
-                            "Sep",
-                            "Oct",
-                            "Nov",
-                            "Dec",
-                          ];
-                          const month = months[date.getUTCMonth()];
-                          const year = date.getUTCFullYear();
-                          return `${day} ${month} ${year}`;
-                        })()
-                      : "—"}
+                    {formatDate(t.createdAt)}
                   </Td>
                   <Td className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          aria-label={`Actions for ${t.subject || id}`}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
+                        <IconButton
+                          label={`Actions for ${t.subject || id}`}
+                          icon={MoreHorizontal}
+                          variant="ghost"
+                          size="sm"
+                        />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
                           <Link href={`/dashboard/sabdesk/${id}`}>
-                            <ChevronDown className="mr-1.5 h-3.5 w-3.5 rotate-[-90deg]" />
+                            <ChevronDown
+                              className="mr-1.5 h-3.5 w-3.5 rotate-[-90deg]"
+                              aria-hidden="true"
+                            />
                             View
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link href={`/dashboard/sabdesk/${id}/edit`}>
-                            <Edit className="mr-1.5 h-3.5 w-3.5" />
+                            <Edit
+                              className="mr-1.5 h-3.5 w-3.5"
+                              aria-hidden="true"
+                            />
                             Edit
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onMerge(id)}>
-                          <Combine className="mr-1.5 h-3.5 w-3.5" />
-                          Merge…
+                        <DropdownMenuItem
+                          iconLeft={Combine}
+                          onClick={() => onMerge(id)}
+                        >
+                          Merge...
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
+                          variant="danger"
+                          iconLeft={Trash2}
                           onClick={() => onDelete(id)}
-                          className="text-[var(--st-danger)]"
                         >
-                          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>

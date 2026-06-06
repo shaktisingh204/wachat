@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DatePicker, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardDescription, CardHeader, CardTitle, DatePicker, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
 import { SabFileToFileButton, type SabFilePick } from "@/components/sabfiles";
 import {
   useActionState,
@@ -279,15 +279,13 @@ export default function LiveStudioPage() {
               <PreflightChecklist items={checklist} allOk={allChecksOk} />
 
               <Card variant="elevated" padding="none">
-                <div className="flex flex-col gap-1.5 p-6 pb-4">
-                  <h2 className="text-base font-semibold tracking-tight text-[var(--st-text)]">
-                    Schedule a premiere
-                  </h2>
-                  <p className="text-sm text-[var(--st-text-secondary)]">
+                <CardHeader>
+                  <CardTitle>Schedule a premiere</CardTitle>
+                  <CardDescription>
                     Pick a video, set a title, and choose when it should go
                     live.
-                  </p>
-                </div>
+                  </CardDescription>
+                </CardHeader>
 
                 <form
                   ref={formRef}
@@ -632,14 +630,14 @@ function ActiveStreamsPanel({
       )}
 
       <Card variant="elevated" padding="none">
-        <div className="flex items-center justify-between gap-2 p-5 pb-3">
+        <CardHeader className="flex-row items-start justify-between gap-2">
           <div>
             <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
-              Upcoming &amp; past
+              Upcoming and past
             </p>
-            <p className="text-sm text-[var(--st-text-secondary)]">
+            <CardDescription>
               Most recent 50 streams from this Page
-            </p>
+            </CardDescription>
           </div>
           {isLoading && (
             <LoaderCircle
@@ -647,7 +645,7 @@ function ActiveStreamsPanel({
               aria-hidden="true"
             />
           )}
-        </div>
+        </CardHeader>
         <div className="border-t border-[var(--st-border)]">
           {streams.length === 0 ? (
             <EmptyState

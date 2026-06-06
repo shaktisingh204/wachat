@@ -1,137 +1,248 @@
 'use client';
-import React, { useState } from 'react';
-import { 
-    BarChart, Activity, Users, Settings, Filter, Search, Download, 
-    Share2, Plus, RefreshCw, ChevronDown, Bell, Zap, ShieldCheck, 
-    Clock, Calendar, FileText, Layers, Target
+
+import React, { useMemo, useState } from 'react';
+import {
+  Activity,
+  Users,
+  ShieldCheck,
+  Clock,
+  Search,
+  Bell,
+  Plus,
+  Filter,
+  Download,
+  RefreshCw,
+  Zap,
 } from 'lucide-react';
 
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Field,
+  Input,
+  StatCard,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  SegmentedControl,
+  useToast,
+} from '@/components/sabcrm/20ui';
+
+const RANGES = ['Today', '7 Days', '30 Days', 'This Quarter', 'Custom'];
+
+const KPIS = [
+  { label: 'Total Volume', value: '124,592', delta: '+14%', tone: 'up' as const, icon: Activity, accent: 'var(--st-accent)' },
+  { label: 'Active Users', value: '8,432', delta: '+5%', tone: 'up' as const, icon: Users, accent: 'var(--st-status-ok)' },
+  { label: 'System Health', value: '99.9%', delta: 'Stable', tone: 'neutral' as const, icon: ShieldCheck, accent: 'var(--st-accent)' },
+  { label: 'Avg Resolution', value: '1.2 hrs', delta: '-12%', tone: 'down' as const, icon: Clock, accent: 'var(--st-danger)' },
+];
+
+const INSIGHTS = [
+  'The system has detected an anomaly in the standard workflow pattern for AI copilot training data.',
+  'Recent samples show drift in intent classification. Re-label the flagged batch to recover accuracy.',
+  'Duplicate utterances were found across three datasets. Merge them to reduce training noise.',
+  'A high-volume topic lacks negative examples. Add counter-cases to sharpen the model boundary.',
+  'Response latency rose on the long-form set. Trim oversized context windows before the next run.',
+];
+
+interface FeedRow {
+  id: string;
+  name: string;
+  status: 'Active' | 'Queued' | 'Review';
+  priority: 'High' | 'Medium' | 'Low';
+}
+
+function buildRows(): FeedRow[] {
+  const statuses: FeedRow['status'][] = ['Active', 'Queued', 'Review'];
+  const priorities: FeedRow['priority'][] = ['High', 'Medium', 'Low'];
+  return Array.from({ length: 15 }).map((_, i) => ({
+    id: `AI-${1000 + i}`,
+    name: `Training Data Item ${i + 1}`,
+    status: statuses[i % statuses.length],
+    priority: priorities[i % priorities.length],
+  }));
+}
+
+const STATUS_TONE = { Active: 'success', Queued: 'info', Review: 'warning' } as const;
+const PRIORITY_TONE = { High: 'danger', Medium: 'warning', Low: 'neutral' } as const;
+
 export default function AiCopilotTrainingDataPage() {
-    const [searchTerm, setSearchTerm] = useState('');
-    
-    return (
-        <div className="flex flex-col w-full h-full min-h-screen bg-neutral-950 text-neutral-200">
-            {/* Header */}
-            <header className="flex items-center justify-between px-8 py-6 border-b border-white/10 bg-neutral-900/50 backdrop-blur-md">
-                <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Ai Copilot Training Data Dashboard</h1>
-                    <p className="text-neutral-400 mt-1">Manage and optimize your ai copilot training data workflows and metrics.</p>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors border border-white/5">
-                        <Search className="w-5 h-5 text-neutral-400" />
-                    </button>
-                    <button className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors border border-white/5">
-                        <Bell className="w-5 h-5 text-neutral-400" />
-                    </button>
-                    <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-all">
-                        <Plus className="w-4 h-4" />
-                        Create New
-                    </button>
-                </div>
-            </header>
+  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [range, setRange] = useState(RANGES[1]);
 
-            {/* Toolbar */}
-            <div className="flex items-center justify-between px-8 py-4 border-b border-white/5 bg-neutral-900/20">
-                <div className="flex gap-2">
-                    {['Today', '7 Days', '30 Days', 'This Quarter', 'Custom'].map(t => (
-                        <button key={t} className="px-4 py-1.5 text-sm font-medium bg-neutral-800/50 hover:bg-neutral-700 rounded-full border border-white/5 transition-all">
-                            {t}
-                        </button>
-                    ))}
-                </div>
-                <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-3 py-1.5 text-sm bg-neutral-800 hover:bg-neutral-700 rounded-md border border-white/5">
-                        <Filter className="w-4 h-4" /> Filter
-                    </button>
-                    <button className="flex items-center gap-2 px-3 py-1.5 text-sm bg-neutral-800 hover:bg-neutral-700 rounded-md border border-white/5">
-                        <Download className="w-4 h-4" /> Export
-                    </button>
-                </div>
-            </div>
-
-            {/* Main Content Grid */}
-            <main className="flex-1 p-8 grid grid-cols-12 gap-6 overflow-y-auto">
-                {/* KPI Cards */}
-                <div className="col-span-12 grid grid-cols-4 gap-6">
-                    {[
-                        { label: 'Total Volume', value: '124,592', change: '+14%', icon: Activity, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-                        { label: 'Active Users', value: '8,432', change: '+5%', icon: Users, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-                        { label: 'System Health', value: '99.9%', change: 'Stable', icon: ShieldCheck, color: 'text-purple-400', bg: 'bg-purple-500/10' },
-                        { label: 'Avg Resolution', value: '1.2 hrs', change: '-12%', icon: Clock, color: 'text-rose-400', bg: 'bg-rose-500/10' }
-                    ].map((kpi, i) => (
-                        <div key={i} className="p-6 bg-neutral-900 border border-white/10 rounded-2xl relative overflow-hidden group hover:border-white/20 transition-all">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <kpi.icon className="w-24 h-24" />
-                            </div>
-                            <div className={`w-12 h-12 rounded-xl ${kpi.bg} flex items-center justify-center mb-4`}>
-                                <kpi.icon className={`w-6 h-6 ${kpi.color}`} />
-                            </div>
-                            <h3 className="text-neutral-400 font-medium mb-1">{kpi.label}</h3>
-                            <div className="flex items-end gap-3">
-                                <span className="text-4xl font-bold text-white">{kpi.value}</span>
-                                <span className="text-sm text-emerald-400 font-medium mb-1">{kpi.change}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Main Data View */}
-                <div className="col-span-8 bg-neutral-900 border border-white/10 rounded-2xl flex flex-col h-[600px]">
-                    <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-white">Live Data Feed</h2>
-                        <button className="p-2 hover:bg-neutral-800 rounded-lg transition-colors"><RefreshCw className="w-5 h-5 text-neutral-400" /></button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-2">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b border-white/5">
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">ID</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Name</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Status</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Priority</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {Array.from({ length: 15 }).map((_, i) => (
-                                    <tr key={i} className="border-b border-white/5 hover:bg-neutral-800/50 transition-colors cursor-pointer">
-                                        <td className="p-4 text-sm text-neutral-300 font-mono">#AI -{1000 + i}</td>
-                                        <td className="p-4 text-sm text-white font-medium">Ai Copilot Training Data Item {i + 1}</td>
-                                        <td className="p-4">
-                                            <span className="px-2.5 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20">Active</span>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className="px-2.5 py-1 text-xs font-medium bg-rose-500/10 text-rose-400 rounded-full border border-rose-500/20">High</span>
-                                        </td>
-                                        <td className="p-4">
-                                            <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">View Details</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Side Panel */}
-                <div className="col-span-4 flex flex-col gap-6 h-[600px]">
-                    <div className="flex-1 bg-neutral-900 border border-white/10 rounded-2xl p-6">
-                        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Zap className="text-amber-400" /> AI Insights</h2>
-                        <div className="space-y-4">
-                            {[1,2,3,4,5].map(i => (
-                                <div key={i} className="p-4 bg-neutral-800/50 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h4 className="font-medium text-neutral-200">Optimization Required</h4>
-                                        <span className="text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">Action</span>
-                                    </div>
-                                    <p className="text-sm text-neutral-400">The system has detected an anomaly in the standard workflow pattern for ai copilot training data.</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
+  const allRows = useMemo(() => buildRows(), []);
+  const rows = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return allRows;
+    return allRows.filter(
+      (r) => r.name.toLowerCase().includes(q) || r.id.toLowerCase().includes(q),
     );
+  }, [allRows, searchTerm]);
+
+  return (
+    <div className="ui20 flex h-full min-h-screen w-full flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>AI Copilot Training Data</PageTitle>
+          <PageDescription>
+            Manage and optimize your AI copilot training data workflows and metrics.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <IconButton
+            label="Search training data"
+            icon={Search}
+            variant="ghost"
+            onClick={() => toast.success('Search ready')}
+          />
+          <IconButton
+            label="View notifications"
+            icon={Bell}
+            variant="ghost"
+            onClick={() => toast.success('You are all caught up')}
+          />
+          <Button
+            variant="primary"
+            iconLeft={Plus}
+            onClick={() => toast.success('New training dataset created')}
+          >
+            Create New
+          </Button>
+        </PageActions>
+      </PageHeader>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] px-8 py-4">
+        <SegmentedControl
+          items={RANGES.map((r) => ({ value: r, label: r }))}
+          value={range}
+          onChange={setRange}
+          aria-label="Time range"
+        />
+        <div className="flex items-center gap-3">
+          <div className="w-56">
+            <Field>
+              <Input
+                inputSize="sm"
+                iconLeft={Search}
+                placeholder="Search items"
+                aria-label="Filter training data items"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </Field>
+          </div>
+          <Button variant="secondary" size="sm" iconLeft={Filter} onClick={() => toast.success('Filters applied')}>
+            Filter
+          </Button>
+          <Button variant="secondary" size="sm" iconLeft={Download} onClick={() => toast.success('Export started')}>
+            Export
+          </Button>
+        </div>
+      </div>
+
+      <main className="grid flex-1 grid-cols-12 gap-6 overflow-y-auto p-8">
+        <div className="col-span-12 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          {KPIS.map((kpi) => (
+            <StatCard
+              key={kpi.label}
+              label={kpi.label}
+              value={kpi.value}
+              icon={kpi.icon}
+              accent={kpi.accent}
+              delta={{ value: kpi.delta, tone: kpi.tone }}
+            />
+          ))}
+        </div>
+
+        <Card variant="outlined" padding="none" className="col-span-12 flex h-[600px] flex-col xl:col-span-8">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle>Live Data Feed</CardTitle>
+            <IconButton
+              label="Refresh data feed"
+              icon={RefreshCw}
+              variant="ghost"
+              onClick={() => toast.success('Data feed refreshed')}
+            />
+          </CardHeader>
+          <CardBody className="flex-1 overflow-y-auto p-0">
+            <Table stickyHeader hover>
+              <THead>
+                <Tr>
+                  <Th>ID</Th>
+                  <Th>Name</Th>
+                  <Th>Status</Th>
+                  <Th>Priority</Th>
+                  <Th align="right">Action</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {rows.map((row) => (
+                  <Tr key={row.id}>
+                    <Td className="font-mono text-[var(--st-text-secondary)]">#{row.id}</Td>
+                    <Td className="font-medium text-[var(--st-text)]">{row.name}</Td>
+                    <Td>
+                      <Badge tone={STATUS_TONE[row.status]} dot>
+                        {row.status}
+                      </Badge>
+                    </Td>
+                    <Td>
+                      <Badge tone={PRIORITY_TONE[row.priority]}>{row.priority}</Badge>
+                    </Td>
+                    <Td align="right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toast.success(`Opening ${row.id}`)}
+                      >
+                        View Details
+                      </Button>
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+          </CardBody>
+        </Card>
+
+        <Card variant="outlined" className="col-span-12 flex h-[600px] flex-col xl:col-span-4">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap size={18} className="text-[var(--st-warn)]" aria-hidden="true" />
+              AI Insights
+            </CardTitle>
+          </CardHeader>
+          <CardBody className="flex-1 space-y-4 overflow-y-auto">
+            {INSIGHTS.map((text, i) => (
+              <div
+                key={i}
+                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4"
+              >
+                <div className="mb-2 flex items-start justify-between gap-2">
+                  <h4 className="font-medium text-[var(--st-text)]">Optimization Required</h4>
+                  <Badge tone="warning" kind="soft">
+                    Action
+                  </Badge>
+                </div>
+                <p className="text-sm text-[var(--st-text-secondary)]">{text}</p>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+      </main>
+    </div>
+  );
 }

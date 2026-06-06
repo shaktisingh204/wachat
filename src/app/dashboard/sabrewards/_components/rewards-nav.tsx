@@ -25,7 +25,7 @@ export function RewardsNav(): React.JSX.Element {
   return (
     <nav
       aria-label="Rewards sections"
-      className="zoruui flex flex-wrap gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1"
+      className="flex flex-wrap gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1"
     >
       {ITEMS.map(({ href, label, icon: Icon }) => {
         const active = pathname?.startsWith(href);

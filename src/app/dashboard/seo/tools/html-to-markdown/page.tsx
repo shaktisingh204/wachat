@@ -11,6 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
   useToast,
 } from '@/components/sabcrm/20ui';
 import { useMemo, useState, useEffect } from 'react';
@@ -122,12 +125,14 @@ export default function HtmlToMarkdownPage() {
       </div>
 
       <Card padding="lg" className="mt-8">
-        <div className="flex items-center gap-2 mb-6">
-          <Settings2 className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
-          <h3 className="text-lg font-semibold m-0 text-[var(--st-text)]">Conversion Settings</h3>
-        </div>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Settings2 className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
+            <CardTitle className="m-0">Conversion Settings</CardTitle>
+          </div>
+        </CardHeader>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-6">
+        <CardBody className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-6">
           <div className="flex flex-col gap-2">
             <Label className="text-xs text-[var(--st-text-secondary)] font-semibold uppercase tracking-wider">Heading Style</Label>
             <Select value={headingStyle} onValueChange={(v: any) => setHeadingStyle(v)}>
@@ -206,7 +211,7 @@ export default function HtmlToMarkdownPage() {
               </SelectContent>
             </Select>
           </div>
-        </div>
+        </CardBody>
       </Card>
     </ToolShell>
   );

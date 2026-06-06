@@ -1,17 +1,31 @@
 "use client";
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Label,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 
 /**
- * <TicketDetailClient> — interactive shell on top of the server-rendered
+ * <TicketDetailClient> - interactive shell on top of the server-rendered
  * detail page. Hosts:
- *   • <TicketDetailActions> — header action group (10 actions)
- *   • <TicketSlaBadge> — live SLA countdown
- *   • Status pill click → dropdown to change status inline
- *   • <TicketConversation> — notes composer + thread
- *   • Merge dialog
+ *   - <TicketDetailActions> - header action group (10 actions)
+ *   - <TicketSlaBadge> - live SLA countdown
+ *   - Status pill click -> dropdown to change status inline
+ *   - <TicketConversation> - notes composer + thread
+ *   - Merge dialog
  */
 
 import * as React from "react";
@@ -57,13 +71,13 @@ export function TicketDetailClient({
     startTransition(async () => {
       try {
         await updateTicket(id, { status: next });
-        toast({ title: `Status set to ${next.replace(/_/g, " ")}` });
+        toast.success(`Status set to ${next.replace(/_/g, " ")}`);
         router.refresh();
       } catch (e) {
         toast({
           title: "Status change failed",
           description: e instanceof Error ? e.message : "Unknown error",
-          variant: "destructive",
+          tone: "danger",
         });
       }
     });
@@ -71,10 +85,7 @@ export function TicketDetailClient({
   const confirmMerge = () =>
     startTransition(async () => {
       if (!mergeTargetId) {
-        toast({
-          title: "Pick a target ticket",
-          variant: "destructive",
-        });
+        toast({ title: "Pick a target ticket", tone: "danger" });
         return;
       }
       try {
@@ -82,13 +93,13 @@ export function TicketDetailClient({
           status: "closed",
           parentTicketId: mergeTargetId,
         });
-        toast({ title: "Ticket merged" });
+        toast.success("Ticket merged");
         router.push(`/dashboard/sabdesk/${mergeTargetId}`);
       } catch (e) {
         toast({
           title: "Merge failed",
           description: e instanceof Error ? e.message : "Unknown error",
-          variant: "destructive",
+          tone: "danger",
         });
       } finally {
         setMergeOpen(false);
@@ -102,9 +113,10 @@ export function TicketDetailClient({
         <div className="flex flex-wrap items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
+              <Button
+                variant="ghost"
+                size="sm"
+                iconRight={ChevronDown}
                 aria-label="Change status"
                 disabled={pending}
               >
@@ -116,8 +128,7 @@ export function TicketDetailClient({
                 ) : (
                   <StatusPill label="Set status" />
                 )}
-                <ChevronDown className="h-3 w-3 text-[var(--st-text-secondary)]" />
-              </button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               {STATUS_OPTIONS.map((s) => (
@@ -162,7 +173,7 @@ export function TicketDetailClient({
               entity="ticketGroup"
               name="mergeTargetId"
               initialId={null}
-              placeholder="Pick a target ticket…"
+              placeholder="Pick a target ticket..."
               onChange={(next) => setMergeTargetId(next ?? "")}
             />
           </div>
@@ -174,7 +185,11 @@ export function TicketDetailClient({
             >
               Cancel
             </Button>
-            <Button onClick={confirmMerge} disabled={pending || !mergeTargetId}>
+            <Button
+              variant="primary"
+              onClick={confirmMerge}
+              disabled={pending || !mergeTargetId}
+            >
               Merge
             </Button>
           </DialogFooter>

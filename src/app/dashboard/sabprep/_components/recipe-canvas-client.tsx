@@ -3,7 +3,16 @@
 import * as React from 'react';
 import { Play, Save } from 'lucide-react';
 
-import { Button, Card, CardHeader, CardTitle, CardBody, Input, Badge } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Input,
+    Badge,
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from '@/components/sabcrm/20ui';
 import {
     previewRecipe,
     runRecipe,
@@ -127,7 +136,7 @@ export function RecipeCanvasClient({ recipe, datasets: initialDatasets, sourcePr
                 persistOutput: true,
             });
             setStatusMsg(
-                `Run ${res.status} — ${res.rowsIn} → ${res.rowsOut} rows (run ${res.runId}).`,
+                `Run ${res.status}, ${res.rowsIn} to ${res.rowsOut} rows (run ${res.runId}).`,
             );
         } catch (e) {
             setStatusMsg(`Run failed: ${String(e)}`);
@@ -182,14 +191,15 @@ export function RecipeCanvasClient({ recipe, datasets: initialDatasets, sourcePr
     );
 
     return (
-        <div className="zoruui flex h-full flex-col">
-            <header className="flex flex-wrap items-center gap-3 border-b border-[var(--zoru-border,#e5e7eb)] px-6 py-4">
+        <div className="ui20 flex h-full flex-col">
+            <header className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] px-6 py-4">
                 <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    aria-label="Recipe name"
                     className="max-w-md text-base font-medium"
                 />
-                <Badge variant="outline">{steps.length} step(s)</Badge>
+                <Badge tone="neutral" kind="outline">{steps.length} step(s)</Badge>
                 <SourceDatasetPicker
                     datasets={datasets}
                     value={sourceId}
@@ -198,19 +208,24 @@ export function RecipeCanvasClient({ recipe, datasets: initialDatasets, sourcePr
                 <CsvUploadButton onParsed={onUploadedCsv} />
                 <div className="ml-auto flex items-center gap-2">
                     {statusMsg ? (
-                        <span className="text-xs opacity-70">{statusMsg}</span>
+                        <span className="text-xs text-[var(--st-text-secondary)]">{statusMsg}</span>
                     ) : null}
-                    <Button variant="outline" onClick={onSave} disabled={busy}>
-                        <Save className="h-4 w-4" /> Save
+                    <Button variant="outline" iconLeft={Save} onClick={onSave} disabled={busy}>
+                        Save
                     </Button>
-                    <Button onClick={onRun} disabled={busy || sourceRows.length === 0}>
-                        <Play className="h-4 w-4" /> Run recipe
+                    <Button
+                        variant="primary"
+                        iconLeft={Play}
+                        onClick={onRun}
+                        disabled={busy || sourceRows.length === 0}
+                    >
+                        Run recipe
                     </Button>
                 </div>
             </header>
 
             <div className="grid flex-1 grid-cols-12 gap-4 overflow-hidden p-4">
-                {/* Left — source preview */}
+                {/* Left, source preview */}
                 <div className="col-span-12 lg:col-span-4 overflow-auto">
                     <SourcePreviewPanel rows={sourceRows} />
                     <div className="mt-4">
@@ -221,7 +236,7 @@ export function RecipeCanvasClient({ recipe, datasets: initialDatasets, sourcePr
                     </div>
                 </div>
 
-                {/* Center — step stack */}
+                {/* Center, step stack */}
                 <div className="col-span-12 lg:col-span-4 overflow-auto">
                     <StepStack
                         steps={steps}
@@ -232,7 +247,7 @@ export function RecipeCanvasClient({ recipe, datasets: initialDatasets, sourcePr
                     />
                 </div>
 
-                {/* Right — output preview */}
+                {/* Right, output preview */}
                 <div className="col-span-12 lg:col-span-4 overflow-auto">
                     <OutputPreviewPanel rows={outputRows} summaries={summaries} />
                 </div>
@@ -240,6 +255,8 @@ export function RecipeCanvasClient({ recipe, datasets: initialDatasets, sourcePr
         </div>
     );
 }
+
+const NO_SOURCE = '__none__';
 
 function SourceDatasetPicker({
     datasets,
@@ -251,18 +268,21 @@ function SourceDatasetPicker({
     onPick: (id: string) => void;
 }) {
     return (
-        <select
-            className="rounded-md border border-[var(--zoru-border,#e5e7eb)] bg-[var(--zoru-surface,#fff)] px-2 py-1 text-sm"
-            value={value ?? ''}
-            onChange={(e) => onPick(e.target.value)}
-            aria-label="Source dataset"
+        <Select
+            value={value && value.length > 0 ? value : NO_SOURCE}
+            onValueChange={(v) => onPick(v === NO_SOURCE ? '' : v)}
         >
-            <option value="">— pick source dataset —</option>
-            {datasets.map((d) => (
-                <option key={d.id} value={d.id}>
-                    {d.name} ({d.rowsCount} rows)
-                </option>
-            ))}
-        </select>
+            <SelectTrigger aria-label="Source dataset" className="w-64">
+                <SelectValue placeholder="Pick source dataset" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value={NO_SOURCE}>Pick source dataset</SelectItem>
+                {datasets.map((d) => (
+                    <SelectItem key={d.id} value={d.id}>
+                        {d.name} ({d.rowsCount} rows)
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
     );
 }

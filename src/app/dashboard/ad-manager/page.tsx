@@ -1,8 +1,15 @@
 'use client';
 
-import { Button, Card, CardBody } from '@/components/sabcrm/20ui';
 import {
-  useRouter } from 'next/navigation';
+  Button,
+  Card,
+  CardBody,
+  StatCard,
+  Badge,
+  EmptyState,
+  IconButton,
+} from '@/components/sabcrm/20ui';
+import { useRouter } from 'next/navigation';
 import {
   DollarSign,
   Eye,
@@ -18,22 +25,23 @@ import {
   Play,
   RefreshCw,
   Download,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useAdManagerShell } from '@/context/ad-manager-shell-context';
-import { getInsights,
-  listCampaigns } from '@/app/actions/ad-manager.actions';
-import { formatMoney,
+import { getInsights, listCampaigns } from '@/app/actions/ad-manager.actions';
+import {
+  formatMoney,
   formatNumber,
-  formatPercent } from '@/components/zoruui-domain/ad-manager/constants';
+  formatPercent,
+} from '@/components/zoruui-domain/ad-manager/constants';
 
 /**
- * /dashboard/ad-manager — Meta Suite overview built on ZoruUI primitives.
+ * /dashboard/ad-manager - Meta Suite overview built on the 20ui design system.
  *
  * Shows account-level KPIs, top campaigns, and quick actions.
- * All data is real — pulled from Meta Graph API via server actions.
+ * All data is real, pulled from Meta Graph API via server actions.
  */
 
 import * as React from 'react';
@@ -41,17 +49,16 @@ import Link from 'next/link';
 
 import { AmBreadcrumb, AmHeader } from './_components/am-page-shell';
 
-/* ── types ──────────────────────────────────────────────────────── */
+/* types */
 
 type Kpi = {
   id: string;
   label: string;
   value: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  color: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number; size?: number }>;
 };
 
-/* ── skeleton ──────────────────────────────────────────────────── */
+/* skeleton */
 
 function KpiSkeleton() {
   return (
@@ -80,54 +87,47 @@ function CampaignsSkeleton() {
   );
 }
 
-/* ── no account state ──────────────────────────────────────────── */
+/* no account state */
 
 function NoAccountState() {
   const router = useRouter();
   return (
-    <div className="flex flex-col items-center justify-center gap-5 py-20 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--st-bg-muted)]">
-        <Megaphone className="h-7 w-7 text-[var(--st-text)]" strokeWidth={1.75} />
-      </div>
-      <div>
-        <h2 className="text-[20px] font-semibold text-[var(--st-text)]">Welcome to Meta Ads Manager</h2>
-        <p className="mt-1.5 max-w-md text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
-          Connect your Meta ad account to start creating, managing, and measuring
-          your Facebook & Instagram ad campaigns.
-        </p>
-      </div>
-      <Button variant="default" size="md" onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}>
-        <Plus className="mr-1.5 h-3.5 w-3.5" />
-        Connect ad account
-      </Button>
-    </div>
+    <EmptyState
+      className="py-20"
+      icon={Megaphone}
+      title="Welcome to Meta Ads Manager"
+      description="Connect your Meta ad account to start creating, managing, and measuring your Facebook and Instagram ad campaigns."
+      action={
+        <Button
+          variant="primary"
+          size="md"
+          iconLeft={Plus}
+          onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}
+        >
+          Connect ad account
+        </Button>
+      }
+    />
   );
 }
 
-/* ── status badge ──────────────────────────────────────────────── */
+/* status badge */
 
-function StatusDot({ status }: { status: string }) {
+function StatusBadge({ status }: { status: string }) {
   const s = status?.toUpperCase();
   const isActive = s === 'ACTIVE';
   const isPaused = s === 'PAUSED';
+  const tone = isActive ? 'success' : isPaused ? 'warning' : 'neutral';
+  const Icon = isActive ? Play : isPaused ? Pause : Circle;
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
-        isActive && 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
-        isPaused && 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
-        !isActive && !isPaused && 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
-      )}
-    >
-      {isActive && <Play className="h-2.5 w-2.5" />}
-      {isPaused && <Pause className="h-2.5 w-2.5" />}
-      {!isActive && !isPaused && <Circle className="h-2.5 w-2.5" />}
+    <Badge tone={tone} kind="soft" className="uppercase">
+      <Icon className="h-2.5 w-2.5" aria-hidden="true" />
       {status?.replace(/_/g, ' ') || 'Unknown'}
-    </span>
+    </Badge>
   );
 }
 
-/* ── page ───────────────────────────────────────────────────────── */
+/* page */
 
 export default function AdManagerOverviewPage() {
   const router = useRouter();
@@ -143,11 +143,8 @@ export default function AdManagerOverviewPage() {
     setIsMounted(true);
   }, []);
 
-  React.useEffect(() => {
-    if (!activeAccount) {
-      setLoading(false);
-      return;
-    }
+  const refresh = React.useCallback(() => {
+    if (!activeAccount) return;
     setLoading(true);
     (async () => {
       const actId = `act_${activeAccount.account_id.replace(/^act_/, '')}`;
@@ -166,42 +163,36 @@ export default function AdManagerOverviewPage() {
           label: 'Amount spent',
           value: formatMoney(agg.spend || 0),
           icon: DollarSign,
-          color: 'text-[var(--st-text)]',
         },
         {
           id: 'impressions',
           label: 'Impressions',
           value: formatNumber(agg.impressions || 0),
           icon: Eye,
-          color: 'text-[var(--st-text)]',
         },
         {
           id: 'reach',
           label: 'Reach',
           value: formatNumber(agg.reach || 0),
           icon: Users,
-          color: 'text-[var(--st-text)]',
         },
         {
           id: 'clicks',
           label: 'Link clicks',
           value: formatNumber(agg.inline_link_clicks || agg.clicks || 0),
           icon: MousePointerClick,
-          color: 'text-[var(--st-text)]',
         },
         {
           id: 'ctr',
           label: 'CTR',
           value: formatPercent(agg.ctr || 0),
           icon: TrendingUp,
-          color: 'text-[var(--st-text)]',
         },
         {
           id: 'cpc',
           label: 'CPC',
           value: formatMoney(agg.cpc || 0),
           icon: TrendingDown,
-          color: 'text-[var(--st-text)]',
         },
       ]);
 
@@ -209,6 +200,25 @@ export default function AdManagerOverviewPage() {
       setLoading(false);
     })();
   }, [activeAccount, preset]);
+
+  React.useEffect(() => {
+    if (!activeAccount) {
+      setLoading(false);
+      return;
+    }
+    refresh();
+  }, [activeAccount, preset, refresh]);
+
+  function exportKpis() {
+    const data = kpis.map((k) => ({ id: k.id, label: k.label, value: k.value }));
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kpi-export-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   if (!isMounted) {
     return (
@@ -248,26 +258,14 @@ export default function AdManagerOverviewPage() {
           <KpiSkeleton />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {kpis.map((kpi) => {
-              const Icon = kpi.icon;
-              return (
-                <Card key={kpi.id}>
-                  <CardBody className="p-4">
-                    <div className="flex items-center justify-between">
-                      <Icon className={cn('h-4 w-4', kpi.color)} strokeWidth={2} />
-                    </div>
-                    <div className="mt-2">
-                      <p className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
-                        {kpi.label}
-                      </p>
-                      <p className="mt-0.5 text-[22px] font-semibold tabular-nums text-[var(--st-text)] leading-tight">
-                        {kpi.value}
-                      </p>
-                    </div>
-                  </CardBody>
-                </Card>
-              );
-            })}
+            {kpis.map((kpi) => (
+              <StatCard
+                key={kpi.id}
+                icon={kpi.icon}
+                label={kpi.label}
+                value={kpi.value}
+              />
+            ))}
           </div>
         )}
       </div>
@@ -281,10 +279,10 @@ export default function AdManagerOverviewPage() {
             <Button
               variant="ghost"
               size="sm"
+              iconRight={ArrowRight}
               onClick={() => router.push('/dashboard/ad-manager/campaigns')}
             >
               View all
-              <ArrowRight className="ml-1 h-3 w-3" />
             </Button>
           </div>
 
@@ -292,15 +290,17 @@ export default function AdManagerOverviewPage() {
             <CampaignsSkeleton />
           ) : topCampaigns.length === 0 ? (
             <Card>
-              <CardBody className="flex flex-col items-center gap-3 py-12 text-center">
-                <Megaphone className="h-6 w-6 text-[var(--st-text-tertiary)]" strokeWidth={1.5} />
-                <p className="text-[13px] text-[var(--st-text-secondary)]">
-                  No campaigns yet. Create your first campaign to see results here.
-                </p>
+              <CardBody>
+                <EmptyState
+                  size="sm"
+                  icon={Megaphone}
+                  title="No campaigns yet"
+                  description="Create your first campaign to see results here."
+                />
               </CardBody>
             </Card>
           ) : (
-            <Card>
+            <Card padding="none">
               <div className="divide-y divide-[var(--st-border)]">
                 {topCampaigns.map((c) => (
                   <Link
@@ -315,7 +315,7 @@ export default function AdManagerOverviewPage() {
                       <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
                         <span>{c.objective?.replace(/_/g, ' ')}</span>
                         <span className="text-[var(--st-text-tertiary)]">·</span>
-                        <StatusDot status={c.effective_status || c.status} />
+                        <StatusBadge status={c.effective_status || c.status} />
                       </div>
                     </div>
                     <div className="text-right shrink-0">
@@ -338,54 +338,19 @@ export default function AdManagerOverviewPage() {
           <div className="flex items-center justify-between">
             <p className="text-[13px] font-semibold text-[var(--st-text)]">Quick actions</p>
             <div className="flex items-center gap-1.5">
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="h-7 w-7"
-                onClick={() => {
-                  setLoading(true);
-                  (async () => {
-                    const actId = `act_${activeAccount.account_id.replace(/^act_/, '')}`;
-                    const [insightsRes, campaignsRes] = await Promise.all([
-                      getInsights(actId, {
-                        level: 'account',
-                        date_preset: preset && preset !== 'custom' ? preset : 'last_7d',
-                      }),
-                      listCampaigns(activeAccount.account_id),
-                    ]);
-                    const agg = insightsRes.data?.[0] || {};
-                    setKpis([
-                      { id: 'spend', label: 'Amount spent', value: formatMoney(agg.spend || 0), icon: DollarSign, color: 'text-[var(--st-text)]' },
-                      { id: 'impressions', label: 'Impressions', value: formatNumber(agg.impressions || 0), icon: Eye, color: 'text-[var(--st-text)]' },
-                      { id: 'reach', label: 'Reach', value: formatNumber(agg.reach || 0), icon: Users, color: 'text-[var(--st-text)]' },
-                      { id: 'clicks', label: 'Link clicks', value: formatNumber(agg.inline_link_clicks || agg.clicks || 0), icon: MousePointerClick, color: 'text-[var(--st-text)]' },
-                      { id: 'ctr', label: 'CTR', value: formatPercent(agg.ctr || 0), icon: TrendingUp, color: 'text-[var(--st-text)]' },
-                      { id: 'cpc', label: 'CPC', value: formatMoney(agg.cpc || 0), icon: TrendingDown, color: 'text-[var(--st-text)]' },
-                    ]);
-                    setTopCampaigns((campaignsRes.data || []).slice(0, 6));
-                    setLoading(false);
-                  })();
-                }}
-              >
-                <RefreshCw className={cn('h-3.5 w-3.5 text-[var(--st-text-secondary)]', loading && 'animate-spin')} strokeWidth={2} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="h-7 w-7"
-                onClick={() => {
-                  const data = kpis.map((k) => ({ id: k.id, label: k.label, value: k.value }));
-                  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `kpi-export-${new Date().toISOString().split('T')[0]}.json`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
-              >
-                <Download className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" strokeWidth={2} />
-              </Button>
+              <IconButton
+                label="Refresh data"
+                icon={RefreshCw}
+                size="sm"
+                onClick={refresh}
+                className={cn(loading && '[&_svg]:animate-spin')}
+              />
+              <IconButton
+                label="Export KPIs as JSON"
+                icon={Download}
+                size="sm"
+                onClick={exportKpis}
+              />
             </div>
           </div>
 
@@ -393,17 +358,17 @@ export default function AdManagerOverviewPage() {
             <CardBody className="space-y-2 p-4">
               <QuickAction
                 label="Create campaign"
-                description="Launch new ads on Facebook & Instagram"
+                description="Launch new ads on Facebook and Instagram"
                 onClick={() => router.push('/dashboard/ad-manager/create')}
               />
               <QuickAction
                 label="Manage audiences"
-                description="Build custom & lookalike audiences"
+                description="Build custom and lookalike audiences"
                 onClick={() => router.push('/dashboard/ad-manager/audiences')}
               />
               <QuickAction
                 label="Creative library"
-                description="Upload and manage ad images & videos"
+                description="Upload and manage ad images and videos"
                 onClick={() => router.push('/dashboard/ad-manager/creative-library')}
               />
               <QuickAction
@@ -439,7 +404,7 @@ export default function AdManagerOverviewPage() {
   );
 }
 
-/* ── quick action row ──────────────────────────────────────────── */
+/* quick action row */
 
 function QuickAction({
   label,
@@ -451,16 +416,22 @@ function QuickAction({
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      block
       onClick={onClick}
-      className="group flex w-full items-center justify-between gap-3 rounded-lg p-2.5 text-left transition hover:bg-[var(--st-bg-muted)]/60"
+      className="group h-auto justify-between gap-3 p-2.5 text-left"
     >
-      <div className="min-w-0">
-        <p className="text-[12px] font-semibold text-[var(--st-text)]">{label}</p>
-        <p className="text-[11px] text-[var(--st-text-secondary)]">{description}</p>
-      </div>
-      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-tertiary)] transition group-hover:translate-x-0.5 group-hover:text-[var(--st-text)]" />
-    </button>
+      <span className="min-w-0">
+        <span className="block text-[12px] font-semibold text-[var(--st-text)]">{label}</span>
+        <span className="block text-[11px] font-normal text-[var(--st-text-secondary)]">
+          {description}
+        </span>
+      </span>
+      <ArrowRight
+        className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-tertiary)] transition group-hover:translate-x-0.5 group-hover:text-[var(--st-text)]"
+        aria-hidden="true"
+      />
+    </Button>
   );
 }

@@ -144,18 +144,19 @@ export default function CreativeLibraryPage() {
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                             {images.map((img) => (
                                 <Card key={img.hash} padding="none" className="overflow-hidden group relative">
-                                    <button
-                                        type="button"
-                                        className="block w-full aspect-square bg-[var(--st-bg-secondary)] relative cursor-pointer"
-                                        onClick={() => window.open(img.url, '_blank')}
-                                        aria-label={`Preview ${img.name}`}
-                                    >
+                                    <div className="block w-full aspect-square bg-[var(--st-bg-secondary)] relative">
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
-                                        <span className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                            <ExternalLink className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
-                                        </span>
-                                    </button>
+                                        <span className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none" aria-hidden="true" />
+                                        <IconButton
+                                            label={`Open ${img.name} in a new tab`}
+                                            icon={ExternalLink}
+                                            variant="secondary"
+                                            size="sm"
+                                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            onClick={() => window.open(img.url, '_blank')}
+                                        />
+                                    </div>
                                     <CardBody className="p-2">
                                         <div className="flex items-center justify-between gap-1">
                                             <div className="min-w-0">
@@ -213,18 +214,21 @@ export default function CreativeLibraryPage() {
                                 const preview = v.source || v.picture;
                                 return (
                                     <Card key={v.id} padding="none" className="overflow-hidden group relative">
-                                        <button
-                                            type="button"
-                                            className="block w-full aspect-video bg-[var(--st-bg-secondary)] relative cursor-pointer"
-                                            onClick={() => preview && window.open(preview, '_blank')}
-                                            aria-label={`Preview ${v.title || 'video'}`}
-                                        >
+                                        <div className="block w-full aspect-video bg-[var(--st-bg-secondary)] relative">
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
                                             {v.picture && <img src={v.picture} alt="" className="w-full h-full object-cover" />}
-                                            <span className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                                <ExternalLink className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
-                                            </span>
-                                        </button>
+                                            <span className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none" aria-hidden="true" />
+                                            {preview && (
+                                                <IconButton
+                                                    label={`Open ${v.title || 'video'} in a new tab`}
+                                                    icon={ExternalLink}
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    onClick={() => window.open(preview, '_blank')}
+                                                />
+                                            )}
+                                        </div>
                                         <CardBody className="p-2">
                                             <div className="flex items-center justify-between gap-1">
                                                 <div className="text-xs font-medium truncate text-[var(--st-text)]">{v.title || 'Untitled'}</div>

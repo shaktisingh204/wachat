@@ -2,14 +2,46 @@
 
 /**
  * Rewards catalog CRUD. Each item is a redeemable reward with a SabFiles
- * image reference (NEVER a free-text URL — SabFiles policy) and a point
+ * image reference (NEVER a free-text URL, per SabFiles policy) and a point
  * cost. Stock is optional; when set, redemptions can drain it.
  */
 
 import * as React from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 
-import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Textarea,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import {
@@ -84,11 +116,11 @@ export function CatalogClient({
 
   const handleSave = React.useCallback(async () => {
     if (!form.name.trim()) {
-      toast({ title: 'Name is required', variant: 'destructive' });
+      toast.error('Name is required');
       return;
     }
     if (form.pointsCost < 0) {
-      toast({ title: 'Points cost must be ≥ 0', variant: 'destructive' });
+      toast.error('Points cost must be 0 or more');
       return;
     }
     setSaving(true);
@@ -108,7 +140,7 @@ export function CatalogClient({
         setItems((prev) =>
           prev.map((i) => (i._id === editing._id ? { ...i, ...payload } : i)),
         );
-        toast({ title: 'Reward updated' });
+        toast.success('Reward updated');
       } else {
         const res = await createRewardsCatalogItem(payload);
         if (!res.success) throw new Error(res.error);
@@ -122,14 +154,13 @@ export function CatalogClient({
           } as RewardsCatalogItemDoc,
           ...prev,
         ]);
-        toast({ title: 'Reward created' });
+        toast.success('Reward created');
       }
       setDialogOpen(false);
     } catch (e) {
-      toast({
+      toast.error({
         title: 'Save failed',
         description: e instanceof Error ? e.message : 'Unknown error',
-        variant: 'destructive',
       });
     } finally {
       setSaving(false);
@@ -142,13 +173,9 @@ export function CatalogClient({
       const res = await deleteRewardsCatalogItem(id);
       if (res.success) {
         setItems((prev) => prev.filter((i) => i._id !== id));
-        toast({ title: 'Reward deleted' });
+        toast.success('Reward deleted');
       } else {
-        toast({
-          title: 'Delete failed',
-          description: res.error,
-          variant: 'destructive',
-        });
+        toast.error({ title: 'Delete failed', description: res.error });
       }
     },
     [toast],
@@ -161,31 +188,33 @@ export function CatalogClient({
   }, [programs]);
 
   return (
-    <div className="zoruui flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-[var(--st-text)]">Catalog</h2>
-          <p className="text-sm text-[var(--st-text-secondary)]">
+    <div className="ui20 flex flex-col gap-4">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Catalog</PageTitle>
+          <PageDescription>
             Rewards customers can redeem with their points. Images come from
-            SabFiles — no free-text URLs.
-          </p>
-        </div>
-        <Button onClick={openNew}>
-          <Plus className="h-4 w-4" /> New reward
-        </Button>
-      </div>
+            SabFiles, never free-text URLs.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus} onClick={openNew}>
+            New reward
+          </Button>
+        </PageActions>
+      </PageHeader>
 
-      <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg">
+      <Card padding="none">
+        <div className="overflow-x-auto rounded-[var(--st-radius)]">
           <Table>
             <THead>
-              <Tr className="border-[var(--st-border)]">
+              <Tr>
                 <Th>Reward</Th>
                 <Th>Program</Th>
                 <Th>Points</Th>
                 <Th>Stock</Th>
                 <Th>Status</Th>
-                <Th className="text-right">Actions</Th>
+                <Th align="right">Actions</Th>
               </Tr>
             </THead>
             <TBody>
@@ -200,7 +229,7 @@ export function CatalogClient({
                 </Tr>
               ) : (
                 items.map((item) => (
-                  <Tr key={item._id} className="border-[var(--st-border)]">
+                  <Tr key={item._id}>
                     <Td className="text-[var(--st-text)]">
                       <div className="flex flex-col">
                         <span className="font-medium">{item.name}</span>
@@ -213,31 +242,33 @@ export function CatalogClient({
                     </Td>
                     <Td className="text-[var(--st-text)]">
                       {item.programId
-                        ? programNameById.get(item.programId) ?? '—'
-                        : '—'}
+                        ? programNameById.get(item.programId) ?? '-'
+                        : '-'}
                     </Td>
                     <Td className="text-[var(--st-text)]">
                       {item.pointsCost.toLocaleString()}
                     </Td>
                     <Td className="text-[var(--st-text)]">
-                      {item.stock == null ? '∞' : item.stock.toLocaleString()}
+                      {item.stock == null ? 'Unlimited' : item.stock.toLocaleString()}
                     </Td>
                     <Td>
-                      <Badge variant={item.active ? 'success' : 'ghost'}>
+                      <Badge tone={item.active ? 'success' : 'neutral'}>
                         {item.active ? 'active' : 'inactive'}
                       </Badge>
                     </Td>
-                    <Td className="space-x-1 text-right">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
+                    <Td align="right" className="space-x-1">
+                      <IconButton
+                        label="Edit reward"
+                        icon={Pencil}
                         variant="ghost"
-                        size="icon"
+                        onClick={() => openEdit(item)}
+                      />
+                      <IconButton
+                        label="Delete reward"
+                        icon={Trash2}
+                        variant="ghost"
                         onClick={() => handleDelete(item._id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
-                      </Button>
+                      />
                     </Td>
                   </Tr>
                 ))
@@ -253,33 +284,28 @@ export function CatalogClient({
             <DialogTitle>{editing ? 'Edit reward' : 'New reward'}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-3 py-2">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="reward-name">Name</Label>
+            <Field label="Name">
               <Input
-                id="reward-name"
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="reward-description">Description</Label>
+            </Field>
+            <Field label="Description">
               <Textarea
-                id="reward-description"
                 rows={2}
                 value={form.description}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, description: e.target.value }))
                 }
               />
-            </div>
+            </Field>
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label>Program</Label>
+              <Field label="Program">
                 <Select
                   value={form.programId}
                   onValueChange={(v) => setForm((f) => ({ ...f, programId: v }))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Program">
                     <SelectValue placeholder="No program" />
                   </SelectTrigger>
                   <SelectContent>
@@ -290,11 +316,9 @@ export function CatalogClient({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="reward-points">Points cost</Label>
+              </Field>
+              <Field label="Points cost">
                 <Input
-                  id="reward-points"
                   type="number"
                   min={0}
                   value={form.pointsCost}
@@ -302,46 +326,42 @@ export function CatalogClient({
                     setForm((f) => ({ ...f, pointsCost: Number(e.target.value) }))
                   }
                 />
-              </div>
+              </Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="reward-stock">Stock (blank = unlimited)</Label>
+              <Field label="Stock (blank = unlimited)">
                 <Input
-                  id="reward-stock"
                   type="number"
                   min={0}
                   value={form.stock}
                   onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))}
                 />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="reward-active">Active</Label>
+              </Field>
+              <Field label="Active">
                 <div className="flex h-9 items-center">
                   <Switch
-                    id="reward-active"
+                    aria-label="Active"
                     checked={form.active}
                     onCheckedChange={(v) => setForm((f) => ({ ...f, active: !!v }))}
                   />
                 </div>
-              </div>
+              </Field>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label>Image</Label>
+            <Field label="Image">
               <div className="flex items-center gap-3">
                 {form.imagePreviewUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={form.imagePreviewUrl}
                     alt="Reward preview"
-                    className="h-12 w-12 rounded-md border border-[var(--st-border)] object-cover"
+                    className="h-12 w-12 rounded-[var(--st-radius)] border border-[var(--st-border)] object-cover"
                   />
                 ) : form.imageFileId ? (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md border border-[var(--st-border)] text-[10px] text-[var(--st-text-secondary)]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] text-[10px] text-[var(--st-text-secondary)]">
                     Set
                   </div>
                 ) : (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md border border-dashed border-[var(--st-border)] text-[10px] text-[var(--st-text-secondary)]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] text-[10px] text-[var(--st-text-secondary)]">
                     None
                   </div>
                 )}
@@ -369,14 +389,14 @@ export function CatalogClient({
                   </Button>
                 ) : null}
               </div>
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDialogOpen(false)} disabled={saving}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving…' : editing ? 'Save changes' : 'Create reward'}
+            <Button variant="primary" onClick={handleSave} loading={saving} disabled={saving}>
+              {editing ? 'Save changes' : 'Create reward'}
             </Button>
           </DialogFooter>
         </DialogContent>

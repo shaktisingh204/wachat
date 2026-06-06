@@ -5,16 +5,16 @@ import { ChevronDown, ListChecks, UserPlus, X } from "lucide-react";
 
 /**
  * Filter row + bulk bar + saved-view preset menu for the Tickets list
- * page (§1D.1).
+ * page (1D.1).
  *
  * 8 filters: status, priority, severity, channel, category, assignee,
  * requester-type, date range.
  *
- * Bulk operations: assign · change priority · change status · merge ·
- * delete · export.
+ * Bulk operations: assign, change priority, change status, merge,
+ * delete, export.
  *
- * Saved presets: All · My tickets · Overdue SLA · High priority
- * unassigned · Resolved last 30d.
+ * Saved presets: All, My tickets, Overdue SLA, High priority
+ * unassigned, Resolved last 30d.
  */
 
 import * as React from "react";
@@ -33,7 +33,7 @@ export type TicketStatusFilter =
   | "closed"
   | "reopened";
 
-// CHANNEL_OPTIONS and SEVERITY_OPTIONS removed — filter row uses EnumFilterField now.
+// CHANNEL_OPTIONS and SEVERITY_OPTIONS removed. Filter row uses EnumFilterField now.
 
 export const PRIORITY_OPTIONS = [
   { value: "low", label: "Low" },
@@ -51,7 +51,7 @@ export const STATUS_OPTIONS = [
   { value: "reopened", label: "Reopened" },
 ] as const;
 
-/* ─── Filter row ─────────────────────────────────────────────────────── */
+/* --- Filter row --- */
 
 export interface TicketsFiltersRowProps {
   statusFilter: TicketStatusFilter;
@@ -154,8 +154,8 @@ export function TicketsFiltersRow(props: TicketsFiltersRowProps) {
 
         {props.hasActiveFilters ? (
           <div className="flex items-end md:col-span-4 lg:col-span-8">
-            <Button variant="ghost" size="sm" onClick={props.onClear}>
-              <X className="h-3.5 w-3.5" /> Clear filters
+            <Button variant="ghost" size="sm" iconLeft={X} onClick={props.onClear}>
+              Clear filters
             </Button>
           </div>
         ) : null}
@@ -181,7 +181,7 @@ function FilterField({
   );
 }
 
-/* ─── Bulk bar ───────────────────────────────────────────────────────── */
+/* --- Bulk bar --- */
 
 export interface TicketsBulkBarProps {
   count: number;
@@ -210,8 +210,8 @@ export function TicketsBulkBar({
       <Badge variant="info">{count} selected</Badge>
 
       <Select onValueChange={onStatus}>
-        <SelectTrigger className="h-8 w-[150px]">
-          <SelectValue placeholder="Set status…" />
+        <SelectTrigger className="h-8 w-[150px]" aria-label="Set status">
+          <SelectValue placeholder="Set status..." />
         </SelectTrigger>
         <SelectContent>
           {STATUS_OPTIONS.map((o) => (
@@ -223,8 +223,8 @@ export function TicketsBulkBar({
       </Select>
 
       <Select onValueChange={onPriority}>
-        <SelectTrigger className="h-8 w-[150px]">
-          <SelectValue placeholder="Set priority…" />
+        <SelectTrigger className="h-8 w-[150px]" aria-label="Set priority">
+          <SelectValue placeholder="Set priority..." />
         </SelectTrigger>
         <SelectContent>
           {PRIORITY_OPTIONS.map((o) => (
@@ -237,8 +237,8 @@ export function TicketsBulkBar({
 
       <Popover open={assignOpen} onOpenChange={setAssignOpen}>
         <PopoverTrigger asChild>
-          <Button size="sm" variant="outline">
-            <UserPlus className="h-3.5 w-3.5" /> Assign…
+          <Button size="sm" variant="outline" iconLeft={UserPlus}>
+            Assign...
           </Button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-72 space-y-2">
@@ -249,22 +249,22 @@ export function TicketsBulkBar({
             entity="user"
             name="bulkAssign"
             initialId={null}
-            placeholder="Pick a user…"
+            placeholder="Pick a user..."
             onChange={(next) => {
               setAssignOpen(false);
               onAssign(next);
             }}
           />
-          <button
-            type="button"
-            className="text-[12px] text-[var(--st-text-secondary)] hover:underline"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => {
               setAssignOpen(false);
               onAssign(null);
             }}
           >
             Unassign
-          </button>
+          </Button>
         </PopoverContent>
       </Popover>
 
@@ -284,7 +284,7 @@ export function TicketsBulkBar({
   );
 }
 
-/* ─── Saved views ────────────────────────────────────────────────────── */
+/* --- Saved views --- */
 
 export interface TicketsViewPreset {
   id: string;
@@ -302,12 +302,12 @@ export const TICKETS_VIEW_PRESETS: TicketsViewPreset[] = [
   {
     id: "overdue",
     label: "Overdue SLA",
-    description: "Due-by < now & not resolved",
+    description: "Due-by before now and not resolved",
   },
   {
     id: "high-unassigned",
     label: "High-priority unassigned",
-    description: "Priority ≥ high, no agent",
+    description: "Priority high or above, no agent",
   },
   {
     id: "resolved-30",
@@ -408,9 +408,8 @@ export function TicketsViewsMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          <ListChecks className="h-3.5 w-3.5" /> {active.label}
-          <ChevronDown className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
+        <Button variant="outline" size="sm" iconLeft={ListChecks} iconRight={ChevronDown}>
+          {active.label}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-64">

@@ -3,14 +3,45 @@
 /**
  * Referral codes management + attribution leaderboard. Codes are owned by
  * a member (the inviter). Each conversion the customer drives is logged on
- * the embedded `conversions[]` array and bumps `rewardPoints` — that's the
+ * the embedded `conversions[]` array and bumps `rewardPoints`, that's the
  * leaderboard sort key.
  */
 
 import * as React from 'react';
 import { Plus, Share2, Trash2 } from 'lucide-react';
 
-import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  Label,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
   createRewardsReferral,
@@ -59,11 +90,11 @@ export function ReferralsClient({
 
   const handleCreate = React.useCallback(async () => {
     if (!memberId) {
-      toast({ title: 'Pick a member', variant: 'destructive' });
+      toast.error('Pick a member');
       return;
     }
     if (!code.trim()) {
-      toast({ title: 'Code is required', variant: 'destructive' });
+      toast.error('Code is required');
       return;
     }
     setSaving(true);
@@ -87,14 +118,14 @@ export function ReferralsClient({
         } as RewardsReferralDoc,
         ...prev,
       ]);
-      toast({ title: 'Referral code created' });
+      toast.success('Referral code created');
       setDialogOpen(false);
       setCode('');
     } catch (e) {
       toast({
         title: 'Create failed',
         description: e instanceof Error ? e.message : 'Unknown error',
-        variant: 'destructive',
+        tone: 'danger',
       });
     } finally {
       setSaving(false);
@@ -109,12 +140,12 @@ export function ReferralsClient({
         setReferrals((prev) =>
           prev.map((r) => (r._id === id ? { ...r, active: false } : r)),
         );
-        toast({ title: 'Code deactivated' });
+        toast.success('Code deactivated');
       } else {
         toast({
           title: 'Failed',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
     },
@@ -125,8 +156,8 @@ export function ReferralsClient({
     (referral: RewardsReferralDoc) => {
       const url = `${window.location.origin}/portal/sabrewards/${referral.programId ?? 'default'}?ref=${encodeURIComponent(referral.code)}`;
       navigator.clipboard.writeText(url).then(
-        () => toast({ title: 'Referral link copied' }),
-        () => toast({ title: 'Copy failed', variant: 'destructive' }),
+        () => toast.success('Referral link copied'),
+        () => toast.error('Copy failed'),
       );
     },
     [toast],
@@ -139,33 +170,35 @@ export function ReferralsClient({
   );
 
   return (
-    <div className="zoruui flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-[var(--st-text)]">Referrals</h2>
-          <p className="text-sm text-[var(--st-text-secondary)]">
+    <div className="flex flex-col gap-4">
+      <PageHeader bordered={false} compact>
+        <PageHeaderHeading>
+          <PageTitle>Referrals</PageTitle>
+          <PageDescription>
             Each code is owned by a member. Conversions and reward credits are
             tracked per code.
-          </p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4" /> New code
-        </Button>
-      </div>
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
+            New code
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2 p-0">
-          <div className="overflow-x-auto rounded-lg">
+        <Card padding="none" className="lg:col-span-2">
+          <div className="overflow-x-auto rounded-[var(--st-radius)]">
             <Table>
               <THead>
-                <Tr className="border-[var(--st-border)]">
+                <Tr>
                   <Th>Code</Th>
                   <Th>Owner</Th>
                   <Th>Program</Th>
                   <Th>Conversions</Th>
                   <Th>Reward pts</Th>
                   <Th>Status</Th>
-                  <Th className="text-right">Actions</Th>
+                  <Th align="right">Actions</Th>
                 </Tr>
               </THead>
               <TBody>
@@ -180,15 +213,15 @@ export function ReferralsClient({
                   </Tr>
                 ) : (
                   referrals.map((r) => (
-                    <Tr key={r._id} className="border-[var(--st-border)]">
+                    <Tr key={r._id}>
                       <Td className="font-mono text-[var(--st-text)]">
                         {r.code}
                       </Td>
                       <Td className="text-[var(--st-text)]">
-                        {memberLabelById.get(r.memberId) ?? '—'}
+                        {memberLabelById.get(r.memberId) ?? '-'}
                       </Td>
                       <Td className="text-[var(--st-text)]">
-                        {r.programId ? programNameById.get(r.programId) ?? '—' : '—'}
+                        {r.programId ? programNameById.get(r.programId) ?? '-' : '-'}
                       </Td>
                       <Td className="text-[var(--st-text)]">
                         {(r.conversions?.length ?? 0).toLocaleString()}
@@ -197,27 +230,21 @@ export function ReferralsClient({
                         {(r.rewardPoints ?? 0).toLocaleString()}
                       </Td>
                       <Td>
-                        <Badge variant={r.active ? 'success' : 'ghost'}>
+                        <Badge tone={r.active ? 'success' : 'neutral'}>
                           {r.active ? 'active' : 'inactive'}
                         </Badge>
                       </Td>
-                      <Td className="space-x-1 text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                      <Td align="right" className="space-x-1">
+                        <IconButton
+                          label="Copy referral link"
+                          icon={Share2}
                           onClick={() => handleCopy(r)}
-                          aria-label="Copy referral link"
-                        >
-                          <Share2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                        />
+                        <IconButton
+                          label="Deactivate referral"
+                          icon={Trash2}
                           onClick={() => handleDelete(r._id)}
-                          aria-label="Deactivate referral"
-                        >
-                          <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
-                        </Button>
+                        />
                       </Td>
                     </Tr>
                   ))
@@ -227,7 +254,7 @@ export function ReferralsClient({
           </div>
         </Card>
 
-        <Card className="p-4">
+        <Card padding="md">
           <h3 className="text-sm font-semibold text-[var(--st-text)]">Attribution leaderboard</h3>
           <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
             Top codes by total points awarded.
@@ -239,7 +266,7 @@ export function ReferralsClient({
               leaderboard.map((r, idx) => (
                 <li key={r._id} className="flex items-center justify-between py-2 text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[11px] font-semibold">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[11px] font-semibold text-[var(--st-text)]">
                       {idx + 1}
                     </span>
                     <code className="font-mono text-[var(--st-text)]">{r.code}</code>
@@ -263,7 +290,7 @@ export function ReferralsClient({
             <div className="flex flex-col gap-1.5">
               <Label>Owner (member)</Label>
               <Select value={memberId} onValueChange={setMemberId}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Owner (member)">
                   <SelectValue placeholder="Pick a member" />
                 </SelectTrigger>
                 <SelectContent>
@@ -278,7 +305,7 @@ export function ReferralsClient({
             <div className="flex flex-col gap-1.5">
               <Label>Program (optional)</Label>
               <Select value={programId} onValueChange={setProgramId}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Program (optional)">
                   <SelectValue placeholder="No program" />
                 </SelectTrigger>
                 <SelectContent>
@@ -290,22 +317,20 @@ export function ReferralsClient({
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="referral-code">Code</Label>
+            <Field label="Code">
               <Input
-                id="referral-code"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="FRIEND10"
               />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDialogOpen(false)} disabled={saving}>
               Cancel
             </Button>
-            <Button onClick={handleCreate} disabled={saving}>
-              {saving ? 'Creating…' : 'Create code'}
+            <Button variant="primary" onClick={handleCreate} loading={saving} disabled={saving}>
+              {saving ? 'Creating...' : 'Create code'}
             </Button>
           </DialogFooter>
         </DialogContent>

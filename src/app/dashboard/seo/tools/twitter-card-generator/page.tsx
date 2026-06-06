@@ -1,14 +1,29 @@
 'use client';
 
-import { Button, Input, Label, Textarea, Card } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Field,
+  Input,
+  Textarea,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Copy } from 'lucide-react';
-import { toast } from 'sonner';
 
 type CardType = 'summary' | 'summary_large_image' | 'player' | 'app';
 
 export default function TwitterCardGeneratorPage() {
+  const { toast } = useToast();
   const [f, setF] = useState({
     card: 'summary_large_image' as CardType,
     site: '',
@@ -43,7 +58,7 @@ export default function TwitterCardGeneratorPage() {
     f.description && `<meta name="twitter:description" content="${f.description}" />`,
     f.image && (f.card !== 'app') && `<meta name="twitter:image" content="${f.image}" />`,
     f.imageAlt && (f.card !== 'app') && `<meta name="twitter:image:alt" content="${f.imageAlt}" />`,
-    
+
     // Player
     f.playerUrl && f.card === 'player' && `<meta name="twitter:player" content="${f.playerUrl}" />`,
     f.playerWidth && f.card === 'player' && `<meta name="twitter:player:width" content="${f.playerWidth}" />`,
@@ -66,184 +81,169 @@ export default function TwitterCardGeneratorPage() {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(out);
-    toast.success('Copied to clipboard!');
+    toast.success('Copied to clipboard');
   };
 
   return (
     <ToolShell title="Twitter Card Generator" description="Generate Twitter/X Card meta tags with live visual preview.">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         <div className="space-y-6">
-          <Card className="p-4 space-y-4">
-            <h3 className="font-semibold text-lg">Card Configuration</h3>
-            
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <Label>Card Type</Label>
-                <select 
-                  className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-[var(--st-border)] bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-zoru-surface placeholder:text-[var(--st-text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50" 
-                  value={f.card} 
-                  onChange={(e) => update('card', e.target.value as CardType)}
-                >
-                  <option value="summary">Summary</option>
-                  <option value="summary_large_image">Summary Large Image</option>
-                  <option value="player">Player</option>
-                  <option value="app">App</option>
-                </select>
-              </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Card Configuration</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-4">
+              <Field label="Card Type">
+                <Select value={f.card} onValueChange={(v) => update('card', v as CardType)}>
+                  <SelectTrigger aria-label="Card type">
+                    <SelectValue placeholder="Select a card type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="summary">Summary</SelectItem>
+                    <SelectItem value="summary_large_image">Summary Large Image</SelectItem>
+                    <SelectItem value="player">Player</SelectItem>
+                    <SelectItem value="app">App</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label>Site (@handle)</Label>
+                <Field label="Site (@handle)">
                   <Input value={f.site} onChange={(e) => update('site', e.target.value)} placeholder="@yourhandle" />
-                </div>
+                </Field>
                 {(f.card === 'summary' || f.card === 'summary_large_image') && (
-                  <div className="space-y-1">
-                    <Label>Creator (@handle)</Label>
+                  <Field label="Creator (@handle)">
                     <Input value={f.creator} onChange={(e) => update('creator', e.target.value)} placeholder="@creatorhandle" />
-                  </div>
+                  </Field>
                 )}
               </div>
 
               {f.card !== 'app' && (
                 <>
-                  <div className="space-y-1">
-                    <Label>Title</Label>
+                  <Field label="Title">
                     <Input value={f.title} onChange={(e) => update('title', e.target.value)} placeholder="Max 70 characters" />
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <Label>Image URL</Label>
-                    <Input value={f.image} onChange={(e) => update('image', e.target.value)} placeholder="https://example.com/image.jpg" />
-                  </div>
+                  </Field>
 
-                  <div className="space-y-1">
-                    <Label>Image Alt Text</Label>
+                  <Field label="Image URL">
+                    <Input value={f.image} onChange={(e) => update('image', e.target.value)} placeholder="https://example.com/image.jpg" />
+                  </Field>
+
+                  <Field label="Image Alt Text">
                     <Input value={f.imageAlt} onChange={(e) => update('imageAlt', e.target.value)} placeholder="Description of the image" />
-                  </div>
+                  </Field>
                 </>
               )}
 
-              <div className="space-y-1">
-                <Label>Description</Label>
+              <Field label="Description">
                 <Textarea value={f.description} onChange={(e) => update('description', e.target.value)} placeholder="Max 200 characters" rows={3} />
-              </div>
-            </div>
+              </Field>
 
-            {f.card === 'player' && (
-              <div className="space-y-4 pt-4 border-t">
-                <h4 className="font-medium text-sm">Player Configuration</h4>
-                <div className="space-y-1">
-                  <Label>Player URL (iframe)</Label>
-                  <Input value={f.playerUrl} onChange={(e) => update('playerUrl', e.target.value)} placeholder="https://example.com/player" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <Label>Width</Label>
-                    <Input type="number" value={f.playerWidth} onChange={(e) => update('playerWidth', e.target.value)} placeholder="e.g. 435" />
+              {f.card === 'player' && (
+                <div className="space-y-4 pt-4 border-t border-[var(--st-border)]">
+                  <h4 className="font-medium text-sm text-[var(--st-text)]">Player Configuration</h4>
+                  <Field label="Player URL (iframe)">
+                    <Input value={f.playerUrl} onChange={(e) => update('playerUrl', e.target.value)} placeholder="https://example.com/player" />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Width">
+                      <Input type="number" value={f.playerWidth} onChange={(e) => update('playerWidth', e.target.value)} placeholder="e.g. 435" />
+                    </Field>
+                    <Field label="Height">
+                      <Input type="number" value={f.playerHeight} onChange={(e) => update('playerHeight', e.target.value)} placeholder="e.g. 251" />
+                    </Field>
                   </div>
-                  <div className="space-y-1">
-                    <Label>Height</Label>
-                    <Input type="number" value={f.playerHeight} onChange={(e) => update('playerHeight', e.target.value)} placeholder="e.g. 251" />
-                  </div>
+                  <Field label="Stream URL (optional)">
+                    <Input value={f.playerStream} onChange={(e) => update('playerStream', e.target.value)} placeholder="Raw stream URL" />
+                  </Field>
                 </div>
-                <div className="space-y-1">
-                  <Label>Stream URL (optional)</Label>
-                  <Input value={f.playerStream} onChange={(e) => update('playerStream', e.target.value)} placeholder="Raw stream URL" />
-                </div>
-              </div>
-            )}
+              )}
 
-            {f.card === 'app' && (
-              <div className="space-y-4 pt-4 border-t">
-                <h4 className="font-medium text-sm">App Configuration</h4>
-                <div className="space-y-1">
-                  <Label>App Country (Optional)</Label>
-                  <Input value={f.appCountry} onChange={(e) => update('appCountry', e.target.value)} placeholder="US" />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* iPhone */}
-                  <div className="space-y-3 p-3 bg-[var(--st-bg-muted)]/30 rounded-lg">
-                    <h5 className="text-xs font-semibold uppercase">iPhone App</h5>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Name</Label>
-                      <Input className="h-8 text-sm" value={f.appIphoneName} onChange={(e) => update('appIphoneName', e.target.value)} />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">ID</Label>
-                      <Input className="h-8 text-sm" value={f.appIphoneId} onChange={(e) => update('appIphoneId', e.target.value)} />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">URL Scheme</Label>
-                      <Input className="h-8 text-sm" value={f.appIphoneUrl} onChange={(e) => update('appIphoneUrl', e.target.value)} />
-                    </div>
-                  </div>
+              {f.card === 'app' && (
+                <div className="space-y-4 pt-4 border-t border-[var(--st-border)]">
+                  <h4 className="font-medium text-sm text-[var(--st-text)]">App Configuration</h4>
+                  <Field label="App Country (Optional)">
+                    <Input value={f.appCountry} onChange={(e) => update('appCountry', e.target.value)} placeholder="US" />
+                  </Field>
 
-                  {/* iPad */}
-                  <div className="space-y-3 p-3 bg-[var(--st-bg-muted)]/30 rounded-lg">
-                    <h5 className="text-xs font-semibold uppercase">iPad App</h5>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Name</Label>
-                      <Input className="h-8 text-sm" value={f.appIpadName} onChange={(e) => update('appIpadName', e.target.value)} />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* iPhone */}
+                    <div className="space-y-3 p-3 bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)]">
+                      <h5 className="text-xs font-semibold uppercase text-[var(--st-text)]">iPhone App</h5>
+                      <Field label="Name">
+                        <Input inputSize="sm" value={f.appIphoneName} onChange={(e) => update('appIphoneName', e.target.value)} />
+                      </Field>
+                      <Field label="ID">
+                        <Input inputSize="sm" value={f.appIphoneId} onChange={(e) => update('appIphoneId', e.target.value)} />
+                      </Field>
+                      <Field label="URL Scheme">
+                        <Input inputSize="sm" value={f.appIphoneUrl} onChange={(e) => update('appIphoneUrl', e.target.value)} />
+                      </Field>
                     </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">ID</Label>
-                      <Input className="h-8 text-sm" value={f.appIpadId} onChange={(e) => update('appIpadId', e.target.value)} />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">URL Scheme</Label>
-                      <Input className="h-8 text-sm" value={f.appIpadUrl} onChange={(e) => update('appIpadUrl', e.target.value)} />
-                    </div>
-                  </div>
 
-                  {/* Google Play */}
-                  <div className="space-y-3 p-3 bg-[var(--st-bg-muted)]/30 rounded-lg">
-                    <h5 className="text-xs font-semibold uppercase">Google Play App</h5>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Name</Label>
-                      <Input className="h-8 text-sm" value={f.appGoogleplayName} onChange={(e) => update('appGoogleplayName', e.target.value)} />
+                    {/* iPad */}
+                    <div className="space-y-3 p-3 bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)]">
+                      <h5 className="text-xs font-semibold uppercase text-[var(--st-text)]">iPad App</h5>
+                      <Field label="Name">
+                        <Input inputSize="sm" value={f.appIpadName} onChange={(e) => update('appIpadName', e.target.value)} />
+                      </Field>
+                      <Field label="ID">
+                        <Input inputSize="sm" value={f.appIpadId} onChange={(e) => update('appIpadId', e.target.value)} />
+                      </Field>
+                      <Field label="URL Scheme">
+                        <Input inputSize="sm" value={f.appIpadUrl} onChange={(e) => update('appIpadUrl', e.target.value)} />
+                      </Field>
                     </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">ID</Label>
-                      <Input className="h-8 text-sm" value={f.appGoogleplayId} onChange={(e) => update('appGoogleplayId', e.target.value)} />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">URL Scheme</Label>
-                      <Input className="h-8 text-sm" value={f.appGoogleplayUrl} onChange={(e) => update('appGoogleplayUrl', e.target.value)} />
+
+                    {/* Google Play */}
+                    <div className="space-y-3 p-3 bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)]">
+                      <h5 className="text-xs font-semibold uppercase text-[var(--st-text)]">Google Play App</h5>
+                      <Field label="Name">
+                        <Input inputSize="sm" value={f.appGoogleplayName} onChange={(e) => update('appGoogleplayName', e.target.value)} />
+                      </Field>
+                      <Field label="ID">
+                        <Input inputSize="sm" value={f.appGoogleplayId} onChange={(e) => update('appGoogleplayId', e.target.value)} />
+                      </Field>
+                      <Field label="URL Scheme">
+                        <Input inputSize="sm" value={f.appGoogleplayUrl} onChange={(e) => update('appGoogleplayUrl', e.target.value)} />
+                      </Field>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </CardBody>
           </Card>
         </div>
 
         <div className="space-y-6">
-          <Card className="p-4 space-y-4">
-            <h3 className="font-semibold text-lg">Visual Preview</h3>
-            <div className="border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-xl overflow-hidden bg-white dark:bg-black w-full max-w-sm mx-auto shadow-sm">
-              <TwitterCardPreview state={f} />
-            </div>
-            <p className="text-xs text-[var(--st-text-secondary)] text-center">
-              Note: This is an approximation. Twitter may render cards slightly differently on various devices and platforms.
-            </p>
+          <Card>
+            <CardHeader>
+              <CardTitle>Visual Preview</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-4">
+              <div className="border border-[var(--st-border)] rounded-xl overflow-hidden bg-white dark:bg-black w-full max-w-sm mx-auto shadow-sm">
+                <TwitterCardPreview state={f} />
+              </div>
+              <p className="text-xs text-[var(--st-text-secondary)] text-center">
+                Note: This is an approximation. Twitter may render cards slightly differently on various devices and platforms.
+              </p>
+            </CardBody>
           </Card>
 
-          <Card className="p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-lg">Generated Tags</h3>
-              <Button size="sm" variant="outline" onClick={copyToClipboard} className="h-8">
-                <Copy className="w-4 h-4 mr-2" />
+          <Card>
+            <CardHeader className="flex items-center justify-between">
+              <CardTitle>Generated Tags</CardTitle>
+              <Button size="sm" variant="outline" onClick={copyToClipboard} iconLeft={Copy}>
                 Copy
               </Button>
-            </div>
-            <div className="relative">
-              <Textarea 
-                readOnly 
-                value={out} 
-                className="min-h-[250px] font-mono text-xs bg-[var(--st-bg-muted)]/50 resize-none" 
+            </CardHeader>
+            <CardBody>
+              <Textarea
+                readOnly
+                value={out}
+                rows={12}
+                className="min-h-[250px] font-mono text-xs resize-none"
               />
-            </div>
+            </CardBody>
           </Card>
         </div>
       </div>
@@ -253,11 +253,11 @@ export default function TwitterCardGeneratorPage() {
 
 function TwitterCardPreview({ state }: { state: any }) {
   const domain = state.site ? state.site.replace('@', '') : 'example.com';
-  
+
   if (state.card === 'summary') {
     return (
       <div className="flex flex-row p-0">
-        <div className="w-[125px] h-[125px] shrink-0 bg-[var(--st-bg-muted)] border-r border-[var(--st-border)] dark:border-[var(--st-border)] overflow-hidden relative">
+        <div className="w-[125px] h-[125px] shrink-0 bg-[var(--st-bg-secondary)] border-r border-[var(--st-border)] overflow-hidden relative">
           {state.image ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img src={state.image} alt={state.imageAlt || ''} className="w-full h-full object-cover" />
@@ -267,20 +267,20 @@ function TwitterCardPreview({ state }: { state: any }) {
         </div>
         <div className="p-3 flex flex-col justify-center flex-1 min-w-0">
           <div className="text-sm font-bold truncate text-black dark:text-white leading-tight mb-1">{state.title || 'Page Title'}</div>
-          <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] line-clamp-2 leading-snug mb-1">{state.description || 'Page description will appear here...'}</div>
-          <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] flex items-center gap-1 mt-auto">
-            <span className="w-3 h-3 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] flex-shrink-0"></span>
+          <div className="text-xs text-[var(--st-text-secondary)] line-clamp-2 leading-snug mb-1">{state.description || 'Page description will appear here.'}</div>
+          <div className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-auto">
+            <span className="w-3 h-3 rounded-full bg-[var(--st-bg-secondary)] flex-shrink-0" aria-hidden="true"></span>
             {domain}
           </div>
         </div>
       </div>
     );
   }
-  
+
   if (state.card === 'summary_large_image' || state.card === 'player') {
     return (
       <div className="flex flex-col p-0">
-        <div className="w-full aspect-[1.91/1] bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] dark:border-[var(--st-border)] overflow-hidden relative">
+        <div className="w-full aspect-[1.91/1] bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)] overflow-hidden relative">
           {state.image ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img src={state.image} alt={state.imageAlt || ''} className="w-full h-full object-cover" />
@@ -297,9 +297,9 @@ function TwitterCardPreview({ state }: { state: any }) {
         </div>
         <div className="p-3 flex flex-col">
           <div className="text-sm font-bold truncate text-black dark:text-white leading-tight mb-1">{state.title || 'Page Title'}</div>
-          <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] line-clamp-2 leading-snug mb-1">{state.description || 'Page description will appear here...'}</div>
-          <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] flex items-center gap-1 mt-1">
-            <span className="w-3 h-3 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] flex-shrink-0"></span>
+          <div className="text-xs text-[var(--st-text-secondary)] line-clamp-2 leading-snug mb-1">{state.description || 'Page description will appear here.'}</div>
+          <div className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1">
+            <span className="w-3 h-3 rounded-full bg-[var(--st-bg-secondary)] flex-shrink-0" aria-hidden="true"></span>
             {domain}
           </div>
         </div>
@@ -310,8 +310,8 @@ function TwitterCardPreview({ state }: { state: any }) {
   if (state.card === 'app') {
     return (
       <div className="flex flex-col p-0">
-        <div className="p-4 border-b border-[var(--st-border)] dark:border-[var(--st-border)] flex items-center gap-3">
-          <div className="w-16 h-16 bg-[var(--st-bg-muted)] rounded-xl flex-shrink-0 overflow-hidden">
+        <div className="p-4 border-b border-[var(--st-border)] flex items-center gap-3">
+          <div className="w-16 h-16 bg-[var(--st-bg-secondary)] rounded-xl flex-shrink-0 overflow-hidden">
             {state.image ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img src={state.image} alt="" className="w-full h-full object-cover" />
@@ -323,13 +323,13 @@ function TwitterCardPreview({ state }: { state: any }) {
             <div className="text-base font-bold truncate text-black dark:text-white leading-tight mb-1">
               {state.appIphoneName || state.appIpadName || state.appGoogleplayName || 'App Name'}
             </div>
-            <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] line-clamp-2 leading-snug">
-              {state.description || 'App description will appear here...'}
+            <div className="text-xs text-[var(--st-text-secondary)] line-clamp-2 leading-snug">
+              {state.description || 'App description will appear here.'}
             </div>
           </div>
         </div>
-        <div className="p-3 flex justify-between items-center bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]">
-          <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] font-medium">Get the app</div>
+        <div className="p-3 flex justify-between items-center bg-[var(--st-bg-secondary)]">
+          <div className="text-xs text-[var(--st-text-secondary)] font-medium">Get the app</div>
           <div className="px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-full text-xs font-bold">
             View
           </div>

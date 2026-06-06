@@ -1,9 +1,31 @@
 /**
- * Dataset joins — list + visual join builder.
+ * Dataset joins - list + visual join builder.
  */
 import Link from 'next/link';
+import { Combine } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageEyebrow,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from '@/components/sabcrm/20ui';
 import {
   listDatasetsAction,
   listJoinsAction,
@@ -22,23 +44,28 @@ export default async function JoinsPage() {
   const datasets = 'items' in datasetsRes ? datasetsRes.items : [];
 
   return (
-    <div className="zoruui flex flex-col gap-6 p-6">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
-            <Link href="/dashboard/analytics-workspace/datasets" className="hover:underline">
+    <div className="ui20 flex flex-col gap-6 p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>
+            <Link
+              href="/dashboard/analytics-workspace/datasets"
+              className="hover:underline"
+            >
               Datasets
             </Link>
-          </p>
-          <h1 className="text-2xl font-semibold text-[var(--st-text)]">Joins</h1>
-          <p className="text-sm text-[var(--st-text-secondary)]">
+          </PageEyebrow>
+          <PageTitle>Joins</PageTitle>
+          <PageDescription>
             Visually combine two datasets on matching columns.
-          </p>
-        </div>
-        <Button asChild variant="ghost">
-          <Link href="/dashboard/analytics-workspace">Workbooks</Link>
-        </Button>
-      </header>
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Link href="/dashboard/analytics-workspace">
+            <Button variant="ghost">Workbooks</Button>
+          </Link>
+        </PageActions>
+      </PageHeader>
 
       <JoinBuilder
         datasets={datasets.map((d) => ({ id: d._id, name: d.name }))}
@@ -53,29 +80,33 @@ export default async function JoinsPage() {
         </CardHeader>
         <CardBody>
           {joins.length === 0 ? (
-            <p className="text-sm text-[var(--st-text-secondary)]">No joins yet.</p>
+            <EmptyState
+              icon={Combine}
+              title="No joins yet"
+              description="Create a join above to combine rows from two datasets."
+            />
           ) : (
             <Table>
               <THead>
-                <tr>
-                  <th className="text-left">Name</th>
-                  <th className="text-left">Type</th>
-                  <th className="text-left">Left</th>
-                  <th className="text-left">Right</th>
-                  <th className="text-right">Columns</th>
-                </tr>
+                <Tr>
+                  <Th align="left">Name</Th>
+                  <Th align="left">Type</Th>
+                  <Th align="left">Left</Th>
+                  <Th align="left">Right</Th>
+                  <Th align="right">Columns</Th>
+                </Tr>
               </THead>
               <TBody>
                 {joins.map((j) => (
-                  <tr key={j._id} className="border-t border-[var(--st-border)]">
-                    <td className="py-2">{j.name}</td>
-                    <td className="py-2">
+                  <Tr key={j._id}>
+                    <Td>{j.name}</Td>
+                    <Td>
                       <Badge variant="outline">{j.type}</Badge>
-                    </td>
-                    <td className="py-2 text-[var(--st-text-secondary)]">{j.leftId}</td>
-                    <td className="py-2 text-[var(--st-text-secondary)]">{j.rightId}</td>
-                    <td className="py-2 text-right">{j.onColumns?.length ?? 0}</td>
-                  </tr>
+                    </Td>
+                    <Td className="text-[var(--st-text-secondary)]">{j.leftId}</Td>
+                    <Td className="text-[var(--st-text-secondary)]">{j.rightId}</Td>
+                    <Td align="right">{j.onColumns?.length ?? 0}</Td>
+                  </Tr>
                 ))}
               </TBody>
             </Table>

@@ -3,7 +3,17 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Input, Label, Card, Alert } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Input,
+    Field,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    Alert,
+} from '@/components/sabcrm/20ui';
 import {
     base64ToBytes,
     bytesToBase64,
@@ -23,10 +33,10 @@ import { useVaultKey } from '../_components/vault-key-context';
 
 /**
  * Two-mode page:
- *  1. Setup — when the user has no `sabvault_user_keys` row yet. Generates
+ *  1. Setup, when the user has no `sabvault_user_keys` row yet. Generates
  *     a fresh salt + encrypted canary, posts both to the server. The
  *     password itself never leaves this component.
- *  2. Unlock — derives a key from the stored salt + entered password,
+ *  2. Unlock, derives a key from the stored salt + entered password,
  *     verifies it against the stored canary, and parks the resulting
  *     CryptoKey in the in-memory provider.
  */
@@ -105,50 +115,50 @@ export function UnlockClient({ keyRecord }: { keyRecord: SabvaultUserKeyRecord |
     }
 
     return (
-        <div className="zoruui mx-auto flex max-w-md flex-col gap-4 p-6">
-            <Card className="p-5">
-                <h1 className="mb-1 text-lg font-semibold">
-                    {isSetup ? 'Set up your SabVault' : 'Unlock SabVault'}
-                </h1>
-                <p className="mb-4 text-sm text-[var(--st-text-secondary)]">
-                    {isSetup
-                        ? 'Your master password derives the encryption key in this browser. It is never sent to our servers — losing it means losing access.'
-                        : 'Enter your master password. The key stays in this tab only and locks after 15 minutes of inactivity.'}
-                </p>
+        <div className="ui20 mx-auto flex max-w-md flex-col gap-4 p-6">
+            <Card padding="lg">
+                <CardHeader>
+                    <CardTitle>{isSetup ? 'Set up your SabVault' : 'Unlock SabVault'}</CardTitle>
+                    <CardDescription>
+                        {isSetup
+                            ? 'Your master password derives the encryption key in this browser. It is never sent to our servers, losing it means losing access.'
+                            : 'Enter your master password. The key stays in this tab only and locks after 15 minutes of inactivity.'}
+                    </CardDescription>
+                </CardHeader>
 
-                <form className="flex flex-col gap-3" onSubmit={isSetup ? onSetup : onUnlock}>
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="sv-master">Master password</Label>
-                        <Input
-                            id="sv-master"
-                            type="password"
-                            required
-                            autoFocus
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            autoComplete={isSetup ? 'new-password' : 'current-password'}
-                        />
-                    </div>
-                    {isSetup ? (
-                        <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="sv-confirm">Confirm</Label>
+                <CardBody>
+                    <form className="flex flex-col gap-3" onSubmit={isSetup ? onSetup : onUnlock}>
+                        <Field id="sv-master" label="Master password" required>
                             <Input
-                                id="sv-confirm"
                                 type="password"
                                 required
-                                value={confirm}
-                                onChange={(e) => setConfirm(e.target.value)}
-                                autoComplete="new-password"
+                                autoFocus
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                autoComplete={isSetup ? 'new-password' : 'current-password'}
                             />
-                        </div>
-                    ) : null}
-                    {error ? (
-                        <Alert variant="destructive">{error}</Alert>
-                    ) : null}
-                    <Button type="submit" disabled={busy}>
-                        {busy ? 'Working…' : isSetup ? 'Create vault' : 'Unlock'}
-                    </Button>
-                </form>
+                        </Field>
+                        {isSetup ? (
+                            <Field id="sv-confirm" label="Confirm" required>
+                                <Input
+                                    type="password"
+                                    required
+                                    value={confirm}
+                                    onChange={(e) => setConfirm(e.target.value)}
+                                    autoComplete="new-password"
+                                />
+                            </Field>
+                        ) : null}
+                        {error ? (
+                            <Alert tone="danger" onClose={() => setError(null)}>
+                                {error}
+                            </Alert>
+                        ) : null}
+                        <Button type="submit" variant="primary" loading={busy}>
+                            {isSetup ? 'Create vault' : 'Unlock'}
+                        </Button>
+                    </form>
+                </CardBody>
             </Card>
         </div>
     );

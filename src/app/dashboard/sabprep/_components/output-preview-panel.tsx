@@ -1,7 +1,24 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardBody, Badge } from '@/components/sabcrm/20ui';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardBody,
+    Badge,
+    EmptyState,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    Collapsible,
+    CollapsibleTrigger,
+    CollapsibleContent,
+} from '@/components/sabcrm/20ui';
+import { Table2 } from 'lucide-react';
 import type { Row, StepRunSummary } from '@/lib/rust-client/sabprep-steps';
 
 const ROW_LIMIT = 50;
@@ -29,61 +46,62 @@ export function OutputPreviewPanel({
                 <CardTitle className="flex items-center justify-between gap-2 text-sm">
                     <span>Output preview · {rows.length} rows</span>
                     {totalErrors > 0 ? (
-                        <Badge variant="destructive">{totalErrors} error(s)</Badge>
+                        <Badge tone="danger">{totalErrors} error(s)</Badge>
                     ) : null}
                 </CardTitle>
             </CardHeader>
             <CardBody>
                 {cols.length === 0 ? (
-                    <p className="text-xs opacity-60">
-                        Add a source dataset and at least one step to see output.
-                    </p>
+                    <EmptyState
+                        icon={Table2}
+                        size="sm"
+                        title="No output yet"
+                        description="Add a source dataset and at least one step to see output."
+                    />
                 ) : (
-                    <div className="overflow-auto rounded-md border border-[var(--zoru-border,#e5e7eb)]">
-                        <table className="w-full text-xs">
-                            <thead className="bg-[var(--zoru-muted,#f6f6f7)]">
-                                <tr>
+                    <div className="overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
+                        <Table density="compact" className="text-xs">
+                            <THead>
+                                <Tr>
                                     {cols.map((c) => (
-                                        <th
-                                            key={c}
-                                            className="border-b px-2 py-1 text-left font-medium"
-                                        >
-                                            {c}
-                                        </th>
+                                        <Th key={c}>{c}</Th>
                                     ))}
-                                </tr>
-                            </thead>
-                            <tbody>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {slice.map((r, i) => (
-                                    <tr key={i} className="border-b last:border-b-0">
+                                    <Tr key={i}>
                                         {cols.map((c) => (
-                                            <td key={c} className="px-2 py-1">
-                                                {renderCell(r[c])}
-                                            </td>
+                                            <Td key={c}>{renderCell(r[c])}</Td>
                                         ))}
-                                    </tr>
+                                    </Tr>
                                 ))}
-                            </tbody>
-                        </table>
+                            </TBody>
+                        </Table>
                     </div>
                 )}
 
                 {summaries.length > 0 ? (
-                    <details className="mt-3 text-xs">
-                        <summary className="cursor-pointer opacity-70">
+                    <Collapsible className="mt-3 text-xs">
+                        <CollapsibleTrigger className="text-[var(--st-text-secondary)]">
                             Per-step summary
-                        </summary>
-                        <ul className="mt-2 space-y-1">
-                            {summaries.map((s) => (
-                                <li key={s.stepIndex} className="font-mono">
-                                    #{s.stepIndex} {s.stepKind}: {s.rowsIn} → {s.rowsOut}
-                                    {(s.errors?.length ?? 0) > 0
-                                        ? ` · ${s.errors!.length} err`
-                                        : ''}
-                                </li>
-                            ))}
-                        </ul>
-                    </details>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                            <ul className="mt-2 space-y-1">
+                                {summaries.map((s) => (
+                                    <li
+                                        key={s.stepIndex}
+                                        className="font-mono text-[var(--st-text-secondary)]"
+                                    >
+                                        #{s.stepIndex} {s.stepKind}: {s.rowsIn} → {s.rowsOut}
+                                        {(s.errors?.length ?? 0) > 0
+                                            ? ` · ${s.errors!.length} err`
+                                            : ''}
+                                    </li>
+                                ))}
+                            </ul>
+                        </CollapsibleContent>
+                    </Collapsible>
                 ) : null}
             </CardBody>
         </Card>
@@ -91,7 +109,7 @@ export function OutputPreviewPanel({
 }
 
 function renderCell(v: unknown): string {
-    if (v === null || v === undefined) return '—';
+    if (v === null || v === undefined) return '-';
     if (typeof v === 'object') return JSON.stringify(v);
     return String(v);
 }

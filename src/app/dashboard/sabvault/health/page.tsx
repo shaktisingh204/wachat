@@ -1,19 +1,31 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, StatCard, Badge, EmptyState } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardHeader,
+    CardTitle,
+    StatCard,
+    Badge,
+    EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageActions,
+} from '@/components/sabcrm/20ui';
 import { listSabvaultSecrets } from '@/app/actions/sabvault.actions';
 import type { SabvaultSecretDoc } from '@/lib/rust-client/sabvault-secrets';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Health dashboard — weak / reused / breached / expiring secret counts.
+ * Health dashboard - weak / reused / breached / expiring secret counts.
  * Reads the server-side health flags that the client populates after
  * decryption (`strength`, `reused`, `breached`).
  */
 export default async function SabvaultHealthPage() {
-    // Pull up to 500 secrets — enough for any single-user vault for now.
+    // Pull up to 500 secrets - enough for any single-user vault for now.
     const res = await listSabvaultSecrets({ limit: 100, status: 'active' });
     const secrets = res.items;
 
@@ -28,13 +40,17 @@ export default async function SabvaultHealthPage() {
     });
 
     return (
-        <div className="zoruui mx-auto flex max-w-5xl flex-col gap-4 p-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-lg font-semibold">Vault health</h1>
-                <Link href="/dashboard/sabvault">
-                    <Button variant="outline">Back to vault</Button>
-                </Link>
-            </div>
+        <div className="ui20 mx-auto flex max-w-5xl flex-col gap-4 p-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Vault health</PageTitle>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Link href="/dashboard/sabvault">
+                        <Button variant="outline">Back to vault</Button>
+                    </Link>
+                </PageActions>
+            </PageHeader>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard label="Weak" value={String(weak.length)} />
@@ -61,19 +77,24 @@ function HealthBucket({
     variant?: 'destructive';
 }) {
     return (
-        <Card className="p-0">
-            <div className="border-b px-4 py-2 text-sm font-semibold">{title}</div>
+        <Card padding="none">
+            <CardHeader>
+                <CardTitle className="text-sm">{title}</CardTitle>
+            </CardHeader>
             {items.length === 0 ? (
                 <div className="p-4">
                     <EmptyState title="Nothing here" description="All clear." />
                 </div>
             ) : (
-                <ul className="divide-y">
+                <ul className="divide-y divide-[var(--st-border)]">
                     {items.map((s) => (
-                        <li key={s._id} className="flex items-center justify-between px-4 py-2">
+                        <li
+                            key={s._id}
+                            className="flex items-center justify-between px-4 py-2"
+                        >
                             <Link
                                 href={`/dashboard/sabvault/${s._id}`}
-                                className="flex-1 text-sm hover:underline"
+                                className="flex-1 text-sm text-[var(--st-text)] hover:underline"
                             >
                                 {s.name}
                             </Link>

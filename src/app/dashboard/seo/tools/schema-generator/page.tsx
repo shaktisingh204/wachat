@@ -1,15 +1,27 @@
 'use client';
 
-import { Button, Input, Label, Textarea, cn, Breadcrumb, BreadcrumbList } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useMemo, useState } from 'react';
+import {
+  Button,
+  Input,
+  Textarea,
+  Field,
+  Card,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
+import { useMemo, useState } from 'react';
+import { Copy } from 'lucide-react';
 import CodeMirror from '@uiw/react-codemirror';
 import { EditorView } from '@codemirror/view';
-
-void _zoruCn;
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 type SchemaType = 'Article' | 'Product' | 'LocalBusiness' | 'FAQPage' | 'BreadcrumbList' | 'Person' | 'Recipe';
+
+const SCHEMA_TYPES: SchemaType[] = ['Article', 'Product', 'LocalBusiness', 'FAQPage', 'BreadcrumbList', 'Person', 'Recipe'];
 
 export default function SchemaGeneratorPage() {
   const [type, setType] = useState<SchemaType>('Article');
@@ -81,68 +93,76 @@ export default function SchemaGeneratorPage() {
 
   return (
     <ToolShell title="Schema Markup Generator" description="Generate JSON-LD structured data.">
-      <div className="flex gap-2">
-        <select className="border rounded h-9 px-2 bg-[var(--st-bg-secondary)]" value={type} onChange={(e) => setType(e.target.value as SchemaType)}>
-          <option value="Article">Article</option>
-          <option value="Product">Product</option>
-          <option value="LocalBusiness">LocalBusiness</option>
-          <option value="FAQPage">FAQPage</option>
-          <option value="BreadcrumbList">BreadcrumbList</option>
-          <option value="Person">Person</option>
-          <option value="Recipe">Recipe</option>
-        </select>
-      </div>
+      <Field label="Schema type" className="max-w-xs">
+        <Select value={type} onValueChange={(v) => setType(v as SchemaType)}>
+          <SelectTrigger aria-label="Schema type">
+            <SelectValue placeholder="Choose a schema type" />
+          </SelectTrigger>
+          <SelectContent>
+            {SCHEMA_TYPES.map((t) => (
+              <SelectItem key={t} value={t}>{t}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {type === 'Article' && <>
-          <div className="space-y-1 md:col-span-2"><Label>Headline</Label><Input value={fields.headline} onChange={(e) => update('headline', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Author</Label><Input value={fields.author} onChange={(e) => update('author', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Published date</Label><Input type="date" value={fields.date} onChange={(e) => update('date', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Image URL</Label><Input value={fields.image} onChange={(e) => update('image', e.target.value)} /></div>
+          <Field label="Headline" className="md:col-span-2"><Input value={fields.headline} onChange={(e) => update('headline', e.target.value)} placeholder="10 SEO tips for 2026" /></Field>
+          <Field label="Author"><Input value={fields.author} onChange={(e) => update('author', e.target.value)} placeholder="Jane Cooper" /></Field>
+          <Field label="Published date"><Input type="date" value={fields.date} onChange={(e) => update('date', e.target.value)} /></Field>
+          <Field label="Image URL" className="md:col-span-2"><Input value={fields.image} onChange={(e) => update('image', e.target.value)} placeholder="https://example.com/cover.jpg" /></Field>
         </>}
         {type === 'Product' && <>
-          <div className="space-y-1"><Label>Name</Label><Input value={fields.name} onChange={(e) => update('name', e.target.value)} /></div>
-          <div className="space-y-1"><Label>SKU</Label><Input value={fields.sku} onChange={(e) => update('sku', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Price</Label><Input value={fields.price} onChange={(e) => update('price', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Currency</Label><Input value={fields.currency} onChange={(e) => update('currency', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Image URL</Label><Input value={fields.image} onChange={(e) => update('image', e.target.value)} /></div>
+          <Field label="Name"><Input value={fields.name} onChange={(e) => update('name', e.target.value)} placeholder="Wireless Headphones" /></Field>
+          <Field label="SKU"><Input value={fields.sku} onChange={(e) => update('sku', e.target.value)} placeholder="WH-1000" /></Field>
+          <Field label="Price"><Input value={fields.price} onChange={(e) => update('price', e.target.value)} placeholder="299.00" /></Field>
+          <Field label="Currency"><Input value={fields.currency} onChange={(e) => update('currency', e.target.value)} placeholder="USD" /></Field>
+          <Field label="Image URL" className="md:col-span-2"><Input value={fields.image} onChange={(e) => update('image', e.target.value)} placeholder="https://example.com/product.jpg" /></Field>
         </>}
         {type === 'LocalBusiness' && <>
-          <div className="space-y-1"><Label>Name</Label><Input value={fields.name} onChange={(e) => update('name', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Phone</Label><Input value={fields.phone} onChange={(e) => update('phone', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Address</Label><Input value={fields.address} onChange={(e) => update('address', e.target.value)} /></div>
+          <Field label="Name"><Input value={fields.name} onChange={(e) => update('name', e.target.value)} placeholder="Cooper Coffee Co." /></Field>
+          <Field label="Phone"><Input value={fields.phone} onChange={(e) => update('phone', e.target.value)} placeholder="+1 555 123 4567" /></Field>
+          <Field label="Address" className="md:col-span-2"><Input value={fields.address} onChange={(e) => update('address', e.target.value)} placeholder="100 Market St, San Francisco, CA" /></Field>
         </>}
         {type === 'FAQPage' && <>
-          <div className="space-y-1 md:col-span-2"><Label>Question</Label><Input value={fields.question} onChange={(e) => update('question', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Answer</Label><Textarea value={fields.answer} onChange={(e) => update('answer', e.target.value)} /></div>
+          <Field label="Question" className="md:col-span-2"><Input value={fields.question} onChange={(e) => update('question', e.target.value)} placeholder="What is structured data?" /></Field>
+          <Field label="Answer" className="md:col-span-2"><Textarea value={fields.answer} onChange={(e) => update('answer', e.target.value)} placeholder="Structured data helps search engines understand your page." /></Field>
         </>}
         {type === 'BreadcrumbList' && <>
-          <div className="space-y-1 md:col-span-2"><Label>Breadcrumb items (one per line)</Label><Textarea value={fields.items} onChange={(e) => update('items', e.target.value)} /></div>
+          <Field label="Breadcrumb items" help="One item per line." className="md:col-span-2"><Textarea value={fields.items} onChange={(e) => update('items', e.target.value)} placeholder={'Home\nBlog\nSEO'} /></Field>
         </>}
         {type === 'Person' && <>
-          <div className="space-y-1"><Label>Name</Label><Input value={fields.name} onChange={(e) => update('name', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Job Title</Label><Input value={fields.jobTitle} onChange={(e) => update('jobTitle', e.target.value)} /></div>
-          <div className="space-y-1"><Label>URL</Label><Input value={fields.url} onChange={(e) => update('url', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Image URL</Label><Input value={fields.image} onChange={(e) => update('image', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Same As (URLs, one per line)</Label><Textarea value={fields.sameAs} onChange={(e) => update('sameAs', e.target.value)} /></div>
+          <Field label="Name"><Input value={fields.name} onChange={(e) => update('name', e.target.value)} placeholder="Jane Cooper" /></Field>
+          <Field label="Job title"><Input value={fields.jobTitle} onChange={(e) => update('jobTitle', e.target.value)} placeholder="SEO Lead" /></Field>
+          <Field label="URL"><Input value={fields.url} onChange={(e) => update('url', e.target.value)} placeholder="https://janecooper.com" /></Field>
+          <Field label="Image URL"><Input value={fields.image} onChange={(e) => update('image', e.target.value)} placeholder="https://example.com/jane.jpg" /></Field>
+          <Field label="Same as" help="Profile URLs, one per line." className="md:col-span-2"><Textarea value={fields.sameAs} onChange={(e) => update('sameAs', e.target.value)} placeholder={'https://twitter.com/jane\nhttps://linkedin.com/in/jane'} /></Field>
         </>}
         {type === 'Recipe' && <>
-          <div className="space-y-1"><Label>Name</Label><Input value={fields.name} onChange={(e) => update('name', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Image URL</Label><Input value={fields.image} onChange={(e) => update('image', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Author</Label><Input value={fields.author} onChange={(e) => update('author', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Published Date</Label><Input type="date" value={fields.date} onChange={(e) => update('date', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Description</Label><Textarea value={fields.description} onChange={(e) => update('description', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Prep Time (e.g. PT20M)</Label><Input value={fields.prepTime} onChange={(e) => update('prepTime', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Cook Time (e.g. PT30M)</Label><Input value={fields.cookTime} onChange={(e) => update('cookTime', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Total Time (e.g. PT50M)</Label><Input value={fields.totalTime} onChange={(e) => update('totalTime', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Recipe Yield</Label><Input value={fields.recipeYield} onChange={(e) => update('recipeYield', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Recipe Category</Label><Input value={fields.recipeCategory} onChange={(e) => update('recipeCategory', e.target.value)} /></div>
-          <div className="space-y-1"><Label>Recipe Cuisine</Label><Input value={fields.recipeCuisine} onChange={(e) => update('recipeCuisine', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Ingredients (one per line)</Label><Textarea value={fields.recipeIngredient} onChange={(e) => update('recipeIngredient', e.target.value)} /></div>
-          <div className="space-y-1 md:col-span-2"><Label>Instructions (one per line)</Label><Textarea value={fields.recipeInstructions} onChange={(e) => update('recipeInstructions', e.target.value)} /></div>
+          <Field label="Name"><Input value={fields.name} onChange={(e) => update('name', e.target.value)} placeholder="Classic Pancakes" /></Field>
+          <Field label="Image URL"><Input value={fields.image} onChange={(e) => update('image', e.target.value)} placeholder="https://example.com/pancakes.jpg" /></Field>
+          <Field label="Author"><Input value={fields.author} onChange={(e) => update('author', e.target.value)} placeholder="Jane Cooper" /></Field>
+          <Field label="Published date"><Input type="date" value={fields.date} onChange={(e) => update('date', e.target.value)} /></Field>
+          <Field label="Description" className="md:col-span-2"><Textarea value={fields.description} onChange={(e) => update('description', e.target.value)} placeholder="Fluffy buttermilk pancakes in 20 minutes." /></Field>
+          <Field label="Prep time" help="ISO 8601, e.g. PT20M."><Input value={fields.prepTime} onChange={(e) => update('prepTime', e.target.value)} placeholder="PT20M" /></Field>
+          <Field label="Cook time" help="ISO 8601, e.g. PT30M."><Input value={fields.cookTime} onChange={(e) => update('cookTime', e.target.value)} placeholder="PT30M" /></Field>
+          <Field label="Total time" help="ISO 8601, e.g. PT50M."><Input value={fields.totalTime} onChange={(e) => update('totalTime', e.target.value)} placeholder="PT50M" /></Field>
+          <Field label="Recipe yield"><Input value={fields.recipeYield} onChange={(e) => update('recipeYield', e.target.value)} placeholder="4 servings" /></Field>
+          <Field label="Recipe category"><Input value={fields.recipeCategory} onChange={(e) => update('recipeCategory', e.target.value)} placeholder="Breakfast" /></Field>
+          <Field label="Recipe cuisine"><Input value={fields.recipeCuisine} onChange={(e) => update('recipeCuisine', e.target.value)} placeholder="American" /></Field>
+          <Field label="Ingredients" help="One per line." className="md:col-span-2"><Textarea value={fields.recipeIngredient} onChange={(e) => update('recipeIngredient', e.target.value)} placeholder={'2 cups flour\n2 eggs\n1.5 cups milk'} /></Field>
+          <Field label="Instructions" help="One step per line." className="md:col-span-2"><Textarea value={fields.recipeInstructions} onChange={(e) => update('recipeInstructions', e.target.value)} placeholder={'Whisk the dry ingredients.\nAdd eggs and milk.\nCook until golden.'} /></Field>
         </>}
       </div>
-      <Button onClick={() => navigator.clipboard.writeText(schema)}>Copy to Clipboard</Button>
-      <div className="border rounded-md overflow-hidden bg-[var(--st-bg-secondary)]">
+
+      <div>
+        <Button variant="primary" iconLeft={Copy} onClick={() => navigator.clipboard.writeText(schema)}>
+          Copy to clipboard
+        </Button>
+      </div>
+
+      <Card padding="none" className="overflow-hidden">
         <CodeMirror
           value={schema}
           editable={false}
@@ -155,8 +175,7 @@ export default function SchemaGeneratorPage() {
             highlightActiveLineGutter: false,
           }}
         />
-      </div>
+      </Card>
     </ToolShell>
   );
 }
-

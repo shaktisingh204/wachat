@@ -1,6 +1,19 @@
 'use client';
 
-import { Button, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Label } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Textarea,
+  Card,
+  CardBody,
+  Badge,
+  Label,
+  Slider,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -64,7 +77,7 @@ function lcsSimilarity(a: string, b: string): number {
   b = b.toLowerCase();
   let maxLen = 0;
   const matrix: number[][] = Array(a.length + 1).fill(null).map(() => Array(b.length + 1).fill(0));
-  
+
   for (let i = 1; i <= a.length; i++) {
     for (let j = 1; j <= b.length; j++) {
       if (a[i - 1] === b[j - 1]) {
@@ -96,7 +109,7 @@ function groupKeywordsAdvanced(raw: string, options: GrouperOptions): Record<str
   // Use Union-Find (Disjoint Set) to group connected components
   const parent = new Map<string, string>();
   for (const line of lines) parent.set(line, line);
-  
+
   function find(i: string): string {
     if (parent.get(i) === i) return i;
     const p = find(parent.get(i)!);
@@ -149,7 +162,7 @@ function groupKeywordsAdvanced(raw: string, options: GrouperOptions): Record<str
   const sortedKeys = Object.keys(refinedGroups).sort(
     (a, b) => refinedGroups[b].length - refinedGroups[a].length
   );
-  
+
   const finalGroups: Record<string, string[]> = {};
   for (const key of sortedKeys) {
     finalGroups[key] = refinedGroups[key];
@@ -157,6 +170,15 @@ function groupKeywordsAdvanced(raw: string, options: GrouperOptions): Record<str
 
   return finalGroups;
 }
+
+const PLACEHOLDER = [
+  'Paste keywords, one per line.',
+  'e.g.',
+  'running shoes',
+  'best running shoes',
+  'cheap running shoes',
+  'running pants',
+].join('\n');
 
 export default function KeywordGrouperPage() {
   const [input, setInput] = useState('');
@@ -175,15 +197,15 @@ export default function KeywordGrouperPage() {
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste keywords, one per line…&#10;e.g.&#10;running shoes&#10;best running shoes&#10;cheap running shoes&#10;running pants"
+          placeholder={PLACEHOLDER}
           className="min-h-[200px]"
         />
-        
+
         <div className="flex flex-col sm:flex-row gap-4 items-end">
           <div className="flex flex-col gap-2 w-full sm:w-64">
-            <Label>Grouping Method</Label>
+            <Label htmlFor="grouping-method">Grouping Method</Label>
             <Select value={method} onValueChange={(val) => setMethod(val as GroupingMethod)}>
-              <SelectTrigger>
+              <SelectTrigger id="grouping-method" aria-label="Grouping method">
                 <SelectValue placeholder="Select method" />
               </SelectTrigger>
               <SelectContent>
@@ -198,29 +220,32 @@ export default function KeywordGrouperPage() {
           {method !== 'firstWord' && (
             <div className="flex flex-col gap-2 w-full sm:w-64">
               <Label>Similarity Threshold ({threshold.toFixed(2)})</Label>
-              <input
-                type="range"
-                min="0.1"
-                max="1.0"
-                step="0.05"
+              <Slider
                 value={threshold}
-                onChange={(e) => setThreshold(parseFloat(e.target.value))}
-                className="w-full cursor-pointer mt-2"
+                min={0.1}
+                max={1}
+                step={0.05}
+                onValueChange={(val) => setThreshold(Array.isArray(val) ? val[0] : val)}
+                ariaLabel="Similarity threshold"
+                className="mt-2"
               />
             </div>
           )}
 
-          <Button onClick={run} className="w-full sm:w-fit">Group Keywords</Button>
+          <Button variant="primary" onClick={run} className="w-full sm:w-fit">Group Keywords</Button>
         </div>
       </div>
 
       {groups && (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(groups).map(([key, items]) => (
-            <Card key={key}>
+            <Card key={key} padding="none">
               <CardBody className="p-4">
-                <div className="font-semibold capitalize mb-2 border-b pb-2">
-                  {key} <span className="text-xs text-[var(--st-text-secondary)] ml-1">({items.length})</span>
+                <div className="flex items-center justify-between gap-2 mb-2 border-b border-[var(--st-border)] pb-2">
+                  <span className="font-semibold capitalize truncate text-[var(--st-text)]" title={key}>
+                    {key}
+                  </span>
+                  <Badge tone="neutral" kind="soft">{items.length}</Badge>
                 </div>
                 <ul className="text-sm space-y-1 text-[var(--st-text-secondary)] h-48 overflow-y-auto">
                   {items.map((i) => (

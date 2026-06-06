@@ -1,12 +1,24 @@
 'use client';
 
-import { Button, Input, Label, Textarea } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Field,
+  Textarea,
+  ColorPicker,
+  SegmentedControl,
+  Card,
+  CardBody,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { useRef, useState, useEffect } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
+import { X } from 'lucide-react';
 
 export default function OgImageGeneratorPage() {
-  const [title, setTitle] = useState('Your Title Here');
-  const [subtitle, setSubtitle] = useState('Optional subtitle');
+  const { toast } = useToast();
+  const [title, setTitle] = useState('Launch your brand on every share');
+  const [subtitle, setSubtitle] = useState('A crisp 1200x630 social preview in seconds');
   const [bgMode, setBgMode] = useState<'color' | 'image'>('color');
   const [bgColor, setBgColor] = useState('#0f172a');
   const [bgImage, setBgImage] = useState<HTMLImageElement | null>(null);
@@ -14,28 +26,32 @@ export default function OgImageGeneratorPage() {
   const [logoImage, setLogoImage] = useState<HTMLImageElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const handleBgImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
+  const loadImage = (url: string): Promise<HTMLImageElement> =>
+    new Promise((resolve, reject) => {
       const img = new Image();
+      // Keep the canvas untainted so toBlob() works when downloading.
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('Could not load image'));
       img.src = url;
-      img.onload = () => {
-        setBgImage(img);
-        setBgMode('image');
-      };
+    });
+
+  const handleBgImagePick = async (pick: SabFilePick) => {
+    try {
+      const img = await loadImage(pick.url);
+      setBgImage(img);
+      setBgMode('image');
+    } catch {
+      toast.error('Could not load that background image.');
     }
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      const img = new Image();
-      img.src = url;
-      img.onload = () => {
-        setLogoImage(img);
-      };
+  const handleLogoPick = async (pick: SabFilePick) => {
+    try {
+      const img = await loadImage(pick.url);
+      setLogoImage(img);
+    } catch {
+      toast.error('Could not load that logo image.');
     }
   };
 
@@ -152,7 +168,10 @@ export default function OgImageGeneratorPage() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     canvas.toBlob((blob) => {
-      if (!blob) return;
+      if (!blob) {
+        toast.error('Could not export the image.');
+        return;
+      }
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'og-image.png';
@@ -161,100 +180,85 @@ export default function OgImageGeneratorPage() {
   };
 
   return (
-    <ToolShell title="OG Image Generator" description="Generate an Open Graph share image (1200×630).">
+    <ToolShell title="OG Image Generator" description="Generate an Open Graph share image (1200x630).">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <div className="space-y-1">
-            <Label>Title</Label>
-            <Textarea 
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)} 
+          <Field label="Title">
+            <Textarea
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               rows={2}
             />
-          </div>
-          <div className="space-y-1">
-            <Label>Subtitle</Label>
-            <Textarea 
-              value={subtitle} 
-              onChange={(e) => setSubtitle(e.target.value)} 
+          </Field>
+          <Field label="Subtitle">
+            <Textarea
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
               rows={2}
             />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <Label>Background Type</Label>
-              <div className="flex items-center gap-2 mt-1">
-                <Button 
-                  variant={bgMode === 'color' ? 'default' : 'outline'} 
-                  onClick={() => setBgMode('color')}
-                  size="sm"
-                >
-                  Color
-                </Button>
-                <Button 
-                  variant={bgMode === 'image' ? 'default' : 'outline'} 
-                  onClick={() => setBgMode('image')}
-                  size="sm"
-                >
-                  Image
-                </Button>
-              </div>
-            </div>
+          </Field>
 
-            <div className="space-y-1">
-              <Label>Text Color</Label>
-              <div className="flex items-center gap-2">
-                <input 
-                  type="color" 
-                  value={textColor} 
-                  onChange={(e) => setTextColor(e.target.value)} 
-                  className="h-9 w-16 cursor-pointer" 
-                />
-              </div>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Background Type">
+              <SegmentedControl<'color' | 'image'>
+                aria-label="Background type"
+                value={bgMode}
+                onChange={setBgMode}
+                items={[
+                  { value: 'color', label: 'Color' },
+                  { value: 'image', label: 'Image' },
+                ]}
+              />
+            </Field>
+
+            <Field label="Text Color">
+              <ColorPicker value={textColor} onChange={setTextColor} />
+            </Field>
           </div>
 
           {bgMode === 'color' ? (
-            <div className="space-y-1">
-              <Label>Background Color</Label>
-              <div className="flex items-center gap-2">
-                <input 
-                  type="color" 
-                  value={bgColor} 
-                  onChange={(e) => setBgColor(e.target.value)} 
-                  className="h-9 w-16 cursor-pointer" 
-                />
-              </div>
-            </div>
+            <Field label="Background Color">
+              <ColorPicker value={bgColor} onChange={setBgColor} />
+            </Field>
           ) : (
-            <div className="space-y-1">
-              <Label>Upload Background Image</Label>
-              <Input type="file" accept="image/*" onChange={handleBgImageUpload} />
-            </div>
+            <Field label="Background Image">
+              <SabFilePickerButton accept="image" onPick={handleBgImagePick}>
+                {bgImage ? 'Replace background image' : 'Choose background image'}
+              </SabFilePickerButton>
+            </Field>
           )}
 
-          <div className="space-y-1">
-            <Label>Brand Logo / Watermark</Label>
-            <Input type="file" accept="image/*" onChange={handleLogoUpload} />
-            {logoImage && (
-              <Button variant="ghost" size="sm" onClick={() => setLogoImage(null)} className="mt-1">
-                Remove Logo
-              </Button>
-            )}
-          </div>
+          <Field label="Brand Logo / Watermark">
+            <div className="flex items-center gap-2">
+              <SabFilePickerButton accept="image" onPick={handleLogoPick}>
+                {logoImage ? 'Replace logo' : 'Choose logo'}
+              </SabFilePickerButton>
+              {logoImage ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconLeft={X}
+                  onClick={() => setLogoImage(null)}
+                >
+                  Remove
+                </Button>
+              ) : null}
+            </div>
+          </Field>
         </div>
 
         <div className="space-y-4">
-          <Label>Preview</Label>
-          <div className="border rounded bg-[var(--st-bg-muted)]/20 p-2">
-            <canvas 
-              ref={canvasRef} 
-              className="max-w-full rounded shadow-sm bg-white" 
-              style={{ aspectRatio: '1200/630' }} 
-            />
-          </div>
-          <Button className="w-full" onClick={download}>Download PNG</Button>
+          <Field label="Preview">
+            <Card variant="outlined" padding="sm">
+              <CardBody>
+                <canvas
+                  ref={canvasRef}
+                  className="max-w-full rounded-[var(--st-radius)] shadow-sm bg-white aspect-[1200/630]"
+                />
+              </CardBody>
+            </Card>
+          </Field>
+          <Button block onClick={download}>Download PNG</Button>
         </div>
       </div>
     </ToolShell>

@@ -1,9 +1,22 @@
 'use client';
 
-import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useState } from 'react';
+import { useState } from 'react';
 
-void _zoruCn;
+import {
+  Button,
+  Input,
+  Field,
+  Card,
+  CardBody,
+  Alert,
+  EmptyState,
+  Table,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
+import { Globe, Search } from 'lucide-react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiWhois } from '@/lib/seo-tools/api-client';
@@ -16,37 +29,91 @@ export default function WhoisLookupPage() {
   const [showRaw, setShowRaw] = useState(false);
 
   const run = async () => {
-    setLoading(true); setError(''); setData(null);
+    setLoading(true);
+    setError('');
+    setData(null);
     try {
       const r = await apiWhois(domain);
       if (r.error) setError(r.error);
       else setData(r);
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const parsedEntries = Object.entries(data?.parsed ?? {});
 
   return (
     <ToolShell title="WHOIS Lookup" description="Query WHOIS registration data for any domain.">
-      <div className="flex gap-2">
-        <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
-        <Button onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Lookup'}</Button>
-      </div>
-      {error && <Card className="border-[var(--st-border)]"><CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody></Card>}
-      {data && (
+      <form
+        className="flex flex-col gap-2 sm:flex-row sm:items-end"
+        onSubmit={(e) => {
+          e.preventDefault();
+          run();
+        }}
+      >
+        <Field label="Domain" className="flex-1">
+          <Input
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+            placeholder="example.com"
+            iconLeft={Globe}
+            autoComplete="off"
+          />
+        </Field>
+        <Button type="submit" variant="primary" iconLeft={Search} loading={loading} disabled={!domain.trim()}>
+          {loading ? 'Looking up...' : 'Lookup'}
+        </Button>
+      </form>
+
+      {error ? (
+        <Alert tone="danger" title="Lookup failed">
+          {error}
+        </Alert>
+      ) : null}
+
+      {data ? (
         <>
-          <Card><CardBody className="p-4">
-            <div className="text-xs text-[var(--st-text-secondary)] mb-2">Server: {data.server}</div>
-            <table className="w-full text-xs">
-              <tbody>
-                {Object.entries(data.parsed || {}).map(([k, v]) => (
-                  <tr key={k} className="border-t"><td className="py-1 font-semibold w-40 align-top">{k}</td><td className="py-1">{String(v)}</td></tr>
-                ))}
-              </tbody>
-            </table>
-          </CardBody></Card>
-          <Button variant="outline" onClick={() => setShowRaw((s) => !s)}>{showRaw ? 'Hide' : 'Show'} raw WHOIS</Button>
-          {showRaw && <pre className="text-xs bg-[var(--st-bg-muted)] p-3 rounded overflow-auto max-h-96 whitespace-pre-wrap">{data.raw}</pre>}
+          <Card>
+            <CardBody>
+              <div className="mb-3 text-xs text-[var(--st-text-secondary)]">
+                Server: {data.server}
+              </div>
+              {parsedEntries.length > 0 ? (
+                <Table density="compact" hover={false}>
+                  <TBody>
+                    {parsedEntries.map(([k, v]) => (
+                      <Tr key={k}>
+                        <Th scope="row" width={160} className="align-top text-[var(--st-text-secondary)]">
+                          {k}
+                        </Th>
+                        <Td className="text-[var(--st-text)]">{String(v)}</Td>
+                      </Tr>
+                    ))}
+                  </TBody>
+                </Table>
+              ) : (
+                <EmptyState
+                  icon={Globe}
+                  size="sm"
+                  title="No parsed fields"
+                  description="The registry returned no structured WHOIS fields. Check the raw record below."
+                />
+              )}
+            </CardBody>
+          </Card>
+
+          <Button variant="outline" onClick={() => setShowRaw((s) => !s)}>
+            {showRaw ? 'Hide raw WHOIS' : 'Show raw WHOIS'}
+          </Button>
+
+          {showRaw ? (
+            <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-xs text-[var(--st-text)]">
+              {data.raw}
+            </pre>
+          ) : null}
         </>
-      )}
+      ) : null}
     </ToolShell>
   );
 }

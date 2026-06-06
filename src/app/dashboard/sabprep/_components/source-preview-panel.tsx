@@ -1,7 +1,20 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
+import { Database } from 'lucide-react';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardBody,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 import type { Row } from '@/lib/rust-client/sabprep-steps';
 
 const ROW_LIMIT = 50;
@@ -22,36 +35,32 @@ export function SourcePreviewPanel({ rows }: { rows: Row[] }) {
             </CardHeader>
             <CardBody>
                 {cols.length === 0 ? (
-                    <p className="text-xs opacity-60">
-                        Pick a dataset or upload a CSV to begin.
-                    </p>
+                    <EmptyState
+                        size="sm"
+                        icon={Database}
+                        title="No source data yet"
+                        description="Pick a dataset or upload a CSV to begin."
+                    />
                 ) : (
-                    <div className="overflow-auto rounded-md border border-[var(--zoru-border,#e5e7eb)]">
-                        <table className="w-full text-xs">
-                            <thead className="bg-[var(--zoru-muted,#f6f6f7)]">
-                                <tr>
+                    <div className="overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
+                        <Table density="compact" stickyHeader>
+                            <THead>
+                                <Tr>
                                     {cols.map((c) => (
-                                        <th
-                                            key={c}
-                                            className="border-b px-2 py-1 text-left font-medium"
-                                        >
-                                            {c}
-                                        </th>
+                                        <Th key={c}>{c}</Th>
                                     ))}
-                                </tr>
-                            </thead>
-                            <tbody>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {slice.map((r, i) => (
-                                    <tr key={i} className="border-b last:border-b-0">
+                                    <Tr key={i}>
                                         {cols.map((c) => (
-                                            <td key={c} className="px-2 py-1">
-                                                {renderCell(r[c])}
-                                            </td>
+                                            <Td key={c}>{renderCell(r[c])}</Td>
                                         ))}
-                                    </tr>
+                                    </Tr>
                                 ))}
-                            </tbody>
-                        </table>
+                            </TBody>
+                        </Table>
                     </div>
                 )}
             </CardBody>
@@ -60,7 +69,7 @@ export function SourcePreviewPanel({ rows }: { rows: Row[] }) {
 }
 
 function renderCell(v: unknown): string {
-    if (v === null || v === undefined) return '—';
+    if (v === null || v === undefined) return '-';
     if (typeof v === 'object') return JSON.stringify(v);
     return String(v);
 }

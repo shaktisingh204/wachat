@@ -1,10 +1,32 @@
 /**
- * Dataset detail — preview rows, schema, row count, refresh action.
+ * Dataset detail - preview rows, schema, row count, refresh action.
  */
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Database } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageEyebrow,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from '@/components/sabcrm/20ui';
 import {
   getDatasetAction,
   previewDatasetAction,
@@ -47,54 +69,32 @@ export default async function DatasetDetailPage({
         : [];
 
   return (
-    <div className="zoruui flex flex-col gap-6 p-6">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
-            <Link href="/dashboard/analytics-workspace/datasets" className="hover:underline">
+    <div className="ui20 flex flex-col gap-6 p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>
+            <Link
+              href="/dashboard/analytics-workspace/datasets"
+              className="hover:underline"
+            >
               Datasets
             </Link>
-          </p>
-          <h1 className="text-2xl font-semibold text-[var(--st-text)]">{dataset.name}</h1>
-          {dataset.description && (
-            <p className="text-sm text-[var(--st-text-secondary)]">{dataset.description}</p>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
+          </PageEyebrow>
+          <PageTitle>{dataset.name}</PageTitle>
+          {dataset.description ? (
+            <PageDescription>{dataset.description}</PageDescription>
+          ) : null}
+        </PageHeaderHeading>
+        <PageActions>
           <Badge variant="outline">{dataset.source}</Badge>
           <RefreshButton id={id} />
-        </div>
-      </header>
+        </PageActions>
+      </PageHeader>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Rows</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <p className="text-2xl font-semibold text-[var(--st-text)]">
-              {preview.rowCount ?? dataset.rowCount ?? 0}
-            </p>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Last refresh</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <p className="text-sm text-[var(--st-text-secondary)]">
-              {dataset.lastRefreshAt ?? '—'}
-            </p>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Columns</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <p className="text-2xl font-semibold text-[var(--st-text)]">{columns.length}</p>
-          </CardBody>
-        </Card>
+        <StatCard label="Rows" value={preview.rowCount ?? dataset.rowCount ?? 0} />
+        <StatCard label="Last refresh" value={dataset.lastRefreshAt ?? '-'} />
+        <StatCard label="Columns" value={columns.length} />
       </div>
 
       <Card>
@@ -107,27 +107,31 @@ export default async function DatasetDetailPage({
         </CardHeader>
         <CardBody>
           {preview.rows.length === 0 ? (
-            <p className="text-sm text-[var(--st-text-secondary)]">No preview rows available.</p>
+            <EmptyState
+              icon={Database}
+              title="No preview rows available"
+              description="This dataset has no preview rows yet. Refresh or materialise the source to populate it."
+            />
           ) : (
             <Table>
               <THead>
-                <tr>
+                <Tr>
                   {columns.map((c) => (
-                    <th key={c} className="text-left">
+                    <Th key={c} align="left">
                       {c}
-                    </th>
+                    </Th>
                   ))}
-                </tr>
+                </Tr>
               </THead>
               <TBody>
                 {preview.rows.map((row, i) => (
-                  <tr key={i} className="border-t border-[var(--st-border)]">
+                  <Tr key={i}>
                     {columns.map((c) => (
-                      <td key={c} className="py-1.5 text-sm">
+                      <Td key={c}>
                         {String((row as Record<string, unknown>)[c] ?? '')}
-                      </td>
+                      </Td>
                     ))}
-                  </tr>
+                  </Tr>
                 ))}
               </TBody>
             </Table>

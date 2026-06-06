@@ -1,7 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import { Input, Textarea, Label, Button, Badge } from '@/components/sabcrm/20ui';
+import {
+    Input,
+    Textarea,
+    Field,
+    Button,
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from '@/components/sabcrm/20ui';
 import type {
     AggregateFunc,
     CastType,
@@ -128,7 +138,7 @@ export function StepEditor({ step, columns, datasets, onChange }: Props) {
     }
 }
 
-/* ─── Sub-editors ─────────────────────────────────────────────────── */
+/* Sub-editors */
 
 const FILTER_OPS: FilterOperator[] = [
     'equals',
@@ -149,6 +159,8 @@ const CAST_TYPES: CastType[] = ['string', 'number', 'integer', 'bool'];
 const JOIN_TYPES: JoinType[] = ['inner', 'left', 'right', 'outer'];
 const AGG_FUNCS: AggregateFunc[] = ['count', 'sum', 'avg', 'min', 'max', 'count_distinct'];
 
+const SELECT_PLACEHOLDER = 'Select a column';
+
 function ColumnPicker({
     value,
     columns,
@@ -161,21 +173,20 @@ function ColumnPicker({
     label?: string;
 }) {
     return (
-        <div className="grid gap-1">
-            <Label className="text-xs">{label}</Label>
-            <select
-                className="rounded-md border border-[var(--zoru-border,#e5e7eb)] bg-[var(--zoru-surface,#fff)] px-2 py-1 text-sm"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-            >
-                <option value="">— select —</option>
-                {columns.map((c) => (
-                    <option key={c} value={c}>
-                        {c}
-                    </option>
-                ))}
-            </select>
-        </div>
+        <Field label={label}>
+            <Select value={value || undefined} onValueChange={onChange}>
+                <SelectTrigger aria-label={label}>
+                    <SelectValue placeholder={SELECT_PLACEHOLDER} />
+                </SelectTrigger>
+                <SelectContent>
+                    {columns.map((c) => (
+                        <SelectItem key={c} value={c}>
+                            {c}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </Field>
     );
 }
 
@@ -196,28 +207,30 @@ function FilterEditor({
                 columns={columns}
                 onChange={(v) => onChange({ ...config, column: v })}
             />
-            <div className="grid gap-1">
-                <Label className="text-xs">Operator</Label>
-                <select
-                    className="rounded-md border border-[var(--zoru-border,#e5e7eb)] bg-[var(--zoru-surface,#fff)] px-2 py-1 text-sm"
+            <Field label="Operator">
+                <Select
                     value={config.operator}
-                    onChange={(e) => onChange({ ...config, operator: e.target.value as FilterOperator })}
+                    onValueChange={(v) => onChange({ ...config, operator: v as FilterOperator })}
                 >
-                    {FILTER_OPS.map((o) => (
-                        <option key={o} value={o}>
-                            {o.replace(/_/g, ' ')}
-                        </option>
-                    ))}
-                </select>
-            </div>
-            <div className="grid gap-1">
-                <Label className="text-xs">Value</Label>
+                    <SelectTrigger aria-label="Operator">
+                        <SelectValue placeholder="Select an operator" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {FILTER_OPS.map((o) => (
+                            <SelectItem key={o} value={o}>
+                                {o.replace(/_/g, ' ')}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </Field>
+            <Field label="Value">
                 <Input
                     value={typeof config.value === 'object' ? '' : String(config.value ?? '')}
                     onChange={(e) => onChange({ ...config, value: e.target.value })}
                     placeholder="value"
                 />
-            </div>
+            </Field>
         </div>
     );
 }
@@ -240,13 +253,12 @@ function RenameEditor({
                 columns={columns}
                 onChange={(v) => onChange({ ...config, from: v })}
             />
-            <div className="grid gap-1">
-                <Label className="text-xs">To</Label>
+            <Field label="To">
                 <Input
                     value={config.to}
                     onChange={(e) => onChange({ ...config, to: e.target.value })}
                 />
-            </div>
+            </Field>
         </div>
     );
 }
@@ -266,36 +278,39 @@ function DeriveEditor({
     };
     return (
         <div className="grid gap-2">
-            <div className="grid gap-1">
-                <Label className="text-xs">Target column</Label>
+            <Field label="Target column">
                 <Input
                     value={config.target}
                     onChange={(e) => onChange({ ...config, target: e.target.value })}
                 />
-            </div>
-            <div className="grid gap-1">
-                <Label className="text-xs">Expression</Label>
+            </Field>
+            <Field
+                label="Expression"
+                help={
+                    <>
+                        Helpers: <code>upper</code>, <code>lower</code>, <code>trim</code>,{' '}
+                        <code>concat</code>. Insert column:
+                    </>
+                }
+            >
                 <Textarea
                     value={config.expression}
                     onChange={(e) => onChange({ ...config, expression: e.target.value })}
                     placeholder="upper({first_name}) or concat({a},_,{b})"
                     rows={2}
                 />
-                <p className="text-[10px] opacity-60">
-                    Helpers: <code>upper</code>, <code>lower</code>, <code>trim</code>, <code>concat</code>. Insert column:
-                </p>
-                <div className="flex flex-wrap gap-1">
-                    {columns.map((c) => (
-                        <Button
-                            key={c}
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => insertColumn(c)}
-                        >
-                            {`{${c}}`}
-                        </Button>
-                    ))}
-                </div>
+            </Field>
+            <div className="flex flex-wrap gap-1">
+                {columns.map((c) => (
+                    <Button
+                        key={c}
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => insertColumn(c)}
+                    >
+                        {`{${c}}`}
+                    </Button>
+                ))}
             </div>
         </div>
     );
@@ -319,15 +334,13 @@ function SplitEditor({
                 onChange={(v) => onChange({ ...config, column: v })}
             />
             <div className="grid grid-cols-2 gap-2">
-                <div className="grid gap-1">
-                    <Label className="text-xs">Delimiter</Label>
+                <Field label="Delimiter">
                     <Input
                         value={config.delimiter}
                         onChange={(e) => onChange({ ...config, delimiter: e.target.value })}
                     />
-                </div>
-                <div className="grid gap-1">
-                    <Label className="text-xs">Into (comma-separated)</Label>
+                </Field>
+                <Field label="Into (comma-separated)">
                     <Input
                         value={(config.into ?? []).join(',')}
                         onChange={(e) =>
@@ -337,7 +350,7 @@ function SplitEditor({
                             })
                         }
                     />
-                </div>
+                </Field>
             </div>
         </div>
     );
@@ -361,20 +374,18 @@ function ReplaceEditor({
                 onChange={(v) => onChange({ ...config, column: v })}
             />
             <div className="grid grid-cols-2 gap-2">
-                <div className="grid gap-1">
-                    <Label className="text-xs">Find</Label>
+                <Field label="Find">
                     <Input
                         value={config.find}
                         onChange={(e) => onChange({ ...config, find: e.target.value })}
                     />
-                </div>
-                <div className="grid gap-1">
-                    <Label className="text-xs">Replace</Label>
+                </Field>
+                <Field label="Replace">
                     <Input
                         value={config.replace}
                         onChange={(e) => onChange({ ...config, replace: e.target.value })}
                     />
-                </div>
+                </Field>
             </div>
         </div>
     );
@@ -398,23 +409,20 @@ function DedupeEditor({
         });
     };
     return (
-        <div className="grid gap-1">
-            <Label className="text-xs">
-                Compare on (empty = all columns)
-            </Label>
+        <Field label="Compare on (empty = all columns)">
             <div className="flex flex-wrap gap-1">
                 {columns.map((c) => (
                     <Button
                         key={c}
                         size="sm"
-                        variant={subset.includes(c) ? 'default' : 'outline'}
+                        variant={subset.includes(c) ? 'primary' : 'outline'}
                         onClick={() => toggle(c)}
                     >
                         {c}
                     </Button>
                 ))}
             </div>
-        </div>
+        </Field>
     );
 }
 
@@ -435,13 +443,12 @@ function FillNullsEditor({
                 columns={columns}
                 onChange={(v) => onChange({ ...config, column: v })}
             />
-            <div className="grid gap-1">
-                <Label className="text-xs">Fill with</Label>
+            <Field label="Fill with">
                 <Input
                     value={String(config.fillWith ?? '')}
                     onChange={(e) => onChange({ ...config, fillWith: e.target.value })}
                 />
-            </div>
+            </Field>
         </div>
     );
 }
@@ -463,20 +470,23 @@ function TypeCastEditor({
                 columns={columns}
                 onChange={(v) => onChange({ ...config, column: v })}
             />
-            <div className="grid gap-1">
-                <Label className="text-xs">Cast to</Label>
-                <select
-                    className="rounded-md border border-[var(--zoru-border,#e5e7eb)] bg-[var(--zoru-surface,#fff)] px-2 py-1 text-sm"
+            <Field label="Cast to">
+                <Select
                     value={config.targetType}
-                    onChange={(e) => onChange({ ...config, targetType: e.target.value as CastType })}
+                    onValueChange={(v) => onChange({ ...config, targetType: v as CastType })}
                 >
-                    {CAST_TYPES.map((t) => (
-                        <option key={t} value={t}>
-                            {t}
-                        </option>
-                    ))}
-                </select>
-            </div>
+                    <SelectTrigger aria-label="Cast to">
+                        <SelectValue placeholder="Select a type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {CAST_TYPES.map((t) => (
+                            <SelectItem key={t} value={t}>
+                                {t}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </Field>
         </div>
     );
 }
@@ -501,52 +511,55 @@ function JoinEditor({
     return (
         <div className="grid gap-2">
             <div className="grid grid-cols-2 gap-2">
-                <div className="grid gap-1">
-                    <Label className="text-xs">Right dataset</Label>
-                    <select
-                        className="rounded-md border border-[var(--zoru-border,#e5e7eb)] bg-[var(--zoru-surface,#fff)] px-2 py-1 text-sm"
-                        value={config.rightDatasetId}
-                        onChange={(e) => onChange({ ...config, rightDatasetId: e.target.value })}
+                <Field label="Right dataset">
+                    <Select
+                        value={config.rightDatasetId || undefined}
+                        onValueChange={(v) => onChange({ ...config, rightDatasetId: v })}
                     >
-                        <option value="">— select —</option>
-                        {datasets.map((d) => (
-                            <option key={d.id} value={d.id}>
-                                {d.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="grid gap-1">
-                    <Label className="text-xs">Join type</Label>
-                    <select
-                        className="rounded-md border border-[var(--zoru-border,#e5e7eb)] bg-[var(--zoru-surface,#fff)] px-2 py-1 text-sm"
+                        <SelectTrigger aria-label="Right dataset">
+                            <SelectValue placeholder="Select a dataset" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {datasets.map((d) => (
+                                <SelectItem key={d.id} value={d.id}>
+                                    {d.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </Field>
+                <Field label="Join type">
+                    <Select
                         value={config.joinType ?? 'inner'}
-                        onChange={(e) => onChange({ ...config, joinType: e.target.value as JoinType })}
+                        onValueChange={(v) => onChange({ ...config, joinType: v as JoinType })}
                     >
-                        {JOIN_TYPES.map((j) => (
-                            <option key={j} value={j}>
-                                {j}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                        <SelectTrigger aria-label="Join type">
+                            <SelectValue placeholder="Select a join type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {JOIN_TYPES.map((j) => (
+                                <SelectItem key={j} value={j}>
+                                    {j}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </Field>
             </div>
-            <Label className="text-xs">Match on</Label>
             {config.on.map((k, i) => (
                 <div key={i} className="grid grid-cols-2 gap-2">
                     <ColumnPicker
-                        label="Left"
+                        label={i === 0 ? 'Match on (left)' : 'Left'}
                         value={k.left}
                         columns={columns}
                         onChange={(v) => setKey(i, { ...k, left: v })}
                     />
-                    <div className="grid gap-1">
-                        <Label className="text-xs">Right</Label>
+                    <Field label={i === 0 ? 'Match on (right)' : 'Right'}>
                         <Input
                             value={k.right}
                             onChange={(e) => setKey(i, { ...k, right: e.target.value })}
                         />
-                    </div>
+                    </Field>
                 </div>
             ))}
             <Button
@@ -573,21 +586,23 @@ function UnionEditor({
 }) {
     const { config } = step;
     return (
-        <div className="grid gap-1">
-            <Label className="text-xs">Other dataset</Label>
-            <select
-                className="rounded-md border border-[var(--zoru-border,#e5e7eb)] bg-[var(--zoru-surface,#fff)] px-2 py-1 text-sm"
-                value={config.otherDatasetId}
-                onChange={(e) => onChange({ ...config, otherDatasetId: e.target.value })}
+        <Field label="Other dataset">
+            <Select
+                value={config.otherDatasetId || undefined}
+                onValueChange={(v) => onChange({ ...config, otherDatasetId: v })}
             >
-                <option value="">— select —</option>
-                {datasets.map((d) => (
-                    <option key={d.id} value={d.id}>
-                        {d.name}
-                    </option>
-                ))}
-            </select>
-        </div>
+                <SelectTrigger aria-label="Other dataset">
+                    <SelectValue placeholder="Select a dataset" />
+                </SelectTrigger>
+                <SelectContent>
+                    {datasets.map((d) => (
+                        <SelectItem key={d.id} value={d.id}>
+                            {d.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </Field>
     );
 }
 
@@ -612,23 +627,24 @@ function AggregateEditor({
     };
     return (
         <div className="grid gap-2">
-            <Label className="text-xs">Group by</Label>
-            <div className="flex flex-wrap gap-1">
-                {columns.map((c) => (
-                    <Button
-                        key={c}
-                        size="sm"
-                        variant={groupBy.includes(c) ? 'default' : 'outline'}
-                        onClick={() => toggleGroup(c)}
-                    >
-                        {c}
-                    </Button>
-                ))}
-            </div>
-            <Label className="text-xs">Aggregations</Label>
+            <Field label="Group by">
+                <div className="flex flex-wrap gap-1">
+                    {columns.map((c) => (
+                        <Button
+                            key={c}
+                            size="sm"
+                            variant={groupBy.includes(c) ? 'primary' : 'outline'}
+                            onClick={() => toggleGroup(c)}
+                        >
+                            {c}
+                        </Button>
+                    ))}
+                </div>
+            </Field>
             {config.aggregations.map((a, i) => (
                 <div key={i} className="grid grid-cols-3 gap-2">
                     <ColumnPicker
+                        label={i === 0 ? 'Aggregations (column)' : 'Column'}
                         value={a.column}
                         columns={columns}
                         onChange={(v) => {
@@ -637,26 +653,28 @@ function AggregateEditor({
                             onChange({ ...config, aggregations: copy });
                         }}
                     />
-                    <div className="grid gap-1">
-                        <Label className="text-xs">Func</Label>
-                        <select
-                            className="rounded-md border border-[var(--zoru-border,#e5e7eb)] bg-[var(--zoru-surface,#fff)] px-2 py-1 text-sm"
+                    <Field label="Func">
+                        <Select
                             value={a.func}
-                            onChange={(e) => {
+                            onValueChange={(v) => {
                                 const copy = config.aggregations.slice();
-                                copy[i] = { ...a, func: e.target.value as AggregateFunc };
+                                copy[i] = { ...a, func: v as AggregateFunc };
                                 onChange({ ...config, aggregations: copy });
                             }}
                         >
-                            {AGG_FUNCS.map((f) => (
-                                <option key={f} value={f}>
-                                    {f}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="grid gap-1">
-                        <Label className="text-xs">Output as</Label>
+                            <SelectTrigger aria-label="Aggregation function">
+                                <SelectValue placeholder="Select a function" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {AGG_FUNCS.map((f) => (
+                                    <SelectItem key={f} value={f}>
+                                        {f}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field label="Output as">
                         <Input
                             value={a.output}
                             onChange={(e) => {
@@ -665,7 +683,7 @@ function AggregateEditor({
                                 onChange({ ...config, aggregations: copy });
                             }}
                         />
-                    </div>
+                    </Field>
                 </div>
             ))}
             <Button
@@ -711,32 +729,36 @@ function PivotEditor({
                 columns={columns}
                 onChange={(v) => onChange({ ...config, valueColumn: v })}
             />
-            <div className="col-span-2 grid gap-1">
-                <Label className="text-xs">Index columns (comma-separated)</Label>
-                <Input
-                    value={(config.indexColumns ?? []).join(',')}
-                    onChange={(e) =>
-                        onChange({
-                            ...config,
-                            indexColumns: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
-                        })
-                    }
-                />
+            <div className="col-span-2">
+                <Field label="Index columns (comma-separated)">
+                    <Input
+                        value={(config.indexColumns ?? []).join(',')}
+                        onChange={(e) =>
+                            onChange({
+                                ...config,
+                                indexColumns: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
+                            })
+                        }
+                    />
+                </Field>
             </div>
-            <div className="grid gap-1">
-                <Label className="text-xs">Aggregation</Label>
-                <select
-                    className="rounded-md border border-[var(--zoru-border,#e5e7eb)] bg-[var(--zoru-surface,#fff)] px-2 py-1 text-sm"
+            <Field label="Aggregation">
+                <Select
                     value={config.aggFunc ?? 'sum'}
-                    onChange={(e) => onChange({ ...config, aggFunc: e.target.value as AggregateFunc })}
+                    onValueChange={(v) => onChange({ ...config, aggFunc: v as AggregateFunc })}
                 >
-                    {AGG_FUNCS.map((f) => (
-                        <option key={f} value={f}>
-                            {f}
-                        </option>
-                    ))}
-                </select>
-            </div>
+                    <SelectTrigger aria-label="Aggregation">
+                        <SelectValue placeholder="Select a function" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {AGG_FUNCS.map((f) => (
+                            <SelectItem key={f} value={f}>
+                                {f}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </Field>
         </div>
     );
 }
@@ -754,22 +776,23 @@ function UnpivotEditor({
     return (
         <div className="grid grid-cols-2 gap-2">
             <div className="col-span-2 grid gap-1">
-                <Label className="text-xs">Value columns (comma-separated)</Label>
-                <Input
-                    value={config.valueColumns.join(',')}
-                    onChange={(e) =>
-                        onChange({
-                            ...config,
-                            valueColumns: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
-                        })
-                    }
-                />
+                <Field label="Value columns (comma-separated)">
+                    <Input
+                        value={config.valueColumns.join(',')}
+                        onChange={(e) =>
+                            onChange({
+                                ...config,
+                                valueColumns: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
+                            })
+                        }
+                    />
+                </Field>
                 <div className="flex flex-wrap gap-1">
                     {columns.map((c) => (
-                        <Badge
+                        <Button
                             key={c}
+                            size="sm"
                             variant="outline"
-                            className="cursor-pointer"
                             onClick={() =>
                                 onChange({
                                     ...config,
@@ -778,24 +801,22 @@ function UnpivotEditor({
                             }
                         >
                             {c}
-                        </Badge>
+                        </Button>
                     ))}
                 </div>
             </div>
-            <div className="grid gap-1">
-                <Label className="text-xs">Var name</Label>
+            <Field label="Var name">
                 <Input
                     value={config.varName}
                     onChange={(e) => onChange({ ...config, varName: e.target.value })}
                 />
-            </div>
-            <div className="grid gap-1">
-                <Label className="text-xs">Value name</Label>
+            </Field>
+            <Field label="Value name">
                 <Input
                     value={config.valueName}
                     onChange={(e) => onChange({ ...config, valueName: e.target.value })}
                 />
-            </div>
+            </Field>
         </div>
     );
 }

@@ -1,8 +1,23 @@
 'use client';
 
-import { Card, CardBody, Progress, Button, cn } from '@/components/sabcrm/20ui';
-import { useState, useRef } from 'react';
-import { Upload, FileText, Loader2 } from 'lucide-react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  StatCard,
+  Progress,
+  Button,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
+import { SabFileToFileButton } from '@/components/sabfiles';
+import { useState } from 'react';
+import { Upload, FileText, Loader2, Network, FileSearch, Bot } from 'lucide-react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -12,7 +27,6 @@ export default function LogAnalyzerPage() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [fileName, setFileName] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [results, setResults] = useState<{
     total: number;
     bots: number;
@@ -21,10 +35,7 @@ export default function LogAnalyzerPage() {
     topUAs: [string, number][];
   } | null>(null);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleFile = async (file: File) => {
     setFileName(file.name);
     setLoading(true);
     setProgress(0);
@@ -63,79 +74,73 @@ export default function LogAnalyzerPage() {
       });
     };
 
-    const processChunk = async () => {
-      while (offset < file.size) {
-        const slice = file.slice(offset, offset + CHUNK_SIZE);
-        const text = await readChunk(slice);
-        
-        const lines = (leftover + text).split(/\r?\n/);
-        leftover = lines.pop() || '';
-        
-        processLines(lines);
-        offset += CHUNK_SIZE;
-        
-        setProgress(Math.min(100, Math.round((offset / file.size) * 100)));
-        
-        // Yield to render loop to prevent UI freezing
-        await new Promise(resolve => setTimeout(resolve, 0));
-      }
-      
-      if (leftover) {
-        processLines([leftover]);
-      }
-      
-      const sort = (m: Map<string, number>) => Array.from(m.entries()).sort((a, b) => b[1] - a[1]).slice(0, 15);
-      setResults({
-        total,
-        bots,
-        topIps: sort(ipCounts),
-        topPaths: sort(pathCounts),
-        topUAs: sort(uaCounts)
-      });
-      setLoading(false);
-    };
+    while (offset < file.size) {
+      const slice = file.slice(offset, offset + CHUNK_SIZE);
+      const text = await readChunk(slice);
 
-    processChunk();
+      const lines = (leftover + text).split(/\r?\n/);
+      leftover = lines.pop() || '';
+
+      processLines(lines);
+      offset += CHUNK_SIZE;
+
+      setProgress(Math.min(100, Math.round((offset / file.size) * 100)));
+
+      // Yield to render loop to prevent UI freezing
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+    if (leftover) {
+      processLines([leftover]);
+    }
+
+    const sort = (m: Map<string, number>) => Array.from(m.entries()).sort((a, b) => b[1] - a[1]).slice(0, 15);
+    setResults({
+      total,
+      bots,
+      topIps: sort(ipCounts),
+      topPaths: sort(pathCounts),
+      topUAs: sort(uaCounts),
+    });
+    setLoading(false);
   };
+
+  const lists: { title: string; icon: typeof Network; rows: [string, number][] }[] = [
+    { title: 'Top IPs', icon: Network, rows: results?.topIps ?? [] },
+    { title: 'Top paths', icon: FileSearch, rows: results?.topPaths ?? [] },
+    { title: 'Top user agents', icon: Bot, rows: results?.topUAs ?? [] },
+  ];
 
   return (
     <ToolShell title="Server Log Analyzer" description="Parse massive NCSA/Combined access logs locally and find top IPs, paths, and bots.">
-      <Card className="mb-6 border-dashed">
+      <Card variant="outlined" className="mb-6 border-dashed">
         <CardBody className="flex flex-col items-center justify-center p-8 text-center">
-          <div className="rounded-full bg-[var(--st-bg-muted)] p-3 mb-4">
-            <Upload className="h-6 w-6 text-[var(--st-text-secondary)]" />
+          <div className="mb-4 rounded-full bg-[var(--st-bg-muted)] p-3">
+            <Upload className="h-6 w-6 text-[var(--st-text-secondary)]" aria-hidden="true" />
           </div>
-          <h3 className="text-sm font-medium mb-1">Upload Access Log</h3>
-          <p className="text-xs text-[var(--st-text-secondary)] mb-4 max-w-sm">
-            Select a massive NCSA/Combined log file. The file is processed locally in chunks to prevent freezing your browser.
+          <h3 className="mb-1 text-sm font-medium text-[var(--st-text)]">Upload Access Log</h3>
+          <p className="mb-4 max-w-sm text-xs text-[var(--st-text-secondary)]">
+            Pick an NCSA/Combined log file from your SabFiles library. The file is processed locally in chunks to prevent freezing your browser.
           </p>
-          
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            accept=".log,.txt,text/*"
-            onChange={handleFileUpload}
-            disabled={loading}
-          />
-          <Button 
-            onClick={() => fileInputRef.current?.click()} 
-            disabled={loading}
-            variant={loading ? "outline" : "default"}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              "Select Log File"
-            )}
-          </Button>
-          
+
+          {loading ? (
+            <Button variant="outline" disabled iconLeft={Loader2}>
+              Processing...
+            </Button>
+          ) : (
+            <SabFileToFileButton
+              accept="all"
+              variant="default"
+              title="Pick a log file"
+              onPickFile={(file) => handleFile(file)}
+            >
+              Select Log File
+            </SabFileToFileButton>
+          )}
+
           {fileName && !loading && (
-            <div className="mt-4 flex items-center gap-2 text-xs text-[var(--st-text)] bg-[var(--st-bg-muted)] px-3 py-1.5 rounded-full">
-              <FileText className="h-3 w-3" />
+            <div className="mt-4 flex items-center gap-2 rounded-full bg-[var(--st-bg-muted)] px-3 py-1.5 text-xs text-[var(--st-text)]">
+              <FileText className="h-3 w-3" aria-hidden="true" />
               <span>{fileName}</span>
             </div>
           )}
@@ -143,33 +148,54 @@ export default function LogAnalyzerPage() {
       </Card>
 
       {loading && (
-        <div className="space-y-2 mb-6">
-          <div className="flex justify-between text-xs font-medium">
+        <div className="mb-6 space-y-2">
+          <div className="flex justify-between text-xs font-medium text-[var(--st-text)]">
             <span>Analyzing {fileName}...</span>
             <span>{progress}%</span>
           </div>
-          <Progress value={progress} />
+          <Progress value={progress} aria-label="Log analysis progress" />
         </div>
       )}
 
       {results && (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-            <Card><CardBody className="p-4"><div className="text-2xl font-bold">{results.total.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Lines parsed</div></CardBody></Card>
-            <Card><CardBody className="p-4"><div className="text-2xl font-bold">{results.bots.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Bot hits</div></CardBody></Card>
-            <Card><CardBody className="p-4"><div className="text-2xl font-bold">{results.topIps.length.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Unique IPs (top)</div></CardBody></Card>
+          <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3">
+            <StatCard label="Lines parsed" value={results.total.toLocaleString()} icon={FileSearch} />
+            <StatCard label="Bot hits" value={results.bots.toLocaleString()} icon={Bot} />
+            <StatCard label="Unique IPs (top)" value={results.topIps.length.toLocaleString()} icon={Network} />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[['Top IPs', results.topIps], ['Top paths', results.topPaths], ['Top user agents', results.topUAs]].map(([title, list]) => (
-              <Card key={title as string}><CardBody className="p-4">
-                <div className="font-semibold text-sm mb-2">{title as string}</div>
-                {(list as any[]).map(([k, v]) => (
-                  <div key={k} className="flex justify-between text-xs border-t py-1.5 gap-2">
-                    <span className="font-mono truncate max-w-full" title={k}>{k}</span>
-                    <span className="font-medium shrink-0">{v.toLocaleString()}</span>
-                  </div>
-                ))}
-              </CardBody></Card>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {lists.map(({ title, icon: Icon, rows }) => (
+              <Card key={title} variant="outlined" padding="none">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-sm">
+                    <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                    {title}
+                  </CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <Table density="compact">
+                    <THead>
+                      <Tr>
+                        <Th>Value</Th>
+                        <Th align="right">Hits</Th>
+                      </Tr>
+                    </THead>
+                    <TBody>
+                      {rows.map(([k, v]) => (
+                        <Tr key={k}>
+                          <Td truncate>
+                            <span className="font-mono" title={k}>{k}</span>
+                          </Td>
+                          <Td align="right">
+                            <span className="font-medium">{v.toLocaleString()}</span>
+                          </Td>
+                        </Tr>
+                      ))}
+                    </TBody>
+                  </Table>
+                </CardBody>
+              </Card>
             ))}
           </div>
         </>

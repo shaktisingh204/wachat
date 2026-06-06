@@ -1,11 +1,19 @@
 "use client";
 
-import { Badge, Button, Card, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  Checkbox,
+  Field,
+  SegmentedControl,
+  Textarea,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import { useRouter } from "next/navigation";
-import { LoaderCircle, Send, Bot } from "lucide-react";
+import { Send, Bot } from "lucide-react";
 
 /**
- * <TicketConversation> — notes composer + internal-vs-public toggle
+ * <TicketConversation> - notes composer + internal-vs-public toggle
  * (§1D.2 conversation thread).
  *
  * Local-only for now: notes are appended into the ticket's
@@ -14,7 +22,7 @@ import { LoaderCircle, Send, Bot } from "lucide-react";
  * or `internal` (agents only).
  *
  * The composer also handles the Reply and Forward intents from the
- * header action group — the parent flips `mode` on this component to
+ * header action group - the parent flips `mode` on this component to
  * pre-fill the textarea and badge.
  */
 
@@ -24,6 +32,7 @@ import { updateTicket } from "@/app/actions/crm/tickets.actions";
 import type { CrmTicketDoc } from "@/lib/rust-client/crm-tickets";
 
 type NoteKind = "public" | "internal";
+type ComposerMode = "reply" | "forward" | "note";
 
 interface ConversationNote {
   id: string;
@@ -35,9 +44,16 @@ interface ConversationNote {
 
 interface TicketConversationProps {
   ticket: CrmTicketDoc;
-  mode: "reply" | "forward" | "note";
-  onModeChange: (m: "reply" | "forward" | "note") => void;
+  mode: ComposerMode;
+  onModeChange: (m: ComposerMode) => void;
+  children?: React.ReactNode;
 }
+
+const MODE_ITEMS: ReadonlyArray<{ value: ComposerMode; label: string }> = [
+  { value: "note", label: "Note" },
+  { value: "reply", label: "Reply" },
+  { value: "forward", label: "Forward" },
+];
 
 function readNotes(t: CrmTicketDoc): ConversationNote[] {
   const raw = Array.isArray(t.internalNotes)
@@ -98,10 +114,10 @@ export function TicketConversation({
 
   const placeholder =
     mode === "forward"
-      ? "Forwarding context to another agent or team…"
+      ? "Forwarding context to another agent or team..."
       : mode === "reply"
-        ? "Reply to the requester…"
-        : "Add an internal note for your team…";
+        ? "Reply to the requester..."
+        : "Add an internal note for your team...";
 
   React.useEffect(() => {
     // Default kind based on intent.
@@ -124,7 +140,10 @@ export function TicketConversation({
         await updateTicket(String(ticket._id), {
           internalNotes: next as unknown,
         });
-        toast({ title: mode === "reply" ? "Reply added" : "Note saved" });
+        toast({
+          title: mode === "reply" ? "Reply added" : "Note saved",
+          tone: "success",
+        });
         setBody("");
         onModeChange("note");
         router.refresh();
@@ -132,7 +151,7 @@ export function TicketConversation({
         toast({
           title: "Could not save",
           description: e instanceof Error ? e.message : "Unknown error",
-          variant: "destructive",
+          tone: "danger",
         });
       }
     });
@@ -148,7 +167,7 @@ export function TicketConversation({
   };
 
   return (
-    <Card className="flex flex-col gap-4 p-6">
+    <Card padding="lg" className="flex flex-col gap-4">
       <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Conversation
       </h3>
@@ -156,71 +175,51 @@ export function TicketConversation({
       {children}
 
       <div className="flex flex-col gap-2">
-        <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5 self-start">
-          {(["note", "reply", "forward"] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              aria-pressed={mode === m}
-              onClick={() => onModeChange(m)}
-              className={[
-                "rounded-sm px-2 py-1 text-[12px] capitalize",
-                mode === m
-                  ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
-                  : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]",
-              ].join(" ")}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
-
-        <Label
-          htmlFor="ticket-note-body"
-          className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]"
-        >
-          Message
-        </Label>
-        <Textarea
-          id="ticket-note-body"
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder={placeholder}
-          rows={4}
+        <SegmentedControl
+          items={MODE_ITEMS}
+          value={mode}
+          onChange={onModeChange}
+          size="sm"
+          aria-label="Composer mode"
+          className="self-start"
         />
+
+        <Field label="Message">
+          <Textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder={placeholder}
+            rows={4}
+          />
+        </Field>
 
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-4">
-            <label className="inline-flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
-              <input
-                type="checkbox"
-                checked={kind === "internal"}
-                onChange={(e) =>
-                  setKind(e.target.checked ? "internal" : "public")
-                }
-                className="h-3.5 w-3.5"
-              />
-              Internal (not visible to requester)
-            </label>
+            <Checkbox
+              size="sm"
+              label="Internal (not visible to requester)"
+              checked={kind === "internal"}
+              onChange={(e) =>
+                setKind(e.target.checked ? "internal" : "public")
+              }
+            />
             <Button
-              type="button"
               variant="outline"
               size="sm"
+              iconLeft={Bot}
               onClick={suggestReply}
             >
-              <Bot className="mr-1.5 h-3.5 w-3.5" /> AI Suggest Reply
+              AI Suggest Reply
             </Button>
           </div>
           <Button
+            variant="primary"
             size="sm"
+            iconLeft={Send}
+            loading={pending}
             onClick={submit}
             disabled={pending || body.trim().length === 0}
           >
-            {pending ? (
-              <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Send className="h-3.5 w-3.5" />
-            )}
             Send
           </Button>
         </div>

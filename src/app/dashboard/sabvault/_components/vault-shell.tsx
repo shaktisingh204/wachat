@@ -13,8 +13,8 @@ import type { SabvaultUserKeyRecord } from '@/app/actions/sabvault.actions';
 import { CreateSecretDialog } from './create-secret-dialog';
 
 /**
- * Main vault shell — three columns: folder tree, secret list, action bar.
- * Forwards "needs unlock" affordance when the in-memory key is missing.
+ * Main vault shell: three columns - folder tree, secret list, action bar.
+ * Forwards a "needs unlock" affordance when the in-memory key is missing.
  */
 export function VaultShell({
     initialFolders,
@@ -42,19 +42,19 @@ export function VaultShell({
     }
 
     return (
-        <div className="zoruui flex h-full min-h-[calc(100vh-4rem)] gap-4 p-4">
+        <div className="ui20 flex h-full min-h-[calc(100vh-4rem)] gap-4 p-4">
             {/* Folder tree */}
             <aside className="w-64 shrink-0">
-                <Card className="p-3">
+                <Card padding="sm">
                     <div className="mb-3 flex items-center justify-between">
-                        <span className="text-sm font-semibold">Folders</span>
+                        <span className="text-sm font-semibold text-[var(--st-text)]">Folders</span>
                         <Badge>{initialFolders.length}</Badge>
                     </div>
                     <ScrollArea className="h-[calc(100vh-12rem)] pr-2">
                         <div className="flex flex-col gap-1">
                             <Link
                                 href="/dashboard/sabvault"
-                                className={`rounded-md px-2 py-1.5 text-sm hover:bg-[var(--st-bg-secondary)] ${
+                                className={`rounded-[var(--st-radius)] px-2 py-1.5 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)] ${
                                     !selectedFolderId ? 'bg-[var(--st-bg-secondary)] font-medium' : ''
                                 }`}
                             >
@@ -64,7 +64,7 @@ export function VaultShell({
                                 <Link
                                     key={f._id}
                                     href={`/dashboard/sabvault?folder=${encodeURIComponent(f._id ?? '')}`}
-                                    className={`rounded-md px-2 py-1.5 text-sm hover:bg-[var(--st-bg-secondary)] ${
+                                    className={`rounded-[var(--st-radius)] px-2 py-1.5 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)] ${
                                         selectedFolderId === f._id ? 'bg-[var(--st-bg-secondary)] font-medium' : ''
                                     }`}
                                 >
@@ -83,7 +83,8 @@ export function VaultShell({
                         <Input
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search secrets…"
+                            placeholder="Search secrets"
+                            aria-label="Search secrets"
                         />
                         <Button type="submit" variant="outline">
                             Search
@@ -99,12 +100,12 @@ export function VaultShell({
                 </div>
 
                 {!isUnlocked && keyRecord ? (
-                    <Card className="mb-3 p-4">
+                    <Card className="mb-3" padding="md">
                         <div className="flex items-center justify-between gap-3">
                             <div>
-                                <div className="text-sm font-semibold">Vault is locked</div>
+                                <div className="text-sm font-semibold text-[var(--st-text)]">Vault is locked</div>
                                 <div className="text-xs text-[var(--st-text-secondary)]">
-                                    Names + URLs are visible. Reveal/copy requires unlock.
+                                    Names and URLs are visible. Reveal or copy requires unlock.
                                 </div>
                             </div>
                             <Link href="/dashboard/sabvault/unlock">
@@ -115,12 +116,12 @@ export function VaultShell({
                 ) : null}
 
                 {!keyRecord ? (
-                    <Card className="mb-3 p-4">
+                    <Card className="mb-3" padding="md">
                         <div className="flex items-center justify-between gap-3">
                             <div>
-                                <div className="text-sm font-semibold">Set up your vault</div>
+                                <div className="text-sm font-semibold text-[var(--st-text)]">Set up your vault</div>
                                 <div className="text-xs text-[var(--st-text-secondary)]">
-                                    Choose a master password — it never leaves this browser.
+                                    Choose a master password, it never leaves this browser.
                                 </div>
                             </div>
                             <Link href="/dashboard/sabvault/unlock">
@@ -130,13 +131,13 @@ export function VaultShell({
                     </Card>
                 ) : null}
 
-                <Card className="p-0">
+                <Card padding="none">
                     {initialSecrets.length === 0 ? (
                         <div className="p-6">
                             <EmptyState title="No secrets yet" description="Add your first credential to get started." />
                         </div>
                     ) : (
-                        <ul className="divide-y">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {initialSecrets.map((s) => (
                                 <li key={s._id} className="flex items-center justify-between gap-3 px-4 py-3">
                                     <Link
@@ -145,7 +146,7 @@ export function VaultShell({
                                     >
                                         <KindGlyph kind={s.kind} />
                                         <div className="flex-1">
-                                            <div className="text-sm font-medium">{s.name}</div>
+                                            <div className="text-sm font-medium text-[var(--st-text)]">{s.name}</div>
                                             <div className="text-xs text-[var(--st-text-secondary)]">
                                                 {s.url || s.kind}
                                             </div>
@@ -189,7 +190,10 @@ function KindGlyph({ kind }: { kind: string }) {
                         ? '🖥️'
                         : '🗝️';
     return (
-        <span aria-hidden className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[var(--st-bg-secondary)] text-base">
+        <span
+            aria-hidden="true"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-base"
+        >
             {ch}
         </span>
     );

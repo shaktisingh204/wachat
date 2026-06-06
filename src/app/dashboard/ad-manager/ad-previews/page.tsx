@@ -125,19 +125,17 @@ export default function AdPreviewsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filtered.map((ad) => {
                         const img = ad.creative?.thumbnail_url || ad.creative?.image_url;
+                        const fbUrl = `https://www.facebook.com/ads/manager/creation/edit/?act=${activeAccount.account_id}&selected_adset_id=&selected_campaign_id=&selected_ad_id=${ad.id}`;
                         return (
                             <Card key={ad.id} padding="none" className="overflow-hidden">
                                 {img ? (
                                     <Dialog>
-                                        <DialogTrigger asChild>
-                                            <button
-                                                type="button"
-                                                aria-label={`Enlarge preview for ${ad.name}`}
-                                                className="block h-40 w-full bg-[var(--st-bg-secondary)] overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                                            >
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img src={img} alt={ad.name} className="w-full h-full object-cover" />
-                                            </button>
+                                        <DialogTrigger
+                                            aria-label={`Enlarge preview for ${ad.name}`}
+                                            className="block h-40 w-full bg-[var(--st-bg-secondary)] overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                                        >
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img src={img} alt={ad.name} className="w-full h-full object-cover" />
                                         </DialogTrigger>
                                         <DialogContent className="w-[90vw] max-w-6xl h-[90vh] p-2 flex flex-col justify-center items-center">
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -157,19 +155,19 @@ export default function AdPreviewsPage() {
                                         </Badge>
                                     </CardTitle>
                                 </CardHeader>
-                                <CardBody className="space-y-1 text-sm">
+                                <CardBody className="space-y-2 text-sm">
                                     {ad.creative?.title && <p className="font-medium text-[var(--st-text)]">{ad.creative.title}</p>}
                                     {ad.creative?.body && (
                                         <p className="text-[var(--st-text-secondary)] text-xs line-clamp-3">{ad.creative.body}</p>
                                     )}
-                                    <a
-                                        href={`https://www.facebook.com/ads/manager/creation/edit/?act=${activeAccount.account_id}&selected_adset_id=&selected_campaign_id=&selected_ad_id=${ad.id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-xs text-[var(--st-accent)] hover:underline mt-2"
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        iconRight={ExternalLink}
+                                        onClick={() => window.open(fbUrl, '_blank', 'noopener,noreferrer')}
                                     >
-                                        View on Facebook <ExternalLink className="h-3 w-3" aria-hidden="true" />
-                                    </a>
+                                        View on Facebook
+                                    </Button>
                                 </CardBody>
                             </Card>
                         );

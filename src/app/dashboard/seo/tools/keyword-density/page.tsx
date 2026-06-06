@@ -1,6 +1,24 @@
 'use client';
 
-import { Card, CardBody, Textarea, Tabs, TabsList, TabsTrigger, TabsContent, Switch, Label } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardBody,
+  Textarea,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Switch,
+  Label,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
+import { Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -9,7 +27,7 @@ import { countWords, ngramDensity } from '@/lib/seo-tools/text-utils';
 export default function KeywordDensityPage() {
   const [text, setText] = useState('');
   const [filterStopwords, setFilterStopwords] = useState(true);
-  
+
   const density1 = useMemo(() => ngramDensity(text, 1, filterStopwords).slice(0, 30), [text, filterStopwords]);
   const density2 = useMemo(() => ngramDensity(text, 2, filterStopwords).slice(0, 30), [text, filterStopwords]);
   const density3 = useMemo(() => ngramDensity(text, 3, filterStopwords).slice(0, 30), [text, filterStopwords]);
@@ -18,33 +36,34 @@ export default function KeywordDensityPage() {
   const renderTable = (density: { word: string; count: number; density: number }[]) => (
     <Card>
       <CardBody className="p-4">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-xs text-[var(--st-text-secondary)]">
-              <th className="py-2">#</th>
-              <th>Keyword</th>
-              <th className="text-right">Count</th>
-              <th className="text-right">Density</th>
-            </tr>
-          </thead>
-          <tbody>
-            {density.map((row, i) => (
-              <tr key={row.word} className="border-t">
-                <td className="py-2 text-[var(--st-text-secondary)]">{i + 1}</td>
-                <td className="font-mono">{row.word}</td>
-                <td className="text-right">{row.count}</td>
-                <td className="text-right">{row.density.toFixed(2)}%</td>
-              </tr>
-            ))}
-            {density.length === 0 && (
-              <tr>
-                <td colSpan={4} className="text-center text-[var(--st-text-secondary)] py-6">
-                  Start typing to see keyword density.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        {density.length === 0 ? (
+          <EmptyState
+            icon={Search}
+            title="No keywords yet"
+            description="Start typing to see keyword density."
+          />
+        ) : (
+          <Table density="compact">
+            <THead>
+              <Tr>
+                <Th>#</Th>
+                <Th>Keyword</Th>
+                <Th align="right">Count</Th>
+                <Th align="right">Density</Th>
+              </Tr>
+            </THead>
+            <TBody>
+              {density.map((row, i) => (
+                <Tr key={row.word}>
+                  <Td className="text-[var(--st-text-secondary)]">{i + 1}</Td>
+                  <Td className="font-mono">{row.word}</Td>
+                  <Td align="right">{row.count}</Td>
+                  <Td align="right">{row.density.toFixed(2)}%</Td>
+                </Tr>
+              ))}
+            </TBody>
+          </Table>
+        )}
       </CardBody>
     </Card>
   );
@@ -54,24 +73,25 @@ export default function KeywordDensityPage() {
       <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Paste or type your content…"
+        placeholder="Paste or type your content..."
+        aria-label="Content to analyze"
         className="min-h-[240px] mb-4"
       />
-      
+
       <div className="flex items-center justify-between mb-4">
         <div className="text-sm text-[var(--st-text-secondary)]">Total words: {total}</div>
         <div className="flex items-center space-x-2">
-          <Switch 
-            id="stopword-filter" 
-            checked={filterStopwords} 
-            onCheckedChange={setFilterStopwords} 
+          <Switch
+            id="stopword-filter"
+            checked={filterStopwords}
+            onCheckedChange={setFilterStopwords}
           />
           <Label htmlFor="stopword-filter" className="text-sm font-medium">
             Exclude Stopwords
           </Label>
         </div>
       </div>
-      
+
       <Tabs defaultValue="2-word">
         <TabsList className="mb-4">
           <TabsTrigger value="1-word">1-Word (Unigrams)</TabsTrigger>

@@ -1,6 +1,7 @@
 "use client";
 
-import { StatCard } from '@/components/sabcrm/20ui';
+import * as React from "react";
+
 import {
   AlertTriangle,
   CheckCircle2,
@@ -8,23 +9,24 @@ import {
   LifeBuoy,
   Star,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+import { Button } from "@/components/sabcrm/20ui";
+
+import type { CrmTicketDoc } from "@/lib/rust-client/crm-tickets";
 
 /**
  * KPI strip for the Tickets list page (§1D.1).
  *
  * Five clickable stat cards driving the in-place status filter. Each
  * card toggles a `kpiKey` (a virtual filter not always backed by a raw
- * status — e.g. "overdue" is computed from `dueBy < now` AND not
+ * status, e.g. "overdue" is computed from `dueBy < now` AND not
  * resolved).
  *
  * Counts are derived locally from the loaded ticket page; the Rust
  * list endpoint doesn't surface aggregate KPIs yet, so this is a
  * page-scoped roll-up. Good enough for an at-a-glance dashboard.
  */
-
-import * as React from "react";
-
-import type { CrmTicketDoc } from "@/lib/rust-client/crm-tickets";
 
 export type TicketsKpiKey =
   | "all"
@@ -102,21 +104,21 @@ export function TicketsKpiStrip({
       <KpiCard
         label="Open"
         value={counts.open.toLocaleString()}
-        icon={<LifeBuoy className="h-4 w-4" />}
+        icon={LifeBuoy}
         active={active === "open"}
         onClick={() => onPick(active === "open" ? "all" : "open")}
       />
       <KpiCard
         label="Pending"
         value={counts.pending.toLocaleString()}
-        icon={<Clock className="h-4 w-4" />}
+        icon={Clock}
         active={active === "pending"}
         onClick={() => onPick(active === "pending" ? "all" : "pending")}
       />
       <KpiCard
         label="Overdue SLA"
         value={counts.overdue.toLocaleString()}
-        icon={<AlertTriangle className="h-4 w-4" />}
+        icon={AlertTriangle}
         active={active === "overdue"}
         tone={counts.overdue > 0 ? "danger" : "neutral"}
         onClick={() => onPick(active === "overdue" ? "all" : "overdue")}
@@ -124,7 +126,7 @@ export function TicketsKpiStrip({
       <KpiCard
         label="Resolved (7d)"
         value={counts.resolvedThisWeek.toLocaleString()}
-        icon={<CheckCircle2 className="h-4 w-4" />}
+        icon={CheckCircle2}
         active={active === "resolvedWeek"}
         onClick={() =>
           onPick(active === "resolvedWeek" ? "all" : "resolvedWeek")
@@ -132,10 +134,8 @@ export function TicketsKpiStrip({
       />
       <KpiCard
         label="CSAT avg"
-        value={
-          counts.csatAvg != null ? `${counts.csatAvg.toFixed(2)} / 5` : "—"
-        }
-        icon={<Star className="h-4 w-4" />}
+        value={counts.csatAvg != null ? `${counts.csatAvg.toFixed(2)} / 5` : "-"}
+        icon={Star}
         active={active === "csat"}
         onClick={() => onPick(active === "csat" ? "all" : "csat")}
         period={
@@ -149,7 +149,7 @@ export function TicketsKpiStrip({
 function KpiCard({
   label,
   value,
-  icon,
+  icon: Icon,
   active,
   onClick,
   tone,
@@ -157,26 +157,55 @@ function KpiCard({
 }: {
   label: string;
   value: React.ReactNode;
-  icon: React.ReactNode;
+  icon: LucideIcon;
   active: boolean;
   onClick: () => void;
   tone?: "danger" | "neutral";
   period?: React.ReactNode;
 }) {
+  const danger = tone === "danger";
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
       onClick={onClick}
+      aria-pressed={active}
       className={[
-        "text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]",
+        "h-auto w-full flex-col items-start gap-2 rounded-[var(--st-radius-lg)] border p-4 text-left",
         active
-          ? "rounded-[var(--st-radius-lg)] ring-1 ring-[var(--st-text)]"
-          : "",
-        tone === "danger" ? "rounded-[var(--st-radius-lg)]" : "",
+          ? "border-[var(--st-text)] bg-[var(--st-bg-secondary)]"
+          : "border-[var(--st-border)] bg-[var(--st-bg)]",
       ].join(" ")}
     >
-      <StatCard label={label} value={value} icon={icon} period={period} />
-    </button>
+      <span className="flex w-full items-center justify-between">
+        <span className="text-[13px] font-medium text-[var(--st-text-secondary)]">
+          {label}
+        </span>
+        <span
+          aria-hidden="true"
+          className={[
+            "inline-flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)]",
+            danger
+              ? "bg-[var(--st-danger)]/10 text-[var(--st-danger)]"
+              : "bg-[var(--st-bg-secondary)] text-[var(--st-text-tertiary)]",
+          ].join(" ")}
+        >
+          <Icon size={16} />
+        </span>
+      </span>
+      <span
+        className={[
+          "text-2xl font-semibold tabular-nums",
+          danger ? "text-[var(--st-danger)]" : "text-[var(--st-text)]",
+        ].join(" ")}
+      >
+        {value}
+      </span>
+      {period != null ? (
+        <span className="text-[12px] text-[var(--st-text-tertiary)]">
+          {period}
+        </span>
+      ) : null}
+    </Button>
   );
 }
 

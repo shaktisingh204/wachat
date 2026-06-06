@@ -1,11 +1,29 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, Play, Trash2, Sparkles } from 'lucide-react';
 
-import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, EmptyState, Input, Badge } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    IconButton,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    CardFooter,
+    EmptyState,
+    Field,
+    Input,
+    Badge,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import {
     createRecipe,
     deleteRecipe,
@@ -21,6 +39,7 @@ interface Props {
 
 export function RecipeListClient({ initial }: Props) {
     const router = useRouter();
+    const { toast } = useToast();
     const [items, setItems] = React.useState<DataprepRecipeDoc[]>(initial.items ?? []);
     const [query, setQuery] = React.useState('');
     const [busy, setBusy] = React.useState(false);
@@ -45,42 +64,59 @@ export function RecipeListClient({ initial }: Props) {
             router.push(`/dashboard/dataprep/recipes/${res.id}`);
         } catch (e) {
             console.error('createRecipe failed', e);
+            toast.error('Could not create recipe. Please try again.');
         } finally {
             setBusy(false);
         }
-    }, [router]);
+    }, [router, toast]);
 
-    const onDelete = React.useCallback(async (id: string) => {
-        if (!confirm('Archive this recipe?')) return;
-        await deleteRecipe(id);
-        setItems((prev) => prev.filter((r) => r._id !== id));
-    }, []);
+    const onDelete = React.useCallback(
+        async (id: string) => {
+            if (!confirm('Archive this recipe?')) return;
+            try {
+                await deleteRecipe(id);
+                setItems((prev) => prev.filter((r) => r._id !== id));
+                toast.success('Recipe archived.');
+            } catch (e) {
+                console.error('deleteRecipe failed', e);
+                toast.error('Could not archive recipe.');
+            }
+        },
+        [toast],
+    );
 
     return (
-        <div className="zoruui flex flex-col gap-6 p-6">
-            <header className="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">DataPrep</h1>
-                    <p className="text-sm opacity-70">
+        <div className="ui20 flex flex-col gap-6 p-6">
+            <PageHeader className="flex-wrap items-end justify-between gap-4">
+                <PageHeaderHeading>
+                    <PageTitle>DataPrep</PageTitle>
+                    <PageDescription>
                         Clean, transform, join, and profile tabular data before sending it to BI.
-                    </p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Input
-                        placeholder="Search recipes"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        className="w-64"
-                    />
-                    <Button onClick={onCreate} disabled={busy}>
-                        <Plus className="h-4 w-4" /> New recipe
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Field className="w-64">
+                        <Input
+                            placeholder="Search recipes"
+                            aria-label="Search recipes"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+                    </Field>
+                    <Button
+                        variant="primary"
+                        iconLeft={Plus}
+                        onClick={onCreate}
+                        loading={busy}
+                    >
+                        New recipe
                     </Button>
-                </div>
-            </header>
+                </PageActions>
+            </PageHeader>
 
             {filtered.length === 0 ? (
                 <EmptyState
-                    icon={<Sparkles className="h-6 w-6" />}
+                    icon={Sparkles}
                     title="No recipes yet"
                     description="Create a recipe to start cleaning and transforming a dataset."
                 />
@@ -92,31 +128,35 @@ export function RecipeListClient({ initial }: Props) {
                                 <CardTitle className="flex items-center justify-between gap-2">
                                     <span className="truncate">{r.name}</span>
                                     {r.scheduleCron ? (
-                                        <Badge variant="secondary">scheduled</Badge>
+                                        <Badge tone="info">scheduled</Badge>
                                     ) : null}
                                 </CardTitle>
                                 <CardDescription>
                                     {r.description ?? `${(r.steps ?? []).length} step(s)`}
                                 </CardDescription>
                             </CardHeader>
-                            <CardBody className="flex-1 text-xs opacity-70">
+                            <CardBody className="flex-1 text-xs text-[var(--st-text-secondary)]">
                                 <p>Updated: {r.updatedAt ?? r.createdAt}</p>
                                 {r.lastRunId ? <p>Last run: {r.lastRunId}</p> : null}
                             </CardBody>
                             <CardFooter className="flex items-center justify-between">
-                                <Button asChild size="sm" variant="outline">
-                                    <Link href={`/dashboard/dataprep/recipes/${r._id}`}>
-                                        <Play className="h-3.5 w-3.5" /> Open
-                                    </Link>
-                                </Button>
                                 <Button
+                                    size="sm"
+                                    variant="outline"
+                                    iconLeft={Play}
+                                    onClick={() =>
+                                        router.push(`/dashboard/dataprep/recipes/${r._id}`)
+                                    }
+                                >
+                                    Open
+                                </Button>
+                                <IconButton
+                                    label="Archive recipe"
+                                    icon={Trash2}
                                     size="sm"
                                     variant="ghost"
                                     onClick={() => onDelete(String(r._id))}
-                                    aria-label="Archive recipe"
-                                >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
+                                />
                             </CardFooter>
                         </Card>
                     ))}

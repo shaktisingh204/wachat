@@ -32,7 +32,7 @@ export default async function RewardsDashboardPage(): Promise<React.JSX.Element>
   }
 
   return (
-    <div className="zoruui flex flex-col gap-6">
+    <div className="ui20 flex flex-col gap-6">
       <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <StatCard label="Members" value={kpis.totalMembers.toLocaleString()} icon={<Users />} />
         <StatCard
@@ -115,7 +115,7 @@ export default async function RewardsDashboardPage(): Promise<React.JSX.Element>
           <CardHeader>
             <CardTitle>Active programs</CardTitle>
             <CardDescription>
-              Each program reuses a loyalty tier engine — no duplication.
+              Each program reuses a loyalty tier engine, no duplication.
             </CardDescription>
           </CardHeader>
           <CardBody className="flex flex-col gap-2">
@@ -124,7 +124,7 @@ export default async function RewardsDashboardPage(): Promise<React.JSX.Element>
                 title="No rewards programs yet"
                 description="Launch your first program to start tracking points and tiers."
                 action={
-                  <Button asChild>
+                  <Button variant="primary">
                     <Link href="/dashboard/sabthrive/loyalty/new">Create program</Link>
                   </Button>
                 }
