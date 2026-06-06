@@ -101,7 +101,7 @@ export function AudienceSegmentClient({ initialData }: { initialData: any[] }) {
   return (
     <EntityListShell
       title="Audience Segmentation"
-      subtitle="Manage your Audience Segmentation seamlessly."
+      subtitle="Manage your audience segments seamlessly."
       search={{ value: search, onChange: setSearch, placeholder: 'Search...' }}
       empty={
         filteredData.length === 0 ? (
@@ -131,7 +131,6 @@ export function AudienceSegmentClient({ initialData }: { initialData: any[] }) {
             <div className="grid gap-4 py-4">
               <Field label="Name">
                 <Input
-                  id="name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}

@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { Plus, Pencil, Trash2, Search, ShoppingCart } from 'lucide-react';
 import {
   Button,
   IconButton,
+  Card,
   Table,
   THead,
   TBody,
@@ -22,10 +23,18 @@ import {
   Checkbox,
   Badge,
   EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Plus, Edit2, Trash2, ShoppingCart } from 'lucide-react';
-import { createAbandonedCart, updateAbandonedCart, deleteAbandonedCart } from '@/app/actions/marketing/cart-abandonment.actions';
+import {
+  createAbandonedCart,
+  updateAbandonedCart,
+  deleteAbandonedCart,
+} from '@/app/actions/marketing/cart-abandonment.actions';
 
 export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
   const [data, setData] = useState(initialData);
@@ -35,13 +44,13 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
   const [search, setSearch] = useState('');
   const { toast } = useToast();
 
-  // Form State
+  // Form state
   const [userId, setUserId] = useState<any>('');
   const [totalAmount, setTotalAmount] = useState<any>(0);
   const [recovered, setRecovered] = useState<any>(false);
 
   const filteredData = data.filter((item) =>
-    JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
+    JSON.stringify(item).toLowerCase().includes(search.toLowerCase()),
   );
 
   const openNew = () => {
@@ -62,33 +71,29 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
 
   const handleSave = async () => {
     setLoading(true);
-    const payload = {
-      userId,
-      totalAmount,
-      recovered,
-    };
+    const payload = { userId, totalAmount, recovered };
 
     try {
       if (editingItem) {
         const res = await updateAbandonedCart(editingItem._id, payload);
         if (res.success) {
           setData(data.map((i) => (i._id === editingItem._id ? { ...i, ...payload } : i)));
-          toast.success({ title: 'Success', description: 'Record updated successfully.' });
+          toast.success('Record updated successfully.');
           setIsDialogOpen(false);
         } else {
-          toast.error({ title: 'Error', description: res.error || 'Failed to update record.' });
+          toast.error(res.error || 'Failed to update record.');
         }
       } else {
         const res = await createAbandonedCart(payload);
         if (res.success) {
-          // Optimistically reload page or add
+          // Optimistically reload to pick up the server-generated record.
           window.location.reload();
         } else {
-          toast.error({ title: 'Error', description: res.error || 'Failed to create record.' });
+          toast.error(res.error || 'Failed to create record.');
         }
       }
     } catch (err) {
-      toast.error({ title: 'Error', description: 'An unexpected error occurred.' });
+      toast.error('An unexpected error occurred.');
     } finally {
       setLoading(false);
     }
@@ -100,74 +105,95 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
     const res = await deleteAbandonedCart(id);
     if (res.success) {
       setData(data.filter((i) => i._id !== id));
-      toast.success({ title: 'Success', description: 'Record deleted.' });
+      toast.success('Record deleted.');
     } else {
-      toast.error({ title: 'Error', description: res.error || 'Failed to delete record.' });
+      toast.error(res.error || 'Failed to delete record.');
     }
   };
 
   return (
-    <EntityListShell
-      title="Abandoned Carts"
-      subtitle="Manage your Abandoned Carts seamlessly."
-      search={{ value: search, onChange: setSearch, placeholder: 'Search...' }}
-      primaryAction={
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="primary" iconLeft={Plus} onClick={openNew}>
-              Create New
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <Field label="userId">
-                <Input
-                  type="text"
-                  value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
-                />
-              </Field>
-
-              <Field label="totalAmount">
-                <Input
-                  type="number"
-                  value={totalAmount}
-                  onChange={(e) => setTotalAmount(Number(e.target.value))}
-                />
-              </Field>
-
-              <Checkbox
-                label="recovered"
-                checked={recovered}
-                onChange={(e) => setRecovered(e.target.checked)}
+    <div className="ui20 flex w-full flex-col gap-4">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Abandoned Carts</PageTitle>
+          <PageDescription>Manage your abandoned carts seamlessly.</PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <div className="w-full sm:w-64">
+            <Field label="Search carts">
+              <Input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search..."
+                iconLeft={Search}
               />
-            </div>
-            <DialogFooter>
-              <Button variant="primary" loading={loading} onClick={handleSave}>
-                Save
+            </Field>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="primary" iconLeft={Plus} onClick={openNew}>
+                Create New
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      }
-    >
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <Field label="User ID">
+                  <Input
+                    type="text"
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
+                  />
+                </Field>
+
+                <Field label="Total Amount">
+                  <Input
+                    type="number"
+                    value={totalAmount}
+                    onChange={(e) => setTotalAmount(Number(e.target.value))}
+                  />
+                </Field>
+
+                <Checkbox
+                  label="Recovered"
+                  checked={recovered}
+                  onChange={(e) => setRecovered(e.target.checked)}
+                />
+              </div>
+              <DialogFooter>
+                <Button variant="primary" loading={loading} onClick={handleSave}>
+                  Save
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </PageActions>
+      </PageHeader>
+
       {filteredData.length === 0 ? (
-        <EmptyState
-          icon={ShoppingCart}
-          title="No records found"
-          description="There are no abandoned carts to show. New records will appear here."
-        />
+        <Card className="flex min-h-[240px] items-center justify-center">
+          <EmptyState
+            icon={ShoppingCart}
+            title="No records found"
+            description="Abandoned carts will appear here once they are recorded."
+            action={
+              <Button variant="primary" iconLeft={Plus} onClick={openNew}>
+                Create New
+              </Button>
+            }
+          />
+        </Card>
       ) : (
-        <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+        <Card padding="none">
           <Table>
             <THead>
               <Tr>
-                <Th className="capitalize">userId</Th>
-                <Th className="capitalize">totalAmount</Th>
-                <Th className="capitalize">recovered</Th>
+                <Th>User ID</Th>
+                <Th>Total Amount</Th>
+                <Th>Recovered</Th>
                 <Th align="right">Actions</Th>
               </Tr>
             </THead>
@@ -185,7 +211,7 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
                     <div className="flex items-center justify-end gap-1">
                       <IconButton
                         label="Edit record"
-                        icon={Edit2}
+                        icon={Pencil}
                         variant="ghost"
                         onClick={() => openEdit(item)}
                       />
@@ -201,8 +227,8 @@ export function AbandonedCartClient({ initialData }: { initialData: any[] }) {
               ))}
             </TBody>
           </Table>
-        </div>
+        </Card>
       )}
-    </EntityListShell>
+    </div>
   );
 }
