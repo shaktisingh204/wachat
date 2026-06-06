@@ -5,7 +5,6 @@
  */
 
 import { useState, useTransition } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LayoutGrid, Plus, Rocket } from 'lucide-react';
 
@@ -127,18 +126,21 @@ export function AppsListClient({ initialItems }: Props) {
                 <p className="text-sm text-[var(--st-text-secondary)] line-clamp-2">{app.description}</p>
               ) : null}
               <div className="flex gap-2 mt-auto pt-2">
-                <Link
-                  href={`/dashboard/sabcreator/${app._id}/builder`}
-                  className="u-btn u-btn--outline u-btn--sm flex-1"
+                <Button
+                  variant="outline"
+                  size="sm"
+                  block
+                  onClick={() => router.push(`/dashboard/sabcreator/${app._id}/builder`)}
                 >
-                  <span className="u-btn__label">Open builder</span>
-                </Link>
-                <Link
-                  href={`/dashboard/sabcreator/${app._id}/preview`}
-                  className="u-btn u-btn--ghost u-btn--sm"
+                  Open builder
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.push(`/dashboard/sabcreator/${app._id}/preview`)}
                 >
-                  <span className="u-btn__label">Preview</span>
-                </Link>
+                  Preview
+                </Button>
               </div>
             </Card>
           ))}

@@ -7,7 +7,6 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/sabcrm/20ui';
 // Pull the new ui20 CRM theme so settings pages match the rest of the CRM.
 import '@/components/sabcrm/20ui/tokens-crm.css';
-import './crm-settings-shell.css';
 
 /**
  * CrmSettingsShell — centres every `/dashboard/settings/crm/*` page in a
@@ -29,9 +28,11 @@ export function CrmSettingsShell({ children }: { children: React.ReactNode }): R
   }, []);
 
   return (
-    <div className={`sabcrm-twenty ui20 ${appDark ? 'dark st-theme-dark' : 'light'} crm-settings-shell`}>
-      <div className="crm-settings-shell__inner">
-        <div className="crm-settings-shell__bar">
+    <div
+      className={`sabcrm-twenty ui20 ${appDark ? 'dark st-theme-dark' : 'light'} h-full overflow-y-auto bg-[var(--st-bg-secondary)] text-[var(--st-text)]`}
+    >
+      <div className="mx-auto max-w-[1120px] px-[var(--st-space-5)] pb-[var(--st-space-6)] pt-[var(--st-space-4)]">
+        <div className="mb-[var(--st-space-4)] flex items-center">
           <Button variant="ghost" iconLeft={ArrowLeft} onClick={() => router.back()}>
             Back
           </Button>

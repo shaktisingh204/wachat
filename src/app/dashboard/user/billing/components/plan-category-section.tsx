@@ -1,5 +1,3 @@
-import React from 'react';
-import { motion } from 'framer-motion';
 import { ScrollArea, ScrollBar } from '@/components/sabcrm/20ui';
 import { PlanCard } from './plan-card';
 import type { Plan, WithId } from '@/lib/definitions';
@@ -17,12 +15,7 @@ export const PlanCategorySection = ({
 }) => {
   if (plans.length === 0) return null;
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
+    <section className="space-y-6 motion-safe:animate-slide-up">
       <div className="flex items-center gap-3">
         <h2 className="text-2xl font-bold tracking-tight text-[var(--st-text)]">{title}</h2>
         <div className="h-px flex-1 bg-gradient-to-r from-[var(--st-border)] to-transparent" />
@@ -40,6 +33,6 @@ export const PlanCategorySection = ({
         </div>
         <ScrollBar orientation="horizontal" className="opacity-50 hover:opacity-100 transition-opacity" />
       </ScrollArea>
-    </motion.div>
+    </section>
   );
 };

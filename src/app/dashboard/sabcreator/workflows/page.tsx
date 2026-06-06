@@ -2,13 +2,39 @@
 
 import React from 'react';
 import { Workflow, Plus, Play, MoreHorizontal, Settings, Clock } from 'lucide-react';
-import { PageHeader } from '@/components/sabcrm/20ui';
-import { Card } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Card,
+  Button,
+  IconButton,
+  Badge,
+  type BadgeTone,
+  Table,
+  THead,
+  Tr,
+  Th,
+  TBody,
+  Td,
+} from '@/components/sabcrm/20ui';
 
-const MOCK_WORKFLOWS = [
+type WorkflowStatus = 'active' | 'draft' | 'archived';
+
+interface WorkflowRow {
+  id: string;
+  name: string;
+  description: string;
+  app: string;
+  trigger: string;
+  status: WorkflowStatus;
+  lastRun: string;
+}
+
+const MOCK_WORKFLOWS: WorkflowRow[] = [
   {
     id: 'wf_1',
     name: 'Lead Enrichment',
@@ -47,22 +73,34 @@ const MOCK_WORKFLOWS = [
   },
 ];
 
+const STATUS_TONE: Record<WorkflowStatus, BadgeTone> = {
+  active: 'success',
+  draft: 'warning',
+  archived: 'neutral',
+};
+
 export default function SabCreatorWorkflowsPage() {
   return (
-    <div className="p-6 md:p-10 space-y-8">
-      <PageHeader
-        title="Workflows"
-        subtitle="Manage and monitor cross-app automated workflows."
-        icon={Workflow}
-        actions={
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
+    <div className="ui20 p-6 md:p-10 space-y-8">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>
+            <span className="inline-flex items-center gap-1.5">
+              <Workflow className="w-3.5 h-3.5" aria-hidden="true" />
+              Automation
+            </span>
+          </PageEyebrow>
+          <PageTitle>Workflows</PageTitle>
+          <PageDescription>Manage and monitor cross-app automated workflows.</PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus}>
             New Workflow
           </Button>
-        }
-      />
+        </PageActions>
+      </PageHeader>
 
-      <Card className="p-0 overflow-hidden">
+      <Card padding="none" className="overflow-hidden">
         <Table>
           <THead>
             <Tr>
@@ -71,7 +109,7 @@ export default function SabCreatorWorkflowsPage() {
               <Th>Trigger</Th>
               <Th>Status</Th>
               <Th>Last Run</Th>
-              <Th className="text-right">Actions</Th>
+              <Th align="right">Actions</Th>
             </Tr>
           </THead>
           <TBody>
@@ -80,45 +118,41 @@ export default function SabCreatorWorkflowsPage() {
                 <Td>
                   <div className="flex flex-col">
                     <span className="font-medium text-[var(--st-text)]">{wf.name}</span>
-                    <span className="text-xs text-[var(--st-text)]/60">{wf.description}</span>
+                    <span className="text-xs text-[var(--st-text-secondary)]">{wf.description}</span>
                   </div>
                 </Td>
                 <Td>
-                  <Badge variant="outline">{wf.app}</Badge>
+                  <Badge tone="neutral" kind="outline">
+                    {wf.app}
+                  </Badge>
                 </Td>
                 <Td>
-                  <div className="flex items-center text-sm text-[var(--st-text)]/80">
-                    <Clock className="w-4 h-4 mr-1.5 text-[var(--st-text)]/50" />
+                  <span className="flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)]">
+                    <Clock className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                     {wf.trigger}
-                  </div>
+                  </span>
                 </Td>
                 <Td>
-                  <Badge
-                    variant={
-                      wf.status === 'active'
-                        ? 'default'
-                        : wf.status === 'draft'
-                        ? 'secondary'
-                        : 'outline'
-                    }
-                  >
+                  <Badge tone={STATUS_TONE[wf.status]} dot>
                     {wf.status}
                   </Badge>
                 </Td>
-                <Td className="text-sm text-[var(--st-text)]/70">
-                  {wf.lastRun}
-                </Td>
-                <Td className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="icon">
-                      <Play className="w-4 h-4 text-[var(--st-text)]/60" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <Settings className="w-4 h-4 text-[var(--st-text)]/60" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="w-4 h-4 text-[var(--st-text)]/60" />
-                    </Button>
+                <Td className="text-sm text-[var(--st-text-secondary)]">{wf.lastRun}</Td>
+                <Td align="right">
+                  <div className="flex justify-end gap-1">
+                    <IconButton label={`Run ${wf.name}`} icon={Play} variant="ghost" size="sm" />
+                    <IconButton
+                      label={`Configure ${wf.name}`}
+                      icon={Settings}
+                      variant="ghost"
+                      size="sm"
+                    />
+                    <IconButton
+                      label={`More actions for ${wf.name}`}
+                      icon={MoreHorizontal}
+                      variant="ghost"
+                      size="sm"
+                    />
                   </div>
                 </Td>
               </Tr>

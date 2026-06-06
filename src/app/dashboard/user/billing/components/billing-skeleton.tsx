@@ -1,39 +1,43 @@
+'use client';
+
 import React from 'react';
+
+import { Card, Skeleton } from '@/components/sabcrm/20ui';
 
 export const BillingSkeleton = () => {
   return (
-    <div className="flex flex-col gap-10 w-full animate-pulse">
-      {/* Hero Header Area Skeleton */}
-      <div className="relative overflow-hidden rounded-2xl bg-[var(--st-bg-muted)] p-8 md:p-10 border border-[var(--st-border)] shadow-sm h-48">
-        <div className="h-6 w-32 bg-[var(--st-border)] rounded-full mb-4"></div>
-        <div className="h-10 w-64 bg-[var(--st-border)] rounded-lg mb-3"></div>
-        <div className="h-6 w-96 bg-[var(--st-border)] rounded-lg"></div>
-      </div>
+    <div className="ui20 flex flex-col gap-10 w-full" aria-busy="true">
+      {/* Hero header area skeleton */}
+      <Card variant="elevated" padding="lg" className="relative overflow-hidden h-48">
+        <Skeleton width={128} height={24} radius={999} className="mb-4" />
+        <Skeleton width={256} height={40} radius={8} className="mb-3" />
+        <Skeleton width={384} height={24} radius={8} />
+      </Card>
 
-      {/* Current Plan & Wallet Grid Skeleton */}
+      {/* Current plan and wallet grid skeleton */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-        <div className="lg:col-span-8 flex flex-col h-64 bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)]"></div>
-        <div className="lg:col-span-4 flex flex-col h-64 bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)]"></div>
+        <Card variant="outlined" padding="none" className="lg:col-span-8 h-64" />
+        <Card variant="outlined" padding="none" className="lg:col-span-4 h-64" />
       </div>
 
-      <div className="my-4 h-px w-full bg-[var(--st-border)] opacity-50"></div>
+      <div className="my-4 h-px w-full bg-[var(--st-border)] opacity-50" />
 
-      {/* Pricing Tiers Skeleton */}
+      {/* Pricing tiers skeleton */}
       <div className="space-y-12 pb-12">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="h-8 w-64 bg-[var(--st-border)] rounded-lg mx-auto mb-4"></div>
-          <div className="h-4 w-96 bg-[var(--st-border)] rounded-lg mx-auto"></div>
+        <div className="text-center max-w-2xl mx-auto mb-10 flex flex-col items-center">
+          <Skeleton width={256} height={32} radius={8} className="mb-4" />
+          <Skeleton width={384} height={16} radius={8} />
         </div>
 
         <div className="space-y-6">
           <div className="flex items-center gap-3">
-            <div className="h-6 w-40 bg-[var(--st-border)] rounded-lg"></div>
-            <div className="h-px flex-1 bg-[var(--st-border)]"></div>
+            <Skeleton width={160} height={24} radius={8} />
+            <div className="h-px flex-1 bg-[var(--st-border)]" />
           </div>
           <div className="flex space-x-6 overflow-hidden">
-            <div className="w-[340px] h-96 bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)] shrink-0"></div>
-            <div className="w-[340px] h-96 bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)] shrink-0"></div>
-            <div className="w-[340px] h-96 bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)] shrink-0"></div>
+            <Card variant="outlined" padding="none" className="w-[340px] h-96 shrink-0" />
+            <Card variant="outlined" padding="none" className="w-[340px] h-96 shrink-0" />
+            <Card variant="outlined" padding="none" className="w-[340px] h-96 shrink-0" />
           </div>
         </div>
       </div>
