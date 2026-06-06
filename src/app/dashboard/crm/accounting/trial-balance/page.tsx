@@ -22,32 +22,7 @@ import {
     FileText,
 } from 'lucide-react';
 
-import {
-    Alert,
-    ZoruAlertDescription,
-    ZoruAlertTitle,
-    Button,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Switch,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    Sheet,
-    ZoruSheetContent,
-    ZoruSheetHeader,
-    ZoruSheetTitle,
-    ZoruSheetDescription,
-    Badge,
-    Card,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Table, TBody, Td, Th, THead, Tr, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Badge, Card } from '@/components/sabcrm/20ui/compat';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -181,13 +156,13 @@ export default function TrialBalancePage(): React.JSX.Element {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <ZoruAlertTitle>Business Profile Incomplete</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Business Profile Incomplete</AlertTitle>
+                <AlertDescription>
                     Please complete your business profile in the user settings to view accounting reports.
                     <Button asChild variant="link" className="ml-2 h-auto p-0">
                         <Link href="/dashboard/user/settings/profile">Go to Settings</Link>
                     </Button>
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
         );
     }
@@ -272,14 +247,14 @@ export default function TrialBalancePage(): React.JSX.Element {
     const filters = (
         <div className="flex flex-wrap items-center gap-2">
             <Select value={fyChoice} onValueChange={handleFyChange}>
-                <ZoruSelectTrigger className="w-[180px]">
-                    <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="current">Current FY (Apr–Mar)</ZoruSelectItem>
-                    <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
-                    <ZoruSelectItem value="custom">Custom range</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="w-[180px]">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="current">Current FY (Apr–Mar)</SelectItem>
+                    <SelectItem value="previous">Previous FY</SelectItem>
+                    <SelectItem value="custom">Custom range</SelectItem>
+                </SelectContent>
             </Select>
             <div className="flex items-center gap-2">
                 <Switch id="hide-zero-tb" checked={hideZero} onCheckedChange={setHideZero} />
@@ -326,26 +301,26 @@ export default function TrialBalancePage(): React.JSX.Element {
 
     const table = (
         <Table>
-            <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Account</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Opening</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Debit</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Credit</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Closing</ZoruTableHead>
-                </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="text-[var(--st-text-secondary)]">Account</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Opening</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Debit</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Credit</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Closing</Th>
+                </Tr>
+            </THead>
+            <TBody>
                 {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-[var(--st-border)]">
-                        <ZoruTableCell colSpan={5} className="h-24 text-center text-[var(--st-text-secondary)]">
+                    <Tr className="border-[var(--st-border)]">
+                        <Td colSpan={5} className="h-24 text-center text-[var(--st-text-secondary)]">
                             No accounts to display.
-                        </ZoruTableCell>
-                    </ZoruTableRow>
+                        </Td>
+                    </Tr>
                 ) : (
                     pageRows.map((e) => (
-                        <ZoruTableRow key={e.accountId} className="border-[var(--st-border)]">
-                            <ZoruTableCell>
+                        <Tr key={e.accountId} className="border-[var(--st-border)]">
+                            <Td>
                                 <div className="flex items-center gap-2">
                                     <EntityRowLink
                                         href={`/dashboard/crm/accounting/charts/${e.accountId}`}
@@ -361,38 +336,38 @@ export default function TrialBalancePage(): React.JSX.Element {
                                         <FileText className="h-3.5 w-3.5" />
                                     </Button>
                                 </div>
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                            </Td>
+                            <Td className="text-right font-mono text-[var(--st-text)]">
                                 {Math.abs(e.openingBalance).toFixed(2)} {e.openingBalanceType}
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                            </Td>
+                            <Td className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(e.totalDebit)}
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                            </Td>
+                            <Td className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(e.totalCredit)}
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono font-semibold text-[var(--st-text)]">
+                            </Td>
+                            <Td className="text-right font-mono font-semibold text-[var(--st-text)]">
                                 {Math.abs(e.closingBalance).toFixed(2)} {e.closingBalanceType}
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                        </Tr>
                     ))
                 )}
-                <ZoruTableRow className="border-[var(--st-border)] bg-[var(--st-bg-muted)] font-semibold">
-                    <ZoruTableCell className="text-[var(--st-text)]">Total</ZoruTableCell>
-                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                <Tr className="border-[var(--st-border)] bg-[var(--st-bg-muted)] font-semibold">
+                    <Td className="text-[var(--st-text)]">Total</Td>
+                    <Td className="text-right font-mono text-[var(--st-text)]">
                         {Math.abs(totals.totalOpening).toFixed(2)} {totals.totalOpening >= 0 ? 'Dr' : 'Cr'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right font-mono text-[var(--st-text)]">
                         {fmtMoney(totals.totalDebit)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right font-mono text-[var(--st-text)]">
                         {fmtMoney(totals.totalCredit)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right font-mono text-[var(--st-text)]">
                         {Math.abs(totals.totalClosing).toFixed(2)} {totals.totalClosing >= 0 ? 'Dr' : 'Cr'}
-                    </ZoruTableCell>
-                </ZoruTableRow>
-            </ZoruTableBody>
+                    </Td>
+                </Tr>
+            </TBody>
         </Table>
     );
 
@@ -431,16 +406,16 @@ export default function TrialBalancePage(): React.JSX.Element {
 
             {/* General Ledger Sliding Drawer */}
             <Sheet open={!!selectedAccount} onOpenChange={(open) => { if (!open) setSelectedAccount(null); }}>
-                <ZoruSheetContent side="right" className="sm:max-w-md md:max-w-lg w-full flex flex-col h-full bg-[var(--st-bg-secondary)] border-l border-[var(--st-border)] p-0">
+                <SheetContent side="right" className="sm:max-w-md md:max-w-lg w-full flex flex-col h-full bg-[var(--st-bg-secondary)] border-l border-[var(--st-border)] p-0">
                     <div className="p-6 border-b border-[var(--st-border)]">
-                        <ZoruSheetHeader className="pr-8">
-                            <ZoruSheetTitle className="text-[16px] font-bold text-[var(--st-text)] flex flex-wrap items-center gap-2">
+                        <SheetHeader className="pr-8">
+                            <SheetTitle className="text-[16px] font-bold text-[var(--st-text)] flex flex-wrap items-center gap-2">
                                 <span>{selectedAccount?.accountName}</span>
-                            </ZoruSheetTitle>
-                            <ZoruSheetDescription className="text-[12.5px] text-[var(--st-text-secondary)] mt-1">
+                            </SheetTitle>
+                            <SheetDescription className="text-[12.5px] text-[var(--st-text-secondary)] mt-1">
                                 General Ledger Vouchers &amp; Transaction Entries
-                            </ZoruSheetDescription>
-                        </ZoruSheetHeader>
+                            </SheetDescription>
+                        </SheetHeader>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -513,7 +488,7 @@ export default function TrialBalancePage(): React.JSX.Element {
                             )}
                         </div>
                     </div>
-                </ZoruSheetContent>
+                </SheetContent>
             </Sheet>
         </>
     );

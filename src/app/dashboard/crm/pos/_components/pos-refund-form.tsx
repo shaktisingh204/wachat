@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  zoruSonnerToast,
-  Checkbox,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Table, TBody, Td, Th, THead, Tr, zoruSonnerToast, Checkbox } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -148,7 +128,7 @@ export function PosRefundForm({ original }: Props) {
 
     return (
         <Card>
-            <ZoruCardContent className="flex flex-col gap-4 p-5">
+            <CardBody className="flex flex-col gap-4 p-5">
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     <div className="flex flex-col gap-1">
                         <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
@@ -186,34 +166,34 @@ export function PosRefundForm({ original }: Props) {
 
                 <div className="overflow-x-auto">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead>Line</ZoruTableHead>
-                                <ZoruTableHead className="text-right">
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th>Line</Th>
+                                <Th className="text-right">
                                     Sold qty
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-right">
+                                </Th>
+                                <Th className="text-right">
                                     Rate
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-right">
+                                </Th>
+                                <Th className="text-right">
                                     Refund qty
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-right">
+                                </Th>
+                                <Th className="text-right">
                                     Refund amount
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {lines.map((l, idx) => (
-                                <ZoruTableRow key={idx}>
-                                    <ZoruTableCell>{l.name}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right tabular-nums">
+                                <Tr key={idx}>
+                                    <Td>{l.name}</Td>
+                                    <Td className="text-right tabular-nums">
                                         {l.maxQty}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right tabular-nums">
+                                    </Td>
+                                    <Td className="text-right tabular-nums">
                                         {fmtMoney(l.rate)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <Input
                                             type="number"
                                             min={0}
@@ -232,8 +212,8 @@ export function PosRefundForm({ original }: Props) {
                                             }}
                                             className="h-8 w-20 text-right text-[12.5px]"
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <Input
                                             type="number"
                                             min={0}
@@ -250,10 +230,10 @@ export function PosRefundForm({ original }: Props) {
                                             }
                                             className="h-8 w-24 text-right text-[12.5px]"
                                         />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ))}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
 
@@ -289,15 +269,15 @@ export function PosRefundForm({ original }: Props) {
                                 setMethod(v as PosPaymentMethod)
                             }
                         >
-                            <ZoruSelectTrigger id="refundMethod" className="h-9">
-                                <ZoruSelectValue placeholder="Method" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="cash">Cash</ZoruSelectItem>
-                                <ZoruSelectItem value="card">Card</ZoruSelectItem>
-                                <ZoruSelectItem value="upi">UPI</ZoruSelectItem>
-                                <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger id="refundMethod" className="h-9">
+                                <SelectValue placeholder="Method" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="cash">Cash</SelectItem>
+                                <SelectItem value="card">Card</SelectItem>
+                                <SelectItem value="upi">UPI</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
                         </Select>
                         <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[13px]">
                             <span className="text-[var(--st-text-secondary)]">
@@ -326,7 +306,7 @@ export function PosRefundForm({ original }: Props) {
                         {submitting ? 'Processing…' : total > 10000 ? 'Request Approval' : 'Issue refund'}
                     </Button>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

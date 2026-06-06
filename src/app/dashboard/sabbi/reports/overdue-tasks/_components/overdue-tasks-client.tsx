@@ -26,21 +26,7 @@ import { Download, FileSpreadsheet, UserCheck, CalendarClock, AlertTriangle } fr
 import { bulkEscalatePriority, bulkReassignTasks } from '../../_components/local-actions';
 import { toast } from 'sonner';
 
-import {
-  Button,
-  Card,
-  Badge,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatCard } from '../../_components/report-toolbar';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
@@ -257,20 +243,20 @@ export function OverdueTasksClient({ data, filters }: Props) {
               </>
             )}
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Download className="mr-1.5 h-3.5 w-3.5" />
                   Export
                 </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent align="end">
-                <ZoruDropdownMenuItem onClick={handleCsv}>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleCsv}>
                   <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
-                </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuItem onClick={handleXlsx}>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleXlsx}>
                   <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
-                </ZoruDropdownMenuItem>
-              </ZoruDropdownMenuContent>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
@@ -280,9 +266,9 @@ export function OverdueTasksClient({ data, filters }: Props) {
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-10">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-10">
                   <input
                     type="checkbox"
                     aria-label="Select all"
@@ -290,29 +276,29 @@ export function OverdueTasksClient({ data, filters }: Props) {
                     onChange={toggleAll}
                     className="h-4 w-4 rounded border-[var(--st-border)]"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Task</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Project</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Assignee</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Due date</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Days overdue</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Priority</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">Task</Th>
+                <Th className="text-[var(--st-text-secondary)]">Project</Th>
+                <Th className="text-[var(--st-text-secondary)]">Assignee</Th>
+                <Th className="text-[var(--st-text-secondary)]">Due date</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Days overdue</Th>
+                <Th className="text-[var(--st-text-secondary)]">Priority</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {data.rows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={7}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No overdue tasks — nice work!
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 data.rows.map((r: OverdueTaskDetailRow) => (
-                  <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
-                    <ZoruTableCell>
+                  <Tr key={r._id} className="border-[var(--st-border)]">
+                    <Td>
                       <input
                         type="checkbox"
                         aria-label={`Select ${r.title}`}
@@ -320,31 +306,31 @@ export function OverdueTasksClient({ data, filters }: Props) {
                         onChange={() => toggleRow(r._id)}
                         className="h-4 w-4 rounded border-[var(--st-border)]"
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <EntityRowLink
                         href={`/dashboard/crm/tasks/${r._id}`}
                         label={r.title}
                         subtitle={r.status}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">{r.projectName}</ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">{r.assignedTo}</ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">{r.projectName}</Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">{r.assignedTo}</Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {r.dueDate ? r.dueDate.slice(0, 10) : '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
                       {r.daysOverdue}d
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}>
                         {r.priority}
                       </Badge>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

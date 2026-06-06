@@ -13,30 +13,7 @@ import {
     X,
 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Checkbox,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -89,7 +66,7 @@ function formatDate(value: string | Date | undefined): string {
 }
 
 export default function CustomFormsPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // List + KPIs
     const [forms, setForms] = React.useState<FormRow[]>([]);
@@ -303,19 +280,19 @@ export default function CustomFormsPage() {
                 primaryAction={
                     <div className="flex items-center gap-2">
                         <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm">
                                     <Download className="h-4 w-4" /> Export
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                                <ZoruDropdownMenuItem onSelect={() => exportRows('csv')}>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => exportRows('csv')}>
                                     Export as CSV
-                                </ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem onSelect={() => exportRows('xlsx')}>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => exportRows('xlsx')}>
                                     Export as XLSX
-                                </ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                         <Button asChild>
                             <Link href="/dashboard/crm/sales-crm/custom-forms/new">
@@ -333,14 +310,14 @@ export default function CustomFormsPage() {
                                 setPage(1);
                             }}
                         >
-                            <ZoruSelectTrigger className="w-[150px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All status</ZoruSelectItem>
-                                <ZoruSelectItem value="published">Published</ZoruSelectItem>
-                                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All status</SelectItem>
+                                <SelectItem value="published">Published</SelectItem>
+                                <SelectItem value="draft">Draft</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Select
                             value={submissionsFilter}
@@ -349,16 +326,16 @@ export default function CustomFormsPage() {
                                 setPage(1);
                             }}
                         >
-                            <ZoruSelectTrigger className="w-[180px]">
-                                <ZoruSelectValue placeholder="Submissions" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All forms</ZoruSelectItem>
-                                <ZoruSelectItem value="withSubs">
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Submissions" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All forms</SelectItem>
+                                <SelectItem value="withSubs">
                                     With submissions
-                                </ZoruSelectItem>
-                                <ZoruSelectItem value="noSubs">No submissions</ZoruSelectItem>
-                            </ZoruSelectContent>
+                                </SelectItem>
+                                <SelectItem value="noSubs">No submissions</SelectItem>
+                            </SelectContent>
                         </Select>
                         {hasActiveFilters ? (
                             <Button
@@ -483,9 +460,9 @@ export default function CustomFormsPage() {
                     <Card className="p-0">
                         <div className="overflow-x-auto rounded-lg">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                        <ZoruTableHead className="w-10">
+                                <THead>
+                                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                        <Th className="w-10">
                                             <Checkbox
                                                 checked={allSelectedOnPage}
                                                 onCheckedChange={(c) =>
@@ -493,42 +470,42 @@ export default function CustomFormsPage() {
                                                 }
                                                 aria-label="Select all"
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Name
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Status
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">
                                             Fields
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">
                                             Submissions
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Created
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Updated
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="w-10" />
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                        <Th className="w-10" />
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {displayedForms.map((f) => {
                                         const id = toIdString(f._id);
                                         const status = getFormStatus(f);
                                         const subs = Number(f.submissionCount ?? 0);
                                         return (
-                                            <ZoruTableRow
+                                            <Tr
                                                 key={id}
                                                 className="border-[var(--st-border)]"
                                                 data-state={
                                                     selected.has(id) ? 'selected' : undefined
                                                 }
                                             >
-                                                <ZoruTableCell>
+                                                <Td>
                                                     <Checkbox
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() =>
@@ -536,14 +513,14 @@ export default function CustomFormsPage() {
                                                         }
                                                         aria-label={`Select ${f.name}`}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <EntityRowLink
                                                         href={`/dashboard/crm/sales-crm/custom-forms/${id}`}
                                                         label={f.name || 'Untitled form'}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     {status === 'published' ? (
                                                         <Badge variant="success">
                                                             Published
@@ -553,24 +530,24 @@ export default function CustomFormsPage() {
                                                             Draft
                                                         </Badge>
                                                     )}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right text-[var(--st-text)]">
                                                     {Array.isArray(f.fields)
                                                         ? f.fields.length
                                                         : 0}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right text-[var(--st-text)]">
                                                     {subs.toLocaleString()}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {formatDate(f.createdAt)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {formatDate(f.updatedAt)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <DropdownMenu>
-                                                        <ZoruDropdownMenuTrigger asChild>
+                                                        <DropdownMenuTrigger asChild>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
@@ -578,45 +555,45 @@ export default function CustomFormsPage() {
                                                             >
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
-                                                        </ZoruDropdownMenuTrigger>
-                                                        <ZoruDropdownMenuContent align="end">
-                                                            <ZoruDropdownMenuItem asChild>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuItem asChild>
                                                                 <Link
                                                                     href={`/dashboard/crm/sales-crm/custom-forms/${id}`}
                                                                 >
                                                                     View
                                                                 </Link>
-                                                            </ZoruDropdownMenuItem>
-                                                            <ZoruDropdownMenuItem asChild>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem asChild>
                                                                 <Link
                                                                     href={`/dashboard/crm/sales-crm/custom-forms/${id}/edit`}
                                                                 >
                                                                     Edit
                                                                 </Link>
-                                                            </ZoruDropdownMenuItem>
-                                                            <ZoruDropdownMenuItem asChild>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem asChild>
                                                                 <Link
                                                                     href={`/dashboard/crm/sales-crm/forms/${id}/submissions`}
                                                                 >
                                                                     View submissions
                                                                 </Link>
-                                                            </ZoruDropdownMenuItem>
-                                                            <ZoruDropdownMenuSeparator />
-                                                            <ZoruDropdownMenuItem
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem
                                                                 onSelect={() =>
                                                                     setDeleteTargetId(id)
                                                                 }
                                                                 className="text-[var(--st-danger)]"
                                                             >
                                                                 Delete
-                                                            </ZoruDropdownMenuItem>
-                                                        </ZoruDropdownMenuContent>
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
                                                     </DropdownMenu>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     </Card>

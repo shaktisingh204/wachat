@@ -1,28 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Edit,
@@ -121,7 +99,7 @@ export function EventsListClient({
     initialFilters,
 }: EventsListClientProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [events, setEvents] = React.useState<CrmEventDoc[]>(initialEvents);
     const [search, setSearch] = React.useState<string>(initialFilters.q);
@@ -201,28 +179,28 @@ export function EventsListClient({
                             value={eventType}
                             onValueChange={(v) => setEventType(v)}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Type" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[180px]">
+                                <SelectValue placeholder="Type" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {EVENT_TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                         <Select value={status} onValueChange={(v) => setStatus(v)}>
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[180px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </>
                 }
@@ -230,50 +208,50 @@ export function EventsListClient({
             >
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Name
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Type
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Starts at
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Location
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Organizer
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Status
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">
                                     Attendees
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">
                                     Actions
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {isLoading && events.length === 0 ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={8} className="h-24 text-center">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={8} className="h-24 text-center">
                                         <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : events.length === 0 ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td
                                         colSpan={8}
                                         className="h-24 text-center text-[var(--st-text-secondary)]"
                                     >
                                         No events match these filters.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 events.map((ev) => {
                                     const evStatus = (ev.status ?? 'draft') as CrmEventStatus;
@@ -281,46 +259,46 @@ export function EventsListClient({
                                         ? ev.attendeeIds.length
                                         : 0;
                                     return (
-                                        <ZoruTableRow
+                                        <Tr
                                             key={ev._id}
                                             className="border-[var(--st-border)]"
                                         >
-                                            <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                            <Td className="font-medium text-[var(--st-text)]">
                                                 <Link
                                                     href={`/dashboard/hrm/hr/events/${ev._id}`}
                                                     className="hover:underline"
                                                 >
                                                     {ev.name}
                                                 </Link>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {titleCase(String(ev.eventType ?? 'other'))}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {fmtDateTime(ev.startsAt)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 <LocationCell
                                                     isOnline={Boolean(ev.isOnline)}
                                                     location={ev.location}
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {ev.organizerName || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <StatusPill
                                                     label={titleCase(evStatus)}
                                                     tone={STATUS_TONE[evStatus] ?? 'neutral'}
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right font-mono text-[var(--st-text)]">
                                                 {attendees}
                                                 {typeof ev.maxAttendees === 'number'
                                                     ? ` / ${ev.maxAttendees}`
                                                     : ''}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 <Button variant="ghost" size="icon" asChild>
                                                     <Link
                                                         href={`/dashboard/hrm/hr/events/${ev._id}/edit`}
@@ -337,31 +315,31 @@ export function EventsListClient({
                                                 >
                                                     <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                                                 </Button>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete event?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete event?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             &ldquo;{pendingDelete?.name}&rdquo; will be permanently
                             removed. Attendees who RSVP&apos;d will no longer see it.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deleting}
                         >
@@ -369,10 +347,10 @@ export function EventsListClient({
                                 <LoaderCircle className="mr-1.5 h-4 w-4 animate-spin" />
                             ) : null}
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

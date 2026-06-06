@@ -1,16 +1,6 @@
 'use client';
 
-import {
-    Button,
-    Card,
-    Input,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { LayoutDashboard, Lock, Plus, Search, Share2, Star } from 'lucide-react';
@@ -188,63 +178,63 @@ export function DashboardsList({
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Owner</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Widgets</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Shared with</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Updated</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody ref={tableBodyRef}>
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="text-[var(--st-text-secondary)]">Title</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Owner</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Widgets</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Shared with</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Updated</Th>
+                            </Tr>
+                        </THead>
+                        <TBody ref={tableBodyRef}>
                             {loadError ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td
                                         colSpan={5}
                                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         Could not load dashboards. Please try again.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : filtered.length > 0 ? (
                                 filtered.map((d) => {
                                     const owner = d.ownerName || d.ownerId || '—';
                                     const widgetCount = Array.isArray(d.widgets) ? d.widgets.length : 0;
                                     return (
-                                        <ZoruTableRow key={d._id} className="dashboard-row border-[var(--st-border)]">
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                        <Tr key={d._id} className="dashboard-row border-[var(--st-border)]">
+                                            <Td className="text-[var(--st-text)]">
                                                 <EntityRowLink
                                                     href={`/dashboard/sabbi/dashboards/${d._id}`}
                                                     label={d.title || 'Untitled dashboard'}
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">{owner}</ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">{owner}</Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {widgetCount}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {renderSharedWith(d.sharedWith, d.shareScope)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 <span suppressHydrationWarning>{formatDateTime(d.updatedAt)}</span>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })
                             ) : (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td
                                         colSpan={5}
                                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         {search
                                             ? 'No dashboards match this search.'
                                             : 'No dashboards yet. Build your first board with the widgets that matter to your team.'}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
             </Card>

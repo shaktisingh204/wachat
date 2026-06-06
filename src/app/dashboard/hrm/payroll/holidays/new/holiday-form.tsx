@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -31,7 +31,7 @@ export function HolidayForm({ holiday }: { holiday?: Record<string, any> }) {
 
     return (
         <Card>
-            <ZoruCardContent className="p-6">
+            <CardBody className="p-6">
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     {holiday?._id ? <input type="hidden" name="holidayId" value={String(holiday._id)} /> : null}
                     <Field name="date" label="Date" type="date" defaultValue={holiday?.date} required />
@@ -58,7 +58,7 @@ export function HolidayForm({ holiday }: { holiday?: Record<string, any> }) {
                         <SubmitButton />
                     </div>
                 </form>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

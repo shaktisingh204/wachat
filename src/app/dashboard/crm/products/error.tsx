@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
-import { ZoruButton } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 export default function ProductsError({
@@ -32,14 +32,14 @@ export default function ProductsError({
                         {error.message || 'We encountered a problem loading product details or catalog metrics.'}
                     </p>
                 </div>
-                <ZoruButton
+                <Button
                     variant="outline"
                     onClick={reset}
                     className="mt-4 gap-2"
                 >
                     <RefreshCcw className="h-4 w-4" />
                     Try again
-                </ZoruButton>
+                </Button>
             </div>
         </EntityDetailShell>
     );

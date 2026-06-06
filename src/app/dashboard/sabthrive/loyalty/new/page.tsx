@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -32,7 +32,7 @@ function SubmitButton() {
 export default function NewLoyaltyProgramPage() {
     const [state, formAction] = useActionState(saveLoyaltyProgram, initialState);
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (state.message) {

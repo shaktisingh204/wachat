@@ -5,34 +5,7 @@ import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Skeleton,
-  Badge,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  Input,
-  Checkbox,
-  Switch,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Skeleton, Badge, Table, TBody, Td, Th, THead, Tr, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Checkbox, Switch, Label } from '@/components/sabcrm/20ui/compat';
 import {
   FileText,
   Plus,
@@ -298,14 +271,14 @@ export default function LeadFormsClient({
           <FileText className="h-4 w-4 text-[var(--st-text-secondary)]" />
           <span className="text-sm text-[var(--st-text-secondary)] whitespace-nowrap">Facebook page:</span>
           <Select value={selectedPage} onValueChange={setSelectedPage}>
-            <ZoruSelectTrigger className="w-[280px]">
-              <ZoruSelectValue placeholder="Select a page" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="w-[280px]">
+              <SelectValue placeholder="Select a page" />
+            </SelectTrigger>
+            <SelectContent>
               {pages.map((p) => (
-                <ZoruSelectItem key={p.id} value={p.id}>{p.name}</ZoruSelectItem>
+                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
         
@@ -330,7 +303,7 @@ export default function LeadFormsClient({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {!loading && forms.length > 0 && (
           <Card>
-            <ZoruCardContent className="p-4 flex items-center gap-4">
+            <CardBody className="p-4 flex items-center gap-4">
               <div className="h-10 w-10 rounded-lg bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
                 <Users className="h-5 w-5" />
               </div>
@@ -340,12 +313,12 @@ export default function LeadFormsClient({
                   {forms.reduce((sum: number, f: any) => sum + (f.leads_count || 0), 0)}
                 </p>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
         
         <Card className="md:col-span-2">
-          <ZoruCardContent className="p-4 flex flex-col sm:flex-row items-center gap-3 h-full">
+          <CardBody className="p-4 flex flex-col sm:flex-row items-center gap-3 h-full">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
               <Controller
@@ -366,20 +339,20 @@ export default function LeadFormsClient({
               control={control}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <ZoruSelectTrigger className="w-full sm:w-[150px]">
-                    <ZoruSelectValue placeholder="Status" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All Status</ZoruSelectItem>
-                    <ZoruSelectItem value="ACTIVE">Active</ZoruSelectItem>
-                    <ZoruSelectItem value="DRAFT">Draft</ZoruSelectItem>
-                    <ZoruSelectItem value="PAUSED">Paused</ZoruSelectItem>
-                    <ZoruSelectItem value="ARCHIVED">Archived</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger className="w-full sm:w-[150px]">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="DRAFT">Draft</SelectItem>
+                    <SelectItem value="PAUSED">Paused</SelectItem>
+                    <SelectItem value="ARCHIVED">Archived</SelectItem>
+                  </SelectContent>
                 </Select>
               )}
             />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
       
@@ -394,36 +367,36 @@ export default function LeadFormsClient({
       )}
 
       <Card>
-        <ZoruCardContent className="p-0 overflow-x-auto">
+        <CardBody className="p-0 overflow-x-auto">
           {loading ? (
             <div className="p-4 space-y-2">
               {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
             </div>
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead className="w-[50px]">
+              <THead>
+                <Tr>
+                  <Th className="w-[50px]">
                     <Checkbox 
                       checked={filteredForms.length > 0 && selectedForms.length === filteredForms.length}
                       onCheckedChange={(checked) => handleSelectAll(!!checked)}
                       aria-label="Select all"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead>Form</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead>Leads</ZoruTableHead>
-                  <ZoruTableHead>Created</ZoruTableHead>
-                  <ZoruTableHead />
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                  <Th>Form</Th>
+                  <Th>Status</Th>
+                  <Th>Leads</Th>
+                  <Th>Created</Th>
+                  <Th />
+                </Tr>
+              </THead>
+              <TBody>
                 {filteredForms.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
+                  <Tr>
+                    <Td colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
                       No lead forms found.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filteredForms.map((f) => {
                     const isSynced = crmIsForSelectedPage && !!crmStatus?.syncedFormIds.includes(f.id);
@@ -431,15 +404,15 @@ export default function LeadFormsClient({
                     const isSelected = selectedForms.includes(f.id);
                     
                     return (
-                      <ZoruTableRow key={f.id} data-state={isSelected ? "selected" : undefined}>
-                        <ZoruTableCell>
+                      <Tr key={f.id} data-state={isSelected ? "selected" : undefined}>
+                        <Td>
                           <Checkbox 
                             checked={isSelected}
                             onCheckedChange={() => toggleSelectForm(f.id)}
                             aria-label={`Select form ${f.name}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-medium">
+                        </Td>
+                        <Td className="font-medium">
                           <div className="flex flex-col gap-1">
                             <span className="truncate max-w-[200px] sm:max-w-[300px]">{f.name}</span>
                             <span className="text-[10px] text-[var(--st-text-secondary)] font-mono">{f.id}</span>
@@ -449,15 +422,15 @@ export default function LeadFormsClient({
                               </Badge>
                             )}
                           </div>
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <Badge variant="outline">{f.status}</Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="tabular-nums font-medium">{f.leads_count || 0}</ZoruTableCell>
-                        <ZoruTableCell className="text-xs text-[var(--st-text-secondary)] whitespace-nowrap">
+                        </Td>
+                        <Td className="tabular-nums font-medium">{f.leads_count || 0}</Td>
+                        <Td className="text-xs text-[var(--st-text-secondary)] whitespace-nowrap">
                           {formatDate(f.created_time)}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <div className="flex flex-wrap items-center gap-1.5 justify-end">
                             <Button size="sm" variant="outline" onClick={() => exportLeads(f.id)}>
                               <Download className="h-3 w-3 mr-1" /> Export
@@ -484,23 +457,23 @@ export default function LeadFormsClient({
                               </Button>
                             )}
                           </div>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Create Lead Form</ZoruDialogTitle>
-            <ZoruDialogDescription>Lead forms are created through Meta Ads Manager. Use the link below to create one.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Lead Form</DialogTitle>
+            <DialogDescription>Lead forms are created through Meta Ads Manager. Use the link below to create one.</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-[var(--st-text-secondary)]">To create a new lead generation form:</p>
             <ol className="text-sm space-y-2 list-decimal list-inside text-[var(--st-text-secondary)]">
@@ -515,10 +488,10 @@ export default function LeadFormsClient({
               </a>
             </Button>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Close</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { CheckCircle2,
@@ -25,7 +25,7 @@ interface TaskDetailActionsProps {
 
 export function TaskDetailActions({ taskId, status }: TaskDetailActionsProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [, startTransition] = React.useTransition();
     const [deleteOpen, setDeleteOpen] = React.useState(false);
 

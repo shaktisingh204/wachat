@@ -11,31 +11,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Download, Plus, Tag, Trash2 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    Checkbox,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -67,7 +43,7 @@ function rStatus(r: PricingRuleItem): string {
 }
 
 export default function PricingRulesPage(): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [items, setItems] = React.useState<PricingRuleItem[]>([]);
     const [storefronts, setStorefronts] = React.useState<Array<{ id: string; name: string }>>([]);
@@ -217,23 +193,23 @@ export default function PricingRulesPage(): React.JSX.Element {
                 }
                 filters={
                     <Card>
-                        <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
+                        <CardBody className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[180px] space-y-1">
                                 <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Storefront
                                 </Label>
                                 <Select value={storefrontFilter} onValueChange={setStorefrontFilter}>
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="All storefronts" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="__all__">All storefronts</ZoruSelectItem>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All storefronts" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all__">All storefronts</SelectItem>
                                         {storefronts.map((sf) => (
-                                            <ZoruSelectItem key={sf.id} value={sf.id}>
+                                            <SelectItem key={sf.id} value={sf.id}>
                                                 {sf.name}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="min-w-[160px] space-y-1">
@@ -244,15 +220,15 @@ export default function PricingRulesPage(): React.JSX.Element {
                                     value={statusFilter}
                                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="All" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">All</ZoruSelectItem>
-                                        <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                        <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                                        <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All</SelectItem>
+                                        <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="draft">Draft</SelectItem>
+                                        <SelectItem value="archived">Archived</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             {kinds.length > 0 ? (
@@ -261,17 +237,17 @@ export default function PricingRulesPage(): React.JSX.Element {
                                         Type
                                     </Label>
                                     <Select value={kindFilter} onValueChange={setKindFilter}>
-                                        <ZoruSelectTrigger>
-                                            <ZoruSelectValue placeholder="All types" />
-                                        </ZoruSelectTrigger>
-                                        <ZoruSelectContent>
-                                            <ZoruSelectItem value="__all__">All types</ZoruSelectItem>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="All types" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="__all__">All types</SelectItem>
                                             {kinds.map((k) => (
-                                                <ZoruSelectItem key={k} value={k}>
+                                                <SelectItem key={k} value={k}>
                                                     {k}
-                                                </ZoruSelectItem>
+                                                </SelectItem>
                                             ))}
-                                        </ZoruSelectContent>
+                                        </SelectContent>
                                     </Select>
                                 </div>
                             ) : null}
@@ -287,7 +263,7 @@ export default function PricingRulesPage(): React.JSX.Element {
                                     Clear filters
                                 </Button>
                             ) : null}
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 }
                 bulkBar={
@@ -299,14 +275,14 @@ export default function PricingRulesPage(): React.JSX.Element {
                                 Activate
                             </Button>
                             <DropdownMenu>
-                                <ZoruDropdownMenuTrigger asChild>
+                                <DropdownMenuTrigger asChild>
                                     <Button size="sm" variant="outline">
                                         <Download className="h-3.5 w-3.5" /> Export
                                     </Button>
-                                </ZoruDropdownMenuTrigger>
-                                <ZoruDropdownMenuContent align="end">
-                                    <ZoruDropdownMenuItem onClick={exportCsv}>Export as CSV</ZoruDropdownMenuItem>
-                                </ZoruDropdownMenuContent>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={exportCsv}>Export as CSV</DropdownMenuItem>
+                                </DropdownMenuContent>
                             </DropdownMenu>
                             <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
                                 <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -344,39 +320,39 @@ export default function PricingRulesPage(): React.JSX.Element {
                     {filtered.length > 0 ? (
                         <Card className="overflow-hidden p-0">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow>
-                                        <ZoruTableHead className="w-10">
+                                <THead>
+                                    <Tr>
+                                        <Th className="w-10">
                                             <Checkbox
                                                 aria-label="Select all"
                                                 checked={allSelected}
                                                 onCheckedChange={(c) => toggleAll(c === true)}
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead>Name</ZoruTableHead>
-                                        <ZoruTableHead>Kind</ZoruTableHead>
-                                        <ZoruTableHead>Value</ZoruTableHead>
-                                        <ZoruTableHead>Priority</ZoruTableHead>
-                                        <ZoruTableHead>Status</ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                        <Th>Name</Th>
+                                        <Th>Kind</Th>
+                                        <Th>Value</Th>
+                                        <Th>Priority</Th>
+                                        <Th>Status</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {filtered.map((r) => {
                                         const id = rId(r);
                                         const status = rStatus(r);
                                         return (
-                                            <ZoruTableRow
+                                            <Tr
                                                 key={id}
                                                 data-state={selected.has(id) ? 'selected' : undefined}
                                             >
-                                                <ZoruTableCell>
+                                                <Td>
                                                     <Checkbox
                                                         aria-label={`Select ${String(r.name ?? '')}`}
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() => toggleOne(id)}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <RowDrawer
                                                         label={String(r.name ?? 'Untitled')}
                                                         subtitle={String(r.kind ?? '')}
@@ -389,23 +365,23 @@ export default function PricingRulesPage(): React.JSX.Element {
                                                             subtitle={String(r.kind ?? '')}
                                                         />
                                                     </RowDrawer>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {String(r.kind ?? '—')}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {String(r.value ?? '—')}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {String(r.priority ?? 0)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <Badge variant={statusVariant(status)}>{status}</Badge>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </Card>
                     ) : null}

@@ -11,16 +11,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
-import {
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr, Button } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtMoney, fmtNumber } from '../_components/report-toolbar';
@@ -278,51 +269,51 @@ export function TopClientsReport({
       <Card>
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-10 text-[var(--st-text-secondary)]">
                   #
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Client
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Industry
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Orders
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Revenue
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Avg order
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Last order
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={7}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No clients in this range.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 pageRows.map((r, i) => (
-                  <ZoruTableRow
+                  <Tr
                     key={`${r.clientId || 'none'}-${start + i}`}
                     className="border-[var(--st-border)]"
                   >
-                    <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                    <Td className="text-[var(--st-text-secondary)]">
                       {start + i + 1}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                    </Td>
+                    <Td className="font-medium text-[var(--st-text)]">
                       {r.clientId ? (
                         <EntityRowLink
                           href={`/dashboard/crm/accounts/${r.clientId}`}
@@ -331,26 +322,26 @@ export function TopClientsReport({
                       ) : (
                         r.clientName
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.industry}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(r.invoices)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
                       {fmtMoney(r.revenue)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtMoney(r.avgOrderValue)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {r.lastOrderDate || '—'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
           <PaginationBar
             page={page}

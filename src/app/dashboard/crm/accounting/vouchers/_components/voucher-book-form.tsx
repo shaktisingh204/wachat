@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Switch, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { useActionState } from 'react';
@@ -31,7 +31,7 @@ const initialState: { message?: string; error?: string } = {};
 export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.Element {
     const isEdit = !!initial;
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [state, formAction] = useActionState(saveVoucherBook, initialState);
 

@@ -1,25 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Checkbox,
-  Label,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  RadioGroup,
-  ZoruRadioGroupItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Label, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, RadioGroup, ZoruRadioGroupItem } from '@/components/sabcrm/20ui/compat';
 import {
   useForm,
   Controller } from 'react-hook-form';
@@ -163,11 +144,11 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
         <Card className="mx-auto" id={`form-${uniqueId}`}>
             <style>{dynamicStyles}</style>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>{settings.title || 'Contact Form'}</ZoruCardTitle>
-                    {settings.description && <ZoruCardDescription>{settings.description}</ZoruCardDescription>}
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
+                <CardHeader>
+                    <CardTitle>{settings.title || 'Contact Form'}</CardTitle>
+                    {settings.description && <CardDescription>{settings.description}</CardDescription>}
+                </CardHeader>
+                <CardBody className="grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
                     {(settings.fields || []).map((field: FormField) => {
                         const widthClasses: { [key: string]: string } = { '100%': 'col-span-12', '50%': 'col-span-12 md:col-span-6', '33.33%': 'col-span-12 md:col-span-4', '25%': 'col-span-12 md:col-span-3' };
                         const sizeClasses = { sm: 'h-8 text-xs', md: 'h-10 text-sm', lg: 'h-12 text-base'}[field.size || 'md'];
@@ -190,7 +171,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
 
                                             switch(field.type) {
                                                 case 'textarea': return <Textarea {...commonProps} />;
-                                                case 'select': return <Select onValueChange={controllerField.onChange} defaultValue={controllerField.value}><ZoruSelectTrigger className={cn('form-field', sizeClasses)}><ZoruSelectValue placeholder={field.placeholder || "Select..."} /></ZoruSelectTrigger><ZoruSelectContent>{fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}</ZoruSelectContent></Select>;
+                                                case 'select': return <Select onValueChange={controllerField.onChange} defaultValue={controllerField.value}><SelectTrigger className={cn('form-field', sizeClasses)}><SelectValue placeholder={field.placeholder || "Select..."} /></SelectTrigger><SelectContent>{fieldOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent></Select>;
                                                 case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.label}</Label></div>;
                                                 case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
                                                 case 'radio': return <RadioGroup onValueChange={controllerField.onChange} defaultValue={controllerField.value} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><ZoruRadioGroupItem value={opt} id={`${fieldName}-${opt}`} /><Label htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
@@ -206,15 +187,15 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
                         )
                     })}
                      {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-[var(--st-text)]/10 text-[var(--st-text)] text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
-                </ZoruCardContent>
-                <ZoruCardFooter style={{justifyContent: settings.buttonAlign || 'flex-start'}}>
+                </CardBody>
+                <CardFooter style={{justifyContent: settings.buttonAlign || 'flex-start'}}>
                     <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                         {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
                         {settings.submitButtonText || 'Submit'}
                         {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
                     </Button>
-                </ZoruCardFooter>
+                </CardFooter>
             </form>
         </Card>
     );

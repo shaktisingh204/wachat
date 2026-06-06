@@ -1,11 +1,11 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn, Progress } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn, Progress } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
 import { Loader2, Copy, Download, AlertCircle, ExternalLink, ShieldAlert, Link as LinkIcon, Activity } from 'lucide-react';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 function hash(s: string): number {
   let h = 0;
@@ -26,7 +26,7 @@ export default function DomainAuthorityPage() {
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const run = async () => {
     if (!domain.trim()) return;
@@ -127,13 +127,13 @@ export default function DomainAuthorityPage() {
   return (
     <ToolShell title="Domain Authority Checker" description="Comprehensive DA/PA metrics and link profile analysis.">
       <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 mb-6">
-        <ZoruCardContent className="p-4 text-sm flex items-start gap-3 text-[var(--st-text)] dark:text-white">
+        <CardBody className="p-4 text-sm flex items-start gap-3 text-[var(--st-text)] dark:text-white">
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
           <p>
             <strong>Note:</strong> Production Domain Authority and Page Authority require Moz or Ahrefs API credentials. 
             The values shown here are deterministic placeholders for demonstration purposes. This tool utilizes a backend proxy to verify domain accessibility and CORS before calculation.
           </p>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       
       <div className="flex gap-2 mb-8">
@@ -176,7 +176,7 @@ export default function DomainAuthorityPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="overflow-hidden">
-              <ZoruCardContent className="p-6">
+              <CardBody className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="text-sm font-medium text-[var(--st-text-secondary)]">Domain Authority</div>
                   <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -186,11 +186,11 @@ export default function DomainAuthorityPage() {
                   <span className="text-lg font-normal text-[var(--st-text-secondary)]">/100</span>
                 </div>
                 <Progress value={result.da} indicatorClassName={getProgressColor(result.da)} className="h-2" />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card className="overflow-hidden">
-              <ZoruCardContent className="p-6">
+              <CardBody className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="text-sm font-medium text-[var(--st-text-secondary)]">Page Authority</div>
                   <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -200,11 +200,11 @@ export default function DomainAuthorityPage() {
                   <span className="text-lg font-normal text-[var(--st-text-secondary)]">/100</span>
                 </div>
                 <Progress value={result.pa} indicatorClassName={getProgressColor(result.pa)} className="h-2" />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card className="overflow-hidden">
-              <ZoruCardContent className="p-6">
+              <CardBody className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="text-sm font-medium text-[var(--st-text-secondary)]">Trust Flow</div>
                   <ShieldAlert className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -214,11 +214,11 @@ export default function DomainAuthorityPage() {
                   <span className="text-lg font-normal text-[var(--st-text-secondary)]">/100</span>
                 </div>
                 <Progress value={result.trustFlow} indicatorClassName={getProgressColor(result.trustFlow)} className="h-2" />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card className="overflow-hidden">
-              <ZoruCardContent className="p-6">
+              <CardBody className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="text-sm font-medium text-[var(--st-text-secondary)]">Spam Score</div>
                   <ShieldAlert className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -227,13 +227,13 @@ export default function DomainAuthorityPage() {
                   {result.spamScore}%
                 </div>
                 <Progress value={result.spamScore} indicatorClassName={getProgressColor(result.spamScore, true)} className="h-2" />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <ZoruCardContent className="p-6 flex items-center justify-between">
+              <CardBody className="p-6 flex items-center justify-between">
                 <div>
                   <div className="text-sm font-medium text-[var(--st-text-secondary)] mb-1">Total Backlinks</div>
                   <div className="text-3xl font-bold">{result.backlinks.toLocaleString()}</div>
@@ -241,11 +241,11 @@ export default function DomainAuthorityPage() {
                 <div className="p-4 bg-[var(--st-text)]/10 rounded-full">
                   <LinkIcon className="h-6 w-6 text-[var(--st-text)]" />
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             
             <Card>
-              <ZoruCardContent className="p-6 flex items-center justify-between">
+              <CardBody className="p-6 flex items-center justify-between">
                 <div>
                   <div className="text-sm font-medium text-[var(--st-text-secondary)] mb-1">Linking Domains</div>
                   <div className="text-3xl font-bold">{result.linkingDomains.toLocaleString()}</div>
@@ -253,7 +253,7 @@ export default function DomainAuthorityPage() {
                 <div className="p-4 bg-[var(--st-text)]/10 rounded-full">
                   <Activity className="h-6 w-6 text-[var(--st-text)]" />
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </div>

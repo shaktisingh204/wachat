@@ -10,12 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Layers, Plus } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent } from '@/components/sabcrm/20ui/compat';
 import {
   listSabwriterTemplates,
   createDocumentFromTemplate,

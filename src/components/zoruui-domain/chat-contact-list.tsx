@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  ScrollArea,
-  Button,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Skeleton,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { ScrollArea, Button, Avatar, AvatarFallback, AvatarImage, Badge, Skeleton, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import { LoaderCircle, MessageSquarePlus, Search, Users } from 'lucide-react';
 import React,
@@ -109,8 +95,8 @@ export function ChatContactList({
                 {sessionUser ? (
                     <div className="flex items-center gap-3">
                         <Avatar>
-                            <ZoruAvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
-                            <ZoruAvatarFallback>{sessionUser.name.charAt(0)}</ZoruAvatarFallback>
+                            <AvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
+                            <AvatarFallback>{sessionUser.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <p className="font-semibold">{sessionUser.name}</p>
                     </div>
@@ -146,16 +132,16 @@ export function ChatContactList({
                     />
                 </div>
                 <Select value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
-                    <ZoruSelectTrigger id="phoneNumberId">
-                        <ZoruSelectValue placeholder="Select a phone number..." />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger id="phoneNumberId">
+                        <SelectValue placeholder="Select a phone number..." />
+                    </SelectTrigger>
+                    <SelectContent>
                         {(project?.phoneNumbers || []).map((phone) => (
-                            <ZoruSelectItem key={phone.id} value={phone.id}>
+                            <SelectItem key={phone.id} value={phone.id}>
                                 {phone.display_phone_number} ({phone.verified_name})
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
 
@@ -209,7 +195,7 @@ export function ChatContactList({
                                     )}
                                 >
                                     <Avatar>
-                                        <ZoruAvatarFallback>{contact.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
+                                        <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1 min-w-0 pt-0.5">
                                         <div className="flex justify-between items-start">

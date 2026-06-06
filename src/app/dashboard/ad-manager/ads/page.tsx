@@ -3,7 +3,7 @@
 import React, { Suspense } from 'react';
 import { CampaignsHub } from '@/components/zoruui-domain/ad-manager/campaigns-hub';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import { AmBreadcrumb } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
@@ -21,13 +21,13 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
       return (
         <Alert variant="destructive" className="mt-4">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Something went wrong</ZoruAlertTitle>
-          <ZoruAlertDescription className="flex flex-col gap-2">
+          <AlertTitle>Something went wrong</AlertTitle>
+          <AlertDescription className="flex flex-col gap-2">
             <p>{this.state.error?.message}</p>
             <button onClick={() => this.setState({ hasError: false, error: null })} className="underline text-sm w-fit">
               Try again
             </button>
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       );
     }

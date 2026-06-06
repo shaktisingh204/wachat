@@ -1,21 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -66,7 +51,7 @@ export function AgentFormDialog({
     initialFormState,
   );
   const formRef = useRef<HTMLFormElement>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (formState.message) {
@@ -83,21 +68,21 @@ export function AgentFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <form action={formAction} ref={formRef} className="flex flex-col gap-5">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New AI agent</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>New AI agent</DialogTitle>
+            <DialogDescription>
               Build a Messenger-ready conversational agent. Fill in a
               personality and the messages it will use.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <input type="hidden" name="projectId" value={projectId} />
 
           {formState.error ? (
             <Alert variant="destructive">
-              <ZoruAlertDescription>{formState.error}</ZoruAlertDescription>
+              <AlertDescription>{formState.error}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -144,7 +129,7 @@ export function AgentFormDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -153,9 +138,9 @@ export function AgentFormDialog({
               Cancel
             </Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

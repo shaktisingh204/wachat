@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useDebouncedCallback } from 'use-debounce';
 import { List,
@@ -62,7 +62,7 @@ const CONTACTS_PER_PAGE = 20;
 type ViewMode = 'table';
 
 export default function CrmContactsPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     /* ─── List state ──────────────────────────────────────────────── */
     const [contacts, setContacts] = React.useState<WithId<CrmContact>[]>([]);

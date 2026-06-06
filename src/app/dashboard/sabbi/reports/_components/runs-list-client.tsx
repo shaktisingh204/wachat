@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Card, Badge, Button } from '@/components/sabcrm/20ui/compat';
 import { bulkDeleteOldRuns } from '@/app/actions/crm-reports.actions';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { LineChart, Line, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis } from 'recharts';
 
@@ -44,7 +44,7 @@ function durationMs(start: string | Date | undefined, end: string | Date | null 
 
 export function RunsListClient({ definitionId, runs }: RunsListClientProps) {
     const [isDeleting, setIsDeleting] = React.useState(false);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
 
     const handleDeleteOld = async () => {

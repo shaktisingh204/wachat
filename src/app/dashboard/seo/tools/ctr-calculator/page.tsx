@@ -1,7 +1,7 @@
 'use client';
 
-import { Input, Label, Card, ZoruCardContent, Button, cn } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Card, CardBody, Button, cn } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { Copy, Download } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 
@@ -16,7 +16,7 @@ function CalculatorContent() {
   const [conversions, setConversions] = useState(12);
   const [cost, setCost] = useState(100);
 
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const r = useMemo(() => ({
     ctr: imp ? (clicks / imp) * 100 : 0,
@@ -99,11 +99,11 @@ CPM: $${r.cpm.toFixed(2)}`;
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{r.ctr.toFixed(2)}%</div><div className="text-xs text-[var(--st-text-secondary)]">CTR</div></ZoruCardContent></Card>
-          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpc.toFixed(2)}</div><div className="text-xs text-[var(--st-text-secondary)]">CPC</div></ZoruCardContent></Card>
-          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{r.cvr.toFixed(2)}%</div><div className="text-xs text-[var(--st-text-secondary)]">CVR</div></ZoruCardContent></Card>
-          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpa.toFixed(2)}</div><div className="text-xs text-[var(--st-text-secondary)]">CPA</div></ZoruCardContent></Card>
-          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpm.toFixed(2)}</div><div className="text-xs text-[var(--st-text-secondary)]">CPM</div></ZoruCardContent></Card>
+          <Card><CardBody className="p-4"><div className="text-2xl font-bold">{r.ctr.toFixed(2)}%</div><div className="text-xs text-[var(--st-text-secondary)]">CTR</div></CardBody></Card>
+          <Card><CardBody className="p-4"><div className="text-2xl font-bold">${r.cpc.toFixed(2)}</div><div className="text-xs text-[var(--st-text-secondary)]">CPC</div></CardBody></Card>
+          <Card><CardBody className="p-4"><div className="text-2xl font-bold">{r.cvr.toFixed(2)}%</div><div className="text-xs text-[var(--st-text-secondary)]">CVR</div></CardBody></Card>
+          <Card><CardBody className="p-4"><div className="text-2xl font-bold">${r.cpa.toFixed(2)}</div><div className="text-xs text-[var(--st-text-secondary)]">CPA</div></CardBody></Card>
+          <Card><CardBody className="p-4"><div className="text-2xl font-bold">${r.cpm.toFixed(2)}</div><div className="text-xs text-[var(--st-text-secondary)]">CPM</div></CardBody></Card>
         </div>
       </div>
     </ToolShell>

@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
-  Input,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, PageDescription, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -48,7 +28,7 @@ function maskKey(key: string) {
 
 export default function ApiKeysPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
   const [keys, setKeys] = useState<any[]>([]);
   const [newName, setNewName] = useState('');
@@ -126,25 +106,25 @@ export default function ApiKeysPage() {
   return (
     <div className="flex min-h-full flex-col gap-6">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>API keys</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>API keys</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>API keys</ZoruPageTitle>
-            <ZoruPageDescription>
+          <PageHeading>
+            <PageTitle>API keys</PageTitle>
+            <PageDescription>
               Manage API keys for programmatic access to WhatsApp APIs.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
         <Button size="sm" onClick={() => setShowCreate(true)}>
           <Plus className="h-3.5 w-3.5" /> Create new key
@@ -175,8 +155,8 @@ export default function ApiKeysPage() {
       {newlyCreatedKey && (
         <Alert variant="success">
           <Key className="h-4 w-4" />
-          <ZoruAlertTitle>New key created</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>New key created</AlertTitle>
+          <AlertDescription>
             Copy it now — it will not be shown in full again.
             <code className="mt-1 block break-all font-mono text-xs">{newlyCreatedKey}</code>
             <Button
@@ -191,15 +171,15 @@ export default function ApiKeysPage() {
               <Copy className="h-3.5 w-3.5" />
               Copy key
             </Button>
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       )}
 
       <Alert variant="warning">
         <ShieldAlert className="h-4 w-4" />
-        <ZoruAlertDescription>
+        <AlertDescription>
           Keep your API keys secure. Do not share them in public repositories or client-side code.
-        </ZoruAlertDescription>
+        </AlertDescription>
       </Alert>
 
       {keys.length > 0 ? (

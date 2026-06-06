@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -115,10 +115,10 @@ export default async function LoanDetailPage({ params }: PageProps) {
       rightRail={
         <>
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Outstanding principal</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Outstanding principal</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--st-text-secondary)]">Outstanding</span>
@@ -145,28 +145,28 @@ export default async function LoanDetailPage({ params }: PageProps) {
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Borrower</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Borrower</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-1 text-[12.5px]">
                 <div className="text-[var(--st-text)]">{loan.borrowerName || '—'}</div>
                 <div className="text-[var(--st-text-secondary)]">
                   {loan.borrowerId ? `ID ${loan.borrowerId}` : ''}
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Next payment</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Next payment</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex justify-between">
                   <span className="text-[var(--st-text-secondary)]">Due</span>
@@ -179,14 +179,14 @@ export default async function LoanDetailPage({ params }: PageProps) {
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Related</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Related</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/sales/receipts?loanId=${id}`}
@@ -201,16 +201,16 @@ export default async function LoanDetailPage({ params }: PageProps) {
                   Loan documents →
                 </Link>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </>
       }
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <dl>
             <Field
               label="Type"
@@ -233,76 +233,76 @@ export default async function LoanDetailPage({ params }: PageProps) {
             <Field label="Disbursed at" value={fmtDate(loan.disbursedAt)} />
             <Field label="Status" value={status} />
           </dl>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Borrower</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Borrower</CardTitle>
+        </CardHeader>
+        <CardBody>
           <dl>
             <Field label="Name" value={loan.borrowerName || '—'} />
             <Field label="Borrower ID" value={loan.borrowerId || '—'} />
           </dl>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>EMI schedule</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>EMI schedule</CardTitle>
+        </CardHeader>
+        <CardBody>
           <LoansRepaymentSchedule schedule={schedule} />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Payment history</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Payment history</CardTitle>
+        </CardHeader>
+        <CardBody>
           {payments.length === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">
               No payments recorded yet.
             </p>
           ) : (
             <Table className="text-[13px]">
-              <TableHeader>
-                <TableRow className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)] bg-transparent">
-                  <TableHead className="py-2 h-auto">Date</TableHead>
-                  <TableHead className="py-2 text-right h-auto">Amount</TableHead>
-                  <TableHead className="py-2 h-auto">Mode</TableHead>
-                  <TableHead className="py-2 h-auto">Txn</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+              <THead>
+                <Tr className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)] bg-transparent">
+                  <Th className="py-2 h-auto">Date</Th>
+                  <Th className="py-2 text-right h-auto">Amount</Th>
+                  <Th className="py-2 h-auto">Mode</Th>
+                  <Th className="py-2 h-auto">Txn</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {payments.map((p, idx) => (
-                  <TableRow
+                  <Tr
                     key={p._id ?? `${p.date}-${idx}`}
                     className="border-b border-[var(--st-border)]/40 last:border-0"
                   >
-                    <TableCell className="py-2">{fmtDate(p.date)}</TableCell>
-                    <TableCell className="py-2 text-right font-mono tabular-nums">
+                    <Td className="py-2">{fmtDate(p.date)}</Td>
+                    <Td className="py-2 text-right font-mono tabular-nums">
                       {fmtMoney(p.amount)}
-                    </TableCell>
-                    <TableCell className="py-2">{p.mode || '—'}</TableCell>
-                    <TableCell className="py-2 text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="py-2">{p.mode || '—'}</Td>
+                    <Td className="py-2 text-[var(--st-text-secondary)]">
                       {p.txnId || '—'}
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Documents</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Documents</CardTitle>
+        </CardHeader>
+        <CardBody>
           {/* TODO 1D.2: loan-document collection not yet implemented */}
           <p className="text-[13px] text-[var(--st-text-secondary)]">
             No documents uploaded yet.{' '}
@@ -313,28 +313,28 @@ export default async function LoanDetailPage({ params }: PageProps) {
               Manage documents →
             </Link>
           </p>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {loan.notes ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Notes</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Notes</CardTitle>
+          </CardHeader>
+          <CardBody>
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {loan.notes}
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       {Array.isArray(loan.tags) && loan.tags.length > 0 ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Tags</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Tags</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="flex flex-wrap gap-2">
               {loan.tags.map((t) => (
                 <Badge key={t} variant="outline">
@@ -342,7 +342,7 @@ export default async function LoanDetailPage({ params }: PageProps) {
                 </Badge>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </EntityDetailShell>

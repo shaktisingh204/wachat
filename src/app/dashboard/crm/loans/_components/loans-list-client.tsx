@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   ListChecks,
@@ -257,30 +241,30 @@ export function LoansListClient({ loans }: LoansListClientProps) {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-            <ZoruSelectValue placeholder="Status" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
             {statusOptions.map((s) => (
-              <ZoruSelectItem key={s} value={s}>
+              <SelectItem key={s} value={s}>
                 {s}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-            <ZoruSelectValue placeholder="Type" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All types</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[160px] text-[13px]">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All types</SelectItem>
             {typeOptions.map((t) => (
-              <ZoruSelectItem key={t} value={t}>
+              <SelectItem key={t} value={t}>
                 {fmtType(t)}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <EnumFilterField
           enumName="borrowerType"
@@ -334,88 +318,88 @@ export function LoansListClient({ loans }: LoansListClientProps) {
       <Card className="p-0">
         <div className="overflow-x-auto">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-8">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-8">
                   <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Type</ZoruTableHead>
-                <ZoruTableHead>Borrower</ZoruTableHead>
-                <ZoruTableHead>Principal</ZoruTableHead>
-                <ZoruTableHead>Interest %</ZoruTableHead>
-                <ZoruTableHead>Tenure (m)</ZoruTableHead>
-                <ZoruTableHead>EMI</ZoruTableHead>
-                <ZoruTableHead>Outstanding</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Next payment</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Type</Th>
+                <Th>Borrower</Th>
+                <Th>Principal</Th>
+                <Th>Interest %</Th>
+                <Th>Tenure (m)</Th>
+                <Th>EMI</Th>
+                <Th>Outstanding</Th>
+                <Th>Status</Th>
+                <Th>Next payment</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={11}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {loans.length === 0
                       ? 'No loans yet. Disburse a new loan to start tracking EMIs.'
                       : 'No loans match these filters.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((r) => (
-                  <ZoruTableRow key={r._id}>
-                    <ZoruTableCell>
+                  <Tr key={r._id}>
+                    <Td>
                       <Checkbox
                         checked={selected.has(r._id)}
                         onCheckedChange={() => toggleOne(r._id)}
                         aria-label={`Select loan`}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>{fmtType(r.type)}</ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>{fmtType(r.type)}</Td>
+                    <Td>
                       <EntityRowLink
                         href={`/dashboard/crm/loans/${r._id}`}
                         label={r.borrowerName || r.borrowerId || '—'}
                         subtitle={r.type ? fmtType(r.type) : undefined}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>{fmtMoney(r.principal)}</ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>{fmtMoney(r.principal)}</Td>
+                    <Td>
                       {typeof r.interestRate === 'number'
                         ? `${r.interestRate}%`
                         : '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {typeof r.tenureMonths === 'number'
                         ? r.tenureMonths
                         : '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell>{fmtMoney(r.emi)}</ZoruTableCell>
-                    <ZoruTableCell>{fmtMoney(r.outstanding)}</ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>{fmtMoney(r.emi)}</Td>
+                    <Td>{fmtMoney(r.outstanding)}</Td>
+                    <Td>
                       <StatusPill
                         label={r.status || 'draft'}
                         tone={statusToTone(r.status)}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>{fmtDate(r.nextPaymentAt)}</ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td>{fmtDate(r.nextPaymentAt)}</Td>
+                    <Td className="text-right">
                       <Button size="sm" variant="ghost" asChild>
                         <Link href={`/dashboard/crm/loans/${r._id}/edit`}>
                           <Pencil className="h-3.5 w-3.5" />
                         </Link>
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

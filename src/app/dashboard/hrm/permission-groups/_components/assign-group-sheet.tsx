@@ -8,23 +8,7 @@
 import * as React from 'react';
 import { UserCheck } from 'lucide-react';
 import { AssignmentForm } from './assignment-form';
-import {
-  Button,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   assignGroupToEmployee,
   removeGroupFromEmployee,
@@ -58,7 +42,7 @@ export function AssignGroupSheet({
   currentAssignments,
   onChanged,
 }: AssignGroupSheetProps): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [employeeId, setEmployeeId] = React.useState('');
   const [groupId, setGroupId] = React.useState('');
@@ -111,21 +95,21 @@ export function AssignGroupSheet({
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <ZoruSheetTrigger asChild>
+      <SheetTrigger asChild>
         <Button variant="outline" size="sm">
           <UserCheck className="h-4 w-4" />
           Manage Assignments
         </Button>
-      </ZoruSheetTrigger>
+      </SheetTrigger>
 
-      <ZoruSheetContent side="right" className="flex w-[420px] flex-col sm:max-w-[420px]">
-        <ZoruSheetHeader>
-          <ZoruSheetTitle>Manage Assignments</ZoruSheetTitle>
-          <ZoruSheetDescription>
+      <SheetContent side="right" className="flex w-[420px] flex-col sm:max-w-[420px]">
+        <SheetHeader>
+          <SheetTitle>Manage Assignments</SheetTitle>
+          <SheetDescription>
             Assign a permission group to an employee, or remove their current
             assignment by leaving the group field blank.
-          </ZoruSheetDescription>
-        </ZoruSheetHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto py-4">
           {/* Employee picker */}
@@ -165,7 +149,7 @@ export function AssignGroupSheet({
           ) : null}
         </div>
 
-        <ZoruSheetFooter className="gap-2 pt-4">
+        <SheetFooter className="gap-2 pt-4">
           <Button
             variant="ghost"
             onClick={() => handleOpenChange(false)}
@@ -176,8 +160,8 @@ export function AssignGroupSheet({
           <Button onClick={handleSave} disabled={saving || !employeeId}>
             {saving ? 'Saving…' : 'Save'}
           </Button>
-        </ZoruSheetFooter>
-      </ZoruSheetContent>
+        </SheetFooter>
+      </SheetContent>
     </Sheet>
   );
 }

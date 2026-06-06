@@ -1,9 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { 
-    Button, Card, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle 
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { installMarketplaceApp, uninstallMarketplaceApp } from '@/app/actions/sabchat-admin.actions';
 
 export function AdminMarketplaceClient({ initialData }: { initialData: any[] }) {
@@ -37,7 +35,7 @@ export function AdminMarketplaceClient({ initialData }: { initialData: any[] }) 
             ) : (
                 initialData.map((app) => (
                     <Card key={app.id} className="flex flex-col">
-                        <ZoruCardHeader className="flex flex-row items-center gap-4 space-y-0">
+                        <CardHeader className="flex flex-row items-center gap-4 space-y-0">
                             {app.iconUrl ? (
                                 <img src={app.iconUrl} alt={app.name} className="w-10 h-10 rounded-md object-contain" />
                             ) : (
@@ -46,14 +44,14 @@ export function AdminMarketplaceClient({ initialData }: { initialData: any[] }) 
                                 </div>
                             )}
                             <div className="flex-1">
-                                <ZoruCardTitle className="text-base">{app.name}</ZoruCardTitle>
-                                <ZoruCardDescription className="text-xs">{app.provider}</ZoruCardDescription>
+                                <CardTitle className="text-base">{app.name}</CardTitle>
+                                <CardDescription className="text-xs">{app.provider}</CardDescription>
                             </div>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="flex-1 text-sm text-[var(--st-text-secondary)] pt-4">
+                        </CardHeader>
+                        <CardBody className="flex-1 text-sm text-[var(--st-text-secondary)] pt-4">
                             {app.description}
-                        </ZoruCardContent>
-                        <ZoruCardFooter>
+                        </CardBody>
+                        <CardFooter>
                             {app.installed ? (
                                 <Button 
                                     variant="destructive" 
@@ -72,7 +70,7 @@ export function AdminMarketplaceClient({ initialData }: { initialData: any[] }) 
                                     {isSubmitting[app.id] ? 'Installing...' : 'Install'}
                                 </Button>
                             )}
-                        </ZoruCardFooter>
+                        </CardFooter>
                     </Card>
                 ))
             )}

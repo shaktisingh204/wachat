@@ -10,15 +10,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
-import {
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ReportHeader } from '../_components/report-header';
@@ -122,42 +114,42 @@ export function TopProductsView({ rows, page, limit }: Props) {
       <Card>
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">#</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Product</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Units</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Revenue</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Avg price</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-10 text-[var(--st-text-secondary)]">#</Th>
+                <Th className="text-[var(--st-text-secondary)]">Product</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Units</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Revenue</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Avg price</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell colSpan={5} className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]">
+                <Tr className="border-[var(--st-border)]">
+                  <Td colSpan={5} className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]">
                     No products sold in this range.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 pageRows.map((r, i) => (
-                  <ZoruTableRow key={`${r.productName}-${start + i}`} className="border-[var(--st-border)]">
-                    <ZoruTableCell className="text-[var(--st-text-secondary)]">{start + i + 1}</ZoruTableCell>
-                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                  <Tr key={`${r.productName}-${start + i}`} className="border-[var(--st-border)]">
+                    <Td className="text-[var(--st-text-secondary)]">{start + i + 1}</Td>
+                    <Td className="font-medium text-[var(--st-text)]">
                       <EntityRowLink href={productHref(r.productName)} label={r.productName} />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(r.units)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
                       {fmtMoney(r.revenue)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtMoney(r.units ? r.revenue / r.units : 0)}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
           <PaginationBar page={page} limit={limit} hasMore={hasMore} total={rows.length} />
         </div>

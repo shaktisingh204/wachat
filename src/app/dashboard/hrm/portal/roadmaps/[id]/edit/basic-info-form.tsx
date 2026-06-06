@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardContent, Label, Input, Textarea, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Label, Input, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 
 type RoadmapStatus = 'draft' | 'active' | 'completed' | 'archived';
 
@@ -31,7 +31,7 @@ export default function BasicInfoForm({
 }: BasicInfoFormProps) {
   return (
     <Card>
-      <ZoruCardContent className="flex flex-col gap-4 pt-5">
+      <CardBody className="flex flex-col gap-4 pt-5">
         <div className="flex flex-col gap-1.5">
           <Label required>Title</Label>
           <Input
@@ -64,15 +64,15 @@ export default function BasicInfoForm({
             setStatus(v as RoadmapStatus);
             handleFieldChange('status', v);
           }}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-              <ZoruSelectItem value="active">Active</ZoruSelectItem>
-              <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
-              <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="archived">Archived</SelectItem>
+            </SelectContent>
           </Select>
         </div>
 
@@ -100,7 +100,7 @@ export default function BasicInfoForm({
             />
           </div>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

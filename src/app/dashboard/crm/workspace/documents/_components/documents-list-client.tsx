@@ -13,21 +13,7 @@ import {
     ExternalLink,
     FolderOpen,
 } from 'lucide-react';
-import {
-    Button,
-    Card,
-    Checkbox,
-    Input,
-    Label,
-    Textarea,
-    useZoruToast,
-    Table,
-    ZoruTableHeader,
-    ZoruTableBody,
-    ZoruTableRow,
-    ZoruTableCell,
-    ZoruTableHead,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Textarea, useToast, Table, THead, TBody, Tr, Td, Th } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
@@ -75,7 +61,7 @@ export function DocumentsListClient({
     initialDocuments,
     initialKpis: _initialKpis,
 }: DocumentsListClientProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [documents, setDocuments] = React.useState<CrmDocumentDoc[]>(initialDocuments);
     const [isLoading, setIsLoading] = React.useState(false);
     const [isMutating, startMutate] = React.useTransition();
@@ -310,58 +296,58 @@ export function DocumentsListClient({
                 <Card className="p-0">
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Category</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Linked Employee</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Doc Number</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Size</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Category</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Linked Employee</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Doc Number</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Size</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell colSpan={7} className="h-24 text-center">
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td colSpan={7} className="h-24 text-center">
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : documents.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell colSpan={7} className="h-24 text-center text-[var(--st-text-secondary)]">
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td colSpan={7} className="h-24 text-center text-[var(--st-text-secondary)]">
                                             No documents found in this folder.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     documents.map((d) => {
                                         const docStatus = (d.status ?? 'pending') as CrmDocumentStatus;
                                         const tone = STATUS_TONE[docStatus] ?? 'neutral';
                                         return (
-                                            <ZoruTableRow key={d._id} className="border-[var(--st-border)]">
-                                                <ZoruTableCell className="font-semibold text-[var(--st-text)]">
+                                            <Tr key={d._id} className="border-[var(--st-border)]">
+                                                <Td className="font-semibold text-[var(--st-text)]">
                                                     <div className="flex items-center gap-2">
                                                         <FileText className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                                         {d.name}
                                                     </div>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="capitalize text-[var(--st-text)]">
                                                     {(d.category ?? 'other').replace(/_/g, ' ')}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {d.employeeName ?? '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[11.5px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-mono text-[11.5px] text-[var(--st-text)]">
                                                     {d.documentNumber ?? '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text-secondary)]">
                                                     {formatBytes(d.fileSize)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill label={docStatus} tone={tone} />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <div className="flex justify-end gap-1.5">
                                                         {d.fileUrl && (
                                                             <Button variant="ghost" size="icon" asChild>
@@ -377,12 +363,12 @@ export function DocumentsListClient({
                                                             <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                         </Button>
                                                     </div>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </Card>

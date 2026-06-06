@@ -34,15 +34,7 @@ import {
     ScrollText,
 } from 'lucide-react';
 
-import {
-    Card,
-    Input,
-    Badge,
-    Button,
-    ZoruCollapsible,
-    ZoruCollapsibleContent,
-    ZoruCollapsibleTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Badge, Button, Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/sabcrm/20ui/compat';
 
 /**
  * Server → client boundary is serialization-only: icons are passed as
@@ -277,9 +269,9 @@ export function ReportsHubClient({
                         const open = openMap[cat.id] ?? true;
                         return (
                             <section key={cat.id}>
-                                <ZoruCollapsible open={open} onOpenChange={() => toggleCategory(cat.id)}>
+                                <Collapsible open={open} onOpenChange={() => toggleCategory(cat.id)}>
                                     <div className="flex items-center justify-between">
-                                        <ZoruCollapsibleTrigger asChild>
+                                        <CollapsibleTrigger asChild>
                                             <button
                                                 type="button"
                                                 className="group flex items-center gap-2 text-left"
@@ -306,12 +298,12 @@ export function ReportsHubClient({
                                                     aria-hidden="true"
                                                 />
                                             </button>
-                                        </ZoruCollapsibleTrigger>
+                                        </CollapsibleTrigger>
                                         <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                                             Last run {fmtRel(cat.lastRefreshAt)}
                                         </span>
                                     </div>
-                                    <ZoruCollapsibleContent className="mt-3">
+                                    <CollapsibleContent className="mt-3">
                                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                                             {cat.items.map(({ href, label, description, iconName }) => {
                                                 const ItemIcon = resolveIcon(iconName);
@@ -353,8 +345,8 @@ export function ReportsHubClient({
                                                 );
                                             })}
                                         </div>
-                                    </ZoruCollapsibleContent>
-                                </ZoruCollapsible>
+                                    </CollapsibleContent>
+                                </Collapsible>
                             </section>
                         );
                     })}

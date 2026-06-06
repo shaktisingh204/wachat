@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, Separator } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui/compat';
 import { IndianRupee } from 'lucide-react';
 import Image from 'next/image';
 
@@ -27,13 +27,13 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
   return (
     <div className="w-64">
       <Card className="shadow-none border-0 bg-transparent">
-        <ZoruCardHeader className="p-2">
+        <CardHeader className="p-2">
             <div className="flex items-center gap-2">
                  <IndianRupee className="h-5 w-5 text-[var(--st-text)]"/>
-                <ZoruCardTitle className="text-base">Order Details</ZoruCardTitle>
+                <CardTitle className="text-base">Order Details</CardTitle>
             </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-2 space-y-2 text-xs">
+        </CardHeader>
+        <CardBody className="p-2 space-y-2 text-xs">
           {order.product_items.map(item => (
             <div key={item.product_retailer_id} className="flex justify-between items-center">
               <div>
@@ -48,11 +48,11 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
               <span>Total</span>
               <span>{order.product_items[0]?.currency} {totalAmount.toFixed(2)}</span>
           </div>
-        </ZoruCardContent>
+        </CardBody>
          {order.text && (
-             <ZoruCardFooter className="p-2 text-xs text-[var(--st-text-secondary)] border-t mt-2 pt-2">
+             <CardFooter className="p-2 text-xs text-[var(--st-text-secondary)] border-t mt-2 pt-2">
                 <p>{order.text}</p>
-             </ZoruCardFooter>
+             </CardFooter>
          )}
       </Card>
     </div>

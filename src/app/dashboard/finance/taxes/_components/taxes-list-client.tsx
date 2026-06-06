@@ -2,27 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Button, 
-  Input, 
-  Label, 
-  Table, 
-  ZoruTableBody, 
-  ZoruTableCell, 
-  ZoruTableHead, 
-  ZoruTableHeader, 
-  ZoruTableRow,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createTaxRecord, updateTaxRecord, deleteTaxRecord, exportTaxRecordsCSV, TaxRecord } from '@/app/actions/finance/taxes.actions';
@@ -187,15 +167,15 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
             <Download className="mr-2 h-4 w-4" /> Export CSV
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
               <Button size="sm" onClick={openNew}>
                 <Plus className="mr-2 h-4 w-4" /> New Record
               </Button>
-            </ZoruDialogTrigger>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>{editingId ? 'Edit' : 'Create'} Record</ZoruDialogTitle>
-            </ZoruDialogHeader>
+            </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
+            </DialogHeader>
             <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
               <div className="grid gap-4">
             <div className="space-y-1">
@@ -248,7 +228,7 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
                 </Button>
               </div>
             </form>
-          </ZoruDialogContent>
+          </DialogContent>
         </Dialog>
         </div>
       }
@@ -309,44 +289,44 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
 
       <div className="rounded-md border bg-white overflow-hidden">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>TaxPeriod</ZoruTableHead><ZoruTableHead>Jurisdiction</ZoruTableHead><ZoruTableHead>TaxableIncome</ZoruTableHead><ZoruTableHead>TaxOwed</ZoruTableHead><ZoruTableHead>IsFiled</ZoruTableHead>
-              <ZoruTableHead className="w-[80px]"></ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>TaxPeriod</Th><Th>Jurisdiction</Th><Th>TaxableIncome</Th><Th>TaxOwed</Th><Th>IsFiled</Th>
+              <Th className="w-[80px]"></Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredItems.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={6} className="h-24 text-center">
+              <Tr>
+                <Td colSpan={6} className="h-24 text-center">
                   No results.
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : (
               filteredItems.map((item) => (
-                <ZoruTableRow key={item._id}>
-                  <ZoruTableCell>{String(item.taxPeriod ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.jurisdiction ?? '')}</ZoruTableCell><ZoruTableCell>{fmtINR(item.taxableIncome)}</ZoruTableCell><ZoruTableCell>{fmtINR(item.taxOwed)}</ZoruTableCell><ZoruTableCell>{String(item.isFiled ?? '')}</ZoruTableCell>
-                  <ZoruTableCell>
+                <Tr key={item._id}>
+                  <Td>{String(item.taxPeriod ?? '')}</Td><Td>{String(item.jurisdiction ?? '')}</Td><Td>{fmtINR(item.taxableIncome)}</Td><Td>{fmtINR(item.taxOwed)}</Td><Td>{String(item.isFiled ?? '')}</Td>
+                  <Td>
                     <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem onClick={() => openEdit(item._id as string)}>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
                           <Trash className="mr-2 h-4 w-4" /> Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
                     </DropdownMenu>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </div>
 

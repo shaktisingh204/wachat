@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import { Home, Plus, Trash2, Check, Settings, MoreVertical } from 'lucide-react';
@@ -118,25 +100,25 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
                             <span className="truncate">{page.name}</span>
                         </Button>
                         <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100">
                                     <MoreVertical className="h-4 w-4" />
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent>
-                                <ZoruDropdownMenuItem onSelect={() => handleSetHomepage(page._id.toString())}>Set as Homepage</ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem disabled>Settings</ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuSeparator />
-                                <ZoruAlertDialog>
-                                    <ZoruAlertDialogTrigger asChild>
-                                        <ZoruDropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-[var(--st-text)] focus:bg-[var(--st-text)]/10">Delete</ZoruDropdownMenuItem>
-                                    </ZoruAlertDialogTrigger>
-                                    <ZoruAlertDialogContent>
-                                        <ZoruAlertDialogHeader><ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle><ZoruAlertDialogDescription>This will permanently delete the page "{page.name}". This action cannot be undone.</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
-                                        <ZoruAlertDialogFooter><ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel><ZoruAlertDialogAction onClick={() => handleDeletePage(page._id.toString())}>Delete</ZoruAlertDialogAction></ZoruAlertDialogFooter>
-                                    </ZoruAlertDialogContent>
-                                </ZoruAlertDialog>
-                            </ZoruDropdownMenuContent>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem onSelect={() => handleSetHomepage(page._id.toString())}>Set as Homepage</DropdownMenuItem>
+                                <DropdownMenuItem disabled>Settings</DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-[var(--st-text)] focus:bg-[var(--st-text)]/10">Delete</DropdownMenuItem>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete the page "{page.name}". This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
+                                        <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleDeletePage(page._id.toString())}>Delete</AlertDialogAction></AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 ))}

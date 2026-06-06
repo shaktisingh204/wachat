@@ -1,39 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Checkbox,
-  ZoruColorPicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Checkbox, ColorPicker, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -216,7 +183,7 @@ function OptionsRepeater({
                                     update(idx, { value: e.target.value })
                                 }
                             />
-                            <ZoruColorPicker
+                            <ColorPicker
                                 value={opt.color || '#999999'}
                                 onChange={(c) => update(idx, { color: c })}
                             />
@@ -255,7 +222,7 @@ function CustomFieldDialog({
         saveCustomField,
         saveInitialState,
     );
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [fieldType, setFieldType] = React.useState<CrmCustomFieldType>(
         (initialData?.fieldType as CrmCustomFieldType) || 'text',
@@ -302,7 +269,7 @@ function CustomFieldDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl">
                 <form action={formAction}>
                     {isEditing ? (
                         <input
@@ -318,11 +285,11 @@ function CustomFieldDialog({
                         value={JSON.stringify(options)}
                     />
 
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                    <DialogHeader>
+                        <DialogTitle>
                             {isEditing ? 'Edit custom field' : 'New custom field'}
-                        </ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                        </DialogTitle>
+                    </DialogHeader>
 
                     <div className="max-h-[70vh] space-y-4 overflow-y-auto py-4 pr-1">
                         <div className="grid grid-cols-2 gap-3">
@@ -334,19 +301,19 @@ function CustomFieldDialog({
                                     value={entityKind}
                                     onValueChange={setEntityKind}
                                 >
-                                    <ZoruSelectTrigger id="entityKind">
-                                        <ZoruSelectValue placeholder="Pick an entity…" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger id="entityKind">
+                                        <SelectValue placeholder="Pick an entity…" />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {ENTITY_KINDS.map((e) => (
-                                            <ZoruSelectItem
+                                            <SelectItem
                                                 key={e.value}
                                                 value={e.value}
                                             >
                                                 {e.label}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="space-y-2">
@@ -359,19 +326,19 @@ function CustomFieldDialog({
                                         setFieldType(v as CrmCustomFieldType)
                                     }
                                 >
-                                    <ZoruSelectTrigger id="fieldType">
-                                        <ZoruSelectValue placeholder="Pick a type…" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger id="fieldType">
+                                        <SelectValue placeholder="Pick a type…" />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {FIELD_TYPES.map((t) => (
-                                            <ZoruSelectItem
+                                            <SelectItem
                                                 key={t.value}
                                                 value={t.value}
                                             >
                                                 {t.label}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         </div>
@@ -564,7 +531,7 @@ function CustomFieldDialog({
                         ) : null}
                     </div>
 
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button
                             type="button"
                             variant="ghost"
@@ -573,9 +540,9 @@ function CustomFieldDialog({
                             Cancel
                         </Button>
                         <SubmitButton isEditing={isEditing} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -626,7 +593,7 @@ export default function CustomFieldsPage() {
     const [pendingDelete, setPendingDelete] =
         React.useState<CrmCustomFieldDoc | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -756,17 +723,17 @@ export default function CustomFieldsPage() {
                                 value={fieldTypeFilter}
                                 onValueChange={setFieldTypeFilter}
                             >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Field type" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="all">All types</ZoruSelectItem>
+                                <SelectTrigger className="h-9 w-[180px]">
+                                    <SelectValue placeholder="Field type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All types</SelectItem>
                                     {FIELD_TYPES.map((t) => (
-                                        <ZoruSelectItem key={t.value} value={t.value}>
+                                        <SelectItem key={t.value} value={t.value}>
                                             {t.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             {(search || fieldTypeFilter !== 'all') && (
                                 <Button
@@ -791,47 +758,47 @@ export default function CustomFieldsPage() {
 
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] w-16 text-right">
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)] w-16 text-right">
                                         Order
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Label
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Type
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-center">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-center">
                                         Required
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-center">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-center">
                                         Unique
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-center">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-center">
                                         In list
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Status
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">
                                         Actions
-                                    </ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={8}
                                             className="h-24 text-center"
                                         >
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : filtered.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                        <Td
                                             colSpan={8}
                                             className="py-12 text-center"
                                         >
@@ -855,18 +822,18 @@ export default function CustomFieldsPage() {
                                                     </Button>
                                                 </div>
                                             </div>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     filtered.map((f) => (
-                                        <ZoruTableRow
+                                        <Tr
                                             key={String(f._id)}
                                             className="border-[var(--st-border)]"
                                         >
-                                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                            <Td className="text-right font-mono text-[var(--st-text)]">
                                                 {f.displayOrder ?? 0}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <EntityRowLink
                                                     href={`/dashboard/crm/settings/custom-fields/${String(f._id)}/edit`}
                                                     label={f.label}
@@ -884,11 +851,11 @@ export default function CustomFieldsPage() {
                                                         </span>
                                                     }
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {labelForType(f.fieldType)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-center">
+                                            </Td>
+                                            <Td className="text-center">
                                                 {f.required ? (
                                                     <Check className="mx-auto h-4 w-4 text-[var(--st-text)]" />
                                                 ) : (
@@ -896,8 +863,8 @@ export default function CustomFieldsPage() {
                                                         —
                                                     </span>
                                                 )}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-center">
+                                            </Td>
+                                            <Td className="text-center">
                                                 {f.unique ? (
                                                     <Check className="mx-auto h-4 w-4 text-[var(--st-text)]" />
                                                 ) : (
@@ -905,8 +872,8 @@ export default function CustomFieldsPage() {
                                                         —
                                                     </span>
                                                 )}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-center">
+                                            </Td>
+                                            <Td className="text-center">
                                                 {f.visibleInList ? (
                                                     <Check className="mx-auto h-4 w-4 text-[var(--st-text)]" />
                                                 ) : (
@@ -914,8 +881,8 @@ export default function CustomFieldsPage() {
                                                         —
                                                     </span>
                                                 )}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <StatusPill
                                                     label={
                                                         f.isActive
@@ -928,8 +895,8 @@ export default function CustomFieldsPage() {
                                                             : 'neutral'
                                                     }
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
@@ -950,43 +917,43 @@ export default function CustomFieldsPage() {
                                                 >
                                                     <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                 </Button>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ))
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             Delete custom field?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             Deleting &ldquo;{pendingDelete?.label}&rdquo; will
                             remove this field from all{' '}
                             {labelForEntity(pendingDelete?.entityKind || '')}{' '}
                             forms. Existing stored values are preserved on each
                             record.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deletePending}
                         >
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

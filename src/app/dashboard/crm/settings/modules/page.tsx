@@ -24,39 +24,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruIconPicker,
-  Input,
-  Label,
-  StatCard,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, IconPicker, Input, Label, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { RowDrawer } from '@/components/crm/row-drawer';
 import {
@@ -72,7 +40,7 @@ type Row = WsModule & { _id: string };
 type StatusFilter = 'all' | 'enabled' | 'disabled';
 
 export default function ModulesPage(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>([]);
   const [isLoading, startLoading] = React.useTransition();
   const [isBusy, startBusy] = React.useTransition();
@@ -325,56 +293,56 @@ export default function ModulesPage(): React.JSX.Element {
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="hover:bg-transparent">
-                <ZoruTableHead className="w-8">
+            <THead>
+              <Tr className="hover:bg-transparent">
+                <Th className="w-8">
                   <Checkbox
                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                     onCheckedChange={toggleAll}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Module</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Slug</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Active</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">In Menu</ZoruTableHead>
-                <ZoruTableHead className="w-[120px] text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">Module</Th>
+                <Th className="text-[var(--st-text-secondary)]">Slug</Th>
+                <Th className="text-[var(--st-text-secondary)]">Active</Th>
+                <Th className="text-[var(--st-text-secondary)]">In Menu</Th>
+                <Th className="w-[120px] text-right text-[var(--st-text-secondary)]">
                   Actions
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {isLoading && rows.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={6}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : visible.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={6}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {rows.length === 0
                       ? 'No modules yet.'
                       : 'No modules match the current filters.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 visible.map((row) => (
-                  <ZoruTableRow key={row._id}>
-                    <ZoruTableCell>
+                  <Tr key={row._id}>
+                    <Td>
                       <Checkbox
                         checked={selected.has(row._id)}
                         onCheckedChange={() => toggleOne(row._id)}
                         aria-label={`Select ${row.display_name ?? row.module_name}`}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       <RowDrawer
                         label={row.display_name || row.module_name}
                         subtitle={row.description || row.module_name}
@@ -429,29 +397,29 @@ export default function ModulesPage(): React.JSX.Element {
                           </Button>
                         </div>
                       </RowDrawer>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant="ghost">
                         <code>{row.module_name}</code>
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Switch
                         checked={!!row.is_active}
                         disabled={isBusy}
                         onCheckedChange={() => flip(row._id, 'active')}
                         aria-label="Toggle active"
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Switch
                         checked={!!row.in_menu}
                         disabled={isBusy}
                         onCheckedChange={() => flip(row._id, 'menu')}
                         aria-label="Toggle menu"
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
@@ -473,26 +441,26 @@ export default function ModulesPage(): React.JSX.Element {
                           <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         </Button>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>
 
       {/* Add / Edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-lg">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
               {editing ? 'Edit Module' : 'Add Module'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Modules group related permissions (e.g. Leads, Tasks).
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <form action={saveAction} className="space-y-4">
             {editing?._id ? (
@@ -521,7 +489,7 @@ export default function ModulesPage(): React.JSX.Element {
             <div>
               <Label>Icon</Label>
               <input type="hidden" name="icon" value={icon} />
-              <ZoruIconPicker value={icon} onChange={setIcon} />
+              <IconPicker value={icon} onChange={setIcon} />
             </div>
             <div>
               <Label htmlFor="description">Description</Label>
@@ -555,7 +523,7 @@ export default function ModulesPage(): React.JSX.Element {
               </div>
             </div>
 
-            <ZoruDialogFooter className="gap-2">
+            <DialogFooter className="gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -567,58 +535,58 @@ export default function ModulesPage(): React.JSX.Element {
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save
               </Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </form>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
       {/* Delete confirm */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete module?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete module?</AlertDialogTitle>
+            <AlertDialogDescription>
               Permissions referencing this module will become uncategorised.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Bulk action confirm */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={bulkAction !== null}
         onOpenChange={(o) => !o && setBulkAction(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               {bulkAction === 'enable'
                 ? `Enable ${selected.size} modules?`
                 : `Disable ${selected.size} modules?`}
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               {bulkAction === 'enable'
                 ? 'Selected modules will be activated.'
                 : 'Selected modules will be deactivated and hidden from the menu.'}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={() => handleBulkToggle(bulkAction === 'enable')}
             >
               Confirm
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
   );
 }

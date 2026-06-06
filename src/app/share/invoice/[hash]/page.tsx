@@ -5,7 +5,7 @@ import {
   getPublicInvoice,
   markInvoiceViewed,
 } from '@/app/actions/public-invoice.actions';
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { InvoicePaymentPanel } from './invoice-payment-panel';
 import { fmtDate, fmtINR } from '@/lib/utils';
 
@@ -73,9 +73,9 @@ async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string;
   return (
     <div className="space-y-6">
       <Card>
-        <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <ZoruCardTitle>Invoice {invoice.invoiceNumber}</ZoruCardTitle>
+            <CardTitle>Invoice {invoice.invoiceNumber}</CardTitle>
             <p className="mt-1 text-sm text-[var(--st-text)]">
               Issued {fmtDate(invoice.invoiceDate)} &middot; Due {fmtDate(invoice.dueDate)}
             </p>
@@ -91,8 +91,8 @@ async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string;
               Download PDF
             </a>
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-6">
+        </CardHeader>
+        <CardBody className="space-y-6">
           {invoice.billTo.name || invoice.billTo.email || invoice.billTo.address ? (
             <section>
               <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
@@ -183,7 +183,7 @@ async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string;
               <p className="whitespace-pre-line">{invoice.notes}</p>
             </section>
           ) : null}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <InvoicePaymentPanel

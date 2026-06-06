@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';
@@ -208,19 +199,19 @@ export function InboxShell() {
     <div className="flex h-full min-h-0 w-full flex-col bg-[var(--st-bg)]">
       <div className="shrink-0 border-b border-[var(--st-border)] px-4 py-2">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Inbox</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Inbox</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
       </div>
       {showOfflineBanner ? (

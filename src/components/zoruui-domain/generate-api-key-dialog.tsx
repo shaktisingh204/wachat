@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -82,13 +72,13 @@ export function GenerateApiKeyDialog({ isOpen, onOpenChange, onKeyGenerated }: G
   if (state.success && state.apiKey) {
     return (
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>API Key Generated Successfully</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>API Key Generated Successfully</DialogTitle>
+            <DialogDescription>
               Here is your new API key. Please copy and store it somewhere safe. You will not be able to see it again.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Alert variant="destructive">
             <AlertTitle>Important!</AlertTitle>
             <AlertDescription>
@@ -101,24 +91,24 @@ export function GenerateApiKeyDialog({ isOpen, onOpenChange, onKeyGenerated }: G
               <Copy className="h-4 w-4" />
             </Button>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button onClick={() => handleOpenChange(false)}>Close</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     );
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle>Create New API Key</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Create New API Key</DialogTitle>
+            <DialogDescription>
               Give this key a name to help you identify it later.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -127,12 +117,12 @@ export function GenerateApiKeyDialog({ isOpen, onOpenChange, onKeyGenerated }: G
               </div>
             </div>
           </div>
-          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

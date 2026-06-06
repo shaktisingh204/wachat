@@ -1,24 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   LoaderCircle,
@@ -72,7 +55,7 @@ export default function ExitsListPage() {
     const [typeFilter, setTypeFilter] = React.useState<CrmExitType | 'all'>('all');
     const [pendingDelete, setPendingDelete] = React.useState<CrmExitDoc | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -154,63 +137,63 @@ export default function ExitsListPage() {
                 >
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Last day</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">F&F</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">NOC</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">Employee</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Type</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Last day</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">F&F</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">NOC</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell colSpan={7} className="h-24 text-center">
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td colSpan={7} className="h-24 text-center">
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : exits.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={7}
                                             className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No exits match this filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     exits.map((e) => {
                                         const status = (e.status ?? 'open') as CrmExitStatus;
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         return (
-                                            <ZoruTableRow key={e._id} className="border-[var(--st-border)]">
-                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                            <Tr key={e._id} className="border-[var(--st-border)]">
+                                                <Td className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${e._id}`}
                                                         className="hover:underline"
                                                     >
                                                         {e.employeeName || e.employeeId || '—'}
                                                     </Link>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="capitalize text-[var(--st-text)]">
                                                     {pretty(String(e.type ?? '—'))}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {fmtDate(e.lastDay)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="capitalize text-[var(--st-text)]">
                                                     {pretty(String(e.fnfStatus ?? '—'))}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="capitalize text-[var(--st-text)]">
                                                     {pretty(String(e.nocStatus ?? '—'))}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill label={status} tone={tone} />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <Button variant="ghost" size="icon" asChild>
                                                         <Link href={`${BASE}/${e._id}/edit`}>
                                                             <Edit className="h-4 w-4" />
@@ -223,36 +206,36 @@ export default function ExitsListPage() {
                                                     >
                                                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete exit?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete exit?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             This will hide the exit from the active list. Audit history
                             is preserved.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete} disabled={deletePending}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={deletePending}>
                             {deletePending ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

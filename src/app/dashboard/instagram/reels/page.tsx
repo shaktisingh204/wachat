@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -144,19 +124,19 @@ export default function InstagramReelsPage(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/instagram">Instagram</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Reels</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/instagram">Instagram</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Reels</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
@@ -175,8 +155,8 @@ export default function InstagramReelsPage(): React.JSX.Element {
       {error ? (
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>Could not load reels</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not load reels</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
 
@@ -236,13 +216,13 @@ export default function InstagramReelsPage(): React.JSX.Element {
       )}
 
       <Sheet open={!!activeReel} onOpenChange={(o) => !o && setActiveReel(null)}>
-        <ZoruSheetContent side="right" className="flex w-full max-w-md flex-col gap-4 overflow-y-auto sm:max-w-lg">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>Reel details</ZoruSheetTitle>
-            <ZoruSheetDescription>
+        <SheetContent side="right" className="flex w-full max-w-md flex-col gap-4 overflow-y-auto sm:max-w-lg">
+          <SheetHeader>
+            <SheetTitle>Reel details</SheetTitle>
+            <SheetDescription>
               {activeReel ? safeRelative(activeReel.timestamp) : ''}
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </SheetDescription>
+          </SheetHeader>
 
           {activeReel ? (
             <div className="flex flex-col gap-4">
@@ -279,8 +259,8 @@ export default function InstagramReelsPage(): React.JSX.Element {
                 {insightsError ? (
                   <Alert variant="warning" className="mt-2">
                     <AlertCircle />
-                    <ZoruAlertTitle>Insights unavailable</ZoruAlertTitle>
-                    <ZoruAlertDescription>{insightsError}</ZoruAlertDescription>
+                    <AlertTitle>Insights unavailable</AlertTitle>
+                    <AlertDescription>{insightsError}</AlertDescription>
                   </Alert>
                 ) : insightsLoading ? (
                   <div className="mt-2 grid grid-cols-2 gap-2">
@@ -309,7 +289,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
               </div>
             </div>
           ) : null}
-        </ZoruSheetContent>
+        </SheetContent>
       </Sheet>
     </div>
   );

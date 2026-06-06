@@ -3,13 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { GripVertical, Pin, X } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   getMyPinnedItems,
   reorderPinned,
@@ -62,7 +56,7 @@ export interface PinnedItemsWidgetProps {
 }
 
 export function PinnedItemsWidget({ className }: PinnedItemsWidgetProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [groups, setGroups] = React.useState<GroupedPinned[]>([]);
   const [loading, setLoading] = React.useState(true);
   const dragRef = React.useRef<{

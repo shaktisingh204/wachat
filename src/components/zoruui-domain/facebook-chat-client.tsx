@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Skeleton,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Skeleton, Alert, AlertDescription, AlertTitle, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -176,10 +162,10 @@ export function FacebookChatClient() {
             <div className="h-full flex items-center justify-center p-4">
                 <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>
+                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertDescription>
                         Please select a project from the main dashboard to use the Facebook inbox.
-                    </ZoruAlertDescription>
+                    </AlertDescription>
                 </Alert>
             </div>
         );
@@ -188,17 +174,17 @@ export function FacebookChatClient() {
     return (
         <>
             <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Start a Conversation</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Start a Conversation</DialogTitle>
+                        <DialogDescription>
                             On Facebook Messenger, you can only reply to users who have messaged your page first. Please use the search bar to find an existing conversation.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button onClick={() => setShowInfoDialog(false)}>OK</Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             <PermissionErrorDialog

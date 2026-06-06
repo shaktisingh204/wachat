@@ -19,16 +19,7 @@ function safeFormatDate(isoString: string) {
   return format(new Date(y, m - 1, displayDay), 'PP');
 }
 
-import {
-  Badge,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -245,60 +236,60 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Kind</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Date</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Years</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">Employee</Th>
+                <Th className="text-[var(--st-text-secondary)]">Department</Th>
+                <Th className="text-[var(--st-text-secondary)]">Kind</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Date</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Years</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={5}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No upcoming events.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 pageRows.map((r, i) => (
-                  <ZoruTableRow
+                  <Tr
                     key={`${r.employeeId}-${r.kind}-${i}`}
                     className="border-[var(--st-border)]"
                   >
-                    <ZoruTableCell>
+                    <Td>
                       <EntityRowLink
                         href={`/dashboard/crm/hr-payroll/employees/${r.employeeId}`}
                         label={r.employeeName}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       <Badge variant="outline">{r.department}</Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant={r.kind === 'birthday' ? 'info' : 'success'}>
                         {r.kind}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                       <div className="flex items-center justify-end gap-2">
                         <span>{safeFormatDate(r.date)}</span>
                         <Button variant="ghost" size="icon" className="h-6 w-6" title="Send Email Greeting">
                           <Mail className="h-3 w-3" />
                         </Button>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {r.years ?? '—'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

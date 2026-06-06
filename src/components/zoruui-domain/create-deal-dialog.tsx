@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -73,52 +57,52 @@ export function CreateDealDialog({ contacts, accounts, onDealCreated, dealStages
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
           Create Deal
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="closeDate" value={closeDate?.toISOString()} />
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle>Create New Deal</ZoruDialogTitle>
-            <ZoruDialogDescription>Track a new sales opportunity.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Create New Deal</DialogTitle>
+            <DialogDescription>Track a new sales opportunity.</DialogDescription>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2"><Label htmlFor="name">Deal Name</Label><Input id="name" name="name" required placeholder="e.g. Website Redesign for Acme Corp" /></div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label htmlFor="value">Value</Label><Input id="value" name="value" type="number" step="0.01" required placeholder="10000" /></div>
-                <div className="space-y-2"><Label htmlFor="currency">Currency</Label><Select name="currency" defaultValue="USD" required><ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="USD">USD</ZoruSelectItem><ZoruSelectItem value="INR">INR</ZoruSelectItem><ZoruSelectItem value="EUR">EUR</ZoruSelectItem></ZoruSelectContent></Select></div>
+                <div className="space-y-2"><Label htmlFor="currency">Currency</Label><Select name="currency" defaultValue="USD" required><SelectTrigger id="currency"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="USD">USD</SelectItem><SelectItem value="INR">INR</SelectItem><SelectItem value="EUR">EUR</SelectItem></SelectContent></Select></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="stage">Stage</Label>
                   <Select name="stage" defaultValue={dealStages[0]} required>
-                    <ZoruSelectTrigger id="stage"><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger id="stage"><SelectValue /></SelectTrigger>
+                    <SelectContent>
                       {dealStages.map(stage => (
-                        <ZoruSelectItem key={stage} value={stage}>{stage}</ZoruSelectItem>
+                        <SelectItem key={stage} value={stage}>{stage}</SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2"><Label>Expected Close Date</Label><DatePicker date={closeDate} setDate={setCloseDate} /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label htmlFor="accountId">Account</Label><Select name="accountId" required><ZoruSelectTrigger id="accountId"><ZoruSelectValue placeholder="Select an account..." /></ZoruSelectTrigger><ZoruSelectContent>{accounts.map(acc => <ZoruSelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</ZoruSelectItem>)}</ZoruSelectContent></Select></div>
-                <div className="space-y-2"><Label htmlFor="contactId">Primary Contact</Label><Select name="contactId" required><ZoruSelectTrigger id="contactId"><ZoruSelectValue placeholder="Select a contact..." /></ZoruSelectTrigger><ZoruSelectContent>{contacts.map(c => <ZoruSelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</ZoruSelectItem>)}</ZoruSelectContent></Select></div>
+                <div className="space-y-2"><Label htmlFor="accountId">Account</Label><Select name="accountId" required><SelectTrigger id="accountId"><SelectValue placeholder="Select an account..." /></SelectTrigger><SelectContent>{accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2"><Label htmlFor="contactId">Primary Contact</Label><Select name="contactId" required><SelectTrigger id="contactId"><SelectValue placeholder="Select a contact..." /></SelectTrigger><SelectContent>{contacts.map(c => <SelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div>
               </div>
             </div>
           </div>
-          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, cn, Breadcrumb, ZoruBreadcrumbList } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, cn, Breadcrumb, BreadcrumbList } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { EditorView } from '@codemirror/view';
@@ -9,7 +9,7 @@ void _zoruCn;
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
-type SchemaType = 'Article' | 'Product' | 'LocalBusiness' | 'FAQPage' | 'ZoruBreadcrumbList' | 'Person' | 'Recipe';
+type SchemaType = 'Article' | 'Product' | 'LocalBusiness' | 'FAQPage' | 'BreadcrumbList' | 'Person' | 'Recipe';
 
 export default function SchemaGeneratorPage() {
   const [type, setType] = useState<SchemaType>('Article');
@@ -26,7 +26,7 @@ export default function SchemaGeneratorPage() {
   });
   const update = (k: string, v: string) => setFields((f) => ({ ...f, [k]: v }));
   const schema = useMemo(() => {
-    let obj: any = { '@context': 'https://schema.org', '@type': type === 'ZoruBreadcrumbList' ? 'BreadcrumbList' : type };
+    let obj: any = { '@context': 'https://schema.org', '@type': type === 'BreadcrumbList' ? 'BreadcrumbList' : type };
     switch (type) {
       case 'Article':
         obj = { ...obj, headline: fields.headline, author: { '@type': 'Person', name: fields.author }, datePublished: fields.date, image: fields.image };
@@ -40,7 +40,7 @@ export default function SchemaGeneratorPage() {
       case 'FAQPage':
         obj = { ...obj, mainEntity: [{ '@type': 'Question', name: fields.question, acceptedAnswer: { '@type': 'Answer', text: fields.answer } }] };
         break;
-      case 'ZoruBreadcrumbList':
+      case 'BreadcrumbList':
         const list = fields.items.split(/\r?\n/).filter(Boolean);
         obj = { ...obj, itemListElement: list.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it })) };
         break;
@@ -87,7 +87,7 @@ export default function SchemaGeneratorPage() {
           <option value="Product">Product</option>
           <option value="LocalBusiness">LocalBusiness</option>
           <option value="FAQPage">FAQPage</option>
-          <option value="ZoruBreadcrumbList">BreadcrumbList</option>
+          <option value="BreadcrumbList">BreadcrumbList</option>
           <option value="Person">Person</option>
           <option value="Recipe">Recipe</option>
         </select>
@@ -115,7 +115,7 @@ export default function SchemaGeneratorPage() {
           <div className="space-y-1 md:col-span-2"><Label>Question</Label><Input value={fields.question} onChange={(e) => update('question', e.target.value)} /></div>
           <div className="space-y-1 md:col-span-2"><Label>Answer</Label><Textarea value={fields.answer} onChange={(e) => update('answer', e.target.value)} /></div>
         </>}
-        {type === 'ZoruBreadcrumbList' && <>
+        {type === 'BreadcrumbList' && <>
           <div className="space-y-1 md:col-span-2"><Label>Breadcrumb items (one per line)</Label><Textarea value={fields.items} onChange={(e) => update('items', e.target.value)} /></div>
         </>}
         {type === 'Person' && <>

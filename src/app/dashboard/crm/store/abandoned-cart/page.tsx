@@ -12,33 +12,7 @@ import * as React from 'react';
 import { AlertTriangle, Download, Mail, Trash2 } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    Checkbox,
-    ZoruDateRangePicker,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    Input,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
@@ -87,7 +61,7 @@ function cSubtotal(c: CartItem): number {
 }
 
 export default function AbandonedCartsPage(): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [items, setItems] = React.useState<CartItem[]>([]);
     const [storefronts, setStorefronts] = React.useState<Array<{ id: string; name: string }>>([]);
@@ -215,30 +189,30 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                 subtitle="Drop-off carts with recovery email dispatch."
                 filters={
                     <Card>
-                        <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
+                        <CardBody className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[180px] space-y-1">
                                 <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Storefront
                                 </Label>
                                 <Select value={storefrontFilter} onValueChange={setStorefrontFilter}>
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="All storefronts" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="__all__">All storefronts</ZoruSelectItem>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All storefronts" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all__">All storefronts</SelectItem>
                                         {storefronts.map((sf) => (
-                                            <ZoruSelectItem key={sf.id} value={sf.id}>
+                                            <SelectItem key={sf.id} value={sf.id}>
                                                 {sf.name}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="min-w-[220px] space-y-1">
                                 <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Date range
                                 </Label>
-                                <ZoruDateRangePicker value={dateRange} onChange={setDateRange} />
+                                <DateRangePicker value={dateRange} onChange={setDateRange} />
                             </div>
                             <div className="min-w-[140px] space-y-1">
                                 <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
@@ -265,7 +239,7 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                     Clear filters
                                 </Button>
                             ) : null}
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 }
                 bulkBar={
@@ -277,14 +251,14 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                 <Mail className="h-3.5 w-3.5" /> Send recovery email
                             </Button>
                             <DropdownMenu>
-                                <ZoruDropdownMenuTrigger asChild>
+                                <DropdownMenuTrigger asChild>
                                     <Button size="sm" variant="outline">
                                         <Download className="h-3.5 w-3.5" /> Export
                                     </Button>
-                                </ZoruDropdownMenuTrigger>
-                                <ZoruDropdownMenuContent align="end">
-                                    <ZoruDropdownMenuItem onClick={exportCsv}>Export as CSV</ZoruDropdownMenuItem>
-                                </ZoruDropdownMenuContent>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={exportCsv}>Export as CSV</DropdownMenuItem>
+                                </DropdownMenuContent>
                             </DropdownMenu>
                             <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
                                 <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -332,56 +306,56 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                     {filtered.length > 0 ? (
                         <Card className="overflow-hidden p-0">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow>
-                                        <ZoruTableHead className="w-10">
+                                <THead>
+                                    <Tr>
+                                        <Th className="w-10">
                                             <Checkbox
                                                 aria-label="Select all"
                                                 checked={allSelected}
                                                 onCheckedChange={(c) => toggleAll(c === true)}
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead>Customer email</ZoruTableHead>
-                                        <ZoruTableHead>Items</ZoruTableHead>
-                                        <ZoruTableHead>Subtotal</ZoruTableHead>
-                                        <ZoruTableHead>Last interaction</ZoruTableHead>
-                                        <ZoruTableHead>Status</ZoruTableHead>
-                                        <ZoruTableHead className="text-right">Action</ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                        <Th>Customer email</Th>
+                                        <Th>Items</Th>
+                                        <Th>Subtotal</Th>
+                                        <Th>Last interaction</Th>
+                                        <Th>Status</Th>
+                                        <Th className="text-right">Action</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {filtered.map((c) => {
                                         const id = cId(c);
                                         const status = cStatus(c);
                                         const itemsArr = Array.isArray(c.items) ? (c.items as unknown[]) : [];
                                         return (
-                                            <ZoruTableRow
+                                            <Tr
                                                 key={id}
                                                 data-state={selected.has(id) ? 'selected' : undefined}
                                             >
-                                                <ZoruTableCell>
+                                                <Td>
                                                     <Checkbox
                                                         aria-label={`Select cart ${id}`}
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() => toggleOne(id)}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {String(c.customerEmail ?? '—')}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {itemsArr.length}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {fmtMoney(c.subtotal, String(c.currency ?? 'INR'))}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                     {fmtDate(c.lastInteractionAt)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <Badge variant={statusVariant(status)}>{status}</Badge>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
@@ -398,11 +372,11 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                                     >
                                                         <Mail className="h-3 w-3" /> Send
                                                     </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </Card>
                     ) : null}

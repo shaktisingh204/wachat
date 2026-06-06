@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadioGroup, ZoruRadioGroupItem, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -130,7 +112,7 @@ export function RequeueBroadcastDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <button
           type="button"
           aria-label="Requeue broadcast"
@@ -138,27 +120,27 @@ export function RequeueBroadcastDialog({
         >
           <LuRotateCw className="h-3.5 w-3.5" strokeWidth={1.75} />
         </button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="max-w-[540px] rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0 shadow-lg">
+      </DialogTrigger>
+      <DialogContent className="max-w-[540px] rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0 shadow-lg">
         <form ref={formRef} action={formAction}>
           <input type="hidden" name="broadcastId" value={broadcastId} />
           <input type="hidden" name="templateId" value={selectedTemplateId} />
           <input type="hidden" name="requeueScope" value={requeueScope} />
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
+          <DialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <LuRotateCw className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
+              <DialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
                 Requeue broadcast
-              </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
+              </DialogTitle>
+              <DialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
                 Send this campaign again to the same audience — all contacts
                 or only the ones that failed the first time.
-              </ZoruDialogDescription>
+              </DialogDescription>
             </div>
-          </ZoruDialogHeader>
+          </DialogHeader>
 
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* Template select */}
@@ -170,13 +152,13 @@ export function RequeueBroadcastDialog({
                 value={selectedTemplateId}
                 onValueChange={setSelectedTemplateId}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Choose an approved template…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose an approved template…" />
+                </SelectTrigger>
+                <SelectContent>
                   {approvedTemplates.length > 0 ? (
                     approvedTemplates.map((template) => (
-                      <ZoruSelectItem
+                      <SelectItem
                         key={template._id.toString()}
                         value={template._id.toString()}
                       >
@@ -186,14 +168,14 @@ export function RequeueBroadcastDialog({
                             ? template.status.replace(/_/g, ' ').toLowerCase()
                             : 'n/a'}
                         </span>
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))
                   ) : (
                     <div className="px-2 py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
                       No approved templates found.
                     </div>
                   )}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
 
@@ -252,7 +234,7 @@ export function RequeueBroadcastDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
             <Button
               type="button"
               variant="pill"
@@ -262,9 +244,9 @@ export function RequeueBroadcastDialog({
               Cancel
             </Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

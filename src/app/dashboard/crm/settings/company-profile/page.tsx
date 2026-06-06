@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Input, Label, Skeleton, StatCard, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Label, Skeleton, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,
@@ -105,7 +105,7 @@ function PickerField({
 }
 
 export default function CompanyProfilePage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [profile, setProfile] = useState<WsCompanyProfile | null>(null);
     const [logo, setLogo] = useState<string>('');
     const [isLoading, startLoading] = useTransition();

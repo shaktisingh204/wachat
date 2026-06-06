@@ -1,25 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  ZORU_CHART_PALETTE,
-  DataTable,
-  EmptyState,
-  Skeleton,
-  StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, DataTable, EmptyState, Skeleton, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -281,8 +262,8 @@ export default function CommerceAnalyticsPage() {
       {error ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Could not fetch analytics</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not fetch analytics</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
 
@@ -330,16 +311,16 @@ export default function CommerceAnalyticsPage() {
 
       {/* ── Trend chart (greyscale) ── */}
       <Card className="mt-6">
-        <ZoruCardHeader>
-          <ZoruCardTitle className="flex items-center gap-2 text-base">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
             <BarChart3 className="h-4 w-4" /> Last 30 days
-          </ZoruCardTitle>
-          <ZoruCardDescription>
+          </CardTitle>
+          <CardDescription>
             Daily order count and revenue. Series differentiated by line
             pattern, not colour.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           {orders.length === 0 ? (
             <EmptyState
               compact
@@ -348,7 +329,7 @@ export default function CommerceAnalyticsPage() {
               description="Once shoppers place orders through your Facebook Shop, the trend will populate here."
             />
           ) : (
-            <ZoruChartContainer height={320}>
+            <ChartContainer height={320}>
               <ZoruChart.LineChart data={trend}>
                 <ZoruChart.CartesianGrid
                   strokeDasharray="3 3"
@@ -370,7 +351,7 @@ export default function CommerceAnalyticsPage() {
                   stroke="var(--st-text-tertiary)"
                   tick={{ fontSize: 11 }}
                 />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Tooltip content={<ChartTooltip />} />
                 <ZoruChart.Legend
                   wrapperStyle={{ fontSize: 11 }}
                   iconType="line"
@@ -398,21 +379,21 @@ export default function CommerceAnalyticsPage() {
                   activeDot={{ r: 4 }}
                 />
               </ZoruChart.LineChart>
-            </ZoruChartContainer>
+            </ChartContainer>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* ── Breakdowns ── */}
       <section className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">Status mix</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle className="text-base">Status mix</CardTitle>
+            <CardDescription>
               How orders are distributed across lifecycle states.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {statusMix.length === 0 ? (
               <EmptyState
                 compact
@@ -428,17 +409,17 @@ export default function CommerceAnalyticsPage() {
                 showColumnMenu={false}
               />
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">Top customers</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle className="text-base">Top customers</CardTitle>
+            <CardDescription>
               Highest-revenue buyers (max 10) across all visible orders.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {topBuyers.length === 0 ? (
               <EmptyState
                 compact
@@ -454,7 +435,7 @@ export default function CommerceAnalyticsPage() {
                 showColumnMenu={false}
               />
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </section>
     </CommercePage>

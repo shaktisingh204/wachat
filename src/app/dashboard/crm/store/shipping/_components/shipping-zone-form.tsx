@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -87,7 +76,7 @@ export function ShippingZoneForm({
     defaultStorefrontId,
 }: ShippingZoneFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = useActionState(saveShippingZone, initialState);
 
     const [storefrontId, setStorefrontId] = useState<string>(
@@ -230,22 +219,22 @@ export function ShippingZoneForm({
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="status-select">Status</Label>
                         <Select value={status} onValueChange={setStatus}>
-                            <ZoruSelectTrigger
+                            <SelectTrigger
                                 id="status-select"
                                 className="max-w-xs"
                             >
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {STATUSES.map((s) => (
-                                    <ZoruSelectItem
+                                    <SelectItem
                                         key={s.value}
                                         value={s.value}
                                     >
                                         {s.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>
@@ -284,19 +273,19 @@ export function ShippingZoneForm({
                                         updateMethod(i, { kind: v })
                                     }
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="Kind" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Kind" />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {METHOD_KINDS.map((k) => (
-                                            <ZoruSelectItem
+                                            <SelectItem
                                                 key={k.value}
                                                 value={k.value}
                                             >
                                                 {k.label}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                                 <Input
                                     type="number"

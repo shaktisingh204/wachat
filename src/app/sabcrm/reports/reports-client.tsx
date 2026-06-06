@@ -39,57 +39,7 @@ import {
 } from 'lucide-react';
 import * as Recharts from 'recharts';
 
-import {
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Badge,
-  Skeleton,
-  EmptyState,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Dialog,
-  ZoruDialogTrigger,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogClose,
-  ZoruAlertDialog,
-  ZoruAlertDialogTrigger,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogAction,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-  Separator,
-  ScrollArea,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  useZoruToast,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  ZORU_CHART_PALETTE,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Badge, Skeleton, EmptyState, Card, CardHeader, CardTitle, CardContent, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Table, THead, TBody, Tr, Th, Td, Separator, ScrollArea, Alert, AlertTitle, AlertDescription, useToast, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, cn } from '@/components/sabcrm/20ui/compat';
 
 import {
   listObjectsAction,
@@ -306,24 +256,24 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
     return (
       <ScrollArea className="max-h-[400px]">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Label</TableHead>
-              <TableHead className="text-right">
+          <THead>
+            <Tr>
+              <Th>Label</Th>
+              <Th className="text-right">
                 {METRIC_LABELS[series.metric]}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+              </Th>
+            </Tr>
+          </THead>
+          <TBody>
             {rows.map((row) => (
-              <TableRow key={row.key}>
-                <TableCell className="font-medium">{row.label}</TableCell>
-                <TableCell className="text-right tabular-nums">
+              <Tr key={row.key}>
+                <Td className="font-medium">{row.label}</Td>
+                <Td className="text-right tabular-nums">
                   {formatValue(row.value)}
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ))}
-          </TableBody>
+          </TBody>
         </Table>
       </ScrollArea>
     );
@@ -337,7 +287,7 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
       fill: row.color ?? ZORU_CHART_PALETTE[idx % ZORU_CHART_PALETTE.length],
     }));
     return (
-      <ZoruChartContainer height={280}>
+      <ChartContainer height={280}>
         <Recharts.PieChart>
           <Recharts.Pie
             data={pieData}
@@ -356,7 +306,7 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
           </Recharts.Pie>
           <Recharts.Tooltip
             content={(props) => (
-              <ZoruChartTooltip
+              <ChartTooltip
                 active={props.active}
                 payload={props.payload?.map((p) => ({
                   name: String(p.name ?? ''),
@@ -368,7 +318,7 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
             )}
           />
         </Recharts.PieChart>
-      </ZoruChartContainer>
+      </ChartContainer>
     );
   }
 
@@ -377,7 +327,7 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
   const chartData = rows.map((row) => ({ name: row.label, value: row.value }));
 
   return (
-    <ZoruChartContainer height={280}>
+    <ChartContainer height={280}>
       {isLine ? (
         <Recharts.LineChart data={chartData} margin={{ top: 4, right: 12, left: 0, bottom: 4 }}>
           <Recharts.CartesianGrid
@@ -399,7 +349,7 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
           />
           <Recharts.Tooltip
             content={(props) => (
-              <ZoruChartTooltip
+              <ChartTooltip
                 active={props.active}
                 payload={props.payload?.map((p) => ({
                   name: METRIC_LABELS[series.metric],
@@ -441,7 +391,7 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
           />
           <Recharts.Tooltip
             content={(props) => (
-              <ZoruChartTooltip
+              <ChartTooltip
                 active={props.active}
                 payload={props.payload?.map((p) => ({
                   name: METRIC_LABELS[series.metric],
@@ -456,7 +406,7 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
           <Recharts.Bar dataKey="value" fill={ZORU_CHART_PALETTE[0]} radius={[3, 3, 0, 0]} />
         </Recharts.BarChart>
       )}
-    </ZoruChartContainer>
+    </ChartContainer>
   );
 }
 
@@ -773,7 +723,7 @@ interface BuilderDialogProps {
 }
 
 function BuilderDialog({ objects, report, trigger, onSaved }: BuilderDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [state, setState] = React.useState<BuilderState>(() =>
     report ? reportToBuilderState(report) : defaultBuilderState(),
@@ -860,20 +810,20 @@ function BuilderDialog({ objects, report, trigger, onSaved }: BuilderDialogProps
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>{trigger}</ZoruDialogTrigger>
-      <ZoruDialogContent className="max-w-3xl p-0" aria-describedby="builder-desc">
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogContent className="max-w-3xl p-0" aria-describedby="builder-desc">
         <div className="flex h-[90vh] max-h-[780px] flex-col">
           {/* Header */}
-          <ZoruDialogHeader className="border-b border-[var(--st-border)] px-6 py-4">
-            <ZoruDialogTitle>
+          <DialogHeader className="border-b border-[var(--st-border)] px-6 py-4">
+            <DialogTitle>
               {report ? 'Edit report' : 'Build a report'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription id="builder-desc">
+            </DialogTitle>
+            <DialogDescription id="builder-desc">
               {report
                 ? "Update this report's definition. The target object cannot be changed — delete and re-create to switch objects."
                 : 'Define the object, metric, grouping, and chart type. Preview before saving.'}
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           {/* Body — two-column: form + preview */}
           <div className="flex flex-1 overflow-hidden">
@@ -911,8 +861,8 @@ function BuilderDialog({ objects, report, trigger, onSaved }: BuilderDialogProps
                 {error && (
                   <Alert variant="destructive" className="mb-4">
                     <AlertTriangle className="h-4 w-4" />
-                    <ZoruAlertTitle>Error</ZoruAlertTitle>
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
 
@@ -946,21 +896,21 @@ function BuilderDialog({ objects, report, trigger, onSaved }: BuilderDialogProps
           </div>
 
           {/* Footer */}
-          <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-4">
-            <ZoruDialogClose asChild>
+          <DialogFooter className="border-t border-[var(--st-border)] px-6 py-4">
+            <DialogClose asChild>
               <Button variant="outline" disabled={saving}>
                 Cancel
               </Button>
-            </ZoruDialogClose>
+            </DialogClose>
             <Button onClick={handleSave} disabled={saving}>
               {saving ? (
                 <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
               ) : null}
               {report ? 'Save changes' : 'Save report'}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </div>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -1027,8 +977,8 @@ function ReportViewer({ report }: ReportViewerProps) {
       {error && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <ZoruAlertTitle>Run failed</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Run failed</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
@@ -1057,7 +1007,7 @@ interface ReportCardProps {
 }
 
 function ReportCard({ report, objects, onUpdated, onDeleted }: ReportCardProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [expanded, setExpanded] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
 
@@ -1142,8 +1092,8 @@ function ReportCard({ report, objects, onUpdated, onDeleted }: ReportCardProps) 
             onSaved={onUpdated}
           />
 
-          <ZoruAlertDialog>
-            <ZoruAlertDialogTrigger asChild>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
@@ -1157,23 +1107,23 @@ function ReportCard({ report, objects, onUpdated, onDeleted }: ReportCardProps) 
                 )}
                 <span className="sr-only">Delete report</span>
               </Button>
-            </ZoruAlertDialogTrigger>
-            <ZoruAlertDialogContent>
-              <ZoruAlertDialogHeader>
-                <ZoruAlertDialogTitle>Delete "{report.name}"?</ZoruAlertDialogTitle>
-                <ZoruAlertDialogDescription>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete "{report.name}"?</AlertDialogTitle>
+                <AlertDialogDescription>
                   This removes the saved report definition. The underlying records are
                   not affected. This action cannot be undone.
-                </ZoruAlertDialogDescription>
-              </ZoruAlertDialogHeader>
-              <ZoruAlertDialogFooter>
-                <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                <ZoruAlertDialogAction onClick={handleDelete}>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete}>
                   Delete
-                </ZoruAlertDialogAction>
-              </ZoruAlertDialogFooter>
-            </ZoruAlertDialogContent>
-          </ZoruAlertDialog>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
@@ -1254,8 +1204,8 @@ export function ReportsClient({
     return (
       <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
-        <ZoruAlertTitle>Reports unavailable</ZoruAlertTitle>
-        <ZoruAlertDescription>{initialError}</ZoruAlertDescription>
+        <AlertTitle>Reports unavailable</AlertTitle>
+        <AlertDescription>{initialError}</AlertDescription>
       </Alert>
     );
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <DiscussionsRepliesPanel> — client island rendered inside the detail
  * page. Loads replies on mount, owns the composer + per-row delete.
@@ -24,7 +24,7 @@ export interface DiscussionsRepliesPanelProps {
 export function DiscussionsRepliesPanel({
     discussionId,
 }: DiscussionsRepliesPanelProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [replies, setReplies] = React.useState<(WsDiscussionReply & { _id: string })[]>([]);
     const [body, setBody] = React.useState('');
     const [submitting, setSubmitting] = React.useState(false);

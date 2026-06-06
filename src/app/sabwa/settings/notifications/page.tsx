@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Switch,
-  Label,
-  Input,
-  Badge,
-  Separator,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Label, Input, Badge, Separator, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   Bell,
   Mail,
@@ -214,16 +191,16 @@ export default function NotificationsSettingsPage() {
 
       {/* Event triggers */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="flex items-center gap-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
             Events to notify
-          </ZoruCardTitle>
-          <ZoruCardDescription>
+          </CardTitle>
+          <CardDescription>
             Choose exactly what events should trigger a notification.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <Switch
@@ -277,21 +254,21 @@ export default function NotificationsSettingsPage() {
               Save
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Desktop notifications */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="flex items-center gap-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <Monitor className="h-4 w-4" />
             Desktop notifications
-          </ZoruCardTitle>
-          <ZoruCardDescription>
+          </CardTitle>
+          <CardDescription>
             Browser-level notifications for incoming messages and mentions.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <div className="flex items-center gap-3">
             <Switch
               checked={prefs.desktop.enabled}
@@ -309,16 +286,16 @@ export default function NotificationsSettingsPage() {
                 onValueChange={(v) => setPrefs((p) => ({ ...p, desktop: { ...p.desktop, sound: v } }))}
                 disabled={!prefs.desktop.enabled || loading || pending}
               >
-                <ZoruSelectTrigger id="desktop-sound">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger id="desktop-sound">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {SOUND_PRESETS.map((s) => (
-                    <ZoruSelectItem key={s.value} value={s.value}>
+                    <SelectItem key={s.value} value={s.value}>
                       {s.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <Button variant="outline" onClick={previewSound} disabled={!prefs.desktop.enabled}>
@@ -331,19 +308,19 @@ export default function NotificationsSettingsPage() {
               Save
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Email digests */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="flex items-center gap-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
             Email digests
-          </ZoruCardTitle>
-          <ZoruCardDescription>Periodic summary emails of SabWa activity.</ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardTitle>
+          <CardDescription>Periodic summary emails of SabWa activity.</CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <div className="flex items-center gap-3">
             <Switch
               checked={prefs.email.enabled}
@@ -363,13 +340,13 @@ export default function NotificationsSettingsPage() {
               }
               disabled={!prefs.email.enabled || loading || pending}
             >
-              <ZoruSelectTrigger id="digest-freq">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="daily">Daily</ZoruSelectItem>
-                <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger id="digest-freq">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+              </SelectContent>
             </Select>
           </div>
 
@@ -421,39 +398,39 @@ export default function NotificationsSettingsPage() {
               Save
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Push (mobile) — coming soon */}
       <Card className="opacity-70">
-        <ZoruCardHeader>
-          <ZoruCardTitle className="flex items-center gap-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <Smartphone className="h-4 w-4" />
             Push (mobile app)
             <Badge variant="secondary">Coming soon</Badge>
-          </ZoruCardTitle>
-          <ZoruCardDescription>
+          </CardTitle>
+          <CardDescription>
             Native push notifications via the SabNode iOS and Android apps.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <div className="flex items-center gap-3">
             <Switch checked={prefs.push.enabled} disabled aria-label="Toggle push notifications" />
             <Label className="text-sm text-[var(--st-text-secondary)]">Enable mobile push</Label>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Sound for incoming */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="flex items-center gap-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <Volume2 className="h-4 w-4" />
             Sound for incoming
-          </ZoruCardTitle>
-          <ZoruCardDescription>Picked sound plays whenever the SabWa tab is focused.</ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+          </CardTitle>
+          <CardDescription>Picked sound plays whenever the SabWa tab is focused.</CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-3">
           <div className="space-y-1.5 max-w-xs">
             <Label htmlFor="incoming-sound">Preset</Label>
             <Select
@@ -461,16 +438,16 @@ export default function NotificationsSettingsPage() {
               onValueChange={(v) => setPrefs((p) => ({ ...p, incomingSound: v }))}
               disabled={loading || pending}
             >
-              <ZoruSelectTrigger id="incoming-sound">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="incoming-sound">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {SOUND_PRESETS.map((s) => (
-                  <ZoruSelectItem key={s.value} value={s.value}>
+                  <SelectItem key={s.value} value={s.value}>
                     {s.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex justify-end">
@@ -482,64 +459,64 @@ export default function NotificationsSettingsPage() {
               Save
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Mute schedules */}
       <Card>
-        <ZoruCardHeader className="flex flex-row items-start justify-between gap-3 flex-wrap">
+        <CardHeader className="flex flex-row items-start justify-between gap-3 flex-wrap">
           <div>
-            <ZoruCardTitle>Mute schedules</ZoruCardTitle>
-            <ZoruCardDescription>
+            <CardTitle>Mute schedules</CardTitle>
+            <CardDescription>
               Time windows during which SabWa silences notifications. Useful for quiet hours and weekends.
-            </ZoruCardDescription>
+            </CardDescription>
           </div>
           <Button size="sm" onClick={addMuteWindow} disabled={pending}>
             <Plus className="mr-2 h-4 w-4" />
             Add window
           </Button>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           {prefs.muteSchedules.length === 0 ? (
             <p className="text-sm text-[var(--st-text-secondary)]">No mute schedules — notifications are always on.</p>
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Label</ZoruTableHead>
-                  <ZoruTableHead>Start</ZoruTableHead>
-                  <ZoruTableHead>End</ZoruTableHead>
-                  <ZoruTableHead>Days</ZoruTableHead>
-                  <ZoruTableHead className="w-10" />
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Label</Th>
+                  <Th>Start</Th>
+                  <Th>End</Th>
+                  <Th>Days</Th>
+                  <Th className="w-10" />
+                </Tr>
+              </THead>
+              <TBody>
                 {prefs.muteSchedules.map((w) => (
-                  <ZoruTableRow key={w.id}>
-                    <ZoruTableCell>
+                  <Tr key={w.id}>
+                    <Td>
                       <Input
                         value={w.label ?? ''}
                         onChange={(e) => updateMuteWindow(w.id, { label: e.target.value })}
                         className="max-w-40"
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Input
                         type="time"
                         value={w.start}
                         onChange={(e) => updateMuteWindow(w.id, { start: e.target.value })}
                         className="max-w-32"
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Input
                         type="time"
                         value={w.end}
                         onChange={(e) => updateMuteWindow(w.id, { end: e.target.value })}
                         className="max-w-32"
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <div className="flex flex-wrap gap-1">
                         {DAYS.map((d) => {
                           const active = w.days.includes(d.value);
@@ -559,8 +536,8 @@ export default function NotificationsSettingsPage() {
                           );
                         })}
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -569,13 +546,13 @@ export default function NotificationsSettingsPage() {
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Separator />

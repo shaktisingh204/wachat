@@ -13,16 +13,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ScrollArea,
-  Separator,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, ScrollArea, Separator, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 
 import type {
   IntegrationEvent,
@@ -128,7 +119,7 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
 
   return (
     <Card>
-      <ZoruCardContent className="p-5">
+      <CardBody className="p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             {Icon ? (
@@ -226,7 +217,7 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
             </div>
           </>
         ) : null}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -283,7 +274,7 @@ export function IntegrationActivityFeed({
 }: IntegrationActivityFeedProps): React.ReactElement {
   return (
     <Card>
-      <ZoruCardContent className="p-5">
+      <CardBody className="p-5">
         <div className="mb-3 flex items-center gap-2">
           <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
           <div>
@@ -344,7 +335,7 @@ export function IntegrationActivityFeed({
             </ul>
           </ScrollArea>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -372,7 +363,7 @@ export function IntegrationSyncHistory({
 /* ─── Toast-bound action helpers ──────────────────────────────────── */
 
 export function useIntegrationToast() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const reportResult = React.useCallback(
     (provider: IntegrationProvider, res: { message?: string; error?: string }) => {
       const title =
@@ -408,7 +399,7 @@ export function IntegrationSection({
 }: IntegrationSectionProps): React.ReactElement {
   return (
     <Card>
-      <ZoruCardContent className="p-5">
+      <CardBody className="p-5">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
           <div>
             <h3 className="text-sm font-semibold text-[var(--st-text)]">{title}</h3>
@@ -419,7 +410,7 @@ export function IntegrationSection({
           {actions}
         </div>
         {children}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

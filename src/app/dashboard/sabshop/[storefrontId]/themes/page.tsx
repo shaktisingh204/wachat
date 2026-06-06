@@ -3,10 +3,7 @@
 import * as React from 'react';
 import { useParams } from 'next/navigation';
 
-import {
-    Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle,
-    Input, Label, Textarea, Badge, useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Badge, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
     listThemes, createTheme, deleteTheme,
@@ -22,7 +19,7 @@ interface ThemeDoc {
 
 export default function ThemesPage(): React.JSX.Element {
     const params = useParams<{ storefrontId: string }>();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const id = params.storefrontId;
     const [themes, setThemes] = React.useState<ThemeDoc[]>([]);
     const [activeThemeId, setActiveThemeId] = React.useState<string>('');
@@ -69,8 +66,8 @@ export default function ThemesPage(): React.JSX.Element {
             <h1 className="text-2xl font-semibold text-[var(--st-text)]">Themes</h1>
 
             <Card className="max-w-2xl">
-                <ZoruCardHeader><ZoruCardTitle>New custom theme</ZoruCardTitle></ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-3">
+                <CardHeader><CardTitle>New custom theme</CardTitle></CardHeader>
+                <CardBody className="flex flex-col gap-3">
                     <div className="space-y-1">
                         <Label>Name</Label>
                         <Input value={name} onChange={(e) => setName(e.target.value)} />
@@ -82,12 +79,12 @@ export default function ThemesPage(): React.JSX.Element {
                     <div className="flex justify-end">
                         <Button onClick={onCreate}>Save theme</Button>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader><ZoruCardTitle>All themes</ZoruCardTitle></ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader><CardTitle>All themes</CardTitle></CardHeader>
+                <CardBody>
                     {themes.length === 0 ? (
                         <p className="text-sm text-[var(--st-text-secondary)]">No themes yet.</p>
                     ) : (
@@ -111,7 +108,7 @@ export default function ThemesPage(): React.JSX.Element {
                             ))}
                         </ul>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

@@ -3,14 +3,7 @@
 import * as React from 'react';
 import { Download, FileSpreadsheet, FileText } from 'lucide-react';
 
-import {
-    Button,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { exportSubmissions } from '@/app/actions/crm-forms.actions';
 
 export interface ExportButtonProps {
@@ -35,7 +28,7 @@ function triggerDownload(base64: string, filename: string, mime: string) {
 }
 
 export function ExportButton({ formId, filters }: ExportButtonProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [pending, startTransition] = React.useTransition();
 
     const run = (format: 'csv' | 'xlsx') => {
@@ -56,20 +49,20 @@ export function ExportButton({ formId, filters }: ExportButtonProps) {
 
     return (
         <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
                 <Button variant="outline" disabled={pending}>
                     <Download className="h-4 w-4" />
                     {pending ? 'Exporting…' : 'Export'}
                 </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-                <ZoruDropdownMenuItem onClick={() => run('csv')}>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => run('csv')}>
                     <FileText className="h-4 w-4" /> CSV
-                </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuItem onClick={() => run('xlsx')}>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => run('xlsx')}>
                     <FileSpreadsheet className="h-4 w-4" /> XLSX
-                </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
         </DropdownMenu>
     );
 }

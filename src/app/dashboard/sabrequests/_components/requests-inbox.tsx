@@ -11,17 +11,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import type {
     RequestBlueprintDoc,
 } from '@/lib/rust-client/sabrequests-blueprints';
@@ -190,29 +180,29 @@ export function RequestsInbox({ mine, awaiting, blueprints }: Props) {
                     className="max-w-xs"
                 />
                 <Select value={bpFilter} onValueChange={setBpFilter}>
-                    <ZoruSelectTrigger className="w-48">
-                        <ZoruSelectValue placeholder="All blueprints" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All blueprints</ZoruSelectItem>
+                    <SelectTrigger className="w-48">
+                        <SelectValue placeholder="All blueprints" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All blueprints</SelectItem>
                         {blueprints.map((b) => (
-                            <ZoruSelectItem key={b._id} value={b._id}>
+                            <SelectItem key={b._id} value={b._id}>
                                 {b.name}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <ZoruSelectTrigger className="w-36">
-                        <ZoruSelectValue placeholder="Status" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                        <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-                        <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
-                        <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
-                        <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger className="w-36">
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All statuses</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="approved">Approved</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
                 </Select>
                 <Button
                     variant={breachedOnly ? 'default' : 'outline'}

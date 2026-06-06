@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -100,7 +88,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export function OkrForm({ initialData }: OkrFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveOkr, initialState);
@@ -315,16 +303,16 @@ export function OkrForm({ initialData }: OkrFormProps) {
                             value={status}
                             onValueChange={(v) => setStatus(v as CrmOkrStatus)}
                         >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="status-trigger">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>
@@ -454,19 +442,19 @@ export function OkrForm({ initialData }: OkrFormProps) {
                                                     )
                                                 }
                                             >
-                                                <ZoruSelectTrigger>
-                                                    <ZoruSelectValue />
-                                                </ZoruSelectTrigger>
-                                                <ZoruSelectContent>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
                                                     {KR_STATUS_OPTIONS.map((o) => (
-                                                        <ZoruSelectItem
+                                                        <SelectItem
                                                             key={o.value}
                                                             value={o.value}
                                                         >
                                                             {o.label}
-                                                        </ZoruSelectItem>
+                                                        </SelectItem>
                                                     ))}
-                                                </ZoruSelectContent>
+                                                </SelectContent>
                                             </Select>
                                         </div>
                                     </div>

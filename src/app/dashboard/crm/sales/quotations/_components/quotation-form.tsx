@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -118,7 +118,7 @@ type SaveIntent = 'save' | 'save_new' | 'save_send' | 'save_convert';
 export function QuotationForm({ initial, customFields }: QuotationFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(saveQuotationAction, INITIAL_ACTION_STATE);
 

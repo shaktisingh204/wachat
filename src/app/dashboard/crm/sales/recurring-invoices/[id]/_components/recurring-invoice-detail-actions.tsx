@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -28,7 +28,7 @@ interface Props {
 
 export function RecurringInvoiceDetailActions({ id, status }: Props) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isMutating, startMutating] = useTransition();
 
   const handle = useCallback(

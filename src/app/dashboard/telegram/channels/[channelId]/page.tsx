@@ -1,37 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useParams } from 'next/navigation';
 import {
@@ -211,7 +180,7 @@ export default function ChannelDetailPage() {
     const params = useParams<{ channelId: string }>();
     const channelId = params?.channelId ?? '';
     const { activeProjectId, isLoadingProject } = useProject();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const projectId = activeProjectId ?? '';
 
     const [tab, setTab] = React.useState<TabKey>('posts');
@@ -734,15 +703,15 @@ export default function ChannelDetailPage() {
                           })
                 }
             >
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Edit post</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit post</DialogTitle>
+                        <DialogDescription>
                             {editState.post?.kind === 'text'
                                 ? 'Editing the text body.'
                                 : 'Editing the media caption.'}
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="flex flex-col gap-3">
                         <Textarea
                             rows={5}
@@ -760,18 +729,18 @@ export default function ChannelDetailPage() {
                                     setEditState((s) => ({ ...s, parseMode: v }))
                                 }
                             >
-                                <ZoruSelectTrigger className="w-[160px]">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="NONE">Plain text</ZoruSelectItem>
-                                    <ZoruSelectItem value="HTML">HTML</ZoruSelectItem>
-                                    <ZoruSelectItem value="MarkdownV2">MarkdownV2</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger className="w-[160px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="NONE">Plain text</SelectItem>
+                                    <SelectItem value="HTML">HTML</SelectItem>
+                                    <SelectItem value="MarkdownV2">MarkdownV2</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button
                             variant="ghost"
                             onClick={() =>
@@ -794,8 +763,8 @@ export default function ChannelDetailPage() {
                             )}{' '}
                             Save
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Promote dialog */}
@@ -805,15 +774,15 @@ export default function ChannelDetailPage() {
                     o ? null : setPromoteState((s) => ({ ...s, admin: null }))
                 }
             >
-                <ZoruDialogContent className="max-w-md">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>
                             Edit rights — {promoteState.admin?.name}
-                        </ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                        </DialogTitle>
+                        <DialogDescription>
                             Telegram only honours these flags for non-creator admins.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="grid grid-cols-1 gap-2">
                         {(
                             [
@@ -844,7 +813,7 @@ export default function ChannelDetailPage() {
                             </label>
                         ))}
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button
                             variant="ghost"
                             onClick={() =>
@@ -862,75 +831,75 @@ export default function ChannelDetailPage() {
                             )}{' '}
                             Save rights
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Confirm dialogs */}
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDeletePost}
                 onOpenChange={(o) => (o ? null : setPendingDeletePost(null))}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete post?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete post?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             This also deletes the message from Telegram. Channel posts can
                             only be deleted by an admin with the right permission.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDeletePost}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeletePost}>
                             <Trash2 /> Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingCancelScheduled}
                 onOpenChange={(o) => (o ? null : setPendingCancelScheduled(null))}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Cancel scheduled post?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Cancel scheduled post?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             This stops the worker from sending the post. You can recreate it
                             later from the composer.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Keep</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleCancelScheduled}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Keep</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleCancelScheduled}>
                             Cancel post
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDemote}
                 onOpenChange={(o) => (o ? null : setPendingDemote(null))}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             Demote {pendingDemote?.name}?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             Telegram will revoke every administrative right from this member.
                             Channel creators cannot be demoted.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDemote}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDemote}>
                             Demote
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
@@ -1240,14 +1209,14 @@ function ComposerDialog({
 }) {
     return (
         <Dialog open={state.open} onOpenChange={(o) => (o ? null : onClose())}>
-            <ZoruDialogContent className="max-w-2xl">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>New channel post</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle>New channel post</DialogTitle>
+                    <DialogDescription>
                         Compose text, attach a SabFile, build an inline keyboard, and
                         optionally schedule it for later.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <div className="flex flex-col gap-3">
                     <Textarea
                         rows={5}
@@ -1266,14 +1235,14 @@ function ComposerDialog({
                                 onChange({ ...state, parseMode: v })
                             }
                         >
-                            <ZoruSelectTrigger className="w-[160px]">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="NONE">Plain text</ZoruSelectItem>
-                                <ZoruSelectItem value="HTML">HTML</ZoruSelectItem>
-                                <ZoruSelectItem value="MarkdownV2">MarkdownV2</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="w-[160px]">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="NONE">Plain text</SelectItem>
+                                <SelectItem value="HTML">HTML</SelectItem>
+                                <SelectItem value="MarkdownV2">MarkdownV2</SelectItem>
+                            </SelectContent>
                         </Select>
 
                         <Label className="ml-3 text-xs text-[var(--st-text-secondary)]">
@@ -1285,15 +1254,15 @@ function ComposerDialog({
                                 onChange({ ...state, mediaType: v })
                             }
                         >
-                            <ZoruSelectTrigger className="w-[140px]">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="photo">Photo</ZoruSelectItem>
-                                <ZoruSelectItem value="video">Video</ZoruSelectItem>
-                                <ZoruSelectItem value="audio">Audio</ZoruSelectItem>
-                                <ZoruSelectItem value="document">Document</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="w-[140px]">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="photo">Photo</SelectItem>
+                                <SelectItem value="video">Video</SelectItem>
+                                <SelectItem value="audio">Audio</SelectItem>
+                                <SelectItem value="document">Document</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
 
@@ -1426,7 +1395,7 @@ function ComposerDialog({
                         </p>
                     </div>
                 </div>
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button variant="ghost" onClick={onClose} disabled={state.busy}>
                         Cancel
                     </Button>
@@ -1440,8 +1409,8 @@ function ComposerDialog({
                         )}{' '}
                         {state.scheduleAt ? 'Schedule' : 'Send'}
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

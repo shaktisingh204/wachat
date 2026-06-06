@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, ZoruCardContent, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { CheckCircle2, Eraser, LoaderCircle, Terminal } from 'lucide-react';
 import { acceptEstimatePublic } from '@/app/actions/worksuite/public.actions';
 import { SignaturePad, type SignaturePadHandle } from '../../_components/signature-pad';
@@ -50,7 +50,7 @@ export function EstimateAcceptForm({ token }: { token: string }) {
 
   return (
     <Card className="shadow-md border-foreground/10">
-      <ZoruCardContent className="flex flex-col gap-4 p-5">
+      <CardBody className="flex flex-col gap-4 p-5">
         <div className="flex items-center justify-between">
           <h2 className="text-[13px] font-mono uppercase tracking-wider text-[var(--st-text)] flex items-center gap-1.5">
             <Terminal className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -152,7 +152,7 @@ export function EstimateAcceptForm({ token }: { token: string }) {
             </pre>
           </div>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

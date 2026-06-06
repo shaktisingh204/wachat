@@ -14,25 +14,7 @@
 
 import * as React from 'react';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ChevronDown,
   ChevronRight,
@@ -241,7 +223,7 @@ function KpiStrip({ kpis }: { kpis: Gstr1Kpis }) {
 
 function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
   const [selected, setSelected] = React.useState<Set<number>>(new Set());
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const toggleAll = (checked: boolean) =>
     setSelected(checked ? new Set(rows.map((_, i) => i)) : new Set());
@@ -320,73 +302,73 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
       ) : null}
       <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-              <ZoruTableHead className="w-10">
+          <THead>
+            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+              <Th className="w-10">
                 <Checkbox
                   checked={allChecked}
                   onCheckedChange={(c) => toggleAll(Boolean(c))}
                   aria-label="Select all B2B rows"
                 />
-              </ZoruTableHead>
-              <ZoruTableHead className="text-[var(--st-text-secondary)]">Buyer GSTIN</ZoruTableHead>
-              <ZoruTableHead className="text-[var(--st-text-secondary)]">Invoice no</ZoruTableHead>
-              <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
-              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+              </Th>
+              <Th className="text-[var(--st-text-secondary)]">Buyer GSTIN</Th>
+              <Th className="text-[var(--st-text-secondary)]">Invoice no</Th>
+              <Th className="text-[var(--st-text-secondary)]">Date</Th>
+              <Th className="text-right text-[var(--st-text-secondary)]">
                 Taxable
-              </ZoruTableHead>
-              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">IGST</ZoruTableHead>
-              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">CGST</ZoruTableHead>
-              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">SGST</ZoruTableHead>
-              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+              </Th>
+              <Th className="text-right text-[var(--st-text-secondary)]">IGST</Th>
+              <Th className="text-right text-[var(--st-text-secondary)]">CGST</Th>
+              <Th className="text-right text-[var(--st-text-secondary)]">SGST</Th>
+              <Th className="text-right text-[var(--st-text-secondary)]">
                 Invoice value
-              </ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+              </Th>
+            </Tr>
+          </THead>
+          <TBody>
             {rows.map((r, i) => (
-              <ZoruTableRow
+              <Tr
                 key={i}
                 className="border-[var(--st-border)]"
                 data-state={selected.has(i) ? 'selected' : undefined}
               >
-                <ZoruTableCell>
+                <Td>
                   <Checkbox
                     checked={selected.has(i)}
                     onCheckedChange={() => toggle(i)}
                     aria-label={`Select invoice ${r.invoiceNumber ?? i}`}
                   />
-                </ZoruTableCell>
-                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                </Td>
+                <Td className="font-mono text-[12px] text-[var(--st-text)]">
                   {r.buyerGstin ?? '—'}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </Td>
+                <Td>
                   <EntityRowLink
                     href={`/dashboard/crm/invoices?invoiceNo=${encodeURIComponent(r.invoiceNumber ?? '')}`}
                     label={r.invoiceNumber ?? '—'}
                   />
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                </Td>
+                <Td className="text-[12px] text-[var(--st-text-secondary)]">
                   {r.invoiceDate ?? '—'}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
+                </Td>
+                <Td className="text-right font-mono text-[12px] text-[var(--st-text)]">
                   {fmtInr(r.taxableValue)}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
+                </Td>
+                <Td className="text-right font-mono text-[12px] text-[var(--st-text)]">
                   {fmtInr(r.igst)}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
+                </Td>
+                <Td className="text-right font-mono text-[12px] text-[var(--st-text)]">
                   {fmtInr(r.cgst)}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
+                </Td>
+                <Td className="text-right font-mono text-[12px] text-[var(--st-text)]">
                   {fmtInr(r.sgst)}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-[12px] font-semibold text-[var(--st-text)]">
+                </Td>
+                <Td className="text-right font-mono text-[12px] font-semibold text-[var(--st-text)]">
                   {fmtInr(r.invoiceValue)}
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </div>
     </div>
@@ -396,7 +378,7 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
 /* ─── Main client component ────────────────────────────────────────────── */
 
 export function Gstr1Client() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [period, setPeriod] = React.useState<Period>(currentPeriod);
   const [loading, setLoading] = React.useState(false);
   const [raw, setRaw] = React.useState<Gstr1Return | null>(null);
@@ -484,16 +466,16 @@ export function Gstr1Client() {
                 setPeriod((p) => ({ ...p, month: Number(v) }))
               }
             >
-              <ZoruSelectTrigger className="w-40">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {MONTHS.map((m) => (
-                  <ZoruSelectItem key={m.value} value={m.value}>
+                  <SelectItem key={m.value} value={m.value}>
                     {m.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div>

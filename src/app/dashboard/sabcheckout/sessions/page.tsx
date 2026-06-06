@@ -6,20 +6,7 @@
  */
 import { Activity, Search, Filter, ExternalLink, Download, FileText } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, CardDescription, PageHeader, PageHeading, PageTitle, PageDescription, Input } from '@/components/sabcrm/20ui/compat';
 
 import { listSabcheckoutSessions } from '@/app/actions/sabcheckout.actions';
 import type { SabcheckoutSessionStatus } from '@/lib/rust-client/sabcheckout-sessions';
@@ -47,12 +34,12 @@ export default async function SabcheckoutSessionsPage({
     <div className="flex w-full flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>Sessions</ZoruPageTitle>
-            <ZoruPageDescription>
+          <PageHeading>
+            <PageTitle>Sessions</PageTitle>
+            <PageDescription>
               Every checkout attempt across all your pages.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
         <div className="flex items-center gap-2">
           <Button variant="outline">
@@ -64,10 +51,10 @@ export default async function SabcheckoutSessionsPage({
 
       {!res.ok ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Couldn't load sessions</ZoruCardTitle>
-            <ZoruCardDescription>{res.error}</ZoruCardDescription>
-          </ZoruCardHeader>
+          <CardHeader>
+            <CardTitle>Couldn't load sessions</CardTitle>
+            <CardDescription>{res.error}</CardDescription>
+          </CardHeader>
         </Card>
       ) : (
         <Card className="flex flex-col overflow-hidden">
@@ -90,16 +77,16 @@ export default async function SabcheckoutSessionsPage({
             </div>
           </div>
           
-          <ZoruCardContent className="p-0">
+          <CardBody className="p-0">
             {res.data.items.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-12 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] mb-4">
                   <Activity className="h-6 w-6" />
                 </div>
-                <ZoruCardTitle className="text-lg">No sessions yet</ZoruCardTitle>
-                <ZoruCardDescription className="max-w-sm mt-2">
+                <CardTitle className="text-lg">No sessions yet</CardTitle>
+                <CardDescription className="max-w-sm mt-2">
                   When users visit your payment pages and initiate checkout, those sessions will appear here.
-                </ZoruCardDescription>
+                </CardDescription>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -171,7 +158,7 @@ export default async function SabcheckoutSessionsPage({
                 </table>
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </div>

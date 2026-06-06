@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarPlus,
   Plus } from 'lucide-react';
@@ -83,7 +83,7 @@ export default function LeaveListClient({
   sessionUserId: string | null;
   initialAvailableBalance: number | null;
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* Data */
   const [rawLeaves, setRawLeaves] = React.useState<WsLeave[]>(initialLeaves);

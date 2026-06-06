@@ -1,32 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams,
@@ -163,7 +137,7 @@ export function PromotionListClient({
   kpis,
   error,
 }: PromotionListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -356,16 +330,16 @@ export function PromotionListClient({
               pushParams({ status: v === '__all' ? undefined : v, page: '1' })
             }
           >
-            <ZoruSelectTrigger className="h-9 w-[150px] text-[13px]">
-              <ZoruSelectValue placeholder="Status" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="h-9 w-[150px] text-[13px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
               {STATUS_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value || '__all'} value={o.value || '__all'}>
+                <SelectItem key={o.value || '__all'} value={o.value || '__all'}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <Select
             value={initialType || '__all'}
@@ -373,16 +347,16 @@ export function PromotionListClient({
               pushParams({ type: v === '__all' ? undefined : v, page: '1' })
             }
           >
-            <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-              <ZoruSelectValue placeholder="Type" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="h-9 w-[160px] text-[13px]">
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent>
               {TYPE_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value || '__all'} value={o.value || '__all'}>
+                <SelectItem key={o.value || '__all'} value={o.value || '__all'}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <details className="relative">
             <summary className="list-none">
@@ -439,15 +413,15 @@ export function PromotionListClient({
             </Button>
             <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
             <Select onValueChange={(v) => bulkStatus(v as CrmPromotionStatus)}>
-              <ZoruSelectTrigger className="h-8 w-[150px] text-[12px]">
-                <ZoruSelectValue placeholder="Change status…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="active">Activate</ZoruSelectItem>
-                <ZoruSelectItem value="paused">Pause</ZoruSelectItem>
-                <ZoruSelectItem value="archived">Archive</ZoruSelectItem>
-                <ZoruSelectItem value="expired">Expire</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-8 w-[150px] text-[12px]">
+                <SelectValue placeholder="Change status…" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Activate</SelectItem>
+                <SelectItem value="paused">Pause</SelectItem>
+                <SelectItem value="archived">Archive</SelectItem>
+                <SelectItem value="expired">Expire</SelectItem>
+              </SelectContent>
             </Select>
             <Button variant="outline" size="sm" onClick={bulkExportCsv}>
               <Download className="h-3.5 w-3.5" /> Export CSV
@@ -467,75 +441,75 @@ export function PromotionListClient({
         ) : null}
 
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead className="w-[36px]">
+          <THead>
+            <Tr>
+              <Th className="w-[36px]">
                 <Checkbox
                   checked={allSelected}
                   onCheckedChange={toggleAll}
                   aria-label="Select all"
                 />
-              </ZoruTableHead>
-              <ZoruTableHead>Name</ZoruTableHead>
-              <ZoruTableHead>Code</ZoruTableHead>
-              <ZoruTableHead>Type</ZoruTableHead>
-              <ZoruTableHead className="text-right">Value</ZoruTableHead>
-              <ZoruTableHead>Valid window</ZoruTableHead>
-              <ZoruTableHead className="text-right">Used</ZoruTableHead>
-              <ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+              </Th>
+              <Th>Name</Th>
+              <Th>Code</Th>
+              <Th>Type</Th>
+              <Th className="text-right">Value</Th>
+              <Th>Valid window</Th>
+              <Th className="text-right">Used</Th>
+              <Th>Status</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {promotions.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={9} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
+              <Tr>
+                <Td colSpan={9} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                   {initialQuery || hasActive
                     ? 'No promotions match these filters.'
                     : 'No promotions yet — click "New promotion" to add one.'}
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : (
               promotions.map((row) => {
                 const id = String(row._id);
                 const isSelected = selected.has(id);
                 const tone = STATUS_TONES[row.status] ?? 'ghost';
                 return (
-                  <ZoruTableRow key={id} data-state={isSelected ? 'selected' : undefined}>
-                    <ZoruTableCell>
+                  <Tr key={id} data-state={isSelected ? 'selected' : undefined}>
+                    <Td>
                       <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => toggleOne(id)}
                         aria-label={`Select ${row.name}`}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <EntityRowLink
                         href={`/dashboard/crm/sales/promotions/${id}`}
                         label={row.name || '—'}
                         subtitle={row.description ?? undefined}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] font-mono text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12.5px] font-mono text-[var(--st-text-secondary)]">
                       {row.code ?? '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant="outline">{row.type}</Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                       {fmtValue(row)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {fmtDate(row.validFrom)} → {fmtDate(row.validTo)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text-secondary)]">
                       {(row.usedCount ?? 0).toLocaleString()}
                       {row.maxUses ? ` / ${row.maxUses}` : ''}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant={tone}>{row.status}</Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button size="sm" variant="ghost" asChild>
                           <Link href={`/dashboard/crm/sales/promotions/${id}/edit`}>
@@ -551,32 +525,32 @@ export function PromotionListClient({
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
 
         <PaginationBar page={page} limit={limit} hasMore={hasMore} />
       </Card>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingDelete !== null}
         onOpenChange={(o) => !o && setPendingDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete promotion?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete promotion?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes <strong>{pendingDelete?.name ?? ''}</strong>{' '}
               from the database. The action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 confirmDelete();
@@ -586,26 +560,26 @@ export function PromotionListClient({
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingBulkDelete}
         onOpenChange={(o) => !o && setPendingBulkDelete(false)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete {selected.size} promotions?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selected.size} promotions?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes the selected promotions. The action
               cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 confirmBulkDelete();
@@ -615,10 +589,10 @@ export function PromotionListClient({
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

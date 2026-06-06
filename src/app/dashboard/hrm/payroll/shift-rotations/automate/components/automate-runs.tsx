@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Badge, Button, Checkbox, Input, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
+import { Card, Badge, Button, Checkbox, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { RotateCw, Download, Search, Trash2 } from 'lucide-react';
 import type { WsAutomateShift } from '@/lib/worksuite/shifts-types';
 import { useEffect, useState, useMemo } from 'react';
@@ -128,16 +128,16 @@ export default function AutomateRuns({ runs, onDeleteRuns }: AutomateRunsProps) 
         </div>
         <div className="w-[150px]">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Status" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All Statuses</ZoruSelectItem>
-              <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
-              <ZoruSelectItem value="running">Running</ZoruSelectItem>
-              <ZoruSelectItem value="failed">Failed</ZoruSelectItem>
-              <ZoruSelectItem value="scheduled">Scheduled</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="running">Running</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+              <SelectItem value="scheduled">Scheduled</SelectItem>
+            </SelectContent>
           </Select>
         </div>
       </div>

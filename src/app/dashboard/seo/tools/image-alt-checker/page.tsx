@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Textarea, Label, Badge, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Textarea, Label, Badge, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 
 void _zoruCn;
@@ -82,7 +82,7 @@ export default function ImageAltCheckerPage() {
   return (
     <ToolShell title="Image Alt Checker" description="Audit a page for images missing descriptive alt text, decorative images, and background images.">
       <Card>
-        <ZoruCardContent className="p-4 space-y-4">
+        <CardBody className="p-4 space-y-4">
           <div className="flex gap-2">
             <Button variant={inputType === 'url' ? 'default' : 'outline'} onClick={() => setInputType('url')} size="sm">URL</Button>
             <Button variant={inputType === 'html' ? 'default' : 'outline'} onClick={() => setInputType('html')} size="sm">HTML Source</Button>
@@ -104,12 +104,12 @@ export default function ImageAltCheckerPage() {
             {loading ? 'Checking…' : 'Check'}
           </Button>
           {err && <div className="text-sm text-[var(--st-text)]">{err}</div>}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       
       {images.length > 0 && (
         <Card>
-          <ZoruCardContent className="p-4 space-y-4">
+          <CardBody className="p-4 space-y-4">
             <div className="flex flex-wrap gap-2 text-sm">
               <Badge variant="secondary">{imgTags.length} &lt;img&gt; tags</Badge>
               {bgTags.length > 0 && <Badge variant="outline">{bgTags.length} background images</Badge>}
@@ -191,7 +191,7 @@ export default function ImageAltCheckerPage() {
                 );
               })}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

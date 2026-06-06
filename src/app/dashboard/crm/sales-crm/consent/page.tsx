@@ -1,26 +1,6 @@
 'use client';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Checkbox,
-    Input,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Skeleton,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import { Download, Search } from 'lucide-react';
 
@@ -77,7 +57,7 @@ function csvEscape(value: unknown): string {
  * tenant; the bottom panel scopes to a single lead for grant/revoke.
  */
 export default function LeadConsentPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [leadId, setLeadId] = React.useState('');
     const [activeLeadId, setActiveLeadId] = React.useState('');
     const [purposes, setPurposes] = React.useState<PurposeRow[]>([]);
@@ -348,75 +328,75 @@ export default function LeadConsentPage() {
                             value={stateFilter}
                             onValueChange={(v) => setStateFilter(v as StateFilter)}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="All" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All</ZoruSelectItem>
-                                <ZoruSelectItem value="granted">Granted</ZoruSelectItem>
-                                <ZoruSelectItem value="revoked">Revoked</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="granted">Granted</SelectItem>
+                                <SelectItem value="revoked">Revoked</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="min-w-[200px]">
                         <Label className="text-[var(--st-text)]">Purpose</Label>
                         <Select value={purposeFilter} onValueChange={setPurposeFilter}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="All purposes" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All purposes" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {purposes.map((p) => (
-                                    <ZoruSelectItem key={p._id} value={p._id}>
+                                    <SelectItem key={p._id} value={p._id}>
                                         {p.title}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Lead</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Purpose</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">State</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">When</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">IP</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="text-[var(--st-text-secondary)]">Lead</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Purpose</Th>
+                                <Th className="text-[var(--st-text-secondary)]">State</Th>
+                                <Th className="text-[var(--st-text-secondary)]">When</Th>
+                                <Th className="text-[var(--st-text-secondary)]">IP</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {filteredEvents.length === 0 ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={5} className="py-6 text-center text-[13px] text-[var(--st-text-secondary)]">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={5} className="py-6 text-center text-[13px] text-[var(--st-text-secondary)]">
                                         No consent events match your filters.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 filteredEvents.slice(0, 200).map((row) => (
-                                    <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
-                                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                    <Tr key={row._id} className="border-[var(--st-border)]">
+                                        <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                             {row.lead_id}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[13px] text-[var(--st-text)]">
                                             {purposeNameById.get(row.purpose_consent_id) ?? row.purpose_consent_id}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <Badge variant={row.granted ? 'success' : 'destructive'}>
                                                 {row.granted ? 'Granted' : 'Revoked'}
                                             </Badge>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                             {formatDateTime(row.granted_at)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                             {row.ip_address || '—'}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
                 {filteredEvents.length > 200 ? (
@@ -466,37 +446,37 @@ export default function LeadConsentPage() {
                         ) : (
                             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                                 <Table>
-                                    <ZoruTableHeader>
-                                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                            <ZoruTableHead className="w-[40px]" />
-                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Purpose</ZoruTableHead>
-                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">State</ZoruTableHead>
-                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Last updated</ZoruTableHead>
-                                            <ZoruTableHead className="w-[120px] text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
-                                        </ZoruTableRow>
-                                    </ZoruTableHeader>
-                                    <ZoruTableBody>
+                                    <THead>
+                                        <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                            <Th className="w-[40px]" />
+                                            <Th className="text-[var(--st-text-secondary)]">Purpose</Th>
+                                            <Th className="text-[var(--st-text-secondary)]">State</Th>
+                                            <Th className="text-[var(--st-text-secondary)]">Last updated</Th>
+                                            <Th className="w-[120px] text-right text-[var(--st-text-secondary)]">Actions</Th>
+                                        </Tr>
+                                    </THead>
+                                    <TBody>
                                         {purposes.map((p) => {
                                             const latest = latestByPurpose.get(p._id);
                                             const isGranted = latest?.granted === true;
                                             return (
-                                                <ZoruTableRow key={p._id} className="border-[var(--st-border)]">
-                                                    <ZoruTableCell>
+                                                <Tr key={p._id} className="border-[var(--st-border)]">
+                                                    <Td>
                                                         <Checkbox
                                                             checked={!!selected[p._id]}
                                                             onCheckedChange={(v) => togglePurpose(p._id, !!v)}
                                                             aria-label={`Select ${p.title}`}
                                                         />
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="text-[13px] text-[var(--st-text)]">
                                                         <div className="font-medium">{p.title}</div>
                                                         {p.description ? (
                                                             <div className="text-[11.5px] text-[var(--st-text-secondary)]">
                                                                 {p.description}
                                                             </div>
                                                         ) : null}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell>
+                                                    </Td>
+                                                    <Td>
                                                         {latest ? (
                                                             <Badge variant={isGranted ? 'success' : 'destructive'}>
                                                                 {isGranted ? 'Granted' : 'Revoked'}
@@ -504,11 +484,11 @@ export default function LeadConsentPage() {
                                                         ) : (
                                                             <Badge variant="ghost">No record</Badge>
                                                         )}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                                    </Td>
+                                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                                         {formatDateTime(latest?.granted_at)}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-right">
+                                                    </Td>
+                                                    <Td className="text-right">
                                                         {isGranted ? (
                                                             <Button
                                                                 type="button"
@@ -519,11 +499,11 @@ export default function LeadConsentPage() {
                                                                 Revoke
                                                             </Button>
                                                         ) : null}
-                                                    </ZoruTableCell>
-                                                </ZoruTableRow>
+                                                    </Td>
+                                                </Tr>
                                             );
                                         })}
-                                    </ZoruTableBody>
+                                    </TBody>
                                 </Table>
                             </div>
                         )}
@@ -538,37 +518,37 @@ export default function LeadConsentPage() {
                         ) : (
                             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                                 <Table>
-                                    <ZoruTableHeader>
-                                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Purpose</ZoruTableHead>
-                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">State</ZoruTableHead>
-                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Timestamp</ZoruTableHead>
-                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">IP</ZoruTableHead>
-                                        </ZoruTableRow>
-                                    </ZoruTableHeader>
-                                    <ZoruTableBody>
+                                    <THead>
+                                        <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                            <Th className="text-[var(--st-text-secondary)]">Purpose</Th>
+                                            <Th className="text-[var(--st-text-secondary)]">State</Th>
+                                            <Th className="text-[var(--st-text-secondary)]">Timestamp</Th>
+                                            <Th className="text-[var(--st-text-secondary)]">IP</Th>
+                                        </Tr>
+                                    </THead>
+                                    <TBody>
                                         {history.map((row) => {
                                             const p = purposes.find((x) => x._id === row.purpose_consent_id);
                                             return (
-                                                <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
-                                                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                                <Tr key={row._id} className="border-[var(--st-border)]">
+                                                    <Td className="text-[13px] text-[var(--st-text)]">
                                                         {p ? p.title : row.purpose_consent_id}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell>
+                                                    </Td>
+                                                    <Td>
                                                         <Badge variant={row.granted ? 'success' : 'destructive'}>
                                                             {row.granted ? 'Granted' : 'Revoked'}
                                                         </Badge>
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                                    </Td>
+                                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                                         {formatDateTime(row.granted_at)}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                                    </Td>
+                                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                                         {row.ip_address || '—'}
-                                                    </ZoruTableCell>
-                                                </ZoruTableRow>
+                                                    </Td>
+                                                </Tr>
                                             );
                                         })}
-                                    </ZoruTableBody>
+                                    </TBody>
                                 </Table>
                             </div>
                         )}

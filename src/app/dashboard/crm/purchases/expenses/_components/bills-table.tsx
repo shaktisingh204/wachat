@@ -3,15 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { MoreHorizontal } from 'lucide-react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -78,7 +70,7 @@ export function BillsTable({
   filtersActive,
   density = 'comfortable',
 }: BillsTableProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const bulky = useCrmBulkyState<BillListRow>({
@@ -248,7 +240,7 @@ export function BillsTable({
         const id = row._id;
         return (
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button
                 size="sm"
                 variant="ghost"
@@ -257,35 +249,35 @@ export function BillsTable({
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuItem asChild>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/expenses/${id}`}>
                   View Details
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/expenses/${id}/edit`}>
                   Edit Bill
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/payouts/new?fromKind=bill&fromId=${id}`}>
                   Record Payout
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/debit-notes/new?fromKind=bill&fromId=${id}`}>
                   Record Debit Note
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/expenses/${id}/activity`}>
                   Audit Logs / Activity
                 </Link>
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         );
       },

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn, Badge } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -80,13 +80,13 @@ export default function MetaTagAnalyzerPage() {
         <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" onKeyDown={(e) => e.key === 'Enter' && run()} />
         <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Analyze'}</Button>
       </div>
-      {error && <Card className="border-[var(--st-border)]"><ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-[var(--st-border)]"><CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody></Card>}
       
       {parsed && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <div className="flex flex-col gap-6">
             <Card>
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <div className="font-semibold text-sm mb-4">Meta Tags</div>
                 <table className="w-full text-sm">
                   <tbody>
@@ -103,12 +103,12 @@ export default function MetaTagAnalyzerPage() {
                     ))}
                   </tbody>
                 </table>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             {(Object.keys(parsed.openGraph).length > 0 || Object.keys(parsed.twitter).length > 0) && (
               <Card>
-                <ZoruCardContent className="p-4">
+                <CardBody className="p-4">
                   <div className="font-semibold text-sm mb-4">Social Tags</div>
                   
                   {Object.keys(parsed.openGraph).length > 0 && (
@@ -134,14 +134,14 @@ export default function MetaTagAnalyzerPage() {
                       ))}
                     </div>
                   )}
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             )}
           </div>
 
           <div className="flex flex-col gap-6">
             <Card>
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <div className="font-semibold text-sm mb-4">Google SERP Preview</div>
                 <div className="p-4 bg-white dark:bg-[var(--st-text)] rounded-lg border max-w-2xl shadow-sm">
                   <div className="flex items-center gap-3 mb-2">
@@ -160,11 +160,11 @@ export default function MetaTagAnalyzerPage() {
                     {parsed.metaDescription || 'No description provided.'}
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <div className="font-semibold text-sm mb-4">Twitter / X Card Preview</div>
                 <div className="max-w-[500px] border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-2xl overflow-hidden bg-white dark:bg-black font-sans hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)] cursor-pointer transition-colors">
                   {twImage ? (
@@ -182,11 +182,11 @@ export default function MetaTagAnalyzerPage() {
                     <div className="text-[15px] text-[var(--st-text)] dark:text-[var(--st-text)] line-clamp-2 mt-0.5 leading-snug">{twDesc || 'No description provided.'}</div>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <div className="font-semibold text-sm mb-4">Facebook / LinkedIn Card Preview</div>
                 <div className="max-w-[500px] border bg-[var(--st-bg-secondary)] dark:bg-[var(--st-text)] font-sans hover:opacity-95 cursor-pointer shadow-sm">
                   {ogImage ? (
@@ -204,7 +204,7 @@ export default function MetaTagAnalyzerPage() {
                     <div className="text-[14px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] line-clamp-2 leading-snug">{ogDesc || 'No description provided.'}</div>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </div>

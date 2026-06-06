@@ -14,22 +14,7 @@ import type {
   BiChartRunResponse,
   BiChartType,
 } from '@/lib/rust-client/bi-charts';
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 import { ChartPreview } from './chart-preview';
 
@@ -153,31 +138,31 @@ export function WorkbookEditor({
           <div className="grid gap-1.5">
             <Label>Dataset</Label>
             <Select value={datasetId} onValueChange={setDatasetId}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Pick a dataset" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue placeholder="Pick a dataset" />
+              </SelectTrigger>
+              <SelectContent>
                 {datasets.map((d) => (
-                  <ZoruSelectItem key={d.id} value={d.id}>
+                  <SelectItem key={d.id} value={d.id}>
                     {d.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="grid gap-1.5">
             <Label>Type</Label>
             <Select value={chartType} onValueChange={(v) => setChartType(v as BiChartType)}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {CHART_TYPES.map((t) => (
-                  <ZoruSelectItem key={t} value={t}>
+                  <SelectItem key={t} value={t}>
                     {t}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="grid gap-1.5">
@@ -201,16 +186,16 @@ export function WorkbookEditor({
           <div className="grid gap-1.5">
             <Label>Aggregation</Label>
             <Select value={agg} onValueChange={(v) => setAgg(v as BiChartAgg)}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {AGGS.map((a) => (
-                  <ZoruSelectItem key={a} value={a}>
+                  <SelectItem key={a} value={a}>
                     {a}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
 

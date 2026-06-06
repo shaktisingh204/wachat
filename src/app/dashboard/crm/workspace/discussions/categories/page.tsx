@@ -22,30 +22,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Checkbox,
-  ZoruColorPicker,
-  Dialog,
-  ZoruDialogClose,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Checkbox, ColorPicker, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
@@ -76,7 +53,7 @@ interface FilterState {
 const INITIAL: FilterState = { search: '', parent: 'all' };
 
 export default function DiscussionCategoriesPage(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<CategoryRow[]>([]);
   const [discussions, setDiscussions] = React.useState<
     (WsDiscussion & { _id: string })[]
@@ -287,21 +264,21 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
               if (!o) setEditing(null);
             }}
           >
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4" /> New category
               </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-              <ZoruDialogHeader>
-                <ZoruDialogTitle>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
                   {editing ? 'Edit category' : 'New category'}
-                </ZoruDialogTitle>
-                <ZoruDialogDescription>
+                </DialogTitle>
+                <DialogDescription>
                   Group discussions by topic. Set a colour for quick visual
                   grouping in the kanban.
-                </ZoruDialogDescription>
-              </ZoruDialogHeader>
+                </DialogDescription>
+              </DialogHeader>
               <form action={handleSubmit} className="grid gap-3">
                 <div>
                   <Label htmlFor="name">Name *</Label>
@@ -318,7 +295,7 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                     <Label>Colour</Label>
                     <input type="hidden" name="color" value={color} />
                     <div className="mt-1.5">
-                      <ZoruColorPicker value={color} onChange={setColor} />
+                      <ColorPicker value={color} onChange={setColor} />
                     </div>
                   </div>
                   <div>
@@ -327,19 +304,19 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                       name="parent"
                       defaultValue={editing?.parent ?? '__none__'}
                     >
-                      <ZoruSelectTrigger id="parent" className="mt-1.5 h-10">
-                        <ZoruSelectValue placeholder="None" />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="__none__">None</ZoruSelectItem>
+                      <SelectTrigger id="parent" className="mt-1.5 h-10">
+                        <SelectValue placeholder="None" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">None</SelectItem>
                         {rows
                           .filter((r) => r._id !== editing?._id)
                           .map((c) => (
-                            <ZoruSelectItem key={c._id} value={c._id}>
+                            <SelectItem key={c._id} value={c._id}>
                               {c.name}
-                            </ZoruSelectItem>
+                            </SelectItem>
                           ))}
-                      </ZoruSelectContent>
+                      </SelectContent>
                     </Select>
                   </div>
                 </div>
@@ -353,18 +330,18 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                     className="mt-1.5"
                   />
                 </div>
-                <ZoruDialogFooter>
-                  <ZoruDialogClose asChild>
+                <DialogFooter>
+                  <DialogClose asChild>
                     <Button variant="ghost" type="button">
                       Cancel
                     </Button>
-                  </ZoruDialogClose>
+                  </DialogClose>
                   <Button type="submit">
                     {editing ? 'Save changes' : 'Create'}
                   </Button>
-                </ZoruDialogFooter>
+                </DialogFooter>
               </form>
-            </ZoruDialogContent>
+            </DialogContent>
           </Dialog>
         }
         filters={
@@ -373,18 +350,18 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
               value={filters.parent}
               onValueChange={(v) => setFilters((p) => ({ ...p, parent: v }))}
             >
-              <ZoruSelectTrigger className="h-9 w-[180px]">
-                <ZoruSelectValue placeholder="Parent" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">Any parent</ZoruSelectItem>
-                <ZoruSelectItem value="none">No parent (root)</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[180px]">
+                <SelectValue placeholder="Parent" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any parent</SelectItem>
+                <SelectItem value="none">No parent (root)</SelectItem>
                 {rows.map((r) => (
-                  <ZoruSelectItem key={r._id} value={r._id}>
+                  <SelectItem key={r._id} value={r._id}>
                     {r.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             {filtersActive ? (
               <Button

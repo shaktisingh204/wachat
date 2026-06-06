@@ -1,28 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  Badge,
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  ScrollArea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ChevronRight,
   CornerUpLeft,
@@ -103,7 +81,7 @@ const PAGE_SIZE = 50;
 
 export default function Page() {
     const { activeProjectId, activeProjectName } = useProject();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [bots, setBots] = React.useState<TelegramBotRow[]>([]);
     const [selectedBotId, setSelectedBotId] = React.useState<string | 'all'>('all');
@@ -288,17 +266,17 @@ function ChatSidebar({
                     value={selectedBotId}
                     onValueChange={(v) => onSelectBot(v as string | 'all')}
                 >
-                    <ZoruSelectTrigger className="h-9">
-                        <ZoruSelectValue placeholder="All bots" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All bots</ZoruSelectItem>
+                    <SelectTrigger className="h-9">
+                        <SelectValue placeholder="All bots" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All bots</SelectItem>
                         {bots.map((b) => (
-                            <ZoruSelectItem key={b._id} value={b._id}>
+                            <SelectItem key={b._id} value={b._id}>
                                 @{b.username || b.name}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
 
                 <Select
@@ -307,16 +285,16 @@ function ChatSidebar({
                         onTypeFilter(v as typeof TYPE_FILTERS[number]['value'])
                     }
                 >
-                    <ZoruSelectTrigger className="h-9">
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger className="h-9">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
                         {TYPE_FILTERS.map((t) => (
-                            <ZoruSelectItem key={t.value} value={t.value}>
+                            <SelectItem key={t.value} value={t.value}>
                                 {t.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
 
                 <Input
@@ -415,9 +393,9 @@ function ChatListItem({
                 )}
             >
                 <Avatar className="h-10 w-10 shrink-0">
-                    <ZoruAvatarFallback className="bg-[var(--st-text)] text-[var(--st-text-inverted)]">
+                    <AvatarFallback className="bg-[var(--st-text)] text-[var(--st-text-inverted)]">
                         {chatInitial(chat)}
-                    </ZoruAvatarFallback>
+                    </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
@@ -479,7 +457,7 @@ interface ChatWindowProps {
 }
 
 function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // Messages state
     const [messages, setMessages] = React.useState<MessageRow[]>([]);
@@ -983,9 +961,9 @@ function ChatHeader({
         <header className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-2.5">
             <div className="flex min-w-0 items-center gap-3">
                 <Avatar className="h-10 w-10 shrink-0">
-                    <ZoruAvatarFallback className="bg-[var(--st-text)] text-[var(--st-text-inverted)]">
+                    <AvatarFallback className="bg-[var(--st-text)] text-[var(--st-text-inverted)]">
                         {chatInitial(chat)}
-                    </ZoruAvatarFallback>
+                    </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
                     <div className="truncate text-sm font-semibold text-[var(--st-text)]">{name}</div>
@@ -997,17 +975,17 @@ function ChatHeader({
                     <RefreshCw />
                 </Button>
                 <DropdownMenu>
-                    <ZoruDropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon-sm">
                             <MoreVertical />
                         </Button>
-                    </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem onClick={onRefresh}>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={onRefresh}>
                             <RefreshCw /> Refresh metadata
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuSeparator />
-                        <ZoruDropdownMenuItem
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
                             onClick={() => {
                                 if (typeof navigator !== 'undefined') {
                                     void navigator.clipboard.writeText(chat.chatId);
@@ -1015,8 +993,8 @@ function ChatHeader({
                             }}
                         >
                             Copy chat id
-                        </ZoruDropdownMenuItem>
-                    </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
                 </DropdownMenu>
             </div>
         </header>
@@ -1286,7 +1264,7 @@ function Composer({
             )}
             <div className="flex items-end gap-2">
                 <DropdownMenu>
-                    <ZoruDropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
                         <Button
                             variant="ghost"
                             size="icon-sm"
@@ -1295,24 +1273,24 @@ function Composer({
                         >
                             <Paperclip />
                         </Button>
-                    </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent align="start">
-                        <ZoruDropdownMenuItem onClick={() => onAttach('photo')}>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                        <DropdownMenuItem onClick={() => onAttach('photo')}>
                             Photo
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onClick={() => onAttach('video')}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onAttach('video')}>
                             Video
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onClick={() => onAttach('document')}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onAttach('document')}>
                             Document
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onClick={() => onAttach('audio')}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onAttach('audio')}>
                             Audio
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onClick={() => onAttach('voice')}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onAttach('voice')}>
                             Voice
-                        </ZoruDropdownMenuItem>
-                    </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
                 </DropdownMenu>
 
                 <Button

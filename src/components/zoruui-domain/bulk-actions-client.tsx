@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect } from 'react';
@@ -54,13 +43,13 @@ export function BulkActionsClient({
   return (
     <div className="flex flex-col gap-8">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Bulk Actions</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Bulk Actions</PageTitle>
+          <PageDescription>
             Performing actions on {selectedProjects.length} selected project
             {selectedProjects.length === 1 ? '' : 's'}.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -77,21 +66,21 @@ export function BulkActionsClient({
         {/* Create-new-template CTA — readable card with explicit
             ink/muted tokens (no shadcn-button-as-card hack). */}
         <Card className="flex h-full flex-col">
-          <ZoruCardHeader>
+          <CardHeader>
             <div className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <FileText className="h-5 w-5" />
             </div>
-            <ZoruCardTitle className="mt-3">Create &amp; Apply New Template</ZoruCardTitle>
-            <ZoruCardDescription>
+            <CardTitle className="mt-3">Create &amp; Apply New Template</CardTitle>
+            <CardDescription>
               Build a template from scratch and apply it to all selected projects in one step.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="mt-auto">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="mt-auto">
             <Button block onClick={handleCreateTemplateClick}>
               <FileText className="h-4 w-4" />
               New template
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </div>

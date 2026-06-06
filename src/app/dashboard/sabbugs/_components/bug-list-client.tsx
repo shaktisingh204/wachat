@@ -3,27 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Checkbox,
-  Label,
-  EmptyState,
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Checkbox, Label, EmptyState, Table, THead, TBody, Tr, Th, Td, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { listBugs, saveCurrentFilter, deleteSavedFilter } from '@/app/actions/bug-tracker.actions';
 import type { BugDoc } from '@/lib/rust-client/bug-tracker-bugs';
@@ -188,19 +168,19 @@ function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
   return (
     <Card className="overflow-hidden">
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Severity</TableHead>
-            <TableHead>Priority</TableHead>
-            <TableHead>Reported</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+        <THead>
+          <Tr>
+            <Th>Title</Th>
+            <Th>Status</Th>
+            <Th>Severity</Th>
+            <Th>Priority</Th>
+            <Th>Reported</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {bugs.map((b) => (
-            <TableRow key={b._id}>
-              <TableCell>
+            <Tr key={b._id}>
+              <Td>
                 <Link
                   href={`/dashboard/sabbugs/${b._id}`}
                   className="font-medium text-[var(--st-text)] hover:underline"
@@ -219,24 +199,24 @@ function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
                     ))}
                   </div>
                 ) : null}
-              </TableCell>
-              <TableCell>
+              </Td>
+              <Td>
                 <BugStatusBadge status={b.status} />
-              </TableCell>
-              <TableCell>
+              </Td>
+              <Td>
                 <BugSeverityBadge severity={b.severity} />
-              </TableCell>
-              <TableCell>
+              </Td>
+              <Td>
                 <BugPriorityBadge priority={b.priority} />
-              </TableCell>
-              <TableCell className="text-xs text-[var(--st-text-secondary)]">
+              </Td>
+              <Td className="text-xs text-[var(--st-text-secondary)]">
                 {b.createdAt
                   ? new Date(b.createdAt).toLocaleDateString()
                   : '—'}
-              </TableCell>
-            </TableRow>
+              </Td>
+            </Tr>
           ))}
-        </TableBody>
+        </TBody>
       </Table>
     </Card>
   );
@@ -262,7 +242,7 @@ export function SaveFilterDialog({
   const [name, setName] = React.useState('');
   const [shared, setShared] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
-  const toast = useZoruToast();
+  const toast = useToast();
 
   async function save() {
     if (!name.trim()) return;
@@ -285,14 +265,14 @@ export function SaveFilterDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Save current filter</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Save current filter</DialogTitle>
+          <DialogDescription>
             Pin this filter set so you can return to it later. Sharing makes it
             visible to everyone in your tenant.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="flex flex-col gap-3 py-2">
           <div className="flex flex-col gap-1">
             <Label htmlFor="bug-filter-name">Name</Label>
@@ -311,15 +291,15 @@ export function SaveFilterDialog({
             Share with everyone in my tenant
           </label>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={save} disabled={busy || !name.trim()}>
             {busy ? 'Saving…' : 'Save'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

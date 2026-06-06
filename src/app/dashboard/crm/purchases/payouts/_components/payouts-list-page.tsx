@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   Plus,
@@ -63,7 +52,7 @@ function fmtMoney(amount: number | undefined, currency: string | undefined): str
 }
 
 export function PayoutsListPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [payouts, setPayouts] = React.useState<CrmPayoutDoc[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [search, setSearch] = React.useState('');
@@ -303,25 +292,25 @@ export function PayoutsListPage() {
         </div>
       </EntityListShell>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!pendingDelete}
         onOpenChange={(o) => !o && setPendingDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete payout?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete payout?</AlertDialogTitle>
+            <AlertDialogDescription>
               Deleting this payout will remove it from the active list.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete} disabled={deletePending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={deletePending}>
               {deletePending ? 'Deleting…' : 'Delete'}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

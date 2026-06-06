@@ -1,4 +1,4 @@
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
@@ -168,10 +168,10 @@ export default async function AccountDetailPage({ params }: PageProps) {
                 <>
                     {/* ─── Health & Scoring ─── */}
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Account Score</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="space-y-3">
+                        <CardHeader>
+                            <CardTitle>Account Score</CardTitle>
+                        </CardHeader>
+                        <CardBody className="space-y-3">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-text)]/10 text-xl font-bold text-[var(--st-text)]">
                                     {scoreData.score}
@@ -181,15 +181,15 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                     <span>${scoreData.totalDealValue.toLocaleString()} in open deals</span>
                                 </div>
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     {/* ─── Quick stats ─── */}
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>At a glance</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="space-y-3 text-[13px]">
+                        <CardHeader>
+                            <CardTitle>At a glance</CardTitle>
+                        </CardHeader>
+                        <CardBody className="space-y-3 text-[13px]">
                             <div className="flex justify-between">
                                 <span className="text-[var(--st-text-secondary)]">
                                     Category
@@ -255,15 +255,15 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                         : dash(undefined)}
                                 </span>
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     {/* ─── Related entities ─── */}
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Related</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="space-y-1">
+                        <CardHeader>
+                            <CardTitle>Related</CardTitle>
+                        </CardHeader>
+                        <CardBody className="space-y-1">
                             {relatedRailItems.map((item) => (
                                 <Link
                                     key={item.label}
@@ -279,16 +279,16 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                     </Badge>
                                 </Link>
                             ))}
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     {/* ─── Identifiers ─── */}
                     {(account.gstin || account.pan) ? (
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Identifiers</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="space-y-3 text-[13px]">
+                            <CardHeader>
+                                <CardTitle>Identifiers</CardTitle>
+                            </CardHeader>
+                            <CardBody className="space-y-3 text-[13px]">
                                 <div className="flex justify-between">
                                     <span className="text-[var(--st-text-secondary)]">
                                         GSTIN
@@ -305,7 +305,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                         {dash(account.pan)}
                                     </span>
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     ) : null}
                 </>
@@ -319,10 +319,10 @@ export default async function AccountDetailPage({ params }: PageProps) {
         >
             {/* ─── Profile ─── */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Profile</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Profile</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="flex items-center gap-3 text-[13px]">
                             <Building className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -430,16 +430,16 @@ export default async function AccountDetailPage({ params }: PageProps) {
                             </div>
                         ) : null}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Contacts ─── */}
             <Card>
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="flex items-center justify-between">
-                        <ZoruCardTitle>
+                        <CardTitle>
                             Contacts ({counts.contacts})
-                        </ZoruCardTitle>
+                        </CardTitle>
                         <Button asChild variant="outline" size="sm">
                             <Link
                                 href={`/dashboard/crm/sales-crm/contacts/new?accountId=${accountId}`}
@@ -448,8 +448,8 @@ export default async function AccountDetailPage({ params }: PageProps) {
                             </Link>
                         </Button>
                     </div>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     {contactsRes.contacts.length > 0 ? (
                         <ul className="divide-y divide-[var(--st-border)]">
                             {contactsRes.contacts.map((c) => (
@@ -497,16 +497,16 @@ export default async function AccountDetailPage({ params }: PageProps) {
                             </Link>
                         </div>
                     ) : null}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Org Chart ─── */}
             {orgChart && orgChart.length > 0 ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Organization Chart</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Organization Chart</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="flex flex-wrap items-stretch gap-4 pt-2">
                             {orgChart.map((c: any) => (
                                 <div key={String(c._id)} className="flex min-w-[220px] flex-col items-center rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 text-center shadow-sm transition-all hover:shadow-md">
@@ -524,7 +524,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                 </div>
                             ))}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
 
@@ -539,12 +539,12 @@ export default async function AccountDetailPage({ params }: PageProps) {
             {Array.isArray(account.attachments) &&
             account.attachments.length > 0 ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>
+                    <CardHeader>
+                        <CardTitle>
                             Attachments ({account.attachments.length})
-                        </ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <ul className="space-y-2">
                             {account.attachments.map((url, idx) => (
                                 <li key={url + idx} className="text-[13px]">
@@ -561,7 +561,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         </ul>
                         {/* TODO 1D.2: inline add via <SabFilePickerButton> when
                             an `addAccountAttachment` action lands. */}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
         </EntityDetailShell>

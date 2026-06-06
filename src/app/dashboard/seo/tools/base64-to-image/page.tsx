@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -82,7 +82,7 @@ export default function Base64ToImagePage() {
   return (
     <ToolShell title="Base64 to Image" description="Render a base64 data URL as an image.">
       <Card>
-        <ZoruCardContent className="p-4 space-y-4">
+        <CardBody className="p-4 space-y-4">
           <div>
             <Label>Base64 data URL or text URL</Label>
             <Textarea
@@ -94,12 +94,12 @@ export default function Base64ToImagePage() {
           </div>
           <Button onClick={render}>Render</Button>
           {err && <div className="text-sm text-[var(--st-text)]">{err}</div>}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       
       {src && (
         <Card>
-          <ZoruCardContent className="p-4 space-y-4">
+          <CardBody className="p-4 space-y-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src={src} 
@@ -121,7 +121,7 @@ export default function Base64ToImagePage() {
                 Export CSV
               </Button>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

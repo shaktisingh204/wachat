@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Input,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ChevronDown } from 'lucide-react';
 
@@ -47,7 +36,7 @@ export function InlineOwnerEdit({
     ownerId,
     onSaved,
 }: InlineOwnerEditProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [open, setOpen] = React.useState(false);
     const [isPending, startTransition] = React.useTransition();
 
@@ -73,7 +62,7 @@ export function InlineOwnerEdit({
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
                 <button
                     type="button"
                     className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-sm hover:bg-[var(--st-bg-muted)] disabled:opacity-50"
@@ -87,8 +76,8 @@ export function InlineOwnerEdit({
                     )}
                     <ChevronDown className="h-3 w-3 text-[var(--st-text-tertiary)]" />
                 </button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent align="end" className="w-64 space-y-2">
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-64 space-y-2">
                 <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Change owner
                 </p>
@@ -107,7 +96,7 @@ export function InlineOwnerEdit({
                 >
                     Unassign
                 </button>
-            </ZoruPopoverContent>
+            </PopoverContent>
         </Popover>
     );
 }
@@ -123,7 +112,7 @@ export function InlineStageEdit({
     stage,
     onSaved,
 }: InlineStageEditProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [open, setOpen] = React.useState(false);
     const [draft, setDraft] = React.useState(stage ?? '');
     const [isPending, startTransition] = React.useTransition();
@@ -156,7 +145,7 @@ export function InlineStageEdit({
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
                 <button
                     type="button"
                     aria-label="Change stage"
@@ -170,8 +159,8 @@ export function InlineStageEdit({
                     )}
                     <ChevronDown className="h-3 w-3 text-[var(--st-text-tertiary)]" />
                 </button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent align="end" className="w-56 space-y-2">
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-56 space-y-2">
                 <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Change stage
                 </p>
@@ -208,7 +197,7 @@ export function InlineStageEdit({
                         Save
                     </button>
                 </div>
-            </ZoruPopoverContent>
+            </PopoverContent>
         </Popover>
     );
 }
@@ -232,7 +221,7 @@ export function InlineStatusEdit({
     status,
     onSaved,
 }: InlineStatusEditProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [open, setOpen] = React.useState(false);
     const [isPending, startTransition] = React.useTransition();
 
@@ -263,7 +252,7 @@ export function InlineStatusEdit({
     const current = status || 'New';
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
                 <button
                     type="button"
                     aria-label="Change status"
@@ -273,8 +262,8 @@ export function InlineStatusEdit({
                     <StatusPill label={current} tone={statusToTone(current)} />
                     <ChevronDown className="h-3 w-3 text-[var(--st-text-tertiary)]" />
                 </button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent align="end" className="w-48 space-y-1">
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-48 space-y-1">
                 {LEAD_STATUSES.map((s) => (
                     <button
                         key={s}
@@ -295,7 +284,7 @@ export function InlineStatusEdit({
                         ) : null}
                     </button>
                 ))}
-            </ZoruPopoverContent>
+            </PopoverContent>
         </Popover>
     );
 }

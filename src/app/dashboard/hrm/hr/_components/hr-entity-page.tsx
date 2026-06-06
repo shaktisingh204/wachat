@@ -1,42 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-  useZoruToast,
-  zoruBadgeVariants,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast, zoruBadgeVariants } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   Pencil,
@@ -290,16 +255,16 @@ function renderField(field: HrField, value?: unknown) {
   if (field.type === 'select') {
     return (
       <Select name={field.name} defaultValue={String(common.defaultValue || '')}>
-        <ZoruSelectTrigger id={field.name}>
-          <ZoruSelectValue placeholder={field.placeholder || 'Select'} />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger id={field.name}>
+          <SelectValue placeholder={field.placeholder || 'Select'} />
+        </SelectTrigger>
+        <SelectContent>
           {(field.options || []).map((opt) => (
-            <ZoruSelectItem key={opt.value} value={opt.value}>
+            <SelectItem key={opt.value} value={opt.value}>
               {opt.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
     );
   }
@@ -408,16 +373,16 @@ function FieldArray({
                         value={row[s.name] || ''}
                         onValueChange={(v) => updateRow(i, s.name, v)}
                       >
-                        <ZoruSelectTrigger id={fieldId}>
-                          <ZoruSelectValue placeholder={s.placeholder || 'Select'} />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger id={fieldId}>
+                          <SelectValue placeholder={s.placeholder || 'Select'} />
+                        </SelectTrigger>
+                        <SelectContent>
                           {(s.options || []).map((opt) => (
-                            <ZoruSelectItem key={opt.value} value={opt.value}>
+                            <SelectItem key={opt.value} value={opt.value}>
                               {opt.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                           ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                       </Select>
                     </div>
                   );
@@ -512,7 +477,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
   kpis,
   rowLinksToDetail,
 }: HrEntityPageProps<T>) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = useState<T[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -599,37 +564,37 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
       <Card className="p-6">
         <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
+            <THead>
+              <Tr>
                 {columns.map((c) => (
-                  <ZoruTableHead key={c.key} className={c.className}>
+                  <Th key={c.key} className={c.className}>
                     {c.label}
-                  </ZoruTableHead>
+                  </Th>
                 ))}
-                <ZoruTableHead className="w-[140px] text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                <Th className="w-[140px] text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {isLoading && rows.length === 0 ? (
                 [...Array(3)].map((_, i) => (
-                  <ZoruTableRow key={i}>
-                    <ZoruTableCell colSpan={columns.length + 1}>
+                  <Tr key={i}>
+                    <Td colSpan={columns.length + 1}>
                       <Skeleton className="h-8 w-full" />
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               ) : rows.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={columns.length + 1}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {emptyText || `No ${singular.toLowerCase()} yet — click Add to get started.`}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 rows.map((row) => (
-                  <ZoruTableRow key={row._id}>
+                  <Tr key={row._id}>
                     {columns.map((c, colIdx) => {
                       const raw = c.render ? toNode(c.render(row)) : toNode(row[c.key]);
                       const content =
@@ -642,12 +607,12 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                           raw
                         );
                       return (
-                        <ZoruTableCell key={c.key} className="text-[13px] text-[var(--st-text)]">
+                        <Td key={c.key} className="text-[13px] text-[var(--st-text)]">
                           {content}
-                        </ZoruTableCell>
+                        </Td>
                       );
                     })}
-                    <ZoruTableCell className="text-right">
+                    <Td className="text-right">
                       <div className="flex justify-end gap-1">
                         {basePath && rowLinksToDetail ? (
                           <Button variant="ghost" size="sm" asChild>
@@ -684,25 +649,25 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                           <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         </Button>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-2xl">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
               {editing ? `Edit ${singular}` : `Add ${singular}`}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               {editing ? 'Update the details and save.' : `Fill in the details below.`}
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <form action={saveFormAction} className="space-y-4">
             {editing?._id ? (
@@ -733,7 +698,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
               ))}
             </div>
 
-            <ZoruDialogFooter className="gap-2">
+            <DialogFooter className="gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -747,28 +712,28 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                 ) : null}
                 Save
               </Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </form>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete {singular}?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {singular}?</AlertDialogTitle>
+            <AlertDialogDescription>
               This action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
   );
 }

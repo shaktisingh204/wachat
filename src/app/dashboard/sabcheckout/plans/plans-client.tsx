@@ -8,27 +8,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, Edit3, MoreHorizontal, Copy, RefreshCw } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 
 import {
   createSabcheckoutPlan,
@@ -55,7 +35,7 @@ export function SabcheckoutPlansClient({
   initial: SabcheckoutPlanDoc[];
 }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [draft, setDraft] = React.useState<DraftPlan>({
     name: '',
     intervalUnit: 'month',
@@ -118,11 +98,11 @@ export function SabcheckoutPlansClient({
     <div className="space-y-6">
       {/* Create row */}
       <Card>
-        <ZoruCardHeader className="pb-4 border-b border-[var(--st-border)]">
-          <ZoruCardTitle>New plan</ZoruCardTitle>
-          <ZoruCardDescription>Create a new recurring subscription tier</ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="pt-6">
+        <CardHeader className="pb-4 border-b border-[var(--st-border)]">
+          <CardTitle>New plan</CardTitle>
+          <CardDescription>Create a new recurring subscription tier</CardDescription>
+        </CardHeader>
+        <CardBody className="pt-6">
           <div className="grid gap-4 sm:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] items-end">
             <div className="space-y-2">
               <Label className="text-xs font-medium text-[var(--st-text-tertiary)] uppercase tracking-wider">Name</Label>
@@ -143,15 +123,15 @@ export function SabcheckoutPlansClient({
                   })
                 }
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="day">day</ZoruSelectItem>
-                  <ZoruSelectItem value="week">week</ZoruSelectItem>
-                  <ZoruSelectItem value="month">month</ZoruSelectItem>
-                  <ZoruSelectItem value="year">year</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="day">day</SelectItem>
+                  <SelectItem value="week">week</SelectItem>
+                  <SelectItem value="month">month</SelectItem>
+                  <SelectItem value="year">year</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
@@ -207,7 +187,7 @@ export function SabcheckoutPlansClient({
               Add Plan
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* List */}
@@ -216,7 +196,7 @@ export function SabcheckoutPlansClient({
           <h3 className="font-semibold text-[var(--st-text)]">Available Plans</h3>
           <Badge variant="secondary" className="font-mono">{initial.length} total</Badge>
         </div>
-        <ZoruCardContent className="p-0">
+        <CardBody className="p-0">
           {initial.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-12 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] mb-4">
@@ -298,7 +278,7 @@ export function SabcheckoutPlansClient({
               ))}
             </ul>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

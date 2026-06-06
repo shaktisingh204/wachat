@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Input } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -78,11 +69,11 @@ export function TagsSettingsTab({ user }: TagsSettingsTabProps) {
             <input type="hidden" name="name" value={user.name} />
             <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color })).filter(t => t.name.trim()))} />
             <Card className="card-gradient card-gradient-green">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Manage Your Tags</ZoruCardTitle>
-                    <ZoruCardDescription>Create and manage colored tags to organize your short links and QR codes.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                <CardHeader>
+                    <CardTitle>Manage Your Tags</CardTitle>
+                    <CardDescription>Create and manage colored tags to organize your short links and QR codes.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                     <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 border-b font-medium text-sm text-[var(--st-text-secondary)]">
                         <span>Tag Name</span>
                         <span className="text-center">Color</span>
@@ -112,10 +103,10 @@ export function TagsSettingsTab({ user }: TagsSettingsTabProps) {
                         <Plus className="mr-2 h-4 w-4" />
                         Add Tag
                     </Button>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <SaveButton />
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </form>
     );

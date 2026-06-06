@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Card, ZoruCardContent, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -87,7 +87,7 @@ export default function KeywordExtractorPage() {
       
       {results.length > 0 && (
         <Card>
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <div className="flex justify-between items-center mb-4 pb-2 border-b">
               <span className="font-semibold text-sm">Keyword</span>
               <div className="flex gap-8 text-sm text-[var(--st-text-secondary)]">
@@ -106,7 +106,7 @@ export default function KeywordExtractorPage() {
                 </div>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

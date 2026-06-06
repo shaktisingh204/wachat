@@ -3,20 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  Button,
-  Card,
-  Badge,
-  Input,
-  Label,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Alert,
-  ZoruAlertDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Badge, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Alert, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ServerCog, Plus, ScreenShare, ArrowLeft, Trash2 } from 'lucide-react';
 import {
@@ -181,10 +168,10 @@ export default function SabassistDevicesPage() {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Register a device</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Register a device</DialogTitle>
+          </DialogHeader>
           <div className="space-y-3">
             <div>
               <Label htmlFor="dev-label">Label</Label>
@@ -215,19 +202,19 @@ export default function SabassistDevicesPage() {
             </div>
             {error && (
               <Alert variant="destructive">
-                <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleRegister} disabled={submitting}>
               {submitting ? 'Registering…' : 'Register'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

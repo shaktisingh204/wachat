@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Avatar,
-  ZoruAvatarFallback,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Avatar, AvatarFallback, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -44,26 +33,26 @@ export function KanbanCard({ contact, index }: KanbanCardProps) {
     return (
         <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
             <Card className="cursor-grab active:cursor-grabbing bg-[var(--st-bg-secondary)]">
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="flex justify-between items-start">
-                        <ZoruCardTitle className="text-sm font-semibold">{contact.name}</ZoruCardTitle>
+                        <CardTitle className="text-sm font-semibold">{contact.name}</CardTitle>
                         {contact.unreadCount && contact.unreadCount > 0 && (
                             <Badge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{contact.unreadCount}</Badge>
                         )}
                     </div>
-                    <ZoruCardDescription className="text-xs">{contact.waId}</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    <CardDescription className="text-xs">{contact.waId}</CardDescription>
+                </CardHeader>
+                <CardBody>
                     <p className="text-xs text-[var(--st-text-secondary)] line-clamp-2">
                         {contact.lastMessage || 'No recent activity.'}
                     </p>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <Button variant="outline" size="sm" className="w-full" onClick={handleGoToChat}>
                         <MessageSquare className="mr-2 h-4 w-4" />
                         Open Chat
                     </Button>
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </div>
     );

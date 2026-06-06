@@ -1,18 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -69,7 +57,7 @@ export function CreateRandomizerPostDialog({
     addRandomizerPost as any,
     initialState as any,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [imageUrl, setImageUrl] = useState("");
 
@@ -100,19 +88,19 @@ export function CreateRandomizerPostDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <ZoruDialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <form action={formAction} ref={formRef} className="flex flex-col gap-0">
           <input
             type="hidden"
             name="projectId"
             value={project._id.toString()}
           />
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add post to pool</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Add post to pool</DialogTitle>
+            <DialogDescription>
               Posts in this pool are rotated automatically by the randomizer.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -141,7 +129,7 @@ export function CreateRandomizerPostDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
@@ -150,9 +138,9 @@ export function CreateRandomizerPostDialog({
               Cancel
             </Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

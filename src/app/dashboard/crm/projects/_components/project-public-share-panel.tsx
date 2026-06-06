@@ -18,12 +18,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Copy, Check, ExternalLink, Share2 } from 'lucide-react';
-import {
-  Button,
-  Card,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ensureWsProjectRatingHash,
   getWsProjectShareState,
@@ -40,7 +35,7 @@ function safeOrigin(): string {
 }
 
 export function ProjectPublicSharePanel({ projectId }: Props): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, setState] = useState<WsProjectShareState | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pendingKind, setPendingKind] = useState<WsProjectShareKind | null>(
@@ -224,7 +219,7 @@ function ShareRow({
 
 function CopyLink({ url }: { url: string }): React.ReactElement {
   const [copied, setCopied] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const onCopy = async (): Promise<void> => {
     try {

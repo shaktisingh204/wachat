@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Input, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Badge, Input, Table, TBody, Td, Th, THead, Tr, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   Search,
   ShieldAlert,
@@ -367,41 +367,41 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                     </div>
                 </div>
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow>
-                            <ZoruTableHead className="w-[180px]">Timestamp</ZoruTableHead>
-                            <ZoruTableHead>Actor</ZoruTableHead>
-                            <ZoruTableHead>Action</ZoruTableHead>
-                            <ZoruTableHead>Resource</ZoruTableHead>
-                            <ZoruTableHead className="w-[100px]">Outcome</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                    <THead>
+                        <Tr>
+                            <Th className="w-[180px]">Timestamp</Th>
+                            <Th>Actor</Th>
+                            <Th>Action</Th>
+                            <Th>Resource</Th>
+                            <Th className="w-[100px]">Outcome</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {filtered.length === 0 ? (
-                            <ZoruTableRow>
-                                <ZoruTableCell
+                            <Tr>
+                                <Td
                                     colSpan={5}
                                     className="py-12 text-center text-sm text-[var(--st-text-secondary)]"
                                 >
                                     No events match the current filters.
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : (
                             filtered.map((evt) => (
-                                <ZoruTableRow key={evt.id}>
-                                    <ZoruTableCell className="font-mono text-xs text-[var(--st-text)]">
+                                <Tr key={evt.id}>
+                                    <Td className="font-mono text-xs text-[var(--st-text)]">
                                         {formatTimestamp(evt.ts)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-sm text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-sm text-[var(--st-text)]">
                                         {evt.actor}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-xs text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="font-mono text-xs text-[var(--st-text)]">
                                         {evt.action}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-xs text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="font-mono text-xs text-[var(--st-text)]">
                                         {evt.resource}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {isFailure(evt) ? (
                                             <Badge variant="destructive">
                                                 error
@@ -411,11 +411,11 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                                                 ok
                                             </Badge>
                                         )}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ))
                         )}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             </div>
         </div>

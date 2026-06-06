@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-  Button,
-  Card,
-  Input,
-  Checkbox,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Button, Card, Input, Checkbox, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -47,7 +31,7 @@ export function SalaryStructureClient({
     initialStructures: WithId<CrmSalaryStructure>[];
 }) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingStructure, setEditingStructure] = useState<WithId<CrmSalaryStructure> | null>(null);
     const [pending, startTransition] = useTransition();
@@ -342,25 +326,25 @@ export function SalaryStructureClient({
                                                             <Button variant="ghost" size="icon" onClick={() => handleEdit(s)}>
                                                                 <Edit className="h-4 w-4" />
                                                             </Button>
-                                                            <ZoruAlertDialog>
-                                                                <ZoruAlertDialogTrigger asChild>
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
                                                                     <Button variant="ghost" size="icon" className="text-[var(--st-danger)] hover:text-[var(--st-danger)]">
                                                                         <Trash2 className="h-4 w-4" />
                                                                     </Button>
-                                                                </ZoruAlertDialogTrigger>
-                                                                <ZoruAlertDialogContent>
-                                                                    <ZoruAlertDialogHeader>
-                                                                        <ZoruAlertDialogTitle>Delete Structure?</ZoruAlertDialogTitle>
-                                                                        <ZoruAlertDialogDescription>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent>
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle>Delete Structure?</AlertDialogTitle>
+                                                                        <AlertDialogDescription>
                                                                             This will delete the "{s.name}" structure. It won't affect past payrolls.
-                                                                        </ZoruAlertDialogDescription>
-                                                                    </ZoruAlertDialogHeader>
-                                                                    <ZoruAlertDialogFooter>
-                                                                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                                                        <ZoruAlertDialogAction onClick={() => handleDelete(id)}>Delete</ZoruAlertDialogAction>
-                                                                    </ZoruAlertDialogFooter>
-                                                                </ZoruAlertDialogContent>
-                                                            </ZoruAlertDialog>
+                                                                        </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                        <AlertDialogAction onClick={() => handleDelete(id)}>Delete</AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
                                                         </div>
                                                     </td>
                                                 </tr>

@@ -3,15 +3,7 @@
 import * as React from 'react';
 import { Download, Tag, Trash2, X } from 'lucide-react';
 
-import {
-    Button,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuLabel,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 
 import type { VendorTypeOption } from './vendors-filters';
 
@@ -42,43 +34,43 @@ export function VendorsBulkBar({
             <span className="flex-1" />
 
             <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                     <Button size="sm" variant="outline">
                         <Tag className="h-3.5 w-3.5" /> Set type
                     </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
-                    <ZoruDropdownMenuLabel>Set vendor type</ZoruDropdownMenuLabel>
-                    <ZoruDropdownMenuSeparator />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
+                    <DropdownMenuLabel>Set vendor type</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
                     {vendorTypeOptions.length === 0 ? (
-                        <ZoruDropdownMenuItem disabled>No types available</ZoruDropdownMenuItem>
+                        <DropdownMenuItem disabled>No types available</DropdownMenuItem>
                     ) : (
                         vendorTypeOptions.map((opt) => (
-                            <ZoruDropdownMenuItem
+                            <DropdownMenuItem
                                 key={opt.value}
                                 onSelect={() => onChangeVendorType(opt.value)}
                             >
                                 {opt.label}
-                            </ZoruDropdownMenuItem>
+                            </DropdownMenuItem>
                         ))
                     )}
-                </ZoruDropdownMenuContent>
+                </DropdownMenuContent>
             </DropdownMenu>
 
             <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                     <Button size="sm" variant="outline">
                         <Download className="h-3.5 w-3.5" /> Export
                     </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                    <ZoruDropdownMenuItem onSelect={() => onExportCsv()}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={() => onExportCsv()}>
                         Export selected as CSV
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem onSelect={() => onExportXlsx()}>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => onExportXlsx()}>
                         Export selected as XLSX
-                    </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
             </DropdownMenu>
 
             <Button

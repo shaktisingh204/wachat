@@ -18,12 +18,7 @@ import { N8NNodesList } from './nodes/N8NNodesList';
 import { N8NNodeRegistry } from './nodes/N8NNodeProperties';
 import type { N8NCanvasWorkflow, N8NCanvasNode } from './types';
 import { WORKFLOW_TEMPLATES, WorkflowTemplate } from './WorkflowTemplates';
-import {
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import { createId } from '@paralleldrive/cuid2';
 
 type Props = {
@@ -144,17 +139,17 @@ function EditorContent({
 
         {/* Templates */}
         <DropdownMenu>
-          <ZoruDropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild>
             <button
               className="flex items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors"
             >
               <LuCopy className="h-3.5 w-3.5" strokeWidth={2} />
               Templates
             </button>
-          </ZoruDropdownMenuTrigger>
-          <ZoruDropdownMenuContent align="end" className="w-56 bg-[var(--gray-1)] border-[var(--gray-5)]">
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-[var(--gray-1)] border-[var(--gray-5)]">
             {WORKFLOW_TEMPLATES.map((template) => (
-              <ZoruDropdownMenuItem
+              <DropdownMenuItem
                 key={template.id}
                 onClick={() => handleApplyTemplate(template)}
                 className="flex flex-col items-start gap-1 p-2 cursor-pointer focus:bg-[var(--gray-3)]"
@@ -165,9 +160,9 @@ function EditorContent({
                 <span className="text-[11.5px] text-[var(--gray-9)] line-clamp-2 leading-snug">
                   {template.description}
                 </span>
-              </ZoruDropdownMenuItem>
+              </DropdownMenuItem>
             ))}
-          </ZoruDropdownMenuContent>
+          </DropdownMenuContent>
         </DropdownMenu>
 
         {/* Saved indicator */}

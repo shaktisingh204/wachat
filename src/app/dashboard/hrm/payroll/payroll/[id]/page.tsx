@@ -1,4 +1,4 @@
-import { Button, Card, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   notFound,
   redirect } from 'next/navigation';
@@ -180,41 +180,41 @@ export default async function PayrollRunDetailPage({
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee ID</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Gross</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Net</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] w-12"></ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="text-[var(--st-text-secondary)]">Employee ID</Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">Gross</Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">Net</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                <Th className="text-[var(--st-text-secondary)] w-12"></Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {payslips.length === 0 ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={5} className="h-24 text-center text-[var(--st-text-secondary)]">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={5} className="h-24 text-center text-[var(--st-text-secondary)]">
                                         No payslips for this period.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 payslips.map((p, i) => (
-                                    <ZoruTableRow
+                                    <Tr
                                         key={p._id ?? `${p.employeeId}-${i}`}
                                         className="border-[var(--st-border)]"
                                     >
-                                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                        <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                             {p.employeeId ?? '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right font-mono text-[var(--st-text)]">
                                             {fmtINR(p.grossSalary ?? 0)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right font-mono text-[var(--st-text)]">
                                             {fmtINR(p.netPay ?? 0)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="capitalize text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="capitalize text-[var(--st-text)]">
                                             {(p.status ?? '—').replace(/_/g, ' ')}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {status === 'draft' && (
                                                 <form action={handleRecompute.bind(null, p.employeeId)}>
                                                     <Button variant="ghost" size="sm" type="submit" title="Re-calculate payslip">
@@ -222,11 +222,11 @@ export default async function PayrollRunDetailPage({
                                                     </Button>
                                                 </form>
                                             )}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
             </Card>

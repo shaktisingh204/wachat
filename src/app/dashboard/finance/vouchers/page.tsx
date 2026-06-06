@@ -7,7 +7,7 @@ import { Label } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { UploadCloud } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'context/gsap'; // We'll just import gsap from 'gsap' usually, assuming standard import
@@ -109,17 +109,17 @@ export default function VouchersPage() {
 
           <div className="border rounded-md">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[100px]">Dr/Cr</TableHead>
-                  <TableHead>Particulars (Ledger Account)</TableHead>
-                  <TableHead className="text-right">Debit (₹)</TableHead>
-                  <TableHead className="text-right">Credit (₹)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell>
+              <THead>
+                <Tr>
+                  <Th className="w-[100px]">Dr/Cr</Th>
+                  <Th>Particulars (Ledger Account)</Th>
+                  <Th className="text-right">Debit (₹)</Th>
+                  <Th className="text-right">Credit (₹)</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                <Tr>
+                  <Td>
                     <Select defaultValue="dr">
                       <SelectTrigger className="border-0 focus:ring-0 px-2"><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -127,19 +127,19 @@ export default function VouchersPage() {
                         <SelectItem value="cr">Cr</SelectItem>
                       </SelectContent>
                     </Select>
-                  </TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>
                     <Input placeholder="Search Ledger (Alt+L)..." className="border-0 focus-visible:ring-1" autoFocus />
-                  </TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>
                     <Input type="number" placeholder="0.00" className="border-0 focus-visible:ring-1 text-right" />
-                  </TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>
                     <Input type="number" placeholder="0.00" className="border-0 focus-visible:ring-1 text-right" disabled />
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td>
                     <Select defaultValue="cr">
                       <SelectTrigger className="border-0 focus:ring-0 px-2"><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -147,18 +147,18 @@ export default function VouchersPage() {
                         <SelectItem value="cr">Cr</SelectItem>
                       </SelectContent>
                     </Select>
-                  </TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>
                     <Input placeholder="Search Ledger (Alt+L)..." className="border-0 focus-visible:ring-1" />
-                  </TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>
                     <Input type="number" placeholder="0.00" className="border-0 focus-visible:ring-1 text-right" disabled />
-                  </TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>
                     <Input type="number" placeholder="0.00" className="border-0 focus-visible:ring-1 text-right" />
-                  </TableCell>
-                </TableRow>
-              </TableBody>
+                  </Td>
+                </Tr>
+              </TBody>
             </Table>
           </div>
 

@@ -57,32 +57,7 @@ import {
 } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 
-import {
-  Badge,
-  Button,
-  cn,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  Input,
-  Checkbox,
-  Label,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, cn, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Input, Checkbox, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   listViewsAction,
   saveViewAction,
@@ -464,7 +439,7 @@ export function ViewToolbar({
   canManageViews = true,
   className,
 }: ViewToolbarProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { lab } = useSabcrmSettings();
   /** Last-applied AND/OR logic from the filter dialog (Lab: advancedFilterGroups). */
   const filterLogicRef = React.useRef<'and' | 'or'>('and');
@@ -1030,13 +1005,13 @@ const SortDialog = React.memo(function SortDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-[420px]">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Sort</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-[420px]">
+        <DialogHeader>
+          <DialogTitle>Sort</DialogTitle>
+          <DialogDescription>
             Order records by a single field.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="flex flex-col gap-3 py-1">
           <div className="space-y-2">
@@ -1089,7 +1064,7 @@ const SortDialog = React.memo(function SortDialog({
           )}
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button
             type="button"
             variant="outline"
@@ -1100,8 +1075,8 @@ const SortDialog = React.memo(function SortDialog({
           <Button type="button" onClick={() => onApply(draft)}>
             Apply
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 });
@@ -1173,15 +1148,15 @@ const FilterDialog = React.memo(function FilterDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-[560px]">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Filters</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-[560px]">
+        <DialogHeader>
+          <DialogTitle>Filters</DialogTitle>
+          <DialogDescription>
             {showLogicToggle && logicOp === 'or'
               ? 'Records must match any condition.'
               : 'Records must match every condition.'}
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         {/* Lab: advancedFilterGroups — AND / OR logic toggle */}
         {showLogicToggle && (
@@ -1329,7 +1304,7 @@ const FilterDialog = React.memo(function FilterDialog({
           </div>
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button
             type="button"
             variant="ghost"
@@ -1349,8 +1324,8 @@ const FilterDialog = React.memo(function FilterDialog({
           <Button type="button" onClick={apply}>
             Apply
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 });
@@ -1495,13 +1470,13 @@ const SaveViewDialog = React.memo(function SaveViewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-[420px]">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Save view</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-[420px]">
+        <DialogHeader>
+          <DialogTitle>Save view</DialogTitle>
+          <DialogDescription>
             Captures the current filters, sort, layout and group-by.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="flex flex-col gap-3 py-1">
           <div className="space-y-2">
@@ -1533,7 +1508,7 @@ const SaveViewDialog = React.memo(function SaveViewDialog({
           </label>
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button
             type="button"
             variant="outline"
@@ -1549,8 +1524,8 @@ const SaveViewDialog = React.memo(function SaveViewDialog({
           >
             Save view
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 });

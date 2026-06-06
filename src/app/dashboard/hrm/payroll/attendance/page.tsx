@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarCheck,
   Plus,
@@ -184,17 +170,17 @@ export default function AttendanceListPage(): React.JSX.Element {
                             />
                         </div>
                         <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                            <ZoruSelectTrigger className="h-9 w-[200px]">
-                                <ZoruSelectValue placeholder="Department" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All departments</ZoruSelectItem>
+                            <SelectTrigger className="h-9 w-[200px]">
+                                <SelectValue placeholder="Department" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All departments</SelectItem>
                                 {departments.map((d) => (
-                                    <ZoruSelectItem key={d} value={d}>
+                                    <SelectItem key={d} value={d}>
                                         {d}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </>
                 }
@@ -202,65 +188,65 @@ export default function AttendanceListPage(): React.JSX.Element {
             >
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Check-in</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Check-out</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="text-[var(--st-text-secondary)]">Employee</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Department</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Check-in</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Check-out</Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">Actions</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {filtered.length === 0 ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td
                                         colSpan={6}
                                         className="h-24 text-center text-[var(--st-text-secondary)]"
                                     >
                                         {isPending
                                             ? 'Loading…'
                                             : `No attendance recorded for ${dateIso}.`}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 filtered.map((r) => {
                                     const tone = STATUS_TONE[r.status] ?? 'neutral';
                                     return (
-                                        <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
-                                            <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                        <Tr key={r._id} className="border-[var(--st-border)]">
+                                            <Td className="font-medium text-[var(--st-text)]">
                                                 <Link
                                                     href={`${BASE}/${r._id}`}
                                                     className="hover:underline"
                                                 >
                                                     {r.employeeName}
                                                 </Link>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {r.departmentId ?? '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <StatusPill label={r.status} tone={tone} />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {fmtTime(r.checkIn)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {fmtTime(r.checkOut)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 <Button variant="ghost" size="icon" asChild>
                                                     <Link href={`${BASE}/${r._id}`}>
                                                         <Eye className="h-4 w-4" />
                                                     </Link>
                                                 </Button>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
 

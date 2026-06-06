@@ -12,18 +12,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  Input,
-  Select,
-  Textarea,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Select, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import { createSabnotebookNote } from '@/app/actions/sabnotebook.actions';
 import type { SabnotebookNoteKind } from '@/lib/rust-client/sabnotebook-notes';
 
@@ -95,13 +84,13 @@ export function QuickCapture({ notebookId, sectionId }: QuickCaptureProps) {
           value={kind}
           onValueChange={(v) => setKind(v as SabnotebookNoteKind)}
         >
-          <ZoruSelectTrigger className="h-9 w-[150px]">
-            <ZoruSelectValue placeholder="Kind" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="text">Text</ZoruSelectItem>
-            <ZoruSelectItem value="checklist">Checklist</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[150px]">
+            <SelectValue placeholder="Kind" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="text">Text</SelectItem>
+            <SelectItem value="checklist">Checklist</SelectItem>
+          </SelectContent>
         </Select>
         <Textarea
           value={body}

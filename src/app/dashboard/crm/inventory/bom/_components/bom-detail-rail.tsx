@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * Right-rail for the BOM detail page. Lists sibling versions / variants
  * for the same finished good and related production orders. Pure
@@ -33,10 +33,10 @@ export function BomDetailRail({ versions, productionOrders }: BomDetailRailProps
     return (
         <div className="flex flex-col gap-4">
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Versions / variants</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="p-0">
+                <CardHeader>
+                    <CardTitle>Versions / variants</CardTitle>
+                </CardHeader>
+                <CardBody className="p-0">
                     {versions.length === 0 ? (
                         <p className="px-4 py-3 text-[12.5px] text-[var(--st-text-secondary)]">
                             No other versions for this finished good.
@@ -57,14 +57,14 @@ export function BomDetailRail({ versions, productionOrders }: BomDetailRailProps
                             ))}
                         </ul>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Related production orders</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="p-0">
+                <CardHeader>
+                    <CardTitle>Related production orders</CardTitle>
+                </CardHeader>
+                <CardBody className="p-0">
                     {productionOrders.length === 0 ? (
                         <p className="px-4 py-3 text-[12.5px] text-[var(--st-text-secondary)]">
                             No production orders yet.
@@ -90,7 +90,7 @@ export function BomDetailRail({ versions, productionOrders }: BomDetailRailProps
                             ))}
                         </ul>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

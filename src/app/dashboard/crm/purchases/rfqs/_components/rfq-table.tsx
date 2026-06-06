@@ -3,16 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Badge,
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { MoreHorizontal } from 'lucide-react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -49,7 +40,7 @@ export function RfqTable({
   defaultCurrency,
   density = 'comfortable',
 }: RfqTableProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const bulky = useCrmBulkyState<RfqListRow>({
@@ -189,7 +180,7 @@ export function RfqTable({
         const id = row._id;
         return (
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button
                 size="sm"
                 variant="ghost"
@@ -198,30 +189,30 @@ export function RfqTable({
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuItem asChild>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/rfqs/${id}`}>
                   View Details
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/rfqs/${id}/edit`}>
                   Edit RFQ
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/vendor-bids/new?fromKind=rfq&fromId=${id}`}>
                   Record Bid
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/rfqs/${id}/activity`}>
                   Audit Logs / Activity
                 </Link>
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         );
       },

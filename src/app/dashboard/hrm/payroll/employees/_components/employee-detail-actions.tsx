@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -68,7 +60,7 @@ export function EmployeeDetailActions({
   status,
 }: EmployeeDetailActionsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [currentStatus, setCurrentStatus] = React.useState<CrmEmployeeStatus>(
     status ?? 'active',
   );
@@ -144,7 +136,7 @@ export function EmployeeDetailActions({
     <div className="flex flex-wrap items-center gap-2">
       {/* Status pill — click to open dropdown */}
       <DropdownMenu>
-        <ZoruDropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild>
           <button
             type="button"
             className="focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
@@ -155,17 +147,17 @@ export function EmployeeDetailActions({
               tone={statusToTone(currentStatus)}
             />
           </button>
-        </ZoruDropdownMenuTrigger>
-        <ZoruDropdownMenuContent align="end">
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
           {STATUS_OPTIONS.map((opt) => (
-            <ZoruDropdownMenuItem
+            <DropdownMenuItem
               key={opt.value}
               onSelect={() => moveTo(opt.value)}
             >
               {opt.label}
-            </ZoruDropdownMenuItem>
+            </DropdownMenuItem>
           ))}
-        </ZoruDropdownMenuContent>
+        </DropdownMenuContent>
       </DropdownMenu>
 
       <Button asChild>
@@ -205,13 +197,13 @@ export function EmployeeDetailActions({
       </Button>
 
       <DropdownMenu>
-        <ZoruDropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" aria-label="More actions">
             <MoreHorizontal className="h-3.5 w-3.5" />
           </Button>
-        </ZoruDropdownMenuTrigger>
-        <ZoruDropdownMenuContent align="end">
-          <ZoruDropdownMenuItem
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
             onSelect={() =>
               toast({
                 title: 'Issue asset',
@@ -220,8 +212,8 @@ export function EmployeeDetailActions({
             }
           >
             <PackageOpen className="mr-2 h-3.5 w-3.5" /> Issue asset
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuItem
+          </DropdownMenuItem>
+          <DropdownMenuItem
             onSelect={() =>
               toast({
                 title: 'ID card',
@@ -230,22 +222,22 @@ export function EmployeeDetailActions({
             }
           >
             <IdCard className="mr-2 h-3.5 w-3.5" /> Generate ID card
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuItem onSelect={handlePrint}>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={handlePrint}>
             <Printer className="mr-2 h-3.5 w-3.5" /> Print profile
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuSeparator />
-          <ZoruDropdownMenuItem asChild>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
             <Link
               href={`/dashboard/hrm/payroll/employees/${employeeId}/activity`}
             >
               <Activity className="mr-2 h-3.5 w-3.5" /> Activity
             </Link>
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuItem onSelect={() => setArchiveOpen(true)}>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setArchiveOpen(true)}>
             <Archive className="mr-2 h-3.5 w-3.5" /> Archive
-          </ZoruDropdownMenuItem>
-        </ZoruDropdownMenuContent>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
       </DropdownMenu>
 
       <ConfirmDialog

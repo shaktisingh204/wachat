@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, ZoruAlertDescription, ZoruAlertTitle, Separator, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Separator, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -71,10 +71,10 @@ export default function SettingsPage() {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>Shop not found</ZoruAlertTitle>
-        <ZoruAlertDescription>
+        <AlertTitle>Shop not found</AlertTitle>
+        <AlertDescription>
           The requested shop could not be loaded.
-        </ZoruAlertDescription>
+        </AlertDescription>
       </Alert>
     );
   }

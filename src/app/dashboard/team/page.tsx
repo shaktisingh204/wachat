@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  Button,
-  Card,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, Button, Card, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, cn } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -169,20 +155,20 @@ export default function TeamOverviewPage() {
     return (
         <div ref={containerRef} className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Team</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Team</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Team</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Team</PageTitle>
+                    <PageDescription>
                         Everything about your people: members, roles, invites, tasks, chat, and audit.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <Link href="/dashboard/team/manage-users">
                     <Button size="sm">
                         <UserPlus className="h-4 w-4" />

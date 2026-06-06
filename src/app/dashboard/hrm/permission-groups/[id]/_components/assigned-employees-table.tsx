@@ -4,18 +4,7 @@ import * as React from 'react';
 import { UserMinus, Download, Printer, Search } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { fmtDate } from '@/lib/utils';
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Checkbox,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, TBody, Td, Th, THead, Tr, Checkbox } from '@/components/sabcrm/20ui/compat';
 
 interface AssignedEmployee {
   employeeId: string;
@@ -168,9 +157,9 @@ export function AssignedEmployeesTable({
           className="overflow-x-auto rounded-md border border-[var(--st-border)] max-h-[500px] overflow-y-auto print:overflow-visible print:max-h-none print:border-none"
         >
           <table className="w-full text-sm caption-bottom">
-            <ZoruTableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 print:static">
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-12 print:hidden">
+            <THead className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 print:static">
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-12 print:hidden">
                   <Checkbox
                     checked={
                       selectedIds.size === filteredEmployees.length &&
@@ -178,14 +167,14 @@ export function AssignedEmployeesTable({
                     }
                     onCheckedChange={(c) => handleSelectAll(!!c)}
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Employee</ZoruTableHead>
-                <ZoruTableHead>Email</ZoruTableHead>
-                <ZoruTableHead>Assigned</ZoruTableHead>
-                <ZoruTableHead className="text-right print:hidden">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody
+                </Th>
+                <Th>Employee</Th>
+                <Th>Email</Th>
+                <Th>Assigned</Th>
+                <Th className="text-right print:hidden">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody
               style={{
                 height: `${rowVirtualizer.getTotalSize()}px`,
                 position: 'relative',
@@ -195,7 +184,7 @@ export function AssignedEmployeesTable({
               {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                 const e = filteredEmployees[virtualRow.index];
                 return (
-                  <ZoruTableRow
+                  <Tr
                     key={e.employeeId}
                     className="border-[var(--st-border)] absolute w-full print:static print:transform-none"
                     style={{
@@ -204,22 +193,22 @@ export function AssignedEmployeesTable({
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
-                    <ZoruTableCell className="w-12 print:hidden">
+                    <Td className="w-12 print:hidden">
                       <Checkbox
                         checked={selectedIds.has(e.employeeId)}
                         onCheckedChange={(c) => handleSelectOne(e.employeeId, !!c)}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                    </Td>
+                    <Td className="font-medium text-[var(--st-text)]">
                       {e.name}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {e.email ?? '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {mounted ? fmtDate(e.assignedAt) : ''}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right print:hidden">
+                    </Td>
+                    <Td className="text-right print:hidden">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -233,11 +222,11 @@ export function AssignedEmployeesTable({
                           <UserMinus className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         )}
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </table>
         </div>
       )}

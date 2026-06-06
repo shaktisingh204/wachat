@@ -1,13 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-    Button,
-    ZoruCard,
-    ZoruStatCard,
-    ZoruBadge,
-    ZoruEmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, StatCard, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { listSabvaultSecrets } from '@/app/actions/sabvault.actions';
 import type { SabvaultSecretDoc } from '@/lib/rust-client/sabvault-secrets';
 
@@ -43,10 +37,10 @@ export default async function SabvaultHealthPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <ZoruStatCard label="Weak" value={String(weak.length)} />
-                <ZoruStatCard label="Reused" value={String(reused.length)} />
-                <ZoruStatCard label="Breached" value={String(breached.length)} />
-                <ZoruStatCard label="Expiring < 30d" value={String(expiring.length)} />
+                <StatCard label="Weak" value={String(weak.length)} />
+                <StatCard label="Reused" value={String(reused.length)} />
+                <StatCard label="Breached" value={String(breached.length)} />
+                <StatCard label="Expiring < 30d" value={String(expiring.length)} />
             </div>
 
             <HealthBucket title="Breached" items={breached} variant="destructive" />
@@ -67,11 +61,11 @@ function HealthBucket({
     variant?: 'destructive';
 }) {
     return (
-        <ZoruCard className="p-0">
+        <Card className="p-0">
             <div className="border-b px-4 py-2 text-sm font-semibold">{title}</div>
             {items.length === 0 ? (
                 <div className="p-4">
-                    <ZoruEmptyState title="Nothing here" description="All clear." />
+                    <EmptyState title="Nothing here" description="All clear." />
                 </div>
             ) : (
                 <ul className="divide-y">
@@ -85,15 +79,15 @@ function HealthBucket({
                             </Link>
                             <div className="flex items-center gap-2 text-xs">
                                 {variant === 'destructive' ? (
-                                    <ZoruBadge variant="destructive">{title}</ZoruBadge>
+                                    <Badge variant="destructive">{title}</Badge>
                                 ) : (
-                                    <ZoruBadge>{title}</ZoruBadge>
+                                    <Badge>{title}</Badge>
                                 )}
                             </div>
                         </li>
                     ))}
                 </ul>
             )}
-        </ZoruCard>
+        </Card>
     );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { createAdminBusinessHour, deleteAdminBusinessHour } from '@/app/actions/sabchat-admin.actions';
 
 export function AdminBusinessHoursClient({ initialData }: { initialData: any[] }) {
@@ -46,32 +46,32 @@ export function AdminBusinessHoursClient({ initialData }: { initialData: any[] }
 
             <div className="rounded-md border">
                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>ID</TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Timezone</TableHead>
-                            <TableHead>Windows</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                    <THead>
+                        <Tr>
+                            <Th>ID</Th>
+                            <Th>Name</Th>
+                            <Th>Timezone</Th>
+                            <Th>Windows</Th>
+                            <Th className="text-right">Actions</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {initialData.length === 0 ? (
-                            <TableRow><TableCell colSpan={5} className="text-center">No business hours found.</TableCell></TableRow>
+                            <Tr><Td colSpan={5} className="text-center">No business hours found.</Td></Tr>
                         ) : (
                             initialData.map((item) => (
-                                <TableRow key={item._id}>
-                                    <TableCell className="font-mono text-xs">{item._id}</TableCell>
-                                    <TableCell>{item.name}</TableCell>
-                                    <TableCell>{item.timezone}</TableCell>
-                                    <TableCell>{item.windows?.length ?? 0} window(s)</TableCell>
-                                    <TableCell className="text-right">
+                                <Tr key={item._id}>
+                                    <Td className="font-mono text-xs">{item._id}</Td>
+                                    <Td>{item.name}</Td>
+                                    <Td>{item.timezone}</Td>
+                                    <Td>{item.windows?.length ?? 0} window(s)</Td>
+                                    <Td className="text-right">
                                         <Button variant="destructive" size="sm" onClick={() => handleDelete(item._id)}>Delete</Button>
-                                    </TableCell>
-                                </TableRow>
+                                    </Td>
+                                </Tr>
                             ))
                         )}
-                    </TableBody>
+                    </TBody>
                 </Table>
             </div>
         </div>

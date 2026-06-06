@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -61,15 +50,15 @@ export function RequestPaymentDialog({ isOpen, onOpenChange, contact }: RequestP
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+            <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     <input type="hidden" name="contactId" value={contact._id.toString()} />
-                    <ZoruDialogHeader className="px-6 pt-6 pb-2">
-                        <ZoruDialogTitle>Request Razorpay Payment</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                    <DialogHeader className="px-6 pt-6 pb-2">
+                        <DialogTitle>Request Razorpay Payment</DialogTitle>
+                        <DialogDescription>
                             Create a payment link and send it to {contact.name}. This will use the configured Razorpay account.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="flex-1 overflow-y-auto px-6 py-2">
                         <div className="grid gap-4">
                             <div className="space-y-2">
@@ -82,12 +71,12 @@ export function RequestPaymentDialog({ isOpen, onOpenChange, contact }: RequestP
                             </div>
                         </div>
                     </div>
-                    <ZoruDialogFooter className="px-6 pb-6 pt-2">
+                    <DialogFooter className="px-6 pb-6 pt-2">
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

@@ -1,17 +1,7 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Progress,
-} from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Progress } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -74,7 +64,7 @@ export default function PayrollRunClient({
     const [isProcessing, setIsProcessing] = useState(false);
     const [progressValue, setProgressValue] = useState(0);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
@@ -171,20 +161,20 @@ export default function PayrollRunClient({
             primaryAction={
                 <>
                     <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                        <ZoruSelectTrigger className="w-36 h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
-                        </ZoruSelectContent>
+                        <SelectTrigger className="w-36 h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {months.map(m => <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>)}
+                        </SelectContent>
                     </Select>
                     <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
-                        <ZoruSelectTrigger className="w-28 h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
-                        </ZoruSelectContent>
+                        <SelectTrigger className="w-28 h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+                        </SelectContent>
                     </Select>
                     <Button disabled={isLoading || isProcessing} onClick={handleRunPayroll}>
                         <Play className="h-4 w-4" />

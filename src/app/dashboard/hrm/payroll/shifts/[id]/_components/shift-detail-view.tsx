@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useOptimistic } from 'react';
 import { useRouter } from 'next/navigation';
-import { useZoruToast, Button, Badge } from '@/components/sabcrm/20ui/compat';
+import { useToast, Button, Badge } from '@/components/sabcrm/20ui/compat';
 import { Edit, ArrowLeft, Clock, Users, Calendar, Info, BellRing } from 'lucide-react';
 import type { CrmShiftDoc, CrmShiftStatus } from '@/lib/rust-client/crm-shifts';
 import { useShiftWebsocket } from './use-shift-websocket';
@@ -12,7 +12,7 @@ import { ShiftEditForm } from './shift-edit-form';
 
 export function ShiftDetailView({ initialShift }: { initialShift: CrmShiftDoc }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = React.useState(false);
   const { shift: wsShift, isConnected, lastModifiedBy } = useShiftWebsocket(initialShift);
 

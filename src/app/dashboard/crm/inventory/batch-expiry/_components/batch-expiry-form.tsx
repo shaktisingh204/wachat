@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -69,7 +69,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export function BatchExpiryForm({ initialData }: BatchExpiryFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveCrmItemBatch, initialState);

@@ -14,14 +14,7 @@
  */
 
 import * as React from 'react';
-import {
-  Badge,
-  Button,
-  Input,
-  Label,
-  Progress,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Progress, useToast } from '@/components/sabcrm/20ui/compat';
 import { Loader2, Plus, RotateCcw, Trash2 } from 'lucide-react';
 
 import {
@@ -69,7 +62,7 @@ export function SabbackstageTicketingTab({
 }: {
   eventId: string;
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [types, setTypes] = React.useState<SabbackstageTicketTypeDoc[]>([]);
   const [orders, setOrders] = React.useState<SabbackstageOrderDoc[]>([]);
   const [loading, setLoading] = React.useState(true);

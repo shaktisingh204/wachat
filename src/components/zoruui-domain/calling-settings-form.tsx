@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Skeleton,
-  Label,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Skeleton, Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -128,20 +107,20 @@ export function CallingSettingsForm({ project, phone, onSuccess }: CallingSettin
             <input type="hidden" name="holiday_schedule" value={JSON.stringify(holidaySchedule)} />
             
             <Accordion type="multiple" defaultValue={['general']} className="w-full space-y-4">
-                <ZoruAccordionItem value="general">
-                    <ZoruAccordionTrigger>General Settings</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="pt-2">
+                <AccordionItem value="general">
+                    <AccordionTrigger>General Settings</AccordionTrigger>
+                    <AccordionContent className="pt-2">
                         <Card>
-                            <ZoruCardContent className="pt-6 space-y-6">
-                                <div className="space-y-2"><Label>Calling Status</Label><Select name="status" defaultValue={settings.status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></Select></div>
+                            <CardBody className="pt-6 space-y-6">
+                                <div className="space-y-2"><Label>Calling Status</Label><Select name="status" defaultValue={settings.status || 'DISABLED'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="ENABLED">Enabled</SelectItem><SelectItem value="DISABLED">Disabled</SelectItem></SelectContent></Select></div>
                                 <div className="space-y-2">
                                     <Label>Call Icon Visibility</Label>
                                     <Select name="call_icon_visibility" defaultValue={settings.call_icon_visibility || 'DEFAULT'}>
-                                        <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
-                                        <ZoruSelectContent>
-                                            <ZoruSelectItem value="DEFAULT">Default (Visible to all)</ZoruSelectItem>
-                                            <ZoruSelectItem value="DISABLE_ALL">Disable All (Hidden)</ZoruSelectItem>
-                                        </ZoruSelectContent>
+                                        <SelectTrigger><SelectValue/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="DEFAULT">Default (Visible to all)</SelectItem>
+                                            <SelectItem value="DISABLE_ALL">Disable All (Hidden)</SelectItem>
+                                        </SelectContent>
                                     </Select>
                                 </div>
                                  <div className="space-y-2">
@@ -149,39 +128,39 @@ export function CallingSettingsForm({ project, phone, onSuccess }: CallingSettin
                                     <Input id="restrict_to_user_countries" name="restrict_to_user_countries" defaultValue={settings.call_icons?.restrict_to_user_countries?.join(', ')} placeholder="e.g. US, BR, IN" />
                                     <p className="text-xs text-[var(--st-text-secondary)]">Comma-separated list of ISO 3166-1 alpha-2 country codes where the call icon should appear.</p>
                                 </div>
-                                <div className="space-y-2"><Label>Callback Permission Prompt</Label><Select name="callback_permission_status" defaultValue={settings.callback_permission_status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled (Show Prompt)</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></Select></div>
-                            </ZoruCardContent>
+                                <div className="space-y-2"><Label>Callback Permission Prompt</Label><Select name="callback_permission_status" defaultValue={settings.callback_permission_status || 'DISABLED'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="ENABLED">Enabled (Show Prompt)</SelectItem><SelectItem value="DISABLED">Disabled</SelectItem></SelectContent></Select></div>
+                            </CardBody>
                         </Card>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
 
-                 <ZoruAccordionItem value="hours">
-                    <ZoruAccordionTrigger>Business Hours</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="pt-2">
+                 <AccordionItem value="hours">
+                    <AccordionTrigger>Business Hours</AccordionTrigger>
+                    <AccordionContent className="pt-2">
                          <Card>
-                             <ZoruCardContent className="pt-6 space-y-6">
-                                <div className="space-y-2"><Label>Business Hours Status</Label><Select name="call_hours_status" defaultValue={settings.call_hours?.status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></Select></div>
-                                <div className="space-y-2"><Label>Timezone</Label><Select name="timezone_id" defaultValue={settings.call_hours?.timezone_id}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select a timezone..."/></ZoruSelectTrigger><ZoruSelectContent>{timezones.map(tz => <ZoruSelectItem key={tz} value={tz}>{tz}</ZoruSelectItem>)}</ZoruSelectContent></Select></div>
+                             <CardBody className="pt-6 space-y-6">
+                                <div className="space-y-2"><Label>Business Hours Status</Label><Select name="call_hours_status" defaultValue={settings.call_hours?.status || 'DISABLED'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="ENABLED">Enabled</SelectItem><SelectItem value="DISABLED">Disabled</SelectItem></SelectContent></Select></div>
+                                <div className="space-y-2"><Label>Timezone</Label><Select name="timezone_id" defaultValue={settings.call_hours?.timezone_id}><SelectTrigger><SelectValue placeholder="Select a timezone..."/></SelectTrigger><SelectContent>{timezones.map(tz => <SelectItem key={tz} value={tz}>{tz}</SelectItem>)}</SelectContent></Select></div>
                                 <WeeklyHoursEditor hours={weeklyHours} onChange={setWeeklyHours} />
                                 <HolidayScheduleEditor schedule={holidaySchedule} onChange={setHolidaySchedule} />
-                             </ZoruCardContent>
+                             </CardBody>
                          </Card>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
                 
-                 <ZoruAccordionItem value="sip">
-                    <ZoruAccordionTrigger>SIP Integration</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="pt-2">
+                 <AccordionItem value="sip">
+                    <AccordionTrigger>SIP Integration</AccordionTrigger>
+                    <AccordionContent className="pt-2">
                         <Card>
-                             <ZoruCardContent className="pt-6 space-y-6">
-                                <div className="space-y-2"><Label>SIP Status</Label><Select name="sip_status" defaultValue={settings.sip?.status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></Select></div>
+                             <CardBody className="pt-6 space-y-6">
+                                <div className="space-y-2"><Label>SIP Status</Label><Select name="sip_status" defaultValue={settings.sip?.status || 'DISABLED'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="ENABLED">Enabled</SelectItem><SelectItem value="DISABLED">Disabled</SelectItem></SelectContent></Select></div>
                                 <div className="space-y-2"><Label>SIP Hostname</Label><Input name="sip_hostname" defaultValue={settings.sip?.servers?.[0]?.hostname || ''}/></div>
                                 <div className="space-y-2"><Label>SIP Port</Label><Input type="number" name="sip_port" defaultValue={settings.sip?.servers?.[0]?.port || ''}/></div>
                                 <div className="space-y-2"><Label>SIP URI Params (JSON)</Label><Textarea name="sip_params" placeholder='{ "transport": "tcp" }' defaultValue={settings.sip?.servers?.[0]?.request_uri_user_params ? JSON.stringify(settings.sip.servers[0].request_uri_user_params, null, 2) : ''}/></div>
-                             </ZoruCardContent>
+                             </CardBody>
                         </Card>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
             </Accordion>
             
             <div className="flex justify-end mt-8">

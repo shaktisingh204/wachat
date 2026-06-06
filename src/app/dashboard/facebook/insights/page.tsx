@@ -1,32 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  EmptyState,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, ChartContainer, ChartTooltip, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -209,19 +183,19 @@ export default function FacebookInsightsPage(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">Meta Suite</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Insights</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">Meta Suite</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Insights</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -234,14 +208,14 @@ export default function FacebookInsightsPage(): React.JSX.Element {
         </div>
         <div className="flex items-center gap-2">
           <Select value={preset} onValueChange={(v) => setPreset(v as Preset)}>
-            <ZoruSelectTrigger className="w-[160px]">
-              <ZoruSelectValue placeholder="Range" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="7d">Last 7 days</ZoruSelectItem>
-              <ZoruSelectItem value="30d">Last 30 days</ZoruSelectItem>
-              <ZoruSelectItem value="90d">Last 90 days</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Range" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7d">Last 7 days</SelectItem>
+              <SelectItem value="30d">Last 30 days</SelectItem>
+              <SelectItem value="90d">Last 90 days</SelectItem>
+            </SelectContent>
           </Select>
           <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
@@ -253,8 +227,8 @@ export default function FacebookInsightsPage(): React.JSX.Element {
       {error && (
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>Could not load insights</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not load insights</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
@@ -299,10 +273,10 @@ export default function FacebookInsightsPage(): React.JSX.Element {
       </section>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>{primaryLabel} over time</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>{primaryLabel} over time</CardTitle>
+        </CardHeader>
+        <CardBody>
           {loading && chartData.length === 0 ? (
             <Skeleton className="h-[280px] w-full" />
           ) : chartData.length === 0 ? (
@@ -312,7 +286,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
               description="The Graph Insights API returned no daily values for this range."
             />
           ) : (
-            <ZoruChartContainer height={280}>
+            <ChartContainer height={280}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
@@ -349,7 +323,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
                     axisLine={false}
                     width={48}
                   />
-                  <Tooltip content={<ZoruChartTooltip />} />
+                  <Tooltip content={<ChartTooltip />} />
                   <Area
                     type="monotone"
                     dataKey="value"
@@ -360,16 +334,16 @@ export default function FacebookInsightsPage(): React.JSX.Element {
                   />
                 </AreaChart>
               </ResponsiveContainer>
-            </ZoruChartContainer>
+            </ChartContainer>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Other metrics</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Other metrics</CardTitle>
+        </CardHeader>
+        <CardBody>
           {series.length === 0 ? (
             <p className="text-xs text-[var(--st-text-secondary)]">No additional metrics.</p>
           ) : (
@@ -400,7 +374,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
               ) : null}
             </ul>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

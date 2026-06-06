@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Textarea, Input, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Textarea, Input, Button } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { countCharacters, countWords } from '@/lib/seo-tools/text-utils';
@@ -183,13 +183,13 @@ function CharacterCounterContent() {
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-4">
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.total}</div><div className="text-xs text-[var(--st-text-secondary)]">With spaces</div></ZoruCardContent></Card>
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.noSpaces}</div><div className="text-xs text-[var(--st-text-secondary)]">Without spaces</div></ZoruCardContent></Card>
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.words}</div><div className="text-xs text-[var(--st-text-secondary)]">Words</div></ZoruCardContent></Card>
+        <Card><CardBody className="p-4"><div className="text-2xl font-bold">{stats.total}</div><div className="text-xs text-[var(--st-text-secondary)]">With spaces</div></CardBody></Card>
+        <Card><CardBody className="p-4"><div className="text-2xl font-bold">{stats.noSpaces}</div><div className="text-xs text-[var(--st-text-secondary)]">Without spaces</div></CardBody></Card>
+        <Card><CardBody className="p-4"><div className="text-2xl font-bold">{stats.words}</div><div className="text-xs text-[var(--st-text-secondary)]">Words</div></CardBody></Card>
       </div>
 
       <Card>
-        <ZoruCardContent className="p-4 space-y-3">
+        <CardBody className="p-4 space-y-3">
           <div className="text-sm font-semibold">Common limits</div>
           {Object.entries(stats.limits).map(([label, limit]) => {
             const pct = Math.min(100, (stats.total / limit) * 100);
@@ -208,7 +208,7 @@ function CharacterCounterContent() {
               </div>
             );
           })}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </ToolShell>
   );

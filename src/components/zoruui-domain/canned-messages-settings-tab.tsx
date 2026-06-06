@@ -1,32 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardFooter,
-  Button,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Skeleton,
-  Input,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter, Button, Table, TBody, Td, Th, THead, Tr, Skeleton, Input, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -115,11 +89,11 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                 onSubmitted={onFormSubmit}
             />
             <Card className="card-gradient card-gradient-purple">
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div>
-                            <ZoruCardTitle>Your Canned Messages</ZoruCardTitle>
-                            <ZoruCardDescription>A list of all saved messages for this project. Use them in Live Chat.</ZoruCardDescription>
+                            <CardTitle>Your Canned Messages</CardTitle>
+                            <CardDescription>A list of all saved messages for this project. Use them in Live Chat.</CardDescription>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="relative w-full sm:w-auto">
@@ -136,66 +110,66 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                             </Button>
                         </div>
                     </div>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     {/* Desktop View */}
                     <div className="hidden md:block border rounded-md">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead className="w-12"></ZoruTableHead>
-                                    <ZoruTableHead>Name</ZoruTableHead>
-                                    <ZoruTableHead>Type</ZoruTableHead>
-                                    <ZoruTableHead>Content</ZoruTableHead>
-                                    <ZoruTableHead>Created By</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th className="w-12"></Th>
+                                    <Th>Name</Th>
+                                    <Th>Type</Th>
+                                    <Th>Content</Th>
+                                    <Th>Created By</Th>
+                                    <Th className="text-right">Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
                                     [...Array(3)].map((_, i) => (
-                                        <ZoruTableRow key={i}>
-                                            <ZoruTableCell colSpan={6}><Skeleton className="h-8 w-full"/></ZoruTableCell>
-                                        </ZoruTableRow>
+                                        <Tr key={i}>
+                                            <Td colSpan={6}><Skeleton className="h-8 w-full"/></Td>
+                                        </Tr>
                                     ))
                                 ) : filteredMessages.length > 0 ? (
                                     filteredMessages.map(msg => (
-                                        <ZoruTableRow key={msg._id.toString()}>
-                                            <ZoruTableCell>
+                                        <Tr key={msg._id.toString()}>
+                                            <Td>
                                                 {msg.isFavourite && <Star className="h-5 w-5 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="font-medium">{msg.name}</ZoruTableCell>
-                                            <ZoruTableCell><Badge variant="outline" className="capitalize">{msg.type}</Badge></ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text-secondary)] truncate max-w-xs">{msg.content.text || msg.content.mediaUrl}</ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text-secondary)]">{msg.createdBy}</ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="font-medium">{msg.name}</Td>
+                                            <Td><Badge variant="outline" className="capitalize">{msg.type}</Badge></Td>
+                                            <Td className="text-[var(--st-text-secondary)] truncate max-w-xs">{msg.content.text || msg.content.mediaUrl}</Td>
+                                            <Td className="text-[var(--st-text-secondary)]">{msg.createdBy}</Td>
+                                            <Td className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleEdit(msg)}><Edit className="h-4 w-4"/></Button>
-                                                <ZoruAlertDialog>
-                                                    <ZoruAlertDialogTrigger asChild>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
                                                         <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-[var(--st-text)]"/></Button>
-                                                    </ZoruAlertDialogTrigger>
-                                                    <ZoruAlertDialogContent>
-                                                        <ZoruAlertDialogHeader>
-                                                            <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
-                                                            <ZoruAlertDialogDescription>This will permanently delete the "{msg.name}" canned message.</ZoruAlertDialogDescription>
-                                                        </ZoruAlertDialogHeader>
-                                                        <ZoruAlertDialogFooter>
-                                                            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                                            <ZoruAlertDialogAction onClick={() => handleDelete(msg._id.toString())} disabled={isDeleting}>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>This will permanently delete the "{msg.name}" canned message.</AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleDelete(msg._id.toString())} disabled={isDeleting}>
                                                                 {isDeleting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : null} Delete
-                                                            </ZoruAlertDialogAction>
-                                                        </ZoruAlertDialogFooter>
-                                                    </ZoruAlertDialogContent>
-                                                </ZoruAlertDialog>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </Td>
+                                        </Tr>
                                     ))
                                 ) : (
-                                    <ZoruTableRow>
-                                        <ZoruTableCell colSpan={6} className="h-24 text-center">No canned messages found.</ZoruTableCell>
-                                    </ZoruTableRow>
+                                    <Tr>
+                                        <Td colSpan={6} className="h-24 text-center">No canned messages found.</Td>
+                                    </Tr>
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
 
@@ -206,35 +180,35 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                         ) : filteredMessages.length > 0 ? (
                             filteredMessages.map(msg => (
                                 <Card key={msg._id.toString()}>
-                                    <ZoruCardHeader className="flex flex-row justify-between items-start p-4">
+                                    <CardHeader className="flex flex-row justify-between items-start p-4">
                                         <div>
-                                            <ZoruCardTitle className="text-base flex items-center gap-2">
+                                            <CardTitle className="text-base flex items-center gap-2">
                                                 {msg.isFavourite && <Star className="h-5 w-5 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />}
                                                 {msg.name}
-                                            </ZoruCardTitle>
-                                            <ZoruCardDescription>
+                                            </CardTitle>
+                                            <CardDescription>
                                                 <Badge variant="outline" className="capitalize mt-1">{msg.type}</Badge>
-                                            </ZoruCardDescription>
+                                            </CardDescription>
                                         </div>
                                         <div>
                                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(msg)}><Edit className="h-4 w-4"/></Button>
-                                            <ZoruAlertDialog>
-                                                <ZoruAlertDialogTrigger asChild>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8"><Trash2 className="h-4 w-4 text-[var(--st-text)]"/></Button>
-                                                </ZoruAlertDialogTrigger>
-                                                <ZoruAlertDialogContent>
-                                                    <ZoruAlertDialogHeader><ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle><ZoruAlertDialogDescription>This will permanently delete the "{msg.name}" canned message.</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
-                                                    <ZoruAlertDialogFooter><ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel><ZoruAlertDialogAction onClick={() => handleDelete(msg._id.toString())} disabled={isDeleting}>{isDeleting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : null} Delete</ZoruAlertDialogAction></ZoruAlertDialogFooter>
-                                                </ZoruAlertDialogContent>
-                                            </ZoruAlertDialog>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete the "{msg.name}" canned message.</AlertDialogDescription></AlertDialogHeader>
+                                                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(msg._id.toString())} disabled={isDeleting}>{isDeleting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : null} Delete</AlertDialogAction></AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </div>
-                                    </ZoruCardHeader>
-                                    <ZoruCardContent className="p-4 pt-0">
+                                    </CardHeader>
+                                    <CardBody className="p-4 pt-0">
                                         <p className="text-sm text-[var(--st-text-secondary)] truncate">{msg.content.text || msg.content.mediaUrl}</p>
-                                    </ZoruCardContent>
-                                    <ZoruCardFooter className="p-4 pt-0 text-xs text-[var(--st-text-secondary)]">
+                                    </CardBody>
+                                    <CardFooter className="p-4 pt-0 text-xs text-[var(--st-text-secondary)]">
                                         Created by: {msg.createdBy}
-                                    </ZoruCardFooter>
+                                    </CardFooter>
                                 </Card>
                             ))
                         ) : (
@@ -243,7 +217,7 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                             </div>
                         )}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </>
     );

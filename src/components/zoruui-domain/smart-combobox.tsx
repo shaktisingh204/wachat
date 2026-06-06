@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  ZoruCommandSeparator,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, Popover, PopoverContent, PopoverTrigger, Select } from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   ChevronsUpDown,
@@ -62,7 +49,7 @@ export function SmartCombobox({
 
     return (
         <Popover open={open} onOpenChange={setOpen} modal={true}>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
                 <Button
                     variant="outline"
                     role="combobox"
@@ -73,21 +60,21 @@ export function SmartCombobox({
                     {selectedLabel || placeholder}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent className="w-full p-0" align="start">
-                <ZoruCommand>
-                    <ZoruCommandInput
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0" align="start">
+                <Command>
+                    <CommandInput
                         placeholder={searchPlaceholder}
                         value={inputValue}
                         onValueChange={setInputValue}
                     />
-                    <ZoruCommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden">
-                        <ZoruCommandEmpty>
+                    <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden">
+                        <CommandEmpty>
                             No results found.
-                        </ZoruCommandEmpty>
-                        <ZoruCommandGroup>
+                        </CommandEmpty>
+                        <CommandGroup>
                             {options.map((option) => (
-                                <ZoruCommandItem
+                                <CommandItem
                                     key={option.value}
                                     value={option.label}
                                     onSelect={(_) => {
@@ -103,14 +90,14 @@ export function SmartCombobox({
                                         )}
                                     />
                                     {option.label}
-                                </ZoruCommandItem>
+                                </CommandItem>
                             ))}
-                        </ZoruCommandGroup>
+                        </CommandGroup>
                         {onCreate && (
                             <>
-                                <ZoruCommandSeparator />
-                                <ZoruCommandGroup>
-                                    <ZoruCommandItem
+                                <CommandSeparator />
+                                <CommandGroup>
+                                    <CommandItem
                                         value={`:::create:::${inputValue}`}
                                         onSelect={() => {
                                             onCreate(inputValue);
@@ -120,13 +107,13 @@ export function SmartCombobox({
                                     >
                                         <Plus className="mr-2 h-4 w-4" />
                                         {createLabel} {inputValue ? `"${inputValue}"` : ""}
-                                    </ZoruCommandItem>
-                                </ZoruCommandGroup>
+                                    </CommandItem>
+                                </CommandGroup>
                             </>
                         )}
-                    </ZoruCommandList>
-                </ZoruCommand>
-            </ZoruPopoverContent>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
         </Popover>
     );
 }

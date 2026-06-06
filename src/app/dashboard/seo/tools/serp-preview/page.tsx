@@ -2,14 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { 
-  Input, 
-  Label, 
-  Switch, 
-  Card,
-  ZoruCardContent,
-  Textarea
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Switch, Card, CardBody, Textarea } from '@/components/sabcrm/20ui/compat';
 
 function useTextWidth() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -123,7 +116,7 @@ export default function SerpPreviewPage() {
         
         {/* Editor Panel */}
         <Card>
-          <ZoruCardContent className="p-6 space-y-6">
+          <CardBody className="p-6 space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between">
@@ -200,7 +193,7 @@ export default function SerpPreviewPage() {
                 </div>
               )}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* Preview Panel */}

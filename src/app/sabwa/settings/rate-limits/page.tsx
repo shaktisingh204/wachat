@@ -1,33 +1,7 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Switch,
-  Label,
-  Input,
-  Badge,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Separator,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
-import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Label, Input, Badge, RadioGroup, ZoruRadioGroupItem, Separator, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { ChartContainer, ChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 import {
   Gauge,
   AlertTriangle,
@@ -220,14 +194,14 @@ export default function RateLimitsPage() {
       <SettingsTabs />
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Usage Activity</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Usage Activity</CardTitle>
+          <CardDescription>
             Outbound messages sent over the last 7 days compared to your daily cap.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
-          <ZoruChartContainer height={240}>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
+          <ChartContainer height={240}>
             <ZoruChart.LineChart data={MOCK_USAGE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
               <ZoruChart.XAxis 
@@ -242,7 +216,7 @@ export default function RateLimitsPage() {
                 tickLine={false}
                 tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }}
               />
-              <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+              <ZoruChart.Tooltip content={<ChartTooltip />} />
               <ZoruChart.Line 
                 type="monotone" 
                 dataKey="sent" 
@@ -262,18 +236,18 @@ export default function RateLimitsPage() {
                 dot={false}
               />
             </ZoruChart.LineChart>
-          </ZoruChartContainer>
-        </ZoruCardContent>
+          </ChartContainer>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Sending profile</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Sending profile</CardTitle>
+          <CardDescription>
             Per-minute pacing, daily cap, and jitter are applied to every outbound message.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <RadioGroup
             value={profile}
             onValueChange={(v) => setProfile(v as SabwaRateLimitProfile)}
@@ -318,17 +292,17 @@ export default function RateLimitsPage() {
               );
             })}
           </RadioGroup>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Warmup mode</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Warmup mode</CardTitle>
+          <CardDescription>
             New numbers ramp from 5 to 30 msgs/min over 7 days to stay below WhatsApp&apos;s velocity flags.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-3">
           <div className="flex items-center gap-3">
             <Switch
               checked={warmupEnabled}
@@ -354,33 +328,33 @@ export default function RateLimitsPage() {
               </p>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Per-action overrides</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Per-action overrides</CardTitle>
+          <CardDescription>
             Tighten specific actions further than the profile baseline. Leave blank to inherit the profile cap.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Action</ZoruTableHead>
-                <ZoruTableHead>Profile cap</ZoruTableHead>
-                <ZoruTableHead>Custom per-min cap</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Action</Th>
+                <Th>Profile cap</Th>
+                <Th>Custom per-min cap</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {ACTION_ROWS.map((row) => (
-                <ZoruTableRow key={row.key}>
-                  <ZoruTableCell className="font-medium">{row.label}</ZoruTableCell>
-                  <ZoruTableCell className="text-sm text-[var(--st-text-secondary)] tabular-nums">
+                <Tr key={row.key}>
+                  <Td className="font-medium">{row.label}</Td>
+                  <Td className="text-sm text-[var(--st-text-secondary)] tabular-nums">
                     {row.defaultCap}/min
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Input
                       type="number"
                       inputMode="numeric"
@@ -402,35 +376,35 @@ export default function RateLimitsPage() {
                         });
                       }}
                     />
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Daily reset</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Daily reset</CardTitle>
+          <CardDescription>
             Daily caps roll over at midnight in the timezone you pick here.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <Select value={timezone} onValueChange={setTimezone}>
-            <ZoruSelectTrigger className="max-w-sm">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="max-w-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {TIMEZONES.map((tz) => (
-                <ZoruSelectItem key={tz.value} value={tz.value}>
+                <SelectItem key={tz.value} value={tz.value}>
                   {tz.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Separator />

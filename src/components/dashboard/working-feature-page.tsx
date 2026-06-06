@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   CheckCircle2,
@@ -139,7 +119,7 @@ export function WorkingFeaturePage({
   ],
   quickLinks = [],
 }: WorkingFeaturePageProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<FeatureRecord[]>(records);
   const [query, setQuery] = React.useState('');
   const [status, setStatus] = React.useState('all');
@@ -281,58 +261,58 @@ export function WorkingFeaturePage({
                 />
               </div>
               <Select value={status} onValueChange={setStatus}>
-                <ZoruSelectTrigger className="w-full sm:w-44">
-                  <ZoruSelectValue placeholder="Status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                  <ZoruSelectItem value="Active">Active</ZoruSelectItem>
-                  <ZoruSelectItem value="Draft">Draft</ZoruSelectItem>
-                  <ZoruSelectItem value="Paused">Paused</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="w-full sm:w-44">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Draft">Draft</SelectItem>
+                  <SelectItem value="Paused">Paused</SelectItem>
+                </SelectContent>
               </Select>
             </div>
           </div>
 
           <div className="mt-5 overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Name</ZoruTableHead>
-                  <ZoruTableHead>Owner</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead>Channel</ZoruTableHead>
-                  <ZoruTableHead>Updated</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Owner</Th>
+                  <Th>Status</Th>
+                  <Th>Channel</Th>
+                  <Th>Updated</Th>
+                  <Th className="text-right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filtered.map((row) => (
-                  <ZoruTableRow key={row.id}>
-                    <ZoruTableCell className="font-medium">{row.name}</ZoruTableCell>
-                    <ZoruTableCell>{row.owner}</ZoruTableCell>
-                    <ZoruTableCell>
+                  <Tr key={row.id}>
+                    <Td className="font-medium">{row.name}</Td>
+                    <Td>{row.owner}</Td>
+                    <Td>
                       <Badge variant={STATUS_VARIANT[row.status] ?? 'default'}>
                         {row.status}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell>{row.channel}</ZoruTableCell>
-                    <ZoruTableCell>{row.updatedAt}</ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td>{row.channel}</Td>
+                    <Td>{row.updatedAt}</Td>
+                    <Td className="text-right">
                       <Button variant="ghost" size="icon" onClick={() => removeRecord(row.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
                 {filtered.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
+                  <Tr>
+                    <Td colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
                       No records match the current filters.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : null}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         </Card>

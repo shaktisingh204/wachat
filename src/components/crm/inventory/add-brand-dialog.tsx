@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import * as React from "react";
 import { saveCrmBrand } from "@/app/actions/crm-inventory-settings.actions";
 import { useToast } from "@/hooks/use-toast";
@@ -61,13 +61,13 @@ export function AddBrandDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-[425px]">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle className="text-[var(--st-text)]">Add Brand</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle className="text-[var(--st-text)]">Add Brand</DialogTitle>
+                    <DialogDescription className="text-[var(--st-text-secondary)]">
                         Create a new product brand.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -94,7 +94,7 @@ export function AddBrandDialog({
                             />
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
@@ -106,9 +106,9 @@ export function AddBrandDialog({
                         >
                             Save
                         </Button>
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

@@ -1,41 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   Pencil,
@@ -107,7 +72,7 @@ function formatRelative(iso: string | null): string {
 }
 
 export default function PermissionsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [groups, setGroups] = useState<Group[]>([]);
   const [modules, setModules] = useState<ModRow[]>([]);
   const [kpis, setKpis] = useState<PermissionKpis>(EMPTY_KPIS);
@@ -328,18 +293,18 @@ export default function PermissionsPage() {
                 setPage(1);
               }}
             >
-              <ZoruSelectTrigger className="h-8 w-[180px] text-[12px]">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All modules</ZoruSelectItem>
-                <ZoruSelectItem value="__none">Uncategorised</ZoruSelectItem>
+              <SelectTrigger className="h-8 w-[180px] text-[12px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All modules</SelectItem>
+                <SelectItem value="__none">Uncategorised</SelectItem>
                 {modules.map((m) => (
-                  <ZoruSelectItem key={m._id} value={m._id}>
+                  <SelectItem key={m._id} value={m._id}>
                     {m.display_name || m.module_name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           {(['all', 'custom', 'builtin'] as FilterKind[]).map((k) => (
@@ -435,62 +400,62 @@ export default function PermissionsPage() {
         <Card className="p-0">
           <div className="overflow-x-auto">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="w-[40px]">
+              <THead>
+                <Tr className="hover:bg-transparent">
+                  <Th className="w-[40px]">
                     <Checkbox
                       checked={allOnPageSelected}
                       onCheckedChange={toggleAllOnPage}
                       aria-label="Select all on page"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Name
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Slug
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Module
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Type
-                  </ZoruTableHead>
-                  <ZoruTableHead className="w-[140px] text-right text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="w-[140px] text-right text-[var(--st-text-secondary)]">
                     Actions
-                  </ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {isLoading && flatRows.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={6}
                       className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : pageRows.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={6}
                       className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No permissions match the current filters.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   pageRows.map((p) => (
-                    <ZoruTableRow key={p._id}>
-                      <ZoruTableCell>
+                    <Tr key={p._id}>
+                      <Td>
                         <Checkbox
                           checked={selected.has(p._id)}
                           onCheckedChange={() => toggleOne(p._id)}
                           aria-label={`Select ${p.name}`}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         <RowDrawer
                           label={p.display_name || p.name}
                           subtitle={p.description || undefined}
@@ -537,19 +502,19 @@ export default function PermissionsPage() {
                             </div>
                           </div>
                         </RowDrawer>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[12px] text-[var(--st-text-secondary)]">
                         <code>{p.name}</code>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[12px] text-[var(--st-text-secondary)]">
                         {p.module_name}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant={p.is_custom ? 'success' : 'ghost'}>
                           {p.is_custom ? 'Custom' : 'Built-in'}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button
                             variant="ghost"
@@ -571,11 +536,11 @@ export default function PermissionsPage() {
                             <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
           <PaginationBar
@@ -594,16 +559,16 @@ export default function PermissionsPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-lg">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
               {editing ? 'Edit Permission' : 'Add Permission'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Permissions belong to a module and are assigned to roles with a
               type (all / added / owned / both / none).
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <form action={saveAction} className="space-y-4">
             {editing?._id ? (
@@ -668,7 +633,7 @@ export default function PermissionsPage() {
               </Label>
             </div>
 
-            <ZoruDialogFooter className="gap-2">
+            <DialogFooter className="gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -682,50 +647,50 @@ export default function PermissionsPage() {
                 ) : null}
                 Save
               </Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </form>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete permission?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete permission?</AlertDialogTitle>
+            <AlertDialogDescription>
               All role and user grants for this permission will be removed.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Delete {selected.size} permission(s)?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               All role and user grants for the selected permissions will be
               removed. This cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleBulkDelete}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete}>
               {bulkDeleting ? 'Deleting…' : 'Delete'}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
   );
 }

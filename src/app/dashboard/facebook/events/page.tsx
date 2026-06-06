@@ -1,48 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  Label,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-  Textarea,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -76,7 +34,7 @@ import type { FacebookEvent } from '@/lib/definitions';
  * Lists upcoming events on the connected Page, exposes a "New event" dialog
  * (name/description/place/start_time), and opens a details Sheet on
  * click to surface attending counts and an attendee list. Cancel/delete is
- * a confirm-step via ZoruAlertDialog.
+ * a confirm-step via AlertDialog.
  *
  * Server actions live in `@/app/actions/facebook.actions`. The rust client
  * may currently return "not implemented" — in that case the page renders
@@ -196,19 +154,19 @@ export default function FacebookEventsPage(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">Meta Suite</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Events</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">Meta Suite</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Events</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
@@ -233,8 +191,8 @@ export default function FacebookEventsPage(): React.JSX.Element {
       {error && (
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>Could not load events</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not load events</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
@@ -300,22 +258,22 @@ export default function FacebookEventsPage(): React.JSX.Element {
                 </button>
                 <div className="flex items-center justify-end border-t border-[var(--st-border)] p-2">
                   <DropdownMenu>
-                    <ZoruDropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon-sm" aria-label="Event actions">
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
-                    </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent align="end">
-                      <ZoruDropdownMenuItem onSelect={() => openDetails(ev)}>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => openDetails(ev)}>
                         View details
-                      </ZoruDropdownMenuItem>
-                      <ZoruDropdownMenuItem
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
                         onSelect={() => setConfirmDelete(ev)}
                         className="text-[var(--st-danger)]"
                       >
                         <Trash2 className="mr-2 h-4 w-4" /> Cancel event
-                      </ZoruDropdownMenuItem>
-                    </ZoruDropdownMenuContent>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
               </Card>
@@ -326,13 +284,13 @@ export default function FacebookEventsPage(): React.JSX.Element {
 
       {/* ── New event dialog ── */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New event</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New event</DialogTitle>
+            <DialogDescription>
               Publish a new event to the connected Facebook Page.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <form
             action={onCreate}
             className="space-y-3"
@@ -360,7 +318,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
                 />
               </div>
             </div>
-            <ZoruDialogFooter>
+            <DialogFooter>
               <Button
                 type="button"
                 variant="ghost"
@@ -372,9 +330,9 @@ export default function FacebookEventsPage(): React.JSX.Element {
               <Button type="submit" disabled={submitting}>
                 {submitting ? 'Creating…' : 'Create event'}
               </Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </form>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
       {/* ── Details sheet ── */}
@@ -382,13 +340,13 @@ export default function FacebookEventsPage(): React.JSX.Element {
         open={!!activeEvent}
         onOpenChange={(open) => !open && setActiveEvent(null)}
       >
-        <ZoruSheetContent className="w-full sm:max-w-md">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>{activeEvent?.name ?? 'Event'}</ZoruSheetTitle>
-            <ZoruSheetDescription>
+        <SheetContent className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>{activeEvent?.name ?? 'Event'}</SheetTitle>
+            <SheetDescription>
               RSVP counts and attendee list for this event.
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </SheetDescription>
+          </SheetHeader>
           {activeEvent ? (
             <div className="mt-4 space-y-4 text-sm">
               {activeEvent.cover?.source ? (
@@ -492,30 +450,30 @@ export default function FacebookEventsPage(): React.JSX.Element {
               </div>
             </div>
           ) : null}
-        </ZoruSheetContent>
+        </SheetContent>
       </Sheet>
 
       {/* ── Cancel/delete confirmation ── */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!confirmDelete}
         onOpenChange={(open) => !open && setConfirmDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Cancel this event?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel this event?</AlertDialogTitle>
+            <AlertDialogDescription>
               This will cancel &quot;{confirmDelete?.name}&quot; on the Facebook
               Page. RSVPs will be notified.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={deleting}>Keep event</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={onConfirmDelete} disabled={deleting}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Keep event</AlertDialogCancel>
+            <AlertDialogAction onClick={onConfirmDelete} disabled={deleting}>
               {deleting ? 'Cancelling…' : 'Cancel event'}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

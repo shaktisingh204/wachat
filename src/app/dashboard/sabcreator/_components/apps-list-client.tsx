@@ -9,24 +9,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LayoutGrid, Plus, Rocket } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Input,
-  Label,
-  Textarea,
-  PageHeader,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  EmptyState,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions, EmptyState, Badge } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { createSabcreatorApp } from '@/app/actions/sabcreator.actions';
 import type { SabcreatorAppDoc } from '@/lib/rust-client/sabcreator-apps';
@@ -75,16 +58,16 @@ export function AppsListClient({ initialItems }: Props) {
     <div className="px-6 py-8 space-y-8">
       <PageHeader>
         <div>
-          <ZoruPageTitle>SabCreator</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>SabCreator</PageTitle>
+          <PageDescription>
             Build internal low-code apps backed by SabTables and SabFlow.
-          </ZoruPageDescription>
+          </PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Button onClick={() => setOpen(true)}>
             <Plus className="size-4" /> New app
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {items.length === 0 ? (
@@ -132,10 +115,10 @@ export function AppsListClient({ initialItems }: Props) {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Create new app</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create new app</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label htmlFor="sc-app-name">App name</Label>
@@ -170,15 +153,15 @@ export function AppsListClient({ initialItems }: Props) {
               </SabFilePickerButton>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={pending || !name.trim()}>
               {pending ? 'Creating…' : 'Create app'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -27,17 +15,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
@@ -66,7 +44,7 @@ export default function LeaveTypesClient({
 }: {
   initialTypes: (WsLeaveType & { _id: string })[];
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [types, setTypes] = useState<(WsLeaveType & { _id: string })[]>(initialTypes);
   const [isLoadingList, startLoadList] = useTransition();
   const [isDeleting, startDelete] = useTransition();
@@ -256,8 +234,8 @@ export default function LeaveTypesClient({
                           <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
                           Edit
                         </Button>
-                        <ZoruAlertDialog>
-                          <ZoruAlertDialogTrigger asChild>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
                             <Button
                               variant="outline"
                               size="sm"
@@ -267,22 +245,22 @@ export default function LeaveTypesClient({
                               <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={1.75} />
                               Delete
                             </Button>
-                          </ZoruAlertDialogTrigger>
-                          <ZoruAlertDialogContent>
-                            <ZoruAlertDialogHeader>
-                              <ZoruAlertDialogTitle>Delete Leave Type</ZoruAlertDialogTitle>
-                              <ZoruAlertDialogDescription>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Leave Type</AlertDialogTitle>
+                              <AlertDialogDescription>
                                 Are you sure you want to delete this leave type? This action cannot be undone.
-                              </ZoruAlertDialogDescription>
-                            </ZoruAlertDialogHeader>
-                            <ZoruAlertDialogFooter>
-                              <ZoruAlertDialogCancel onClick={() => setTypeToDelete(null)}>Cancel</ZoruAlertDialogCancel>
-                              <ZoruAlertDialogAction destructive onClick={confirmDeleteType} disabled={isDeleting}>
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel onClick={() => setTypeToDelete(null)}>Cancel</AlertDialogCancel>
+                              <AlertDialogAction destructive onClick={confirmDeleteType} disabled={isDeleting}>
                                 Delete
-                              </ZoruAlertDialogAction>
-                            </ZoruAlertDialogFooter>
-                          </ZoruAlertDialogContent>
-                        </ZoruAlertDialog>
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </td>
                   </tr>
@@ -361,14 +339,14 @@ export default function LeaveTypesClient({
                   name="leave_unit"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="days">Days</ZoruSelectItem>
-                        <ZoruSelectItem value="hours">Hours</ZoruSelectItem>
-                        <ZoruSelectItem value="half-days">Half Days</ZoruSelectItem>
-                      </ZoruSelectContent>
+                      <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="days">Days</SelectItem>
+                        <SelectItem value="hours">Hours</SelectItem>
+                        <SelectItem value="half-days">Half Days</SelectItem>
+                      </SelectContent>
                     </Select>
                   )}
                 />
@@ -381,13 +359,13 @@ export default function LeaveTypesClient({
                   name="paid"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-                        <ZoruSelectItem value="false">No</ZoruSelectItem>
-                      </ZoruSelectContent>
+                      <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Yes</SelectItem>
+                        <SelectItem value="false">No</SelectItem>
+                      </SelectContent>
                     </Select>
                   )}
                 />
@@ -400,13 +378,13 @@ export default function LeaveTypesClient({
                   name="status"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                        <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
-                      </ZoruSelectContent>
+                      <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
                     </Select>
                   )}
                 />
@@ -423,13 +401,13 @@ export default function LeaveTypesClient({
                   name="accrual_enabled"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-                        <ZoruSelectItem value="false">No</ZoruSelectItem>
-                      </ZoruSelectContent>
+                      <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Yes</SelectItem>
+                        <SelectItem value="false">No</SelectItem>
+                      </SelectContent>
                     </Select>
                   )}
                 />
@@ -455,14 +433,14 @@ export default function LeaveTypesClient({
                       name="accrual_frequency"
                       render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
-                          <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                            <ZoruSelectValue />
-                          </ZoruSelectTrigger>
-                          <ZoruSelectContent>
-                            <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
-                            <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
-                            <ZoruSelectItem value="yearly">Yearly</ZoruSelectItem>
-                          </ZoruSelectContent>
+                          <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                            <SelectItem value="yearly">Yearly</SelectItem>
+                          </SelectContent>
                         </Select>
                       )}
                     />

@@ -1,25 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Switch,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -125,7 +106,7 @@ function SectionCard({
                 premium && 'ring-1 ring-[var(--st-border)]/40 shadow-[var(--st-border)]/10',
             )}
         >
-            <ZoruCardHeader
+            <CardHeader
                 className={cn(
                     'border-b border-[var(--st-border)] bg-gradient-to-r to-transparent',
                     styles.glow,
@@ -144,7 +125,7 @@ function SectionCard({
                     )}
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <ZoruCardTitle className="text-base">{title}</ZoruCardTitle>
+                            <CardTitle className="text-base">{title}</CardTitle>
                             {premium && (
                                 <Badge className="rounded-full text-[9px] h-5 px-2 gap-1 bg-gradient-to-r from-[var(--st-text)]/80 to-[var(--st-bg-muted)]/80 text-[var(--st-text)] border-0 font-bold uppercase tracking-wider">
                                     <Crown className="h-2.5 w-2.5" />
@@ -153,14 +134,14 @@ function SectionCard({
                             )}
                         </div>
                         {description && (
-                            <ZoruCardDescription className="text-xs mt-0.5">
+                            <CardDescription className="text-xs mt-0.5">
                                 {description}
-                            </ZoruCardDescription>
+                            </CardDescription>
                         )}
                     </div>
                 </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="pt-5">{children}</ZoruCardContent>
+            </CardHeader>
+            <CardBody className="pt-5">{children}</CardBody>
         </Card>
     );
 }
@@ -188,7 +169,7 @@ const inputClass = 'rounded-xl bg-[var(--st-bg)] border-[var(--st-border)] backd
 export default function PlanEditor({ planId, initialPlan, initialHistory }: { planId: string, initialPlan: WithId<Plan> | null, initialHistory: (WithId<Plan> & { versionedAt: Date | string })[] }) {
     
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, setState] = useState<{ message?: string | null, error?: string | null }>(initialState);
     const [, startTransition] = useTransition();
 
@@ -309,31 +290,31 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                             </Field>
                             <Field label="Category">
                                 <Select name="appCategory" defaultValue={plan?.appCategory}>
-                                    <ZoruSelectTrigger className={inputClass}>
-                                        <ZoruSelectValue placeholder="Select category…" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="All-In-One">All-In-One</ZoruSelectItem>
-                                        <ZoruSelectItem value="Wachat">Wachat</ZoruSelectItem>
-                                        <ZoruSelectItem value="CRM">CRM</ZoruSelectItem>
-                                        <ZoruSelectItem value="Meta">Meta Suite</ZoruSelectItem>
-                                        <ZoruSelectItem value="Facebook">Facebook</ZoruSelectItem>
-                                        <ZoruSelectItem value="Instagram">Instagram</ZoruSelectItem>
-                                        <ZoruSelectItem value="Ad Manager">
+                                    <SelectTrigger className={inputClass}>
+                                        <SelectValue placeholder="Select category…" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="All-In-One">All-In-One</SelectItem>
+                                        <SelectItem value="Wachat">Wachat</SelectItem>
+                                        <SelectItem value="CRM">CRM</SelectItem>
+                                        <SelectItem value="Meta">Meta Suite</SelectItem>
+                                        <SelectItem value="Facebook">Facebook</SelectItem>
+                                        <SelectItem value="Instagram">Instagram</SelectItem>
+                                        <SelectItem value="Ad Manager">
                                             Ad Manager (Premium)
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="Email">Email</ZoruSelectItem>
-                                        <ZoruSelectItem value="SMS">SMS</ZoruSelectItem>
-                                        <ZoruSelectItem value="SabChat">SabChat</ZoruSelectItem>
-                                        <ZoruSelectItem value="SEO">SEO</ZoruSelectItem>
-                                        <ZoruSelectItem value="Website Builder">
+                                        </SelectItem>
+                                        <SelectItem value="Email">Email</SelectItem>
+                                        <SelectItem value="SMS">SMS</SelectItem>
+                                        <SelectItem value="SabChat">SabChat</SelectItem>
+                                        <SelectItem value="SEO">SEO</SelectItem>
+                                        <SelectItem value="Website Builder">
                                             Website Builder
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="URL Shortener">URL Shortener</ZoruSelectItem>
-                                        <ZoruSelectItem value="QR Code Generator">
+                                        </SelectItem>
+                                        <SelectItem value="URL Shortener">URL Shortener</SelectItem>
+                                        <SelectItem value="QR Code Generator">
                                             QR Code Generator
-                                        </ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                        </SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </Field>
                             <Field label="Price / month">
@@ -349,14 +330,14 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                             </Field>
                             <Field label="Currency">
                                 <Select name="currency" defaultValue={plan?.currency || 'INR'} required>
-                                    <ZoruSelectTrigger className={inputClass}>
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="INR">INR</ZoruSelectItem>
-                                        <ZoruSelectItem value="USD">USD</ZoruSelectItem>
-                                        <ZoruSelectItem value="EUR">EUR</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger className={inputClass}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="INR">INR</SelectItem>
+                                        <SelectItem value="USD">USD</SelectItem>
+                                        <SelectItem value="EUR">EUR</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </Field>
                         </div>

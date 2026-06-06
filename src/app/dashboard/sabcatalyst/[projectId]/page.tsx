@@ -15,13 +15,7 @@ import {
     listSabcatalystDomains,
     getSabcatalystUsage,
 } from '@/app/actions/sabcatalyst.actions';
-import {
-    Tabs,
-    ZoruTabsList,
-    ZoruTabsTrigger,
-    ZoruTabsContent,
-    Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsList, TabsTrigger, TabsContent, Badge } from '@/components/sabcrm/20ui/compat';
 
 import { OverviewTab } from './_components/overview-tab';
 import { FunctionsTab } from './_components/functions-tab';
@@ -72,18 +66,18 @@ export default async function ProjectConsolePage({ params }: PageProps) {
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
-                <ZoruTabsList className="flex flex-wrap">
-                    <ZoruTabsTrigger value="overview">Overview</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="functions">Functions</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="datastore">Datastore</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="auth">Auth</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="files">File Store</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="apikeys">API Keys</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="domains">Domains</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="usage">Usage</ZoruTabsTrigger>
-                </ZoruTabsList>
+                <TabsList className="flex flex-wrap">
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="functions">Functions</TabsTrigger>
+                    <TabsTrigger value="datastore">Datastore</TabsTrigger>
+                    <TabsTrigger value="auth">Auth</TabsTrigger>
+                    <TabsTrigger value="files">File Store</TabsTrigger>
+                    <TabsTrigger value="apikeys">API Keys</TabsTrigger>
+                    <TabsTrigger value="domains">Domains</TabsTrigger>
+                    <TabsTrigger value="usage">Usage</TabsTrigger>
+                </TabsList>
 
-                <ZoruTabsContent value="overview" className="mt-6">
+                <TabsContent value="overview" className="mt-6">
                     <OverviewTab
                         project={project}
                         counts={{
@@ -95,35 +89,35 @@ export default async function ProjectConsolePage({ params }: PageProps) {
                             domains: domains.items.length,
                         }}
                     />
-                </ZoruTabsContent>
+                </TabsContent>
 
-                <ZoruTabsContent value="functions" className="mt-6">
+                <TabsContent value="functions" className="mt-6">
                     <FunctionsTab projectId={projectId} initialItems={functions.items} />
-                </ZoruTabsContent>
+                </TabsContent>
 
-                <ZoruTabsContent value="datastore" className="mt-6">
+                <TabsContent value="datastore" className="mt-6">
                     <DatastoreTab projectId={projectId} initialTables={tables.items} />
-                </ZoruTabsContent>
+                </TabsContent>
 
-                <ZoruTabsContent value="auth" className="mt-6">
+                <TabsContent value="auth" className="mt-6">
                     <AuthTab projectId={projectId} initialUsers={authUsers.items} />
-                </ZoruTabsContent>
+                </TabsContent>
 
-                <ZoruTabsContent value="files" className="mt-6">
+                <TabsContent value="files" className="mt-6">
                     <FileStoreTab projectId={projectId} initialFiles={files.items} />
-                </ZoruTabsContent>
+                </TabsContent>
 
-                <ZoruTabsContent value="apikeys" className="mt-6">
+                <TabsContent value="apikeys" className="mt-6">
                     <ApiKeysTab projectId={projectId} initialKeys={apiKeys.items} />
-                </ZoruTabsContent>
+                </TabsContent>
 
-                <ZoruTabsContent value="domains" className="mt-6">
+                <TabsContent value="domains" className="mt-6">
                     <DomainsTab projectId={projectId} initialDomains={domains.items} />
-                </ZoruTabsContent>
+                </TabsContent>
 
-                <ZoruTabsContent value="usage" className="mt-6">
+                <TabsContent value="usage" className="mt-6">
                     <UsageTab projectId={projectId} initialRows={usage.rows} />
-                </ZoruTabsContent>
+                </TabsContent>
             </Tabs>
         </div>
     );

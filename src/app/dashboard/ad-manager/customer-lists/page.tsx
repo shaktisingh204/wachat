@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Textarea,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Alert, AlertDescription, AlertTitle, Badge, Textarea, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   UserPlus,
   Upload,
@@ -282,8 +269,8 @@ export default function CustomerListsPage() {
             <div>
                 <Alert>
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>Pick an ad account to upload customer lists.</ZoruAlertDescription>
+                    <AlertTitle>No ad account selected</AlertTitle>
+                    <AlertDescription>Pick an ad account to upload customer lists.</AlertDescription>
                 </Alert>
             </div>
         );
@@ -305,16 +292,16 @@ export default function CustomerListsPage() {
 
             <Alert>
                 <AlertCircle className="h-4 w-4" />
-                <ZoruAlertTitle>Hashing happens on your device</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Hashing happens on your device</AlertTitle>
+                <AlertDescription>
                     Raw {audienceType === 'PHONE' ? 'phone numbers' : 'emails'} never leave your browser. Only hashed values are sent to Meta — Meta rehashes on their
                     end to match against their user graph without ever seeing the plaintext.
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="text-base flex items-center justify-between">
+                <CardHeader>
+                    <CardTitle className="text-base flex items-center justify-between">
                         Upload Data
                         <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
                             <FileText className="h-4 w-4 mr-2" /> Load from CSV
@@ -330,9 +317,9 @@ export default function CustomerListsPage() {
                                 e.target.value = '';
                             }}
                         />
-                    </ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                    </CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-4">
                     <div className="flex gap-4">
                         <div className="space-y-2 flex-1">
                             <Label>Audience name</Label>
@@ -421,7 +408,7 @@ export default function CustomerListsPage() {
                             {uploading ? `Hashing & uploading… ${progress}%` : `Hash & upload${validItems.length > 0 ? ` (${validItems.length})` : ''}`}
                         </span>
                     </Button>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

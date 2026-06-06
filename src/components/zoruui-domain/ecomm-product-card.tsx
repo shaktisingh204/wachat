@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Badge,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Badge, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/sabcrm/20ui/compat';
 import { Edit, Trash2, ShoppingBag } from 'lucide-react';
 import type { WithId,
   EcommProduct,
@@ -63,15 +45,15 @@ export function EcommProductCard({ product, shopSettings, onEdit, onDelete, shop
     return (
         <Card className="flex flex-col">
            <CardContentWrapper>
-                <ZoruCardHeader className="p-0">
+                <CardHeader className="p-0">
                     <div className="relative aspect-[4/5] bg-[var(--st-bg-muted)]">
                         <Image src={product.imageUrl || 'https://placehold.co/400x500.png'} alt={product.name} layout="fill" objectFit="cover" className="rounded-t-lg transition-transform group-hover:scale-105" data-ai-hint="product photo"/>
                     </div>
                      <div className="p-4">
-                        <ZoruCardTitle className="text-lg">{product.name}</ZoruCardTitle>
+                        <CardTitle className="text-lg">{product.name}</CardTitle>
                     </div>
-                </ZoruCardHeader>
-                <ZoruCardContent className="p-4 pt-0 flex-grow">
+                </CardHeader>
+                <CardBody className="p-4 pt-0 flex-grow">
                     <p className="text-sm text-[var(--st-text-secondary)] line-clamp-2 h-10">{product.description}</p>
                     <div className="flex justify-between items-center mt-4">
                         <p className="text-lg font-semibold">{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(product.price)}</p>
@@ -79,21 +61,21 @@ export function EcommProductCard({ product, shopSettings, onEdit, onDelete, shop
                             {product.stock && product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
                         </Badge>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </CardContentWrapper>
-            <ZoruCardFooter className="p-4 flex justify-end gap-2">
+            <CardFooter className="p-4 flex justify-end gap-2">
                 <Button variant="outline" size="sm" onClick={onEdit}><Edit className="mr-2 h-4 w-4"/>Edit</Button>
-                <ZoruAlertDialog>
-                    <ZoruAlertDialogTrigger asChild><Button variant="destructive" size="sm"><Trash2 className="mr-2 h-4 w-4"/>Delete</Button></ZoruAlertDialogTrigger>
-                    <ZoruAlertDialogContent>
-                        <ZoruAlertDialogHeader><ZoruAlertDialogTitle>Delete Product?</ZoruAlertDialogTitle><ZoruAlertDialogDescription>This will permanently delete "{product.name}".</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
-                        <ZoruAlertDialogFooter>
-                            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
-                        </ZoruAlertDialogFooter>
-                    </ZoruAlertDialogContent>
-                </ZoruAlertDialog>
-            </ZoruCardFooter>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild><Button variant="destructive" size="sm"><Trash2 className="mr-2 h-4 w-4"/>Delete</Button></AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle>Delete Product?</AlertDialogTitle><AlertDialogDescription>This will permanently delete "{product.name}".</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </CardFooter>
         </Card>
     );
 }

@@ -12,32 +12,7 @@ import Link from 'next/link';
 import { Download, ShoppingBag, Trash2 } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    Checkbox,
-    ZoruDateRangePicker,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
@@ -91,7 +66,7 @@ function oTotal(o: OrderItem): number {
 }
 
 export default function StoreOrdersPage(): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [items, setItems] = React.useState<OrderItem[]>([]);
     const [storefronts, setStorefronts] = React.useState<Array<{ id: string; name: string }>>([]);
@@ -235,23 +210,23 @@ export default function StoreOrdersPage(): React.JSX.Element {
                 subtitle="Orders captured from the storefront — payment and fulfillment state."
                 filters={
                     <Card>
-                        <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
+                        <CardBody className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[180px] space-y-1">
                                 <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Storefront
                                 </Label>
                                 <Select value={storefrontFilter} onValueChange={setStorefrontFilter}>
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="All storefronts" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="__all__">All storefronts</ZoruSelectItem>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All storefronts" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all__">All storefronts</SelectItem>
                                         {storefronts.map((sf) => (
-                                            <ZoruSelectItem key={sf.id} value={sf.id}>
+                                            <SelectItem key={sf.id} value={sf.id}>
                                                 {sf.name}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="min-w-[160px] space-y-1">
@@ -262,24 +237,24 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                     value={statusFilter}
                                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="All" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">All</ZoruSelectItem>
-                                        <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-                                        <ZoruSelectItem value="paid">Paid</ZoruSelectItem>
-                                        <ZoruSelectItem value="fulfilled">Fulfilled</ZoruSelectItem>
-                                        <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
-                                        <ZoruSelectItem value="refunded">Refunded</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All</SelectItem>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="paid">Paid</SelectItem>
+                                        <SelectItem value="fulfilled">Fulfilled</SelectItem>
+                                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                                        <SelectItem value="refunded">Refunded</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="min-w-[220px] space-y-1">
                                 <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Date placed
                                 </Label>
-                                <ZoruDateRangePicker value={dateRange} onChange={setDateRange} />
+                                <DateRangePicker value={dateRange} onChange={setDateRange} />
                             </div>
                             {hasActiveFilters ? (
                                 <Button
@@ -293,7 +268,7 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                     Clear filters
                                 </Button>
                             ) : null}
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 }
                 bulkBar={
@@ -308,14 +283,14 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                 Cancel
                             </Button>
                             <DropdownMenu>
-                                <ZoruDropdownMenuTrigger asChild>
+                                <DropdownMenuTrigger asChild>
                                     <Button size="sm" variant="outline">
                                         <Download className="h-3.5 w-3.5" /> Export
                                     </Button>
-                                </ZoruDropdownMenuTrigger>
-                                <ZoruDropdownMenuContent align="end">
-                                    <ZoruDropdownMenuItem onClick={exportCsv}>Export as CSV</ZoruDropdownMenuItem>
-                                </ZoruDropdownMenuContent>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={exportCsv}>Export as CSV</DropdownMenuItem>
+                                </DropdownMenuContent>
                             </DropdownMenu>
                             <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
                                 <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -354,63 +329,63 @@ export default function StoreOrdersPage(): React.JSX.Element {
                     {filtered.length > 0 ? (
                         <Card className="overflow-hidden p-0">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow>
-                                        <ZoruTableHead className="w-10">
+                                <THead>
+                                    <Tr>
+                                        <Th className="w-10">
                                             <Checkbox
                                                 aria-label="Select all"
                                                 checked={allSelected}
                                                 onCheckedChange={(c) => toggleAll(c === true)}
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead>Order #</ZoruTableHead>
-                                        <ZoruTableHead>Customer</ZoruTableHead>
-                                        <ZoruTableHead>Total</ZoruTableHead>
-                                        <ZoruTableHead>Placed</ZoruTableHead>
-                                        <ZoruTableHead>Status</ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                        <Th>Order #</Th>
+                                        <Th>Customer</Th>
+                                        <Th>Total</Th>
+                                        <Th>Placed</Th>
+                                        <Th>Status</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {filtered.map((o) => {
                                         const id = oId(o);
                                         const status = oStatus(o);
                                         const orderNo = String((o as Record<string, unknown>).orderNo ?? `#${id.slice(-6)}`);
                                         return (
-                                            <ZoruTableRow
+                                            <Tr
                                                 key={id}
                                                 data-state={selected.has(id) ? 'selected' : undefined}
                                             >
-                                                <ZoruTableCell>
+                                                <Td>
                                                     <Checkbox
                                                         aria-label={`Select ${orderNo}`}
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() => toggleOne(id)}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     <Link
                                                         href={`/dashboard/crm/store/orders/${id}`}
                                                         className="hover:underline"
                                                     >
                                                         {orderNo}
                                                     </Link>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {String(o.customerEmail ?? o.customerName ?? '—')}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {fmtMoney(oTotal(o), String(o.currency ?? 'INR'))}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                     {fmtDate(o.createdAt)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <Badge variant={statusVariant(status)}>{status}</Badge>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </Card>
                     ) : null}

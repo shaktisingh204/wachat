@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -31,7 +31,7 @@ export function CustomFieldFlagToggle({
 }) {
   const [pending, start] = useTransition();
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   return (
     <Button
@@ -70,7 +70,7 @@ export function CustomFieldDetailActions({
 }) {
   const [pending, start] = useTransition();
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const archive = isActive;
 
   return (

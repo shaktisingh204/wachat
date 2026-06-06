@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruCardContent, ZoruCardTitle, ZoruCardDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
 import { Briefcase, Wallet, Bell, Shield } from 'lucide-react';
 import Link from 'next/link';
 
@@ -27,17 +27,17 @@ export default function AdManagerSettingsPage() {
                     const Icon = i.icon;
                     return (
                         <Link key={i.href} href={i.href} className="block h-full">
-                            <ZoruCard interactive variant="soft" className="h-full">
-                                <ZoruCardContent className="p-4 pt-4 sm:p-4 sm:pt-4 flex gap-3 h-full items-center">
+                            <Card interactive variant="soft" className="h-full">
+                                <CardBody className="p-4 pt-4 sm:p-4 sm:pt-4 flex gap-3 h-full items-center">
                                     <div className="h-10 w-10 shrink-0 rounded-lg bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
                                         <Icon className="h-5 w-5" />
                                     </div>
                                     <div className="flex flex-col gap-0.5">
-                                        <ZoruCardTitle className="text-sm font-medium">{i.title}</ZoruCardTitle>
-                                        <ZoruCardDescription className="text-xs">{i.desc}</ZoruCardDescription>
+                                        <CardTitle className="text-sm font-medium">{i.title}</CardTitle>
+                                        <CardDescription className="text-xs">{i.desc}</CardDescription>
                                     </div>
-                                </ZoruCardContent>
-                            </ZoruCard>
+                                </CardBody>
+                            </Card>
                         </Link>
                     );
                 })}

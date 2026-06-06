@@ -3,23 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-    Button,
-    Dialog,
-    ZoruDialogTrigger,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogFooter,
-    Input,
-    Textarea,
-    Label,
-    Select,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSelectContent,
-    ZoruSelectItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Textarea, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { createSabConnectCustomApp } from '@/app/actions/sabconnect.actions';
@@ -65,13 +49,13 @@ export function CreateCustomAppDialog() {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button>Pin app</Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Pin a custom app</ZoruDialogTitle>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Pin a custom app</DialogTitle>
+                </DialogHeader>
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="app-name">Name</Label>
@@ -105,13 +89,13 @@ export function CreateCustomAppDialog() {
                             value={openIn}
                             onValueChange={(v) => setOpenIn(v as SabConnectCustomAppOpenIn)}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="new_tab">New tab</ZoruSelectItem>
-                                <ZoruSelectItem value="iframe">Embedded iframe</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="new_tab">New tab</SelectItem>
+                                <SelectItem value="iframe">Embedded iframe</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
@@ -129,15 +113,15 @@ export function CreateCustomAppDialog() {
                         </p>
                     ) : null}
                 </div>
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button variant="outline" onClick={() => setOpen(false)}>
                         Cancel
                     </Button>
                     <Button onClick={submit} disabled={pending}>
                         {pending ? 'Saving…' : 'Pin app'}
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

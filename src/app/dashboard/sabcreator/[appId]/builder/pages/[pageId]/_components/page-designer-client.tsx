@@ -24,23 +24,7 @@ import {
   Type as TypeIcon,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  PageHeader,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui/compat';
 import { updateSabcreatorPage } from '@/app/actions/sabcreator.actions';
 import type { SabcreatorAppDoc } from '@/lib/rust-client/sabcreator-apps';
 import type {
@@ -154,8 +138,8 @@ export function PageDesignerClient({ app, page }: Props) {
     <div className="min-h-screen flex flex-col">
       <PageHeader>
         <div>
-          <ZoruPageTitle>{page.name}</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>{page.name}</PageTitle>
+          <PageDescription>
             Page designer · {page.kind} ·{' '}
             <Link
               href={`/dashboard/sabcreator/${app._id}/builder`}
@@ -163,14 +147,14 @@ export function PageDesignerClient({ app, page }: Props) {
             >
               back to builder
             </Link>
-          </ZoruPageDescription>
+          </PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Badge variant="outline">{page.status}</Badge>
           <Button onClick={save} disabled={pending}>
             <Save className="size-4" /> {pending ? 'Saving…' : 'Save'}
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="flex-1 grid grid-cols-[200px_1fr_320px] gap-4 px-6 pb-10">
@@ -308,14 +292,14 @@ export function PageDesignerClient({ app, page }: Props) {
                 setRoleVisibility(v as SabcreatorPageRoleVisibility)
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All users</ZoruSelectItem>
-                <ZoruSelectItem value="admin">Admins only</ZoruSelectItem>
-                <ZoruSelectItem value="specific">Specific roles</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All users</SelectItem>
+                <SelectItem value="admin">Admins only</SelectItem>
+                <SelectItem value="specific">Specific roles</SelectItem>
+              </SelectContent>
             </Select>
           </Card>
         </aside>

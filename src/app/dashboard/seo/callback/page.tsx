@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState } from 'react';
@@ -13,7 +13,7 @@ import { Loader2 } from 'lucide-react';
 export default function SeoCallbackPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [status, setStatus] = useState('Processing Google Login...');
 
     useEffect(() => {

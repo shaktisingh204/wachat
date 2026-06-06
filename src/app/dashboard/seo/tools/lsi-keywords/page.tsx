@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, Tabs, ZoruZoruTabsList, ZoruZoruTabsTrigger, ZoruZoruTabsContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Badge, Tabs, ZoruZoruTabsList, ZoruZoruTabsTrigger, ZoruZoruTabsContent } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Copy, Loader2, Check } from 'lucide-react';
@@ -147,7 +147,7 @@ export default function LsiKeywordsPage() {
               </Button>
             </div>
 
-            <ZoruCardContent className="p-5">
+            <CardBody className="p-5">
               <ZoruTabsContent value="all" className="mt-0 outline-none">
                 <div className="text-sm text-[var(--st-text-secondary)] mb-4">A complete deduplicated list of all LSI and semantically related keywords, sorted by relevance.</div>
                 {renderBadgeList(allKeywords)}
@@ -160,7 +160,7 @@ export default function LsiKeywordsPage() {
                 <div className="text-sm text-[var(--st-text-secondary)] mb-4">Words with related meanings, synonyms, and strongly connected semantic concepts.</div>
                 {renderBadgeList(related)}
               </ZoruTabsContent>
-            </ZoruCardContent>
+            </CardBody>
           </Tabs>
         </Card>
       )}

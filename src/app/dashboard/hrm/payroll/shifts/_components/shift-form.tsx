@@ -4,14 +4,7 @@ import * as React from 'react';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle } from 'lucide-react';
-import {
-    Button,
-    Checkbox,
-    Input,
-    Label,
-    Textarea,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveShift } from '@/app/actions/crm-shifts.actions';
 import type { CrmShiftDoc, CrmShiftStatus } from '@/lib/rust-client/crm-shifts';
@@ -50,7 +43,7 @@ export function ShiftForm({
 }) {
     const isEditing = !!initial;
     const [state, formAction] = useActionState(saveShift, saveInitial);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [color, setColor] = React.useState<string>(initial?.color ?? '#EAB308');
     const [isNight, setIsNight] = React.useState<boolean>(!!initial?.isNightShift);

@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * Interviews calendar — read-only month/week grid grouping interviews
  * by `scheduledAt` date.
@@ -48,12 +48,12 @@ export function InterviewsCalendar({
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-[14px]">
+      <CardHeader>
+        <CardTitle className="text-[14px]">
           Upcoming interviews by date
-        </ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+        </CardTitle>
+      </CardHeader>
+      <CardBody>
         {sortedKeys.length === 0 ? (
           <p className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] px-3 py-6 text-center text-[13px] text-[var(--st-text-secondary)]">
             No interviews scheduled.
@@ -97,7 +97,7 @@ export function InterviewsCalendar({
             ))}
           </ul>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

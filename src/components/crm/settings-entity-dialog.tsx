@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Label } from '@/components/sabcrm/20ui/compat';
 import {
   LoaderCircle } from 'lucide-react';
 
@@ -57,17 +48,17 @@ export function SettingsEntityDialog<T extends { _id: string; [k: string]: any }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="max-w-2xl">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>
+            <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle>
                         {editing ? `Edit ${singular}` : `New ${singular}`}
-                    </ZoruDialogTitle>
-                    <ZoruDialogDescription>
+                    </DialogTitle>
+                    <DialogDescription>
                         {editing
                             ? 'Update the details and save.'
                             : 'Fill in the details below.'}
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <form action={formAction} className="space-y-4">
                     {editing?._id ? (
                         <input type="hidden" name="_id" value={editing._id} />
@@ -108,7 +99,7 @@ export function SettingsEntityDialog<T extends { _id: string; [k: string]: any }
                             </div>
                         ))}
                     </div>
-                    <ZoruDialogFooter className="gap-2">
+                    <DialogFooter className="gap-2">
                         <Button
                             type="button"
                             variant="outline"
@@ -122,9 +113,9 @@ export function SettingsEntityDialog<T extends { _id: string; [k: string]: any }
                             ) : null}
                             Save
                         </Button>
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

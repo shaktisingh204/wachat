@@ -2,19 +2,7 @@ import * as React from 'react';
 import { Suspense } from 'react';
 
 import { listSabpracticeEngagements } from '@/app/actions/sabpractice.actions';
-import {
-    Badge,
-    Card,
-    CardContent,
-    EmptyState,
-    PageHeader,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardContent, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 async function EngagementsData() {
     const list = await listSabpracticeEngagements({ status: 'all', limit: 200 });
@@ -37,34 +25,34 @@ async function EngagementsData() {
                         />
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Client</TableHead>
-                                    <TableHead>Billing</TableHead>
-                                    <TableHead>Rate</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Name</Th>
+                                    <Th>Client</Th>
+                                    <Th>Billing</Th>
+                                    <Th>Rate</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {list.items.map((e) => (
-                                    <TableRow key={e._id}>
-                                        <TableCell className="font-medium">{e.name}</TableCell>
-                                        <TableCell className="font-mono text-xs">
+                                    <Tr key={e._id}>
+                                        <Td className="font-medium">{e.name}</Td>
+                                        <Td className="font-mono text-xs">
                                             {e.clientId.slice(-6)}
-                                        </TableCell>
-                                        <TableCell>{e.billingCadence ?? '—'}</TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>{e.billingCadence ?? '—'}</Td>
+                                        <Td>
                                             {e.hourlyRateMinor
                                                 ? `${(e.hourlyRateMinor / 100).toFixed(2)} ${e.currency ?? ''}`
                                                 : '—'}
-                                        </TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>
                                             <Badge>{e.status ?? 'active'}</Badge>
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>

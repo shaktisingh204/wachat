@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Table, TBody, Td, Th, THead, Tr, Popover, PopoverTrigger, PopoverContent, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
 import {
   Eye,
   LoaderCircle,
@@ -282,68 +264,68 @@ export default function PayslipsListPage() {
             >
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Pay period</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Gross</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Net</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Issued at</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="text-[var(--st-text-secondary)]">Employee</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Pay period</Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">Gross</Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">Net</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Issued at</Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">Actions</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={7} className="h-24 text-center">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={7} className="h-24 text-center">
                                         <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : rows.length === 0 ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={7} className="h-24 text-center text-[var(--st-text-secondary)]">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={7} className="h-24 text-center text-[var(--st-text-secondary)]">
                                         No payslips match this filter.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 rows.map((p) => {
                                     const status = (p.status ?? 'draft') as CrmPayslipStatus;
                                     const tone = STATUS_TONE[status] ?? 'neutral';
                                     return (
-                                        <ZoruTableRow key={p._id} className="border-[var(--st-border)]">
-                                            <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                        <Tr key={p._id} className="border-[var(--st-border)]">
+                                            <Td className="font-medium text-[var(--st-text)]">
                                                 <Link href={`${BASE}/${p._id}`} className="hover:underline">
                                                     {p.employeeName ?? p.employeeId ?? '—'}
                                                 </Link>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {fmtPeriod(p.payPeriod)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right font-mono text-[var(--st-text)]">
                                                 {inr.format(p.gross ?? 0)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right font-mono text-[var(--st-text)]">
                                                 {inr.format(p.net ?? 0)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <StatusPill label={status} tone={tone} />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {fmtDate(p.issuedAt)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 <Button variant="ghost" size="icon" asChild>
                                                     <Link href={`${BASE}/${p._id}`}>
                                                         <Eye className="h-4 w-4" />
                                                     </Link>
                                                 </Button>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
         </EntityListShell>

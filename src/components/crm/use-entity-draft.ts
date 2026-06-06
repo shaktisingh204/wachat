@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 export function draftKey(entityName: string, id: string | null | undefined, userId: string | null | undefined): string {
   return `crm.${entityName}.draft.${userId ?? 'anon'}.${id ?? 'new'}`;
@@ -28,7 +28,7 @@ export function useEntityDraft<T extends Record<string, any>>({
   snapshotExtras = () => ({}),
   applyExtras = () => {},
 }: UseEntityDraftArgs<T>) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [draftAvailable, setDraftAvailable] = React.useState(false);
   const [draftDismissed, setDraftDismissed] = React.useState(false);
 

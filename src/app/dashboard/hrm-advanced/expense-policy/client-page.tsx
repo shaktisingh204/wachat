@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo, useEffect, useOptimistic, useTransition, useCallback, useRef } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Checkbox, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, EmptyState, Badge } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Table, THead, TBody, Tr, Th, Td, EmptyState, Badge } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { ExpenseClaim } from '@/lib/hrm-advanced-types';
 import { saveExpenseClaim, deleteExpenseClaim, getExpenseClaims } from '@/app/actions/hrm-advanced/expense-policy';
 import { ClaimForm } from './claim-form';
@@ -29,7 +29,7 @@ export function ClientPage({ initialData }: { initialData: ExpenseClaim[] }) {
   );
 
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -271,24 +271,24 @@ export function ClientPage({ initialData }: { initialData: ExpenseClaim[] }) {
         <div className="rounded-md border border-[var(--st-border)] overflow-hidden bg-[var(--st-bg-secondary)]">
           <div ref={parentRef} className="max-h-[600px] overflow-auto relative">
             <Table>
-              <ZoruTableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
-                <ZoruTableRow>
-                  <ZoruTableHead className="w-12 text-center">
+              <THead className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
+                <Tr>
+                  <Th className="w-12 text-center">
                     <Checkbox
                       checked={filteredData.length > 0 && selectedIds.size === filteredData.length}
                       onCheckedChange={toggleSelectAll}
                       aria-label="Select all claims"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead>Employee</ZoruTableHead>
-                  <ZoruTableHead>Category</ZoruTableHead>
-                  <ZoruTableHead>Amount</ZoruTableHead>
-                  <ZoruTableHead>Date</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody
+                  </Th>
+                  <Th>Employee</Th>
+                  <Th>Category</Th>
+                  <Th>Amount</Th>
+                  <Th>Date</Th>
+                  <Th>Status</Th>
+                  <Th className="text-right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody
                 style={{
                   height: `${rowVirtualizer.getTotalSize()}px`,
                   position: 'relative',
@@ -298,7 +298,7 @@ export function ClientPage({ initialData }: { initialData: ExpenseClaim[] }) {
                   const row = filteredData[virtualRow.index];
                   const id = row._id || `temp-${virtualRow.index}`;
                   return (
-                    <ZoruTableRow
+                    <Tr
                       key={id}
                       style={{
                         position: 'absolute',
@@ -308,28 +308,28 @@ export function ClientPage({ initialData }: { initialData: ExpenseClaim[] }) {
                         transform: `translateY(${virtualRow.start}px)`,
                       }}
                     >
-                      <ZoruTableCell className="text-center">
+                      <Td className="text-center">
                         <Checkbox
                           checked={selectedIds.has(id)}
                           onCheckedChange={() => toggleSelect(id)}
                           aria-label={`Select claim ${id}`}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="font-medium">{row.employeeId}</ZoruTableCell>
-                      <ZoruTableCell>{row.category}</ZoruTableCell>
-                      <ZoruTableCell>${Number(row.amount).toFixed(2)}</ZoruTableCell>
-                      <ZoruTableCell>{formatDate(row.dateSubmitted)}</ZoruTableCell>
-                      <ZoruTableCell>{getStatusBadge(row.status)}</ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="font-medium">{row.employeeId}</Td>
+                      <Td>{row.category}</Td>
+                      <Td>${Number(row.amount).toFixed(2)}</Td>
+                      <Td>{formatDate(row.dateSubmitted)}</Td>
+                      <Td>{getStatusBadge(row.status)}</Td>
+                      <Td className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="sm" onClick={() => { setEditingClaim(row); setIsFormOpen(true); }}>Edit</Button>
                           <Button variant="ghost" size="sm" className="text-[var(--st-text)] hover:text-[var(--st-text)]" onClick={() => handleDelete(id)}>Del</Button>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         </div>

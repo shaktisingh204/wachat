@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Button, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button, Badge } from '@/components/sabcrm/20ui/compat';
 import { Sparkles, Building2, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -21,13 +21,13 @@ export function AccountIntelligence() {
 
     return (
         <Card className="w-full">
-            <ZoruCardHeader className="pb-4">
-                <ZoruCardTitle className="flex items-center gap-2">
+            <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-[var(--st-text)]" />
                     Account Intelligence
-                </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="grid gap-4">
+                </CardTitle>
+            </CardHeader>
+            <CardBody className="grid gap-4">
                 <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] p-3">
                     <div className="flex items-center gap-3">
                         <div className="rounded-md bg-[var(--st-bg-muted)] p-2 dark:bg-[var(--st-text)]/20">
@@ -71,7 +71,7 @@ export function AccountIntelligence() {
                         Enriched data will pre-fill any empty fields without overwriting your existing manual changes.
                     </p>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

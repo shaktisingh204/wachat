@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -63,20 +52,20 @@ export function CrmImportContactsDialog({ onImported }: CrmImportContactsDialogP
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="outline">
           <Upload className="mr-2 h-4 w-4" />
           Import
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle className="text-[var(--st-text)]">Import Contacts</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle className="text-[var(--st-text)]">Import Contacts</DialogTitle>
+            <DialogDescription className="text-[var(--st-text-secondary)]">
               Upload a CSV or XLSX file. Ensure columns match: `name`, `email`, `phone`, `company`, `jobTitle`, `status`, `leadScore`.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -85,12 +74,12 @@ export function CrmImportContactsDialog({ onImported }: CrmImportContactsDialogP
               </div>
             </div>
           </div>
-          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

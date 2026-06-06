@@ -1,19 +1,19 @@
 'use client';
 
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
 import { BarChart, Users, CheckCircle2, TrendingUp } from 'lucide-react';
 
 export function AnnouncementAnalytics({ entityId }: { entityId: string }) {
     // Simulated analytics
     return (
         <Card>
-            <ZoruCardHeader className="flex flex-row items-center justify-between py-3">
-                <ZoruCardTitle className="flex items-center gap-2 text-sm font-medium">
+            <CardHeader className="flex flex-row items-center justify-between py-3">
+                <CardTitle className="flex items-center gap-2 text-sm font-medium">
                     <BarChart className="h-4 w-4 text-[var(--st-text)]" />
                     Reach & Engagement
-                </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="pb-4 pt-0">
+                </CardTitle>
+            </CardHeader>
+            <CardBody className="pb-4 pt-0">
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
@@ -52,7 +52,7 @@ export function AnnouncementAnalytics({ entityId }: { entityId: string }) {
                         </p>
                     </div>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

@@ -1,24 +1,6 @@
 'use client';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    Checkbox,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import {
     Banknote,
     Clock,
@@ -111,7 +93,7 @@ interface KpiTileProps {
 function KpiTile({ label, value, icon: Icon, tone }: KpiTileProps) {
     return (
         <Card className="overflow-hidden">
-            <ZoruCardContent className="flex items-start justify-between gap-2 p-3.5">
+            <CardBody className="flex items-start justify-between gap-2 p-3.5">
                 <div className="min-w-0">
                     <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         {label}
@@ -129,7 +111,7 @@ function KpiTile({ label, value, icon: Icon, tone }: KpiTileProps) {
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
                     <Icon className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={1.75} />
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -424,16 +406,16 @@ export function PosSessionsListClient({
                         setStatusFilter(v as PosSessionStatus | 'all')
                     }
                 >
-                    <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                        <ZoruSelectValue placeholder="Status" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                        <ZoruSelectItem value="open">Open</ZoruSelectItem>
-                        <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
-                        <ZoruSelectItem value="reconciled">Reconciled</ZoruSelectItem>
-                        <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger className="h-9 w-[160px] text-[13px]">
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All statuses</SelectItem>
+                        <SelectItem value="open">Open</SelectItem>
+                        <SelectItem value="closed">Closed</SelectItem>
+                        <SelectItem value="reconciled">Reconciled</SelectItem>
+                        <SelectItem value="archived">Archived</SelectItem>
+                    </SelectContent>
                 </Select>
                 <Input
                     type="date"
@@ -496,9 +478,9 @@ export function PosSessionsListClient({
             <Card className="p-0">
                 <div className="overflow-x-auto">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="w-8">
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="w-8">
                                     <Checkbox
                                         checked={headChecked}
                                         onCheckedChange={(c) =>
@@ -506,34 +488,34 @@ export function PosSessionsListClient({
                                         }
                                         aria-label="Select all"
                                     />
-                                </ZoruTableHead>
-                                <ZoruTableHead>Terminal</ZoruTableHead>
-                                <ZoruTableHead>Cashier</ZoruTableHead>
-                                <ZoruTableHead>Opened</ZoruTableHead>
-                                <ZoruTableHead>Opening cash</ZoruTableHead>
-                                <ZoruTableHead>Drift</ZoruTableHead>
-                                <ZoruTableHead>Status</ZoruTableHead>
-                                <ZoruTableHead className="text-right">
+                                </Th>
+                                <Th>Terminal</Th>
+                                <Th>Cashier</Th>
+                                <Th>Opened</Th>
+                                <Th>Opening cash</Th>
+                                <Th>Drift</Th>
+                                <Th>Status</Th>
+                                <Th className="text-right">
                                     Actions
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {paged.length === 0 ? (
-                                <ZoruTableRow>
-                                    <ZoruTableCell
+                                <Tr>
+                                    <Td
                                         colSpan={8}
                                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         {sessions.length === 0
                                             ? 'No POS sessions yet. Open one to start ringing up sales.'
                                             : 'No sessions match these filters.'}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 paged.map((s) => (
-                                    <ZoruTableRow key={s._id}>
-                                        <ZoruTableCell>
+                                    <Tr key={s._id}>
+                                        <Td>
                                             <Checkbox
                                                 checked={selected.has(s._id)}
                                                 onCheckedChange={() =>
@@ -541,8 +523,8 @@ export function PosSessionsListClient({
                                                 }
                                                 aria-label="Select session"
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <EntityRowLink
                                                 href={`/dashboard/crm/pos/sessions/${s._id}`}
                                                 label={s.terminalId}
@@ -551,28 +533,28 @@ export function PosSessionsListClient({
                                                     undefined
                                                 }
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {s.openedByName || '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {fmtDateTime(s.openedAt)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="tabular-nums">
+                                        </Td>
+                                        <Td className="tabular-nums">
                                             {fmtMoney(s.openingCash)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="tabular-nums">
+                                        </Td>
+                                        <Td className="tabular-nums">
                                             {typeof s.discrepancy === 'number'
                                                 ? fmtMoney(s.discrepancy)
                                                 : '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <StatusPill
                                                 label={s.status}
                                                 tone={statusTone(s.status)}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
+                                        </Td>
+                                        <Td className="text-right">
                                             <div className="flex justify-end gap-1">
                                                 <Button
                                                     size="sm"
@@ -614,11 +596,11 @@ export function PosSessionsListClient({
                                                     </Button>
                                                 ) : null}
                                             </div>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
 
@@ -631,19 +613,19 @@ export function PosSessionsListClient({
                                 value={String(pageSize)}
                                 onValueChange={(v) => setPageSize(Number(v))}
                             >
-                                <ZoruSelectTrigger className="h-8 w-[80px] text-[12px]">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger className="h-8 w-[80px] text-[12px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {[10, 20, 50, 100].map((n) => (
-                                        <ZoruSelectItem
+                                        <SelectItem
                                             key={n}
                                             value={String(n)}
                                         >
                                             {n}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="flex items-center gap-3 text-[12px] text-[var(--st-text-secondary)]">

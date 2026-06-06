@@ -1,25 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  DataTable,
-  EmptyState,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DataTable, EmptyState, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -124,7 +105,7 @@ function RowActions({
 }) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isPublishing, startPublishing] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const onPublishNow = () => {
     startPublishing(async () => {
@@ -315,33 +296,33 @@ export default function ScheduledPostsPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Scheduled</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Scheduled</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader bordered={false} className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
-          <ZoruPageTitle>Scheduled posts</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Meta Suite</PageEyebrow>
+          <PageTitle>Scheduled posts</PageTitle>
+          <PageDescription>
             Manage posts queued for future publication on your connected
             Facebook Page.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <div className="flex items-center gap-1 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] p-1 bg-[var(--st-bg-secondary)]">
             <Button
               variant={view === "table" ? "secondary" : "ghost"}
@@ -372,7 +353,7 @@ export default function ScheduledPostsPage() {
               <Send /> New post
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="mt-6">

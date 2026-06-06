@@ -1,7 +1,7 @@
 'use client';
 
 import { Card } from '@/components/sabcrm/20ui/compat';
-import { ZoruChartContainer, ZoruChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 import {
     AreaChart,
     Area,
@@ -39,7 +39,7 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
             <div className="space-y-8">
                 <div>
                     <h4 className="mb-2 text-[13px] text-[var(--st-text-secondary)]">PF Contributions</h4>
-                    <ZoruChartContainer height={200}>
+                    <ChartContainer height={200}>
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={sorted} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                                 <defs>
@@ -65,7 +65,7 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
                                     tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                                     tickFormatter={(v) => `₹${v}`}
                                 />
-                                <Tooltip content={<ZoruChartTooltip />} />
+                                <Tooltip content={<ChartTooltip />} />
                                 <Legend wrapperStyle={{ fontSize: '12px' }} />
                                 <Area
                                     type="monotone"
@@ -85,12 +85,12 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
-                    </ZoruChartContainer>
+                    </ChartContainer>
                 </div>
 
                 <div>
                     <h4 className="mb-2 text-[13px] text-[var(--st-text-secondary)]">ESI Contributions</h4>
-                    <ZoruChartContainer height={200}>
+                    <ChartContainer height={200}>
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={sorted} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                                 <defs>
@@ -116,7 +116,7 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
                                     tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                                     tickFormatter={(v) => `₹${v}`}
                                 />
-                                <Tooltip content={<ZoruChartTooltip />} />
+                                <Tooltip content={<ChartTooltip />} />
                                 <Legend wrapperStyle={{ fontSize: '12px' }} />
                                 <Area
                                     type="monotone"
@@ -136,7 +136,7 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
-                    </ZoruChartContainer>
+                    </ChartContainer>
                 </div>
             </div>
         </Card>

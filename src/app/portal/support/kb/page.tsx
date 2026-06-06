@@ -10,11 +10,7 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { BookOpen, Search } from 'lucide-react';
 
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { listKbArticles } from '@/app/actions/crm-knowledge-base.actions';
 
@@ -46,7 +42,7 @@ export default async function PortalSupportKbPage() {
 
       {error ? (
         <Card>
-          <ZoruCardContent className="p-4 text-[13px] text-[var(--st-danger)]">{error}</ZoruCardContent>
+          <CardBody className="p-4 text-[13px] text-[var(--st-danger)]">{error}</CardBody>
         </Card>
       ) : visible.length === 0 ? (
         <EmptyState
@@ -57,7 +53,7 @@ export default async function PortalSupportKbPage() {
         <div className="grid gap-3 sm:grid-cols-2">
           {visible.map((a) => (
             <Card key={a._id}>
-              <ZoruCardContent className="space-y-2 p-4">
+              <CardBody className="space-y-2 p-4">
                 <Link
                   href={`/portal/support/kb/${a._id}`}
                   className="block text-[14px] font-medium text-[var(--st-text)] hover:underline"
@@ -71,7 +67,7 @@ export default async function PortalSupportKbPage() {
                   </Badge>
                   {a.updatedAt ? <span>Updated {new Date(a.updatedAt).toLocaleDateString()}</span> : null}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ))}
         </div>

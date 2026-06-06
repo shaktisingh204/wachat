@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
 import Link from 'next/link';
 import { LiveSidebar } from './live-sidebar';
@@ -67,7 +67,7 @@ export function LiveDocumentEditor({
     extraFormData,
 }: LiveDocumentEditorProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
     const [isPending, startTransition] = useTransition();
 

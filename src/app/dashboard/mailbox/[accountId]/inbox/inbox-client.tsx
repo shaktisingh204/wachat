@@ -29,21 +29,7 @@ import {
 } from '@/app/actions/mailbox.actions';
 import type { MailFolderDoc } from '@/lib/rust-client/mail-folders';
 import type { MailMessageDoc } from '@/lib/rust-client/mail-messages';
-import {
-    Badge,
-    Button,
-    Card,
-    EmptyState,
-    Input,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    Separator,
-    cn,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, cn, useToast } from '@/components/sabcrm/20ui/compat';
 
 type SortKey = 'date' | 'sender' | 'subject';
 
@@ -70,7 +56,7 @@ export function InboxClient({
     initialMessages,
 }: InboxClientProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [folders] = React.useState(initialFolders);
     const [messages, setMessages] = React.useState(initialMessages);

@@ -4,16 +4,7 @@ import * as React from 'react';
 import type { DateRange } from 'react-day-picker';
 import { X } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    ZoruDateRangePicker,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, DateRangePicker, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 import type { PurchaseLeadsKpiFilter } from './purchase-leads-kpi-strip';
 
@@ -79,16 +70,16 @@ export function PurchaseLeadsFiltersRow({
                     value={String(statusFilter || 'all')}
                     onValueChange={(v) => onStatusChange(v)}
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="All statuses" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger>
+                        <SelectValue placeholder="All statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
                         {STATUS_OPTIONS.map((opt) => (
-                            <ZoruSelectItem key={opt.value} value={opt.value}>
+                            <SelectItem key={opt.value} value={opt.value}>
                                 {opt.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
 
@@ -97,17 +88,17 @@ export function PurchaseLeadsFiltersRow({
                     value={ownerFilter || '__all__'}
                     onValueChange={(v) => onOwnerChange(v === '__all__' ? '' : v)}
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Any owner" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="__all__">Any owner</ZoruSelectItem>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Any owner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__all__">Any owner</SelectItem>
                         {ownerOptions.map((opt) => (
-                            <ZoruSelectItem key={opt.value} value={opt.value}>
+                            <SelectItem key={opt.value} value={opt.value}>
                                 {opt.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
 
@@ -116,22 +107,22 @@ export function PurchaseLeadsFiltersRow({
                     value={sourceFilter || '__all__'}
                     onValueChange={(v) => onSourceChange(v === '__all__' ? '' : v)}
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Any source" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="__all__">Any source</ZoruSelectItem>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Any source" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__all__">Any source</SelectItem>
                         {sourceOptions.map((opt) => (
-                            <ZoruSelectItem key={opt.value} value={opt.value}>
+                            <SelectItem key={opt.value} value={opt.value}>
                                 {opt.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
 
             <div className="w-72">
-                <ZoruDateRangePicker
+                <DateRangePicker
                     value={dateRange}
                     onChange={(r) => onDateRangeChange(r)}
                     placeholder="Created between"

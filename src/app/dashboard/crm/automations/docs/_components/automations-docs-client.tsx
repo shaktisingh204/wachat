@@ -12,28 +12,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Badge,
-  Button,
-  Card,
-  Separator,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-  Tabs,
-  ZoruTabsContent as TabsContent,
-  ZoruTabsList as TabsList,
-  ZoruTabsTrigger as TabsTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Badge, Button, Card, Separator, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
 import { Download, Loader2, Play, Pause, Plus, Trash2, X } from 'lucide-react';
 
 import {
@@ -299,7 +278,7 @@ export function AutomationsDocsClient({
   initialAutomations,
   initialTotal,
 }: AutomationsDocsClientProps): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* ── my-automations state ────────────────────────────────────────────── */
   const [automations, setAutomations] = React.useState(initialAutomations);
@@ -462,9 +441,9 @@ export function AutomationsDocsClient({
             ) : (
               <div className="overflow-x-auto">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow className="hover:bg-transparent">
-                      <ZoruTableHead className="w-8">
+                  <THead>
+                    <Tr className="hover:bg-transparent">
+                      <Th className="w-8">
                         <input
                           type="checkbox"
                           checked={
@@ -473,62 +452,62 @@ export function AutomationsDocsClient({
                           onChange={toggleAll}
                           className="h-3.5 w-3.5"
                         />
-                      </ZoruTableHead>
-                      <ZoruTableHead>Name</ZoruTableHead>
-                      <ZoruTableHead>Trigger</ZoruTableHead>
-                      <ZoruTableHead>Actions</ZoruTableHead>
-                      <ZoruTableHead>Status</ZoruTableHead>
-                      <ZoruTableHead>Last run</ZoruTableHead>
-                      <ZoruTableHead>Run count</ZoruTableHead>
-                      <ZoruTableHead />
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                      </Th>
+                      <Th>Name</Th>
+                      <Th>Trigger</Th>
+                      <Th>Actions</Th>
+                      <Th>Status</Th>
+                      <Th>Last run</Th>
+                      <Th>Run count</Th>
+                      <Th />
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {automations.map((a) => (
-                      <ZoruTableRow key={a._id}>
-                        <ZoruTableCell>
+                      <Tr key={a._id}>
+                        <Td>
                           <input
                             type="checkbox"
                             checked={selected.has(a._id)}
                             onChange={() => toggleSelect(a._id)}
                             className="h-3.5 w-3.5"
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] font-medium text-[var(--st-text)]">
                           <Link
                             href={`/dashboard/crm/automations/${a._id}`}
                             className="hover:underline"
                           >
                             {a.name}
                           </Link>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {a.trigger ?? '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {a.actionsCount ?? 0}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           {a.isActive ? (
                             <Badge variant="success" className="text-[11px]">Active</Badge>
                           ) : (
                             <Badge variant="secondary" className="text-[11px]">Paused</Badge>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {a.lastRunAt ? safeFormatDate(a.lastRunAt) : '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {a.runCount ?? 0}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <Button size="sm" variant="outline" asChild>
                             <Link href={`/dashboard/crm/automations/${a._id}/edit`}>Edit</Link>
                           </Button>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
               </div>
             )}
@@ -609,11 +588,11 @@ export function AutomationsDocsClient({
             <h3 className="mb-2 text-[14px] font-semibold text-[var(--st-text)]">Triggers</h3>
             <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Trigger').map((doc, idx) => (
-                <ZoruAccordionItem value={`trigger-${idx}`} key={idx}>
-                  <ZoruAccordionTrigger className="text-[14px] font-semibold">
+                <AccordionItem value={`trigger-${idx}`} key={idx}>
+                  <AccordionTrigger className="text-[14px] font-semibold">
                     {doc.title}
-                  </ZoruAccordionTrigger>
-                  <ZoruAccordionContent className="space-y-3 pt-1">
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-3 pt-1">
                     <p className="text-[13px] text-[var(--st-text-secondary)]">{doc.description}</p>
                     <div>
                       <p className="mb-1 text-[12px] font-semibold text-[var(--st-text)]">
@@ -635,8 +614,8 @@ export function AutomationsDocsClient({
                         ))}
                       </ul>
                     </div>
-                  </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                  </AccordionContent>
+                </AccordionItem>
               ))}
             </Accordion>
           </div>
@@ -646,11 +625,11 @@ export function AutomationsDocsClient({
             <h3 className="mb-2 text-[14px] font-semibold text-[var(--st-text)]">Actions</h3>
             <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Action').map((doc, idx) => (
-                <ZoruAccordionItem value={`action-${idx}`} key={idx}>
-                  <ZoruAccordionTrigger className="text-[14px] font-semibold">
+                <AccordionItem value={`action-${idx}`} key={idx}>
+                  <AccordionTrigger className="text-[14px] font-semibold">
                     {doc.title}
-                  </ZoruAccordionTrigger>
-                  <ZoruAccordionContent className="space-y-3 pt-1">
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-3 pt-1">
                     <p className="text-[13px] text-[var(--st-text-secondary)]">{doc.description}</p>
                     <div>
                       <p className="mb-1 text-[12px] font-semibold text-[var(--st-text)]">
@@ -664,8 +643,8 @@ export function AutomationsDocsClient({
                         ))}
                       </ul>
                     </div>
-                  </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                  </AccordionContent>
+                </AccordionItem>
               ))}
             </Accordion>
           </div>
@@ -675,11 +654,11 @@ export function AutomationsDocsClient({
             <h3 className="mb-2 text-[14px] font-semibold text-[var(--st-text)]">Logic</h3>
             <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Logic').map((doc, idx) => (
-                <ZoruAccordionItem value={`logic-${idx}`} key={idx}>
-                  <ZoruAccordionTrigger className="text-[14px] font-semibold">
+                <AccordionItem value={`logic-${idx}`} key={idx}>
+                  <AccordionTrigger className="text-[14px] font-semibold">
                     {doc.title}
-                  </ZoruAccordionTrigger>
-                  <ZoruAccordionContent className="space-y-3 pt-1">
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-3 pt-1">
                     <p className="text-[13px] text-[var(--st-text-secondary)]">{doc.description}</p>
                     <div>
                       <p className="mb-1 text-[12px] font-semibold text-[var(--st-text)]">
@@ -701,8 +680,8 @@ export function AutomationsDocsClient({
                         ))}
                       </ul>
                     </div>
-                  </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                  </AccordionContent>
+                </AccordionItem>
               ))}
             </Accordion>
           </div>

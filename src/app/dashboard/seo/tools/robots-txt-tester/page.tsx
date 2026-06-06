@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Label } from '@/components/sabcrm/20ui/compat';
 import { useState, useMemo } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
@@ -165,21 +165,21 @@ export default function RobotsTxtTesterPage() {
       </div>
       {error && (
         <Card className="border-[var(--st-border)]">
-          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent>
+          <CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody>
         </Card>
       )}
       {content && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="flex flex-col h-[500px]">
             <div className="p-4 border-b font-medium bg-[var(--st-bg-muted)]/50">robots.txt Content</div>
-            <ZoruCardContent className="p-0 flex-1 overflow-hidden">
+            <CardBody className="p-0 flex-1 overflow-hidden">
               <pre className="text-xs p-4 h-full overflow-auto whitespace-pre-wrap">{content}</pre>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
           
           <Card className="flex flex-col h-[500px]">
             <div className="p-4 border-b font-medium bg-[var(--st-bg-muted)]/50">Test URL Block</div>
-            <ZoruCardContent className="p-4 flex flex-col gap-4">
+            <CardBody className="p-4 flex flex-col gap-4">
               <div className="space-y-2">
                 <Label htmlFor="test-path">Path to Test</Label>
                 <Input 
@@ -226,7 +226,7 @@ export default function RobotsTxtTesterPage() {
                   </div>
                 ) : null}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       )}

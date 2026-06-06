@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
-  Input,
-  Skeleton,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, Skeleton, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useState,
@@ -129,19 +109,19 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/instagram">Instagram</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Discovery</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/instagram">Instagram</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Discovery</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
@@ -184,8 +164,8 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
       {error ? (
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>Discovery failed</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Discovery failed</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
 
@@ -210,11 +190,11 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
           <Card className="flex flex-col gap-4 p-5 md:flex-row md:items-start">
             <Avatar className="h-20 w-20">
               {profile.profile_picture_url ? (
-                <ZoruAvatarImage src={profile.profile_picture_url} alt="" />
+                <AvatarImage src={profile.profile_picture_url} alt="" />
               ) : null}
-              <ZoruAvatarFallback>
+              <AvatarFallback>
                 <Users className="h-6 w-6" />
-              </ZoruAvatarFallback>
+              </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
               <p className="text-lg text-[var(--st-text)]">{profile.name || profile.username}</p>

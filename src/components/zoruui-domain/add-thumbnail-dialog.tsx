@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -65,17 +56,17 @@ export function AddThumbnailDialog({ isOpen, onOpenChange, videoId, projectId, o
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="videoId" value={videoId} />
           <input type="hidden" name="sourceUrl" value={thumbnailUrl} />
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add Video Thumbnail</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Add Video Thumbnail</DialogTitle>
+            <DialogDescription>
               Pick a custom thumbnail image for your video from SabFiles.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
@@ -98,12 +89,12 @@ export function AddThumbnailDialog({ isOpen, onOpenChange, videoId, projectId, o
               </div>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton disabled={!thumbnailUrl} />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

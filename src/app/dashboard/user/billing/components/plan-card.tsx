@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  ZoruCard,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  ZoruCardFooter,
-  ZoruSeparator,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Separator } from '@/components/sabcrm/20ui/compat';
 import { Check, X, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PlanPurchaseButton } from '@/components/zoruui-domain/plan-purchase-button';
@@ -48,7 +40,7 @@ export const PlanCard = ({
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className="h-full"
     >
-      <ZoruCard
+      <Card
         className={cn(
           'relative flex flex-col w-[340px] h-full overflow-hidden transition-all duration-300',
           isCurrentPlan
@@ -60,9 +52,9 @@ export const PlanCard = ({
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text-secondary)]" />
         )}
         
-        <ZoruCardHeader className="flex-grow pt-8 pb-4">
+        <CardHeader className="flex-grow pt-8 pb-4">
           <div className="flex justify-between items-start">
-            <ZoruCardTitle className="text-xl font-bold">{plan.name}</ZoruCardTitle>
+            <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
             {isCurrentPlan && (
               <span className="inline-flex items-center gap-1 rounded-full bg-[var(--st-text)]/10 px-2.5 py-0.5 text-xs font-semibold text-[var(--st-text)]">
                 <Sparkles className="h-3 w-3" /> Current
@@ -74,14 +66,14 @@ export const PlanCard = ({
             {plan.price}
             <span className="ml-1 text-sm font-medium text-[var(--st-text-secondary)]">/mo</span>
           </div>
-          <ZoruCardDescription className="mt-4 text-[11px] uppercase tracking-wider font-semibold text-[var(--st-text-secondary)]">
+          <CardDescription className="mt-4 text-[11px] uppercase tracking-wider font-semibold text-[var(--st-text-secondary)]">
             + Mkt: ₹{plan.messageCosts?.marketing ?? 'N/A'} • Util: ₹{plan.messageCosts?.utility ?? 'N/A'} • Auth: ₹{plan.messageCosts?.authentication ?? 'N/A'}
-          </ZoruCardDescription>
-        </ZoruCardHeader>
+          </CardDescription>
+        </CardHeader>
 
-        <ZoruSeparator className="opacity-60 mx-6 w-auto" />
+        <Separator className="opacity-60 mx-6 w-auto" />
 
-        <ZoruCardContent className="pt-6 pb-6 flex-grow space-y-4">
+        <CardBody className="pt-6 pb-6 flex-grow space-y-4">
           <ul className="space-y-4">
             <PlanFeature included={true}>
               {plan.projectLimit > 0 ? <><strong className="text-[var(--st-text)]">{plan.projectLimit}</strong> Project(s)</> : <strong className="text-[var(--st-text)]">Unlimited</strong>}{' '} Projects
@@ -99,14 +91,14 @@ export const PlanCard = ({
               API Access included
             </PlanFeature>
           </ul>
-        </ZoruCardContent>
+        </CardBody>
 
-        <ZoruCardFooter className="mt-auto pt-4 pb-6">
+        <CardFooter className="mt-auto pt-4 pb-6">
           <div className="w-full">
             <PlanPurchaseButton plan={plan} currentPlanId={currentPlanId} projectId={projectId} />
           </div>
-        </ZoruCardFooter>
-      </ZoruCard>
+        </CardFooter>
+      </Card>
     </motion.div>
   );
 };

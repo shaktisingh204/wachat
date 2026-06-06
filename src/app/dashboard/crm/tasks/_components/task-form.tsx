@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Checkbox, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -88,7 +88,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export function TaskForm({ initialData }: TaskFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveTask, initialState);

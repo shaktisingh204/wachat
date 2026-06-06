@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Label } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   ListChecks,
@@ -72,18 +59,18 @@ export function DealBulkBar({
           <Download className="h-3.5 w-3.5" /> Export CSV
         </Button>
         <DropdownMenu>
-          <ZoruDropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild>
             <Button size="sm" variant="outline">
               Change stage
             </Button>
-          </ZoruDropdownMenuTrigger>
-          <ZoruDropdownMenuContent>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
             {stages.map((s) => (
-              <ZoruDropdownMenuItem key={s} onSelect={() => onChangeStage(s)}>
+              <DropdownMenuItem key={s} onSelect={() => onChangeStage(s)}>
                 {s}
-              </ZoruDropdownMenuItem>
+              </DropdownMenuItem>
             ))}
-          </ZoruDropdownMenuContent>
+          </DropdownMenuContent>
         </DropdownMenu>
         <Button
           size="sm"
@@ -104,13 +91,13 @@ export function DealBulkBar({
       </div>
 
       <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Assign {count} deal{count === 1 ? '' : 's'}</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign {count} deal{count === 1 ? '' : 's'}</DialogTitle>
+            <DialogDescription>
               Pick an owner. Leave empty to unassign.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-2 py-2">
             <Label>Owner</Label>
             <EntityFormField
@@ -120,7 +107,7 @@ export function DealBulkBar({
               onChange={(next) => setAssignUserId(next)}
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setAssignOpen(false)}>
               Cancel
             </Button>
@@ -132,8 +119,8 @@ export function DealBulkBar({
             >
               Assign
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

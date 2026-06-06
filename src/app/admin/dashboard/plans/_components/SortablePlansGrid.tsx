@@ -3,7 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { Edit, CreditCard, PlusCircle, GripHorizontal } from 'lucide-react';
 import { AdminDeletePlanButton } from '@/components/zoruui-domain/admin-delete-plan-button';
 import { AdminPlanPermissionsDialog } from '@/components/zoruui-domain/admin-plan-permissions-dialog';
@@ -132,7 +132,7 @@ function SortablePlanCard({ plan }: { plan: any }) {
 export function SortablePlansGrid({ initialPlans, fetchFailed }: { initialPlans: any[], fetchFailed?: boolean }) {
     const [plans, setPlans] = useState(initialPlans);
     const [, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const sensors = useSensors(
         useSensor(PointerSensor, {

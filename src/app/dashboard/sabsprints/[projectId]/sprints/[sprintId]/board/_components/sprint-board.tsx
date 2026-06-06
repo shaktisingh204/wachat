@@ -7,12 +7,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 
-import {
-  Badge,
-  Button,
-  Card,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   completeSprint,
   startSprint,
@@ -42,7 +37,7 @@ function sumPoints(stories: AgileStoryDoc[]): number {
 }
 
 export function SprintBoard({ projectId, sprint, initialStories }: Props) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [stories, setStories] = useState(initialStories);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();

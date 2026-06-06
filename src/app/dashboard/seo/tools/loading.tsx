@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
 
 export default function SeoToolsLoading() {
   return (
@@ -11,7 +11,7 @@ export default function SeoToolsLoading() {
 
       {/* Main content skeleton */}
       <Card className="border-[var(--st-border)]">
-        <ZoruCardContent className="p-6 space-y-4">
+        <CardBody className="p-6 space-y-4">
           <div className="flex gap-4">
             <div className="h-10 bg-[var(--st-bg-muted)] rounded flex-1"></div>
             <div className="h-10 bg-[var(--st-bg-muted)] rounded w-24"></div>
@@ -21,7 +21,7 @@ export default function SeoToolsLoading() {
             <div className="h-4 bg-[var(--st-bg-muted)] rounded w-5/6"></div>
             <div className="h-4 bg-[var(--st-bg-muted)] rounded w-4/6"></div>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

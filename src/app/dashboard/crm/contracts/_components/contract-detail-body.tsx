@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * <ContractDetailBody> — main content cards for the contract detail page.
  * Server component. Renders: Overview · Parties · Terms & body ·
@@ -75,10 +75,10 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
         voidedAt={contract.voidedAt} 
       />
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Title" value={contract.title || '—'} />
             <Field
@@ -97,14 +97,14 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
               }
             />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Parties</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Parties</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Party A (our org)" value="—" />
             <Field
@@ -128,27 +128,27 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
               </div>
             ) : null}
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {contract.body ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Terms &amp; body</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Terms &amp; body</CardTitle>
+          </CardHeader>
+          <CardBody>
             <pre className="whitespace-pre-wrap font-sans text-[13px] text-[var(--st-text)]">
               {contract.body}
             </pre>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Signature audit trail</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Signature audit trail</CardTitle>
+        </CardHeader>
+        <CardBody>
           {contract.status === 'signed' && contract.signedAt ? (
             <div className="grid gap-4 md:grid-cols-3">
               <Field label="Signed by" value={contract.signedByName || '—'} />
@@ -189,19 +189,19 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
               Last renewed {fmtDateTime(contract.renewedAt)}
             </p>
           ) : null}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {contract.notes ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Notes</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Notes</CardTitle>
+          </CardHeader>
+          <CardBody>
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {contract.notes}
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </>

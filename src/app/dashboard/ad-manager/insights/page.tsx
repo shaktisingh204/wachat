@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   BarChart3,
   TrendingUp,
@@ -227,11 +214,11 @@ export default function InsightsPage() {
                     ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24" />)
                     : kpis.map((k) => (
                           <Card key={k.label}>
-                              <ZoruCardContent className="p-4">
+                              <CardBody className="p-4">
                                   <k.icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                   <div className="mt-2 text-xs text-[var(--st-text-secondary)]">{k.label}</div>
                                   <div className="text-2xl font-bold tabular-nums">{k.value}</div>
-                              </ZoruCardContent>
+                              </CardBody>
                           </Card>
                       ))}
             </div>
@@ -356,12 +343,12 @@ function BreakdownTable({
                     <Download className="h-4 w-4 mr-1" /> Export Table
                 </Button>
             </div>
-            <ZoruCardContent className="p-0">
+            <CardBody className="p-0">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow>
+                    <THead>
+                        <Tr>
                             {columns.map((c) => (
-                                <ZoruTableHead key={c} className="capitalize">
+                                <Th key={c} className="capitalize">
                                     <button 
                                         type="button"
                                         onClick={() => handleSort(c)}
@@ -370,34 +357,34 @@ function BreakdownTable({
                                         {c.replace(/_/g, ' ')}
                                         <ArrowUpDown className="h-3 w-3" />
                                     </button>
-                                </ZoruTableHead>
+                                </Th>
                             ))}
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {sortedRows.length === 0 ? (
-                            <ZoruTableRow>
-                                <ZoruTableCell colSpan={columns.length} className="h-24 text-center text-[var(--st-text-secondary)]">
+                            <Tr>
+                                <Td colSpan={columns.length} className="h-24 text-center text-[var(--st-text-secondary)]">
                                     No data for this breakdown.
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : (
                             sortedRows.map((r, i) => (
-                                <ZoruTableRow key={i}>
+                                <Tr key={i}>
                                     {columns.map((c) => {
                                         const v = r[c];
                                         let display: string = v != null ? String(v) : '—';
                                         if (c === 'spend' || c === 'cpc' || c === 'cpm') display = formatMoney(v);
                                         else if (c === 'ctr') display = formatPercent(v);
                                         else if (['impressions', 'reach', 'clicks'].includes(c)) display = formatNumber(v);
-                                        return <ZoruTableCell key={c} className="tabular-nums">{display}</ZoruTableCell>;
+                                        return <Td key={c} className="tabular-nums">{display}</Td>;
                                     })}
-                                </ZoruTableRow>
+                                </Tr>
                             ))
                         )}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

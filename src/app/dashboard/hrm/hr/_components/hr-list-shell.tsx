@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Badge,
-  useZoruToast,
-  Checkbox,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Table, TBody, Td, Th, THead, Tr, Badge, useToast, Checkbox } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   Pencil,
@@ -135,7 +123,7 @@ export function HrListShell<T>({
   exportColumns,
   exportBaseName,
 }: HrListShellProps<T>): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [search, setSearch] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState<string>('all');
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -355,9 +343,9 @@ export function HrListShell<T>({
             <Card className="p-0">
               <div className="overflow-x-auto rounded-[var(--st-radius)]">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow>
-                      <ZoruTableHead className="w-10">
+                  <THead>
+                    <Tr>
+                      <Th className="w-10">
                         <Checkbox
                           aria-label="Select all"
                           checked={
@@ -366,30 +354,30 @@ export function HrListShell<T>({
                           }
                           onCheckedChange={(v) => toggleAll(Boolean(v))}
                         />
-                      </ZoruTableHead>
+                      </Th>
                       {columns.map((c) => (
-                        <ZoruTableHead key={c.key} className={c.className}>
+                        <Th key={c.key} className={c.className}>
                           {c.label}
-                        </ZoruTableHead>
+                        </Th>
                       ))}
-                      <ZoruTableHead className="w-[120px] text-right">
+                      <Th className="w-[120px] text-right">
                         Actions
-                      </ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                      </Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {filtered.map((row) => {
                       const id = rowId(row);
                       const href = detailHref ? detailHref(row) : editHref(row);
                       return (
-                        <ZoruTableRow key={id}>
-                          <ZoruTableCell>
+                        <Tr key={id}>
+                          <Td>
                             <Checkbox
                               aria-label="Select row"
                               checked={selected.has(id)}
                               onCheckedChange={() => toggleOne(id)}
                             />
-                          </ZoruTableCell>
+                          </Td>
                           {columns.map((c, colIdx) => {
                             const raw = c.render
                               ? c.render(row)
@@ -406,7 +394,7 @@ export function HrListShell<T>({
                                   )
                                 : raw;
                             return (
-                              <ZoruTableCell
+                              <Td
                                 key={c.key}
                                 className={
                                   (c.numeric ? 'tabular-nums text-right ' : '') +
@@ -414,10 +402,10 @@ export function HrListShell<T>({
                                 }
                               >
                                 {content}
-                              </ZoruTableCell>
+                              </Td>
                             );
                           })}
-                          <ZoruTableCell className="text-right">
+                          <Td className="text-right">
                             <div className="flex justify-end gap-1">
                               <Button variant="ghost" size="sm" asChild>
                                 <Link href={href} aria-label="View / Edit">
@@ -433,11 +421,11 @@ export function HrListShell<T>({
                                 <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                               </Button>
                             </div>
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       );
                     })}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
               </div>
             </Card>

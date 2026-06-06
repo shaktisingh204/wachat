@@ -21,21 +21,7 @@ import {
   Workflow,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ConnectionHeader,
@@ -313,19 +299,19 @@ export default function FacebookAdsIntegrationPage() {
                         setAdAccountName(match?.name ?? '');
                       }}
                     >
-                      <ZoruSelectTrigger id="ad_account_select">
-                        <ZoruSelectValue placeholder="Pick an ad account" />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
+                      <SelectTrigger id="ad_account_select">
+                        <SelectValue placeholder="Pick an ad account" />
+                      </SelectTrigger>
+                      <SelectContent>
                         {accounts.map((a) => {
                           const id = a.id ?? a.account_id ?? '';
                           return (
-                            <ZoruSelectItem key={id} value={id}>
+                            <SelectItem key={id} value={id}>
                               {a.name ?? a.account_id ?? id}
-                            </ZoruSelectItem>
+                            </SelectItem>
                           );
                         })}
-                      </ZoruSelectContent>
+                      </SelectContent>
                     </Select>
                   )}
                 </div>
@@ -406,7 +392,7 @@ export default function FacebookAdsIntegrationPage() {
 
         {stats?.lastErrorMessage ? (
           <Card>
-            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
+            <CardBody className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-[var(--st-danger)]" />
               <div>
                 <p className="text-sm font-medium text-[var(--st-text)]">
@@ -416,7 +402,7 @@ export default function FacebookAdsIntegrationPage() {
                   {stats.lastErrorMessage}
                 </p>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         ) : null}
 

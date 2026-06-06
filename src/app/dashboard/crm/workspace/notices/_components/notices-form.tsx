@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -28,7 +28,7 @@ export interface NoticesFormProps {
 
 export function NoticesForm({ mode, notice }: NoticesFormProps): React.JSX.Element {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = useActionState(saveNotice, {
         message: '',
         error: '',

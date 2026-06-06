@@ -1,11 +1,4 @@
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import Link from 'next/link';
 
@@ -22,8 +15,8 @@ export interface ClayBreadcrumbsProps extends React.HTMLAttributes<HTMLElement> 
 
 /**
  * ClayBreadcrumbs — delegates to the shadcn Breadcrumb primitive set.
- * Trailing segment renders as `ZoruBreadcrumbPage`; preceding segments use
- * `ZoruBreadcrumbLink` (with next/link via `asChild` when an href is provided).
+ * Trailing segment renders as `BreadcrumbPage`; preceding segments use
+ * `BreadcrumbLink` (with next/link via `asChild` when an href is provided).
  */
 export const ClayBreadcrumbs = React.forwardRef<
   HTMLElement,
@@ -34,33 +27,33 @@ export const ClayBreadcrumbs = React.forwardRef<
     className={cn('text-[13px] leading-none', className)}
     {...props}
   >
-    <ZoruBreadcrumbList>
+    <BreadcrumbList>
       {items.map((item, i) => {
         const isLast = i === items.length - 1;
         return (
           <React.Fragment key={`${item.label}-${i}`}>
             {i > 0 ? (
-              <ZoruBreadcrumbSeparator className="text-[var(--st-text-secondary)]/60">
+              <BreadcrumbSeparator className="text-[var(--st-text-secondary)]/60">
                 /
-              </ZoruBreadcrumbSeparator>
+              </BreadcrumbSeparator>
             ) : null}
-            <ZoruBreadcrumbItem>
+            <BreadcrumbItem>
               {isLast ? (
-                <ZoruBreadcrumbPage className="font-medium">
+                <BreadcrumbPage className="font-medium">
                   {item.label}
-                </ZoruBreadcrumbPage>
+                </BreadcrumbPage>
               ) : item.href ? (
-                <ZoruBreadcrumbLink asChild>
+                <BreadcrumbLink asChild>
                   <Link href={item.href}>{item.label}</Link>
-                </ZoruBreadcrumbLink>
+                </BreadcrumbLink>
               ) : (
                 <span className="text-[var(--st-text-secondary)]">{item.label}</span>
               )}
-            </ZoruBreadcrumbItem>
+            </BreadcrumbItem>
           </React.Fragment>
         );
       })}
-    </ZoruBreadcrumbList>
+    </BreadcrumbList>
   </Breadcrumb>
 ));
 ClayBreadcrumbs.displayName = 'ClayBreadcrumbs';

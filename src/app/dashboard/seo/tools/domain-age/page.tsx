@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode, useState } from 'react';
-import { Button, Input, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { Copy, Download, AlertCircle, RefreshCw } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiWhois, apiFetchUrl } from '@/lib/seo-tools/api-client';
@@ -21,7 +21,7 @@ class LocalErrorBoundary extends Component<{ children?: ReactNode }, { hasError:
     if (this.state.hasError) {
       return (
         <Card className="border-[var(--st-border)] m-4">
-          <ZoruCardContent className="p-4 text-[var(--st-text)]">
+          <CardBody className="p-4 text-[var(--st-text)]">
             <div className="flex items-center gap-2 font-bold mb-2">
               <AlertCircle className="w-5 h-5" />
               <p>Something went wrong</p>
@@ -30,7 +30,7 @@ class LocalErrorBoundary extends Component<{ children?: ReactNode }, { hasError:
             <Button variant="outline" className="mt-4 border-[var(--st-border)] text-[var(--st-text)]" onClick={() => this.setState({ hasError: false, error: null })}>
               Try again
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       );
     }
@@ -159,10 +159,10 @@ function DomainAgeContent() {
 
       {error && (
         <Card className="border-[var(--st-border)] mb-6">
-          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm flex items-start gap-2">
+          <CardBody className="p-4 text-[var(--st-text)] text-sm flex items-start gap-2">
             <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
             <p>{error}</p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
@@ -184,14 +184,14 @@ function DomainAgeContent() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <ZoruCardContent className="p-4 flex flex-col justify-center items-center text-center h-full min-h-[120px] bg-[var(--st-text)]/5">
+              <CardBody className="p-4 flex flex-col justify-center items-center text-center h-full min-h-[120px] bg-[var(--st-text)]/5">
                 <div className="text-sm text-[var(--st-text-secondary)] mb-1">Domain Age</div>
                 <div className="text-3xl font-bold text-[var(--st-text)]">{info.age}</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             
             <Card>
-              <ZoruCardContent className="p-4 space-y-3">
+              <CardBody className="p-4 space-y-3">
                 <div className="grid grid-cols-3 gap-2 border-b pb-2">
                   <span className="font-semibold text-[var(--st-text-secondary)] col-span-1">Created:</span>
                   <span className="col-span-2 text-right">{info.created || '—'}</span>
@@ -204,13 +204,13 @@ function DomainAgeContent() {
                   <span className="font-semibold text-[var(--st-text-secondary)] col-span-1">Registrar:</span>
                   <span className="col-span-2 text-right truncate" title={info.registrar}>{info.registrar || '—'}</span>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
           
           {info.raw && (
             <Card className="mt-6">
-              <ZoruCardContent className="p-4 relative">
+              <CardBody className="p-4 relative">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-semibold">Raw WHOIS Data</h4>
                   <Button variant="ghost" size="sm" onClick={() => {
@@ -225,7 +225,7 @@ function DomainAgeContent() {
                 <div className="bg-[var(--st-bg-muted)] p-4 rounded-md overflow-x-auto text-xs font-mono whitespace-pre-wrap max-h-96 overflow-y-auto">
                   {info.raw}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
         </div>

@@ -20,16 +20,7 @@
  */
 
 import * as React from 'react';
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Input,
-    Label,
-    Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { FileText, LoaderCircle, Save, X } from 'lucide-react';
@@ -122,10 +113,10 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
             <input type="hidden" name="policyFileName" value={policy?.name ?? ''} />
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Identification</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Identification</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="name">
@@ -174,14 +165,14 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             </select>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Custody & approvals</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Custody & approvals</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label>Custodian</Label>
@@ -206,14 +197,14 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             />
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Balances</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Balances</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-3">
                         <div className="space-y-2">
                             <Label htmlFor="openingBalance">Opening balance</Label>
@@ -252,14 +243,14 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             />
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Policy document</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Policy document</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="flex flex-wrap items-center gap-2">
                         <SabFilePickerButton
                             accept="document"
@@ -286,14 +277,14 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             </span>
                         )}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Notes</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Notes</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <Textarea
                         id="notes"
                         name="notes"
@@ -301,7 +292,7 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                         rows={4}
                         placeholder="Operating context, withdrawal rules, escalation contacts."
                     />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-3">

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Metadata } from 'next';
 import { Mail, MessageSquare, FileText, Sparkles, Plus, Layers } from 'lucide-react';
-import { PageHeader, ZoruPageHeading, ZoruPageEyebrow, ZoruPageTitle, ZoruPageDescription } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription } from '@/components/sabcrm/20ui/compat';
 
 import { getCrmUnifiedTemplates } from '@/app/actions/crm-templates.actions';
 import { TemplatesListClient } from './_components/templates-list-client';
@@ -19,20 +19,20 @@ export default async function CrmTemplatesPage() {
             
             {/* Header */}
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageEyebrow>CRM Suite</ZoruPageEyebrow>
+                <PageHeading>
+                    <PageEyebrow>CRM Suite</PageEyebrow>
                     <div className="flex items-center gap-3">
-                        <ZoruPageTitle className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-[var(--st-bg-muted)] via-[var(--st-bg-muted)] to-[var(--st-bg-muted)] bg-clip-text text-transparent">
+                        <PageTitle className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-[var(--st-bg-muted)] via-[var(--st-bg-muted)] to-[var(--st-bg-muted)] bg-clip-text text-transparent">
                             Visual Template Studio
-                        </ZoruPageTitle>
+                        </PageTitle>
                         <Badge className="bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border border-[var(--st-border)]/20 text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 animate-pulse">
                             <Sparkles className="h-2.5 w-2.5 mr-1" /> Studio v2.0
                         </Badge>
                     </div>
-                    <ZoruPageDescription className="text-[var(--st-text-secondary)] mt-1 max-w-2xl">
+                    <PageDescription className="text-[var(--st-text-secondary)] mt-1 max-w-2xl">
                         Compose and manage ultra-advanced corporate templates. Design responsive drag-and-drop Emails, WhatsApp notifications with rich quick-replies, rapid SMS segment flows, and statutory compliance PDF documents.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
             </PageHeader>
 
             {/* Main Interactive Client List & Modal controls */}

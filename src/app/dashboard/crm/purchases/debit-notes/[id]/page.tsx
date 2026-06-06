@@ -1,16 +1,4 @@
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import {
@@ -152,10 +140,10 @@ export default async function DebitNoteDetailPage({
       rightRail={
         <>
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Money summary</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Money summary</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="flex flex-col gap-3 text-[13px] tabular-nums">
                 <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                   <span>Subtotal</span>
@@ -190,7 +178,7 @@ export default async function DebitNoteDetailPage({
                   <span>{fmtMoney(debitNote.totals?.total, currency)}</span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <LineageRail
@@ -223,10 +211,10 @@ export default async function DebitNoteDetailPage({
       audit={<EntityAuditTimeline entityKind="debitNote" entityId={id} />}
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Header</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Header</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Debit note #">{debitNote.dnNo || '—'}</Field>
             <Field label="Date">{fmtDate(debitNote.date)}</Field>
@@ -255,7 +243,7 @@ export default async function DebitNoteDetailPage({
             <Field label="Reason">{debitNote.reason || '—'}</Field>
             <Field label="Currency">{debitNote.currency || '—'}</Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card className="overflow-hidden p-0">
@@ -265,67 +253,67 @@ export default async function DebitNoteDetailPage({
           </h3>
         </div>
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>Item</ZoruTableHead>
-              <ZoruTableHead>Description</ZoruTableHead>
-              <ZoruTableHead className="text-right">Qty</ZoruTableHead>
-              <ZoruTableHead className="text-right">Rate</ZoruTableHead>
-              <ZoruTableHead className="text-right">Disc %</ZoruTableHead>
-              <ZoruTableHead className="text-right">Tax %</ZoruTableHead>
-              <ZoruTableHead className="text-right">Line total</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>Item</Th>
+              <Th>Description</Th>
+              <Th className="text-right">Qty</Th>
+              <Th className="text-right">Rate</Th>
+              <Th className="text-right">Disc %</Th>
+              <Th className="text-right">Tax %</Th>
+              <Th className="text-right">Line total</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {(debitNote.items ?? []).length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell
+              <Tr>
+                <Td
                   colSpan={7}
                   className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                 >
                   No line items.
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : (
               (debitNote.items ?? []).map((item, idx) => (
-                <ZoruTableRow key={idx}>
-                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+                <Tr key={idx}>
+                  <Td className="text-[12.5px] text-[var(--st-text)]">
                     {item.itemId ? (
                       <EntityPickerChip entity="item" id={item.itemId} />
                     ) : (
                       '—'
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {item.description || '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
+                  </Td>
+                  <Td className="text-right tabular-nums text-[12.5px]">
                     {item.qty}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
+                  </Td>
+                  <Td className="text-right tabular-nums text-[12.5px]">
                     {fmtMoney(item.rate, currency)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
+                  </Td>
+                  <Td className="text-right tabular-nums text-[12.5px]">
                     {item.discountPct != null ? `${item.discountPct}%` : '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
+                  </Td>
+                  <Td className="text-right tabular-nums text-[12.5px]">
                     {item.taxRatePct != null ? `${item.taxRatePct}%` : '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
+                  </Td>
+                  <Td className="text-right tabular-nums text-[12.5px]">
                     {fmtMoney(item.total, currency)}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Refund &amp; notes</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Refund &amp; notes</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Refund mode">{debitNote.refundMode || '—'}</Field>
             <Field label="Refund txn ID">
@@ -343,7 +331,7 @@ export default async function DebitNoteDetailPage({
               </div>
             </div>
           ) : null}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <div className="text-[11px] text-[var(--st-text-secondary)]">

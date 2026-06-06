@@ -1,20 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useTransition } from "react";
@@ -45,7 +31,7 @@ export function BlockProfileDialog({
   const [profileId, setProfileId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,24 +56,24 @@ export function BlockProfileDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button size="sm">
           <UserPlus /> Block profile
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Block a profile</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Block a profile</DialogTitle>
+            <DialogDescription>
               Enter the Facebook profile ID to block. Blocked profiles can no
               longer comment or message your Page.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           {error ? (
             <Alert variant="destructive">
-              <ZoruAlertDescription>{error}</ZoruAlertDescription>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -102,7 +88,7 @@ export function BlockProfileDialog({
             />
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -114,9 +100,9 @@ export function BlockProfileDialog({
               {isPending ? <Loader2 className="animate-spin" /> : <UserPlus />}
               {isPending ? "Blocking…" : "Block profile"}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

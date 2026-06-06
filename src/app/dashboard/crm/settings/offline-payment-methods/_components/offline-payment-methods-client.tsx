@@ -12,41 +12,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 
@@ -93,7 +59,7 @@ function EditDialog({
   initial: Row | null;
 }) {
   const isEditing = !!initial;
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, formAction] = useActionState(saveOfflinePaymentMethod, { message: '', error: '' });
 
   React.useEffect(() => {
@@ -103,12 +69,12 @@ function EditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl">
         <form action={formAction}>
           {isEditing && <input type="hidden" name="_id" value={initial!._id} />}
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{isEditing ? 'Edit Payment Method' : 'New Payment Method'}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+          <DialogHeader>
+            <DialogTitle>{isEditing ? 'Edit Payment Method' : 'New Payment Method'}</DialogTitle>
+          </DialogHeader>
           <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Name <span className="text-[var(--st-danger)]">*</span></Label>
@@ -117,11 +83,11 @@ function EditDialog({
             <div className="space-y-2">
               <Label htmlFor="is_active">Status</Label>
               <Select name="is_active" defaultValue={initial ? (initial.is_active ? 'true' : 'false') : 'true'}>
-                <ZoruSelectTrigger id="is_active"><ZoruSelectValue /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="true">Enabled</ZoruSelectItem>
-                  <ZoruSelectItem value="false">Disabled</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger id="is_active"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">Enabled</SelectItem>
+                  <SelectItem value="false">Disabled</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-2 sm:col-span-2">
@@ -135,18 +101,18 @@ function EditDialog({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitBtn isEditing={isEditing} />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
 
 export function OfflinePaymentMethodsClient(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<Row[]>([]);
   const [kpis, setKpis] = React.useState({ total: 0, enabled: 0, disabled: 0, defaultName: '—' });
@@ -290,12 +256,12 @@ export function OfflinePaymentMethodsClient(): React.JSX.Element {
         filters={
           <div className="flex flex-wrap items-center gap-2">
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <ZoruSelectTrigger className="h-9 w-[150px]"><ZoruSelectValue placeholder="Status" /></ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                <ZoruSelectItem value="enabled">Enabled</ZoruSelectItem>
-                <ZoruSelectItem value="disabled">Disabled</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="enabled">Enabled</SelectItem>
+                <SelectItem value="disabled">Disabled</SelectItem>
+              </SelectContent>
             </Select>
             {(search || statusFilter !== 'all') && (
               <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setStatusFilter('all'); }}>
@@ -354,33 +320,33 @@ export function OfflinePaymentMethodsClient(): React.JSX.Element {
           <Card className="p-0">
             <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10">
                       <Checkbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => togglePage(v === true)} aria-label="Select all on page" />
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Description</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Description</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {loading && rows.length === 0 ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                      <ZoruTableRow key={i}><ZoruTableCell colSpan={5}><Skeleton className="h-8 w-full" /></ZoruTableCell></ZoruTableRow>
+                      <Tr key={i}><Td colSpan={5}><Skeleton className="h-8 w-full" /></Td></Tr>
                     ))
                   ) : pageRows.length === 0 ? (
-                    <ZoruTableRow>
-                      <ZoruTableCell colSpan={5} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">No methods match this filter.</ZoruTableCell>
-                    </ZoruTableRow>
+                    <Tr>
+                      <Td colSpan={5} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">No methods match this filter.</Td>
+                    </Tr>
                   ) : (
                     pageRows.map((row) => (
-                      <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
-                        <ZoruTableCell>
+                      <Tr key={row._id} className="border-[var(--st-border)]">
+                        <Td>
                           <Checkbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.name}`} />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                        </Td>
+                        <Td className="font-medium text-[var(--st-text)]">
                           <RowDrawer label={row.name} title={`Payment Method · ${row.name}`} description="Method details. Use Edit to modify.">
                             <div className="space-y-3 text-sm">
                               <div><div className="text-xs text-[var(--st-text-secondary)]">Name</div><div>{row.name}</div></div>
@@ -388,70 +354,70 @@ export function OfflinePaymentMethodsClient(): React.JSX.Element {
                               <div><div className="text-xs text-[var(--st-text-secondary)]">Status</div><Badge variant={row.is_active ? 'success' : 'ghost'}>{row.is_active ? 'Enabled' : 'Disabled'}</Badge></div>
                             </div>
                           </RowDrawer>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="max-w-[240px] truncate text-[13px] text-[var(--st-text-secondary)]">{row.description || '—'}</ZoruTableCell>
-                        <ZoruTableCell className="text-[13px]">
+                        </Td>
+                        <Td className="max-w-[240px] truncate text-[13px] text-[var(--st-text-secondary)]">{row.description || '—'}</Td>
+                        <Td className="text-[13px]">
                           <Badge variant={row.is_active ? 'success' : 'ghost'}>{row.is_active ? 'Enabled' : 'Disabled'}</Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <div className="flex justify-end gap-1">
                             <Button variant="ghost" size="sm" onClick={() => { setEditing(row); setDialogOpen(true); }} aria-label={`Edit ${row.name}`}>Edit</Button>
                             <Button variant="ghost" size="sm" onClick={() => setPendingDelete(row)} aria-label={`Delete ${row.name}`}>
                               <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           </div>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>
         </div>
       </EntityListShell>
 
-      <ZoruAlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete payment method?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete payment method?</AlertDialogTitle>
+            <AlertDialogDescription>
               {pendingDelete ? `"${pendingDelete.name}" will be permanently removed.` : 'This cannot be undone.'}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDeleteOne} disabled={deletePending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteOne} disabled={deletePending}>
               {deletePending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <ZoruAlertDialog open={!!pendingBulk} onOpenChange={(o) => !o && setPendingBulk(null)}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+      <AlertDialog open={!!pendingBulk} onOpenChange={(o) => !o && setPendingBulk(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               {pendingBulk === 'delete'
                 ? `Delete ${selected.size} method${selected.size === 1 ? '' : 's'}?`
                 : pendingBulk === 'enable'
                 ? `Enable ${selected.size} method${selected.size === 1 ? '' : 's'}?`
                 : `Disable ${selected.size} method${selected.size === 1 ? '' : 's'}?`}
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               {pendingBulk === 'delete'
                 ? 'Selected methods will be permanently removed.'
                 : 'Selected methods will be updated.'}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleBulkAction} disabled={bulkPending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkAction} disabled={bulkPending}>
               {bulkPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Confirm
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

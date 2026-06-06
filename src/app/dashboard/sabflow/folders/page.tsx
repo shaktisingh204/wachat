@@ -17,7 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Input } from '@/components/sabcrm/20ui/compat';
@@ -123,8 +123,8 @@ export default function FoldersPage() {
       const hasChildren = node.children && node.children.length > 0;
       
       rows.push(
-        <TableRow key={node.id} className="group hover:bg-[var(--st-bg-muted)]/50 transition-colors">
-          <TableCell className="w-[300px]">
+        <Tr key={node.id} className="group hover:bg-[var(--st-bg-muted)]/50 transition-colors">
+          <Td className="w-[300px]">
             <div 
               className="flex items-center gap-2"
               style={{ paddingLeft: `${level * 24}px` }}
@@ -149,21 +149,21 @@ export default function FoldersPage() {
                 {node.name}
               </span>
             </div>
-          </TableCell>
-          <TableCell>
+          </Td>
+          <Td>
             <Badge variant="secondary" className="font-normal text-[12px]">
               {node.flowsCount} {node.flowsCount === 1 ? 'flow' : 'flows'}
             </Badge>
-          </TableCell>
-          <TableCell className="text-[var(--st-text-secondary)] text-[13px]">
+          </Td>
+          <Td className="text-[var(--st-text-secondary)] text-[13px]">
             {node.lastUpdated}
-          </TableCell>
-          <TableCell className="text-right">
+          </Td>
+          <Td className="text-right">
             <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-secondary)]">
               <LuSettings className="h-4 w-4" />
             </Button>
-          </TableCell>
-        </TableRow>
+          </Td>
+        </Tr>
       );
 
       if (isExpanded && hasChildren) {
@@ -272,17 +272,17 @@ export default function FoldersPage() {
         </div>
         
         <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[300px]">Folder Name</TableHead>
-              <TableHead>Contents</TableHead>
-              <TableHead>Last Updated</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <THead>
+            <Tr className="hover:bg-transparent">
+              <Th className="w-[300px]">Folder Name</Th>
+              <Th>Contents</Th>
+              <Th>Last Updated</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {renderFolderRows(mockFolders)}
-          </TableBody>
+          </TBody>
         </Table>
       </Card>
     </div>

@@ -2,16 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
 
-import {
-  Badge,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -175,56 +166,56 @@ export default async function ProjectStatusReportPage(props: PageProps) {
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Project</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">RAG</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Owner</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Completion</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Tasks</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Overdue</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Deadline</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">Project</Th>
+                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                <Th className="text-[var(--st-text-secondary)]">RAG</Th>
+                <Th className="text-[var(--st-text-secondary)]">Owner</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Completion</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Tasks</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Overdue</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Deadline</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={8}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No active projects.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 pageRows.map((r) => (
-                  <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
-                    <ZoruTableCell>
+                  <Tr key={r._id} className="border-[var(--st-border)]">
+                    <Td>
                       <EntityRowLink
                         href={`/dashboard/crm/projects/${r._id}`}
                         label={r.name}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {r.status}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant={ragVariant(r.rag)}>{r.rag}</Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {r.ownerName}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
                       {r.completionPercent}%
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(r.tasksCount)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(r.overdueTasks)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {r.deadline ? r.deadline.slice(0, 10) : '—'}
                       {r.daysToDeadline != null ? (
                         <span className="ml-1 text-[11px]">
@@ -233,11 +224,11 @@ export default async function ProjectStatusReportPage(props: PageProps) {
                             : `${r.daysToDeadline}d`})
                         </span>
                       ) : null}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

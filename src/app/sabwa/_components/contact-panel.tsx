@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, ZoruAvatarFallback, ZoruAvatarImage, Button, ScrollArea } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button, ScrollArea } from '@/components/sabcrm/20ui/compat';
 import {
   Archive,
   Ban,
@@ -109,11 +109,11 @@ export function ContactPanel({
         <div className="flex flex-col items-center gap-2 border-b border-[var(--st-border)] px-4 py-6">
           <Avatar className="h-24 w-24">
             {chat.profilePicUrl ? (
-              <ZoruAvatarImage src={chat.profilePicUrl} alt={name} />
+              <AvatarImage src={chat.profilePicUrl} alt={name} />
             ) : null}
-            <ZoruAvatarFallback className="text-xl">
+            <AvatarFallback className="text-xl">
               {isGroup ? <Users className="h-8 w-8" /> : initials}
-            </ZoruAvatarFallback>
+            </AvatarFallback>
           </Avatar>
           <p className="text-base font-semibold text-[var(--st-text)]">{name}</p>
           <p className="text-xs text-[var(--st-text-secondary)]">{subtitle}</p>

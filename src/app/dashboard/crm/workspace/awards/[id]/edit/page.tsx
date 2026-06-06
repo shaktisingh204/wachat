@@ -3,14 +3,7 @@ import { notFound } from 'next/navigation';
 import { getAwardById, getAppreciationsByAward } from '@/app/actions/worksuite/knowledge.actions';
 import { AwardsForm } from '../../_components/awards-form';
 import type { WsAward, WsAppreciation } from '@/lib/worksuite/knowledge-types';
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription, StatCard } from '@/components/sabcrm/20ui/compat';
 import { Users, Award } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -64,11 +57,11 @@ export default async function EditAwardPage({
                  </div>
                  
                  <Card className="lg:col-span-1">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Recent Recipients</ZoruCardTitle>
-                        <ZoruCardDescription>Latest users to receive this award</ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Recent Recipients</CardTitle>
+                        <CardDescription>Latest users to receive this award</CardDescription>
+                    </CardHeader>
+                    <CardBody>
                         {recentAppreciations.length > 0 ? (
                             <ul className="space-y-4 text-sm">
                                 {recentAppreciations.map((appreciation) => (
@@ -88,7 +81,7 @@ export default async function EditAwardPage({
                                 <span className="text-[var(--st-text-secondary)] text-sm">No one has received this award yet.</span>
                             </div>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
              </div>
 

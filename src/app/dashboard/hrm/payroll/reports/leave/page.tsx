@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Label, Popover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Label, Popover, PopoverContent, PopoverTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   SlidersHorizontal,
@@ -58,7 +58,7 @@ export default function LeaveReportPage() {
     const [employees, setEmployees] = useState<SelectItem[]>([]);
     const [leaveTypes, setLeaveTypes] = useState<string[]>([]);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedEmployee, setSelectedEmployee] = useState('');
@@ -171,13 +171,13 @@ export default function LeaveReportPage() {
             primaryAction={
                 <>
                     <Popover>
-                        <ZoruPopoverTrigger asChild>
+                        <PopoverTrigger asChild>
                             <Button variant="outline">
                                 <SlidersHorizontal className="h-4 w-4" />
                                 Filters
                             </Button>
-                        </ZoruPopoverTrigger>
-                            <ZoruPopoverContent className="w-72 space-y-4 p-4">
+                        </PopoverTrigger>
+                            <PopoverContent className="w-72 space-y-4 p-4">
                                 <div className="space-y-1.5">
                                     <Label className="text-[12.5px]">Year</Label>
                                     <select
@@ -214,7 +214,7 @@ export default function LeaveReportPage() {
                                     {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
                                     Apply Filters
                                 </Button>
-                            </ZoruPopoverContent>
+                            </PopoverContent>
                         </Popover>
                         <Button
                             variant="outline"

@@ -1,23 +1,6 @@
 'use client';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    Checkbox,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
     AlertTriangle,
     Calculator,
@@ -84,7 +67,7 @@ interface KpiTileProps {
 function KpiTile({ label, value, icon: Icon, tone, hint }: KpiTileProps) {
     return (
         <Card className="overflow-hidden">
-            <ZoruCardContent className="flex items-start justify-between gap-2 p-3.5">
+            <CardBody className="flex items-start justify-between gap-2 p-3.5">
                 <div className="min-w-0">
                     <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         {label}
@@ -107,7 +90,7 @@ function KpiTile({ label, value, icon: Icon, tone, hint }: KpiTileProps) {
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
                     <Icon className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={1.75} />
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -334,15 +317,15 @@ export function PosRefundsListClient({ refunds }: Props) {
                         setStatusFilter(v as PosRefundStatus | 'all')
                     }
                 >
-                    <ZoruSelectTrigger className="h-9 w-[150px] text-[13px]">
-                        <ZoruSelectValue placeholder="Status" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                        <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-                        <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
-                        <ZoruSelectItem value="failed">Failed</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger className="h-9 w-[150px] text-[13px]">
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All statuses</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="failed">Failed</SelectItem>
+                    </SelectContent>
                 </Select>
                 <Select
                     value={methodFilter}
@@ -350,17 +333,17 @@ export function PosRefundsListClient({ refunds }: Props) {
                         setMethodFilter(v as PosPaymentMethod | 'all')
                     }
                 >
-                    <ZoruSelectTrigger className="h-9 w-[150px] text-[13px]">
-                        <ZoruSelectValue placeholder="Method" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All methods</ZoruSelectItem>
-                        <ZoruSelectItem value="cash">Cash</ZoruSelectItem>
-                        <ZoruSelectItem value="card">Card</ZoruSelectItem>
-                        <ZoruSelectItem value="upi">UPI</ZoruSelectItem>
-                        <ZoruSelectItem value="split">Split</ZoruSelectItem>
-                        <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger className="h-9 w-[150px] text-[13px]">
+                        <SelectValue placeholder="Method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All methods</SelectItem>
+                        <SelectItem value="cash">Cash</SelectItem>
+                        <SelectItem value="card">Card</SelectItem>
+                        <SelectItem value="upi">UPI</SelectItem>
+                        <SelectItem value="split">Split</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
                 </Select>
                 <Input
                     type="date"
@@ -421,9 +404,9 @@ export function PosRefundsListClient({ refunds }: Props) {
             <Card className="p-0">
                 <div className="overflow-x-auto">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="w-8">
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="w-8">
                                     <Checkbox
                                         checked={headChecked}
                                         onCheckedChange={(c) =>
@@ -431,33 +414,33 @@ export function PosRefundsListClient({ refunds }: Props) {
                                         }
                                         aria-label="Select all"
                                     />
-                                </ZoruTableHead>
-                                <ZoruTableHead>Original txn</ZoruTableHead>
-                                <ZoruTableHead>Reason</ZoruTableHead>
-                                <ZoruTableHead>Method</ZoruTableHead>
-                                <ZoruTableHead className="text-right">
+                                </Th>
+                                <Th>Original txn</Th>
+                                <Th>Reason</Th>
+                                <Th>Method</Th>
+                                <Th className="text-right">
                                     Refund total
-                                </ZoruTableHead>
-                                <ZoruTableHead>Status</ZoruTableHead>
-                                <ZoruTableHead>Processed</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                                <Th>Status</Th>
+                                <Th>Processed</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {paged.length === 0 ? (
-                                <ZoruTableRow>
-                                    <ZoruTableCell
+                                <Tr>
+                                    <Td
                                         colSpan={7}
                                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         {refunds.length === 0
                                             ? 'No refunds recorded yet.'
                                             : 'No refunds match these filters.'}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 paged.map((r) => (
-                                    <ZoruTableRow key={r._id}>
-                                        <ZoruTableCell>
+                                    <Tr key={r._id}>
+                                        <Td>
                                             <Checkbox
                                                 checked={selected.has(r._id)}
                                                 onCheckedChange={() =>
@@ -465,8 +448,8 @@ export function PosRefundsListClient({ refunds }: Props) {
                                                 }
                                                 aria-label="Select refund"
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {r.sessionId ? (
                                                 <EntityRowLink
                                                     href={`/dashboard/crm/pos/sessions/${r.sessionId}`}
@@ -486,29 +469,29 @@ export function PosRefundsListClient({ refunds }: Props) {
                                                         r.originalTransactionId.slice(-8)}
                                                 </span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="max-w-[260px] truncate text-[12.5px]">
+                                        </Td>
+                                        <Td className="max-w-[260px] truncate text-[12.5px]">
                                             {r.reason}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="capitalize">
+                                        </Td>
+                                        <Td className="capitalize">
                                             {r.refundMethod}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right tabular-nums">
+                                        </Td>
+                                        <Td className="text-right tabular-nums">
                                             {fmtMoney(r.refundTotal)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <StatusPill
                                                 label={r.status}
                                                 tone={statusTone(r.status)}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {fmtDateTime(r.processedAt)}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
 
@@ -521,19 +504,19 @@ export function PosRefundsListClient({ refunds }: Props) {
                                 value={String(pageSize)}
                                 onValueChange={(v) => setPageSize(Number(v))}
                             >
-                                <ZoruSelectTrigger className="h-8 w-[80px] text-[12px]">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger className="h-8 w-[80px] text-[12px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {[10, 20, 50, 100].map((n) => (
-                                        <ZoruSelectItem
+                                        <SelectItem
                                             key={n}
                                             value={String(n)}
                                         >
                                             {n}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="flex items-center gap-3 text-[12px] text-[var(--st-text-secondary)]">

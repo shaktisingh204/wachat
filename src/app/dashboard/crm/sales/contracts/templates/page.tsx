@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   LoaderCircle,
@@ -103,7 +80,7 @@ export default function ContractTemplatesListPage() {
     const [pendingDelete, setPendingDelete] =
         React.useState<CrmContractTemplateDoc | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -178,19 +155,19 @@ export default function ContractTemplatesListPage() {
                                     )
                                 }
                             >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger className="h-9 w-[180px]">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
+                                        <SelectItem
                                             key={o.value}
                                             value={o.value}
                                         >
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
                             <Select
@@ -201,19 +178,19 @@ export default function ContractTemplatesListPage() {
                                     )
                                 }
                             >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Type" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger className="h-9 w-[180px]">
+                                    <SelectValue placeholder="Type" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {TYPE_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
+                                        <SelectItem
                                             key={o.value}
                                             value={o.value}
                                         >
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </>
                     }
@@ -221,51 +198,51 @@ export default function ContractTemplatesListPage() {
                 >
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Name
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Type
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Term (months)
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Auto-renew
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Variables
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Status
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">
                                         Actions
-                                    </ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={7}
                                             className="h-24 text-center"
                                         >
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : items.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={7}
                                             className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No contract templates match this
                                             filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     items.map((t) => {
                                         const status = (t.status ??
@@ -274,30 +251,30 @@ export default function ContractTemplatesListPage() {
                                             STATUS_TONE[status] ?? 'neutral';
                                         const vars = t.variables ?? [];
                                         return (
-                                            <ZoruTableRow
+                                            <Tr
                                                 key={t._id}
                                                 className="border-[var(--st-border)]"
                                             >
-                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                                <Td className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${t._id}`}
                                                         className="hover:underline"
                                                     >
                                                         {t.name}
                                                     </Link>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="uppercase text-[12px] font-mono text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="uppercase text-[12px] font-mono text-[var(--st-text)]">
                                                     {t.type}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {t.defaultTermMonths ?? '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {t.defaultAutoRenew
                                                         ? 'Yes'
                                                         : 'No'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     {vars.length === 0 ? (
                                                         <span className="text-[var(--st-text-secondary)]">
                                                             —
@@ -324,14 +301,14 @@ export default function ContractTemplatesListPage() {
                                                             ) : null}
                                                         </div>
                                                     )}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill
                                                         label={prettify(status)}
                                                         tone={tone}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
@@ -352,42 +329,42 @@ export default function ContractTemplatesListPage() {
                                                     >
                                                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             Delete contract template?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             Deleting &ldquo;{pendingDelete?.name}&rdquo; will
                             remove it from the template picker. Existing
                             contracts using this template keep their content.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deletePending}
                         >
                             {deletePending ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

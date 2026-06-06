@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-  Label,
-  Separator,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Skeleton,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Input, Label, Separator, Alert, AlertDescription, AlertTitle, Skeleton, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -110,11 +95,11 @@ export function EcommCustomDomainForm() {
 
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle>Custom Domains</ZoruCardTitle>
-                <ZoruCardDescription>Use your own domain for branded shop URLs (e.g., shop.mybrand.com).</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-6">
+            <CardHeader>
+                <CardTitle>Custom Domains</CardTitle>
+                <CardDescription>Use your own domain for branded shop URLs (e.g., shop.mybrand.com).</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-6">
                 <form action={addAction} ref={addFormRef} className="space-y-2">
                     <Label htmlFor="hostname">Add New Domain</Label>
                     <div className="flex gap-2">
@@ -176,7 +161,7 @@ export function EcommCustomDomainForm() {
                         <p className="text-sm text-center text-[var(--st-text-secondary)] py-4">No custom domains added yet.</p>
                     )}
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

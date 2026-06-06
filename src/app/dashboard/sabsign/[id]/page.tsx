@@ -24,13 +24,7 @@ import {
   History,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   generateAuditTrailPdf,
   generateKioskLink,

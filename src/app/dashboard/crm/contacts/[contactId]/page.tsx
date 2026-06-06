@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Button,
-  Card,
-  Separator,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, Separator, Skeleton, Table, TBody, Td, Th, THead, Tr, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Input } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -290,10 +269,10 @@ export default function CrmContactDetailPage() {
             <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
               <div className="flex flex-col items-center text-center">
                 <Avatar className="mb-3 h-24 w-24 border border-[var(--st-border)]">
-                  <ZoruAvatarImage src={contact.avatarUrl || ''} data-ai-hint="person avatar" />
-                  <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[26px] text-[var(--st-text)]">
+                  <AvatarImage src={contact.avatarUrl || ''} data-ai-hint="person avatar" />
+                  <AvatarFallback className="bg-[var(--st-bg-muted)] text-[26px] text-[var(--st-text)]">
                     {contact.name.charAt(0)}
-                  </ZoruAvatarFallback>
+                  </AvatarFallback>
                 </Avatar>
                 <h2 className="text-[16px] font-semibold text-[var(--st-text)]">{contact.name}</h2>
                 <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
@@ -396,17 +375,17 @@ export default function CrmContactDetailPage() {
                   </p>
                   <div className="mt-1.5">
                     <Select value={contact.status} onValueChange={(val) => saveContactUpdates({ status: val as any })}>
-                      <ZoruSelectTrigger className="w-[140px] h-8 text-xs">
-                        <ZoruSelectValue placeholder="Status" />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="new_lead">New Lead</ZoruSelectItem>
-                        <ZoruSelectItem value="contacted">Contacted</ZoruSelectItem>
-                        <ZoruSelectItem value="qualified">Qualified</ZoruSelectItem>
-                        <ZoruSelectItem value="unqualified">Unqualified</ZoruSelectItem>
-                        <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
-                        <ZoruSelectItem value="imported">Imported</ZoruSelectItem>
-                      </ZoruSelectContent>
+                      <SelectTrigger className="w-[140px] h-8 text-xs">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new_lead">New Lead</SelectItem>
+                        <SelectItem value="contacted">Contacted</SelectItem>
+                        <SelectItem value="qualified">Qualified</SelectItem>
+                        <SelectItem value="unqualified">Unqualified</SelectItem>
+                        <SelectItem value="customer">Customer</SelectItem>
+                        <SelectItem value="imported">Imported</SelectItem>
+                      </SelectContent>
                     </Select>
                   </div>
                 </div>
@@ -497,48 +476,48 @@ export default function CrmContactDetailPage() {
               </div>
               <div className="overflow-x-auto rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/10">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Deal Name</ZoruTableHead>
-                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Stage</ZoruTableHead>
-                      <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Pipeline Value</ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                  <THead>
+                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                      <Th className="text-[var(--st-text-secondary)]">Deal Name</Th>
+                      <Th className="text-[var(--st-text-secondary)]">Stage</Th>
+                      <Th className="text-right text-[var(--st-text-secondary)]">Pipeline Value</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {deals.length > 0 ? (
                       deals.map((deal) => (
-                        <ZoruTableRow
+                        <Tr
                           key={deal._id.toString()}
                           onClick={() =>
                             router.push(`/dashboard/crm/deals/${deal._id.toString()}`)
                           }
                           className="cursor-pointer border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/30"
                         >
-                          <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
+                          <Td className="text-[13px] font-medium text-[var(--st-text)]">
                             {deal.name}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <Badge variant={dealStageVariant(deal.stage)}>{deal.stage ?? '—'}</Badge>
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right font-medium text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-right font-medium text-[var(--st-text)]">
                             {new Intl.NumberFormat('en-US', {
                               style: 'currency',
                               currency: deal.currency || 'USD',
                             }).format(deal.value)}
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       ))
                     ) : (
-                      <ZoruTableRow className="border-[var(--st-border)]">
-                        <ZoruTableCell
+                      <Tr className="border-[var(--st-border)]">
+                        <Td
                           colSpan={3}
                           className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                         >
                           No active deals currently associated with this client.
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     )}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
               </div>
             </Card>

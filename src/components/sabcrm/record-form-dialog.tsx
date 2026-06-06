@@ -33,18 +33,7 @@
 import * as React from 'react';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  Label,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Label, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   createRecordAction,
   updateRecordAction,
@@ -153,7 +142,7 @@ export function RecordFormDialog({
   onSaved,
   relationOptionsByObject = {},
 }: RecordFormDialogProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const isEditing = !!record;
 
   // Editable fields exclude system fields (read-only, runtime-managed).

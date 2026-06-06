@@ -6,16 +6,7 @@ import {
   listSabcreatorForms,
   listSabcreatorPages,
 } from '@/app/actions/sabcreator.actions';
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  PageHeader,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, PageHeader, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui/compat';
 
 import { PreviewRunnerClient } from './_components/preview-runner-client';
 
@@ -52,12 +43,12 @@ export default async function SabcreatorPreviewPage({
     <div className="px-6 py-8 space-y-6">
       <PageHeader>
         <div>
-          <ZoruPageTitle>Preview · {app.name}</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>Preview · {app.name}</PageTitle>
+          <PageDescription>
             How an end-user would see the app today.
-          </ZoruPageDescription>
+          </PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Badge variant={app.status === 'published' ? 'default' : 'outline'}>
             {app.status}
           </Badge>
@@ -66,7 +57,7 @@ export default async function SabcreatorPreviewPage({
               Back to builder
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {forms.items.length === 0 && pages.items.length === 0 ? (

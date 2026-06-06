@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import { LinkIcon, CreditCard, ShieldCheck, MailOpen, Landmark } from 'lucide-react';
 import { fmtINR } from '@/lib/utils';
 
@@ -14,7 +14,7 @@ export function PaymentLinkGenerator({
     amount: number;
     currency: string;
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [gateway, setGateway] = React.useState<'stripe' | 'razorpay'>('stripe');
     const [paymentMode, setPaymentMode] = React.useState<'full' | 'partial'>('full');
     const [partialAmount, setPartialAmount] = React.useState(String(amount));
@@ -55,14 +55,14 @@ export function PaymentLinkGenerator({
 
     return (
         <Card className="border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
-            <ZoruCardHeader className="flex flex-row items-center justify-between border-b border-[var(--st-border)] pb-3">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-[var(--st-border)] pb-3">
                 <div className="flex flex-col gap-0.5">
-                    <ZoruCardTitle className="text-[14px] font-semibold text-[var(--st-text)]">Payment Link & Gateway integrations</ZoruCardTitle>
+                    <CardTitle className="text-[14px] font-semibold text-[var(--st-text)]">Payment Link & Gateway integrations</CardTitle>
                     <p className="text-[12px] text-[var(--st-text-secondary)]">Create online payment paths via Stripe or Razorpay.</p>
                 </div>
                 <CreditCard className="h-4 w-4 text-[var(--st-text-secondary)]" />
-            </ZoruCardHeader>
-            <ZoruCardContent className="pt-4 flex flex-col gap-4">
+            </CardHeader>
+            <CardBody className="pt-4 flex flex-col gap-4">
                 {!link ? (
                     <div className="flex flex-col gap-4">
                         {/* Gateway and Amount Selection */}
@@ -188,7 +188,7 @@ export function PaymentLinkGenerator({
                         </div>
                     </div>
                 )}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

@@ -6,7 +6,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import { Building2, List, Plus } from 'lucide-react';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -51,7 +51,7 @@ export function AccountsListClient({ accounts, total, kpis, params }: AccountsLi
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const { t } = useT();
 
     const [isPending, startTransition] = React.useTransition();

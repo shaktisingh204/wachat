@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   use,
   useEffect,
@@ -23,7 +23,7 @@ import { TrendingUp, RefreshCw } from 'lucide-react';
 import { getKeywords } from '@/app/actions/seo-rank.actions';
 import { RankingsTable } from '@/components/zoruui-domain/seo/rankings-table';
 import { AddKeywordDialog } from '@/components/zoruui-domain/seo/add-keyword-dialog';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
 
@@ -42,7 +42,7 @@ export function RankingsClient({
     const [competitors, setCompetitors] = useState<string[]>(initialCompetitors);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const loadData = async () => {
         setLoading(true);
@@ -139,10 +139,10 @@ export function RankingsClient({
         return (
             <div className="flex flex-col gap-6">
                 <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]">
-                    <ZoruCardContent className="pt-6 text-[var(--st-text)]">
+                    <CardBody className="pt-6 text-[var(--st-text)]">
                         <p>{error}</p>
                         <Button variant="outline" className="mt-4" onClick={handleRefresh}>Try Again</Button>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         );
@@ -180,47 +180,47 @@ export function RankingsClient({
 
             <div className="grid gap-4 md:grid-cols-4">
                 <Card>
-                    <ZoruCardHeader className="pb-2">
-                        <ZoruCardTitle className="text-sm">Tracked Keywords</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Tracked Keywords</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="text-2xl text-[var(--st-text)]">{trackedCount}</div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardHeader className="pb-2">
-                        <ZoruCardTitle className="text-sm">Top 3 Rankings</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Top 3 Rankings</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="text-2xl text-[var(--st-status-ok)]">{top3}</div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardHeader className="pb-2">
-                        <ZoruCardTitle className="text-sm">Top 10 Rankings</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Top 10 Rankings</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="text-2xl text-[var(--st-status-ok)]">{top10}</div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardHeader className="pb-2">
-                        <ZoruCardTitle className="text-sm">Avg. Visibility</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Avg. Visibility</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="text-2xl text-[var(--st-text-secondary)]">
                             {trackedCount > 0 ? Math.round((top10 / trackedCount) * 100) : 0}%
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 
             {chartData.length > 0 && (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Visibility & Rank Trends</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Visibility & Rank Trends</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="h-[350px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -253,17 +253,17 @@ export function RankingsClient({
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Keyword Positions</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Keyword Positions</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <RankingsTable keywords={keywords} onRefresh={loadData} />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

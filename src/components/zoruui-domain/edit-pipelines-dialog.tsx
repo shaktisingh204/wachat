@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Button,
-  Input,
-  Label,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, Button, Input, Label, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -108,13 +97,13 @@ export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPi
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="max-w-3xl max-h-[85vh] flex flex-col overflow-hidden p-0">
-                <ZoruDialogHeader className="px-6 pt-6 pb-2">
-                    <ZoruDialogTitle>{isCreating ? 'Create New Pipeline' : 'Edit Pipelines'}</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col overflow-hidden p-0">
+                <DialogHeader className="px-6 pt-6 pb-2">
+                    <DialogTitle>{isCreating ? 'Create New Pipeline' : 'Edit Pipelines'}</DialogTitle>
+                    <DialogDescription>
                         {isCreating ? 'Define the stages for your new sales pipeline.' : 'Manage your sales pipelines and their stages.'}
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <div className="flex-1 overflow-y-auto px-6 py-2">
                     <div className="grid grid-cols-4 gap-6">
                         {!isCreating && (
@@ -153,14 +142,14 @@ export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPi
                         </div>
                     </div>
                 </div>
-                <ZoruDialogFooter className="px-6 pb-6 pt-2">
+                <DialogFooter className="px-6 pb-6 pt-2">
                     <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                     <Button onClick={handleSave} disabled={isSaving}>
                         {isSaving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         Save Changes
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

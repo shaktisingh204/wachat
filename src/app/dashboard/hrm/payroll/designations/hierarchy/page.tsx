@@ -1,25 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Input,
-  Label,
-  Textarea,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, Label, Textarea, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,
@@ -116,17 +97,17 @@ function TreeRow({
                             onSetParent(node._id, v === '__none__' ? null : v)
                         }
                     >
-                        <ZoruSelectTrigger className="h-8 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[12px]">
-                            <ZoruSelectValue placeholder="No parent" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="__none__">— Root (no parent) —</ZoruSelectItem>
+                        <SelectTrigger className="h-8 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[12px]">
+                            <SelectValue placeholder="No parent" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__none__">— Root (no parent) —</SelectItem>
                             {validParents.map((p) => (
-                                <ZoruSelectItem key={String(p._id)} value={String(p._id)}>
+                                <SelectItem key={String(p._id)} value={String(p._id)}>
                                     {p.name}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
 
@@ -171,7 +152,7 @@ function TreeRow({
 }
 
 export default function DesignationsHierarchyPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [tree, setTree] = useState<WsHierarchyNode[]>([]);
     const [flat, setFlat] = useState<WsDesignationExt[]>([]);
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -298,15 +279,15 @@ export default function DesignationsHierarchyPage() {
             </Card>
 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle className="text-[var(--st-text)]">
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-[var(--st-text)]">
                             {editing ? 'Edit Designation' : 'Add Designation'}
-                        </ZoruDialogTitle>
-                        <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+                        </DialogTitle>
+                        <DialogDescription className="text-[var(--st-text-secondary)]">
                             Provide a name, optional description, and parent designation.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <form action={formAction} ref={formRef} className="space-y-4">
                         {editing?._id ? (
                             <input type="hidden" name="_id" value={String(editing._id)} />
@@ -346,28 +327,28 @@ export default function DesignationsHierarchyPage() {
                                 name="parent_designation_id"
                                 defaultValue={editingParent}
                             >
-                                <ZoruSelectTrigger
+                                <SelectTrigger
                                     id="parent_designation_id"
                                     className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 >
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="__none__">— Root (no parent) —</ZoruSelectItem>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__none__">— Root (no parent) —</SelectItem>
                                     {flat
                                         .filter((p) => String(p._id) !== String(editing?._id))
                                         .map((p) => (
-                                            <ZoruSelectItem key={String(p._id)} value={String(p._id)}>
+                                            <SelectItem key={String(p._id)} value={String(p._id)}>
                                                 {p.name}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                                 Select &quot;Root&quot; to make this a top-level designation.
                             </p>
                         </div>
-                        <ZoruDialogFooter>
+                        <DialogFooter>
                             <Button
                                 type="button"
                                 variant="outline"
@@ -382,9 +363,9 @@ export default function DesignationsHierarchyPage() {
                                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                                 Save
                             </Button>
-                        </ZoruDialogFooter>
+                        </DialogFooter>
                     </form>
-                </ZoruDialogContent>
+                </DialogContent>
             </Dialog>
         </EntityListShell>
     );

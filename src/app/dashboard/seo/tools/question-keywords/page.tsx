@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Card,
-  ZoruCardContent,
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Download, Loader2 } from 'lucide-react';
@@ -103,7 +92,7 @@ export default function QuestionKeywordsPage() {
 
       {results.length > 0 && (
         <Card className="mt-6">
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-medium">Found {results.length} Results</h3>
               <Button variant="outline" size="sm" onClick={exportToCsv}>
@@ -114,21 +103,21 @@ export default function QuestionKeywordsPage() {
             
             <div className="border rounded-md">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Keyword</TableHead>
-                    <TableHead className="text-right">Volume</TableHead>
-                    <TableHead className="text-right">CPC ($)</TableHead>
-                    <TableHead className="text-right">Competition</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead>
+                  <Tr>
+                    <Th>Keyword</Th>
+                    <Th className="text-right">Volume</Th>
+                    <Th className="text-right">CPC ($)</Th>
+                    <Th className="text-right">Competition</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {results.map((r) => (
-                    <TableRow key={r.keyword}>
-                      <TableCell className="font-medium">{r.keyword}</TableCell>
-                      <TableCell className="text-right">{r.volume.toLocaleString()}</TableCell>
-                      <TableCell className="text-right">{r.cpc}</TableCell>
-                      <TableCell className="text-right">
+                    <Tr key={r.keyword}>
+                      <Td className="font-medium">{r.keyword}</Td>
+                      <Td className="text-right">{r.volume.toLocaleString()}</Td>
+                      <Td className="text-right">{r.cpc}</Td>
+                      <Td className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <div className="w-16 h-2 bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
                             <div 
@@ -138,13 +127,13 @@ export default function QuestionKeywordsPage() {
                           </div>
                           <span className="text-xs w-6 text-[var(--st-text-secondary)]">{r.competition}</span>
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

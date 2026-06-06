@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState } from 'react';
@@ -90,7 +74,7 @@ export default function NotificationsSettingsPage() {
     const { t } = useT();
     const [prefs, setPrefs] = useState<Prefs>(DEFAULTS);
     const [saving, setSaving] = useState(false);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     useEffect(() => {
         let cancelled = false;
@@ -128,25 +112,25 @@ export default function NotificationsSettingsPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>{t('settings.notifications.title')}</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{t('settings.notifications.title')}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <PageHeader>
-                    <ZoruPageHeading>
-                        <ZoruPageTitle>{t('settings.notifications.title')}</ZoruPageTitle>
-                        <ZoruPageDescription>
+                    <PageHeading>
+                        <PageTitle>{t('settings.notifications.title')}</PageTitle>
+                        <PageDescription>
                             {t('settings.notifications.subtitle')}
-                        </ZoruPageDescription>
-                    </ZoruPageHeading>
+                        </PageDescription>
+                    </PageHeading>
                 </PageHeader>
                 <Button size="sm" onClick={handleSave} disabled={saving}>
                     {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}

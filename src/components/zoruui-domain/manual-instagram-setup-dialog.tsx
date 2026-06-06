@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -67,7 +56,7 @@ export function ManualInstagramSetupDialog() {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Card className="flex flex-col text-center hover:shadow-lg hover:border-primary transition-all cursor-pointer card-gradient card-gradient-orange">
           <CardHeader>
             <CardTitle>Manual Setup</CardTitle>
@@ -78,18 +67,18 @@ export function ManualInstagramSetupDialog() {
             <Button variant="outline">Connect Manually</Button>
           </CardContent>
         </Card>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle>Manual Instagram/Facebook Connection</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Manual Instagram/Facebook Connection</DialogTitle>
+            <DialogDescription>
               Enter your Page ID and a permanent Access Token. For help, see the{' '}
               <Link href="/dashboard/instagram/setup/docs" className="text-[var(--st-text)] hover:underline" onClick={() => setOpen(false)}>
                 manual setup guide
               </Link>.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -110,12 +99,12 @@ export function ManualInstagramSetupDialog() {
               </div>
             </div>
           </div>
-          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

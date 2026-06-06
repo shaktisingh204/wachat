@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -54,7 +42,7 @@ export function PurchaseOrderEmailDialog({
   initialTo,
 }: PurchaseOrderEmailDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [to, setTo] = React.useState(initialTo ?? '');
   const [subject, setSubject] = React.useState(`Purchase order ${poNo}`);
   const [message, setMessage] = React.useState(
@@ -96,13 +84,13 @@ export function PurchaseOrderEmailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Email purchase order</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Email purchase order</DialogTitle>
+          <DialogDescription>
             Marks this purchase order as sent and queues the email.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="po-email-to">Recipient</Label>
@@ -135,15 +123,15 @@ export function PurchaseOrderEmailDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Sending…' : 'Send'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -178,13 +166,13 @@ export function PurchaseOrderWhatsAppDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Send via WhatsApp</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Send via WhatsApp</DialogTitle>
+          <DialogDescription>
             Opens wa.me with the message prefilled.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="po-wa-phone">
@@ -209,13 +197,13 @@ export function PurchaseOrderWhatsAppDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onSubmit}>Open WhatsApp</Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -231,7 +219,7 @@ export function PurchaseOrderApproveDialog({
   onCompleted,
 }: PurchaseOrderApproveDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [pending, startTransition] = React.useTransition();
 
   const onConfirm = () => {
@@ -254,23 +242,23 @@ export function PurchaseOrderApproveDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Approve this purchase order?</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Approve this purchase order?</DialogTitle>
+          <DialogDescription>
             Advances the status to <strong>approved</strong>, signalling
             that procurement is cleared to send the PO to the vendor.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
-        <ZoruDialogFooter>
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onConfirm} disabled={pending}>
             {pending ? 'Saving…' : 'Approve'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

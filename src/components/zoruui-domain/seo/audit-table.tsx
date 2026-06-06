@@ -1,19 +1,6 @@
 'use client';
 
-import {
-    Table,
-    ZoruTableBody as TableBody,
-    ZoruTableCell as TableCell,
-    ZoruTableHead as TableHead,
-    ZoruTableHeader as TableHeader,
-    ZoruTableRow as TableRow,
-    Badge,
-    Button,
-    ZoruCollapsible as Collapsible,
-    ZoruCollapsibleContent as CollapsibleContent,
-    ZoruCollapsibleTrigger as CollapsibleTrigger,
-    Label,
-} from "@/components/sabcrm/20ui/compat";
+import { Table, TBody as TableBody, Td as TableCell, Th as TableHead, THead as TableHeader, Tr as TableRow, Badge, Button, Collapsible, CollapsibleContent, CollapsibleTrigger, Label } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, CheckCircle, ExternalLink, Bot } from "lucide-react";
 import { SeoPageAudit, SeoPageIssue } from "@/lib/seo/definitions";
 import { useState } from "react";
@@ -59,15 +46,7 @@ export function AuditTable({ pages }: { pages: ClientSeoPageAudit[] }) {
     );
 }
 
-import {
-    Dialog,
-    ZoruDialogContent as DialogContent,
-    ZoruDialogHeader as DialogHeader,
-    ZoruDialogTitle as DialogTitle,
-    ZoruDialogDescription as DialogDescription,
-    ZoruDialogFooter as DialogFooter,
-    useZoruToast,
-} from "@/components/sabcrm/20ui/compat";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, useToast } from '@/components/sabcrm/20ui/compat';
 import { generateMetaTagsAction } from "@/app/actions/seo-ai.actions";
 import { Loader2 } from "lucide-react";
 
@@ -76,7 +55,7 @@ function AuditRow({ page }: { page: ClientSeoPageAudit }) {
     const [aiOpen, setAiOpen] = useState(false);
     const [generating, setGenerating] = useState(false);
     const [aiResult, setAiResult] = useState<{ reasoning: string, optimizedTitle: string, optimizedDesc: string } | null>(null);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const critical = page.issues.filter((i) => i.severity === 'critical').length;
     const warning = page.issues.filter((i) => i.severity === 'warning').length;

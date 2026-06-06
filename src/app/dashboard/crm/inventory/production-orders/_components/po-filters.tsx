@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   Download,
@@ -61,7 +49,7 @@ export interface PoFiltersRowProps {
 export function PoFiltersRow(props: PoFiltersRowProps) {
     return (
         <Card>
-            <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
+            <CardBody className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <div className="space-y-1">
                     <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
@@ -135,15 +123,15 @@ export function PoFiltersRow(props: PoFiltersRowProps) {
                         value={props.yieldBucket}
                         onValueChange={(v) => props.onYieldBucketChange(v as PoYieldBucket)}
                     >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">Any yield</ZoruSelectItem>
-                            <ZoruSelectItem value="low">Below 60%</ZoruSelectItem>
-                            <ZoruSelectItem value="mid">60 – 90%</ZoruSelectItem>
-                            <ZoruSelectItem value="high">90% +</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Any yield</SelectItem>
+                            <SelectItem value="low">Below 60%</SelectItem>
+                            <SelectItem value="mid">60 – 90%</SelectItem>
+                            <SelectItem value="high">90% +</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
 
@@ -154,7 +142,7 @@ export function PoFiltersRow(props: PoFiltersRowProps) {
                         </Button>
                     </div>
                 ) : null}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -180,17 +168,17 @@ export function PoBulkBar({
         <div className="flex flex-wrap items-center gap-2">
             <Badge variant="info">{count} selected</Badge>
             <Select onValueChange={(v) => onChangeStatus(v as PoBulkOp)}>
-                <ZoruSelectTrigger className="h-8 w-[180px]">
-                    <ZoruSelectValue placeholder="Set status…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="status_planned">Planned</ZoruSelectItem>
-                    <ZoruSelectItem value="status_released">Released</ZoruSelectItem>
-                    <ZoruSelectItem value="status_in_progress">In progress</ZoruSelectItem>
-                    <ZoruSelectItem value="status_completed">Completed</ZoruSelectItem>
-                    <ZoruSelectItem value="status_closed">Closed</ZoruSelectItem>
-                    <ZoruSelectItem value="status_cancelled">Cancelled</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-8 w-[180px]">
+                    <SelectValue placeholder="Set status…" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="status_planned">Planned</SelectItem>
+                    <SelectItem value="status_released">Released</SelectItem>
+                    <SelectItem value="status_in_progress">In progress</SelectItem>
+                    <SelectItem value="status_completed">Completed</SelectItem>
+                    <SelectItem value="status_closed">Closed</SelectItem>
+                    <SelectItem value="status_cancelled">Cancelled</SelectItem>
+                </SelectContent>
             </Select>
             <Button size="sm" variant="outline" onClick={onExport}>
                 <Download className="h-3.5 w-3.5" /> Export CSV

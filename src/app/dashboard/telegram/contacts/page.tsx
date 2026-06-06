@@ -1,42 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Checkbox,
-  ZoruDateRangePicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Button, Card, CardBody, Checkbox, DateRangePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   ChevronLeft,
@@ -225,7 +189,7 @@ function validateEditor(f: EditorForm): string | null {
 export default function TelegramContactsPage() {
     const { activeProject } = useProject();
     const projectId = activeProject?._id?.toString() ?? '';
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // Data
     const [data, setData] = React.useState<ListResp | null>(null);
@@ -933,51 +897,51 @@ export default function TelegramContactsPage() {
                             </div>
                             <div className="min-w-[160px]">
                                 <Select value={botId} onValueChange={setBotId}>
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="All bots" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">All bots</ZoruSelectItem>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All bots" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All bots</SelectItem>
                                         {bots.map((b) => (
-                                            <ZoruSelectItem key={b.id} value={b.id}>
+                                            <SelectItem key={b.id} value={b.id}>
                                                 @{b.username}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="min-w-[140px]">
                                 <Select value={language} onValueChange={setLanguage}>
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="All languages" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">All languages</ZoruSelectItem>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All languages" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All languages</SelectItem>
                                         {(analytics?.languages ?? []).map((l) => (
-                                            <ZoruSelectItem key={l.code} value={l.code}>
+                                            <SelectItem key={l.code} value={l.code}>
                                                 {l.code} ({l.count})
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="min-w-[140px]">
                                 <Select value={tag} onValueChange={setTag}>
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="All tags" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">All tags</ZoruSelectItem>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All tags" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All tags</SelectItem>
                                         {(analytics?.topTags ?? []).map((t) => (
-                                            <ZoruSelectItem key={t.tag} value={t.tag}>
+                                            <SelectItem key={t.tag} value={t.tag}>
                                                 #{t.tag} ({t.count})
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="min-w-[260px]">
-                                <ZoruDateRangePicker
+                                <DateRangePicker
                                     value={range.from ? { from: range.from, to: range.to } : undefined}
                                     onChange={(r) => setRange({ from: r?.from, to: r?.to })}
                                 />
@@ -1102,7 +1066,7 @@ export default function TelegramContactsPage() {
                                                     <td className="p-3">
                                                         <div className="flex items-center gap-3">
                                                             <Avatar className="h-8 w-8">
-                                                                <ZoruAvatarFallback>{initials(row)}</ZoruAvatarFallback>
+                                                                <AvatarFallback>{initials(row)}</AvatarFallback>
                                                             </Avatar>
                                                             <div className="min-w-0">
                                                                 <div className="truncate text-[var(--st-text)]">
@@ -1167,48 +1131,48 @@ export default function TelegramContactsPage() {
                                                     <td className="p-3" data-stop>
                                                         <div className="flex justify-end">
                                                             <DropdownMenu>
-                                                                <ZoruDropdownMenuTrigger asChild>
+                                                                <DropdownMenuTrigger asChild>
                                                                     <Button size="sm" variant="ghost">
                                                                         <Pencil className="h-3.5 w-3.5" />
                                                                     </Button>
-                                                                </ZoruDropdownMenuTrigger>
-                                                                <ZoruDropdownMenuContent align="end">
-                                                                    <ZoruDropdownMenuItem onSelect={() => openView(row)}>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end">
+                                                                    <DropdownMenuItem onSelect={() => openView(row)}>
                                                                         Open
-                                                                    </ZoruDropdownMenuItem>
-                                                                    <ZoruDropdownMenuItem onSelect={() => openEdit(row)}>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onSelect={() => openEdit(row)}>
                                                                         Edit
-                                                                    </ZoruDropdownMenuItem>
-                                                                    <ZoruDropdownMenuItem onSelect={() => quickAddTag(row)}>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onSelect={() => quickAddTag(row)}>
                                                                         Add tag
-                                                                    </ZoruDropdownMenuItem>
-                                                                    <ZoruDropdownMenuItem onSelect={() => quickRemoveTag(row)}>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onSelect={() => quickRemoveTag(row)}>
                                                                         Remove tag
-                                                                    </ZoruDropdownMenuItem>
-                                                                    <ZoruDropdownMenuItem onSelect={() => quickAssign(row)}>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onSelect={() => quickAssign(row)}>
                                                                         Assign
-                                                                    </ZoruDropdownMenuItem>
-                                                                    <ZoruDropdownMenuSeparator />
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuSeparator />
                                                                     {row.blocked ? (
-                                                                        <ZoruDropdownMenuItem
+                                                                        <DropdownMenuItem
                                                                             onSelect={() => quickToggleBlocked(row, false)}
                                                                         >
                                                                             <ShieldCheck className="h-3.5 w-3.5" />
                                                                             Unblock
-                                                                        </ZoruDropdownMenuItem>
+                                                                        </DropdownMenuItem>
                                                                     ) : (
-                                                                        <ZoruDropdownMenuItem
+                                                                        <DropdownMenuItem
                                                                             onSelect={() => quickToggleBlocked(row, true)}
                                                                         >
                                                                             <ShieldOff className="h-3.5 w-3.5" />
                                                                             Block
-                                                                        </ZoruDropdownMenuItem>
+                                                                        </DropdownMenuItem>
                                                                     )}
-                                                                    <ZoruDropdownMenuItem onSelect={() => setDeleteRow(row)}>
+                                                                    <DropdownMenuItem onSelect={() => setDeleteRow(row)}>
                                                                         <Trash2 className="h-3.5 w-3.5" />
                                                                         Delete
-                                                                    </ZoruDropdownMenuItem>
-                                                                </ZoruDropdownMenuContent>
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
                                                             </DropdownMenu>
                                                         </div>
                                                     </td>
@@ -1310,22 +1274,22 @@ export default function TelegramContactsPage() {
             </div>
 
             {/* Editor drawer */}
-            <ZoruDrawer open={editorOpen} onOpenChange={setEditorOpen}>
-                <ZoruDrawerContent>
-                    <ZoruDrawerHeader>
-                        <ZoruDrawerTitle>
+            <Drawer open={editorOpen} onOpenChange={setEditorOpen}>
+                <DrawerContent>
+                    <DrawerHeader>
+                        <DrawerTitle>
                             {viewMode === 'create'
                                 ? 'New contact'
                                 : viewMode === 'view'
                                     ? 'Contact details'
                                     : 'Edit contact'}
-                        </ZoruDrawerTitle>
-                        <ZoruDrawerDescription>
+                        </DrawerTitle>
+                        <DrawerDescription>
                             {viewMode === 'create'
                                 ? 'Provide chatId, phone, or username — extras are optional.'
                                 : 'Edit profile, tags, custom fields, and notes.'}
-                        </ZoruDrawerDescription>
-                    </ZoruDrawerHeader>
+                        </DrawerDescription>
+                    </DrawerHeader>
 
                     {/* Segmented tabs */}
                     <div className="px-6 pb-2">
@@ -1620,20 +1584,20 @@ export default function TelegramContactsPage() {
                             </Button>
                         )}
                     </div>
-                </ZoruDrawerContent>
-            </ZoruDrawer>
+                </DrawerContent>
+            </Drawer>
 
             {/* Import dialog */}
             <Dialog open={importOpen} onOpenChange={setImportOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Import contacts from CSV</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Import contacts from CSV</DialogTitle>
+                        <DialogDescription>
                             Headers (any subset): <code>chatId</code>, <code>firstName</code>, <code>lastName</code>,{' '}
                             <code>username</code>, <code>phoneNumber</code>, <code>languageCode</code>,{' '}
                             <code>tags</code> (semicolon-separated), <code>notes</code>.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="grid gap-3">
                         <div className="text-[12px] text-[var(--st-text-secondary)]">
                             Sample:
@@ -1646,13 +1610,13 @@ export default function TelegramContactsPage() {
                             value={importMode}
                             onValueChange={(v) => setImportMode(v as 'append' | 'replace')}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="append">Append (merge tags)</ZoruSelectItem>
-                                <ZoruSelectItem value="replace">Replace (wipe scope first)</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="append">Append (merge tags)</SelectItem>
+                                <SelectItem value="replace">Replace (wipe scope first)</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Textarea
                             value={importCsv}
@@ -1662,7 +1626,7 @@ export default function TelegramContactsPage() {
                             className="font-mono text-[12px]"
                         />
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setImportOpen(false)}>
                             Cancel
                         </Button>
@@ -1670,23 +1634,23 @@ export default function TelegramContactsPage() {
                             {importing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Import
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Sync confirm */}
             <Dialog open={syncOpen} onOpenChange={setSyncOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Sync contacts from chats?</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Sync contacts from chats?</DialogTitle>
+                        <DialogDescription>
                             Scans <code>telegram_chats</code> for <code>type = private</code> in this project
                             {botId !== 'all' ? ' and the selected bot' : ''} and upserts a contact for each one.
                             Existing contacts will have their names / username / language / last interaction
                             refreshed without losing tags or notes.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setSyncOpen(false)}>
                             Cancel
                         </Button>
@@ -1694,39 +1658,39 @@ export default function TelegramContactsPage() {
                             {syncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Sync now
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Single-row delete confirm */}
             <Dialog open={!!deleteRow} onOpenChange={(v) => !v && setDeleteRow(null)}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Delete contact?</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete contact?</DialogTitle>
+                        <DialogDescription>
                             {deleteRow ? `"${displayName(deleteRow)}" will be removed.` : ''} You can re-sync
                             from chats later to restore.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setDeleteRow(null)}>
                             Cancel
                         </Button>
                         <Button size="sm" onClick={confirmDelete}>
                             Delete
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Bulk delete */}
             <Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Delete {selected.size} contacts?</ZoruDialogTitle>
-                        <ZoruDialogDescription>This cannot be undone.</ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete {selected.size} contacts?</DialogTitle>
+                        <DialogDescription>This cannot be undone.</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button
                             variant="outline"
                             size="sm"
@@ -1737,31 +1701,31 @@ export default function TelegramContactsPage() {
                         <Button size="sm" onClick={confirmBulkDelete}>
                             Delete
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Bulk tag */}
             <Dialog open={bulkTagOpen} onOpenChange={setBulkTagOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Tag {selected.size} contacts</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Tag {selected.size} contacts</DialogTitle>
+                        <DialogDescription>
                             Comma-separated. Tags are normalised to lowercase.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="grid gap-3">
                         <Select
                             value={bulkTagMode}
                             onValueChange={(v) => setBulkTagMode(v as 'add' | 'remove')}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="add">Add tags</ZoruSelectItem>
-                                <ZoruSelectItem value="remove">Remove tags</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="add">Add tags</SelectItem>
+                                <SelectItem value="remove">Remove tags</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Input
                             value={bulkTagInput}
@@ -1769,7 +1733,7 @@ export default function TelegramContactsPage() {
                             placeholder="vip, newsletter, demo-2026"
                         />
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setBulkTagOpen(false)}>
                             Cancel
                         </Button>
@@ -1777,25 +1741,25 @@ export default function TelegramContactsPage() {
                             {bulkTagBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Apply
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Bulk assign */}
             <Dialog open={bulkAssignOpen} onOpenChange={setBulkAssignOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Assign {selected.size} contacts</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Assign {selected.size} contacts</DialogTitle>
+                        <DialogDescription>
                             Paste a user id, or leave blank to unassign.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <Input
                         value={bulkAssignAgent}
                         onChange={(e) => setBulkAssignAgent(e.target.value)}
                         placeholder="Mongo user id"
                     />
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setBulkAssignOpen(false)}>
                             Cancel
                         </Button>
@@ -1803,20 +1767,20 @@ export default function TelegramContactsPage() {
                             {bulkAssignBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Apply
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Save segment */}
             <Dialog open={segmentOpen} onOpenChange={setSegmentOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Save current filter as segment</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Save current filter as segment</DialogTitle>
+                        <DialogDescription>
                             We persist the active filter shape so you can re-apply it later. Member counts
                             update live.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="grid gap-3">
                         <Field label="Name">
                             <Input
@@ -1839,7 +1803,7 @@ export default function TelegramContactsPage() {
                             </pre>
                         </details>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setSegmentOpen(false)}>
                             Cancel
                         </Button>
@@ -1847,8 +1811,8 @@ export default function TelegramContactsPage() {
                             {segmentBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Save segment
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );
@@ -1867,7 +1831,7 @@ function KpiCard({
 }) {
     return (
         <Card>
-            <ZoruCardContent className="flex flex-col gap-1 pt-5">
+            <CardBody className="flex flex-col gap-1 pt-5">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     {label}
                 </p>
@@ -1876,7 +1840,7 @@ function KpiCard({
                 ) : (
                     <p className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">{value}</p>
                 )}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

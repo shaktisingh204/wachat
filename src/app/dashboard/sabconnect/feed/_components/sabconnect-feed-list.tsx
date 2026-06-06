@@ -3,14 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
-import {
-    Avatar,
-    AvatarFallback,
-    Badge,
-    Card,
-    CardContent,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Card, CardContent, EmptyState } from '@/components/sabcrm/20ui/compat';
 
 import type { SabConnectFeedItemDoc } from '@/lib/rust-client/sabconnect-feed';
 import { SabConnectFeedItemActions } from './sabconnect-feed-item-actions';

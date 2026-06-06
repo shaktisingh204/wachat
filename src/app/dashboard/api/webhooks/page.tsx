@@ -2,18 +2,7 @@ import {
   listWebhookSubscriptions,
   listWebhookDeliveries,
 } from '@/app/actions/developer-platform.actions';
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Breadcrumb,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbSeparator,
-  ZoruBreadcrumbPage,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui/compat';
 import { WebhooksClient } from './_WebhooksClient';
 
 export const dynamic = 'force-dynamic';
@@ -38,26 +27,26 @@ export default async function WebhooksPage(): Promise<JSX.Element> {
   return (
     <div className="flex min-h-full flex-col gap-6">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Webhooks</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/api">Developer platform</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Webhooks</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Webhooks</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Webhooks</PageTitle>
+          <PageDescription>
             Outbound HMAC-signed deliveries. Retries follow{' '}
             <code className="font-mono">0s → 30s → 5m → 1h → 6h → 24h</code>; the worker
             auto-pauses a subscription after 50 consecutive failures.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <WebhooksClient initialSubs={initialSubs} initialDeliveries={initialDeliveries} />

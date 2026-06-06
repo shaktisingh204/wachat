@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Button,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Card,
-  Badge,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Card, Badge, useToast } from '@/components/sabcrm/20ui/compat';
 import { Edit, Trash2, ShoppingBag } from 'lucide-react';
 import type { WithId,
   EcommProduct,
@@ -34,7 +20,7 @@ interface CrmProductCardProps {
 }
 
 export function CrmProductCard({ product, currency, onEdit, onDelete, shopSlug }: CrmProductCardProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const handleDelete = async () => {
         const result = await deleteCrmProduct(product._id.toString());
@@ -93,18 +79,18 @@ export function CrmProductCard({ product, currency, onEdit, onDelete, shopSlug }
             </div>
             <div className="p-4 flex justify-end gap-2 border-t border-[var(--st-border)]">
                 <Button variant="outline" size="sm" onClick={onEdit} leading={<Edit className="h-4 w-4" />}>Edit</Button>
-                <ZoruAlertDialog>
-                    <ZoruAlertDialogTrigger asChild>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
                         <Button size="sm" leading={<Trash2 className="h-4 w-4" />}>Delete</Button>
-                    </ZoruAlertDialogTrigger>
-                    <ZoruAlertDialogContent>
-                        <ZoruAlertDialogHeader><ZoruAlertDialogTitle className="text-[var(--st-text)]">Delete Product?</ZoruAlertDialogTitle><ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">This will permanently delete "{product.name}".</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
-                        <ZoruAlertDialogFooter>
-                            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
-                        </ZoruAlertDialogFooter>
-                    </ZoruAlertDialogContent>
-                </ZoruAlertDialog>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle className="text-[var(--st-text)]">Delete Product?</AlertDialogTitle><AlertDialogDescription className="text-[var(--st-text-secondary)]">This will permanently delete "{product.name}".</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </Card>
     );

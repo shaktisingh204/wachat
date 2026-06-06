@@ -27,25 +27,7 @@ import {
 } from 'recharts';
 import { Download, FileSpreadsheet, AlertTriangle, AlertCircle, Star } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    Tooltip,
-    ZoruTooltipProvider,
-    ZoruTooltipTrigger,
-    ZoruTooltipContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import {
@@ -238,7 +220,7 @@ export function TicketReportClient({
     const hasMore = page * limit < total;
 
     return (
-        <ZoruTooltipProvider>
+        <TooltipProvider>
             {/* Charts */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <Card className="lg:col-span-2">
@@ -373,39 +355,39 @@ export function TicketReportClient({
                     {/* Export selected */}
                     {selected.size > 0 && (
                         <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm">
                                     <Download className="mr-1.5 h-3.5 w-3.5" />
                                     Export selected ({selected.size})
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                                <ZoruDropdownMenuItem onClick={() => handleExportSelected('csv')}>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleExportSelected('csv')}>
                                     <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
-                                </ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem onClick={() => handleExportSelected('xlsx')}>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleExportSelected('xlsx')}>
                                     <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
-                                </ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                     )}
 
                     {/* Export all (current page) */}
                     <DropdownMenu>
-                        <ZoruDropdownMenuTrigger asChild>
+                        <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm">
                                 <Download className="mr-1.5 h-3.5 w-3.5" />
                                 Export all
                             </Button>
-                        </ZoruDropdownMenuTrigger>
-                        <ZoruDropdownMenuContent align="end">
-                            <ZoruDropdownMenuItem onClick={() => handleExportAll('csv')}>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleExportAll('csv')}>
                                 <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem onClick={() => handleExportAll('xlsx')}>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleExportAll('xlsx')}>
                                 <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
-                            </ZoruDropdownMenuItem>
-                        </ZoruDropdownMenuContent>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
             </div>
@@ -422,9 +404,9 @@ export function TicketReportClient({
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="w-10">
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="w-10">
                                     <input
                                         type="checkbox"
                                         aria-label="Select all"
@@ -435,50 +417,50 @@ export function TicketReportClient({
                                         onChange={toggleAll}
                                         className="h-4 w-4 rounded border-[var(--st-border)]"
                                     />
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Subject
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Status
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Priority
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Channel
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Agent
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-center text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-center text-[var(--st-text-secondary)]">
                                     CSAT
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-right text-[var(--st-text-secondary)]">
                                     Resolution
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {rows.length === 0 ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td
                                         colSpan={8}
                                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         No tickets in range.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 rows.map((r) => {
                                     const slaStatus = getSlaWarning(r.createdAt, r.priority, r.status, r.resolvedAt);
                                     const csatScore = getCsatForTicket(r.id, r.status);
                                     return (
-                                        <ZoruTableRow
+                                        <Tr
                                             key={r.id}
                                             className="border-[var(--st-border)]"
                                         >
-                                            <ZoruTableCell>
+                                            <Td>
                                                 <input
                                                     type="checkbox"
                                                     aria-label={`Select ${r.subject}`}
@@ -486,8 +468,8 @@ export function TicketReportClient({
                                                     onChange={() => toggleRow(r.id)}
                                                     className="h-4 w-4 rounded border-[var(--st-border)]"
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[13px] text-[var(--st-text)]">
                                                 <div className="flex items-center gap-2">
                                                     <EntityRowLink
                                                         href={`/dashboard/sabdesk/${r.id}`}
@@ -496,54 +478,54 @@ export function TicketReportClient({
                                                     />
                                                     {slaStatus === 'breached' && (
                                                         <Tooltip>
-                                                            <ZoruTooltipTrigger>
+                                                            <TooltipTrigger>
                                                                 <AlertCircle className="h-4 w-4 text-[var(--st-text)]" />
-                                                            </ZoruTooltipTrigger>
-                                                            <ZoruTooltipContent>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
                                                                 SLA Breached
-                                                            </ZoruTooltipContent>
+                                                            </TooltipContent>
                                                         </Tooltip>
                                                     )}
                                                     {slaStatus === 'warning' && (
                                                         <Tooltip>
-                                                            <ZoruTooltipTrigger>
+                                                            <TooltipTrigger>
                                                                 <AlertTriangle className="h-4 w-4 text-[var(--st-text)]" />
-                                                            </ZoruTooltipTrigger>
-                                                            <ZoruTooltipContent>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
                                                                 SLA Warning (Approaching limit)
-                                                            </ZoruTooltipContent>
+                                                            </TooltipContent>
                                                         </Tooltip>
                                                     )}
                                                 </div>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <Badge
                                                     variant={STATUS_VARIANT[r.status] ?? 'secondary'}
                                                 >
                                                     {r.status}
                                                 </Badge>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <Badge
                                                     variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}
                                                 >
                                                     {r.priority}
                                                 </Badge>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[13px] text-[var(--st-text)]">
                                                 {r.channel}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[13px] text-[var(--st-text)]">
                                                 {r.agent}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-center">
+                                            </Td>
+                                            <Td className="text-center">
                                                 {csatScore ? (
                                                     <Tooltip>
-                                                        <ZoruTooltipTrigger className="flex items-center justify-center gap-1">
+                                                        <TooltipTrigger className="flex items-center justify-center gap-1">
                                                             <Star className="h-3.5 w-3.5 fill-[var(--st-text)] text-[var(--st-text)]" />
                                                             <span className="text-[13px] font-medium">{csatScore}</span>
-                                                        </ZoruTooltipTrigger>
-                                                        <ZoruTooltipContent className="flex flex-col gap-1 p-3">
+                                                        </TooltipTrigger>
+                                                        <TooltipContent className="flex flex-col gap-1 p-3">
                                                             <div className="flex items-center gap-1">
                                                                 {Array.from({ length: 5 }).map((_, i) => (
                                                                     <Star
@@ -555,22 +537,22 @@ export function TicketReportClient({
                                                             <span className="text-[12px] text-[var(--st-text-secondary)] mt-1">
                                                                 "{getCsatComment(csatScore)}"
                                                             </span>
-                                                        </ZoruTooltipContent>
+                                                        </TooltipContent>
                                                     </Tooltip>
                                                 ) : (
                                                     <span className="text-[13px] text-[var(--st-text-secondary)]">—</span>
                                                 )}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right text-[13px] text-[var(--st-text)]">
                                                 {r.resolutionMinutes != null
                                                     ? fmtMinutes(r.resolutionMinutes)
                                                     : '—'}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
                 <PaginationBar
@@ -580,6 +562,6 @@ export function TicketReportClient({
                     hasMore={hasMore}
                 />
             </Card>
-        </ZoruTooltipProvider>
+        </TooltipProvider>
     );
 }

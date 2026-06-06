@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
-  Skeleton,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Skeleton, cn } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -155,19 +137,19 @@ export default function InstagramMessagesPage(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/instagram">Instagram</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Messages</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/instagram">Instagram</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Messages</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
@@ -186,8 +168,8 @@ export default function InstagramMessagesPage(): React.JSX.Element {
       {error ? (
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>Could not load conversations</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not load conversations</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
 
@@ -230,9 +212,9 @@ export default function InstagramMessagesPage(): React.JSX.Element {
                         )}
                       >
                         <Avatar className="h-9 w-9 shrink-0">
-                          <ZoruAvatarFallback>
+                          <AvatarFallback>
                             <User className="h-4 w-4" />
-                          </ZoruAvatarFallback>
+                          </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
@@ -276,8 +258,8 @@ export default function InstagramMessagesPage(): React.JSX.Element {
             ) : threadError ? (
               <Alert variant="destructive">
                 <AlertCircle />
-                <ZoruAlertTitle>Could not load messages</ZoruAlertTitle>
-                <ZoruAlertDescription>{threadError}</ZoruAlertDescription>
+                <AlertTitle>Could not load messages</AlertTitle>
+                <AlertDescription>{threadError}</AlertDescription>
               </Alert>
             ) : threadLoading && messages.length === 0 ? (
               <div className="flex flex-col gap-2">

@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruCommand as Command,
-  ZoruCommandEmpty as CommandEmpty,
-  ZoruCommandGroup as CommandGroup,
-  ZoruCommandInput as CommandInput,
-  ZoruCommandItem as CommandItem,
-  ZoruCommandList as CommandList,
-  Popover,
-  ZoruPopoverContent as PopoverContent,
-  ZoruPopoverTrigger as PopoverTrigger,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Input, Label, Select, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Popover, PopoverContent, PopoverTrigger, cn } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 
@@ -60,14 +39,14 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-[425px] max-h-[85vh] flex flex-col overflow-hidden p-0">
+      <DialogContent className="sm:max-w-[425px] max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form onSubmit={handleSubmit} className="flex h-full flex-col overflow-hidden">
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle>Start New Conversation</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Start New Conversation</DialogTitle>
+            <DialogDescription>
               Select the country code and enter the phone number to start a new chat.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -133,15 +112,15 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
               </div>
             </div>
           </div>
-          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>Cancel</Button>
             <Button type="submit" disabled={loading || !phoneNumber}>
               {loading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Start Chat
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

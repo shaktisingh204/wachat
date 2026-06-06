@@ -1,19 +1,6 @@
 'use client';
 
-import { 
-  Button, 
-  Textarea, 
-  Card, 
-  ZoruCardContent, 
-  Label, 
-  cn,
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Label, cn, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -133,45 +120,45 @@ export default function UrlDecoderPage() {
 
       {error && (
         <Card className="border-[var(--st-border)]/50 mt-4">
-          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)]">{error}</ZoruCardContent>
+          <CardBody className="p-4 text-sm text-[var(--st-text)]">{error}</CardBody>
         </Card>
       )}
 
       {output && !error && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-4 space-y-3">
+          <CardBody className="p-4 space-y-3">
             <Label>{mode === 'decode' ? 'Decoded output' : 'Encoded output'}</Label>
             <Textarea readOnly value={output} className="min-h-[140px]" />
             <Button variant="outline" onClick={copy}>
               {copied ? 'Copied!' : 'Copy'}
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {params && Object.keys(params).length > 0 && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-4 space-y-3">
+          <CardBody className="p-4 space-y-3">
             <Label>Query Parameters</Label>
             <div className="rounded-md border">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[30%]">Key</TableHead>
-                    <TableHead>Value</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead>
+                  <Tr>
+                    <Th className="w-[30%]">Key</Th>
+                    <Th>Value</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {Object.entries(params).map(([key, value], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="font-mono">{key}</TableCell>
-                      <TableCell className="font-mono">{value}</TableCell>
-                    </TableRow>
+                    <Tr key={idx}>
+                      <Td className="font-mono">{key}</Td>
+                      <Td className="font-mono">{value}</Td>
+                    </Tr>
                   ))}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

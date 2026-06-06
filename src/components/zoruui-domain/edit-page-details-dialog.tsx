@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -63,16 +52,16 @@ export function EditPageDetailsDialog({ isOpen, onOpenChange, pageDetails, proje
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="pageId" value={pageDetails.id} />
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle>Edit Page Details</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Edit Page Details</DialogTitle>
+            <DialogDescription>
               Update information for your page "{pageDetails.name}". Changes may take time to appear.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="space-y-4">
               <div className="space-y-2">
@@ -89,12 +78,12 @@ export function EditPageDetailsDialog({ isOpen, onOpenChange, pageDetails, proje
               </div>
             </div>
           </div>
-          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

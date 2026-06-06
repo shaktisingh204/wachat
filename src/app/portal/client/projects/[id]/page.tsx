@@ -17,20 +17,8 @@ import { notFound } from 'next/navigation';
 
 import { getClientProjectById } from '@/app/actions/client-portal.actions';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
-import {
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { Progress } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/components/sabcrm/20ui/compat';
 
@@ -76,9 +64,9 @@ async function ClientProjectDetailPageContent({
             </Link>
 
             <Card>
-                <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
+                <CardHeader className="flex flex-row items-start justify-between gap-3">
                     <div>
-                        <ZoruCardTitle>{project.name}</ZoruCardTitle>
+                        <CardTitle>{project.name}</CardTitle>
                         {project.description ? (
                             <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
                                 {project.description}
@@ -86,8 +74,8 @@ async function ClientProjectDetailPageContent({
                         ) : null}
                     </div>
                     <Badge>{project.status}</Badge>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                         <div>
                             <dt className="text-xs text-[var(--st-text-secondary)]">Start</dt>
@@ -113,7 +101,7 @@ async function ClientProjectDetailPageContent({
                             </dd>
                         </div>
                     </dl>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Button-group tabs (NOT ZoruTabs) */}
@@ -139,114 +127,114 @@ async function ClientProjectDetailPageContent({
 
             {tab === 'overview' && (
                 <Card>
-                    <ZoruCardContent className="text-sm text-[var(--st-text-secondary)]">
+                    <CardBody className="text-sm text-[var(--st-text-secondary)]">
                         {project.description ?? 'No additional details available.'}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
 
             {tab === 'tasks' && (
                 <Card>
-                    <ZoruCardContent className="p-0">
+                    <CardBody className="p-0">
                         {tasks.length === 0 ? (
                             <div className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
                                 No tasks yet.
                             </div>
                         ) : (
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow>
-                                        <ZoruTableHead>Title</ZoruTableHead>
-                                        <ZoruTableHead>Status</ZoruTableHead>
-                                        <ZoruTableHead>Priority</ZoruTableHead>
-                                        <ZoruTableHead>Due</ZoruTableHead>
-                                        <ZoruTableHead>Assignee</ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                <THead>
+                                    <Tr>
+                                        <Th>Title</Th>
+                                        <Th>Status</Th>
+                                        <Th>Priority</Th>
+                                        <Th>Due</Th>
+                                        <Th>Assignee</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {tasks.map((t) => (
-                                        <ZoruTableRow key={t._id}>
-                                            <ZoruTableCell>{t.title}</ZoruTableCell>
-                                            <ZoruTableCell>
+                                        <Tr key={t._id}>
+                                            <Td>{t.title}</Td>
+                                            <Td>
                                                 <Badge variant="outline">{t.status}</Badge>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>{t.priority ?? '—'}</ZoruTableCell>
-                                            <ZoruTableCell>{fmtDate(t.dueDate)}</ZoruTableCell>
-                                            <ZoruTableCell>{t.assigneeName ?? '—'}</ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                            <Td>{t.priority ?? '—'}</Td>
+                                            <Td>{fmtDate(t.dueDate)}</Td>
+                                            <Td>{t.assigneeName ?? '—'}</Td>
+                                        </Tr>
                                     ))}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
 
             {tab === 'milestones' && (
                 <Card>
-                    <ZoruCardContent className="text-sm text-[var(--st-text-secondary)]">
+                    <CardBody className="text-sm text-[var(--st-text-secondary)]">
                         No milestones available for this project yet.
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
 
             {tab === 'files' && (
                 <Card>
-                    <ZoruCardContent className="text-sm text-[var(--st-text-secondary)]">
+                    <CardBody className="text-sm text-[var(--st-text-secondary)]">
                         Project files will appear here. Use the download link on each
                         file to save it locally.
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
 
             {tab === 'invoices' && (
                 <Card>
-                    <ZoruCardContent className="p-0">
+                    <CardBody className="p-0">
                         {invoices.length === 0 ? (
                             <div className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
                                 No invoices for this project.
                             </div>
                         ) : (
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow>
-                                        <ZoruTableHead>Number</ZoruTableHead>
-                                        <ZoruTableHead>Date</ZoruTableHead>
-                                        <ZoruTableHead>Total</ZoruTableHead>
-                                        <ZoruTableHead>Status</ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                <THead>
+                                    <Tr>
+                                        <Th>Number</Th>
+                                        <Th>Date</Th>
+                                        <Th>Total</Th>
+                                        <Th>Status</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {invoices.map((inv) => (
-                                        <ZoruTableRow key={inv._id}>
-                                            <ZoruTableCell>
+                                        <Tr key={inv._id}>
+                                            <Td>
                                                 <Link
                                                     href={`/portal/client/invoices/${inv._id}`}
                                                     className="font-medium text-[var(--st-text)] hover:underline"
                                                 >
                                                     {inv.invoiceNumber}
                                                 </Link>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>{fmtDate(inv.invoiceDate)}</ZoruTableCell>
-                                            <ZoruTableCell>{fmtINR(inv.total, inv.currency)}</ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>{fmtDate(inv.invoiceDate)}</Td>
+                                            <Td>{fmtINR(inv.total, inv.currency)}</Td>
+                                            <Td>
                                                 <Badge variant="outline">{inv.status}</Badge>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ))}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
 
             {tab === 'rating' && (
                 <Card>
-                    <ZoruCardContent className="text-sm text-[var(--st-text-secondary)]">
+                    <CardBody className="text-sm text-[var(--st-text-secondary)]">
                         A rating link will appear here once your project manager
                         sends one. Check your email for the share link.
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

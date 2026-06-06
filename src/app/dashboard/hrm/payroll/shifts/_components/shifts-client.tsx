@@ -2,27 +2,7 @@
 
 import * as React from 'react';
 import { useOptimistic, useTransition, useMemo, useRef } from 'react';
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    Badge,
-    Button,
-    Checkbox,
-    Input,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Checkbox, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
     Edit,
     LoaderCircle,
@@ -85,7 +65,7 @@ export default function ShiftsClient({ initialShifts }: { initialShifts: CrmShif
     // Bulk actions
     const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
 
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // Refresh function for manual sync if necessary
     const refresh = React.useCallback(async () => {
@@ -296,38 +276,38 @@ export default function ShiftsClient({ initialShifts }: { initialShifts: CrmShif
                         ref={parentRef}
                     >
                         <Table>
-                            <ZoruTableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
-                                <ZoruTableRow>
-                                    <ZoruTableHead className="w-10 text-center">
+                            <THead className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
+                                <Tr>
+                                    <Th className="w-10 text-center">
                                         <Checkbox 
                                             checked={filteredShifts.length > 0 && selectedIds.size === filteredShifts.length}
                                             onCheckedChange={(c) => toggleSelectAll(!!c)}
                                         />
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Code</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Window</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Break / Grace</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Days</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Code</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Window</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Break / Grace</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Days</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                    <Th className="text-right text-[var(--st-text-secondary)]">Actions</Th>
+                                </Tr>
+                            </THead>
                             
-                            <ZoruTableBody>
+                            <TBody>
                                 {filteredShifts.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell colSpan={8} className="h-24 text-center text-[var(--st-text-secondary)]">
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td colSpan={8} className="h-24 text-center text-[var(--st-text-secondary)]">
                                             No shifts match this filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     <>
                                         {/* Virtual padding top */}
                                         {rowVirtualizer.getVirtualItems().length > 0 && rowVirtualizer.getVirtualItems()[0].start > 0 && (
-                                            <ZoruTableRow>
-                                                <ZoruTableCell colSpan={8} style={{ height: `${rowVirtualizer.getVirtualItems()[0].start}px`, padding: 0 }} />
-                                            </ZoruTableRow>
+                                            <Tr>
+                                                <Td colSpan={8} style={{ height: `${rowVirtualizer.getVirtualItems()[0].start}px`, padding: 0 }} />
+                                            </Tr>
                                         )}
                                         
                                         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -336,14 +316,14 @@ export default function ShiftsClient({ initialShifts }: { initialShifts: CrmShif
                                             const tone = STATUS_TONE[status] ?? 'neutral';
                                             
                                             return (
-                                                <ZoruTableRow key={s._id} className="border-[var(--st-border)]">
-                                                    <ZoruTableCell className="text-center">
+                                                <Tr key={s._id} className="border-[var(--st-border)]">
+                                                    <Td className="text-center">
                                                         <Checkbox 
                                                             checked={selectedIds.has(s._id)}
                                                             onCheckedChange={(c) => toggleSelect(s._id, !!c)}
                                                         />
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="font-medium text-[var(--st-text)]">
                                                         <div className="flex items-center gap-2">
                                                             <span
                                                                 aria-hidden
@@ -354,64 +334,64 @@ export default function ShiftsClient({ initialShifts }: { initialShifts: CrmShif
                                                             {s.isDefault && <Badge variant="info">default</Badge>}
                                                             {s.isNightShift && <Badge variant="secondary">night</Badge>}
                                                         </div>
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                                         {s.code || '—'}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="text-[var(--st-text)]">
                                                         {s.startTime} – {s.endTime}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="text-[var(--st-text)]">
                                                         {(s.breakMinutes ?? 0)}m break · {(s.graceMinutes ?? 0)}m grace
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell>{dayBadges(s.workingDays)}</ZoruTableCell>
-                                                    <ZoruTableCell>
+                                                    </Td>
+                                                    <Td>{dayBadges(s.workingDays)}</Td>
+                                                    <Td>
                                                         <StatusPill label={status} tone={tone} />
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-right">
+                                                    </Td>
+                                                    <Td className="text-right">
                                                         <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(s)} aria-label="Edit shift">
                                                             <Edit className="h-4 w-4" />
                                                         </Button>
                                                         <Button variant="ghost" size="icon" onClick={() => setPendingDelete(s)} aria-label="Delete shift">
                                                             <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                         </Button>
-                                                    </ZoruTableCell>
-                                                </ZoruTableRow>
+                                                    </Td>
+                                                </Tr>
                                             );
                                         })}
                                         
                                         {/* Virtual padding bottom */}
                                         {rowVirtualizer.getVirtualItems().length > 0 && rowVirtualizer.getTotalSize() - rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1].end > 0 && (
-                                            <ZoruTableRow>
-                                                <ZoruTableCell colSpan={8} style={{ height: `${rowVirtualizer.getTotalSize() - rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1].end}px`, padding: 0 }} />
-                                            </ZoruTableRow>
+                                            <Tr>
+                                                <Td colSpan={8} style={{ height: `${rowVirtualizer.getTotalSize() - rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1].end}px`, padding: 0 }} />
+                                            </Tr>
                                         )}
                                     </>
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </div>
             </EntityListShell>
 
-            <ZoruAlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete shift?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+            <AlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete shift?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Deleting &ldquo;{pendingDelete?.name}&rdquo; will remove it from the
                             shift master list. Employees currently assigned to this shift will
                             need to be re-mapped.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete} disabled={deletePending}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={deletePending}>
                             {deletePending ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

@@ -1,29 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { Database, HardDrive, Clock, Trash2, Download, Play } from 'lucide-react';
 import {
   createBackup,
@@ -54,7 +32,7 @@ export function DatabaseBackupClient({
   initialSettings: BackupSettings;
   loadError: string | null;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = useState(initialRows);
   const [kpis, setKpis] = useState<Kpis>(initialKpis);
   const [settings, setSettings] = useState<BackupSettings>(initialSettings);
@@ -128,12 +106,12 @@ export function DatabaseBackupClient({
   return (
     <div className="flex flex-col gap-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Database backups</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Database backups</PageTitle>
+          <PageDescription>
             Manual on-demand backups via mongodump. Configure storage path and retention below.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <div className="flex flex-wrap gap-3">
@@ -179,31 +157,31 @@ export function DatabaseBackupClient({
 
       <Card>
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>Filename</ZoruTableHead>
-              <ZoruTableHead>Size</ZoruTableHead>
-              <ZoruTableHead>Created</ZoruTableHead>
-              <ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>Filename</Th>
+              <Th>Size</Th>
+              <Th>Created</Th>
+              <Th>Status</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {rows.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={5} className="py-12 text-center text-sm text-[var(--st-text-secondary)]">
+              <Tr>
+                <Td colSpan={5} className="py-12 text-center text-sm text-[var(--st-text-secondary)]">
                   No backups yet. Click "Create backup now" to start.
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : (
               rows.map((row) => (
-                <ZoruTableRow key={row._id}>
-                  <ZoruTableCell className="font-mono text-[12.5px]">{row.filename}</ZoruTableCell>
-                  <ZoruTableCell>{formatBytes(row.sizeBytes)}</ZoruTableCell>
-                  <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                <Tr key={row._id}>
+                  <Td className="font-mono text-[12.5px]">{row.filename}</Td>
+                  <Td>{formatBytes(row.sizeBytes)}</Td>
+                  <Td className="text-[var(--st-text-secondary)]">
                     {new Date(row.createdAt).toLocaleString()}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Badge
                       variant={
                         row.status === 'failed'
@@ -215,8 +193,8 @@ export function DatabaseBackupClient({
                     >
                       {row.status}
                     </Badge>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <div className="flex items-center justify-end gap-2">
                       <Button
                         size="sm"
@@ -241,11 +219,11 @@ export function DatabaseBackupClient({
                         Delete
                       </Button>
                     </div>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </Card>
 
@@ -261,13 +239,13 @@ export function DatabaseBackupClient({
               value={settings.storage}
               onValueChange={(v) => setSettings((s) => ({ ...s, storage: v as BackupSettings['storage'] }))}
             >
-              <ZoruSelectTrigger id="storage">
-                <ZoruSelectValue placeholder="Storage" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="local">Local disk</ZoruSelectItem>
-                <ZoruSelectItem value="s3">S3 / R2</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger id="storage">
+                <SelectValue placeholder="Storage" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="local">Local disk</SelectItem>
+                <SelectItem value="s3">S3 / R2</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="grid gap-2">

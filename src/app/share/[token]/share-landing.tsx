@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, ZoruCardContent, Input, Label, cn, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, Label, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   Copy,
@@ -81,7 +81,7 @@ export function ShareLanding({
     const [copied, setCopied] = React.useState(false);
     const [previewUrl, setPreviewUrl] = React.useState<string | undefined>(view.thumbnail_url);
     const [previewError, setPreviewError] = React.useState<string | null>(null);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const previewKind = getSharePreviewKind(view.mime);
     const canLoadPreview = view.type === 'file' && isRenderablePreview(previewKind);
     const extension = getShareFileExtension(view.name);
@@ -290,7 +290,7 @@ export function ShareLanding({
 
                     <aside className="flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start">
                         <Card className="p-0">
-                            <ZoruCardContent className="flex flex-col gap-4 p-4">
+                            <CardBody className="flex flex-col gap-4 p-4">
                                 <div>
                                     <div className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                         Quick actions
@@ -343,11 +343,11 @@ export function ShareLanding({
                                         </a>
                                     </Button>
                                 )}
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         <Card className="p-0">
-                            <ZoruCardContent className="p-4">
+                            <CardBody className="p-4">
                                 <div className="mb-3 text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     File details
                                 </div>
@@ -360,7 +360,7 @@ export function ShareLanding({
                                         value={view.download_enabled ? 'Allowed' : 'Disabled'}
                                     />
                                 </dl>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         <div

@@ -3,23 +3,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 
-import {
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetFooter,
-  ZoruSheetClose,
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose, Button, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import type { RoadmapTask } from '@/app/actions/hrm-roadmaps.actions.types';
 export interface DirectReport {
   _id: string;
@@ -87,10 +71,10 @@ export function AddTaskDrawer({
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <ZoruSheetContent side="right" className="flex w-full flex-col sm:max-w-md">
-        <ZoruSheetHeader className="mb-4">
-          <ZoruSheetTitle>Add Task</ZoruSheetTitle>
-        </ZoruSheetHeader>
+      <SheetContent side="right" className="flex w-full flex-col sm:max-w-md">
+        <SheetHeader className="mb-4">
+          <SheetTitle>Add Task</SheetTitle>
+        </SheetHeader>
 
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto pb-4">
           {/* Title */}
@@ -129,16 +113,16 @@ export function AddTaskDrawer({
                 value={draft.assigneeId ?? ''}
                 onValueChange={handleAssigneeChange}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Select employee" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select employee" />
+                </SelectTrigger>
+                <SelectContent>
                   {directReports.map((r) => (
-                    <ZoruSelectItem key={r._id} value={r._id}>
+                    <SelectItem key={r._id} value={r._id}>
                       {r.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
           )}
@@ -170,14 +154,14 @@ export function AddTaskDrawer({
               value={draft.priority}
               onValueChange={(v) => set('priority', v as RoadmapTask['priority'])}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                <ZoruSelectItem value="high">High</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low">Low</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+              </SelectContent>
             </Select>
           </div>
 
@@ -188,26 +172,26 @@ export function AddTaskDrawer({
               value={draft.status}
               onValueChange={(v) => set('status', v as RoadmapTask['status'])}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="todo">To Do</ZoruSelectItem>
-                <ZoruSelectItem value="in_progress">In Progress</ZoruSelectItem>
-                <ZoruSelectItem value="done">Done</ZoruSelectItem>
-                <ZoruSelectItem value="blocked">Blocked</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todo">To Do</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="done">Done</SelectItem>
+                <SelectItem value="blocked">Blocked</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </div>
 
-        <ZoruSheetFooter>
-          <ZoruSheetClose asChild>
+        <SheetFooter>
+          <SheetClose asChild>
             <Button variant="outline">Cancel</Button>
-          </ZoruSheetClose>
+          </SheetClose>
           <Button onClick={handleSubmit}>Add Task</Button>
-        </ZoruSheetFooter>
-      </ZoruSheetContent>
+        </SheetFooter>
+      </SheetContent>
     </Sheet>
   );
 }

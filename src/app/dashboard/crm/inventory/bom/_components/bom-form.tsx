@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';
@@ -103,7 +91,7 @@ export function BomForm({ initial }: BomFormProps) {
     const searchParams = useSearchParams();
     const prefillFgId = searchParams?.get('finishedGoodId') ?? '';
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = React.useActionState(saveBom, INITIAL_STATE);
 
     const editing = !!initial?._id;
@@ -238,11 +226,11 @@ export function BomForm({ initial }: BomFormProps) {
 
             {/* Section 1 — Header */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Header</ZoruCardTitle>
-                    <ZoruCardDescription>Core identifiers and lifecycle dates.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <CardHeader>
+                    <CardTitle>Header</CardTitle>
+                    <CardDescription>Core identifiers and lifecycle dates.</CardDescription>
+                </CardHeader>
+                <CardBody className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-1">
                         <Label htmlFor="bomNo">BOM code</Label>
                         <Input
@@ -327,25 +315,25 @@ export function BomForm({ initial }: BomFormProps) {
                             rows={3}
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Section 2 — Components */}
             <Card>
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
-                            <ZoruCardTitle>Components</ZoruCardTitle>
-                            <ZoruCardDescription>
+                            <CardTitle>Components</CardTitle>
+                            <CardDescription>
                                 Each raw material or sub-assembly needed to produce the finished good.
-                            </ZoruCardDescription>
+                            </CardDescription>
                         </div>
                         <Button type="button" variant="outline" size="sm" onClick={addRow}>
                             <Plus className="h-4 w-4" /> Add component
                         </Button>
                     </div>
-                </ZoruCardHeader>
-                <ZoruCardContent className="p-0">
+                </CardHeader>
+                <CardBody className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
@@ -488,18 +476,18 @@ export function BomForm({ initial }: BomFormProps) {
                             </tbody>
                         </table>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Section 3 — Costs */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Cost rollup</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Cost rollup</CardTitle>
+                    <CardDescription>
                         Material cost is derived from components (qty × cost × scrap multiplier).
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <div className="space-y-1">
                         <Label>Material cost</Label>
                         <div className="font-mono text-[14px] text-[var(--st-text)]">
@@ -542,7 +530,7 @@ export function BomForm({ initial }: BomFormProps) {
                             })}
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <div className="sticky bottom-0 flex justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] py-3">

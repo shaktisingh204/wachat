@@ -1,43 +1,6 @@
 "use client";
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Switch,
-  Textarea,
-  useZoruToast,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Slider,
-  Input,
-  Badge,
-  ZoruTooltipProvider,
-  ZoruTooltip,
-  ZoruTooltipTrigger,
-  ZoruTooltipContent,
-  Tabs,
-  ZoruTabsList,
-  ZoruTabsTrigger,
-  ZoruTabsContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, Textarea, useToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider, Input, Badge, TooltipProvider, Tooltip, TooltipTrigger, TooltipContent, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState } from "react";
@@ -88,7 +51,7 @@ export default function SabChatAiRepliesPage() {
   const settings = sessionUser?.sabChatSettings || {};
   // @ts-expect-error - sabchat settings action signature
   const [state, formAction] = useActionState(saveSabChatSettings, initialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   // Local state for interactive elements
   const [persona, setPersona] = useState(settings.aiPersona || "professional");
@@ -134,35 +97,35 @@ export default function SabChatAiRepliesPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/sabchat/inbox">
               SabChat
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>AI Assistant Engine</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>AI Assistant Engine</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
+        <PageHeading>
           <div className="flex items-center gap-3">
-            <ZoruPageTitle>AI Assistant Engine</ZoruPageTitle>
+            <PageTitle>AI Assistant Engine</PageTitle>
             <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
               <Sparkles className="h-3 w-3 mr-1" /> Premium
             </Badge>
           </div>
-          <ZoruPageDescription>
+          <PageDescription>
             Configure your intelligent chatbot to resolve queries automatically before they reach human agents.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <form action={formAction}>
@@ -194,14 +157,14 @@ export default function SabChatAiRepliesPage() {
             
             {/* Core Settings */}
             <Card>
-              <ZoruCardHeader>
+              <CardHeader>
                 <div className="flex items-center gap-3">
                   <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
                     <Bot className="h-5 w-5" />
                   </span>
                   <div>
-                    <ZoruCardTitle>Core Engine Status</ZoruCardTitle>
-                    <ZoruCardDescription>Enable or disable the AI deflection system globally.</ZoruCardDescription>
+                    <CardTitle>Core Engine Status</CardTitle>
+                    <CardDescription>Enable or disable the AI deflection system globally.</CardDescription>
                   </div>
                   <div className="ml-auto">
                     <Switch
@@ -212,20 +175,20 @@ export default function SabChatAiRepliesPage() {
                     />
                   </div>
                 </div>
-              </ZoruCardHeader>
+              </CardHeader>
             </Card>
 
             <Tabs defaultValue="context" className="w-full">
-              <ZoruTabsList className="w-full justify-start border-b rounded-none px-4 h-12 bg-transparent">
-                <ZoruTabsTrigger value="context" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Knowledge Context</ZoruTabsTrigger>
-                <ZoruTabsTrigger value="persona" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Persona & Tone</ZoruTabsTrigger>
-                <ZoruTabsTrigger value="behavior" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Routing Behavior</ZoruTabsTrigger>
-              </ZoruTabsList>
+              <TabsList className="w-full justify-start border-b rounded-none px-4 h-12 bg-transparent">
+                <TabsTrigger value="context" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Knowledge Context</TabsTrigger>
+                <TabsTrigger value="persona" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Persona & Tone</TabsTrigger>
+                <TabsTrigger value="behavior" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Routing Behavior</TabsTrigger>
+              </TabsList>
               
               <Card className="border-t-0 rounded-tl-none">
                 
                 {/* Knowledge Context Tab */}
-                <ZoruTabsContent value="context" className="p-6 m-0 outline-none space-y-6">
+                <TabsContent value="context" className="p-6 m-0 outline-none space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="aiContext">Business Base Context</Label>
                     <Textarea
@@ -248,22 +211,22 @@ export default function SabChatAiRepliesPage() {
                     </div>
                     <p className="text-xs text-[var(--st-text-secondary)]">Automatically update the AI's knowledge by crawling your documentation site daily.</p>
                   </div>
-                </ZoruTabsContent>
+                </TabsContent>
 
                 {/* Persona Tab */}
-                <ZoruTabsContent value="persona" className="p-6 m-0 outline-none space-y-6">
+                <TabsContent value="persona" className="p-6 m-0 outline-none space-y-6">
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label>Brand Tone & Persona</Label>
                       <Select value={persona} onValueChange={setPersona}>
-                        <ZoruSelectTrigger>
-                          <ZoruSelectValue placeholder="Select persona" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                          <ZoruSelectItem value="professional">Professional & Direct</ZoruSelectItem>
-                          <ZoruSelectItem value="friendly">Friendly & Empathetic</ZoruSelectItem>
-                          <ZoruSelectItem value="humorous">Humorous & Witty</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select persona" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="professional">Professional & Direct</SelectItem>
+                          <SelectItem value="friendly">Friendly & Empathetic</SelectItem>
+                          <SelectItem value="humorous">Humorous & Witty</SelectItem>
+                        </SelectContent>
                       </Select>
                       <p className="text-xs text-[var(--st-text-secondary)] mt-2 block">
                         Preview: <span className="italic">
@@ -277,14 +240,14 @@ export default function SabChatAiRepliesPage() {
                     <div className="space-y-2">
                       <Label>Response Verbosity</Label>
                       <Select defaultValue={settings.aiResponseLength || "medium"}>
-                        <ZoruSelectTrigger>
-                          <ZoruSelectValue placeholder="Select length" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                          <ZoruSelectItem value="short">Short (1-2 sentences)</ZoruSelectItem>
-                          <ZoruSelectItem value="medium">Medium (Balanced)</ZoruSelectItem>
-                          <ZoruSelectItem value="detailed">Detailed & Explanatory</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select length" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="short">Short (1-2 sentences)</SelectItem>
+                          <SelectItem value="medium">Medium (Balanced)</SelectItem>
+                          <SelectItem value="detailed">Detailed & Explanatory</SelectItem>
+                        </SelectContent>
                       </Select>
                     </div>
                   </div>
@@ -299,10 +262,10 @@ export default function SabChatAiRepliesPage() {
                       <Button variant="ghost" size="sm" className="h-6 text-xs px-2"><Plus className="h-3 w-3 mr-1" /> Add Language</Button>
                     </div>
                   </div>
-                </ZoruTabsContent>
+                </TabsContent>
 
                 {/* Routing Behavior Tab */}
-                <ZoruTabsContent value="behavior" className="p-6 m-0 outline-none space-y-8">
+                <TabsContent value="behavior" className="p-6 m-0 outline-none space-y-8">
                   <div className="space-y-4">
                     <div className="flex justify-between">
                       <Label>Confidence Threshold: {confidence}%</Label>
@@ -322,14 +285,14 @@ export default function SabChatAiRepliesPage() {
                   <div className="space-y-4">
                     <Label>Fallback Rule (Human Handoff)</Label>
                     <Select defaultValue={settings.aiFallbackAction || "handoff_to_human"}>
-                      <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Select fallback rule" />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="handoff_to_human">Route to Human Agent instantly</ZoruSelectItem>
-                        <ZoruSelectItem value="escalate">Create high-priority support ticket</ZoruSelectItem>
-                        <ZoruSelectItem value="continue">Force AI to try answering anyway</ZoruSelectItem>
-                      </ZoruSelectContent>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select fallback rule" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="handoff_to_human">Route to Human Agent instantly</SelectItem>
+                        <SelectItem value="escalate">Create high-priority support ticket</SelectItem>
+                        <SelectItem value="continue">Force AI to try answering anyway</SelectItem>
+                      </SelectContent>
                     </Select>
                   </div>
 
@@ -338,7 +301,7 @@ export default function SabChatAiRepliesPage() {
                     <Input defaultValue="I'm transferring you to a human agent who can better assist you with this request. Please hold on." />
                     <p className="text-xs text-[var(--st-text-secondary)]">Displayed to the visitor when routing to a human.</p>
                   </div>
-                </ZoruTabsContent>
+                </TabsContent>
 
               </Card>
             </Tabs>
@@ -352,17 +315,17 @@ export default function SabChatAiRepliesPage() {
           <div className="lg:col-span-1">
             <div className="sticky top-6">
               <Card className="h-[600px] flex flex-col border-[var(--st-border)] dark:border-[var(--st-border)]/50 shadow-md">
-                <ZoruCardHeader className="border-b border-[var(--st-border)] py-4 bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/20">
+                <CardHeader className="border-b border-[var(--st-border)] py-4 bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/20">
                   <div className="flex items-center gap-2">
                     <Wand2 className="h-4 w-4 text-[var(--st-text)]" />
-                    <ZoruCardTitle className="text-base text-[var(--st-text)] dark:text-white">AI Sandbox</ZoruCardTitle>
+                    <CardTitle className="text-base text-[var(--st-text)] dark:text-white">AI Sandbox</CardTitle>
                   </div>
-                  <ZoruCardDescription className="text-xs">
+                  <CardDescription className="text-xs">
                     Test your current configuration in real-time.
-                  </ZoruCardDescription>
-                </ZoruCardHeader>
+                  </CardDescription>
+                </CardHeader>
                 
-                <ZoruCardContent className="flex-1 p-0 flex flex-col bg-[var(--st-bg-muted)]/30">
+                <CardBody className="flex-1 p-0 flex flex-col bg-[var(--st-bg-muted)]/30">
                   <div className="flex-1 p-4 space-y-4 overflow-y-auto">
                     {testHistory.map((msg, idx) => (
                       <div key={idx} className={`flex ${msg.sender === 'bot' ? 'justify-start' : 'justify-end'}`}>
@@ -399,7 +362,7 @@ export default function SabChatAiRepliesPage() {
                       </Button>
                     </form>
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             </div>
           </div>

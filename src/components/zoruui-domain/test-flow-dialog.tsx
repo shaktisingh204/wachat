@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-  ScrollArea,
-  Avatar,
-  ZoruAvatarFallback,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Button, Input, ScrollArea, Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -165,19 +154,19 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Test Flow</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Test Flow</DialogTitle>
+          <DialogDescription>
             Simulate a conversation to test your flow's logic.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="h-[60vh] flex flex-col">
           <ScrollArea className="flex-1 p-4 border rounded-md" ref={scrollAreaRef}>
             <div className="space-y-4">
               {messages.map(msg => (
                 <div key={msg.id} className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  {msg.sender === 'bot' && <Avatar className="h-8 w-8"><ZoruAvatarFallback>B</ZoruAvatarFallback></Avatar>}
+                  {msg.sender === 'bot' && <Avatar className="h-8 w-8"><AvatarFallback>B</AvatarFallback></Avatar>}
                   <div className={`max-w-xs rounded-lg p-3 text-sm break-words ${msg.sender === 'user' ? 'bg-[var(--st-text)] text-white' : 'bg-[var(--st-bg-muted)]'}`}>
                     {msg.content}
                   </div>
@@ -185,7 +174,7 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
               ))}
               {isBotTyping && (
                   <div className="flex items-end gap-2 justify-start">
-                    <Avatar className="h-8 w-8"><ZoruAvatarFallback>B</ZoruAvatarFallback></Avatar>
+                    <Avatar className="h-8 w-8"><AvatarFallback>B</AvatarFallback></Avatar>
                     <div className="max-w-xs rounded-lg p-3 text-sm bg-[var(--st-bg-muted)] flex items-center gap-1.5">
                         <span className="h-2 w-2 bg-[var(--st-text)] rounded-full animate-pulse [animation-delay:-0.3s]"></span>
                         <span className="h-2 w-2 bg-[var(--st-text)] rounded-full animate-pulse [animation-delay:-0.15s]"></span>
@@ -206,7 +195,7 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
             <Button type="submit" disabled={!isWaitingForInput}>Send</Button>
           </form>
         </div>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

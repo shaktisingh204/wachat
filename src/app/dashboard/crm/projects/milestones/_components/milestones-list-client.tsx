@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Checkbox,
-  StatCard,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Input,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, StatCard, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, Input, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { useDebouncedCallback } from 'use-debounce';
 import {
   AlertTriangle,
@@ -91,7 +70,7 @@ interface MilestonesListClientProps {
 }
 
 export function MilestonesListClient({ initialRows }: MilestonesListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>(initialRows);
   const [loading, startLoading] = React.useTransition();
   const [search, setSearch] = React.useState('');
@@ -292,14 +271,14 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
         filters={
           <>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                <ZoruSelectItem value="incomplete">Incomplete</ZoruSelectItem>
-                <ZoruSelectItem value="complete">Complete</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[160px] text-[13px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="incomplete">Incomplete</SelectItem>
+                <SelectItem value="complete">Complete</SelectItem>
+              </SelectContent>
             </Select>
             <Input
               value={projectFilter}
@@ -366,9 +345,9 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
           {filtered.length === 0 && !loading ? null : (
             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10">
                       {(() => {
                         const allCk = filtered.length > 0 && filtered.every((r) => selection.has(r._id));
                         const someCk = !allCk && filtered.some((r) => selection.has(r._id));
@@ -380,21 +359,21 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
                           />
                         );
                       })()}
-                    </ZoruTableHead>
-                    <ZoruTableHead>Name</ZoruTableHead>
-                    <ZoruTableHead>Project</ZoruTableHead>
-                    <ZoruTableHead>Start</ZoruTableHead>
-                    <ZoruTableHead>Target</ZoruTableHead>
-                    <ZoruTableHead>Status</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Payment</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th>Name</Th>
+                    <Th>Project</Th>
+                    <Th>Start</Th>
+                    <Th>Target</Th>
+                    <Th>Status</Th>
+                    <Th className="text-right">Payment</Th>
+                    <Th className="text-right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {filtered.map((r) => {
                     const overdue = isOverdue(r);
                     return (
-                      <ZoruTableRow
+                      <Tr
                         key={r._id}
                         className={[
                           'border-[var(--st-border)] transition-colors',
@@ -402,21 +381,21 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
                           isReached(r) ? 'opacity-70' : '',
                         ].join(' ')}
                       >
-                        <ZoruTableCell>
+                        <Td>
                           <Checkbox
                             checked={selection.has(r._id)}
                             onCheckedChange={() => handleToggle(r._id)}
                             aria-label={`Select ${r.milestoneTitle ?? 'milestone'}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <EntityRowLink
                             href={`/dashboard/crm/projects/milestones/${r._id}`}
                             label={r.milestoneTitle || 'Untitled'}
                             subtitle={r.summary || undefined}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           {r.projectId ? (
                             <EntityPickerChip
                               entity="project"
@@ -426,30 +405,30 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
                           ) : (
                             <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDateUTC(r.startDate)}
-                        </ZoruTableCell>
-                        <ZoruTableCell
+                        </Td>
+                        <Td
                           className={[
                             'text-[12.5px]',
                             overdue ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]',
                           ].join(' ')}
                         >
                           {fmtDateUTC(r.endDate)}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <StatusPill
                             label={r.status}
                             tone={statusToTone(r.status)}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right text-[12.5px] text-[var(--st-text)]">
                           {fmtMoney(Number(r.cost) || null, r.currency ?? 'INR')}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                               <button
                                 type="button"
                                 aria-label={`Actions for ${r.milestoneTitle}`}
@@ -457,26 +436,26 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
                               >
                                 <MoreHorizontal className="h-4 w-4" />
                               </button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                              <ZoruDropdownMenuItem asChild>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem asChild>
                                 <Link href={`/dashboard/crm/projects/milestones/${r._id}/edit`}>
                                   <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
                                 </Link>
-                              </ZoruDropdownMenuItem>
-                              <ZoruDropdownMenuItem
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
                                 onClick={() => setDeleteTargetId(r._id)}
                                 className="text-[var(--st-danger)]"
                               >
                                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
-                              </ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
                           </DropdownMenu>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           )}

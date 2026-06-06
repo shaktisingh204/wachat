@@ -8,18 +8,7 @@ import { Shield, Eye, EyeOff, LoaderCircle, AlertCircle, Sparkles } from 'lucide
 import { cn } from '@/lib/utils';
 
 // ZoruUI Components
-import {
-    Button,
-    Input,
-    Label,
-    Card,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    ZoruCardContent,
-    Alert,
-    ZoruAlertDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Card, CardHeader, CardTitle, CardDescription, CardBody, Alert, AlertDescription } from '@/components/sabcrm/20ui/compat';
 
 // --- Error Boundary ---
 class ErrorBoundary extends Component<{ children: ReactNode, fallback: ReactNode }, { hasError: boolean }> {
@@ -131,7 +120,7 @@ function AdminLoginClientContent({ initialMode }: { initialMode: Mode }) {
             {/* Card */}
             <div className="relative w-full max-w-md">
                 <Card className="bg-[var(--st-text)] border-[var(--st-border)] text-white shadow-2xl">
-                    <ZoruCardHeader className="text-center space-y-3">
+                    <CardHeader className="text-center space-y-3">
                         <div className={cn(
                             "mx-auto w-14 h-14 rounded-2xl border flex items-center justify-center",
                             mode === 'setup'
@@ -145,23 +134,23 @@ function AdminLoginClientContent({ initialMode }: { initialMode: Mode }) {
                         </div>
                         {mode === 'setup' ? (
                             <>
-                                <ZoruCardTitle className="text-2xl font-bold text-white tracking-tight">First-time setup</ZoruCardTitle>
-                                <ZoruCardDescription className="text-sm text-[var(--st-text-secondary)]">Create the admin account for this workspace</ZoruCardDescription>
+                                <CardTitle className="text-2xl font-bold text-white tracking-tight">First-time setup</CardTitle>
+                                <CardDescription className="text-sm text-[var(--st-text-secondary)]">Create the admin account for this workspace</CardDescription>
                             </>
                         ) : (
                             <>
-                                <ZoruCardTitle className="text-2xl font-bold text-white tracking-tight">Admin Portal</ZoruCardTitle>
-                                <ZoruCardDescription className="text-sm text-[var(--st-text-secondary)]">Restricted access — authorized personnel only</ZoruCardDescription>
+                                <CardTitle className="text-2xl font-bold text-white tracking-tight">Admin Portal</CardTitle>
+                                <CardDescription className="text-sm text-[var(--st-text-secondary)]">Restricted access — authorized personnel only</CardDescription>
                             </>
                         )}
-                    </ZoruCardHeader>
+                    </CardHeader>
 
-                    <ZoruCardContent className="space-y-6">
+                    <CardBody className="space-y-6">
                         {/* Error */}
                         {state.error && state.error !== 'NEEDS_SETUP' && (
                             <Alert variant="destructive" className="border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]">
                                 <AlertCircle className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                                <ZoruAlertDescription className="text-sm text-[var(--st-text-secondary)]">{state.error}</ZoruAlertDescription>
+                                <AlertDescription className="text-sm text-[var(--st-text-secondary)]">{state.error}</AlertDescription>
                             </Alert>
                         )}
 
@@ -230,7 +219,7 @@ function AdminLoginClientContent({ initialMode }: { initialMode: Mode }) {
                                 ? 'This form is only available when no admin exists. It becomes inactive afterwards.'
                                 : 'All actions in this panel are logged and audited.'}
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 

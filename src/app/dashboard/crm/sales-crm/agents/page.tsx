@@ -32,38 +32,7 @@ import {
 } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    Checkbox,
-    ZoruDateRangePicker,
-    Dialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, DateRangePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -104,7 +73,7 @@ function getCreatedAt(row: AgentRow): Date | null {
 }
 
 export default function LeadAgentsPage(): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // List + KPIs
     const [rows, setRows] = React.useState<AgentRow[]>([]);
@@ -554,7 +523,7 @@ interface AgentsFiltersRowProps {
 function AgentsFiltersRow(props: AgentsFiltersRowProps): React.JSX.Element {
     return (
         <Card>
-            <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-4">
+            <CardBody className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-4">
                 <div className="space-y-1">
                     <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Agent
@@ -585,7 +554,7 @@ function AgentsFiltersRow(props: AgentsFiltersRowProps): React.JSX.Element {
                     <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Assigned
                     </Label>
-                    <ZoruDateRangePicker
+                    <DateRangePicker
                         value={props.dateRange}
                         onChange={props.onDateRangeChange}
                     />
@@ -603,7 +572,7 @@ function AgentsFiltersRow(props: AgentsFiltersRowProps): React.JSX.Element {
                         </Button>
                     </div>
                 ) : null}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -626,19 +595,19 @@ function AgentsBulkBar(props: AgentsBulkBarProps): React.JSX.Element {
             </span>
             <span className="flex-1" />
             <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                     <Button size="sm" variant="outline">
                         <Download className="h-3.5 w-3.5" /> Export
                     </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                    <ZoruDropdownMenuItem onClick={props.onExportCsv}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={props.onExportCsv}>
                         Export as CSV
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem onClick={props.onExportXlsx}>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={props.onExportXlsx}>
                         Export as XLSX
-                    </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
             </DropdownMenu>
             <Button size="sm" variant="destructive" onClick={props.onDelete}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -667,22 +636,22 @@ function AgentsTable(props: AgentsTableProps): React.JSX.Element {
     return (
         <Card className="overflow-hidden">
             <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow>
-                        <ZoruTableHead className="w-10">
+                <THead>
+                    <Tr>
+                        <Th className="w-10">
                             <Checkbox
                                 aria-label="Select all on this page"
                                 checked={props.allSelected}
                                 onCheckedChange={(c) => props.onToggleAll(c === true)}
                             />
-                        </ZoruTableHead>
-                        <ZoruTableHead>Lead</ZoruTableHead>
-                        <ZoruTableHead>Agent</ZoruTableHead>
-                        <ZoruTableHead>Assigned</ZoruTableHead>
-                        <ZoruTableHead className="w-32 text-right">Actions</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                        </Th>
+                        <Th>Lead</Th>
+                        <Th>Agent</Th>
+                        <Th>Assigned</Th>
+                        <Th className="w-32 text-right">Actions</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {props.rows.map((r) => {
                         const id = String(r._id);
                         const leadId = String(r.lead_id ?? '');
@@ -692,18 +661,18 @@ function AgentsTable(props: AgentsTableProps): React.JSX.Element {
                         const created = getCreatedAt(r);
                         const isSelected = props.selectedIds.has(id);
                         return (
-                            <ZoruTableRow
+                            <Tr
                                 key={id}
                                 data-state={isSelected ? 'selected' : undefined}
                             >
-                                <ZoruTableCell>
+                                <Td>
                                     <Checkbox
                                         aria-label={`Select assignment ${id}`}
                                         checked={isSelected}
                                         onCheckedChange={() => props.onToggleOne(id)}
                                     />
-                                </ZoruTableCell>
-                                <ZoruTableCell>
+                                </Td>
+                                <Td>
                                     {leadId ? (
                                         <EntityRowLink
                                             href={`/dashboard/crm/sales-crm/all-leads/${leadId}`}
@@ -713,8 +682,8 @@ function AgentsTable(props: AgentsTableProps): React.JSX.Element {
                                     ) : (
                                         <span className="text-[var(--st-text-secondary)]">—</span>
                                     )}
-                                </ZoruTableCell>
-                                <ZoruTableCell>
+                                </Td>
+                                <Td>
                                     <div className="flex flex-col gap-0.5">
                                         <span className="text-sm font-medium text-[var(--st-text)]">
                                             {userLabel}
@@ -723,13 +692,13 @@ function AgentsTable(props: AgentsTableProps): React.JSX.Element {
                                             <Badge variant="ghost">{userId}</Badge>
                                         ) : null}
                                     </div>
-                                </ZoruTableCell>
-                                <ZoruTableCell>
+                                </Td>
+                                <Td>
                                     <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {created ? created.toLocaleDateString() : '—'}
                                     </span>
-                                </ZoruTableCell>
-                                <ZoruTableCell className="text-right">
+                                </Td>
+                                <Td className="text-right">
                                     <div className="inline-flex items-center gap-1">
                                         <Button
                                             size="sm"
@@ -748,11 +717,11 @@ function AgentsTable(props: AgentsTableProps): React.JSX.Element {
                                             <Trash2 className="h-3.5 w-3.5" />
                                         </Button>
                                     </div>
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         );
                     })}
-                </ZoruTableBody>
+                </TBody>
             </Table>
         </Card>
     );
@@ -767,7 +736,7 @@ interface AgentDialogProps {
 }
 
 function AgentDialog({ open, editing, onClose }: AgentDialogProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [leadId, setLeadId] = React.useState<string>('');
     const [userId, setUserId] = React.useState<string>('');
     const [isSaving, setIsSaving] = React.useState(false);
@@ -809,16 +778,16 @@ function AgentDialog({ open, editing, onClose }: AgentDialogProps): React.JSX.El
 
     return (
         <Dialog open={open} onOpenChange={(o) => !o && onClose(false)}>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>
                         {editing ? 'Edit assignment' : 'Assign agent to lead'}
-                    </ZoruDialogTitle>
-                    <ZoruDialogDescription>
+                    </DialogTitle>
+                    <DialogDescription>
                         Link an employee to a lead as the primary sales contact. Both fields are
                         required.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <div className="flex flex-col gap-3 py-2">
                     <div className="space-y-1">
                         <Label>Lead</Label>
@@ -843,7 +812,7 @@ function AgentDialog({ open, editing, onClose }: AgentDialogProps): React.JSX.El
                         />
                     </div>
                 </div>
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button
                         type="button"
                         variant="ghost"
@@ -855,8 +824,8 @@ function AgentDialog({ open, editing, onClose }: AgentDialogProps): React.JSX.El
                     <Button type="button" onClick={handleSave} disabled={isSaving}>
                         {isSaving ? 'Saving…' : 'Save'}
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

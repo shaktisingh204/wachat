@@ -11,18 +11,7 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { AlertTriangle, BookOpen, MessageSquare, Plus } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 
 import { listSupportTicketsForRequester } from '@/app/actions/helpdesk.actions';
@@ -53,7 +42,7 @@ export default async function SupportPortalLandingPage() {
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <ZoruCardContent className="flex items-start justify-between gap-3 p-4">
+          <CardBody className="flex items-start justify-between gap-3 p-4">
             <div>
               <p className="text-[12px] text-[var(--st-text-secondary)]">Open a request</p>
               <p className="mt-1 text-[14px] font-medium text-[var(--st-text)]">Tell us what's wrong</p>
@@ -63,10 +52,10 @@ export default async function SupportPortalLandingPage() {
                 <Plus className="mr-1 h-3 w-3" /> New
               </Link>
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardContent className="flex items-start justify-between gap-3 p-4">
+          <CardBody className="flex items-start justify-between gap-3 p-4">
             <div>
               <p className="text-[12px] text-[var(--st-text-secondary)]">Knowledge base</p>
               <p className="mt-1 text-[14px] font-medium text-[var(--st-text)]">Browse public articles</p>
@@ -76,10 +65,10 @@ export default async function SupportPortalLandingPage() {
                 <BookOpen className="mr-1 h-3 w-3" /> Browse
               </Link>
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardContent className="flex items-start justify-between gap-3 p-4">
+          <CardBody className="flex items-start justify-between gap-3 p-4">
             <div>
               <p className="text-[12px] text-[var(--st-text-secondary)]">Your tickets</p>
               <p className="mt-1 text-[14px] font-medium text-[var(--st-text)]">
@@ -87,12 +76,12 @@ export default async function SupportPortalLandingPage() {
               </p>
             </div>
             <MessageSquare className="h-5 w-5 text-[var(--st-text-secondary)]" />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       <Card>
-        <ZoruCardContent className="p-0">
+        <CardBody className="p-0">
           {error ? (
             <div className="p-6 text-[13px] text-[var(--st-danger)]">{error}</div>
           ) : tickets.length === 0 ? (
@@ -111,54 +100,54 @@ export default async function SupportPortalLandingPage() {
             </div>
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Subject</ZoruTableHead>
-                  <ZoruTableHead>Channel</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead>SLA</ZoruTableHead>
-                  <ZoruTableHead>Updated</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Subject</Th>
+                  <Th>Channel</Th>
+                  <Th>Status</Th>
+                  <Th>SLA</Th>
+                  <Th>Updated</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {tickets.map((t) => {
                   const sla = slaBadge(t.dueBy, t.status);
                   return (
-                    <ZoruTableRow key={t._id}>
-                      <ZoruTableCell>
+                    <Tr key={t._id}>
+                      <Td>
                         <Link
                           href={`/portal/support/${t._id}`}
                           className="font-medium text-[var(--st-text)] hover:underline"
                         >
                           {t.subject}
                         </Link>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant="ghost">{t.channel ?? 'web'}</Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant={STATUS_VARIANT[t.status] ?? 'ghost'}>
                           {t.status}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant={sla.variant}>
                           {sla.variant === 'danger' ? (
                             <AlertTriangle className="mr-1 h-3 w-3" />
                           ) : null}
                           {sla.label}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[12px] text-[var(--st-text-secondary)]">
                         {t.updatedAt ? new Date(t.updatedAt).toLocaleString() : '—'}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

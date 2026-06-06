@@ -1,31 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Separator,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Separator, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -212,10 +187,10 @@ function ConnectStep({
         ) : (
           <Alert variant="warning" className="w-full">
             <AlertCircle />
-            <ZoruAlertTitle>Facebook App ID missing</ZoruAlertTitle>
-            <ZoruAlertDescription>
+            <AlertTitle>Facebook App ID missing</AlertTitle>
+            <AlertDescription>
               Ask an admin to set <code>NEXT_PUBLIC_FACEBOOK_APP_ID</code>.
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
         )}
         <ManualSetupDialog onSuccess={onManualSuccess} />
@@ -223,15 +198,15 @@ function ConnectStep({
 
       <Alert className="mt-5">
         <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>Troubleshooting permission errors</ZoruAlertTitle>
-        <ZoruAlertDescription className="space-y-1">
+        <AlertTitle>Troubleshooting permission errors</AlertTitle>
+        <AlertDescription className="space-y-1">
           <p>If you encounter permission errors after returning from Meta:</p>
           <ul className="list-disc pl-4 space-y-0.5 text-[12px] opacity-80">
             <li>Ensure your personal Meta account has Admin rights to the Facebook Page.</li>
             <li>In the Meta popup, click &quot;Edit previous settings&quot; and ensure all pages and permissions are checked.</li>
             <li>Ensure your Meta Business Manager has unrestricted access to the Page.</li>
           </ul>
-        </ZoruAlertDescription>
+        </AlertDescription>
       </Alert>
 
       <Separator className="my-6" />
@@ -310,12 +285,12 @@ function PickPageStep({
               )}
             >
               <Avatar className="h-10 w-10">
-                <ZoruAvatarImage
+                <AvatarImage
                   src={`https://graph.facebook.com/${p.facebookPageId}/picture?type=large`}
                 />
-                <ZoruAvatarFallback>
+                <AvatarFallback>
                   <FacebookGlyph className="h-5 w-5" />
-                </ZoruAvatarFallback>
+                </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] text-[var(--st-text)]">{p.name}</p>
@@ -484,7 +459,7 @@ function AssetRow({
 
 export default function FacebookSetupPage() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { activeProjectId, setActiveProjectId } = useProject();
   const [projects, setProjects] = useState<WithId<Project>[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -576,34 +551,34 @@ export default function FacebookSetupPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Setup</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Setup</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5" bordered={false}>
-        <ZoruPageHeading>
+        <PageHeading>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
             Meta Suite onboarding
           </p>
-          <ZoruPageTitle>Get connected in three steps</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>Get connected in three steps</PageTitle>
+          <PageDescription>
             Connect a Meta account, choose a Page and link your other assets to
             unlock the full Meta Suite.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <Button variant="outline" size="sm" onClick={fetchProjects}>
           <RefreshCw /> Refresh
         </Button>

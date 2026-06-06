@@ -2,7 +2,7 @@
 
 import { useMemo, useCallback } from 'react';
 import { AnnouncementForm } from '../../_components/announcement-form';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Badge } from '@/components/sabcrm/20ui/compat';
 import { FileText, Link as LinkIcon, BarChart3, PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { AnnouncementKpis } from '@/app/actions/crm-announcements.actions.types';
@@ -40,16 +40,16 @@ export function NewAnnouncementClient({ initialKpis }: { initialKpis: Announceme
             </div>
             <div className="flex w-full flex-col gap-6 lg:w-80">
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle className="flex items-center gap-2">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
                             <BarChart3 className="h-4 w-4" />
                             Summary Dashboard
-                        </ZoruCardTitle>
+                        </CardTitle>
                         <p className="text-[12px] text-[var(--st-text-secondary)]">
                             Overview of your current announcements
                         </p>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="flex flex-col gap-4">
+                    </CardHeader>
+                    <CardBody className="flex flex-col gap-4">
                         <div className="flex items-center justify-between">
                             <span className="text-sm text-[var(--st-text-secondary)]">Total</span>
                             <Badge variant="secondary">{kpis.total}</Badge>
@@ -70,17 +70,17 @@ export function NewAnnouncementClient({ initialKpis }: { initialKpis: Announceme
                             <span className="text-sm font-medium">Activity Rate</span>
                             <span className="text-sm font-bold text-[var(--st-accent)]">{kpis.engagementRate}%</span>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle className="flex items-center gap-2">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
                             <LinkIcon className="h-4 w-4" />
                             Quick Actions
-                        </ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="flex flex-col gap-2">
+                        </CardTitle>
+                    </CardHeader>
+                    <CardBody className="flex flex-col gap-2">
                         <Button 
                             variant="outline" 
                             className="w-full justify-start"
@@ -97,7 +97,7 @@ export function NewAnnouncementClient({ initialKpis }: { initialKpis: Announceme
                             <PlusCircle className="mr-2 h-4 w-4 text-[var(--st-text-secondary)]" />
                             Manage drafts
                         </Button>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

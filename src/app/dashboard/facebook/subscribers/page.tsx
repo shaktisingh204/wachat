@@ -1,47 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Checkbox,
-  DataTable,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Checkbox, DataTable, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -97,7 +56,7 @@ function PageSkeleton() {
 }
 
 export default function SubscribersPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [subscribers, setSubscribers] = useState<SubscriberRow[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, startTransition] = useTransition();
@@ -159,13 +118,13 @@ export default function SubscribersPage() {
           return (
             <div className="flex items-center gap-3">
               <Avatar className="h-8 w-8">
-                <ZoruAvatarImage
+                <AvatarImage
                   src={`https://graph.facebook.com/${sub.psid}/picture`}
                   alt={sub.name}
                 />
-                <ZoruAvatarFallback>
+                <AvatarFallback>
                   {sub.name?.charAt(0)?.toUpperCase() || '?'}
-                </ZoruAvatarFallback>
+                </AvatarFallback>
               </Avatar>
               <span className="text-[13px] text-[var(--st-text)]">{sub.name}</span>
             </div>
@@ -210,22 +169,22 @@ export default function SubscribersPage() {
           const sub = row.original;
           return (
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon-sm" aria-label="Row actions">
                   <MoreHorizontal />
                 </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent align="end" className="w-40">
-                <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
-                <ZoruDropdownMenuItem
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem
                   onSelect={() => {
                     navigator.clipboard.writeText(sub.psid);
                     toast({ title: 'PSID copied' });
                   }}
                 >
                   <Copy /> Copy PSID
-                </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuItem
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   onSelect={() =>
                     window.open(
                       `/dashboard/facebook/messages?psid=${sub.psid}`,
@@ -234,8 +193,8 @@ export default function SubscribersPage() {
                   }
                 >
                   <MessageSquare /> Open thread
-                </ZoruDropdownMenuItem>
-              </ZoruDropdownMenuContent>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
             </DropdownMenu>
           );
         },
@@ -285,55 +244,55 @@ export default function SubscribersPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Subscribers</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Subscribers</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Audience</ZoruPageEyebrow>
-          <ZoruPageTitle>Messenger subscribers</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Audience</PageEyebrow>
+          <PageTitle>Messenger subscribers</PageTitle>
+          <PageDescription>
             Every user who has messaged your connected Facebook Page. Use the
             bulk menu to export or trigger a broadcast.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" size="sm" onClick={fetchData}>
             <RefreshCw /> Refresh
           </Button>
           <Button size="sm" onClick={() => setAddOpen(true)}>
             <Plus /> Add subscriber
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {!projectId ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>No project selected</AlertTitle>
+          <AlertDescription>
             Select a project from the dashboard to view its subscribers.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       ) : error ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Could not load subscribers</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not load subscribers</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : (
         <>
@@ -377,31 +336,31 @@ export default function SubscribersPage() {
               }
               toolbar={
                 <DropdownMenu>
-                  <ZoruDropdownMenuTrigger asChild>
+                  <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm">
                       <MoreHorizontal /> Bulk actions
                     </Button>
-                  </ZoruDropdownMenuTrigger>
-                  <ZoruDropdownMenuContent align="end" className="w-52">
-                    <ZoruDropdownMenuLabel>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuLabel>
                       {selectedRows.length > 0
                         ? `${selectedRows.length} selected`
                         : 'All subscribers'}
-                    </ZoruDropdownMenuLabel>
-                    <ZoruDropdownMenuSeparator />
-                    <ZoruDropdownMenuItem onSelect={handleBulkExport}>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={handleBulkExport}>
                       <Download /> Export CSV
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
                       onSelect={() =>
                         (window.location.href =
                           '/dashboard/facebook/broadcasts')
                       }
                     >
                       <MessageSquare /> Broadcast to selected
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuSeparator />
-                    <ZoruDropdownMenuItem
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
                       disabled
                       onSelect={() =>
                         toast({
@@ -413,8 +372,8 @@ export default function SubscribersPage() {
                       }
                     >
                       <Trash2 /> Remove
-                    </ZoruDropdownMenuItem>
-                  </ZoruDropdownMenuContent>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
                 </DropdownMenu>
               }
             />
@@ -424,15 +383,15 @@ export default function SubscribersPage() {
 
       {/* ── Add subscriber dialog (manual PSID, informational) ── */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add subscriber</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add subscriber</DialogTitle>
+            <DialogDescription>
               Subscribers are created automatically when a user messages your
               Page. You can manually note a PSID below for reference — it will
               not bypass Meta&apos;s messaging window rules.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="manual-name">Display name</Label>
@@ -443,7 +402,7 @@ export default function SubscribersPage() {
               <Input id="manual-psid" placeholder="123456789" />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setAddOpen(false)}>
               Cancel
             </Button>
@@ -459,8 +418,8 @@ export default function SubscribersPage() {
             >
               Save
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

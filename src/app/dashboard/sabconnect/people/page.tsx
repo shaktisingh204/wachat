@@ -8,17 +8,7 @@
 
 import Link from 'next/link';
 
-import {
-    PageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Card,
-    CardContent,
-    Avatar,
-    AvatarFallback,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardContent, Avatar, AvatarFallback, EmptyState } from '@/components/sabcrm/20ui/compat';
 
 import { getSabConnectPeople } from '@/app/actions/sabconnect.actions';
 
@@ -30,12 +20,12 @@ export default async function SabConnectPeoplePage() {
     return (
         <div className="flex w-full flex-col gap-6">
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>People</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>People</PageTitle>
+                    <PageDescription>
                         Browse the employee directory. Click a person to open their profile.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
             </PageHeader>
 
             {people.length === 0 ? (

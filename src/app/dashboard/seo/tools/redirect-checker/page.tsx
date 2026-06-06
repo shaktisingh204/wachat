@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, cn, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Badge, cn, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { AlertCircle, MoveDown, Info } from 'lucide-react';
@@ -107,36 +107,36 @@ export default function RedirectCheckerPage() {
       {(result?.error || hasTooManyRedirectsError) && (
         <Alert variant="destructive" className="mt-4">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Error fetching URL</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Error fetching URL</AlertTitle>
+          <AlertDescription>
             {hasTooManyRedirectsError 
               ? "Redirect loop or overly long chain detected. The server responded with 'Too many redirects'." 
               : result?.error}
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       )}
 
       {result && !result.error && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-6 space-y-6">
+          <CardBody className="p-6 space-y-6">
             
             {isChainTooLong && (
               <Alert variant="destructive" className="bg-[var(--st-text)]/10 text-[var(--st-text)] border-destructive/20">
                 <AlertCircle className="h-4 w-4" />
-                <ZoruAlertTitle>Too Many Redirects</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Too Many Redirects</AlertTitle>
+                <AlertDescription>
                   This URL has {redirectCount} redirects. Redirect chains longer than 2 hops can negatively impact SEO and slow down page load times. Consider pointing directly to the final destination.
-                </ZoruAlertDescription>
+                </AlertDescription>
               </Alert>
             )}
             
             {displayChain.some(h => h.isMeta) && (
               <Alert className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/50 dark:text-white dark:border-[var(--st-border)]">
                 <Info className="h-4 w-4" />
-                <ZoruAlertTitle>Meta Refresh Detected</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Meta Refresh Detected</AlertTitle>
+                <AlertDescription>
                   The final page contains a meta refresh tag that redirects the user to another URL. Search engines generally prefer HTTP 301 redirects over meta refreshes.
-                </ZoruAlertDescription>
+                </AlertDescription>
               </Alert>
             )}
 
@@ -206,7 +206,7 @@ export default function RedirectCheckerPage() {
                 </div>
               )}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
@@ -90,7 +77,7 @@ function initialApproverId(initial?: CrmLeaveDoc | null): string | null {
 
 export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: LeaveFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(saveLeaveAction, INITIAL_STATE);
   const [warning, setWarning] = React.useState<string | null>(null);
@@ -194,25 +181,25 @@ export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: Leav
                 required
                 disabled={isLocked}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Pick a leave type…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pick a leave type…" />
+                </SelectTrigger>
+                <SelectContent>
                   {leaveTypes.length === 0 ? (
                     <div className="px-3 py-2 text-[12.5px] text-[var(--st-text-secondary)]">
                       No leave types yet — add one under Leave Types.
                     </div>
                   ) : (
                     leaveTypes.map((lt) => (
-                      <ZoruSelectItem key={lt._id} value={lt._id}>
+                      <SelectItem key={lt._id} value={lt._id}>
                         <span className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                           {lt.code}
                         </span>
                         <span className="ml-2">{lt.name}</span>
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))
                   )}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
           </div>

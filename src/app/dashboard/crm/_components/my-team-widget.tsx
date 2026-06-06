@@ -9,15 +9,7 @@
 import Link from 'next/link';
 import { Users2 } from 'lucide-react';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { getMyDirectReports } from '@/app/actions/hrm-portal.actions';
 import { getEmployeeAssignmentStats } from '@/app/actions/crm-assignment.actions';
 
@@ -57,18 +49,18 @@ export async function MyTeamWidget() {
 
   return (
     <Card className="p-0">
-      <ZoruCardHeader className="pb-2">
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <ZoruCardTitle className="flex items-center gap-2 text-[14px] text-[var(--st-text)]">
+          <CardTitle className="flex items-center gap-2 text-[14px] text-[var(--st-text)]">
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
               <Users2 className="h-3.5 w-3.5" strokeWidth={1.75} />
             </span>
             My team
-          </ZoruCardTitle>
+          </CardTitle>
           <Badge variant="ghost">{reports.length}</Badge>
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent className="pt-2">
+      </CardHeader>
+      <CardBody className="pt-2">
         <ul className="flex flex-col gap-2">
           {enriched.map((r) => {
             const [first, ...rest] = r.name.split(' ');
@@ -78,9 +70,9 @@ export async function MyTeamWidget() {
                 className="flex items-center gap-3 rounded-[var(--st-radius-sm)] px-2 py-1.5 hover:bg-[var(--st-bg-muted)]"
               >
                 <Avatar className="h-8 w-8">
-                  <ZoruAvatarFallback>
+                  <AvatarFallback>
                     {initialsFromName(first ?? '', rest.join(' '))}
-                  </ZoruAvatarFallback>
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-[13px] font-medium text-[var(--st-text)]">
@@ -97,7 +89,7 @@ export async function MyTeamWidget() {
             );
           })}
         </ul>
-      </ZoruCardContent>
+      </CardBody>
       <div className="border-t border-[var(--st-border)] px-5 py-2">
         <Link
           href="/dashboard/hrm/portal#team"

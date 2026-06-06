@@ -1,38 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Avatar, AvatarFallback, AvatarImage, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -148,7 +116,7 @@ function ReplyReviewDialog({
   review,
   onSent,
 }: ReplyDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [text, setText] = useState("");
   const [pending, startSendTransition] = useTransition();
 
@@ -176,17 +144,17 @@ function ReplyReviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <form onSubmit={onSubmit} className="flex flex-col gap-5">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+          <DialogHeader>
+            <DialogTitle>
               Reply to {review?.reviewer?.name ?? "review"}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Public reply. Keep it concise and on-brand — your response is
               visible on the page.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="grid gap-2">
             <Label htmlFor="reply-text">Reply</Label>
@@ -200,7 +168,7 @@ function ReplyReviewDialog({
             />
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -213,9 +181,9 @@ function ReplyReviewDialog({
               {pending ? <Loader2 className="animate-spin" /> : <Send />}
               {pending ? "Sending…" : "Send reply"}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -240,7 +208,7 @@ function ReportReviewAlert({
   review,
   onReported,
 }: ReportDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [reason, setReason] = useState<string>("spam");
   const [pending, startReportTransition] = useTransition();
 
@@ -262,14 +230,14 @@ function ReportReviewAlert({
   };
 
   return (
-    <ZoruAlertDialog open={open} onOpenChange={onOpenChange}>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle className="flex items-center gap-2">
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />
             Report this review?
-          </ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+          </AlertDialogTitle>
+          <AlertDialogDescription>
             Reporting flags the review for Meta's moderation team. The review
             will remain visible until Meta acts on it.
             {review?.reviewer?.name ? (
@@ -278,40 +246,40 @@ function ReportReviewAlert({
                 Author: <strong>{review.reviewer.name}</strong>
               </>
             ) : null}
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
         <div className="grid gap-2 py-2">
           <Label>Reason</Label>
           <Select value={reason} onValueChange={setReason}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {REPORT_REASONS.map((r) => (
-                <ZoruSelectItem key={r.value} value={r.value}>
+                <SelectItem key={r.value} value={r.value}>
                   {r.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
 
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel disabled={pending}>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={pending}>
             Cancel
-          </ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
+          </AlertDialogCancel>
+          <AlertDialogAction
             onClick={submit}
             disabled={pending}
             className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:opacity-90"
           >
             {pending ? <Loader2 className="animate-spin" /> : <Flag />}
             Report review
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -404,14 +372,14 @@ export default function ReviewsPage() {
                     <div className="flex items-start gap-4">
                       <Avatar className="h-10 w-10">
                         {review.reviewer?.picture?.data?.url ? (
-                          <ZoruAvatarImage
+                          <AvatarImage
                             src={review.reviewer.picture.data.url}
                             alt={author}
                           />
                         ) : null}
-                        <ZoruAvatarFallback>
+                        <AvatarFallback>
                           {author.charAt(0).toUpperCase()}
-                        </ZoruAvatarFallback>
+                        </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center justify-between gap-2">

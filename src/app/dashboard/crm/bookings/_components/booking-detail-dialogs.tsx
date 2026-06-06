@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -44,7 +32,7 @@ export function BookingCancelDialog({
   bookingId,
 }: BaseDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [reason, setReason] = React.useState('');
   const [pending, startTransition] = React.useTransition();
 
@@ -71,14 +59,14 @@ export function BookingCancelDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Cancel this booking?</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Cancel this booking?</DialogTitle>
+          <DialogDescription>
             Sets status to <strong>cancelled</strong> and records the reason
             in the audit log.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="cancel-reason">Reason</Label>
@@ -92,7 +80,7 @@ export function BookingCancelDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Back
           </Button>
@@ -103,8 +91,8 @@ export function BookingCancelDialog({
           >
             {pending ? 'Cancelling…' : 'Cancel booking'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -131,7 +119,7 @@ export function BookingRescheduleDialog({
   initialEnd,
 }: BookingRescheduleDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [start, setStart] = React.useState('');
   const [end, setEnd] = React.useState('');
   const [pending, startTransition] = React.useTransition();
@@ -173,14 +161,14 @@ export function BookingRescheduleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Reschedule booking</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Reschedule booking</DialogTitle>
+          <DialogDescription>
             Pick the new slot — the original is overwritten and the change is
             audit-logged.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="resched-start">New start</Label>
@@ -203,15 +191,15 @@ export function BookingRescheduleDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Reschedule'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -226,7 +214,7 @@ export function BookingSendConfirmationDialog({
   bookingId,
   initialEmail,
 }: BookingSendConfirmationDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [to, setTo] = React.useState(initialEmail ?? '');
   const [message, setMessage] = React.useState(
     `Your booking is confirmed. Reference ID: ${bookingId}.`,
@@ -256,13 +244,13 @@ export function BookingSendConfirmationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Send confirmation</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Send confirmation</DialogTitle>
+          <DialogDescription>
             Opens your mail client with the confirmation pre-filled.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="bcd-to">Recipient email</Label>
@@ -286,13 +274,13 @@ export function BookingSendConfirmationDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onSubmit}>Open mail client</Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

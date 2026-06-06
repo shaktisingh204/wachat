@@ -1,16 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Button,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { saveTimeLog } from '@/app/actions/worksuite/time.actions';
 import { wsFormatDuration } from '@/lib/worksuite/time-types';
 
@@ -23,7 +14,7 @@ export function ManualEntryDialog({
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [manualStart, setManualStart] = useState('');
   const [manualEnd, setManualEnd] = useState('');
   const [manualMemo, setManualMemo] = useState('');
@@ -60,12 +51,12 @@ export function ManualEntryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="bg-[var(--st-bg)] sm:max-w-[440px]">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="text-[16px] text-[var(--st-text)]">
+      <DialogContent className="bg-[var(--st-bg)] sm:max-w-[440px]">
+        <DialogHeader>
+          <DialogTitle className="text-[16px] text-[var(--st-text)]">
             Add Manual Entry
-          </ZoruDialogTitle>
-        </ZoruDialogHeader>
+          </DialogTitle>
+        </DialogHeader>
 
         <div className="flex flex-col gap-4 py-2">
           <div className="flex flex-col gap-1.5">
@@ -114,15 +105,15 @@ export function ManualEntryDialog({
           </div>
         </div>
 
-        <ZoruDialogFooter className="gap-2">
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSavingManual}>
             Cancel
           </Button>
           <Button disabled={isSavingManual || !manualStart || !manualEnd} onClick={handleManualSave}>
             {isSavingManual ? 'Saving…' : 'Save Entry'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

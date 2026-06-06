@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Checkbox,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   formatDistanceToNow } from 'date-fns';
 import {
@@ -115,9 +100,9 @@ export function ContactsTable({
     return (
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                        <ZoruTableHead className="w-[36px]">
+                <THead>
+                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                        <Th className="w-[36px]">
                             <Checkbox
                                 aria-label="Select all contacts on this page"
                                 checked={
@@ -125,38 +110,38 @@ export function ContactsTable({
                                 }
                                 onCheckedChange={(c) => onToggleAll(c === true)}
                             />
-                        </ZoruTableHead>
-                        <ZoruTableHead>Name</ZoruTableHead>
-                        <ZoruTableHead>Email</ZoruTableHead>
-                        <ZoruTableHead>Phone</ZoruTableHead>
-                        <ZoruTableHead>Company</ZoruTableHead>
-                        <ZoruTableHead>Job title</ZoruTableHead>
-                        <ZoruTableHead>Status</ZoruTableHead>
-                        <ZoruTableHead>Source</ZoruTableHead>
-                        <ZoruTableHead>Owner</ZoruTableHead>
-                        <ZoruTableHead>Lifecycle</ZoruTableHead>
-                        <ZoruTableHead>Last activity</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                        </Th>
+                        <Th>Name</Th>
+                        <Th>Email</Th>
+                        <Th>Phone</Th>
+                        <Th>Company</Th>
+                        <Th>Job title</Th>
+                        <Th>Status</Th>
+                        <Th>Source</Th>
+                        <Th>Owner</Th>
+                        <Th>Lifecycle</Th>
+                        <Th>Last activity</Th>
+                        <Th className="text-right">Actions</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {loading ? (
                         Array.from({ length: 6 }).map((_, i) => (
-                            <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                                <ZoruTableCell colSpan={12}>
+                            <Tr key={i} className="border-[var(--st-border)]">
+                                <Td colSpan={12}>
                                     <Skeleton className="h-10 w-full" />
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ))
                     ) : contacts.length === 0 ? (
-                        <ZoruTableRow className="border-[var(--st-border)]">
-                            <ZoruTableCell
+                        <Tr className="border-[var(--st-border)]">
+                            <Td
                                 colSpan={12}
                                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 No contacts match the current filters.
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                        </Tr>
                     ) : (
                         contacts.map((contact) => {
                             const id = String(contact._id);
@@ -170,7 +155,7 @@ export function ContactsTable({
                                 contact.leadSource ?? contact.source ?? null;
 
                             return (
-                                <ZoruTableRow
+                                <Tr
                                     key={id}
                                     className={[
                                         'border-[var(--st-border)] transition-colors',
@@ -178,14 +163,14 @@ export function ContactsTable({
                                         isSel ? 'bg-[var(--st-bg-muted)]/70' : '',
                                     ].join(' ')}
                                 >
-                                    <ZoruTableCell>
+                                    <Td>
                                         <Checkbox
                                             aria-label={`Select contact ${name}`}
                                             checked={isSel}
                                             onCheckedChange={() => onToggleOne(id)}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <EntityRowLink
                                             href={`/dashboard/crm/sales-crm/contacts/${id}`}
                                             label={
@@ -200,8 +185,8 @@ export function ContactsTable({
                                             }
                                             subtitle={contact.accountId ? 'Linked account' : undefined}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                         {contact.email ? (
                                             <a
                                                 href={`mailto:${contact.email}`}
@@ -213,8 +198,8 @@ export function ContactsTable({
                                         ) : (
                                             '—'
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                         {contact.phone ? (
                                             <a
                                                 href={`tel:${contact.phone}`}
@@ -226,8 +211,8 @@ export function ContactsTable({
                                         ) : (
                                             '—'
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text)]">
                                         {contact.company ? (
                                             <span className="inline-flex items-center gap-1.5">
                                                 <Building className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
@@ -242,8 +227,8 @@ export function ContactsTable({
                                         ) : (
                                             <span className="text-[var(--st-text-secondary)]">—</span>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                         {contact.jobTitle ? (
                                             <EntityPickerChip
                                                 entity="jobTitle"
@@ -253,14 +238,14 @@ export function ContactsTable({
                                         ) : (
                                             '—'
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <StatusPill
                                             label={formatStatus(status)}
                                             tone={statusToTone(status)}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {source ? (
                                             <Badge variant="secondary">
                                                 {source}
@@ -268,8 +253,8 @@ export function ContactsTable({
                                         ) : (
                                             <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {contact.owner ? (
                                             <EntityPickerChip
                                                 entity="user"
@@ -287,15 +272,15 @@ export function ContactsTable({
                                                 Unassigned
                                             </span>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {lifecycle ? (
                                             <Badge variant="ghost">{lifecycle}</Badge>
                                         ) : (
                                             '—'
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell
+                                    </Td>
+                                    <Td
                                         className="text-[12.5px] text-[var(--st-text-secondary)]"
                                         title={
                                             lastActivity
@@ -308,10 +293,10 @@ export function ContactsTable({
                                                   addSuffix: true,
                                               })
                                             : '—'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <DropdownMenu>
-                                            <ZoruDropdownMenuTrigger asChild>
+                                            <DropdownMenuTrigger asChild>
                                                 <button
                                                     type="button"
                                                     aria-label={`Actions for ${name}`}
@@ -319,54 +304,54 @@ export function ContactsTable({
                                                 >
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </button>
-                                            </ZoruDropdownMenuTrigger>
-                                            <ZoruDropdownMenuContent align="end">
-                                                <ZoruDropdownMenuItem asChild>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem asChild>
                                                     <Link
                                                         href={`/dashboard/crm/sales-crm/contacts/${id}`}
                                                     >
                                                         <ChevronDown className="mr-1.5 h-3.5 w-3.5 rotate-[-90deg]" />
                                                         View
                                                     </Link>
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem asChild>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
                                                     <Link
                                                         href={`/dashboard/crm/sales-crm/contacts/${id}/edit`}
                                                     >
                                                         <Edit className="mr-1.5 h-3.5 w-3.5" />
                                                         Edit
                                                     </Link>
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem asChild>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
                                                     <Link
                                                         href={`/dashboard/crm/sales-crm/deals/new?contactId=${id}`}
                                                     >
                                                         <ChevronDown className="mr-1.5 h-3.5 w-3.5 rotate-180" />
                                                         Add deal
                                                     </Link>
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuSeparator />
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem
                                                     onClick={() => onArchive(id)}
                                                 >
                                                     <Archive className="mr-1.5 h-3.5 w-3.5" />
                                                     {archived ? 'Restore' : 'Archive'}
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     onClick={() => onDelete(id)}
                                                     className="text-[var(--st-danger)]"
                                                 >
                                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                                     Delete
-                                                </ZoruDropdownMenuItem>
-                                            </ZoruDropdownMenuContent>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             );
                         })
                     )}
-                </ZoruTableBody>
+                </TBody>
             </Table>
         </div>
     );

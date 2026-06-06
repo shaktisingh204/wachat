@@ -3,20 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { XCircle, Repeat, Search, Filter, MoreHorizontal, ExternalLink, CalendarClock, Ban } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  useZoruToast,
-  Input,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, useToast, Input, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 
 import { cancelSabcheckoutSubscription } from '@/app/actions/sabcheckout.actions';
 import type { SabcheckoutSubscriptionDoc } from '@/lib/rust-client/sabcheckout-subscriptions';
@@ -27,7 +14,7 @@ export function SubscriptionsClient({
   initial: SabcheckoutSubscriptionDoc[];
 }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   async function onCancel(id: string) {
     if (!confirm('Cancel this subscription?')) return;
@@ -61,7 +48,7 @@ export function SubscriptionsClient({
         </div>
       </div>
           
-      <ZoruCardContent className="p-0">
+      <CardBody className="p-0">
         {initial.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] mb-4">
@@ -164,7 +151,7 @@ export function SubscriptionsClient({
             </table>
           </div>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,34 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Textarea,
-  useZoruToast,
-  type ZoruBadgeProps,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, PageDescription, PageHeader, PageHeading, PageTitle, Textarea, useToast, type BadgeProps } from '@/components/sabcrm/20ui/compat';
 import {
   Calendar,
   Check,
@@ -63,7 +35,7 @@ const STATUSES: Status[] = ['To-Do', 'In Progress', 'Completed'];
 type Assignee = { _id: string; name: string; email: string };
 
 export default function TeamTasksPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const { activeProjectId, sessionUser } = useProject();
     const canCreate = useCan('team_tasks', 'create');
     const canEdit = useCan('team_tasks', 'edit');
@@ -170,28 +142,28 @@ export default function TeamTasksPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/team/manage-users">Team</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Tasks</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/team/manage-users">Team</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Tasks</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Team tasks</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Team tasks</PageTitle>
+                    <PageDescription>
                         Plan work, assign it to teammates, and track what&apos;s in flight.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 {canCreate ? (
                     <CreateTaskDialog
                         open={createOpen}
@@ -225,18 +197,18 @@ export default function TeamTasksPage() {
                     />
                     <div className="w-[180px]">
                         <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All assignees</ZoruSelectItem>
-                                <ZoruSelectItem value="__unassigned">Unassigned</ZoruSelectItem>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All assignees</SelectItem>
+                                <SelectItem value="__unassigned">Unassigned</SelectItem>
                                 {assignees.map((a) => (
-                                    <ZoruSelectItem key={a._id} value={a._id}>
+                                    <SelectItem key={a._id} value={a._id}>
                                         {a.name}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="w-[140px]">
@@ -244,15 +216,15 @@ export default function TeamTasksPage() {
                             value={priorityFilter}
                             onValueChange={(v) => setPriorityFilter(v as 'all' | Priority)}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All priorities</ZoruSelectItem>
-                                <ZoruSelectItem value="High">High</ZoruSelectItem>
-                                <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
-                                <ZoruSelectItem value="Low">Low</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All priorities</SelectItem>
+                                <SelectItem value="High">High</SelectItem>
+                                <SelectItem value="Medium">Medium</SelectItem>
+                                <SelectItem value="Low">Low</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>
@@ -330,7 +302,7 @@ function Column({
     onDelete: (id: string) => void;
 }) {
     const [dropActive, setDropActive] = React.useState(false);
-    const variant: Record<Status, NonNullable<ZoruBadgeProps['variant']>> = {
+    const variant: Record<Status, NonNullable<BadgeProps['variant']>> = {
         'To-Do': 'ghost',
         'In Progress': 'warning',
         Completed: 'success',
@@ -407,7 +379,7 @@ function TaskCard({
     onDelete: (id: string) => void;
 }) {
     const id = task._id.toString();
-    const priorityVariant: Record<Priority, NonNullable<ZoruBadgeProps['variant']>> = {
+    const priorityVariant: Record<Priority, NonNullable<BadgeProps['variant']>> = {
         High: 'danger',
         Medium: 'warning',
         Low: 'info',
@@ -504,15 +476,15 @@ function AssigneeChip({
     if (!canEdit) return chip;
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <button type="button" className="outline-none hover:opacity-90">
                     {chip}
                 </button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="max-w-sm">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Assign task</ZoruDialogTitle>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent className="max-w-sm">
+                <DialogHeader>
+                    <DialogTitle>Assign task</DialogTitle>
+                </DialogHeader>
                 <div className="mt-3 flex max-h-[280px] flex-col gap-1 overflow-auto">
                     <button
                         type="button"
@@ -554,7 +526,7 @@ function AssigneeChip({
                         );
                     })}
                 </div>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -563,18 +535,18 @@ function StatusMenu({ status, onMove }: { status: Status; onMove: (s: Status) =>
     const [open, setOpen] = React.useState(false);
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <button
                     type="button"
                     className="inline-flex h-6 items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 text-[11.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                 >
                     Move <ChevronDown className="h-3 w-3" />
                 </button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="max-w-xs">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Move to</ZoruDialogTitle>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent className="max-w-xs">
+                <DialogHeader>
+                    <DialogTitle>Move to</DialogTitle>
+                </DialogHeader>
                 <div className="flex flex-col gap-1">
                     {STATUSES.map((s) => (
                         <button
@@ -594,7 +566,7 @@ function StatusMenu({ status, onMove }: { status: Status; onMove: (s: Status) =>
                         </button>
                     ))}
                 </div>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -614,7 +586,7 @@ function CreateTaskDialog({
     assignees: Assignee[];
     projectId: string | null;
     onCreated: () => void;
-    toast: ReturnType<typeof useZoruToast>['toast'];
+    toast: ReturnType<typeof useToast>['toast'];
 }) {
     const [pending, setPending] = React.useState(false);
     const [priority, setPriority] = React.useState<Priority>('Medium');
@@ -645,16 +617,16 @@ function CreateTaskDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button size="md">
                     <Plus className="h-3.5 w-3.5" />
                     New task
                 </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="max-w-md">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>New task</ZoruDialogTitle>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>New task</DialogTitle>
+                </DialogHeader>
                 <form onSubmit={onSubmit} className="mt-2 flex flex-col gap-4">
                     <Field label="Title">
                         <Input name="title" required placeholder="Follow up with onboarding leads" />
@@ -669,14 +641,14 @@ function CreateTaskDialog({
                     <div className="grid grid-cols-2 gap-3">
                         <Field label="Priority">
                             <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="High">High</ZoruSelectItem>
-                                    <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
-                                    <ZoruSelectItem value="Low">Low</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="High">High</SelectItem>
+                                    <SelectItem value="Medium">Medium</SelectItem>
+                                    <SelectItem value="Low">Low</SelectItem>
+                                </SelectContent>
                             </Select>
                         </Field>
                         <Field label="Due date">
@@ -685,17 +657,17 @@ function CreateTaskDialog({
                     </div>
                     <Field label="Assign to">
                         <Select value={assignedTo || '__none'} onValueChange={(v) => setAssignedTo(v === '__none' ? '' : v)}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Unassigned" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="__none">Unassigned</ZoruSelectItem>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Unassigned" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="__none">Unassigned</SelectItem>
                                 {assignees.map((a) => (
-                                    <ZoruSelectItem key={a._id} value={a._id}>
+                                    <SelectItem key={a._id} value={a._id}>
                                         {a.name} ({a.email})
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </Field>
                     <div className="mt-2 flex justify-end gap-2">
@@ -714,7 +686,7 @@ function CreateTaskDialog({
                         </Button>
                     </div>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

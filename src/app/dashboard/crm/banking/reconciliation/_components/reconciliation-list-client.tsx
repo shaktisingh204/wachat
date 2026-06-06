@@ -12,28 +12,7 @@
 
 import * as React from 'react';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  DatePicker,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, DatePicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   CheckCircle2,
@@ -182,49 +161,49 @@ function RecordsTable({
       </div>
       <div className="overflow-x-auto">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-              <ZoruTableHead className="text-[var(--st-text-secondary)]">Period</ZoruTableHead>
-              <ZoruTableHead className="text-[var(--st-text-secondary)]">Account</ZoruTableHead>
-              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+          <THead>
+            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+              <Th className="text-[var(--st-text-secondary)]">Period</Th>
+              <Th className="text-[var(--st-text-secondary)]">Account</Th>
+              <Th className="text-right text-[var(--st-text-secondary)]">
                 Opening
-              </ZoruTableHead>
-              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+              </Th>
+              <Th className="text-right text-[var(--st-text-secondary)]">
                 Closing
-              </ZoruTableHead>
-              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+              </Th>
+              <Th className="text-right text-[var(--st-text-secondary)]">
                 Matched
-              </ZoruTableHead>
-              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+              </Th>
+              <Th className="text-right text-[var(--st-text-secondary)]">
                 Unmatched
-              </ZoruTableHead>
-              <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-              <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+              </Th>
+              <Th className="text-[var(--st-text-secondary)]">Status</Th>
+              <Th className="text-[var(--st-text-secondary)]">Date</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {records.map((rec) => (
-              <ZoruTableRow key={rec._id} className="border-[var(--st-border)]">
-                <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+              <Tr key={rec._id} className="border-[var(--st-border)]">
+                <Td className="text-[12.5px] text-[var(--st-text)]">
                   {rec.periodStart ? fmtDate(rec.periodStart) : '—'} -{' '}
                   {rec.periodEnd ? fmtDate(rec.periodEnd) : '—'}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                </Td>
+                <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                   {rec.accountId ?? '—'}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
+                </Td>
+                <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                   {rec.openingBalance != null ? fmtInr(rec.openingBalance) : '—'}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
+                </Td>
+                <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                   {rec.closingBalance != null ? fmtInr(rec.closingBalance) : '—'}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
+                </Td>
+                <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                   {rec.matchedCount ?? 0}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
+                </Td>
+                <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                   {rec.unmatchedCount ?? 0}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </Td>
+                <Td>
                   <span
                     className={[
                       'rounded-full px-2 py-0.5 text-[11px] font-medium',
@@ -235,13 +214,13 @@ function RecordsTable({
                   >
                     {rec.status ?? 'in_progress'}
                   </span>
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                </Td>
+                <Td className="text-[12px] text-[var(--st-text-secondary)]">
                   {fmtDate(rec.reconciledDate ?? rec.createdAt)}
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </div>
     </Card>
@@ -279,18 +258,18 @@ const TransactionTable = ({
     </div>
     <div className="max-h-[420px] overflow-x-auto overflow-y-auto">
       <Table>
-        <ZoruTableHeader className="sticky top-0 bg-[var(--st-bg-muted)] z-10">
-          <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-            <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
+        <THead className="sticky top-0 bg-[var(--st-bg-muted)] z-10">
+          <Tr className="border-[var(--st-border)] hover:bg-transparent">
+            <Th className="w-10 text-[var(--st-text-secondary)]">
               <Check className="h-3.5 w-3.5" />
-            </ZoruTableHead>
-            <ZoruTableHead className="text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Date</ZoruTableHead>
-            <ZoruTableHead className="text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Description</ZoruTableHead>
-            <ZoruTableHead className="text-right text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Debit</ZoruTableHead>
-            <ZoruTableHead className="text-right text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Credit</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+            </Th>
+            <Th className="text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Date</Th>
+            <Th className="text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Description</Th>
+            <Th className="text-right text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Debit</Th>
+            <Th className="text-right text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Credit</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {entries.map((entry) => {
             const e = entry as typeof entry & { type?: string; amount: number; originalCurrency?: string; fxRate?: number };
             const debit = isBankStatement
@@ -319,7 +298,7 @@ const TransactionTable = ({
               : "text-[var(--st-text)] border-b border-[var(--st-border)]";
 
             return (
-              <ZoruTableRow
+              <Tr
                 key={e._id}
                 className={[
                   "transition-all duration-200",
@@ -328,7 +307,7 @@ const TransactionTable = ({
                 ].join(' ')}
                 data-state={isMatched ? 'selected' : ''}
               >
-                <ZoruTableCell className={[cellClass, isAiMatched ? "border-l border-[var(--st-border)]/40" : ""].join(' ')}>
+                <Td className={[cellClass, isAiMatched ? "border-l border-[var(--st-border)]/40" : ""].join(' ')}>
                   <div className="flex items-center gap-1.5">
                     <Checkbox
                       checked={isMatched}
@@ -338,11 +317,11 @@ const TransactionTable = ({
                       <Sparkles className="h-3.5 w-3.5 text-[var(--st-status-ok)] shrink-0 animate-pulse" title="AI Matched" />
                     )}
                   </div>
-                </ZoruTableCell>
-                <ZoruTableCell className={[cellClass, "text-[12px] font-mono"].join(' ')}>
+                </Td>
+                <Td className={[cellClass, "text-[12px] font-mono"].join(' ')}>
                   {format(new Date(e.date as string), 'dd MMM')}
-                </ZoruTableCell>
-                <ZoruTableCell className={[cellClass, "text-[12.5px] truncate max-w-[150px]"].join(' ')}>
+                </Td>
+                <Td className={[cellClass, "text-[12.5px] truncate max-w-[150px]"].join(' ')}>
                   <div className="flex flex-col">
                     <span className="truncate">{e.description}</span>
                     {isAiMatched && (
@@ -356,17 +335,17 @@ const TransactionTable = ({
                       </Button>
                     )}
                   </div>
-                </ZoruTableCell>
-                <ZoruTableCell className={[cellClass, "text-right font-mono text-[12px]"].join(' ')}>
+                </Td>
+                <Td className={[cellClass, "text-right font-mono text-[12px]"].join(' ')}>
                   {debit > 0 ? debit.toFixed(2) : ''}
-                </ZoruTableCell>
-                <ZoruTableCell className={[cellClass, "text-right font-mono text-[12px]"].join(' ')}>
+                </Td>
+                <Td className={[cellClass, "text-right font-mono text-[12px]"].join(' ')}>
                   {credit > 0 ? credit.toFixed(2) : ''}
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             );
           })}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </div>
     <div className="p-4 flex justify-end gap-6 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[12.5px] font-bold text-[var(--st-text)]">
@@ -387,7 +366,7 @@ export function ReconciliationListClient({
   records: serverRecords,
 }: ReconciliationListClientProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const records = serverRecords as unknown as ReconciliationRecord[];
 
@@ -807,19 +786,19 @@ export function ReconciliationListClient({
               value={selectedAccountId}
               onValueChange={handleAccountChange}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Select account…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue placeholder="Select account…" />
+              </SelectTrigger>
+              <SelectContent>
                 {accounts.map((acc) => (
-                  <ZoruSelectItem
+                  <SelectItem
                     key={acc._id.toString()}
                     value={acc._id.toString()}
                   >
                     {acc.accountName}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
@@ -943,12 +922,12 @@ export function ReconciliationListClient({
                 <div key={field} className="space-y-1">
                   <Label className="text-sm font-semibold text-[var(--st-text)] capitalize">{field.replace('Col', ' Column')}</Label>
                   <Select value={csvMapping[field as keyof CsvMapping]} onValueChange={(val) => setCsvMapping(prev => ({ ...prev, [field]: val }))}>
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue placeholder={`Select ${field}`} />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      {csvColumns.map(col => <ZoruSelectItem key={col} value={col}>{col}</ZoruSelectItem>)}
-                    </ZoruSelectContent>
+                    <SelectTrigger>
+                      <SelectValue placeholder={`Select ${field}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {csvColumns.map(col => <SelectItem key={col} value={col}>{col}</SelectItem>)}
+                    </SelectContent>
                   </Select>
                 </div>
               ))}

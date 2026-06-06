@@ -1,11 +1,4 @@
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
     Banknote,
@@ -102,7 +95,7 @@ interface KpiCardProps {
 function KpiCard({ label, value, icon: Icon, tone, hint }: KpiCardProps) {
     return (
         <Card className="overflow-hidden">
-            <ZoruCardContent className="flex items-start justify-between gap-3 p-4">
+            <CardBody className="flex items-start justify-between gap-3 p-4">
                 <div className="min-w-0">
                     <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         {label}
@@ -125,7 +118,7 @@ function KpiCard({ label, value, icon: Icon, tone, hint }: KpiCardProps) {
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
                     <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -324,16 +317,16 @@ async function PosDashboardContainer() {
             {/* Today's activity — two columns */}
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
                 <Card className="lg:col-span-2">
-                    <ZoruCardHeader className="flex flex-row items-center justify-between">
-                        <ZoruCardTitle>Today's transactions</ZoruCardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle>Today's transactions</CardTitle>
                         <Link
                             href="/dashboard/crm/pos/sessions"
                             className="text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline"
                         >
                             View all sessions
                         </Link>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="p-0">
+                    </CardHeader>
+                    <CardBody className="p-0">
                         {recentTxns.length === 0 ? (
                             <p className="px-6 pb-6 text-[13px] text-[var(--st-text-secondary)]">
                                 No transactions yet today. Open the terminal to ring
@@ -379,20 +372,20 @@ async function PosDashboardContainer() {
                                 ))}
                             </div>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader className="flex flex-row items-center justify-between">
-                        <ZoruCardTitle>Recent refunds</ZoruCardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle>Recent refunds</CardTitle>
                         <Link
                             href="/dashboard/crm/pos/refunds"
                             className="text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline"
                         >
                             All
                         </Link>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="p-0">
+                    </CardHeader>
+                    <CardBody className="p-0">
                         {recentRefunds.length === 0 ? (
                             <p className="px-6 pb-6 text-[13px] text-[var(--st-text-secondary)]">
                                 No refunds recorded.
@@ -426,7 +419,7 @@ async function PosDashboardContainer() {
                                 ))}
                             </div>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Copy, Download, AlertTriangle } from 'lucide-react';
@@ -108,10 +108,10 @@ export default function DoFollowCheckerPage() {
 
       {error && (
         <Card className="border-[var(--st-border)]/50">
-          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)] flex items-center gap-2">
+          <CardBody className="p-4 text-sm text-[var(--st-text)] flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
             {error}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
@@ -129,7 +129,7 @@ export default function DoFollowCheckerPage() {
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <Card>
-              <ZoruCardContent className="p-4 space-y-2">
+              <CardBody className="p-4 space-y-2">
                 <div className="text-sm font-semibold">DoFollow ({data.dofollow.length})</div>
                 <div className="space-y-1 max-h-96 overflow-auto">
                   {data.dofollow.map((l, i) => (
@@ -139,10 +139,10 @@ export default function DoFollowCheckerPage() {
                     </div>
                   ))}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardContent className="p-4 space-y-2">
+              <CardBody className="p-4 space-y-2">
                 <div className="text-sm font-semibold">NoFollow ({data.nofollow.length})</div>
                 <div className="space-y-1 max-h-96 overflow-auto">
                   {data.nofollow.map((l, i) => (
@@ -152,7 +152,7 @@ export default function DoFollowCheckerPage() {
                     </div>
                   ))}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </div>

@@ -30,41 +30,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 
@@ -190,7 +156,7 @@ function SettingsEditDialog<T extends SettingsRow>({
     message: '',
     error: '',
   } as { message?: string; error?: string; id?: string });
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   React.useEffect(() => {
     if (state?.message) {
@@ -209,17 +175,17 @@ function SettingsEditDialog<T extends SettingsRow>({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl">
         <form action={formAction}>
           {isEditing ? (
             <input type="hidden" name="_id" value={initial!._id} />
           ) : null}
 
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+          <DialogHeader>
+            <DialogTitle>
               {isEditing ? `Edit ${singular}` : `Create ${singular}`}
-            </ZoruDialogTitle>
-          </ZoruDialogHeader>
+            </DialogTitle>
+          </DialogHeader>
 
           <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
             {fields.map((field) => {
@@ -255,18 +221,18 @@ function SettingsEditDialog<T extends SettingsRow>({
                       name={field.name}
                       defaultValue={initialValue || undefined}
                     >
-                      <ZoruSelectTrigger id={field.name}>
-                        <ZoruSelectValue
+                      <SelectTrigger id={field.name}>
+                        <SelectValue
                           placeholder={field.placeholder ?? 'Select…'}
                         />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
+                      </SelectTrigger>
+                      <SelectContent>
                         {(field.options ?? []).map((opt) => (
-                          <ZoruSelectItem key={opt.value} value={opt.value}>
+                          <SelectItem key={opt.value} value={opt.value}>
                             {opt.label}
-                          </ZoruSelectItem>
+                          </SelectItem>
                         ))}
-                      </ZoruSelectContent>
+                      </SelectContent>
                     </Select>
                   ) : (
                     <Input
@@ -283,7 +249,7 @@ function SettingsEditDialog<T extends SettingsRow>({
             })}
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -292,9 +258,9 @@ function SettingsEditDialog<T extends SettingsRow>({
               Cancel
             </Button>
             <SubmitButton isEditing={isEditing} />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -341,7 +307,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
   searchText,
   displayName,
 }: SettingsDeepPageProps<T>): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<T[]>([]);
   const [kpis, setKpis] = React.useState<SettingsDeepPageKpis>({
     total: 0,
@@ -581,14 +547,14 @@ export function SettingsDeepPage<T extends SettingsRow>({
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as StatusFilter)}
             >
-              <ZoruSelectTrigger className="h-9 w-[150px]">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[150px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
             </Select>
             {search || statusFilter !== 'all' ? (
               <Button
@@ -717,9 +683,9 @@ export function SettingsDeepPage<T extends SettingsRow>({
           <Card className="p-0">
             <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10">
                       <Checkbox
                         checked={
                           allOnPageSelected
@@ -733,50 +699,50 @@ export function SettingsDeepPage<T extends SettingsRow>({
                         }
                         aria-label="Select all rows on this page"
                       />
-                    </ZoruTableHead>
+                    </Th>
                     {columns.map((c) => (
-                      <ZoruTableHead
+                      <Th
                         key={c.key}
                         className={c.className ?? 'text-[var(--st-text-secondary)]'}
                       >
                         {c.label}
-                      </ZoruTableHead>
+                      </Th>
                     ))}
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                    <Th className="text-right text-[var(--st-text-secondary)]">
                       Actions
-                    </ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {isLoading && rows.length === 0 ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                      <ZoruTableRow key={i}>
-                        <ZoruTableCell colSpan={columns.length + 2}>
+                      <Tr key={i}>
+                        <Td colSpan={columns.length + 2}>
                           <Skeleton className="h-8 w-full" />
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))
                   ) : pageRows.length === 0 ? (
-                    <ZoruTableRow>
-                      <ZoruTableCell
+                    <Tr>
+                      <Td
                         colSpan={columns.length + 2}
                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         No {singular.toLowerCase()}s match this filter.
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     pageRows.map((row) => {
                       const id = row._id;
                       return (
-                        <ZoruTableRow key={id} className="border-[var(--st-border)]">
-                          <ZoruTableCell>
+                        <Tr key={id} className="border-[var(--st-border)]">
+                          <Td>
                             <Checkbox
                               checked={selected.has(id)}
                               onCheckedChange={() => toggleOne(id)}
                               aria-label={`Select ${displayName(row)}`}
                             />
-                          </ZoruTableCell>
+                          </Td>
                           {columns.map((c, colIdx) => {
                             const content = c.render
                               ? c.render(row)
@@ -788,7 +754,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                             // page).
                             if (colIdx === 0) {
                               return (
-                                <ZoruTableCell
+                                <Td
                                   key={c.key}
                                   className="font-medium text-[var(--st-text)]"
                                 >
@@ -829,19 +795,19 @@ export function SettingsDeepPage<T extends SettingsRow>({
                                       </div>
                                     </div>
                                   </RowDrawer>
-                                </ZoruTableCell>
+                                </Td>
                               );
                             }
                             return (
-                              <ZoruTableCell
+                              <Td
                                 key={c.key}
                                 className="text-[13px] text-[var(--st-text)]"
                               >
                                 {content}
-                              </ZoruTableCell>
+                              </Td>
                             );
                           })}
-                          <ZoruTableCell className="text-right">
+                          <Td className="text-right">
                             <div className="flex justify-end gap-1">
                               <Button
                                 variant="ghost"
@@ -863,12 +829,12 @@ export function SettingsDeepPage<T extends SettingsRow>({
                                 <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                               </Button>
                             </div>
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       );
                     })
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>
@@ -876,22 +842,22 @@ export function SettingsDeepPage<T extends SettingsRow>({
       </EntityListShell>
 
       {/* Single-row delete confirm */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!pendingDelete}
         onOpenChange={(o) => !o && setPendingDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete {singular}?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {singular}?</AlertDialogTitle>
+            <AlertDialogDescription>
               {pendingDelete
                 ? `Deleting "${displayName(pendingDelete)}" cannot be undone.`
                 : 'This action cannot be undone.'}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={handleDeleteOne}
               disabled={deletePending}
             >
@@ -899,28 +865,28 @@ export function SettingsDeepPage<T extends SettingsRow>({
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Bulk delete confirm */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingBulk}
         onOpenChange={(o) => !o && setPendingBulk(false)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Delete {selected.size} {selected.size === 1 ? singular.toLowerCase() : `${singular.toLowerCase()}s`}?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               Selected rows will be permanently removed. This cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={handleBulkDelete}
               disabled={bulkPending}
             >
@@ -928,10 +894,10 @@ export function SettingsDeepPage<T extends SettingsRow>({
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

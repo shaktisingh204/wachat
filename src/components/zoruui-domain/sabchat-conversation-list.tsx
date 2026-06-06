@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  ScrollArea,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Skeleton,
-  Button,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { ScrollArea, Avatar, AvatarFallback, AvatarImage, Badge, Skeleton, Button, Input } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Search,
@@ -86,7 +77,7 @@ export function SabChatConversationList({
                                         )}
                                     >
                                         <Avatar>
-                                            <ZoruAvatarFallback>{convo.visitorInfo?.email?.charAt(0).toUpperCase() || 'V'}</ZoruAvatarFallback>
+                                            <AvatarFallback>{convo.visitorInfo?.email?.charAt(0).toUpperCase() || 'V'}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 overflow-hidden">
                                             <div className="flex items-center justify-between">

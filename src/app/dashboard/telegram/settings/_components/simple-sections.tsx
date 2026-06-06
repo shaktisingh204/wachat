@@ -1,15 +1,5 @@
 import * as React from 'react';
-import {
-    Label,
-    Input,
-    Select,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    Textarea,
-    Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Badge } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { Loader2, Sparkles, Clock3, AlertCircle, ShieldAlert, Image as ImageIcon } from 'lucide-react';
@@ -56,16 +46,16 @@ export function DefaultsSection({
                         value={d.parseMode}
                         onValueChange={(v) => update('parseMode', v)}
                     >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
                             {PARSE_MODES.map((m) => (
-                                <ZoruSelectItem key={m.value} value={m.value}>
+                                <SelectItem key={m.value} value={m.value}>
                                     {m.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="space-y-1 md:col-span-2">
@@ -251,16 +241,16 @@ export function BusinessHoursSection({
                         value={bh.timezone}
                         onValueChange={(v) => update('timezone', v)}
                     >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
                             {IANA_TIMEZONES.map((tz) => (
-                                <ZoruSelectItem key={tz} value={tz}>
+                                <SelectItem key={tz} value={tz}>
                                     {tz}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
 
@@ -296,14 +286,14 @@ export function BusinessHoursSection({
                                     update('outOfHoursReply', { ...reply, kind: v })
                                 }
                             >
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="noop">No reply</ZoruSelectItem>
-                                    <ZoruSelectItem value="reply_text">Text reply</ZoruSelectItem>
-                                    <ZoruSelectItem value="reply_media">Media reply</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="noop">No reply</SelectItem>
+                                    <SelectItem value="reply_text">Text reply</SelectItem>
+                                    <SelectItem value="reply_media">Media reply</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         {reply.kind === 'reply_text' || reply.kind === 'reply_media' ? (

@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruDialog as Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect } from 'react';
 import { Save, Trash2, Download } from 'lucide-react';
 
@@ -102,8 +82,8 @@ export default function SchemaBuilder() {
         <div className="grid gap-6 md:grid-cols-2">
             <div className="flex flex-col gap-6">
                 <Card>
-                    <ZoruCardHeader className="flex flex-row items-center justify-between">
-                        <ZoruCardTitle>Configure Schema</ZoruCardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle>Configure Schema</CardTitle>
                         <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
                             <DialogTrigger asChild>
                                 <Button variant="outline" size="sm" className="gap-2">
@@ -134,20 +114,20 @@ export default function SchemaBuilder() {
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="space-y-4">
+                    </CardHeader>
+                    <CardBody className="space-y-4">
                         <div className="space-y-2">
                             <Label>Schema Type</Label>
                             <Select value={type} onValueChange={setType}>
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="LocalBusiness">Local Business</ZoruSelectItem>
-                                    <ZoruSelectItem value="Organization">Organization</ZoruSelectItem>
-                                    <ZoruSelectItem value="Person">Person</ZoruSelectItem>
-                                    <ZoruSelectItem value="Product">Product</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="LocalBusiness">Local Business</SelectItem>
+                                    <SelectItem value="Organization">Organization</SelectItem>
+                                    <SelectItem value="Person">Person</SelectItem>
+                                    <SelectItem value="Product">Product</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
 
@@ -163,15 +143,15 @@ export default function SchemaBuilder() {
                             <Label>Telephone</Label>
                             <Input placeholder="+1..." value={data.telephone || ''} onChange={(e) => handleChange('telephone', e.target.value)} />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {templates.length > 0 && (
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Saved Templates</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Saved Templates</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="space-y-3">
                                 {templates.map(template => (
                                     <div key={template.id} className="flex items-center justify-between p-3 border rounded-[var(--st-radius)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">
@@ -191,16 +171,16 @@ export default function SchemaBuilder() {
                                     </div>
                                 ))}
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 )}
             </div>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>JSON-LD Preview</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>JSON-LD Preview</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="relative">
                         <pre className="bg-[var(--st-text)] text-white p-4 rounded-[var(--st-radius-lg)] overflow-auto text-xs min-h-[300px]">
                             {jsonLd}
@@ -213,7 +193,7 @@ export default function SchemaBuilder() {
                             Copy Script
                         </Button>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

@@ -3,15 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { MoreHorizontal } from 'lucide-react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -48,7 +40,7 @@ export function VendorBidTable({
   defaultCurrency,
   density = 'comfortable',
 }: VendorBidTableProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const bulky = useCrmBulkyState<VendorBidListRow>({
@@ -203,7 +195,7 @@ export function VendorBidTable({
         const id = row._id;
         return (
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button
                 size="sm"
                 variant="ghost"
@@ -212,47 +204,47 @@ export function VendorBidTable({
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuItem asChild>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/vendor-bids/${id}`}>
                   View Details
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/vendor-bids/${id}/edit`}>
                   Edit Bid
                 </Link>
-              </ZoruDropdownMenuItem>
+              </DropdownMenuItem>
               {row.status === 'awarded' && (
-                <ZoruDropdownMenuItem asChild>
+                <DropdownMenuItem asChild>
                   <Link href={`/dashboard/crm/purchases/orders/new?fromKind=vendorBid&fromId=${id}`}>
                     Convert to PO
                   </Link>
-                </ZoruDropdownMenuItem>
+                </DropdownMenuItem>
               )}
               {row.status !== 'awarded' && row.status !== 'rejected' && (
                 <>
-                  <ZoruDropdownMenuSeparator />
-                  <ZoruDropdownMenuItem onSelect={() => handleSaveInlineEdit(id, { status: 'awarded' })}>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => handleSaveInlineEdit(id, { status: 'awarded' })}>
                     Approve (Award)
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onSelect={() => handleSaveInlineEdit(id, { status: 'rejected' })}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => handleSaveInlineEdit(id, { status: 'rejected' })}>
                     Reject
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                 </>
               )}
               {row.rfqId && (
                 <>
-                  <ZoruDropdownMenuSeparator />
-                  <ZoruDropdownMenuItem asChild>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
                     <Link href={`/dashboard/crm/purchases/rfqs/${row.rfqId}`}>
                       Open Linked RFQ
                     </Link>
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                 </>
               )}
-            </ZoruDropdownMenuContent>
+            </DropdownMenuContent>
           </DropdownMenu>
         );
       },

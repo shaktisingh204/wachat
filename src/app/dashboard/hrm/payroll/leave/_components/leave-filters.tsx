@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   XCircle } from 'lucide-react';
 
@@ -92,57 +83,57 @@ export function LeaveFiltersRow({
           value={preset}
           onValueChange={(v) => onPresetChange(v as LeavePreset)}
         >
-          <ZoruSelectTrigger
+          <SelectTrigger
             className="h-9 w-[180px]"
             aria-label="Saved view"
           >
-            <ZoruSelectValue placeholder="Saved view" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+            <SelectValue placeholder="Saved view" />
+          </SelectTrigger>
+          <SelectContent>
             {LEAVE_PRESETS.map((p) => (
-              <ZoruSelectItem key={p.key} value={p.key}>
+              <SelectItem key={p.key} value={p.key}>
                 {p.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         <Select
           value={statusFilter}
           onValueChange={(v) => onStatusChange(v as LeaveStatusFilter)}
         >
-          <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Status">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-            <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-            <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
-            <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
-            <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[140px]" aria-label="Status">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
         </Select>
 
         <Select
           value={leaveTypeFilter ?? '__all__'}
           onValueChange={(v) => onLeaveTypeChange(v === '__all__' ? null : v)}
         >
-          <ZoruSelectTrigger className="h-9 w-[180px]" aria-label="Leave type">
-            <ZoruSelectValue placeholder="All leave types" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="__all__">All leave types</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[180px]" aria-label="Leave type">
+            <SelectValue placeholder="All leave types" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__all__">All leave types</SelectItem>
             {leaveTypes.map((lt) => (
-              <ZoruSelectItem key={lt._id} value={lt._id}>
+              <SelectItem key={lt._id} value={lt._id}>
                 {lt.code ? (
                   <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                     {lt.code}
                   </span>
                 ) : null}
                 <span className={lt.code ? 'ml-2' : ''}>{lt.name}</span>
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         {hasActiveFilters ? (

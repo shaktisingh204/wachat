@@ -1,5 +1,5 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
-import { Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import { History,
@@ -120,10 +120,10 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
             rightRail={
                 <>
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Warehouses</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="space-y-3 text-sm">
+                        <CardHeader>
+                            <CardTitle>Warehouses</CardTitle>
+                        </CardHeader>
+                        <CardBody className="space-y-3 text-sm">
                             <div>
                                 <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     From
@@ -148,14 +148,14 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                     }
                                 />
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>At a glance</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>At a glance</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <dl className="grid grid-cols-1 gap-y-2 text-sm">
                                 <div className="flex items-center justify-between">
                                     <dt className="text-xs text-[var(--st-text)]">
@@ -188,7 +188,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                     <dd>{fmtDate(transfer.updatedAt)}</dd>
                                 </div>
                             </dl>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </>
             }
@@ -203,10 +203,10 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                 {{
                     overview: (
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Header</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            <CardHeader>
+                                <CardTitle>Header</CardTitle>
+                            </CardHeader>
+                            <CardBody>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                         <div>
                             <dt className="text-xs text-[var(--st-text)]">Transfer #</dt>
@@ -241,89 +241,89 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                     </dl>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
                     ),
                     items: (
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Line items</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="p-0">
+                <CardHeader>
+                    <CardTitle>Line items</CardTitle>
+                </CardHeader>
+                <CardBody className="p-0">
                     <div className="overflow-x-auto">
                         <Table className="w-full text-[12.5px]">
-                            <ZoruTableHeader className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                                <ZoruTableRow>
-                                    <ZoruTableHead className="px-3 py-2 text-left font-medium">
+                            <THead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+                                <Tr>
+                                    <Th className="px-3 py-2 text-left font-medium">
                                         Item
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="px-3 py-2 text-right font-medium">
+                                    </Th>
+                                    <Th className="px-3 py-2 text-right font-medium">
                                         Quantity
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="px-3 py-2 text-left font-medium">
+                                    </Th>
+                                    <Th className="px-3 py-2 text-left font-medium">
                                         Unit
-                                    </ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {lineItems.length > 0 ? (
                                     lineItems.map((l, idx) => (
-                                        <ZoruTableRow
+                                        <Tr
                                             key={idx}
                                             className="border-t border-[var(--st-border)]"
                                         >
-                                            <ZoruTableCell className="px-3 py-2">
+                                            <Td className="px-3 py-2">
                                                 <EntityPickerChip
                                                     entity="item"
                                                     id={String(l.itemId)}
                                                     fallback={l.itemName || 'Item'}
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="px-3 py-2 text-right font-mono">
+                                            </Td>
+                                            <Td className="px-3 py-2 text-right font-mono">
                                                 {l.quantity}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="px-3 py-2">
+                                            </Td>
+                                            <Td className="px-3 py-2">
                                                 {l.unit || '—'}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ))
                                 ) : (
-                                    <ZoruTableRow className="border-t border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-t border-[var(--st-border)]">
+                                        <Td
                                             colSpan={3}
                                             className="px-3 py-4 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No line items
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
                     ),
                     notes: (
                         <div className="space-y-4">
             {transfer.notes ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Notes</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Notes</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <p className="whitespace-pre-wrap text-sm text-[var(--st-text)] dark:text-white">
                             {transfer.notes}
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
 
             {attachments.length > 0 ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Attachments</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Attachments</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <ul className="flex flex-col gap-1.5">
                             {attachments.map((a) => (
                                 <li
@@ -344,7 +344,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                 </li>
                             ))}
                         </ul>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
             {!transfer.notes && attachments.length === 0 && (

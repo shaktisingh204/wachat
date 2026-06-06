@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Label,
-  Button,
-  Input,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Checkbox,
-  RadioGroup,
-  ZoruRadioGroupItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Checkbox, RadioGroup, ZoruRadioGroupItem } from '@/components/sabcrm/20ui/compat';
 import type { FormField } from '@/lib/definitions';
 
 interface CrmFormFieldEditorProps {
@@ -44,19 +30,19 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
             <div className="space-y-2">
                 <Label>Field Type</Label>
                 <Select value={field.type} onValueChange={(val) => handleUpdate('type', val)}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="text">Text</ZoruSelectItem>
-                        <ZoruSelectItem value="email">Email</ZoruSelectItem>
-                        <ZoruSelectItem value="textarea">Text Area</ZoruSelectItem>
-                        <ZoruSelectItem value="number">Number</ZoruSelectItem>
-                        <ZoruSelectItem value="select">Select</ZoruSelectItem>
-                        <ZoruSelectItem value="checkbox">Checkbox</ZoruSelectItem>
-                        <ZoruSelectItem value="radio">Radio Group</ZoruSelectItem>
-                        <ZoruSelectItem value="date">Date</ZoruSelectItem>
-                        <ZoruSelectItem value="file">File Upload</ZoruSelectItem>
-                        <ZoruSelectItem value="acceptance">Acceptance</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="text">Text</SelectItem>
+                        <SelectItem value="email">Email</SelectItem>
+                        <SelectItem value="textarea">Text Area</SelectItem>
+                        <SelectItem value="number">Number</SelectItem>
+                        <SelectItem value="select">Select</SelectItem>
+                        <SelectItem value="checkbox">Checkbox</SelectItem>
+                        <SelectItem value="radio">Radio Group</SelectItem>
+                        <SelectItem value="date">Date</SelectItem>
+                        <SelectItem value="file">File Upload</SelectItem>
+                        <SelectItem value="acceptance">Acceptance</SelectItem>
+                    </SelectContent>
                 </Select>
             </div>
             <div className="space-y-2">
@@ -66,13 +52,13 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
              <div className="space-y-2">
                 <Label htmlFor="fieldId">Map to CRM Field</Label>
                 <Select value={field.fieldId || '__none__'} onValueChange={(val) => handleUpdate('fieldId', val === '__none__' ? '' : val)}>
-                    <ZoruSelectTrigger id="fieldId"><ZoruSelectValue placeholder="Select a CRM field..."/></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="__none__">-- None (Custom Field) --</ZoruSelectItem>
+                    <SelectTrigger id="fieldId"><SelectValue placeholder="Select a CRM field..."/></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__none__">-- None (Custom Field) --</SelectItem>
                         {crmFieldMappingOptions.map(opt => (
-                             <ZoruSelectItem key={opt.value} value={opt.value}>{opt.label}</ZoruSelectItem>
+                             <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
                  <p className="text-xs text-[var(--st-text-secondary)]">Select which lead property this input should save to.</p>
             </div>

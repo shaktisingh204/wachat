@@ -34,34 +34,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  Button,
-  Input,
-  Textarea,
-  Label,
-  Switch,
-  Badge,
-  Separator,
-  EmptyState,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  ZoruIconPicker,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Label, Switch, Badge, Separator, EmptyState, Card, CardHeader, CardTitle, CardDescription, CardContent, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, IconPicker, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   createCustomObjectAction,
   addFieldAction,
@@ -157,7 +130,7 @@ export function DataModelClient({
   projectId,
 }: DataModelClientProps): React.JSX.Element {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [objects, setObjects] = React.useState<ObjectMetadata[]>(initialObjects);
   const [openSlug, setOpenSlug] = React.useState<string | null>(null);
@@ -375,7 +348,7 @@ function CreateObjectDialog({
   projectId?: string;
   onCreated: (object: ObjectMetadata) => void;
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [labelSingular, setLabelSingular] = React.useState('');
   const [labelPlural, setLabelPlural] = React.useState('');
   const [slug, setSlug] = React.useState('');
@@ -511,7 +484,7 @@ function CreateObjectDialog({
 
             <div className="grid gap-1.5">
               <Label>Icon</Label>
-              <ZoruIconPicker value={icon} onChange={setIcon} />
+              <IconPicker value={icon} onChange={setIcon} />
             </div>
 
             <div className="grid gap-1.5">
@@ -617,7 +590,7 @@ function ManageObjectDialog({
   onObjectChanged: (next: ObjectMetadata) => void;
   onObjectsChanged: (next: ObjectMetadata[]) => void;
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   // Which inline editor is showing: none | a new field | editing a field key |
   // the relation builder.
@@ -925,7 +898,7 @@ function FieldForm({
   onCancel: () => void;
   onSaved: (next: ObjectMetadata) => void;
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [draft, setDraft] = React.useState<FieldDraft>(initial);
   const [keyTouched, setKeyTouched] = React.useState(editing);
   const [saving, setSaving] = React.useState(false);
@@ -1113,7 +1086,7 @@ function FieldForm({
         </div>
         <div className="grid gap-1.5">
           <Label>Icon (optional)</Label>
-          <ZoruIconPicker
+          <IconPicker
             value={draft.icon}
             onChange={(next) => set('icon', next)}
           />
@@ -1244,7 +1217,7 @@ function RelationForm({
   onCancel: () => void;
   onSaved: (updated: ObjectMetadata[]) => void;
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [targetObject, setTargetObject] = React.useState('');
   const [kind, setKind] =
     React.useState<FieldRelation['kind']>('MANY_TO_ONE');

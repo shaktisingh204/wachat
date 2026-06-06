@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Badge, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, useToast } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import { AtSign, Check } from 'lucide-react';
 
@@ -24,7 +24,7 @@ function formatStamp(value?: string | Date | null): string {
 }
 
 export function MentionRow({ mention }: MentionRowProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [read, setRead] = React.useState(Boolean(mention.read_at));
   const [busy, setBusy] = React.useState(false);
 

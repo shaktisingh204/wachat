@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  Checkbox,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Checkbox, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -87,7 +82,7 @@ function toDateInput(v?: string): string {
 
 export function SubscriptionForm({ initial }: SubscriptionFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, formAction] = useActionState(
     saveSubscriptionAction,
     INITIAL_STATE,

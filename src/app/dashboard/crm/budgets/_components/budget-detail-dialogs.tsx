@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -41,7 +29,7 @@ export function BudgetRejectDialog({
   budgetId,
 }: BaseDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [reason, setReason] = React.useState('');
   const [pending, startTransition] = React.useTransition();
 
@@ -68,13 +56,13 @@ export function BudgetRejectDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Reject this budget?</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Reject this budget?</DialogTitle>
+          <DialogDescription>
             Marks the budget rejected and stores the reason in audit.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="bj-reason">Reason</Label>
@@ -88,7 +76,7 @@ export function BudgetRejectDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Back
           </Button>
@@ -99,8 +87,8 @@ export function BudgetRejectDialog({
           >
             {pending ? 'Saving…' : 'Reject'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -111,7 +99,7 @@ export function BudgetRecordActualDialog({
   budgetId,
 }: BaseDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [amount, setAmount] = React.useState('');
   const [pending, startTransition] = React.useTransition();
 
@@ -147,13 +135,13 @@ export function BudgetRecordActualDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Record actual spend</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Record actual spend</DialogTitle>
+          <DialogDescription>
             Adds the amount to the running actual and recomputes variance.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="ba-amount">Amount</Label>
@@ -168,15 +156,15 @@ export function BudgetRecordActualDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Post actual'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -52,7 +34,7 @@ interface CrmAddContactDialogProps {
 export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(addCrmContact, initialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -69,20 +51,20 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button>
           <UserPlus className="h-4 w-4" />
           Add Contact
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0 gap-0">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0 gap-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <ZoruDialogHeader className="px-6 pt-6 pb-3 border-b border-[var(--st-border)]">
-            <ZoruDialogTitle>Add New Contact</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader className="px-6 pt-6 pb-3 border-b border-[var(--st-border)]">
+            <DialogTitle>Add New Contact</DialogTitle>
+            <DialogDescription>
               Manually add a new contact or lead to your CRM.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-5">
             <div className="grid gap-4">
@@ -137,17 +119,17 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
                 <div className="space-y-1.5">
                   <Label htmlFor="status">Status</Label>
                   <Select name="status" defaultValue="new_lead">
-                    <ZoruSelectTrigger id="status">
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="new_lead">New Lead</ZoruSelectItem>
-                      <ZoruSelectItem value="contacted">Contacted</ZoruSelectItem>
-                      <ZoruSelectItem value="qualified">Qualified</ZoruSelectItem>
-                      <ZoruSelectItem value="unqualified">Unqualified</ZoruSelectItem>
-                      <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
-                      <ZoruSelectItem value="imported">Imported</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger id="status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new_lead">New Lead</SelectItem>
+                      <SelectItem value="contacted">Contacted</SelectItem>
+                      <SelectItem value="qualified">Qualified</SelectItem>
+                      <SelectItem value="unqualified">Unqualified</SelectItem>
+                      <SelectItem value="customer">Customer</SelectItem>
+                      <SelectItem value="imported">Imported</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -163,17 +145,17 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
                 <div className="space-y-1.5">
                   <Label htmlFor="lifecycleStage">Lifecycle Stage</Label>
                   <Select name="lifecycleStage" defaultValue="lead">
-                    <ZoruSelectTrigger id="lifecycleStage">
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="lead">Lead</ZoruSelectItem>
-                      <ZoruSelectItem value="mql">MQL</ZoruSelectItem>
-                      <ZoruSelectItem value="sql">SQL</ZoruSelectItem>
-                      <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
-                      <ZoruSelectItem value="evangelist">Evangelist</ZoruSelectItem>
-                      <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger id="lifecycleStage">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lead">Lead</SelectItem>
+                      <SelectItem value="mql">MQL</SelectItem>
+                      <SelectItem value="sql">SQL</SelectItem>
+                      <SelectItem value="customer">Customer</SelectItem>
+                      <SelectItem value="evangelist">Evangelist</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1.5">
@@ -222,14 +204,14 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
             </div>
           </div>
 
-          <ZoruDialogFooter className="shrink-0 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-6 pb-5 pt-4 gap-2">
+          <DialogFooter className="shrink-0 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-6 pb-5 pt-4 gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

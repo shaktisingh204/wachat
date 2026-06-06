@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -70,13 +60,13 @@ export function AddDepartmentDialog({ open, onOpenChange, onDepartmentAdded, def
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-[425px]">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle className="text-[var(--st-text)]">Add New Department</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle className="text-[var(--st-text)]">Add New Department</DialogTitle>
+                    <DialogDescription className="text-[var(--st-text-secondary)]">
                         Create a new department for your organization.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
                         <Label htmlFor="name" className="text-[var(--st-text)]">Department Name</Label>
@@ -86,12 +76,12 @@ export function AddDepartmentDialog({ open, onOpenChange, onDepartmentAdded, def
                         <Label htmlFor="description" className="text-[var(--st-text)]">Description</Label>
                         <Input id="description" name="description" />
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

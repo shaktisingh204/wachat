@@ -37,14 +37,7 @@ import {
   LuX,
 } from 'react-icons/lu';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
@@ -180,19 +173,19 @@ export function UpgradeDiffModal({
 
   return (
     <Dialog open onOpenChange={(open) => (!open ? onClose() : undefined)}>
-      <ZoruDialogContent className="max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="flex items-center gap-2">
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
             <LuArrowUpRight className="h-4 w-4 text-[var(--st-text)]" />
             Upgrade template
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             Changes from version{' '}
             <span className="font-mono text-xs">{fromVersion}</span>
             {' '}→{' '}
             <span className="font-mono text-xs">{toVersion}</span>
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="mt-4 space-y-4">
           {/* Loading */}
@@ -276,7 +269,7 @@ export function UpgradeDiffModal({
             )}
           </Button>
         </div>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

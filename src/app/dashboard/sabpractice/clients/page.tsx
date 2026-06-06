@@ -3,19 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { listSabpracticeClients } from '@/app/actions/sabpractice.actions';
-import {
-    Badge,
-    Card,
-    CardContent,
-    EmptyState,
-    PageHeader,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardContent, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import { ClientCreateDialog } from './_components/client-create-dialog';
 
@@ -45,42 +33,42 @@ async function ClientsData({ status }: { status?: string }) {
                         />
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Industry</TableHead>
-                                    <TableHead>Primary contact</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Name</Th>
+                                    <Th>Industry</Th>
+                                    <Th>Primary contact</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {clients.items.map((c) => (
-                                    <TableRow key={c._id}>
-                                        <TableCell>
+                                    <Tr key={c._id}>
+                                        <Td>
                                             <Link
                                                 href={`/dashboard/sabpractice/clients/${c._id}`}
                                                 className="font-medium underline-offset-2 hover:underline"
                                             >
                                                 {c.name}
                                             </Link>
-                                        </TableCell>
-                                        <TableCell className="text-sm text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-sm text-[var(--st-text-secondary)]">
                                             {c.industry ?? '—'}
-                                        </TableCell>
-                                        <TableCell className="text-sm">
+                                        </Td>
+                                        <Td className="text-sm">
                                             {c.primaryContactName ?? '—'}
                                             {c.primaryContactEmail ? (
                                                 <span className="block text-xs text-[var(--st-text-secondary)]">
                                                     {c.primaryContactEmail}
                                                 </span>
                                             ) : null}
-                                        </TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>
                                             <Badge>{c.status ?? 'active'}</Badge>
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>

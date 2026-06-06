@@ -40,30 +40,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  cn,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruAlertDialog,
-  ZoruAlertDialogTrigger,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogAction,
-  Input,
-  Label,
-  Separator,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, cn, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Input, Label, Separator, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   issueApiKeyAction,
   listApiKeysAction,
@@ -156,24 +133,24 @@ function RawKeyRevealDialog({
 
   return (
     <Dialog open={open}>
-      <ZoruDialogContent
+      <DialogContent
         hideClose
         className="max-w-md"
         // Prevent accidental dismissal via Escape before acknowledging.
         onEscapeKeyDown={(e) => e.preventDefault()}
         onPointerDownOutside={(e) => e.preventDefault()}
       >
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="flex items-center gap-2">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
             <Key className="h-4 w-4 text-[var(--st-text)]" />
             API key created — copy it now
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             <span className="font-medium text-[var(--st-text)]">{label}</span> has been
             issued. The secret will <span className="font-semibold">never be shown again</span>{' '}
             — copy it before closing this dialog.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         {/* Key display area */}
         <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
@@ -211,7 +188,7 @@ function RawKeyRevealDialog({
           </p>
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button
             variant="outline"
             size="sm"
@@ -228,8 +205,8 @@ function RawKeyRevealDialog({
           >
             {acknowledged ? "I've saved it — close" : 'Copy key to close'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -257,7 +234,7 @@ function IssueKeyDialog({
   const [label, setLabel] = React.useState('');
   const [pending, startTransition] = React.useTransition();
   const [error, setError] = React.useState<string | null>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   // Reset on open.
   React.useEffect(() => {
@@ -288,14 +265,14 @@ function IssueKeyDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-sm">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Create API key</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Create API key</DialogTitle>
+          <DialogDescription>
             Give the key a descriptive label (e.g. "Zapier production") so you
             can identify and revoke it later.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
@@ -317,7 +294,7 @@ function IssueKeyDialog({
             )}
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
@@ -342,9 +319,9 @@ function IssueKeyDialog({
                 'Create key'
               )}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -404,8 +381,8 @@ function KeyRow({ apiKey, onRevoke, revoking }: KeyRowProps) {
 
       {/* Right: actions */}
       {!apiKey.revoked && (
-        <ZoruAlertDialog>
-          <ZoruAlertDialogTrigger asChild>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
             <Button
               variant="ghost"
               size="icon-sm"
@@ -419,28 +396,28 @@ function KeyRow({ apiKey, onRevoke, revoking }: KeyRowProps) {
                 <ShieldOff className="h-4 w-4" />
               )}
             </Button>
-          </ZoruAlertDialogTrigger>
+          </AlertDialogTrigger>
 
-          <ZoruAlertDialogContent>
-            <ZoruAlertDialogHeader>
-              <ZoruAlertDialogTitle>Revoke API key?</ZoruAlertDialogTitle>
-              <ZoruAlertDialogDescription>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Revoke API key?</AlertDialogTitle>
+              <AlertDialogDescription>
                 The key <span className="font-medium text-[var(--st-text)]">{apiKey.label}</span>{' '}
                 (<code className="font-mono text-xs">{maskedKey(apiKey.prefix)}</code>) will
                 immediately stop authenticating API requests. This action cannot be undone.
-              </ZoruAlertDialogDescription>
-            </ZoruAlertDialogHeader>
-            <ZoruAlertDialogFooter>
-              <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-              <ZoruAlertDialogAction
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
                 destructive
                 onClick={() => onRevoke(apiKey.id)}
               >
                 Revoke key
-              </ZoruAlertDialogAction>
-            </ZoruAlertDialogFooter>
-          </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </div>
   );
@@ -467,7 +444,7 @@ export function ApiKeyManager({
   const [revealLabel, setRevealLabel] = React.useState('');
 
   const [, startTransition] = React.useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   // ------------------------------------------------------------------
   // Refresh helper — re-fetches the list from the server after a mutation.

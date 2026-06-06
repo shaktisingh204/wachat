@@ -1,17 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Label,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   format } from "date-fns";
 import { CalendarClock,
@@ -47,7 +36,7 @@ export function EditScheduleSheet({
   onPostUpdated,
 }: EditScheduleSheetProps) {
   const [isPending, startTransition] = React.useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const scheduledAt = React.useMemo(() => {
     if (!post.scheduled_publish_time) return null;
@@ -79,7 +68,7 @@ export function EditScheduleSheet({
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruSheetContent
+      <SheetContent
         side="right"
         className="flex w-full flex-col gap-0 sm:max-w-md"
       >
@@ -87,13 +76,13 @@ export function EditScheduleSheet({
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="postId" value={post.id} />
 
-          <ZoruSheetHeader className="border-b border-[var(--st-border)] p-6">
-            <ZoruSheetTitle>Edit scheduled post</ZoruSheetTitle>
-            <ZoruSheetDescription>
+          <SheetHeader className="border-b border-[var(--st-border)] p-6">
+            <SheetTitle>Edit scheduled post</SheetTitle>
+            <SheetDescription>
               Adjust the message of this scheduled post. Rescheduling the
               publish time requires cancelling and recreating it.
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </SheetDescription>
+          </SheetHeader>
 
           <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-6">
             <div className="flex items-start gap-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
@@ -128,7 +117,7 @@ export function EditScheduleSheet({
             </div>
           </div>
 
-          <ZoruSheetFooter className="border-t border-[var(--st-border)] p-4">
+          <SheetFooter className="border-t border-[var(--st-border)] p-4">
             <Button
               type="button"
               variant="outline"
@@ -141,9 +130,9 @@ export function EditScheduleSheet({
               {isPending ? <Loader2 className="animate-spin" /> : <Save />}
               Save changes
             </Button>
-          </ZoruSheetFooter>
+          </SheetFooter>
         </form>
-      </ZoruSheetContent>
+      </SheetContent>
     </Sheet>
   );
 }

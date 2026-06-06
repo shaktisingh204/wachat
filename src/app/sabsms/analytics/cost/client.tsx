@@ -23,14 +23,7 @@ import {
   TabsTrigger,
   StatCard,
 } from "@/components/sabcrm/20ui/zoru";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-  type ChartConfig,
-} from '@/components/sabcrm/20ui/compat';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from '@/components/sabcrm/20ui/compat';
 
 import {
   LineChart,

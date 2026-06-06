@@ -2,14 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   EntityDetailShell,
   type EntityStatusTone,
@@ -116,10 +109,10 @@ export default async function ContractTemplateDetailPage(props: {
       rightRail={
         <>
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Status</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Status</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--st-text-secondary)]">State</span>
@@ -138,14 +131,14 @@ export default async function ContractTemplateDetailPage(props: {
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Quick actions</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Quick actions</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/sales/contracts/new?templateId=${templateId}`}
@@ -160,14 +153,14 @@ export default async function ContractTemplateDetailPage(props: {
                   All templates →
                 </Link>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Lifecycle</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Lifecycle</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex justify-between">
                   <span className="text-[var(--st-text-secondary)]">Created</span>
@@ -178,16 +171,16 @@ export default async function ContractTemplateDetailPage(props: {
                   <span>{fmtDate(tpl.updatedAt)}</span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </>
       }
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Template name">{tpl.name || '—'}</Field>
             <Field label="Status">
@@ -201,23 +194,23 @@ export default async function ContractTemplateDetailPage(props: {
               </pre>
             </Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Preview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Preview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <TemplatePreview body={body} variables={variables} />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Variables</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Variables</CardTitle>
+        </CardHeader>
+        <CardBody>
           {variables.length === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">
               No <code>{'{{variables}}'}</code> detected in the body.
@@ -236,14 +229,14 @@ export default async function ContractTemplateDetailPage(props: {
               ))}
             </ul>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Linked contracts</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Linked contracts</CardTitle>
+        </CardHeader>
+        <CardBody>
           <p className="text-[13px] text-[var(--st-text-secondary)]">
             Contracts created from this template will appear here once the
             `templateId` linkage is persisted on the contract record.
@@ -256,7 +249,7 @@ export default async function ContractTemplateDetailPage(props: {
               Search contracts with this template →
             </Link>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <p className="text-[11px] text-[var(--st-text-secondary)]">

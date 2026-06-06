@@ -1,26 +1,5 @@
 import * as React from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetDescription,
-  StatCard,
-  EmptyState,
-  Skeleton,
-  useZoruToast,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, StatCard, EmptyState, Skeleton, useToast, cn } from '@/components/sabcrm/20ui/compat';
 import {
   Sticker as StickerIcon,
   Search,
@@ -113,28 +92,28 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
                 </div>
                 <div className="flex items-center gap-2">
                     <Select value={typeFilter} onValueChange={setTypeFilter}>
-                        <ZoruSelectTrigger className="w-[140px]">
-                            <ZoruSelectValue placeholder="Type" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All Types</ZoruSelectItem>
-                            <ZoruSelectItem value="regular">Regular</ZoruSelectItem>
-                            <ZoruSelectItem value="mask">Mask</ZoruSelectItem>
-                            <ZoruSelectItem value="custom_emoji">Custom Emoji</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger className="w-[140px]">
+                            <SelectValue placeholder="Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Types</SelectItem>
+                            <SelectItem value="regular">Regular</SelectItem>
+                            <SelectItem value="mask">Mask</SelectItem>
+                            <SelectItem value="custom_emoji">Custom Emoji</SelectItem>
+                        </SelectContent>
                     </Select>
                     <Select value={sortBy} onValueChange={setSortBy}>
-                        <ZoruSelectTrigger className="w-[160px]">
-                            <ZoruSelectValue placeholder="Sort" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="date-desc">Newest First</ZoruSelectItem>
-                            <ZoruSelectItem value="date-asc">Oldest First</ZoruSelectItem>
-                            <ZoruSelectItem value="name-asc">Name (A-Z)</ZoruSelectItem>
-                            <ZoruSelectItem value="name-desc">Name (Z-A)</ZoruSelectItem>
-                            <ZoruSelectItem value="count-desc">Most Stickers</ZoruSelectItem>
-                            <ZoruSelectItem value="count-asc">Least Stickers</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger className="w-[160px]">
+                            <SelectValue placeholder="Sort" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="date-desc">Newest First</SelectItem>
+                            <SelectItem value="date-asc">Oldest First</SelectItem>
+                            <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                            <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                            <SelectItem value="count-desc">Most Stickers</SelectItem>
+                            <SelectItem value="count-asc">Least Stickers</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
             </div>

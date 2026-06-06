@@ -1,39 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Skeleton,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Popover, PopoverContent, PopoverTrigger, Skeleton, Switch, Table, TBody, Td, Th, THead, Tr, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   Edit3,
   MessageSquareReply,
@@ -187,19 +154,19 @@ export default function Page() {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Quick replies</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Quick replies</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
         <EmptyState
           icon={<Smartphone />}
@@ -219,19 +186,19 @@ export default function Page() {
     <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Quick replies</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Quick replies</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Header */}
@@ -256,7 +223,7 @@ export default function Page() {
       </div>
 
       <Card>
-        <ZoruCardHeader>
+        <CardHeader>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
@@ -267,31 +234,31 @@ export default function Page() {
               aria-label="Search quick replies"
             />
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-0">
+        </CardHeader>
+        <CardBody className="p-0">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-20">On</ZoruTableHead>
-                <ZoruTableHead>Shortcut</ZoruTableHead>
-                <ZoruTableHead>Body preview</ZoruTableHead>
-                <ZoruTableHead className="w-24">Usage</ZoruTableHead>
-                <ZoruTableHead className="w-32">Last used</ZoruTableHead>
-                <ZoruTableHead className="w-12" />
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th className="w-20">On</Th>
+                <Th>Shortcut</Th>
+                <Th>Body preview</Th>
+                <Th className="w-24">Usage</Th>
+                <Th className="w-32">Last used</Th>
+                <Th className="w-12" />
+              </Tr>
+            </THead>
+            <TBody>
               {loading && filtered.length === 0 &&
                 Array.from({ length: 6 }).map((_, i) => (
-                  <ZoruTableRow key={`qr-skeleton-${i}`}>
-                    <ZoruTableCell colSpan={6} className="py-2">
+                  <Tr key={`qr-skeleton-${i}`}>
+                    <Td colSpan={6} className="py-2">
                       <Skeleton className="h-[56px] w-full rounded-[var(--st-radius-lg)]" />
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
               {!loading && filtered.length === 0 && (
-                <ZoruTableRow>
-                  <ZoruTableCell colSpan={6} className="py-8">
+                <Tr>
+                  <Td colSpan={6} className="py-8">
                     <EmptyState
                       icon={<MessageSquareReply />}
                       title={
@@ -320,19 +287,19 @@ export default function Page() {
                         )
                       }
                     />
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               )}
               {filtered.map((r) => (
-                <ZoruTableRow key={r.id}>
-                  <ZoruTableCell>
+                <Tr key={r.id}>
+                  <Td>
                     <Switch
                       checked={r.enabled}
                       onCheckedChange={(v) => void onToggleEnabled(r, v)}
                       aria-label={`Toggle ${r.shortcut}`}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <code className="rounded bg-[var(--st-bg-secondary)] px-1.5 py-0.5 text-xs font-medium text-[var(--st-text)]">
                       {r.shortcut}
                     </code>
@@ -341,19 +308,19 @@ export default function Page() {
                         Media
                       </Badge>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="max-w-md">
+                  </Td>
+                  <Td className="max-w-md">
                     <span className="line-clamp-1 text-sm text-[var(--st-text-secondary)]">
                       {r.body || '—'}
                     </span>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-sm">{r.usageCount}</ZoruTableCell>
-                  <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-sm">{r.usageCount}</Td>
+                  <Td className="text-sm text-[var(--st-text-secondary)]">
                     {formatRelative(r.lastUsedAt)}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Popover>
-                      <ZoruPopoverTrigger asChild>
+                      <PopoverTrigger asChild>
                         <Button
                           size="icon"
                           variant="ghost"
@@ -361,8 +328,8 @@ export default function Page() {
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
-                      </ZoruPopoverTrigger>
-                      <ZoruPopoverContent align="end" className="w-40 p-1">
+                      </PopoverTrigger>
+                      <PopoverContent align="end" className="w-40 p-1">
                         <button
                           type="button"
                           onClick={() => openEdit(r)}
@@ -377,14 +344,14 @@ export default function Page() {
                         >
                           <Trash2 className="h-3.5 w-3.5" /> Delete
                         </button>
-                      </ZoruPopoverContent>
+                      </PopoverContent>
                     </Popover>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <QuickReplyDialog
@@ -460,16 +427,16 @@ function QuickReplyDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-2xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>
             {initial ? 'Edit quick reply' : 'New quick reply'}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             Type the shortcut in any chat composer to expand it into the body
             below.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
@@ -580,7 +547,7 @@ function QuickReplyDialog({
           </div>
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -591,8 +558,8 @@ function QuickReplyDialog({
                 ? 'Save changes'
                 : 'Create quick reply'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, Label, Textarea, DatePicker } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast as useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Label, Textarea, DatePicker } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { cancelBooking, rescheduleBooking } from '@/app/actions/crm/bookings.actions';
 import { Loader2 } from 'lucide-react';
 
@@ -87,10 +87,10 @@ export function PortalActions({
       </div>
 
       <Dialog open={isCancelOpen} onOpenChange={setIsCancelOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Cancel Booking</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel Booking</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label>Reason for cancellation (optional)</Label>
@@ -108,14 +108,14 @@ export function PortalActions({
               </Button>
             </div>
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
       <Dialog open={isRescheduleOpen} onOpenChange={setIsRescheduleOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Reschedule Booking</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reschedule Booking</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label>Select new date</Label>
@@ -130,7 +130,7 @@ export function PortalActions({
               </Button>
             </div>
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </>
   );

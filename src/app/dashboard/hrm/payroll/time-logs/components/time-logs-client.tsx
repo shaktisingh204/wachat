@@ -5,9 +5,7 @@ import { format } from 'date-fns';
 import { Play, Square, Check, X, Timer, Plus, Filter, Download, Trash2, Users } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-import {
-  Badge, Button, Card, Input, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Table, TBody, Td, Th, THead, Tr, useToast, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getTimeLogs, startTimer, stopTimer, approveTimeLog, rejectTimeLog, bulkDeleteTimeLogs } from '@/app/actions/worksuite/time.actions';
 import { wsFormatDuration } from '@/lib/worksuite/time-types';
@@ -110,7 +108,7 @@ export function TimeLogsClient({
 }: {
   initialLogsPromise: Promise<WsProjectTimeLog[]>;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   // The actual fetched logs (resolves via Suspense on first mount)
   const serverLogs = use(initialLogsPromise);
@@ -447,36 +445,36 @@ export function TimeLogsClient({
         {/* Table */}
         <div ref={tableContainerRef} className="overflow-y-auto max-h-[600px] rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] shadow-sm">
           <table className="w-full caption-bottom text-sm text-[var(--st-text)]">
-            <ZoruTableHeader className="sticky top-0 z-10 bg-[var(--st-bg)]">
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-10 text-center">
+            <THead className="sticky top-0 z-10 bg-[var(--st-bg)]">
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-10 text-center">
                   <Checkbox 
                     checked={filteredLogs.length > 0 && selectedIds.size === filteredLogs.length} 
                     onCheckedChange={toggleSelectAll} 
                   />
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Start Time</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">End Time</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Duration</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Memo</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">Employee</Th>
+                <Th className="text-[var(--st-text-secondary)]">Start Time</Th>
+                <Th className="text-[var(--st-text-secondary)]">End Time</Th>
+                <Th className="text-[var(--st-text-secondary)]">Duration</Th>
+                <Th className="text-[var(--st-text-secondary)]">Memo</Th>
+                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
               {isPending && filteredLogs.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
+                <Tr className="border-[var(--st-border)]">
+                  <Td colSpan={8} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                     Loading…
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : filteredLogs.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
+                <Tr className="border-[var(--st-border)]">
+                  <Td colSpan={8} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                     No time entries found.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 rowVirtualizer.getVirtualItems().map((virtualRow) => {
                   const log = filteredLogs[virtualRow.index];
@@ -488,7 +486,7 @@ export function TimeLogsClient({
                   const duration = !mounted ? '—' : isRunning ? elapsedLabel(log.start_time) : wsFormatDuration(log.start_time, log.end_time);
 
                   return (
-                    <ZoruTableRow
+                    <Tr
                       key={id}
                       className={isRunning ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/10' : 'border-[var(--st-border)]'}
                       style={{
@@ -500,28 +498,28 @@ export function TimeLogsClient({
                         height: `${virtualRow.size}px`,
                       }}
                     >
-                      <ZoruTableCell className="w-10 text-center">
+                      <Td className="w-10 text-center">
                         <Checkbox checked={selectedIds.has(id)} onCheckedChange={() => toggleSelect(id)} />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] font-medium text-[var(--st-text)]">
                         {log.user_id || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         {mounted ? formatTs(log.start_time) : '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         {!mounted ? '—' : isRunning ? <span className="text-[var(--st-text)]">Running…</span> : formatTs(log.end_time)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="font-mono text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="font-mono text-[13px] text-[var(--st-text)]">
                         {duration}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="max-w-[150px] truncate text-[11.5px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="max-w-[150px] truncate text-[11.5px] text-[var(--st-text-secondary)]">
                         {log.memo || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant={variant}>{label}</Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <div className="flex justify-end gap-1">
                           {isRunning && (
                             <Button variant="outline" size="sm" title="Stop Timer" disabled={isPending} onClick={() => handleStopTimer(id)}>
@@ -539,12 +537,12 @@ export function TimeLogsClient({
                             </>
                           )}
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TBody>
           </table>
         </div>
       </Card>

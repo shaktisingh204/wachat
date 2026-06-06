@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams,
@@ -174,7 +163,7 @@ export function SubscriptionListClient({
   kpi,
   error,
 }: SubscriptionListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -488,36 +477,36 @@ export function SubscriptionListClient({
             />
 
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead className="w-[36px]">
+              <THead>
+                <Tr>
+                  <Th className="w-[36px]">
                     <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead>Customer</ZoruTableHead>
-                  <ZoruTableHead>Plan / item</ZoruTableHead>
-                  <ZoruTableHead>Cadence</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Amount</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead>Next billing</ZoruTableHead>
-                  <ZoruTableHead>Started</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                  <Th>Customer</Th>
+                  <Th>Plan / item</Th>
+                  <Th>Cadence</Th>
+                  <Th className="text-right">Amount</Th>
+                  <Th>Status</Th>
+                  <Th>Next billing</Th>
+                  <Th>Started</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filtered.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={8}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive || query
                         ? 'No subscriptions match these filters.'
                         : 'No subscriptions yet — click "New subscription" to add one.'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filtered.map((sub) => {
                     const id = String(sub._id);
@@ -525,18 +514,18 @@ export function SubscriptionListClient({
                     const firstItemId = sub.items?.[0]?.itemId;
                     const isSelected = selected.has(id);
                     return (
-                      <ZoruTableRow
+                      <Tr
                         key={id}
                         data-state={isSelected ? 'selected' : undefined}
                       >
-                        <ZoruTableCell>
+                        <Td>
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${displayLabel(sub)}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           {sub.customerId ? (
                             <EntityPickerChip
                               entity="client"
@@ -547,8 +536,8 @@ export function SubscriptionListClient({
                               —
                             </span>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <EntityRowLink
                             href={`/dashboard/crm/sales/subscriptions/${id}`}
                             label={
@@ -563,34 +552,34 @@ export function SubscriptionListClient({
                             }
                             subtitle={frequencyLabel(sub.frequency)}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {frequencyLabel(sub.frequency)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                           {fmtMoney(amount, currency)}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <StatusPill
                             label={sub.status.replace(/_/g, ' ')}
                             tone={statusToTone(sub.status)}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(sub.nextBillingAt)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(
                             sub.startedAt ||
                               sub.createdAt ||
                               sub.audit?.createdAt,
                           )}
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </Card>
         </div>

@@ -1,18 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Button,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Loader2,
   Trash2 } from "lucide-react";
@@ -22,7 +10,7 @@ import { handleDeletePost } from "@/app/actions/facebook.actions";
 /**
  * Local zoru replacement for `@/components/zoruui-domain/delete-post-button`.
  *
- * Same server action (`handleDeletePost`), confirmation via `ZoruAlertDialog`.
+ * Same server action (`handleDeletePost`), confirmation via `AlertDialog`.
  */
 
 import * as React from "react";
@@ -43,7 +31,7 @@ export function DeletePostButton({
 }: DeletePostButtonProps) {
   const [open, setOpen] = React.useState(false);
   const [isPending, startTransition] = React.useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleConfirm = () => {
     startTransition(async () => {
@@ -63,8 +51,8 @@ export function DeletePostButton({
   };
 
   return (
-    <ZoruAlertDialog open={open} onOpenChange={setOpen}>
-      <ZoruAlertDialogTrigger asChild>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
         {label ? (
           <Button variant="outline" size="sm">
             <Trash2 /> {label}
@@ -74,22 +62,22 @@ export function DeletePostButton({
             <Trash2 />
           </Button>
         )}
-      </ZoruAlertDialogTrigger>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Delete this post?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete this post?</AlertDialogTitle>
+          <AlertDialogDescription>
             This action cannot be undone. The post will be permanently removed
             from Facebook and from your dashboard.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel asChild>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel asChild>
             <Button variant="outline" disabled={isPending}>
               Cancel
             </Button>
-          </ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction asChild>
+          </AlertDialogCancel>
+          <AlertDialogAction asChild>
             <Button
               variant="destructive"
               onClick={handleConfirm}
@@ -98,9 +86,9 @@ export function DeletePostButton({
               {isPending ? <Loader2 className="animate-spin" /> : <Trash2 />}
               Delete
             </Button>
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

@@ -3,35 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  useZoruToast,
-  Badge,
-  Skeleton,
-  StatCard,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast, Badge, Skeleton, StatCard, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/sabcrm/20ui/compat';
 import {
   Archive,
   ArchiveRestore,
@@ -100,7 +72,7 @@ export function ClientsListClient({
   kpis,
   error,
 }: ClientsListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -442,25 +414,25 @@ export function ClientsListClient({
             </div>
           ) : (
             <Table>
-              <TableHeader>
-                <TableRow className="border-[var(--st-border)] hover:bg-transparent">
-                  <TableHead className="w-[36px]">
+              <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                  <Th className="w-[36px]">
                     <Checkbox
                       checked={allSelected}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
                     />
-                  </TableHead>
-                  <TableHead className="text-[var(--st-text-secondary)]">Account Name</TableHead>
-                  <TableHead className="text-[var(--st-text-secondary)]">Industry</TableHead>
-                  <TableHead className="text-[var(--st-text-secondary)]">Phone</TableHead>
-                  <TableHead className="text-[var(--st-text-secondary)]">Status</TableHead>
-                  <TableHead className="text-[var(--st-text-secondary)]">Engagement</TableHead>
-                  <TableHead className="text-[var(--st-text-secondary)]">Last Activity</TableHead>
-                  <TableHead className="text-right text-[var(--st-text-secondary)]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">Account Name</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Industry</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Phone</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Engagement</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Last Activity</Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {accounts.length > 0 ? (
                   accounts.map((account) => {
                     const id = account._id.toString();
@@ -469,19 +441,19 @@ export function ClientsListClient({
                     const score = account.engagementScore;
                     const lastAct = fmtDate(account.updatedAt || account.createdAt);
                     return (
-                      <TableRow
+                      <Tr
                         key={id}
                         className="border-[var(--st-border)]"
                         data-state={isSelected ? 'selected' : undefined}
                       >
-                        <TableCell>
+                        <Td>
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleOne(id)}
                             aria-label={`Select ${account.name}`}
                           />
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           <EntityRowLink
                             href={`/dashboard/crm/accounts/${id}`}
                             label={
@@ -491,30 +463,30 @@ export function ClientsListClient({
                               </span>
                             }
                           />
-                        </TableCell>
-                        <TableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {account.industry || '—'}
-                        </TableCell>
-                        <TableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {account.phone || '—'}
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           <Badge
                             variant={status === 'archived' ? 'ghost' : 'success'}
                             className="capitalize"
                           >
                             {status}
                           </Badge>
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           <span className="text-[13px] font-medium text-[var(--st-text)]">
                             {score !== undefined ? score : '—'}
                           </span>
-                        </TableCell>
-                        <TableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text-secondary)]">
                           {lastAct}
-                        </TableCell>
-                        <TableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <div className="flex justify-end gap-1">
                             <Button
                               size="sm"
@@ -544,23 +516,23 @@ export function ClientsListClient({
                               </Button>
                             )}
                           </div>
-                        </TableCell>
-                      </TableRow>
+                        </Td>
+                      </Tr>
                     );
                   })
                 ) : (
-                  <TableRow className="border-[var(--st-border)]">
-                    <TableCell
+                  <Tr className="border-[var(--st-border)]">
+                    <Td
                       colSpan={8}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {hasFilterActive || query
                         ? 'No accounts match these filters.'
                         : 'No accounts found.'}
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 )}
-              </TableBody>
+              </TBody>
             </Table>
           )}
 
@@ -572,20 +544,20 @@ export function ClientsListClient({
       </EntityListShell>
 
       {/* Bulk archive */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingBulkArchive}
         onOpenChange={(o) => !o && setPendingBulkArchive(false)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Archive {selected.size} accounts?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Archive {selected.size} accounts?</AlertDialogTitle>
+            <AlertDialogDescription>
               Archiving hides these accounts from the active list but does not delete their data.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 confirmBulkArchive();
@@ -594,26 +566,26 @@ export function ClientsListClient({
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Archive
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Bulk delete */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingBulkDelete}
         onOpenChange={(o) => !o && setPendingBulkDelete(false)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete {selected.size} accounts?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selected.size} accounts?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes the selected accounts and cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 confirmBulkDelete();
@@ -623,10 +595,10 @@ export function ClientsListClient({
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

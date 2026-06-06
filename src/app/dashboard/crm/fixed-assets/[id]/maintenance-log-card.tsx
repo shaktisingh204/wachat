@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, DialogDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, DialogDescription } from '@/components/sabcrm/20ui/compat';
 import { getMaintenanceLogs, addMaintenanceLog, type MaintenanceLog } from './maintenance.actions';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -46,13 +46,13 @@ export function MaintenanceLogCard({ assetId, currency }: { assetId: string, cur
 
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between">
-        <ZoruCardTitle>Maintenance log</ZoruCardTitle>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Maintenance log</CardTitle>
         <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
           <Plus className="mr-1 h-3.5 w-3.5" /> Add
         </Button>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      </CardHeader>
+      <CardBody>
         {loading ? (
           <p className="text-[13px] text-[var(--st-text-secondary)]">Loading logs...</p>
         ) : logs.length === 0 ? (
@@ -78,7 +78,7 @@ export function MaintenanceLogCard({ assetId, currency }: { assetId: string, cur
             ))}
           </div>
         )}
-      </ZoruCardContent>
+      </CardBody>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>

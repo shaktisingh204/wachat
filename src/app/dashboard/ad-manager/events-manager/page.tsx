@@ -1,35 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Skeleton,
-  Badge,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Alert, AlertDescription, AlertTitle, Skeleton, Badge, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label } from '@/components/sabcrm/20ui/compat';
 import {
   ChartBar,
   CircleAlert,
@@ -152,8 +123,8 @@ export default function EventsManagerPage() {
                 <AmBreadcrumb page="Events manager" />
                 <Alert className="mt-6">
                     <CircleAlert className="h-4 w-4" />
-                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>Pick an ad account to view pixel events.</ZoruAlertDescription>
+                    <AlertTitle>No ad account selected</AlertTitle>
+                    <AlertDescription>Pick an ad account to view pixel events.</AlertDescription>
                 </Alert>
             </div>
         );
@@ -188,13 +159,13 @@ export default function EventsManagerPage() {
                 </div>
             ) : pixels.length === 0 ? (
                 <Card className="border-dashed">
-                    <ZoruCardContent className="py-16 text-center">
+                    <CardBody className="py-16 text-center">
                         <Activity className="h-12 w-12 mx-auto text-[var(--st-text-secondary)] mb-4" />
                         <p className="font-semibold text-lg">No pixels found</p>
                         <p className="text-sm text-[var(--st-text-secondary)] mt-1 max-w-md mx-auto">
                             Create a pixel in your Meta Business Settings first. Pixels are used to track user actions on your website.
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : (
                 <>
@@ -215,17 +186,17 @@ export default function EventsManagerPage() {
 
                     {/* Event stats table */}
                     <Card>
-                        <ZoruCardHeader className="pb-2">
-                            <ZoruCardTitle className="text-base flex items-center">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-base flex items-center">
                                 Event activity
                                 {selectedPixel && (
                                     <Badge variant="secondary" className="ml-2 font-normal text-xs">
                                         Pixel ID: {selectedPixel}
                                     </Badge>
                                 )}
-                            </ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="p-0">
+                            </CardTitle>
+                        </CardHeader>
+                        <CardBody className="p-0">
                             {statsLoading ? (
                                 <div className="p-4 space-y-4">
                                     {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
@@ -238,63 +209,63 @@ export default function EventsManagerPage() {
                                 </div>
                             ) : (
                                 <Table>
-                                    <ZoruTableHeader>
-                                        <ZoruTableRow>
-                                            <ZoruTableHead>Event name</ZoruTableHead>
-                                            <ZoruTableHead>Count</ZoruTableHead>
-                                            <ZoruTableHead>Last fired</ZoruTableHead>
-                                        </ZoruTableRow>
-                                    </ZoruTableHeader>
-                                    <ZoruTableBody>
+                                    <THead>
+                                        <Tr>
+                                            <Th>Event name</Th>
+                                            <Th>Count</Th>
+                                            <Th>Last fired</Th>
+                                        </Tr>
+                                    </THead>
+                                    <TBody>
                                         {eventStats.map((s, i) => (
-                                            <ZoruTableRow key={i}>
-                                                <ZoruTableCell>
+                                            <Tr key={i}>
+                                                <Td>
                                                     <Badge variant="outline" className="font-mono bg-[var(--st-bg-secondary)]">{s.event || s.event_name || s.key || 'Unknown'}</Badge>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="tabular-nums font-medium">
+                                                </Td>
+                                                <Td className="tabular-nums font-medium">
                                                     {s.count ?? s.value ?? 0}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-xs text-[var(--st-text-secondary)]">
                                                     {s.last_fired_time
                                                         ? new Date(s.last_fired_time).toLocaleString(undefined, {
                                                             dateStyle: 'medium',
                                                             timeStyle: 'short'
                                                           })
                                                         : '—'}
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         ))}
-                                    </ZoruTableBody>
+                                    </TBody>
                                 </Table>
                             )}
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </>
             )}
 
             {/* Send test event dialog */}
             <Dialog open={testDialogOpen} onOpenChange={setTestDialogOpen}>
-                <ZoruDialogContent className="max-w-sm">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Send test event</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Send test event</DialogTitle>
+                        <DialogDescription>
                             Simulate a conversion event being sent to pixel <span className="font-mono bg-[var(--st-bg-muted)] px-1 rounded text-xs">{selectedPixel}</span>.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="space-y-2">
                             <Label htmlFor="test-event">Event name</Label>
                             <Select value={testEvent} onValueChange={setTestEvent}>
-                                <ZoruSelectTrigger id="test-event">
-                                    <ZoruSelectValue placeholder="Select event" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {TEST_EVENTS.map(e => <ZoruSelectItem key={e} value={e}>{e}</ZoruSelectItem>)}
-                                </ZoruSelectContent>
+                                <SelectTrigger id="test-event">
+                                    <SelectValue placeholder="Select event" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {TEST_EVENTS.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" onClick={() => setTestDialogOpen(false)} disabled={sending}>Cancel</Button>
                         <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white min-w-[100px]" onClick={handleSendTest} disabled={sending}>
                             {sending ? (
@@ -303,8 +274,8 @@ export default function EventsManagerPage() {
                                 'Send Event'
                             )}
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

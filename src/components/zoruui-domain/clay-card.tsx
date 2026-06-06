@@ -1,4 +1,4 @@
-import { Card, type ZoruCardProps } from '@/components/sabcrm/20ui/compat';
+import { Card, type CardProps } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -22,7 +22,7 @@ export interface ClayCardProps extends React.HTMLAttributes<HTMLDivElement> {
  *   floating → Card variant `elevated`    (lifted shadow)
  *   outline  → Card variant `default`     (no border, no extra shadow)
  */
-const variantToCard: Record<Variant, ZoruCardProps['variant']> = {
+const variantToCard: Record<Variant, CardProps['variant']> = {
   default: 'default',
   soft: 'default',
   floating: 'elevated',

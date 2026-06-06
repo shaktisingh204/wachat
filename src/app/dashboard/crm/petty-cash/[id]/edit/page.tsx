@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getPettyCashFloatById } from '@/app/actions/crm-petty-cash.actions';
@@ -43,10 +43,10 @@ export default async function PettyCashEditPage({ params }: PageProps) {
             rightRail={
                 <>
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Balance</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Balance</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="space-y-1.5 text-[12.5px]">
                                 <div className="flex justify-between">
                                     <span className="text-[var(--st-text-secondary)]">Current</span>
@@ -61,13 +61,13 @@ export default async function PettyCashEditPage({ params }: PageProps) {
                                     </span>
                                 </div>
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Custody</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Custody</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="space-y-1.5 text-[12.5px]">
                                 <div>
                                     <div className="text-[var(--st-text-secondary)]">Custodian</div>
@@ -88,7 +88,7 @@ export default async function PettyCashEditPage({ params }: PageProps) {
                                     </div>
                                 ) : null}
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </>
             }

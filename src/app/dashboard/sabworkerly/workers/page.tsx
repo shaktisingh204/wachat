@@ -1,22 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-import {
-    Button,
-    Card,
-    CardContent,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageActions,
-    Badge,
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, PageHeader, PageTitle, PageActions, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { Plus, Users } from 'lucide-react';
 import { getSabworkerlyWorkers } from '@/app/actions/sabworkerly.actions';
 
@@ -34,15 +19,15 @@ export default async function WorkersListPage() {
     return (
         <div className="zoruui flex flex-col gap-5">
             <PageHeader>
-                <ZoruPageTitle>Workers</ZoruPageTitle>
-                <ZoruPageActions>
+                <PageTitle>Workers</PageTitle>
+                <PageActions>
                     <Link href="/dashboard/sabworkerly/workers/new">
                         <Button>
                             <Plus className="mr-2 h-4 w-4" />
                             Add worker
                         </Button>
                     </Link>
-                </ZoruPageActions>
+                </PageActions>
             </PageHeader>
 
             {workers.length === 0 ? (
@@ -57,30 +42,30 @@ export default async function WorkersListPage() {
                 <Card>
                     <CardContent className="p-0">
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Skills</TableHead>
-                                    <TableHead>Rate</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Name</Th>
+                                    <Th>Email</Th>
+                                    <Th>Skills</Th>
+                                    <Th>Rate</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {workers.map((w) => (
-                                    <TableRow key={w._id}>
-                                        <TableCell>
+                                    <Tr key={w._id}>
+                                        <Td>
                                             <Link
                                                 href={`/dashboard/sabworkerly/workers/${w._id}`}
                                                 className="font-medium hover:underline"
                                             >
                                                 {w.name}
                                             </Link>
-                                        </TableCell>
-                                        <TableCell className="text-[color:var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-[color:var(--st-text-secondary)]">
                                             {w.email}
-                                        </TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>
                                             <div className="flex flex-wrap gap-1">
                                                 {(w.skills ?? []).slice(0, 3).map((s) => (
                                                     <Badge key={s} variant="secondary">{s}</Badge>
@@ -91,9 +76,9 @@ export default async function WorkersListPage() {
                                                     </Badge>
                                                 )}
                                             </div>
-                                        </TableCell>
-                                        <TableCell>{money(w.hourlyRateMinor, w.currency)}/h</TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>{money(w.hourlyRateMinor, w.currency)}/h</Td>
+                                        <Td>
                                             <Badge
                                                 variant={
                                                     w.status === 'active'
@@ -105,10 +90,10 @@ export default async function WorkersListPage() {
                                             >
                                                 {w.status}
                                             </Badge>
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     </CardContent>
                 </Card>

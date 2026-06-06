@@ -1,4 +1,4 @@
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import {
@@ -175,10 +175,10 @@ export default async function PayoutDetailPage({
           />
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Money summary</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Money summary</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="flex flex-col gap-3 text-[13px] tabular-nums">
                 <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                   <span>Paid</span>
@@ -199,7 +199,7 @@ export default async function PayoutDetailPage({
                   <span>{fmtMoney(advance, currency)}</span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Button size="sm" variant="ghost" asChild className="w-full">
@@ -214,10 +214,10 @@ export default async function PayoutDetailPage({
     >
       {/* Header card */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Header</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Header</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Payment #">{payout.paymentNo || '—'}</Field>
             <Field label="Date">{fmtDate(payout.date)}</Field>
@@ -244,17 +244,17 @@ export default async function PayoutDetailPage({
             <Field label="Transaction ID">{payout.txnId || '—'}</Field>
             <Field label="Reference">{payout.reference || '—'}</Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Applied bills */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>
+        <CardHeader>
+          <CardTitle>
             Applied to bills ({payout.applyTo?.length ?? 0})
-          </ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardTitle>
+        </CardHeader>
+        <CardBody>
           {payout.applyTo && payout.applyTo.length > 0 ? (
             <ul className="flex flex-col gap-2">
               {payout.applyTo.map((row, idx) => (
@@ -279,15 +279,15 @@ export default async function PayoutDetailPage({
               No bills applied — this payout records an advance.
             </p>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Deductions + notes */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Deductions &amp; notes</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Deductions &amp; notes</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="TDS deducted">
               {fmtMoney(payout.tdsDeducted, currency)}
@@ -312,7 +312,7 @@ export default async function PayoutDetailPage({
               </div>
             </div>
           ) : null}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <div className="text-[11px] text-[var(--st-text-secondary)]">

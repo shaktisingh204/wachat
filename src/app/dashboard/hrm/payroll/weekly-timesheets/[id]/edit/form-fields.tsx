@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Label, Select, Input, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
+import { Label, Select, Input, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 
 type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
 
@@ -18,9 +18,9 @@ export function EmployeeSelectField({
 }) {
   const employeeOptions = useMemo(() => {
     return employees.map((e) => (
-      <ZoruSelectItem key={e._id} value={e._id}>
+      <SelectItem key={e._id} value={e._id}>
         {[e.firstName, e.lastName].filter(Boolean).join(' ') || 'Unnamed'}
-      </ZoruSelectItem>
+      </SelectItem>
     ));
   }, [employees]);
 
@@ -30,12 +30,12 @@ export function EmployeeSelectField({
         Employee <span className="text-[var(--st-danger)]">*</span>
       </Label>
       <Select value={value} onValueChange={onChange} disabled={disabled}>
-        <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-          <ZoruSelectValue placeholder="Select employee" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+          <SelectValue placeholder="Select employee" />
+        </SelectTrigger>
+        <SelectContent>
           {employeeOptions}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
     </div>
   );

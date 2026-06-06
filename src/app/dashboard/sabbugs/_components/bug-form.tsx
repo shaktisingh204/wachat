@@ -3,19 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  Textarea,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { createBug, updateBug } from '@/app/actions/bug-tracker.actions';
@@ -41,7 +29,7 @@ export interface BugFormProps {
 
 export function BugForm({ bug, projectOptions, versions }: BugFormProps) {
   const router = useRouter();
-  const toast = useZoruToast();
+  const toast = useToast();
   const [state, setState] = React.useState<BugCreateInput>(() => ({
     title: bug?.title ?? '',
     description: bug?.description ?? '',
@@ -240,16 +228,16 @@ function SelectField({
     <div className="flex flex-col gap-1">
       <Label>{label}</Label>
       <Select value={value} onValueChange={onValueChange}>
-        <ZoruSelectTrigger>
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
           {options.map((o) => (
-            <ZoruSelectItem key={o.value} value={o.value}>
+            <SelectItem key={o.value} value={o.value}>
               {o.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
     </div>
   );

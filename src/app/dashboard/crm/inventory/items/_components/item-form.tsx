@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';
@@ -99,7 +99,7 @@ function SubmitButton({
 export function ItemForm({ initial }: ItemFormProps) {
   const router = useRouter();
   const sp = useSearchParams();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const f = useItemForm({ initial });
 
   const [pendingIntent, setPendingIntent] = React.useState<SubmitIntent | null>(

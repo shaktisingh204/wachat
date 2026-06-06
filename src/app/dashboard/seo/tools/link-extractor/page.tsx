@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, cn, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Badge, cn, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -168,13 +168,13 @@ export default function LinkExtractorPage() {
 
       {error && (
         <Card className="border-[var(--st-border)]/50 mt-4">
-          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)]">{error}</ZoruCardContent>
+          <CardBody className="p-4 text-sm text-[var(--st-text)]">{error}</CardBody>
         </Card>
       )}
 
       {rows && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-4 space-y-3">
+          <CardBody className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="text-sm font-semibold">{filteredRows.length} links</div>
@@ -235,7 +235,7 @@ export default function LinkExtractorPage() {
                 </tbody>
               </table>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

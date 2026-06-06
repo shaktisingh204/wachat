@@ -2,27 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Button, 
-  Input, 
-  Label, 
-  Table, 
-  ZoruTableBody, 
-  ZoruTableCell, 
-  ZoruTableHead, 
-  ZoruTableHeader, 
-  ZoruTableRow,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, CheckCircle, XCircle, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder, PurchaseOrder } from '@/app/actions/finance/po-approvals.actions';
@@ -167,15 +147,15 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
             <Download className="mr-2 h-4 w-4" /> Export CSV
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <ZoruDialogTrigger asChild>
+          <DialogTrigger asChild>
             <Button size="sm" onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" /> New Record
             </Button>
-          </ZoruDialogTrigger>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>{editingId ? 'Edit' : 'Create'} Record</ZoruDialogTitle>
-            </ZoruDialogHeader>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
+            </DialogHeader>
             <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
               <div className="grid gap-4">
             <div className="space-y-1">
@@ -218,7 +198,7 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
                 </Button>
               </div>
             </form>
-          </ZoruDialogContent>
+          </DialogContent>
         </Dialog>
         </div>
       }
@@ -239,31 +219,31 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
 
       <div className="rounded-md border bg-white overflow-hidden">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>VendorId</ZoruTableHead><ZoruTableHead>TotalAmount</ZoruTableHead><ZoruTableHead>ApprovedBy</ZoruTableHead><ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead className="w-[120px] text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>VendorId</Th><Th>TotalAmount</Th><Th>ApprovedBy</Th><Th>Status</Th>
+              <Th className="w-[120px] text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredItems.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={5} className="h-24 text-center">
+              <Tr>
+                <Td colSpan={5} className="h-24 text-center">
                   No results.
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : (
               filteredItems.map((item) => (
-                <ZoruTableRow key={item._id}>
-                  <ZoruTableCell>{String(item.vendorId ?? '')}</ZoruTableCell>
-                  <ZoruTableCell>{fmtINR(item.totalAmount)}</ZoruTableCell>
-                  <ZoruTableCell>{String(item.approvedBy ?? '')}</ZoruTableCell>
-                  <ZoruTableCell>
+                <Tr key={item._id}>
+                  <Td>{String(item.vendorId ?? '')}</Td>
+                  <Td>{fmtINR(item.totalAmount)}</Td>
+                  <Td>{String(item.approvedBy ?? '')}</Td>
+                  <Td>
                     <Badge variant={item.status === 'approved' ? 'default' : item.status === 'rejected' ? 'destructive' : 'secondary'}>
                       {String(item.status ?? 'pending')}
                     </Badge>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right flex items-center justify-end gap-1">
+                  </Td>
+                  <Td className="text-right flex items-center justify-end gap-1">
                     {item.status !== 'approved' && (
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)]" onClick={() => handleApprove(item._id as string)} title="Approve">
                         <CheckCircle className="h-4 w-4" />
@@ -275,33 +255,33 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
                       </Button>
                     )}
                     <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem onClick={() => openEdit(item._id as string)}>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
                           <Trash className="mr-2 h-4 w-4" /> Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
                     </DropdownMenu>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </div>
 
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>View Details</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Details</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
               <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
@@ -310,7 +290,7 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
               </div>
             ))}
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

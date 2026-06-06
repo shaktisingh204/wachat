@@ -1,14 +1,6 @@
 'use client';
 
-import { 
-    Button, 
-    Card, 
-    ZoruCardContent, 
-    ZoruCardHeader, 
-    ZoruCardTitle,
-    ZoruCardDescription,
-    Badge
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Badge } from '@/components/sabcrm/20ui/compat';
 import { useState, useRef } from 'react';
 import Papa from 'papaparse';
 
@@ -296,11 +288,11 @@ export function PseoClient({ projectId }: { projectId: string }) {
 
             <div className="grid gap-6 md:grid-cols-2">
                 <Card className="h-[400px] flex flex-col">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Upload Keywords</ZoruCardTitle>
-                        <ZoruCardDescription>Upload a CSV file (one keyword per row)</ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="flex-1 flex flex-col items-center justify-center">
+                    <CardHeader>
+                        <CardTitle>Upload Keywords</CardTitle>
+                        <CardDescription>Upload a CSV file (one keyword per row)</CardDescription>
+                    </CardHeader>
+                    <CardBody className="flex-1 flex flex-col items-center justify-center">
                         <input
                             type="file"
                             accept=".csv"
@@ -340,19 +332,19 @@ export function PseoClient({ projectId }: { projectId: string }) {
                                 </Button>
                             </div>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card className="h-[400px] flex flex-col">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Cluster Results</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>Cluster Results</CardTitle>
+                        <CardDescription>
                             {clusters
                                 ? `${Object.keys(clusters).length} semantic groups found.`
                                 : "Results will appear here."}
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="flex-1 overflow-y-auto min-h-0">
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody className="flex-1 overflow-y-auto min-h-0">
                         {!clusters ? (
                             <div className="h-full flex flex-col items-center justify-center text-center text-[var(--st-text-secondary)] border-2 border-dashed border-transparent bg-[var(--st-bg-muted)]/20 rounded-md p-6">
                                 <Lock className="mb-4 h-8 w-8 text-[var(--st-text-secondary)]/50" />
@@ -378,7 +370,7 @@ export function PseoClient({ projectId }: { projectId: string }) {
                                 ))}
                             </div>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

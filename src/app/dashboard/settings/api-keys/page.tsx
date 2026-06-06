@@ -1,40 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -80,25 +46,25 @@ export default function ApiKeysPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>{t('settings.apiKeys.title')}</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{t('settings.apiKeys.title')}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <PageHeader>
-                    <ZoruPageHeading>
-                        <ZoruPageTitle>{t('settings.apiKeys.title')}</ZoruPageTitle>
-                        <ZoruPageDescription>
+                    <PageHeading>
+                        <PageTitle>{t('settings.apiKeys.title')}</PageTitle>
+                        <PageDescription>
                             {t('settings.apiKeys.subtitle')}
-                        </ZoruPageDescription>
-                    </ZoruPageHeading>
+                        </PageDescription>
+                    </PageHeading>
                 </PageHeader>
                 <CreateKeyDialog onCreated={refresh} />
             </div>
@@ -151,7 +117,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
     const [newKey, setNewKey] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [pending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const handleCreate = () => {
         if (!name.trim()) {
@@ -189,21 +155,21 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                 }
             }}
         >
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button size="sm">
                     <Plus className="h-4 w-4" />
                     {t('settings.apiKeys.newApiKey')}
                 </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>{newKey ? t('settings.apiKeys.dialog.generated.title') : t('settings.apiKeys.dialog.generate.title')}</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{newKey ? t('settings.apiKeys.dialog.generated.title') : t('settings.apiKeys.dialog.generate.title')}</DialogTitle>
+                    <DialogDescription>
                         {newKey
                             ? t('settings.apiKeys.dialog.generated.description')
                             : t('settings.apiKeys.dialog.generate.description')}
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
                 {newKey ? (
                     <div className="py-2">
@@ -236,7 +202,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                     </div>
                 )}
 
-                <ZoruDialogFooter>
+                <DialogFooter>
                     {newKey ? (
                         <Button size="sm" onClick={() => setOpen(false)}>
                             {t('settings.apiKeys.done')}
@@ -256,8 +222,8 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                             </Button>
                         </>
                     )}
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -265,7 +231,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
 function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) {
     const { t, locale } = useT();
     const [pending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const handleRevoke = () => {
         startTransition(async () => {
@@ -296,31 +262,31 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
                 </p>
             </div>
             {!row.revoked && (
-                <ZoruAlertDialog>
-                    <ZoruAlertDialogTrigger asChild>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="sm" disabled={pending}>
                             <Trash2 className="h-4 w-4" />
                             {t('settings.apiKeys.revoke')}
                         </Button>
-                    </ZoruAlertDialogTrigger>
-                    <ZoruAlertDialogContent>
-                        <ZoruAlertDialogHeader>
-                            <ZoruAlertDialogTitle>{t('settings.apiKeys.confirmRevoke.title')}</ZoruAlertDialogTitle>
-                            <ZoruAlertDialogDescription>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>{t('settings.apiKeys.confirmRevoke.title')}</AlertDialogTitle>
+                            <AlertDialogDescription>
                                 {t('settings.apiKeys.confirmRevoke.description', { name: row.name })}
-                            </ZoruAlertDialogDescription>
-                        </ZoruAlertDialogHeader>
-                        <ZoruAlertDialogFooter>
-                            <ZoruAlertDialogCancel>{t('action.cancel')}</ZoruAlertDialogCancel>
-                            <ZoruAlertDialogAction
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>{t('action.cancel')}</AlertDialogCancel>
+                            <AlertDialogAction
                                 onClick={handleRevoke}
                                 className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90"
                             >
                                 {t('settings.apiKeys.revokeKey')}
-                            </ZoruAlertDialogAction>
-                        </ZoruAlertDialogFooter>
-                    </ZoruAlertDialogContent>
-                </ZoruAlertDialog>
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             )}
         </li>
     );

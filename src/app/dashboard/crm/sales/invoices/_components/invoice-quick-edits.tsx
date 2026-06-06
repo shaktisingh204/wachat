@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -58,7 +45,7 @@ export function InvoiceQuickEdits({
   salesAgentId,
 }: InvoiceQuickEditsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [currentStatus, setCurrentStatus] = React.useState(status ?? 'draft');
   const [currentCustomer, setCurrentCustomer] = React.useState<string | null>(
@@ -131,7 +118,7 @@ export function InvoiceQuickEdits({
           <dt className="text-[var(--st-text-secondary)]">Status</dt>
           <dd>
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <button
                   type="button"
                   className="rounded-full transition-opacity hover:opacity-80"
@@ -142,17 +129,17 @@ export function InvoiceQuickEdits({
                     tone={statusToTone(currentStatus)}
                   />
                 </button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
                 {STATUS_OPTIONS.map((s) => (
-                  <ZoruDropdownMenuItem
+                  <DropdownMenuItem
                     key={s.value}
                     onSelect={() => changeStatus(s.value)}
                   >
                     {s.label}
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                 ))}
-              </ZoruDropdownMenuContent>
+              </DropdownMenuContent>
             </DropdownMenu>
           </dd>
         </div>
@@ -191,10 +178,10 @@ export function InvoiceQuickEdits({
       </dl>
 
       <Dialog open={customerOpen} onOpenChange={setCustomerOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Change customer</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change customer</DialogTitle>
+          </DialogHeader>
           <div className="space-y-2 py-2">
             <Label>Customer</Label>
             <EntityFormField
@@ -204,13 +191,13 @@ export function InvoiceQuickEdits({
               onChange={(next) => setDraftCustomer(next)}
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setCustomerOpen(false)}>
               Cancel
             </Button>
             <Button onClick={commitCustomer}>Save</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );

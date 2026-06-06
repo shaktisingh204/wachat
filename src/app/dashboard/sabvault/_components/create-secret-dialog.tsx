@@ -3,24 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-    Button,
-    Input,
-    Label,
-    Textarea,
-    Select,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruDialog,
-    DialogTrigger,
-    DialogContent,
-    DialogHeader,
-    DialogFooter,
-    DialogTitle,
-    DialogDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';
 
 import {
     encryptPayload,
@@ -111,7 +94,7 @@ export function CreateSecretDialog({ keyRecord }: { keyRecord: SabvaultUserKeyRe
     }
 
     return (
-        <ZoruDialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button disabled={!keyRecord}>New secret</Button>
             </DialogTrigger>
@@ -136,18 +119,18 @@ export function CreateSecretDialog({ keyRecord }: { keyRecord: SabvaultUserKeyRe
                     <div className="flex flex-col gap-1.5">
                         <Label>Kind</Label>
                         <Select value={kind} onValueChange={(v) => setKind(v as SabvaultSecretKind)}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Select kind" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="login">Login</ZoruSelectItem>
-                                <ZoruSelectItem value="note">Note</ZoruSelectItem>
-                                <ZoruSelectItem value="card">Card</ZoruSelectItem>
-                                <ZoruSelectItem value="identity">Identity</ZoruSelectItem>
-                                <ZoruSelectItem value="key">SSH / API key</ZoruSelectItem>
-                                <ZoruSelectItem value="wifi">Wi-Fi</ZoruSelectItem>
-                                <ZoruSelectItem value="server">Server</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select kind" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="login">Login</SelectItem>
+                                <SelectItem value="note">Note</SelectItem>
+                                <SelectItem value="card">Card</SelectItem>
+                                <SelectItem value="identity">Identity</SelectItem>
+                                <SelectItem value="key">SSH / API key</SelectItem>
+                                <SelectItem value="wifi">Wi-Fi</SelectItem>
+                                <SelectItem value="server">Server</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     {kind === 'login' ? (
@@ -186,6 +169,6 @@ export function CreateSecretDialog({ keyRecord }: { keyRecord: SabvaultUserKeyRe
                     </DialogFooter>
                 </form>
             </DialogContent>
-        </ZoruDialog>
+        </Dialog>
     );
 }

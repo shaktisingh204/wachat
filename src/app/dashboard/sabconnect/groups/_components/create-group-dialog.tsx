@@ -3,23 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-    Button,
-    Dialog,
-    ZoruDialogTrigger,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogFooter,
-    Input,
-    Textarea,
-    Label,
-    Select,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSelectContent,
-    ZoruSelectItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Textarea, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { createSabConnectGroup } from '@/app/actions/sabconnect.actions';
@@ -63,13 +47,13 @@ export function CreateGroupDialog() {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button>New group</Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Create a group</ZoruDialogTitle>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Create a group</DialogTitle>
+                </DialogHeader>
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="group-name">Name</Label>
@@ -95,16 +79,16 @@ export function CreateGroupDialog() {
                             value={visibility}
                             onValueChange={(v) => setVisibility(v as SabConnectGroupVisibility)}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="open">Open — anyone can join</ZoruSelectItem>
-                                <ZoruSelectItem value="closed">
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="open">Open — anyone can join</SelectItem>
+                                <SelectItem value="closed">
                                     Closed — request to join
-                                </ZoruSelectItem>
-                                <ZoruSelectItem value="secret">Secret — invite only</ZoruSelectItem>
-                            </ZoruSelectContent>
+                                </SelectItem>
+                                <SelectItem value="secret">Secret — invite only</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
@@ -122,15 +106,15 @@ export function CreateGroupDialog() {
                         </p>
                     ) : null}
                 </div>
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button variant="outline" onClick={() => setOpen(false)}>
                         Cancel
                     </Button>
                     <Button onClick={submit} disabled={pending}>
                         {pending ? 'Creating…' : 'Create group'}
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

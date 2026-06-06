@@ -33,20 +33,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -106,7 +93,7 @@ function formatDate(value: unknown): string {
 }
 
 export default function ClientDocumentsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<Row[]>([]);
   const [kpis, setKpis] = React.useState<ClientDocumentKpis | null>(null);

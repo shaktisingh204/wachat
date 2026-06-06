@@ -1,14 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 interface Employee {
   _id: string;
@@ -43,37 +36,37 @@ export function AssignmentForm({
       <div className="space-y-2">
         <Label htmlFor="emp-select">Employee</Label>
         <Select value={employeeId} onValueChange={onEmployeeChange}>
-          <ZoruSelectTrigger id="emp-select">
-            <ZoruSelectValue placeholder="Select employee…" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger id="emp-select">
+            <SelectValue placeholder="Select employee…" />
+          </SelectTrigger>
+          <SelectContent>
             {employees.map((e) => (
-              <ZoruSelectItem key={e._id} value={e._id}>
+              <SelectItem key={e._id} value={e._id}>
                 {e.name}
                 {e.email ? (
                   <span className="ml-1 text-[var(--st-text-secondary)] text-xs">
                     ({e.email})
                   </span>
                 ) : null}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="grp-select">Permission Group</Label>
         <Select value={groupId} onValueChange={onGroupChange}>
-          <ZoruSelectTrigger id="grp-select">
-            <ZoruSelectValue placeholder="None (remove assignment)" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger id="grp-select">
+            <SelectValue placeholder="None (remove assignment)" />
+          </SelectTrigger>
+          <SelectContent>
             {groups.map((g) => (
-              <ZoruSelectItem key={g._id} value={g._id}>
+              <SelectItem key={g._id} value={g._id}>
                 {g.name}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <p className="text-[11px] text-[var(--st-text-secondary)]">
           Leave blank to remove the employee&apos;s current group.

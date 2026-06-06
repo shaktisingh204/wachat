@@ -19,26 +19,7 @@
 
 import * as React from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ChevronDown,
   ChevronRight,
@@ -192,7 +173,7 @@ export function FoldersBrowserClient({
   initialFiles,
   stats,
 }: FoldersBrowserClientProps): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [activeFolderId, setActiveFolderId] = React.useState<string | null>(null);
   const [files, setFiles] = React.useState<WsFileStorage[]>(initialFiles);
@@ -511,16 +492,16 @@ export function FoldersBrowserClient({
                 value={fileTypeFilter}
                 onValueChange={(v) => setFileTypeFilter(v as FileTypeFilter)}
               >
-                <ZoruSelectTrigger className="h-8 w-32 text-[12px]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger className="h-8 w-32 text-[12px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {(Object.keys(FILE_TYPE_LABELS) as FileTypeFilter[]).map((k) => (
-                    <ZoruSelectItem key={k} value={k}>
+                    <SelectItem key={k} value={k}>
                       {FILE_TYPE_LABELS[k]}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
 
               <Input
@@ -599,38 +580,38 @@ export function FoldersBrowserClient({
             ) : (
               <div className="overflow-x-auto">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow className="hover:bg-transparent">
-                      <ZoruTableHead className="w-8">
+                  <THead>
+                    <Tr className="hover:bg-transparent">
+                      <Th className="w-8">
                         <input
                           type="checkbox"
                           checked={selected.size === filtered.length && filtered.length > 0}
                           onChange={toggleAll}
                           className="h-3.5 w-3.5"
                         />
-                      </ZoruTableHead>
-                      <ZoruTableHead>Name</ZoruTableHead>
-                      <ZoruTableHead>Type</ZoruTableHead>
-                      <ZoruTableHead>Size</ZoruTableHead>
-                      <ZoruTableHead>Owner</ZoruTableHead>
-                      <ZoruTableHead>Uploaded at</ZoruTableHead>
-                      <ZoruTableHead />
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                      </Th>
+                      <Th>Name</Th>
+                      <Th>Type</Th>
+                      <Th>Size</Th>
+                      <Th>Owner</Th>
+                      <Th>Uploaded at</Th>
+                      <Th />
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {filtered.map((file) => {
                       const id = String(file._id ?? '');
                       return (
-                        <ZoruTableRow key={id}>
-                          <ZoruTableCell>
+                        <Tr key={id}>
+                          <Td>
                             <input
                               type="checkbox"
                               checked={selected.has(id)}
                               onChange={() => toggleSelect(id)}
                               className="h-3.5 w-3.5"
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <div className="flex items-center gap-2">
                               <FileTypeIcon file={file} />
                               {file.url ? (
@@ -648,26 +629,26 @@ export function FoldersBrowserClient({
                                 </span>
                               )}
                             </div>
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <Badge variant="secondary" className="text-[11px]">
                               {file.mime_type ?? file.extension ?? 'unknown'}
                             </Badge>
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                          </Td>
+                          <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                             {formatFileSize(file.size_bytes)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                          </Td>
+                          <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                             {file.uploaded_by_user_id
                               ? file.uploaded_by_user_id.slice(-6)
                               : '—'}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                          </Td>
+                          <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                             {file.createdAt
                               ? new Date(file.createdAt as string).toLocaleDateString()
                               : '—'}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <Button
                               size="sm"
                               variant="ghost"
@@ -675,11 +656,11 @@ export function FoldersBrowserClient({
                             >
                               <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       );
                     })}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
               </div>
             )}

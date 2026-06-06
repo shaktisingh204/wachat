@@ -1,27 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -89,7 +68,7 @@ export function CreateCollectionDialog({
     initialState as any,
   );
   const formRef = useRef<HTMLFormElement>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (state?.success && state?.message) {
@@ -106,15 +85,15 @@ export function CreateCollectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef} className="flex flex-col gap-5">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Create new collection</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Create new collection</DialogTitle>
+            <DialogDescription>
               Group products into a set within this catalog. You can assign
               products in Commerce Manager.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="catalogId" value={catalogId} />
@@ -122,7 +101,7 @@ export function CreateCollectionDialog({
           {state?.error ? (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
+              <AlertDescription>{state.error}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -136,7 +115,7 @@ export function CreateCollectionDialog({
             />
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -145,9 +124,9 @@ export function CreateCollectionDialog({
               Cancel
             </Button>
             <CreateSubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -172,7 +151,7 @@ export function DeleteCollectionConfirmDialog({
   onDeleted,
 }: DeleteCollectionConfirmDialogProps) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleDelete = () => {
     if (!collection) return;
@@ -197,21 +176,21 @@ export function DeleteCollectionConfirmDialog({
   };
 
   return (
-    <ZoruAlertDialog open={open} onOpenChange={onOpenChange}>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Delete this collection?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete this collection?</AlertDialogTitle>
+          <AlertDialogDescription>
             {collection?.name
               ? `This will permanently delete the “${collection.name}” product set. The underlying products are not deleted.`
               : "This will permanently delete the selected product set. The underlying products are not deleted."}
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel disabled={isPending}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>
             Cancel
-          </ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
+          </AlertDialogCancel>
+          <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
               handleDelete();
@@ -224,9 +203,9 @@ export function DeleteCollectionConfirmDialog({
               <Trash2 className="mr-1 h-4 w-4" />
             )}
             Delete
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

@@ -1,28 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Input, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Shield,
   Users,
@@ -103,7 +81,7 @@ function exportCsv(rows: Row[]): void {
 }
 
 export default function RolesPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [allRows, setAllRows] = useState<Row[]>([]);
     const [isLoading, startLoading] = useTransition();
     const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -369,9 +347,9 @@ export default function RolesPage() {
                     <Card className="p-0">
                         <div className="overflow-x-auto rounded-lg">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow className="hover:bg-transparent">
-                                        <ZoruTableHead className="w-[40px]">
+                                <THead>
+                                    <Tr className="hover:bg-transparent">
+                                        <Th className="w-[40px]">
                                             <Checkbox
                                                 checked={
                                                     filtered.length > 0 &&
@@ -380,49 +358,49 @@ export default function RolesPage() {
                                                 onCheckedChange={toggleAll}
                                                 aria-label="Select all"
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Role
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Slug
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Members
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Type
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="w-[180px] text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="w-[180px] text-right text-[var(--st-text-secondary)]">
                                             Actions
-                                        </ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {isLoading && allRows.length === 0 ? (
-                                        <ZoruTableRow>
-                                            <ZoruTableCell
+                                        <Tr>
+                                            <Td
                                                 colSpan={6}
                                                 className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                             >
                                                 <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ) : filtered.length === 0 ? (
-                                        <ZoruTableRow>
-                                            <ZoruTableCell
+                                        <Tr>
+                                            <Td
                                                 colSpan={6}
                                                 className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                             >
                                                 {search
                                                     ? `No roles matched “${search}”.`
                                                     : 'No roles yet — click New Role to get started.'}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ) : (
                                         filtered.map((row) => (
-                                            <ZoruTableRow key={row._id}>
-                                                <ZoruTableCell>
+                                            <Tr key={row._id}>
+                                                <Td>
                                                     <Checkbox
                                                         checked={selected.has(row._id)}
                                                         onCheckedChange={() =>
@@ -430,24 +408,24 @@ export default function RolesPage() {
                                                         }
                                                         aria-label="Select row"
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[13px] text-[var(--st-text)]">
                                                     <EntityRowLink
                                                         href={`/dashboard/crm/settings/roles/${row._id}/edit`}
                                                         label={row.display_name || row.name}
                                                         subtitle={row.description || undefined}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[12px] text-[var(--st-text-secondary)]">
                                                     <code>{row.name}</code>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <Badge variant="ghost">
                                                         <Users className="h-3 w-3" />
                                                         {row.memberCount}
                                                     </Badge>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <div className="flex gap-1">
                                                         {row.is_admin ? (
                                                             <Badge variant="default">
@@ -465,8 +443,8 @@ export default function RolesPage() {
                                                             </Badge>
                                                         ) : null}
                                                     </div>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <div className="flex justify-end gap-1">
                                                         <Button
                                                             variant="ghost"
@@ -492,37 +470,37 @@ export default function RolesPage() {
                                                             <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                                                         </Button>
                                                     </div>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         ))
                                     )}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     </Card>
                 </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={deletingId !== null}
                 onOpenChange={(o) => !o && setDeletingId(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete role?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete role?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             All member assignments and permission grants for this role
                             will be removed. This cannot be undone.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete}>
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

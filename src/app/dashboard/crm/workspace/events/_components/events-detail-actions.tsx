@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   CalendarX,
@@ -47,7 +38,7 @@ export function EventsDetailActions({
     eventId,
     onlineLink,
 }: EventsDetailActionsProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [confirmDelete, setConfirmDelete] = React.useState(false);
 
     const handleRsvp = React.useCallback(
@@ -101,24 +92,24 @@ export function EventsDetailActions({
             </Button>
 
             <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm">
                         RSVP <ChevronDown className="h-3.5 w-3.5" />
                     </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                    <ZoruDropdownMenuLabel>Mark me as…</ZoruDropdownMenuLabel>
-                    <ZoruDropdownMenuSeparator />
-                    <ZoruDropdownMenuItem onClick={() => handleRsvp('yes')}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Mark me as…</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => handleRsvp('yes')}>
                         <Check className="h-3.5 w-3.5" /> Going
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem onClick={() => handleRsvp('maybe')}>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRsvp('maybe')}>
                         Maybe
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem onClick={() => handleRsvp('no')}>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRsvp('no')}>
                         <XIcon className="h-3.5 w-3.5" /> Decline
-                    </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
             </DropdownMenu>
 
             <Button variant="outline" size="sm" onClick={handleCopyInvite}>

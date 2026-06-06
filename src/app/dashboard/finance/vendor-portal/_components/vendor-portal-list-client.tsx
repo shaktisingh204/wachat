@@ -2,29 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Button, 
-  Input, 
-  Label, 
-  Table, 
-  ZoruTableBody, 
-  ZoruTableCell, 
-  ZoruTableHead, 
-  ZoruTableHeader, 
-  ZoruTableRow,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Badge,
-  Progress,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge, Progress, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Mail, Phone, Building2, Store, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createVendor, updateVendor, deleteVendor, Vendor } from '@/app/actions/finance/vendor-portal.actions';
@@ -138,15 +116,15 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
             <Download className="mr-2 h-4 w-4" /> Export CSV
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <ZoruDialogTrigger asChild>
+          <DialogTrigger asChild>
             <Button size="sm" onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" /> New Record
             </Button>
-          </ZoruDialogTrigger>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>{editingId ? 'Edit' : 'Create'} Record</ZoruDialogTitle>
-            </ZoruDialogHeader>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
+            </DialogHeader>
             <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
               <div className="grid gap-4">
             <div className="space-y-1">
@@ -225,7 +203,7 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
                 </Button>
               </div>
             </form>
-          </ZoruDialogContent>
+          </DialogContent>
         </Dialog>
         </div>
       }
@@ -250,16 +228,16 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
 
       <div className="rounded-md border bg-white overflow-hidden">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>Vendor</ZoruTableHead><ZoruTableHead>Directory Contact</ZoruTableHead><ZoruTableHead>Performance</ZoruTableHead><ZoruTableHead>Terms & Contracts</ZoruTableHead><ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead className="w-[80px]"></ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>Vendor</Th><Th>Directory Contact</Th><Th>Performance</Th><Th>Terms & Contracts</Th><Th>Status</Th>
+              <Th className="w-[80px]"></Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredItems.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={6} className="p-8">
+              <Tr>
+                <Td colSpan={6} className="p-8">
                   <EmptyState 
                     icon={<Store className="h-6 w-6" />}
                     title="No vendors found"
@@ -270,20 +248,20 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
                       </Button>
                     }
                   />
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : (
               filteredItems.map((item) => (
-                <ZoruTableRow key={item._id}>
-                  <ZoruTableCell>
+                <Tr key={item._id}>
+                  <Td>
                     <div className="flex items-center gap-2">
                       <div className="flex h-8 w-8 items-center justify-center rounded bg-[var(--st-text)]/10">
                         <Building2 className="h-4 w-4 text-[var(--st-text)]" />
                       </div>
                       <span className="font-medium">{String(item.name ?? 'Unknown')}</span>
                     </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <div className="flex flex-col gap-1 text-sm">
                       {item.contactEmail && (
                         <div className="flex items-center gap-1.5 text-[var(--st-text-secondary)]">
@@ -299,8 +277,8 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
                       )}
                       {!item.contactEmail && !item.contactPhone && <span className="text-[var(--st-text-secondary)] italic">No contact info</span>}
                     </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="w-[200px]">
+                  </Td>
+                  <Td className="w-[200px]">
                     <div className="flex flex-col gap-1.5">
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-[var(--st-text-secondary)]">Score</span>
@@ -308,47 +286,47 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
                       </div>
                       <Progress value={Number(item.performanceScore || 0)} className="h-1.5" />
                     </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <div className="flex flex-col gap-1 text-sm">
                       <div>Terms: <span className="font-medium">{item.paymentTerms || 'N/A'}</span></div>
                       <div className="text-[var(--st-text-secondary)]">{item.activeContracts || 0} active contracts</div>
                     </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Badge variant={item.onboardingStatus === 'ACTIVE' ? 'default' : item.onboardingStatus === 'INACTIVE' ? 'destructive' : 'secondary'}>
                       {item.onboardingStatus || 'ACTIVE'}
                     </Badge>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem onClick={() => openEdit(item._id as string)}>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
                           <Trash className="mr-2 h-4 w-4" /> Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
                     </DropdownMenu>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </div>
 
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>View Details</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Details</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
               <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
@@ -357,7 +335,7 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
               </div>
             ))}
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

@@ -1,33 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-  Input,
-  Label,
-  Separator,
-  Textarea,
-  zoruSonnerToast as toast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Separator, Textarea, zoruSonnerToast as toast } from '@/components/sabcrm/20ui/compat';
 import {
   UserCog,
   RefreshCw,
@@ -196,19 +169,19 @@ export default function ProfileSettingsPage() {
   return (
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Settings</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <div className="flex items-start gap-3">
@@ -229,16 +202,16 @@ export default function ProfileSettingsPage() {
       <SettingsTabs />
 
       <Card>
-        <ZoruCardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
+        <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
           <div>
-            <ZoruCardTitle>Connection</ZoruCardTitle>
-            <ZoruCardDescription>
+            <CardTitle>Connection</CardTitle>
+            <CardDescription>
               Read-only details about the active SabWa session.
-            </ZoruCardDescription>
+            </CardDescription>
           </div>
           <StatusBadge status={status ?? 'pending'} />
-        </ZoruCardHeader>
-        <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+        </CardHeader>
+        <CardBody className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
             <Label className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
               Phone number
@@ -290,18 +263,18 @@ export default function ProfileSettingsPage() {
               </div>
             </>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Profile</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Profile</CardTitle>
+          <CardDescription>
             Edit values locally, then choose whether to sync from WhatsApp or
             push your SabNode values up.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-6">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="push-name">Push name</Label>
             <Input
@@ -383,11 +356,11 @@ export default function ProfileSettingsPage() {
               accepted.
             </p>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardContent className="flex flex-wrap items-center justify-end gap-2 pt-6">
+        <CardBody className="flex flex-wrap items-center justify-end gap-2 pt-6">
           <Button
             variant="outline"
             onClick={onSync}
@@ -401,36 +374,36 @@ export default function ProfileSettingsPage() {
           <Button onClick={onPush} disabled={pending || loading}>
             Push to WhatsApp
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={confirmPicOpen}
         onOpenChange={setConfirmPicOpen}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Change profile picture?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               This will replace the profile picture shown to everyone you
               message on WhatsApp. Are you sure you want to push this change?
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={() => {
                 setConfirmPicOpen(false);
                 doPush();
               }}
             >
               Yes, push it
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

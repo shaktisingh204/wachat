@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -76,7 +65,7 @@ export function CreateProjectDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Card className="flex flex-col text-center hover:shadow-lg hover:border-primary transition-all cursor-pointer card-gradient card-gradient-purple">
             <CardHeader>
                 <CardTitle>Manual Setup</CardTitle>
@@ -87,18 +76,18 @@ export function CreateProjectDialog() {
                 <Button variant="outline">Connect Manually</Button>
             </CardContent>
         </Card>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-[525px]">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[525px]">
         <form action={formAction}>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Manual Project Setup</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Manual Project Setup</DialogTitle>
+            <DialogDescription>
                Enter your WABA ID, App ID, and a permanent Access Token. For help finding these, please consult the{' '}
               <Link href="/wachat/setup/docs" className="text-[var(--st-text)] hover:underline" onClick={() => setOpen(false)}>
                   manual setup guide
               </Link>.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="wabaId">WABA ID</Label>
@@ -122,12 +111,12 @@ export function CreateProjectDialog() {
                 <p className="text-xs text-[var(--st-text-secondary)] pl-6">This will attempt to find a Business ID associated with your token.</p>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" type="button" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

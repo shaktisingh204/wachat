@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   Archive,
@@ -33,7 +33,7 @@ export function KbInternalDetailActions({
     id,
     pinned,
 }: KbInternalDetailActionsProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [confirmDelete, setConfirmDelete] = React.useState(false);
 
     const handleTogglePin = React.useCallback(async () => {

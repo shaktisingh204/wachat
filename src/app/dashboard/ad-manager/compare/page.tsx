@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   GitCompareArrows,
   CircleAlert,
@@ -27,7 +10,7 @@ import * as React from 'react';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { listCampaigns } from '@/app/actions/ad-manager.actions';
 import { compareCampaigns } from '@/app/actions/ad-manager-features.actions';
 
@@ -46,7 +29,7 @@ const METRICS: { key: keyof ComparisonRow; label: string; format: (v: string) =>
 
 export default function CampaignComparePage() {
     const { activeAccount } = useAdManager();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isClient, setIsClient] = React.useState(false);
     const [campaigns, setCampaigns] = React.useState<Campaign[]>([]);
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -114,8 +97,8 @@ export default function CampaignComparePage() {
                 <AmBreadcrumb page="Compare" />
                 <Alert>
                     <CircleAlert className="h-4 w-4" />
-                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>Pick an ad account to compare campaigns.</ZoruAlertDescription>
+                    <AlertTitle>No ad account selected</AlertTitle>
+                    <AlertDescription>Pick an ad account to compare campaigns.</AlertDescription>
                 </Alert>
             </div>
         );
@@ -155,8 +138,8 @@ export default function CampaignComparePage() {
                 <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10" />)}</div>
             ) : (
                 <Card>
-                    <ZoruCardHeader><ZoruCardTitle className="text-base">Select campaigns</ZoruCardTitle></ZoruCardHeader>
-                    <ZoruCardContent className="max-h-60 overflow-y-auto space-y-2">
+                    <CardHeader><CardTitle className="text-base">Select campaigns</CardTitle></CardHeader>
+                    <CardBody className="max-h-60 overflow-y-auto space-y-2">
                         {campaigns.length === 0 ? (
                             <p className="text-sm text-[var(--st-text-secondary)]">No campaigns found.</p>
                         ) : campaigns.map((c) => (
@@ -166,48 +149,48 @@ export default function CampaignComparePage() {
                                 <span className="text-xs text-[var(--st-text-secondary)]">{c.status}</span>
                             </label>
                         ))}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
 
             {results.length > 0 && (
                 <Card>
-                    <ZoruCardContent className="p-0 overflow-x-auto">
+                    <CardBody className="p-0 overflow-x-auto">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead className="sticky left-0 bg-[var(--st-bg-secondary)] z-10">Metric</ZoruTableHead>
+                            <THead>
+                                <Tr>
+                                    <Th className="sticky left-0 bg-[var(--st-bg-secondary)] z-10">Metric</Th>
                                     {results.map((r) => (
-                                        <ZoruTableHead key={r.campaignId} className="min-w-[140px]">
+                                        <Th key={r.campaignId} className="min-w-[140px]">
                                             {r.campaign_name || r.campaignId}
-                                        </ZoruTableHead>
+                                        </Th>
                                     ))}
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {METRICS.map((m) => {
                                     const bw = bestWorst(m.key, m.higherIsBetter);
                                     return (
-                                        <ZoruTableRow key={m.key}>
-                                            <ZoruTableCell className="font-medium sticky left-0 bg-[var(--st-bg-secondary)] z-10">{m.label}</ZoruTableCell>
+                                        <Tr key={m.key}>
+                                            <Td className="font-medium sticky left-0 bg-[var(--st-bg-secondary)] z-10">{m.label}</Td>
                                             {results.map((r) => {
                                                 const isBest = r.campaignId === bw.best;
                                                 const isWorst = r.campaignId === bw.worst;
                                                 return (
-                                                    <ZoruTableCell
+                                                    <Td
                                                         key={r.campaignId}
                                                         className={`tabular-nums ${isBest ? 'text-[var(--st-text)] font-semibold' : ''} ${isWorst ? 'text-[var(--st-text)]' : ''}`}
                                                     >
                                                         {m.format(r[m.key])}
-                                                    </ZoruTableCell>
+                                                    </Td>
                                                 );
                                             })}
-                                        </ZoruTableRow>
+                                        </Tr>
                                     );
                                 })}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

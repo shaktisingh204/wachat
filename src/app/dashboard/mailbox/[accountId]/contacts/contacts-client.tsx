@@ -18,19 +18,7 @@ import {
     listMailContacts,
 } from '@/app/actions/mailbox.actions';
 import type { MailContactDoc } from '@/lib/rust-client/mail-contacts-sync';
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    EmptyState,
-    Input,
-    Label,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 
 export interface ContactsClientProps {
     accountId: string;
@@ -42,7 +30,7 @@ export function ContactsClient({
     initialContacts,
 }: ContactsClientProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [contacts, setContacts] = React.useState(initialContacts);
     const [query, setQuery] = React.useState('');
@@ -97,16 +85,16 @@ export function ContactsClient({
     return (
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
                         <Users className="h-4 w-4" />
                         Add contact
-                    </ZoruCardTitle>
-                    <ZoruCardDescription>
+                    </CardTitle>
+                    <CardDescription>
                         Quick add — full contact record lives in the CRM module.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
                     <form
                         onSubmit={handleCreate}
                         className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
@@ -136,7 +124,7 @@ export function ContactsClient({
                             Add
                         </Button>
                     </form>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <div className="flex items-center gap-2">
@@ -161,7 +149,7 @@ export function ContactsClient({
                         const busy = busyId === id;
                         return (
                             <Card key={id}>
-                                <ZoruCardContent className="flex flex-wrap items-center justify-between gap-3 p-3">
+                                <CardBody className="flex flex-wrap items-center justify-between gap-3 p-3">
                                     <div className="min-w-0">
                                         <div className="font-medium">
                                             {c.displayName ?? c.emails?.[0] ?? '(unnamed)'}
@@ -188,7 +176,7 @@ export function ContactsClient({
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         );
                     })}

@@ -1,16 +1,5 @@
 import { listPersonalTokens } from '@/app/actions/developer-platform.actions';
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Breadcrumb,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbSeparator,
-  ZoruBreadcrumbPage,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui/compat';
 import { PatsClient } from './_PatsClient';
 
 export const dynamic = 'force-dynamic';
@@ -27,25 +16,25 @@ export default async function PersonalTokensPage(): Promise<JSX.Element> {
   return (
     <div className="flex min-h-full flex-col gap-6">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Personal Access Tokens</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/api">Developer platform</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Personal Access Tokens</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Personal Access Tokens</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Personal Access Tokens</PageTitle>
+          <PageDescription>
             User-scoped tokens. Calls inherit your RBAC, so a PAT can only do what your account can.
             Format: <code className="font-mono">sab_pat_*</code>.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <PatsClient initialTokens={initial} />

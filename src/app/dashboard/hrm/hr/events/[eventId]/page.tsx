@@ -1,6 +1,6 @@
 import { fmtDate } from '@/lib/utils';
 export const dynamic = 'force-dynamic';
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import {
@@ -129,16 +129,16 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
             ) : null}
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center justify-between gap-3">
+                <CardHeader>
+                    <CardTitle className="flex items-center justify-between gap-3">
                         <span>Event overview</span>
                         <StatusPill
                             label={titleCase(status)}
                             tone={STATUS_TONE[status] ?? 'neutral'}
                         />
-                    </ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2">
                         <Field label="Type" icon={CalendarDays}>
                             {titleCase(String(event.eventType ?? 'other'))}
@@ -195,19 +195,19 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
                             </Field>
                         ) : null}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {event.description ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Agenda / description</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Agenda / description</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-[var(--st-text)]">
                             {event.description}
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
         </EntityListShell>

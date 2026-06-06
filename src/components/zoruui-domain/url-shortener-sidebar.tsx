@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Separator,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Separator, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState, useTransition } from 'react';
 import {
   Folder,
@@ -79,7 +72,7 @@ export function UrlShortenerSidebar({
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState(PALETTE[0]);
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const load = () => {
     startTransition(async () => {

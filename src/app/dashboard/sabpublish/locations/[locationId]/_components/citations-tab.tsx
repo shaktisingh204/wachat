@@ -2,13 +2,7 @@
 
 import * as React from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, EmptyState } from '@/components/sabcrm/20ui/compat';
 import {
   scanSabpublishCitations,
   updateSabpublishCitationStatus,

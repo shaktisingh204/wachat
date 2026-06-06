@@ -1,15 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-  Card,
-  ZoruCardContent,
-  Skeleton
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { Upload, AlertCircle, Trash2, ExternalLink } from 'lucide-react';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
@@ -98,8 +90,8 @@ export default function CreativeLibraryPage() {
                 <AmBreadcrumb page="Creative library" />
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>Pick an ad account to view your creative library.</ZoruAlertDescription>
+                    <AlertTitle>No ad account selected</AlertTitle>
+                    <AlertDescription>Pick an ad account to view your creative library.</AlertDescription>
                 </Alert>
             </div>
         );
@@ -168,7 +160,7 @@ export default function CreativeLibraryPage() {
                                             <ExternalLink className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </div>
                                     </div>
-                                    <ZoruCardContent className="p-2">
+                                    <CardBody className="p-2">
                                         <div className="flex items-center justify-between gap-1">
                                             <div className="min-w-0">
                                                 <div className="text-xs font-medium truncate">{img.name}</div>
@@ -189,7 +181,7 @@ export default function CreativeLibraryPage() {
                                                 <Trash2 className="h-3 w-3" />
                                             </Button>
                                         </div>
-                                    </ZoruCardContent>
+                                    </CardBody>
                                 </Card>
                             ))}
                         </div>
@@ -235,7 +227,7 @@ export default function CreativeLibraryPage() {
                                             <ExternalLink className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </div>
                                     </div>
-                                    <ZoruCardContent className="p-2">
+                                    <CardBody className="p-2">
                                         <div className="flex items-center justify-between gap-1">
                                             <div className="text-xs font-medium truncate">{v.title || 'Untitled'}</div>
                                             <Button
@@ -251,7 +243,7 @@ export default function CreativeLibraryPage() {
                                                 <Trash2 className="h-3 w-3" />
                                             </Button>
                                         </div>
-                                    </ZoruCardContent>
+                                    </CardBody>
                                 </Card>
                             ))}
                         </div>

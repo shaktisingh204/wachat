@@ -18,7 +18,7 @@ import { Copy, Pencil } from 'lucide-react';
 import nextDynamic from 'next/dynamic';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Button, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardBody, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { getCrmProductById } from '@/app/actions/crm-products.actions';
 import type { CrmProduct } from '@/lib/definitions';
 
@@ -36,15 +36,15 @@ const ProductHistoryGraph = nextDynamic(
 function ProductHistoryGraphSkeleton() {
   return (
     <Card className="mt-6">
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-lg">Price & Stock History</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent className="h-64 flex items-center justify-center bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50">
+      <CardHeader>
+        <CardTitle className="text-lg">Price & Stock History</CardTitle>
+      </CardHeader>
+      <CardBody className="h-64 flex items-center justify-center bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50">
         <div className="flex flex-col items-center gap-2">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--st-border)] border-t-transparent" />
           <span className="text-sm text-[var(--st-text)]">Loading chart history...</span>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -52,10 +52,10 @@ function ProductHistoryGraphSkeleton() {
 function ActivityTimelineSkeleton() {
   return (
     <Card className="mt-6">
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-lg">Activity</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      <CardHeader>
+        <CardTitle className="text-lg">Activity</CardTitle>
+      </CardHeader>
+      <CardBody>
         <div className="space-y-6">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex gap-4">
@@ -67,7 +67,7 @@ function ActivityTimelineSkeleton() {
             </div>
           ))}
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -135,10 +135,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
       
       {/* Supplier Information Card */}
       <Card className="mt-6 border-dashed">
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-lg">Supplier Information</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle className="text-lg">Supplier Information</CardTitle>
+        </CardHeader>
+        <CardBody>
           {product.supplierName ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -157,7 +157,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           ) : (
             <p className="text-sm text-[var(--st-text-secondary)]">No supplier information available for this product.</p>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* History Graph */}

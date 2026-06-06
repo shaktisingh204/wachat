@@ -1,6 +1,6 @@
 import "@/components/sabcrm/20ui/zoru-legacy.css";
 
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, Button } from '@/components/sabcrm/20ui/compat';
 import { Suspense } from 'react'
 import { LoaderCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -49,17 +49,17 @@ export default async function FacebookCallbackPage({
       <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
         <div className="flex h-screen w-screen items-center justify-center bg-[var(--st-bg-secondary)]">
           <Card className="max-w-sm text-center">
-            <ZoruCardHeader>
+            <CardHeader>
               <div className="flex justify-center mb-4">
                 <AlertCircle className="h-10 w-10 text-[var(--st-text)]" />
               </div>
-              <ZoruCardTitle>Connection Failed</ZoruCardTitle>
-              <ZoruCardDescription>
+              <CardTitle>Connection Failed</CardTitle>
+              <CardDescription>
                 {error
                   ? `Error: ${error}`
                   : "No connection code or state was provided. The process might have been cancelled."}
-              </ZoruCardDescription>
-            </ZoruCardHeader>
+              </CardDescription>
+            </CardHeader>
             <div className="p-6 pt-0">
               <Link href={getRedirectPath(state)}>
                 <Button variant="outline" className="w-full">Return to Dashboard</Button>
@@ -77,12 +77,12 @@ export default async function FacebookCallbackPage({
         fallback={
           <div className="flex h-screen w-screen items-center justify-center bg-[var(--st-bg-secondary)]">
             <Card className="max-w-sm text-center">
-              <ZoruCardHeader>
+              <CardHeader>
                 <div className="flex justify-center mb-4">
                   <LoaderCircle className="h-10 w-10 animate-spin text-[var(--st-text)]" />
                 </div>
-                <ZoruCardTitle>Loading...</ZoruCardTitle>
-              </ZoruCardHeader>
+                <CardTitle>Loading...</CardTitle>
+              </CardHeader>
             </Card>
           </div>
         }

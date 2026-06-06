@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Separator,
-  Skeleton,
-  Switch,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Separator, Skeleton, Switch, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -183,8 +160,8 @@ export default function SabflowSettingsPage() {
             <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
                 <Alert variant="destructive">
                     <AlertCircle />
-                    <ZoruAlertTitle>Could not load SabFlow settings</ZoruAlertTitle>
-                    <ZoruAlertDescription>{loadError}</ZoruAlertDescription>
+                    <AlertTitle>Could not load SabFlow settings</AlertTitle>
+                    <AlertDescription>{loadError}</AlertDescription>
                 </Alert>
             </div>
         );
@@ -195,34 +172,34 @@ export default function SabflowSettingsPage() {
     return (
         <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/sabflow">SabFlow</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/sabflow">SabFlow</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Settings</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader className="mt-5" bordered={false}>
-                <ZoruPageHeading>
+                <PageHeading>
                     {activeProject?.name ? (
                         <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
                             Project · {activeProject.name}
                         </p>
                     ) : null}
-                    <ZoruPageTitle>SabFlow settings</ZoruPageTitle>
-                    <ZoruPageDescription>
+                    <PageTitle>SabFlow settings</PageTitle>
+                    <PageDescription>
                         Defaults, retention, run limits, webhooks, and global variables for the
                         visual flow builder.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <div className="flex items-center gap-3">
                     <Badge variant="outline" className="gap-1.5 h-[32px] px-3">
                         <span className="text-[var(--st-text-tertiary)]">Last saved:</span>

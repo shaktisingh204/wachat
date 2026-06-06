@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  useZoruToast,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, Table, TBody, Td, Th, THead, Tr, useToast, cn } from '@/components/sabcrm/20ui/compat';
 import {
   Pencil,
   Trash2,
@@ -88,7 +70,7 @@ export function CreditNoteListClient({
     onToggleAll,
     onDelete,
 }: CreditNoteListClientProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [pendingId, startTransition] = React.useTransition();
     const [busyId, setBusyId] = React.useState<string | null>(null);
 
@@ -118,66 +100,66 @@ export function CreditNoteListClient({
     return (
         <Card className="overflow-hidden p-0">
             <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[36px]">
+                <THead>
+                    <Tr>
+                        <Th className="w-[36px]">
                             <Checkbox
                                 checked={allSelected}
                                 aria-checked={someSelected ? 'mixed' : allSelected}
                                 onCheckedChange={(v) => onToggleAll(v === true)}
                                 aria-label="Select all"
                             />
-                        </TableHead>
-                        <TableHead>CN #</TableHead>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Linked invoice</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Reason</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
-                        <TableHead>Refund mode</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
+                        </Th>
+                        <Th>CN #</Th>
+                        <Th>Customer</Th>
+                        <Th>Linked invoice</Th>
+                        <Th>Date</Th>
+                        <Th>Reason</Th>
+                        <Th className="text-right">Amount</Th>
+                        <Th>Refund mode</Th>
+                        <Th>Status</Th>
+                        <Th className="text-right">Actions</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {creditNotes.length === 0 ? (
-                        <TableRow>
-                            <TableCell
+                        <Tr>
+                            <Td
                                 colSpan={10}
                                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 {loading ? 'Loading…' : 'No credit notes.'}
-                            </TableCell>
-                        </TableRow>
+                            </Td>
+                        </Tr>
                     ) : (
                         creditNotes.map((cn) => {
                             const id = String(cn._id);
                             const isChecked = selectedIds.has(id);
                             const statusLabel = cn.status || 'draft';
                             return (
-                                <TableRow key={id}>
-                                    <TableCell>
+                                <Tr key={id}>
+                                    <Td>
                                         <Checkbox
                                             checked={isChecked}
                                             onCheckedChange={() => onToggleOne(id)}
                                             aria-label={`Select ${cn.cnNo}`}
                                         />
-                                    </TableCell>
-                                    <TableCell>
+                                    </Td>
+                                    <Td>
                                         <EntityRowLink
                                             href={`/dashboard/crm/sales/credit-notes/${id}`}
                                             label={cn.cnNo || id.slice(-6)}
                                             subtitle={fmtDate(cn.date)}
                                         />
-                                    </TableCell>
-                                    <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {cn.clientId ? (
                                             <EntityPickerChip entity="client" id={cn.clientId} />
                                         ) : (
                                             '—'
                                         )}
-                                    </TableCell>
-                                    <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {cn.linkedInvoiceId ? (
                                             <Link
                                                 href={`/dashboard/crm/sales/invoices/${cn.linkedInvoiceId}`}
@@ -188,28 +170,28 @@ export function CreditNoteListClient({
                                         ) : (
                                             '—'
                                         )}
-                                    </TableCell>
-                                    <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {fmtDate(cn.date)}
-                                    </TableCell>
-                                    <TableCell>
+                                    </Td>
+                                    <Td>
                                         <Badge variant="outline">
                                             {reasonLabel(cn.reason)}
                                         </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right tabular-nums text-[12.5px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-right tabular-nums text-[12.5px] text-[var(--st-text)]">
                                         {fmtINR(cn.totals?.total, cn.currency)}
-                                    </TableCell>
-                                    <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {refundModeLabel(cn.refundMode)}
-                                    </TableCell>
-                                    <TableCell>
+                                    </Td>
+                                    <Td>
                                         <StatusPill
                                             label={statusLabel}
                                             tone={statusToTone(statusLabel)}
                                         />
-                                    </TableCell>
-                                    <TableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <Button size="sm" variant="ghost" asChild>
                                                 <Link
@@ -246,12 +228,12 @@ export function CreditNoteListClient({
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </div>
-                                    </TableCell>
-                                </TableRow>
+                                    </Td>
+                                </Tr>
                             );
                         })
                     )}
-                </TableBody>
+                </TBody>
             </Table>
         </Card>
     );

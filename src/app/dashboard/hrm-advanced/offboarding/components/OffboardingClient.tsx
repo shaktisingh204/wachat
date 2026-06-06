@@ -3,8 +3,8 @@
 import React, { useState, useMemo, useOptimistic, useEffect, useRef } from 'react';
 import { OffboardingTask } from '@/lib/hrm-advanced-types';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Input, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { OffboardingForm } from './OffboardingForm';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import Papa from 'papaparse';
@@ -26,7 +26,7 @@ type OptimisticAction =
   | { type: 'BULK_UPDATE'; ids: string[], updates: Partial<OffboardingTask> };
 
 export function OffboardingClient({ initialTasks, onSaveTask, onDeleteTask }: OffboardingClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   // Optimistic UI setup
   const [tasks, setTasks] = useState<OffboardingTask[]>(initialTasks);
@@ -264,27 +264,27 @@ export function OffboardingClient({ initialTasks, onSaveTask, onDeleteTask }: Of
       <div className="rounded-md border border-[var(--st-border)] overflow-hidden flex flex-col h-[500px]">
         <div className="overflow-auto flex-1" ref={parentRef}>
           <Table>
-            <ZoruTableHeader className="sticky top-0 bg-white dark:bg-[var(--st-text)] z-10">
-              <ZoruTableRow>
-                <ZoruTableHead className="w-[50px]">
+            <THead className="sticky top-0 bg-white dark:bg-[var(--st-text)] z-10">
+              <Tr>
+                <Th className="w-[50px]">
                   <input 
                     type="checkbox" 
                     checked={selectedIds.size === filteredData.length && filteredData.length > 0}
                     onChange={toggleAll}
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Task Name</ZoruTableHead>
-                <ZoruTableHead>Employee ID</ZoruTableHead>
-                <ZoruTableHead>Completed</ZoruTableHead>
-                <ZoruTableHead>Due Date</ZoruTableHead>
-                <ZoruTableHead className="w-[120px] text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}>
+                </Th>
+                <Th>Task Name</Th>
+                <Th>Employee ID</Th>
+                <Th>Completed</Th>
+                <Th>Due Date</Th>
+                <Th className="w-[120px] text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}>
               {virtualizer.getVirtualItems().map((virtualRow) => {
                 const row = filteredData[virtualRow.index];
                 return (
-                  <ZoruTableRow 
+                  <Tr 
                     key={row._id || virtualRow.index}
                     style={{
                       position: 'absolute',
@@ -294,33 +294,33 @@ export function OffboardingClient({ initialTasks, onSaveTask, onDeleteTask }: Of
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
-                    <ZoruTableCell>
+                    <Td>
                       <input 
                         type="checkbox" 
                         checked={selectedIds.has(row._id!)}
                         onChange={() => toggleSelection(row._id!)}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>{row.taskName}</ZoruTableCell>
-                    <ZoruTableCell>{row.employeeId}</ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>{row.taskName}</Td>
+                    <Td>{row.employeeId}</Td>
+                    <Td>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.isCompleted ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-white' : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-white'}`}>
                         {row.isCompleted ? 'Yes' : 'No'}
                       </span>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {isMounted && row.dueDate ? new Date(row.dueDate).toLocaleDateString() : ''}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button variant="ghost" size="sm" onClick={() => { setEditingItem(row); setIsDialogOpen(true); }}>Edit</Button>
                         <Button variant="ghost" size="sm" className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(row._id!)}>Del</Button>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </div>

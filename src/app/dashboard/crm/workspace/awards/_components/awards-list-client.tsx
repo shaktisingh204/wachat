@@ -29,19 +29,7 @@ import {
     X,
 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Checkbox,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -78,7 +66,7 @@ export function AwardsListClient({
     initialAppreciations,
     initialKpis,
 }: AwardsListClientProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [awards, setAwards] = React.useState<(WsAward & { _id: string })[]>(initialAwards);
     const [apps, setApps] = React.useState<(WsAppreciation & { _id: string })[]>(
@@ -329,16 +317,16 @@ export function AwardsListClient({
                                 value={frequency}
                                 onValueChange={(v) => setFrequency(v as FrequencyFilter)}
                             >
-                                <ZoruSelectTrigger className="h-9 w-[160px]">
-                                    <ZoruSelectValue placeholder="Frequency" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="all">Any frequency</ZoruSelectItem>
-                                    <ZoruSelectItem value="one-time">One-time</ZoruSelectItem>
-                                    <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
-                                    <ZoruSelectItem value="quarterly">Quarterly</ZoruSelectItem>
-                                    <ZoruSelectItem value="annual">Annual</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger className="h-9 w-[160px]">
+                                    <SelectValue placeholder="Frequency" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Any frequency</SelectItem>
+                                    <SelectItem value="one-time">One-time</SelectItem>
+                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                                    <SelectItem value="annual">Annual</SelectItem>
+                                </SelectContent>
                             </Select>
                         ) : (
                             <>
@@ -346,17 +334,17 @@ export function AwardsListClient({
                                     value={awardFilter}
                                     onValueChange={(v) => setAwardFilter(v)}
                                 >
-                                    <ZoruSelectTrigger className="h-9 w-[180px]">
-                                        <ZoruSelectValue placeholder="Award program" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">Any program</ZoruSelectItem>
+                                    <SelectTrigger className="h-9 w-[180px]">
+                                        <SelectValue placeholder="Award program" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Any program</SelectItem>
                                         {awards.map((a) => (
-                                            <ZoruSelectItem key={a._id} value={a._id}>
+                                            <SelectItem key={a._id} value={a._id}>
                                                 {a.title}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                                 <Input
                                     type="date"

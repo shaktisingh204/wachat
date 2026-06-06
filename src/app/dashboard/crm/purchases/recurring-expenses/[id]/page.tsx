@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Skeleton, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { use,
@@ -66,7 +66,7 @@ export default function RecurringExpenseDetailPage(props: {
 }) {
   const { id } = use(props.params);
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [doc, setDoc] = useState<Row | null>(null);
   const [isLoading, startLoading] = useTransition();
   const [isMutating, startMutating] = useTransition();

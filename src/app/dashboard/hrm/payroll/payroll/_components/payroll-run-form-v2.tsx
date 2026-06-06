@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-  ZoruAlert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -93,7 +78,7 @@ const YEARS = Array.from({ length: 6 }, (_, i) => currentYear - i + 1);
 
 export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const isEditing = !!initialData?._id;
 
   const [state, formAction] = useActionState(savePayrollRun, INITIAL_STATE);
@@ -180,13 +165,13 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
         {isEditing ? (
           <>
             <input type="hidden" name="runId" value={initialData!._id} />
-            <ZoruAlert className="bg-[var(--st-text-secondary)]/10 border-[var(--st-text-secondary)]/20 text-[var(--st-text-secondary)]">
+            <Alert className="bg-[var(--st-text-secondary)]/10 border-[var(--st-text-secondary)]/20 text-[var(--st-text-secondary)]">
               <Info className="h-4 w-4 !text-[var(--st-text-secondary)]" />
-              <ZoruAlertTitle>Payslips are locked</ZoruAlertTitle>
-              <ZoruAlertDescription>
+              <AlertTitle>Payslips are locked</AlertTitle>
+              <AlertDescription>
                 You can only update the run's metadata (status, date, notes). The generated payslips and totals for this run are immutable.
-              </ZoruAlertDescription>
-            </ZoruAlert>
+              </AlertDescription>
+            </Alert>
           </>
         ) : null}
 
@@ -214,16 +199,16 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                 onValueChange={(val) => setSelectedMonth(Number(val))}
                 disabled={isEditing}
               >
-                <ZoruSelectTrigger id="period_month">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger id="period_month">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {MONTHS.map((m) => (
-                    <ZoruSelectItem key={m.value} value={String(m.value)}>
+                    <SelectItem key={m.value} value={String(m.value)}>
                       {m.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
 
@@ -235,16 +220,16 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                 onValueChange={(val) => setSelectedYear(Number(val))}
                 disabled={isEditing}
               >
-                <ZoruSelectTrigger id="period_year">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger id="period_year">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {YEARS.map((y) => (
-                    <ZoruSelectItem key={y} value={String(y)}>
+                    <SelectItem key={y} value={String(y)}>
                       {y}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
           </div>

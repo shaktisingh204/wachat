@@ -1,17 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, PageHeader, PageTitle, PageDescription } from '@/components/sabcrm/20ui/compat';
 
 import { getPagesenseSite, getRecording } from '@/app/actions/sabsense.actions';
 
@@ -41,27 +31,27 @@ export default async function RecordingDetailPage({ params }: PageProps) {
     return (
         <div className="zoruui p-8 space-y-6">
             <PageHeader>
-                <ZoruPageTitle>Session recording</ZoruPageTitle>
-                <ZoruPageDescription>
+                <PageTitle>Session recording</PageTitle>
+                <PageDescription>
                     {recording.urlPath} ·{' '}
                     {new Date(recording.startedAt).toLocaleString()} ·{' '}
                     {recording.durationSecs}s
-                </ZoruPageDescription>
+                </PageDescription>
             </PageHeader>
 
             <PagesenseSiteNav siteId={site._id} />
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Player</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Player</CardTitle>
+                    <CardDescription>
                         rrweb integration is TODO. The recorder snippet currently
                         captures pointer/scroll events; once the rrweb finalizer
                         worker writes an event blob to SabFiles, this container
                         will become the actual player.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
                     <div
                         className="flex h-[480px] items-center justify-center rounded-md border border-dashed border-[color:var(--st-border)] bg-[color:var(--st-bg-muted)] text-sm text-[color:var(--st-text-secondary)]"
                         data-rrweb-player-container
@@ -71,7 +61,7 @@ export default async function RecordingDetailPage({ params }: PageProps) {
                             ? `rrweb player stub — eventsFileId: ${recording.eventsFileId}`
                             : 'No rrweb event blob yet for this session.'}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <div>

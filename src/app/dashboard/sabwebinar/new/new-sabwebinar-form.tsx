@@ -2,20 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  Input,
-  Label,
-  Textarea,
-  PageHeader,
-  ZoruPageTitle,
-  ZoruPageDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Label, Textarea, PageHeader, PageTitle, PageDescription } from '@/components/sabcrm/20ui/compat';
 import { createSabwebinar } from '@/app/actions/sabwebinar.actions';
 
 export function NewSabwebinarForm() {
@@ -62,11 +49,11 @@ export function NewSabwebinarForm() {
   return (
     <div className="zoruui flex flex-col gap-6 p-6">
       <PageHeader>
-        <ZoruPageTitle>New webinar</ZoruPageTitle>
-        <ZoruPageDescription>
+        <PageTitle>New webinar</PageTitle>
+        <PageDescription>
           Schedule a branded one-to-many broadcast. You can configure the landing page,
           polls, and Q&amp;A after creation.
-        </ZoruPageDescription>
+        </PageDescription>
       </PageHeader>
 
       <form onSubmit={onSubmit}>

@@ -1,24 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { Download, Flag, ListChecks, Trash2, X } from 'lucide-react';
 import { useTransition } from 'react';
 
@@ -58,7 +41,7 @@ function classifyStatus(name: string): TypeFilter {
 
 /* ─── Inline edit form ──────────────────────────────────────────── */
 function StatusEditForm({ row, onDone }: { row: Row; onDone: () => void }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -116,13 +99,13 @@ function StatusEditForm({ row, onDone }: { row: Row; onDone: () => void }) {
       <div className="space-y-1.5">
         <Label htmlFor="st-default">Default Status</Label>
         <Select name="default" defaultValue={row.default ? 'yes' : 'no'}>
-          <ZoruSelectTrigger id="st-default">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="no">No</ZoruSelectItem>
-            <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger id="st-default">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="no">No</SelectItem>
+            <SelectItem value="yes">Yes</SelectItem>
+          </SelectContent>
         </Select>
       </div>
       <Button type="submit" disabled={isPending} className="w-full">
@@ -134,7 +117,7 @@ function StatusEditForm({ row, onDone }: { row: Row; onDone: () => void }) {
 
 /* ─── Main client component ─────────────────────────────────────── */
 export function StatusesClient({ rows: initialRows, kpi }: Props) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>(initialRows);
   const [search, setSearch] = React.useState('');
   const [typeFilter, setTypeFilter] = React.useState<TypeFilter>('all');
@@ -214,16 +197,16 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
 
   const filters = (
     <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as TypeFilter)}>
-      <ZoruSelectTrigger className="h-9 w-40 text-[12.5px]">
-        <ZoruSelectValue />
-      </ZoruSelectTrigger>
-      <ZoruSelectContent>
+      <SelectTrigger className="h-9 w-40 text-[12.5px]">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
         {TYPE_FILTER_OPTIONS.map((o) => (
-          <ZoruSelectItem key={o.value} value={o.value}>
+          <SelectItem key={o.value} value={o.value}>
             {o.label}
-          </ZoruSelectItem>
+          </SelectItem>
         ))}
-      </ZoruSelectContent>
+      </SelectContent>
     </Select>
   );
 
@@ -284,9 +267,9 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
       >
         <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-8">
+            <THead>
+              <Tr>
+                <Th className="w-8">
                   <input
                     type="checkbox"
                     checked={allSelectedOnPage}
@@ -294,21 +277,21 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
                     aria-label="Select all"
                     className="rounded border-[var(--st-border)]"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Color</ZoruTableHead>
-                <ZoruTableHead>Priority</ZoruTableHead>
-                <ZoruTableHead>Default</ZoruTableHead>
-                <ZoruTableHead>Created</ZoruTableHead>
-                <ZoruTableHead className="w-24">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Status</Th>
+                <Th>Color</Th>
+                <Th>Priority</Th>
+                <Th>Default</Th>
+                <Th>Created</Th>
+                <Th className="w-24">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.map((row) => {
                 const color = row.color ?? '#64748b';
                 return (
-                  <ZoruTableRow key={row._id} data-selected={selected.has(row._id)}>
-                    <ZoruTableCell>
+                  <Tr key={row._id} data-selected={selected.has(row._id)}>
+                    <Td>
                       <input
                         type="checkbox"
                         checked={selected.has(row._id)}
@@ -316,8 +299,8 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
                         aria-label={`Select ${row.type}`}
                         className="rounded border-[var(--st-border)]"
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <RowDrawer
                         label={
                           <span className="inline-flex items-center gap-1.5">
@@ -343,14 +326,14 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
                           onDone={() => setDrawerRefresh((n) => n + 1)}
                         />
                       </RowDrawer>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">{color}</span>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="font-mono text-[12px] text-[var(--st-text)]">
                       {row.priority ?? 0}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <span
                         className={
                           row.default
@@ -360,11 +343,11 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
                       >
                         {row.default ? 'Yes' : 'No'}
                       </span>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12px] text-[var(--st-text-secondary)]">
                       {fmtDate(row.createdAt)}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Button
                         size="sm"
                         variant="ghost"
@@ -374,11 +357,11 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
                       >
                         <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </EntityListShell>

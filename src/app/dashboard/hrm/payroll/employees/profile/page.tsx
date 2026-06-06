@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Card,
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import type { CrmEnumName } from '@/data/reference/crm-enums';
 import {
@@ -140,7 +128,7 @@ function detailToForm(d: WsEmployeeDetail): FormState {
 }
 
 export default function EmployeeProfilePage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [selectedEmpId, setSelectedEmpId] = useState<string>('');
   const [form, setForm] = useState<FormState>(EMPTY);
@@ -254,16 +242,16 @@ export default function EmployeeProfilePage() {
         <div className="flex flex-col gap-1.5">
           <Label className="text-[var(--st-text)]">Select Employee</Label>
           <Select value={selectedEmpId} onValueChange={handleEmpChange}>
-            <ZoruSelectTrigger className="h-10 w-full max-w-sm rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-              <ZoruSelectValue placeholder="Choose an employee…" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="h-10 w-full max-w-sm rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+              <SelectValue placeholder="Choose an employee…" />
+            </SelectTrigger>
+            <SelectContent>
               {employees.map((e) => (
-                <ZoruSelectItem key={e._id} value={e._id}>
+                <SelectItem key={e._id} value={e._id}>
                   {e.name}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
       </Card>
@@ -421,17 +409,17 @@ export default function EmployeeProfilePage() {
                   value={form.reporting_to ?? '__none__'}
                   onValueChange={(v) => set('reporting_to', v === '__none__' ? '' : v)}
                 >
-                  <ZoruSelectTrigger className="h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                    <ZoruSelectValue placeholder="Select manager…" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="__none__">— None —</ZoruSelectItem>
+                  <SelectTrigger className="h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                    <SelectValue placeholder="Select manager…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">— None —</SelectItem>
                     {employees
                       .filter((e) => e._id !== selectedEmpId)
                       .map((e) => (
-                        <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>
+                        <SelectItem key={e._id} value={e._id}>{e.name}</SelectItem>
                       ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </Field>
 
@@ -598,17 +586,17 @@ function SelectField({
   return (
     <Field label={label} fullWidth={fullWidth}>
       <Select value={value || '__none__'} onValueChange={(v) => onChange(v === '__none__' ? '' : v)}>
-        <ZoruSelectTrigger className="h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-          <ZoruSelectValue placeholder="Select…" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
-          <ZoruSelectItem value="__none__">— None —</ZoruSelectItem>
+        <SelectTrigger className="h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+          <SelectValue placeholder="Select…" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__none__">— None —</SelectItem>
           {options.map((o) => (
-            <ZoruSelectItem key={o.value} value={o.value}>
+            <SelectItem key={o.value} value={o.value}>
               {o.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
     </Field>
   );

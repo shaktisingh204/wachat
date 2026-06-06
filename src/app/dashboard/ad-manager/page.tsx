@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -58,10 +58,10 @@ function KpiSkeleton() {
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       {Array.from({ length: 6 }).map((_, i) => (
         <Card key={i}>
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <div className="h-3 w-16 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
             <div className="mt-3 h-7 w-20 animate-pulse rounded bg-[var(--st-bg-muted)]" />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ))}
     </div>
@@ -71,11 +71,11 @@ function KpiSkeleton() {
 function CampaignsSkeleton() {
   return (
     <Card>
-      <ZoruCardContent className="space-y-3 p-1">
+      <CardBody className="space-y-3 p-1">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-12 animate-pulse rounded-lg bg-[var(--st-bg-muted)]" />
         ))}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -252,7 +252,7 @@ export default function AdManagerOverviewPage() {
               const Icon = kpi.icon;
               return (
                 <Card key={kpi.id}>
-                  <ZoruCardContent className="p-4">
+                  <CardBody className="p-4">
                     <div className="flex items-center justify-between">
                       <Icon className={cn('h-4 w-4', kpi.color)} strokeWidth={2} />
                     </div>
@@ -264,7 +264,7 @@ export default function AdManagerOverviewPage() {
                         {kpi.value}
                       </p>
                     </div>
-                  </ZoruCardContent>
+                  </CardBody>
                 </Card>
               );
             })}
@@ -292,12 +292,12 @@ export default function AdManagerOverviewPage() {
             <CampaignsSkeleton />
           ) : topCampaigns.length === 0 ? (
             <Card>
-              <ZoruCardContent className="flex flex-col items-center gap-3 py-12 text-center">
+              <CardBody className="flex flex-col items-center gap-3 py-12 text-center">
                 <Megaphone className="h-6 w-6 text-[var(--st-text-tertiary)]" strokeWidth={1.5} />
                 <p className="text-[13px] text-[var(--st-text-secondary)]">
                   No campaigns yet. Create your first campaign to see results here.
                 </p>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ) : (
             <Card>
@@ -390,7 +390,7 @@ export default function AdManagerOverviewPage() {
           </div>
 
           <Card>
-            <ZoruCardContent className="space-y-2 p-4">
+            <CardBody className="space-y-2 p-4">
               <QuickAction
                 label="Create campaign"
                 description="Launch new ads on Facebook & Instagram"
@@ -416,12 +416,12 @@ export default function AdManagerOverviewPage() {
                 description="Track website conversions"
                 onClick={() => router.push('/dashboard/ad-manager/pixels')}
               />
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Account info */}
           <Card>
-            <ZoruCardContent className="p-4">
+            <CardBody className="p-4">
               <p className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
                 Active account
               </p>
@@ -431,7 +431,7 @@ export default function AdManagerOverviewPage() {
               <p className="text-[11px] text-[var(--st-text-secondary)] font-mono">
                 {activeAccount.account_id}
               </p>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

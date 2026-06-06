@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast } from '@/components/sabcrm/20ui/compat';
 import { createWebhook, deleteWebhook } from '@/app/actions/platform/webhooks.actions';
 import type { WebhookEndpoint } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Key } from 'lucide-react';
@@ -12,7 +12,7 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
   const [dialogOpen, setDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -62,27 +62,27 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
     >
       <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>Name</ZoruTableHead>
-              <ZoruTableHead>URL</ZoruTableHead>
-              <ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead>Events</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>URL</Th>
+              <Th>Status</Th>
+              <Th>Events</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredData.map(item => (
-              <ZoruTableRow key={item.id}>
-                <ZoruTableCell className="font-medium">{item.name}</ZoruTableCell>
-                <ZoruTableCell className="text-sm font-mono text-[var(--st-text-tertiary)]">{item.url}</ZoruTableCell>
-                <ZoruTableCell>
+              <Tr key={item.id}>
+                <Td className="font-medium">{item.name}</Td>
+                <Td className="text-sm font-mono text-[var(--st-text-tertiary)]">{item.url}</Td>
+                <Td>
                   <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'}`}>
                     {item.status}
                   </span>
-                </ZoruTableCell>
-                <ZoruTableCell>{item.events.join(', ')}</ZoruTableCell>
-                <ZoruTableCell className="text-right">
+                </Td>
+                <Td>{item.events.join(', ')}</Td>
+                <Td className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => {
                     navigator.clipboard.writeText(item.secret);
                     toast({ title: 'Secret copied to clipboard' });
@@ -92,23 +92,23 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} disabled={deletingId === item.id}>
                     {deletingId === item.id ? <LoaderCircle className="w-4 h-4 text-[var(--st-text)] animate-spin" /> : <Trash2 className="w-4 h-4 text-[var(--st-text)]" />}
                   </Button>
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))}
             {filteredData.length === 0 && (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No webhooks found.</ZoruTableCell>
-              </ZoruTableRow>
+              <Tr>
+                <Td colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No webhooks found.</Td>
+              </Tr>
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add Webhook</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Webhook</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>Webhook Name</Label>
@@ -123,13 +123,13 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
               <Input value={form.events} onChange={e => setForm({ ...form, events: e.target.value })} placeholder="crm.deal.created, crm.contact.updated" />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleCreate} disabled={isPending}>
               {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} Create
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

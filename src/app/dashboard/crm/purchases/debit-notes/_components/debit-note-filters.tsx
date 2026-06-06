@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  ZoruDateRangePicker,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, DateRangePicker } from '@/components/sabcrm/20ui/compat';
 import {
   X } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
@@ -77,7 +73,7 @@ export function DebitNoteFiltersRow(props: DebitNoteFiltersRowProps) {
                 />
             </div>
             <div className="w-72">
-                <ZoruDateRangePicker
+                <DateRangePicker
                     value={props.dateRange}
                     onChange={(r) => props.onDateRangeChange(r)}
                 />

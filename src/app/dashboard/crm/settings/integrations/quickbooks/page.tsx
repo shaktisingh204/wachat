@@ -11,19 +11,7 @@
  * Reads / mutates settings through `@/app/actions/quickbooks.actions`.
  */
 
-import {
-  Badge,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import { Suspense, useCallback, useEffect, useState, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -84,7 +72,7 @@ export default function QuickBooksIntegrationPage() {
 }
 
 function QuickBooksIntegrationInner() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const search = useSearchParams();
 
   const [status, setStatus] = useState<Status | null>(null);
@@ -330,13 +318,13 @@ function QuickBooksIntegrationInner() {
                   value={environment}
                   onValueChange={(v) => setEnvironment(v as QuickBooksEnvironment)}
                 >
-                  <ZoruSelectTrigger id="qbo-environment">
-                    <ZoruSelectValue placeholder="Select environment" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="sandbox">Sandbox</ZoruSelectItem>
-                    <ZoruSelectItem value="production">Production</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger id="qbo-environment">
+                    <SelectValue placeholder="Select environment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sandbox">Sandbox</SelectItem>
+                    <SelectItem value="production">Production</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </div>

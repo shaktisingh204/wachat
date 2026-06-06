@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import { Lightbulb } from 'lucide-react';
 
 interface IfEditorProps {
@@ -29,10 +29,10 @@ export function IfEditor({ component, updateField }: IfEditorProps) {
             
             <Alert>
                 <Lightbulb className="h-4 w-4" />
-                <ZoruAlertTitle>Component Management</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Component Management</AlertTitle>
+                <AlertDescription>
                     The components to show in the "then" and "else" branches should be managed in the "Raw JSON" editor view for full control over nested components.
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
         </div>
     );

@@ -24,26 +24,7 @@
 import * as React from 'react';
 import { Loader2, Plus, Trash2, GripVertical } from 'lucide-react';
 
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  Label,
-  Input,
-  Switch,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  Separator,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Label, Input, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   addFieldAction,
   updateFieldAction,
@@ -374,7 +355,7 @@ export function FieldEditorDialog({
   projectId,
   onSaved,
 }: FieldEditorDialogProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const isEditing = !!field;
 
   // ---------------------------------------------------------------------------

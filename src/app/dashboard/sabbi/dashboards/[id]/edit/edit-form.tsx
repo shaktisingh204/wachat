@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -29,7 +29,7 @@ export function DashboardEditForm({ dashboard }: { dashboard: Record<string, any
 
     return (
         <Card>
-            <ZoruCardContent className="p-6">
+            <CardBody className="p-6">
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     <input type="hidden" name="dashboardId" value={String(dashboard._id ?? '')} />
                     <Field name="name" label="Name" defaultValue={dashboard.name} required />
@@ -56,7 +56,7 @@ export function DashboardEditForm({ dashboard }: { dashboard: Record<string, any
                         <SubmitButton />
                     </div>
                 </form>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

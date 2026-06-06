@@ -1,32 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -91,7 +65,7 @@ function matchesSearch(row: Row, q: string): boolean {
 }
 
 export default function ProposalTemplatesPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [allRows, setAllRows] = useState<Row[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [busy, startBusy] = useTransition();
@@ -305,74 +279,74 @@ export default function ProposalTemplatesPage() {
           </div>
 
           <Table>
-            <TableHeader>
-              <TableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <TableHead className="w-[36px]">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-[36px]">
                   <Checkbox
                     checked={allSelected}
                     onCheckedChange={toggleAll}
                     aria-label="Select all"
                   />
-                </TableHead>
-                <TableHead className="text-[var(--st-text-secondary)]">Name</TableHead>
-                <TableHead className="text-[var(--st-text-secondary)]">Title</TableHead>
-                <TableHead className="text-[var(--st-text-secondary)]">Currency</TableHead>
-                <TableHead className="text-right text-[var(--st-text-secondary)]">Total</TableHead>
-                <TableHead className="text-[var(--st-text-secondary)]">Status</TableHead>
-                <TableHead className="w-24" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                <Th className="text-[var(--st-text-secondary)]">Title</Th>
+                <Th className="text-[var(--st-text-secondary)]">Currency</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Total</Th>
+                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                <Th className="w-24" />
+              </Tr>
+            </THead>
+            <TBody>
               {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center">
+                <Tr>
+                  <Td colSpan={7} className="h-24 text-center">
                     <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ) : filtered.length === 0 ? (
-                <TableRow>
-                  <TableCell
+                <Tr>
+                  <Td
                     colSpan={7}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {hasActive || query
                       ? 'No templates match these filters.'
                       : 'No templates yet — click "New Template" to add one.'}
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((t) => {
                   const isSelected = selected.has(t._id);
                   const statusValue = (t as Row & { status?: string }).status;
                   return (
-                    <TableRow
+                    <Tr
                       key={t._id}
                       className="border-[var(--st-border)]"
                       data-state={isSelected ? 'selected' : undefined}
                     >
-                      <TableCell>
+                      <Td>
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleOne(t._id)}
                           aria-label={`Select ${t.name}`}
                         />
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <EntityRowLink
                           href={`/dashboard/crm/sales/proposals/templates/${t._id}`}
                           label={t.name || '—'}
                         />
-                      </TableCell>
-                      <TableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         {t.title || '—'}
-                      </TableCell>
-                      <TableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         {t.currency || '—'}
-                      </TableCell>
-                      <TableCell className="text-right text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-text)]">
                         {fmtINR(t.total, t.currency)}
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         {statusValue ? (
                           <Badge
                             variant={
@@ -387,8 +361,8 @@ export default function ProposalTemplatesPage() {
                             {statusValue}
                           </Badge>
                         ) : null}
-                      </TableCell>
-                      <TableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button size="sm" variant="ghost" asChild>
                             <Link href={`/dashboard/crm/sales/proposals/templates/${t._id}/edit`}>
@@ -404,32 +378,32 @@ export default function ProposalTemplatesPage() {
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </TableBody>
+            </TBody>
           </Table>
         </Card>
       </EntityListShell>
 
       {/* Single delete */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingDelete !== null}
         onOpenChange={(o) => !o && setPendingDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete template?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete template?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes <strong>{pendingDelete?.name ?? ''}</strong>.
               The action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 confirmDelete();
@@ -439,27 +413,27 @@ export default function ProposalTemplatesPage() {
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Bulk delete */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingBulkDelete}
         onOpenChange={(o) => !o && setPendingBulkDelete(false)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete {selected.size} templates?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selected.size} templates?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes the selected proposal templates.
               The action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 confirmBulkDelete();
@@ -469,10 +443,10 @@ export default function ProposalTemplatesPage() {
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Label,
-  Textarea,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Textarea, Alert, AlertDescription, AlertTitle, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 
 export function CustomHtmlBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
@@ -34,15 +18,15 @@ export function CustomHtmlBlockEditor({ settings, onUpdate }: { settings: any, o
         <div className="space-y-4">
              <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <ZoruAlertTitle>Security Warning</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Security Warning</AlertTitle>
+                <AlertDescription>
                     Custom HTML and scripts can introduce security vulnerabilities or break your page layout. Use with caution.
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
             <Accordion type="multiple" defaultValue={['content']} className="w-full">
-                <ZoruAccordionItem value="content">
-                    <ZoruAccordionTrigger>Content</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                <AccordionItem value="content">
+                    <AccordionTrigger>Content</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <Label htmlFor={`custom-html-${settings.id}`}>Custom HTML/Script</Label>
                             <Textarea
@@ -53,11 +37,11 @@ export function CustomHtmlBlockEditor({ settings, onUpdate }: { settings: any, o
                                 className="h-64 font-mono"
                             />
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
-                <ZoruAccordionItem value="layout">
-                    <ZoruAccordionTrigger>Sizing &amp; Layout</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="layout">
+                    <AccordionTrigger>Sizing &amp; Layout</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Width</Label>
@@ -81,16 +65,16 @@ export function CustomHtmlBlockEditor({ settings, onUpdate }: { settings: any, o
                         <div className="space-y-2">
                             <Label>Overflow</Label>
                             <Select value={settings.layout?.overflow || 'visible'} onValueChange={(val) => handleSubFieldUpdate('layout', 'overflow', val)}>
-                                <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="visible">Visible</ZoruSelectItem>
-                                    <ZoruSelectItem value="hidden">Hidden</ZoruSelectItem>
-                                    <ZoruSelectItem value="scroll">Scroll</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="visible">Visible</SelectItem>
+                                    <SelectItem value="hidden">Hidden</SelectItem>
+                                    <SelectItem value="scroll">Scroll</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
             </Accordion>
         </div>
     );

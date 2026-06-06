@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * Candidates kanban — groups candidates by stage. Read-only board for
  * now (drag-to-reorder will land in a follow-up that wires the stage
@@ -56,15 +56,15 @@ export function CandidatesKanban({
         return (
           <div key={s.key} className="min-w-[240px] w-[240px] shrink-0">
             <Card className="p-0 h-full">
-              <ZoruCardHeader className="pb-2">
-                <ZoruCardTitle className="flex items-center justify-between text-[13px]">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center justify-between text-[13px]">
                   <span>{s.label}</span>
                   <span className="rounded-full bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px] text-[var(--st-text-secondary)]">
                     {items.length}
                   </span>
-                </ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-2">
+                </CardTitle>
+              </CardHeader>
+              <CardBody className="space-y-2">
                 {items.length === 0 ? (
                   <p className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] px-3 py-3 text-center text-[12px] text-[var(--st-text-secondary)]">
                     No candidates
@@ -100,7 +100,7 @@ export function CandidatesKanban({
                     </Link>
                   ))
                 )}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         );

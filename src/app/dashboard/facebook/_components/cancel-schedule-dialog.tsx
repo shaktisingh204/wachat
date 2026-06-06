@@ -1,18 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Button,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Loader2,
   XCircle } from "lucide-react";
@@ -47,7 +35,7 @@ export function CancelScheduleDialog({
 }: CancelScheduleDialogProps) {
   const [open, setOpen] = React.useState(false);
   const [isPending, startTransition] = React.useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleConfirm = () => {
     startTransition(async () => {
@@ -70,8 +58,8 @@ export function CancelScheduleDialog({
   };
 
   return (
-    <ZoruAlertDialog open={open} onOpenChange={setOpen}>
-      <ZoruAlertDialogTrigger asChild>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
         {triggerVariant === "outline" ? (
           <Button variant="outline" size="sm">
             <XCircle /> {label ?? "Cancel"}
@@ -85,22 +73,22 @@ export function CancelScheduleDialog({
             <XCircle />
           </Button>
         )}
-      </ZoruAlertDialogTrigger>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Cancel scheduled post?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Cancel scheduled post?</AlertDialogTitle>
+          <AlertDialogDescription>
             The post will be removed from the queue and not be published. This
             action cannot be undone.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel asChild>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel asChild>
             <Button variant="outline" disabled={isPending}>
               Keep schedule
             </Button>
-          </ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction asChild>
+          </AlertDialogCancel>
+          <AlertDialogAction asChild>
             <Button
               variant="destructive"
               onClick={handleConfirm}
@@ -109,9 +97,9 @@ export function CancelScheduleDialog({
               {isPending ? <Loader2 className="animate-spin" /> : <XCircle />}
               Cancel schedule
             </Button>
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

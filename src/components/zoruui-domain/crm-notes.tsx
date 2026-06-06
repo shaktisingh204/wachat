@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Avatar, ZoruAvatarFallback, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Avatar, AvatarFallback, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 
@@ -43,7 +43,7 @@ interface CrmNotesProps {
 
 export function CrmNotes({ recordId, recordType, notes: initialNotes }: CrmNotesProps) {
     const [state, formAction] = useActionState(addCrmNote as any, initialState as any);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
     const [notes, setNotes] = useState(initialNotes);
 
@@ -90,7 +90,7 @@ export function CrmNotes({ recordId, recordType, notes: initialNotes }: CrmNotes
                 <div className="mt-4 space-y-4 max-h-[40vh] overflow-y-auto pr-2">
                     {notes.map((note, index) => (
                         <div key={index} className="flex items-start gap-3 w-full">
-                            <Avatar className="h-8 w-8 mt-1"><ZoruAvatarFallback>{note.author.charAt(0)}</ZoruAvatarFallback></Avatar>
+                            <Avatar className="h-8 w-8 mt-1"><AvatarFallback>{note.author.charAt(0)}</AvatarFallback></Avatar>
                             <div className="flex-1">
                                 <div className="flex justify-between items-center">
                                     <p className="font-semibold text-sm text-[var(--st-text)]">{note.author}</p>

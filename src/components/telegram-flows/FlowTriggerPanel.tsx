@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 /**
  * Trigger configuration panel — rendered above the canvas and inside the
  * inspector when no node is selected. The shape mirrors `FlowTrigger` on the
@@ -47,16 +47,16 @@ export function FlowTriggerPanel({ trigger, onChange, disabled }: Props) {
           onValueChange={(v) => patch({ kind: v as TriggerKind })}
           disabled={disabled}
         >
-          <ZoruSelectTrigger id="trigger-kind">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger id="trigger-kind">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
             {TRIGGER_KINDS.map((t) => (
-              <ZoruSelectItem key={t.value} value={t.value}>
+              <SelectItem key={t.value} value={t.value}>
                 {t.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <p className="text-xs text-[var(--st-text-secondary)]">
           {TRIGGER_KINDS.find((t) => t.value === kind)?.hint ?? ''}
@@ -79,16 +79,16 @@ export function FlowTriggerPanel({ trigger, onChange, disabled }: Props) {
               }
               disabled={disabled}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {FILTER_KINDS.map((f) => (
-                  <ZoruSelectItem key={f.value} value={f.value}>
+                  <SelectItem key={f.value} value={f.value}>
                     {f.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           {trigger.filter?.type !== 'hasMedia' ? (

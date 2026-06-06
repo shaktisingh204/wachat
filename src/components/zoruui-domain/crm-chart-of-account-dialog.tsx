@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -58,7 +38,7 @@ interface CrmChartOfAccountDialogProps {
 export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountGroups, initialData }: CrmChartOfAccountDialogProps) {
     const isEditing = !!initialData;
     const [state, formAction] = useActionState(saveCrmChartOfAccount, saveInitialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
 
     const [selectedGroupId, setSelectedGroupId] = useState(initialData?.accountGroupId.toString() || '');
@@ -76,12 +56,12 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+            <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     {isEditing && <input type="hidden" name="accountId" value={initialData?._id.toString()} />}
-                    <ZoruDialogHeader className="px-6 pt-6 pb-2">
-                        <ZoruDialogTitle className="text-[var(--st-text)]">{isEditing ? 'Edit' : 'Create New'} Account</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                    <DialogHeader className="px-6 pt-6 pb-2">
+                        <DialogTitle className="text-[var(--st-text)]">{isEditing ? 'Edit' : 'Create New'} Account</DialogTitle>
+                    </DialogHeader>
                     <div className="flex-1 overflow-y-auto px-6 py-2">
                         <div className="space-y-4">
                             <div className="space-y-2">
@@ -104,11 +84,11 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                                     <div className="space-y-2">
                                         <Label className="text-xs text-[var(--st-text)]">Currency</Label>
                                         <Select name="currency" defaultValue={initialData?.currency || "INR"}>
-                                            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                            <ZoruSelectContent>
-                                                <ZoruSelectItem value="INR">INR</ZoruSelectItem>
-                                                <ZoruSelectItem value="USD">USD</ZoruSelectItem>
-                                            </ZoruSelectContent>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="INR">INR</SelectItem>
+                                                <SelectItem value="USD">USD</SelectItem>
+                                            </SelectContent>
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
@@ -136,12 +116,12 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                             </div>
                         </div>
                     </div>
-                    <ZoruDialogFooter className="shrink-0 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-6 pb-6 pt-4">
+                    <DialogFooter className="shrink-0 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-6 pb-6 pt-4">
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton isEditing={isEditing} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

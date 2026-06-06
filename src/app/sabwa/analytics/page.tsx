@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DatePicker,
-  EmptyState,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DatePicker, EmptyState, cn } from '@/components/sabcrm/20ui/compat';
 import {
   format,
   subDays } from 'date-fns';
@@ -149,19 +132,19 @@ export default function AnalyticsPage() {
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Analytics</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Header */}
@@ -236,12 +219,12 @@ export default function AnalyticsPage() {
 
       {error ? (
         <Card className="border-[var(--st-danger)]/40 bg-[var(--st-danger)]/5">
-          <ZoruCardHeader className="pb-2">
-            <ZoruCardTitle className="text-base text-[var(--st-danger)]">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base text-[var(--st-danger)]">
               Couldn&apos;t load analytics
-            </ZoruCardTitle>
-            <ZoruCardDescription>{error}</ZoruCardDescription>
-          </ZoruCardHeader>
+            </CardTitle>
+            <CardDescription>{error}</CardDescription>
+          </CardHeader>
         </Card>
       ) : null}
 
@@ -289,89 +272,89 @@ export default function AnalyticsPage() {
       {/* Charts */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">
+          <CardHeader>
+            <CardTitle className="text-base">
               Messages in/out by day
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Inbound vs outbound volume per day.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <ChartMessagesByDay data={analytics?.messagesByDay ?? []} />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">
+          <CardHeader>
+            <CardTitle className="text-base">
               Response time histogram
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Distribution of reply latency buckets.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <ChartResponseHistogram
               data={analytics?.responseHistogram ?? []}
             />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">
+          <CardHeader>
+            <CardTitle className="text-base">
               Top 10 contacts by volume
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Highest-traffic contacts in the selected range.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <ChartTopContacts data={analytics?.topContacts ?? []} />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">
+          <CardHeader>
+            <CardTitle className="text-base">
               Group activity heatmap
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Hour × day grid coloured by group message intensity.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <ChartGroupHeatmap data={analytics?.groupHeatmap ?? []} />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">
+          <CardHeader>
+            <CardTitle className="text-base">
               Hourly send pattern
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Outbound throughput per hour with safe / elevated bands.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <ChartHourlySendPattern
               data={analytics?.hourlySendPattern ?? []}
             />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">AI usage by day</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle className="text-base">AI usage by day</CardTitle>
+            <CardDescription>
               Stacked breakdown of suggest, summarise, and translate calls.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <ChartAiUsage data={analytics?.aiUsageByDay ?? []} />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -397,13 +380,13 @@ interface KpiCardProps {
 function KpiCard({ label, value, loading, tone, hint }: KpiCardProps) {
   return (
     <Card>
-      <ZoruCardHeader className="pb-1">
-        <ZoruCardDescription className="flex items-center justify-between text-[11px] uppercase tracking-wide">
+      <CardHeader className="pb-1">
+        <CardDescription className="flex items-center justify-between text-[11px] uppercase tracking-wide">
           <span>{label}</span>
           {hint}
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="pt-0">
+        </CardDescription>
+      </CardHeader>
+      <CardBody className="pt-0">
         <div className="flex items-baseline justify-between gap-2">
           <div
             className={cn(
@@ -429,7 +412,7 @@ function KpiCard({ label, value, loading, tone, hint }: KpiCardProps) {
             </Badge>
           ) : null}
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

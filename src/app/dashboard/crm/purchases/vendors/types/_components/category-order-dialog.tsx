@@ -19,7 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
-import { Button, ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import { updateVendorTypeOrder } from '@/app/actions/crm-vendor-types.actions';
 
 function SortableItem({ id, item }: { id: string, item: any }) {
@@ -49,7 +49,7 @@ function SortableItem({ id, item }: { id: string, item: any }) {
 }
 
 export function CategoryOrderDialog({ items, open, onOpenChange, onSaved }: { items: any[], open: boolean, onOpenChange: (open: boolean) => void, onSaved: () => void }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [orderedItems, setOrderedItems] = React.useState(items);
     const [isSaving, setIsSaving] = React.useState(false);
 
@@ -96,11 +96,11 @@ export function CategoryOrderDialog({ items, open, onOpenChange, onSaved }: { it
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="max-w-md">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Reorder Categories</ZoruDialogTitle>
-                </ZoruDialogHeader>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Reorder Categories</DialogTitle>
+                </DialogHeader>
                 <div className="py-4">
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                         <SortableContext items={orderedItems.map(i => i._id)} strategy={verticalListSortingStrategy}>
@@ -116,7 +116,7 @@ export function CategoryOrderDialog({ items, open, onOpenChange, onSaved }: { it
                         {isSaving ? 'Saving...' : 'Save Order'}
                     </Button>
                 </div>
-            </ZoruDialogContent>
-        </ZoruDialog>
+            </DialogContent>
+        </Dialog>
     );
 }

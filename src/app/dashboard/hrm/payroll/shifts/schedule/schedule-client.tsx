@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState, useTransition, useRef } from 'react';
-import { Button, Card, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { ChevronLeft, ChevronRight, Users, Download, Printer, Search, CheckSquare, Trash2, LoaderCircle } from 'lucide-react';
 import { format, addDays, startOfWeek } from 'date-fns';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -473,18 +473,18 @@ const ScheduleFilters = React.memo(function ScheduleFilters({
         />
       </div>
       <Select value={shiftFilter} onValueChange={setShiftFilter}>
-        <ZoruSelectTrigger className="h-9 w-[160px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-          <ZoruSelectValue placeholder="Filter by" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
-          <ZoruSelectItem value="all">All Employees</ZoruSelectItem>
-          <ZoruSelectItem value="unscheduled">Unscheduled</ZoruSelectItem>
+        <SelectTrigger className="h-9 w-[160px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+          <SelectValue placeholder="Filter by" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Employees</SelectItem>
+          <SelectItem value="unscheduled">Unscheduled</SelectItem>
           {shifts.map((s: any) => (
-            <ZoruSelectItem key={`filter-${String(s._id)}`} value={String(s._id)}>
+            <SelectItem key={`filter-${String(s._id)}`} value={String(s._id)}>
               {s.name} Only
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
     </div>
   );
@@ -502,12 +502,12 @@ const ScheduleToolbar = React.memo(function ScheduleToolbar({
     <div className="flex items-center gap-2">
       <span className="text-[12px] text-[var(--st-text-secondary)]">Action:</span>
       <Select value={selectedShiftId} onValueChange={setSelectedShiftId}>
-        <ZoruSelectTrigger className="h-9 w-[180px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-          <ZoruSelectValue placeholder="Choose shift" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="h-9 w-[180px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+          <SelectValue placeholder="Choose shift" />
+        </SelectTrigger>
+        <SelectContent>
           {shifts.map((s: any) => (
-            <ZoruSelectItem key={`shift-${String(s._id)}`} value={String(s._id)}>
+            <SelectItem key={`shift-${String(s._id)}`} value={String(s._id)}>
               <span className="flex items-center gap-2">
                 <span
                   aria-hidden
@@ -516,9 +516,9 @@ const ScheduleToolbar = React.memo(function ScheduleToolbar({
                 />
                 {s.name}
               </span>
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
       <div className="flex border border-[var(--st-border)] rounded-lg overflow-hidden h-9">
         <Button 

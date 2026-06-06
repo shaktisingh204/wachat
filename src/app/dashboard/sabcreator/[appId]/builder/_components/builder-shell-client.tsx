@@ -20,28 +20,7 @@ import {
   Workflow,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  EmptyState,
-  Input,
-  Label,
-  PageHeader,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, EmptyState, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui/compat';
 import {
   createSabcreatorForm,
   createSabcreatorPage,
@@ -109,12 +88,12 @@ export function BuilderShellClient({
     <div className="min-h-screen flex flex-col">
       <PageHeader>
         <div>
-          <ZoruPageTitle>{app.name}</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>{app.name}</PageTitle>
+          <PageDescription>
             App builder · slug <code>/{app.slug}</code>
-          </ZoruPageDescription>
+          </PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Badge variant={app.status === 'published' ? 'default' : 'outline'}>
             {app.status}
           </Badge>
@@ -125,7 +104,7 @@ export function BuilderShellClient({
             <Rocket className="size-4" />
             {publishing ? 'Publishing…' : 'Publish'}
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="flex-1 grid grid-cols-[220px_1fr] gap-6 px-6 pb-10">
@@ -266,10 +245,10 @@ function FormsPanel({
         </ul>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New form</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New form</DialogTitle>
+          </DialogHeader>
           <div className="space-y-3 py-2">
             <div className="space-y-2">
               <Label htmlFor="form-name">Name</Label>
@@ -290,15 +269,15 @@ function FormsPanel({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={pending || !name.trim()}>
               {pending ? 'Creating…' : 'Create'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </Card>
   );
@@ -376,10 +355,10 @@ function PagesPanel({
         </ul>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New page</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New page</DialogTitle>
+          </DialogHeader>
           <div className="space-y-3 py-2">
             <div className="space-y-2">
               <Label htmlFor="page-name">Name</Label>
@@ -393,29 +372,29 @@ function PagesPanel({
             <div className="space-y-2">
               <Label>Kind</Label>
               <Select value={kind} onValueChange={(v) => setKind(v as SabcreatorPageKind)}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="dashboard">Dashboard</ZoruSelectItem>
-                  <ZoruSelectItem value="list">List view</ZoruSelectItem>
-                  <ZoruSelectItem value="detail">Detail</ZoruSelectItem>
-                  <ZoruSelectItem value="form">Form</ZoruSelectItem>
-                  <ZoruSelectItem value="chart">Chart</ZoruSelectItem>
-                  <ZoruSelectItem value="custom">Custom</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="dashboard">Dashboard</SelectItem>
+                  <SelectItem value="list">List view</SelectItem>
+                  <SelectItem value="detail">Detail</SelectItem>
+                  <SelectItem value="form">Form</SelectItem>
+                  <SelectItem value="chart">Chart</SelectItem>
+                  <SelectItem value="custom">Custom</SelectItem>
+                </SelectContent>
               </Select>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={pending || !name.trim()}>
               {pending ? 'Creating…' : 'Create'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </Card>
   );
@@ -491,10 +470,10 @@ function WorkflowsPanel({
         </ul>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New workflow</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New workflow</DialogTitle>
+          </DialogHeader>
           <div className="space-y-3 py-2">
             <div className="space-y-2">
               <Label htmlFor="wf-name">Name</Label>
@@ -513,15 +492,15 @@ function WorkflowsPanel({
                   setTriggerKind(v as SabcreatorWorkflowTriggerKind)
                 }
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="form_submit">Form submit</ZoruSelectItem>
-                  <ZoruSelectItem value="record_change">Record change</ZoruSelectItem>
-                  <ZoruSelectItem value="cron">Cron</ZoruSelectItem>
-                  <ZoruSelectItem value="button_click">Button click</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="form_submit">Form submit</SelectItem>
+                  <SelectItem value="record_change">Record change</SelectItem>
+                  <SelectItem value="cron">Cron</SelectItem>
+                  <SelectItem value="button_click">Button click</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
@@ -534,15 +513,15 @@ function WorkflowsPanel({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={pending || !name.trim()}>
               {pending ? 'Creating…' : 'Create'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </Card>
   );
@@ -618,10 +597,10 @@ function RolesPanel({
         </ul>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New role</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New role</DialogTitle>
+          </DialogHeader>
           <div className="space-y-3 py-2">
             <div className="space-y-2">
               <Label htmlFor="role-name">Name</Label>
@@ -640,15 +619,15 @@ function RolesPanel({
               onChange={setDeleteRule}
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={pending || !name.trim()}>
               {pending ? 'Creating…' : 'Create'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </Card>
   );
@@ -667,14 +646,14 @@ function RoleRuleRow({
     <div className="space-y-2">
       <Label>{label}</Label>
       <Select value={value} onValueChange={(v) => onChange(v as typeof value)}>
-        <ZoruSelectTrigger>
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
-          <ZoruSelectItem value="own">Own records only</ZoruSelectItem>
-          <ZoruSelectItem value="all">All records</ZoruSelectItem>
-          <ZoruSelectItem value="conditional">Conditional (rule below)</ZoruSelectItem>
-        </ZoruSelectContent>
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="own">Own records only</SelectItem>
+          <SelectItem value="all">All records</SelectItem>
+          <SelectItem value="conditional">Conditional (rule below)</SelectItem>
+        </SelectContent>
       </Select>
     </div>
   );

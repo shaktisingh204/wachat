@@ -1,37 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DataTable,
-  EmptyState,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Progress,
-  Skeleton,
-  StatCard,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, DataTable, EmptyState, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Progress, Skeleton, StatCard, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,
@@ -254,7 +223,7 @@ function StatusBadge({
 }
 
 export default function FacebookBroadcastsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { activeProject, isLoadingProject, sessionUser } = useProject();
   const [broadcasts, setBroadcasts] = useState<BroadcastRow[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -369,47 +338,47 @@ export default function FacebookBroadcastsPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Broadcasts</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Broadcasts</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Marketing</ZoruPageEyebrow>
-          <ZoruPageTitle>Messenger broadcasts</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Marketing</PageEyebrow>
+          <PageTitle>Messenger broadcasts</PageTitle>
+          <PageDescription>
             Send a Messenger update to every user who has previously messaged
             your connected Page. Use the numbered steps to compose, review,
             and dispatch.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" size="sm" onClick={fetchData}>
             <RefreshCw /> Refresh history
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {!activeProject ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>No project selected</AlertTitle>
+          <AlertDescription>
             Select a project from the main dashboard to send broadcasts.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       ) : (
         <div className="relative mt-6">
@@ -444,12 +413,12 @@ export default function FacebookBroadcastsPage() {
             </div>
 
             <Card className="mt-4 p-0">
-              <ZoruCardHeader>
-                <ZoruCardTitle className="text-base">
+              <CardHeader>
+                <CardTitle className="text-base">
                   {STEPS.find((s) => s.key === stateForm.step)?.label}
-                </ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+                </CardTitle>
+              </CardHeader>
+              <CardBody>
                 <form ref={formRef} action={formAction}>
                   <input
                     type="hidden"
@@ -462,8 +431,8 @@ export default function FacebookBroadcastsPage() {
                     <div className="flex flex-col gap-4">
                       <Alert>
                         <Users className="h-4 w-4" />
-                        <ZoruAlertTitle>Audience scope</ZoruAlertTitle>
-                        <ZoruAlertDescription>
+                        <AlertTitle>Audience scope</AlertTitle>
+                        <AlertDescription>
                           Broadcasts go to every Messenger subscriber that is
                           eligible to receive a message under Meta&apos;s
                           24-hour window and POST_PURCHASE_UPDATE tag rules.
@@ -475,7 +444,7 @@ export default function FacebookBroadcastsPage() {
                             Subscribers
                           </a>{' '}
                           page.
-                        </ZoruAlertDescription>
+                        </AlertDescription>
                       </Alert>
                       <div className="flex justify-end">
                         <Button
@@ -537,11 +506,11 @@ export default function FacebookBroadcastsPage() {
                       </div>
                       <Alert variant="warning">
                         <AlertCircle className="h-4 w-4" />
-                        <ZoruAlertTitle>One-shot dispatch</ZoruAlertTitle>
-                        <ZoruAlertDescription>
+                        <AlertTitle>One-shot dispatch</AlertTitle>
+                        <AlertDescription>
                           This sends to every eligible subscriber as soon as
                           you click send. There is no scheduling at this step.
-                        </ZoruAlertDescription>
+                        </AlertDescription>
                       </Alert>
                       <div className="flex justify-between">
                         <Button
@@ -556,7 +525,7 @@ export default function FacebookBroadcastsPage() {
                     </div>
                   ) : null}
                 </form>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <div className="mt-8">

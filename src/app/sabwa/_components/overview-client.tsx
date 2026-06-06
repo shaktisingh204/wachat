@@ -1,29 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Skeleton,
-  Tooltip,
-  ZoruTooltipContent,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Popover, PopoverContent, PopoverTrigger, Skeleton, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, cn } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   AlertTriangle,
@@ -180,19 +157,19 @@ function bandFromScore(score: number): {
 function OverviewBreadcrumb() {
   return (
     <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbPage>Overview</ZoruBreadcrumbPage>
-        </ZoruBreadcrumbItem>
-      </ZoruBreadcrumbList>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>Overview</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
     </Breadcrumb>
   );
 }
@@ -202,7 +179,7 @@ function OverviewBreadcrumb() {
 function DisconnectedHero() {
   return (
     <Card className="overflow-hidden border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
-      <ZoruCardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
+      <CardBody className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
         <div
           aria-hidden
           className="flex h-20 w-20 flex-none items-center justify-center rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]"
@@ -232,7 +209,7 @@ function DisconnectedHero() {
             <Link href="/sabwa/settings/rate-limits">Read ban-risk guide</Link>
           </Button>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -263,7 +240,7 @@ function SessionHeaderCard({
 
   return (
     <Card>
-      <ZoruCardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:gap-6 md:p-6">
+      <CardBody className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:gap-6 md:p-6">
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <div
             aria-hidden
@@ -296,7 +273,7 @@ function SessionHeaderCard({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Popover open={open} onOpenChange={setOpen}>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
@@ -306,8 +283,8 @@ function SessionHeaderCard({
                 <Smartphone className="h-4 w-4" />
                 Switch session
               </Button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent align="end" className="w-72 p-2">
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-72 p-2">
               <p className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
                 Paired sessions
               </p>
@@ -353,7 +330,7 @@ function SessionHeaderCard({
                   <span className="text-sm">Connect another number</span>
                 </Link>
               </Button>
-            </ZoruPopoverContent>
+            </PopoverContent>
           </Popover>
           <Button asChild variant="ghost" size="sm" className="gap-2">
             <Link href="/sabwa/devices">
@@ -362,7 +339,7 @@ function SessionHeaderCard({
             </Link>
           </Button>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -430,7 +407,7 @@ function KpiCardShell({
         className,
       )}
     >
-      <ZoruCardContent className="flex h-full flex-col gap-3 p-4">
+      <CardBody className="flex h-full flex-col gap-3 p-4">
         <div className="flex items-center justify-between gap-2">
           <span className="flex items-center gap-2 text-xs font-medium text-[var(--st-text-secondary)]">
             <Icon className="h-3.5 w-3.5" />
@@ -444,7 +421,7 @@ function KpiCardShell({
           ) : null}
         </div>
         {children}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 
@@ -588,21 +565,21 @@ function BanRiskGauge({
 
   return (
     <Card>
-      <ZoruCardHeader className="pb-2">
+      <CardHeader className="pb-2">
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruCardTitle className="text-base font-semibold">
+          <CardTitle className="text-base font-semibold">
             Ban-risk score
-          </ZoruCardTitle>
+          </CardTitle>
           <Badge variant="outline" className={cn("text-[10px]", band.className)}>
             <ShieldAlert className="mr-1 h-3 w-3" />
             {band.label}
           </Badge>
         </div>
-        <ZoruCardDescription>
+        <CardDescription>
           Computed from velocity, delivery failures, and recipient signals.
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+        </CardDescription>
+      </CardHeader>
+      <CardBody>
         <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[auto_1fr]">
           {loading ? (
             <Skeleton className="h-[80px] w-[160px]" />
@@ -680,7 +657,7 @@ function BanRiskGauge({
             </Button>
           </div>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -707,13 +684,13 @@ function QuickActions({
 
   return (
     <Card>
-      <ZoruCardHeader className="pb-2">
-        <ZoruCardTitle className="text-base font-semibold">Quick actions</ZoruCardTitle>
-        <ZoruCardDescription>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-semibold">Quick actions</CardTitle>
+        <CardDescription>
           The five things you&apos;ll do most often, one tap away.
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+        </CardDescription>
+      </CardHeader>
+      <CardBody>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {items.map(({ label, href, onClick, icon: Icon }) => {
             const inner = (
@@ -745,7 +722,7 @@ function QuickActions({
             );
           })}
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -773,14 +750,14 @@ function RecentActivity({
 }) {
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
         <div>
-          <ZoruCardTitle className="text-base font-semibold">
+          <CardTitle className="text-base font-semibold">
             Recent activity
-          </ZoruCardTitle>
-          <ZoruCardDescription>
+          </CardTitle>
+          <CardDescription>
             Latest 10 events touching this session.
-          </ZoruCardDescription>
+          </CardDescription>
         </div>
         <Button asChild variant="ghost" size="sm" className="gap-1">
           <Link href="/sabwa/audit">
@@ -788,8 +765,8 @@ function RecentActivity({
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </Button>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      </CardHeader>
+      <CardBody>
         {loading ? (
           <ul className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -852,7 +829,7 @@ function RecentActivity({
             })}
           </ul>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -872,20 +849,20 @@ function OnboardingChecklist({ items }: { items: ChecklistItem[] }) {
 
   return (
     <Card>
-      <ZoruCardHeader className="pb-2">
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
           <div>
-            <ZoruCardTitle className="text-base font-semibold">
+            <CardTitle className="text-base font-semibold">
               Get the most out of SabWa
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               {completed} of {items.length} steps complete.
-            </ZoruCardDescription>
+            </CardDescription>
           </div>
           <ListChecks className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden />
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      </CardHeader>
+      <CardBody>
         <ul className="space-y-1">
           {items.map(({ label, done, href }) => (
             <li key={label}>
@@ -912,7 +889,7 @@ function OnboardingChecklist({ items }: { items: ChecklistItem[] }) {
             </li>
           ))}
         </ul>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -948,24 +925,24 @@ function PlanUsageCard({
 
   return (
     <Card>
-      <ZoruCardHeader className="pb-2">
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
           <div>
-            <ZoruCardTitle className="text-base font-semibold">
+            <CardTitle className="text-base font-semibold">
               Plan usage
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Current period under the{" "}
               <span className="capitalize">{planName || "free"}</span> plan.
-            </ZoruCardDescription>
+            </CardDescription>
           </div>
           <Button asChild variant="outline" size="sm">
             <Link href="/dashboard/billing">Upgrade</Link>
           </Button>
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent>
-        <ZoruTooltipProvider delayDuration={200}>
+      </CardHeader>
+      <CardBody>
+        <TooltipProvider delayDuration={200}>
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {rows.map(({ label, used, cap }) => {
               const capNum = quotaToNumber(cap);
@@ -982,19 +959,19 @@ function PlanUsageCard({
                       {label}
                     </span>
                     <Tooltip>
-                      <ZoruTooltipTrigger asChild>
+                      <TooltipTrigger asChild>
                         <span className="text-xs tabular-nums text-[var(--st-text)]">
                           {used.toLocaleString()}{" "}
                           <span className="text-[var(--st-text-secondary)]">
                             / {formatQuota(cap)}
                           </span>
                         </span>
-                      </ZoruTooltipTrigger>
-                      <ZoruTooltipContent side="top">
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
                         {capNum
                           ? `${percent}% of cap`
                           : "No static cap on your plan"}
-                      </ZoruTooltipContent>
+                      </TooltipContent>
                     </Tooltip>
                   </div>
                   <div
@@ -1024,8 +1001,8 @@ function PlanUsageCard({
               );
             })}
           </ul>
-        </ZoruTooltipProvider>
-      </ZoruCardContent>
+        </TooltipProvider>
+      </CardBody>
     </Card>
   );
 }

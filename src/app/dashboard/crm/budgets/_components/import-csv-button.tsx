@@ -1,13 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function ImportCsvButton() {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

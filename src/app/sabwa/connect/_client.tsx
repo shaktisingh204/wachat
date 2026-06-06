@@ -1,42 +1,6 @@
 'use client';
 
-import {
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -170,7 +134,7 @@ function FlowStepper({
 
 export function ConnectClient() {
   const router = useRouter();
-  const toast = useZoruToast();
+  const toast = useToast();
   const { activeProjectId, sessionUser, projects } = useProject();
 
   const activeProject = React.useMemo(
@@ -302,19 +266,19 @@ export function ConnectClient() {
     <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 space-y-6 sm:px-6">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Connect</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Connect</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Hero */}
@@ -362,26 +326,26 @@ export function ConnectClient() {
       {!activeProjectId && (
         <Alert variant="warning">
           <AlertTriangle className="h-4 w-4" />
-          <ZoruAlertTitle>Select a project first</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Select a project first</AlertTitle>
+          <AlertDescription>
             SabWa attaches the linked number to a SabNode project. Go to{' '}
             <Link href="/sabwa" className="underline">
               /sabwa
             </Link>{' '}
             to pick or create one before generating a pairing code.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       )}
 
       {/* ToS warning banner */}
       <Alert>
         <AlertTriangle className="h-4 w-4" />
-        <ZoruAlertTitle>Use responsibly</ZoruAlertTitle>
-        <ZoruAlertDescription>
+        <AlertTitle>Use responsibly</AlertTitle>
+        <AlertDescription>
           Personal WhatsApp is for personal use. Bulk marketing patterns
           increase ban risk. SabWa includes anti-ban controls but the risk is
           yours to manage.
-        </ZoruAlertDescription>
+        </AlertDescription>
       </Alert>
 
       {/* Step indicators */}
@@ -389,14 +353,14 @@ export function ConnectClient() {
 
       {/* Main two-mode flow */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Choose how to link</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Choose how to link</CardTitle>
+          <CardDescription>
             Use the QR if your phone is in front of you. Use the pair code if
             you cannot scan (for example linking from a remote device).
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           {active ? (
             <div className="flex flex-col items-center gap-6 py-2">
               <PairingFlow
@@ -486,22 +450,22 @@ export function ConnectClient() {
                         value={countryCode}
                         onValueChange={setCountryCode}
                       >
-                        <ZoruSelectTrigger
+                        <SelectTrigger
                           className="w-[110px]"
                           aria-label="Country code"
                         >
-                          <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
                           {COUNTRY_CODES.map((c) => (
-                            <ZoruSelectItem key={c.iso} value={c.code}>
+                            <SelectItem key={c.iso} value={c.code}>
                               <span className="font-mono">{c.code}</span>{' '}
                               <span className="text-[var(--st-text-secondary)]">
                                 {c.iso}
                               </span>
-                            </ZoruSelectItem>
+                            </SelectItem>
                           ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                       </Select>
                       <Input
                         id="sabwa-phone"
@@ -544,31 +508,31 @@ export function ConnectClient() {
               )}
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* FAQ */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Frequently asked questions</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Frequently asked questions</CardTitle>
+          <CardDescription>
             Quick answers to the most common questions before you link.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <Accordion type="single" collapsible className="w-full">
             {FAQ.map((item, idx) => (
-              <ZoruAccordionItem key={item.q} value={`faq-${idx}`}>
-                <ZoruAccordionTrigger className="text-left">
+              <AccordionItem key={item.q} value={`faq-${idx}`}>
+                <AccordionTrigger className="text-left">
                   {item.q}
-                </ZoruAccordionTrigger>
-                <ZoruAccordionContent className="text-[13px] text-[var(--st-text-secondary)]">
+                </AccordionTrigger>
+                <AccordionContent className="text-[13px] text-[var(--st-text-secondary)]">
                   {item.a}
-                </ZoruAccordionContent>
-              </ZoruAccordionItem>
+                </AccordionContent>
+              </AccordionItem>
             ))}
           </Accordion>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* ToS acknowledgement modal — first time per project */}
@@ -579,17 +543,17 @@ export function ConnectClient() {
           setTosOpen(o);
         }}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="flex items-center gap-2">
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-[var(--st-text)]" />
               Before you link your WhatsApp
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Please acknowledge how SabWa handles your personal WhatsApp
               session.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <ul className="space-y-2.5 text-[13px]">
             <li className="flex gap-2">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-status-ok)]" />
@@ -613,13 +577,13 @@ export function ConnectClient() {
               </span>
             </li>
           </ul>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" onClick={acceptTos}>
               I understand, continue
               <ChevronRight />
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

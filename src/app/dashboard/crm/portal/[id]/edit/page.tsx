@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import React from 'react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getPortalUserById } from '@/app/actions/crm-portal.actions';
@@ -38,10 +38,10 @@ export default async function PortalEditPage({ params }: PageProps) {
             rightRail={
                 <>
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Identity</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Identity</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="space-y-1.5 text-[12.5px]">
                                 <div>
                                     <div className="text-[var(--st-text-secondary)]">Email</div>
@@ -64,13 +64,13 @@ export default async function PortalEditPage({ params }: PageProps) {
                                     </div>
                                 ) : null}
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Access</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Access</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="space-y-1.5 text-[12.5px]">
                                 <div>
                                     <div className="text-[var(--st-text-secondary)]">Role</div>
@@ -94,7 +94,7 @@ export default async function PortalEditPage({ params }: PageProps) {
                                     </div>
                                 </div>
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </>
             }

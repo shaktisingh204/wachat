@@ -10,12 +10,7 @@
 import * as React from 'react';
 import { Hash, Plus, Trash2 } from 'lucide-react';
 
-import {
-  Button,
-  Input,
-  ScrollArea,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, ScrollArea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import {
   createSabnotebookSection,
   deleteSabnotebookSection,

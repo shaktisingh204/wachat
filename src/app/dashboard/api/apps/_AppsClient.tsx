@@ -6,22 +6,7 @@ import {
   deleteOAuthApp,
   type OAuthAppRow,
 } from '@/app/actions/developer-platform.actions';
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardContent,
-  Button,
-  Input,
-  Textarea,
-  Label,
-  Alert,
-  ZoruAlertDescription,
-  EmptyState,
-  Separator,
-  Progress,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button, Input, Textarea, Label, Alert, AlertDescription, EmptyState, Separator, Progress, Badge } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, TriangleAlert, Copy, Boxes, Trash2, Activity, BarChart2 } from 'lucide-react';
 
 interface Props {
@@ -104,10 +89,10 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
       ) : null}
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Register OAuth app</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+        <CardHeader>
+          <CardTitle>Register OAuth app</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label>Name</Label>
@@ -143,13 +128,13 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
               {busy ? 'Working…' : 'Register'}
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {error ? (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
 
@@ -163,7 +148,7 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
         <div className="space-y-3">
           {apps.map((a) => (
             <Card key={a._id}>
-              <ZoruCardContent className="pt-4">
+              <CardBody className="pt-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-[var(--st-text)]">{a.name}</p>
@@ -253,7 +238,7 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
                     </div>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ))}
         </div>

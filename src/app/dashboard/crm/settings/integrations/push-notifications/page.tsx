@@ -17,15 +17,7 @@ import {
   Users,
 } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Label,
-  Skeleton,
-  Switch,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Label, Skeleton, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ConnectionHeader,
@@ -303,7 +295,7 @@ export default function PushNotificationsIntegrationPage() {
 
         {stats?.lastErrorMessage ? (
           <Card>
-            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
+            <CardBody className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-[var(--st-danger)]" />
               <div>
                 <p className="text-sm font-medium text-[var(--st-text)]">
@@ -313,7 +305,7 @@ export default function PushNotificationsIntegrationPage() {
                   {stats.lastErrorMessage}
                 </p>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         ) : null}
 

@@ -7,7 +7,7 @@ import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { Flip } from 'gsap/Flip';
 
-import { Card, Button, Badge, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Badge, useToast } from '@/components/sabcrm/20ui/compat';
 import { Clock, FileText, Plus } from 'lucide-react';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -55,7 +55,7 @@ function fmtDate(v?: string | Date | null): string {
 
 export function QuotationKanban({ quotations, currency }: QuotationKanbanProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const flipStateRef = React.useRef<Flip.State | null>(null);

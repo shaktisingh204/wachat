@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Skeleton, useZoruToast, ZoruChartContainer, ZoruChartTooltip, Input, Label, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Skeleton, useToast, ChartContainer, ChartTooltip, Input, Label, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState, use } from 'react';
 
 import { Star, Link as LinkIcon, BarChart, Globe, Target, Map, Trash2, Save, Plus } from 'lucide-react';
@@ -10,8 +10,8 @@ import { Bar, CartesianGrid, XAxis, YAxis, ComposedChart } from 'recharts';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-const ChartContainer = dynamic(() => import("@/components/sabcrm/20ui/zoru").then(mod => mod.ZoruChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }) as any;
-const ChartTooltip = dynamic(() => import("@/components/sabcrm/20ui/zoru").then(mod => mod.ZoruChartTooltip), { ssr: false }) as any;
+const ChartContainer = dynamic(() => import("@/components/sabcrm/20ui/zoru").then(mod => mod.ChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }) as any;
+const ChartTooltip = dynamic(() => import("@/components/sabcrm/20ui/zoru").then(mod => mod.ChartTooltip), { ssr: false }) as any;
 
 const chartConfig = {
     organic: { label: "Organic", color: "hsl(var(--chart-1))" },
@@ -41,7 +41,7 @@ function KeywordsTab({ projectId, project }: { projectId: string, project: any }
     const [loading, setLoading] = useState(true);
     const [newKw, setNewKw] = useState('');
     const [adding, setAdding] = useState(false);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const fetchKeywords = async () => {
         setLoading(true);
@@ -113,21 +113,21 @@ function KeywordsTab({ projectId, project }: { projectId: string, project: any }
             ) : (
                 <div className="border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-hidden">
                     <Table>
-                        <TableHeader className="bg-[var(--st-bg-muted)]">
-                            <TableRow>
-                                <TableHead>Keyword</TableHead>
-                                <TableHead>Location</TableHead>
-                                <TableHead className="text-right">Rank</TableHead>
-                                <TableHead className="text-right">Volume</TableHead>
-                                <TableHead className="text-right w-12"></TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                        <THead className="bg-[var(--st-bg-muted)]">
+                            <Tr>
+                                <Th>Keyword</Th>
+                                <Th>Location</Th>
+                                <Th className="text-right">Rank</Th>
+                                <Th className="text-right">Volume</Th>
+                                <Th className="text-right w-12"></Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {keywords.map((kw: any) => (
-                                <TableRow key={kw._id}>
-                                    <TableCell className="font-medium">{kw.keyword}</TableCell>
-                                    <TableCell>{kw.location === '2840' ? 'US' : kw.location}</TableCell>
-                                    <TableCell className="text-right">
+                                <Tr key={kw._id}>
+                                    <Td className="font-medium">{kw.keyword}</Td>
+                                    <Td>{kw.location === '2840' ? 'US' : kw.location}</Td>
+                                    <Td className="text-right">
                                         {kw.currentRank ? (
                                             <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-[var(--st-text)] text-[var(--st-bg-secondary)] text-[11px] font-semibold">
                                                 {kw.currentRank}
@@ -135,16 +135,16 @@ function KeywordsTab({ projectId, project }: { projectId: string, project: any }
                                         ) : (
                                             <span className="text-[var(--st-text-secondary)]">-</span>
                                         )}
-                                    </TableCell>
-                                    <TableCell className="text-right">{kw.currentVolume?.toLocaleString() || '-'}</TableCell>
-                                    <TableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">{kw.currentVolume?.toLocaleString() || '-'}</Td>
+                                    <Td className="text-right">
                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]" onClick={() => handleDeleteKw(kw._id)}>
                                             <Trash2 className="h-3 w-3" />
                                         </Button>
-                                    </TableCell>
-                                </TableRow>
+                                    </Td>
+                                </Tr>
                             ))}
-                        </TableBody>
+                        </TBody>
                     </Table>
                 </div>
             )}
@@ -220,7 +220,7 @@ function SettingsTab({ project, onUpdate }: { project: any, onUpdate: () => void
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -321,7 +321,7 @@ export function ProjectDashboardClient({
     initialProject: any, 
     initialMetrics: any 
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [project, setProject] = useState<any>(initialProject);
     const [metrics, setMetrics] = useState<any>(initialMetrics);
     const [tab, setTab] = useState<TabKey>('overview');

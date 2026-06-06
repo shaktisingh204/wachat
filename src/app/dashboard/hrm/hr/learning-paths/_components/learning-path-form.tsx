@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -87,7 +73,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export function LearningPathForm({ initialData }: LearningPathFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveLearningPath, initialState);
@@ -215,16 +201,16 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                                 setAudience(v as CrmLearningPathAudience)
                             }
                         >
-                            <ZoruSelectTrigger id="audience-trigger">
-                                <ZoruSelectValue placeholder="Pick an audience…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="audience-trigger">
+                                <SelectValue placeholder="Pick an audience…" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {AUDIENCE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1.5">
@@ -261,8 +247,8 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                     {/* Picker — single Select + Add button. */}
                     <div className="flex flex-wrap items-center gap-2">
                         <Select value={pickerValue} onValueChange={setPickerValue}>
-                            <ZoruSelectTrigger className="min-w-[260px] flex-1">
-                                <ZoruSelectValue
+                            <SelectTrigger className="min-w-[260px] flex-1">
+                                <SelectValue
                                     placeholder={
                                         loadingTrainings
                                             ? 'Loading trainings…'
@@ -271,14 +257,14 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                                               : 'Pick a training to add…'
                                     }
                                 />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            </SelectTrigger>
+                            <SelectContent>
                                 {availableForPicker.map((t) => (
-                                    <ZoruSelectItem key={t._id} value={t._id}>
+                                    <SelectItem key={t._id} value={t._id}>
                                         {t.name}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                         <Button
                             type="button"
@@ -343,16 +329,16 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                                 setStatus(v as CrmLearningPathStatus)
                             }
                         >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="status-trigger">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {FORM_STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>

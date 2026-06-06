@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <PurchaseOrdersListClient> — canonical PO list view per
  * CRM_REBUILD_PLAN §1D.1.
@@ -104,7 +104,7 @@ export function PurchaseOrdersListClient({
   currentUserId,
   error,
 }: PurchaseOrdersListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* View + density */
   const [view, setView] = React.useState<PurchaseOrderViewMode>('table');

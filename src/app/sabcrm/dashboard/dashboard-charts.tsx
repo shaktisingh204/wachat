@@ -25,19 +25,7 @@ import type {
   SumByFieldResult,
   TaskKpi,
 } from '@/app/actions/sabcrm.actions.types';
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  ZORU_CHART_PALETTE,
-  EmptyState,
-  Separator,
-  type ZoruChartTooltipProps,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, EmptyState, Separator, type ZoruChartTooltipProps } from '@/components/sabcrm/20ui/compat';
 
 // Local bucket shapes that match CountByFieldResult.buckets / SumByFieldResult.buckets
 // (re-declared here to avoid importing the server-only analytics lib in a client component)
@@ -79,7 +67,7 @@ function StageCountChart({ data }: StageCountChartProps) {
   }
 
   return (
-    <ZoruChartContainer height={200}>
+    <ChartContainer height={200}>
       <Recharts.BarChart
         data={chartData}
         margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
@@ -102,7 +90,7 @@ function StageCountChart({ data }: StageCountChartProps) {
           tickLine={false}
         />
         <Recharts.Tooltip
-          content={<ZoruChartTooltip />}
+          content={<ChartTooltip />}
           cursor={{ fill: 'var(--st-bg-muted)' }}
         />
         <Recharts.Bar
@@ -113,7 +101,7 @@ function StageCountChart({ data }: StageCountChartProps) {
           maxBarSize={48}
         />
       </Recharts.BarChart>
-    </ZoruChartContainer>
+    </ChartContainer>
   );
 }
 
@@ -142,7 +130,7 @@ function PipelineValueChart({ data }: PipelineValueChartProps) {
   }
 
   return (
-    <ZoruChartContainer height={200}>
+    <ChartContainer height={200}>
       <Recharts.BarChart
         data={chartData}
         margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
@@ -172,7 +160,7 @@ function PipelineValueChart({ data }: PipelineValueChartProps) {
             const raw = entry?.value;
             const formatted = typeof raw === 'number' ? formatCurrencyShort(raw) : String(raw ?? '');
             return (
-              <ZoruChartTooltip
+              <ChartTooltip
                 active={props.active}
                 payload={[{ ...entry, value: formatted }]}
                 label={props.label}
@@ -189,7 +177,7 @@ function PipelineValueChart({ data }: PipelineValueChartProps) {
           maxBarSize={48}
         />
       </Recharts.BarChart>
-    </ZoruChartContainer>
+    </ChartContainer>
   );
 }
 
@@ -247,16 +235,16 @@ export function DashboardCharts({
     <div className="flex flex-col gap-4">
       {/* Opportunities by stage */}
       <Card>
-        <ZoruCardHeader className="pb-3">
-          <ZoruCardTitle className="text-sm font-semibold text-[var(--st-text)]">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold text-[var(--st-text)]">
             Opportunities by Stage
-          </ZoruCardTitle>
-          <ZoruCardDescription className="text-xs text-[var(--st-text-secondary)]">
+          </CardTitle>
+          <CardDescription className="text-xs text-[var(--st-text-secondary)]">
             Count of open opportunities in each pipeline stage
-          </ZoruCardDescription>
-        </ZoruCardHeader>
+          </CardDescription>
+        </CardHeader>
         <Separator />
-        <ZoruCardContent className="pt-4">
+        <CardBody className="pt-4">
           {stageCount ? (
             <StageCountChart data={stageCount} />
           ) : (
@@ -267,21 +255,21 @@ export function DashboardCharts({
               />
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Pipeline value by stage */}
       <Card>
-        <ZoruCardHeader className="pb-3">
-          <ZoruCardTitle className="text-sm font-semibold text-[var(--st-text)]">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold text-[var(--st-text)]">
             Pipeline Value by Stage
-          </ZoruCardTitle>
-          <ZoruCardDescription className="text-xs text-[var(--st-text-secondary)]">
+          </CardTitle>
+          <CardDescription className="text-xs text-[var(--st-text-secondary)]">
             Sum of opportunity amounts in each stage
-          </ZoruCardDescription>
-        </ZoruCardHeader>
+          </CardDescription>
+        </CardHeader>
         <Separator />
-        <ZoruCardContent className="pt-4">
+        <CardBody className="pt-4">
           {pipelineByStage ? (
             <PipelineValueChart data={pipelineByStage} />
           ) : (
@@ -292,19 +280,19 @@ export function DashboardCharts({
               />
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Task status summary */}
       <Card>
-        <ZoruCardHeader className="pb-3">
-          <ZoruCardTitle className="text-sm font-semibold text-[var(--st-text)]">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold text-[var(--st-text)]">
             Task Status
-          </ZoruCardTitle>
-          <ZoruCardDescription className="text-xs text-[var(--st-text-secondary)]">
+          </CardTitle>
+          <CardDescription className="text-xs text-[var(--st-text-secondary)]">
             Open tasks across the project
-          </ZoruCardDescription>
-        </ZoruCardHeader>
+          </CardDescription>
+        </CardHeader>
         <Separator />
         <TaskSummary tasks={tasks} />
       </Card>

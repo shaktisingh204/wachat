@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   ListChecks,
   Search,
@@ -230,43 +214,43 @@ export function PettyCashListClient({ floats }: PettyCashListClientProps) {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-            <ZoruSelectValue placeholder="Status" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
             {statusOptions.map((s) => (
-              <ZoruSelectItem key={s} value={s}>
+              <SelectItem key={s} value={s}>
                 {s}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select value={branchFilter} onValueChange={setBranchFilter}>
-          <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-            <ZoruSelectValue placeholder="Branch" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All branches</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[160px] text-[13px]">
+            <SelectValue placeholder="Branch" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All branches</SelectItem>
             {branchOptions.map((b) => (
-              <ZoruSelectItem key={b.id} value={b.id}>
+              <SelectItem key={b.id} value={b.id}>
                 {b.name}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select value={custodianFilter} onValueChange={setCustodianFilter}>
-          <ZoruSelectTrigger className="h-9 w-[180px] text-[13px]">
-            <ZoruSelectValue placeholder="Custodian" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All custodians</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[180px] text-[13px]">
+            <SelectValue placeholder="Custodian" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All custodians</SelectItem>
             {custodianOptions.map((c) => (
-              <ZoruSelectItem key={c.id} value={c.id}>
+              <SelectItem key={c.id} value={c.id}>
                 {c.name}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         {hasActiveFilters ? (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -300,80 +284,80 @@ export function PettyCashListClient({ floats }: PettyCashListClientProps) {
       <Card className="p-0">
         <div className="overflow-x-auto">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-8">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-8">
                   <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Branch</ZoruTableHead>
-                <ZoruTableHead>Custodian</ZoruTableHead>
-                <ZoruTableHead>Opening</ZoruTableHead>
-                <ZoruTableHead>Current</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Last topped-up</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Branch</Th>
+                <Th>Custodian</Th>
+                <Th>Opening</Th>
+                <Th>Current</Th>
+                <Th>Status</Th>
+                <Th>Last topped-up</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={8}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {floats.length === 0
                       ? 'No petty cash floats yet. Open a branch or employee float to start tracking.'
                       : 'No floats match these filters.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((r) => (
-                  <ZoruTableRow key={r._id}>
-                    <ZoruTableCell>
+                  <Tr key={r._id}>
+                    <Td>
                       <Checkbox
                         checked={selected.has(r._id)}
                         onCheckedChange={() => toggleOne(r._id)}
                         aria-label="Select"
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <EntityRowLink
                         href={`/dashboard/crm/petty-cash/${r._id}`}
                         label={r.branchName || r.branchId || '—'}
                         subtitle={r.custodianName || r.custodianId || undefined}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {r.custodianName || r.custodianId || '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {fmtMoney(r.openingBalance)}
-                    </ZoruTableCell>
-                    <ZoruTableCell>{fmtMoney(r.balance)}</ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>{fmtMoney(r.balance)}</Td>
+                    <Td>
                       <StatusPill
                         label={r.status || 'active'}
                         tone={statusToTone(r.status)}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {fmtDate(r.lastToppedUpAt ?? r.lastReconciledAt)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <Button size="sm" variant="ghost" asChild>
                         <Link href={`/dashboard/crm/petty-cash/${r._id}/edit`}>
                           Edit
                         </Link>
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

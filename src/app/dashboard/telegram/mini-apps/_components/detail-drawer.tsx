@@ -2,25 +2,7 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { ExternalLink, Link as LinkIcon, Loader2, Monitor, Pencil, ShieldCheck, Smartphone } from 'lucide-react';
-import {
-  Button,
-  Textarea,
-  cn,
-  useZoruToast,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Card,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, cn, useToast, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Card } from '@/components/sabcrm/20ui/compat';
 import { useProject } from '@/context/project-context';
 import {
   listTelegramMiniAppSessionsAction,
@@ -51,7 +33,7 @@ export function DetailDrawer({
   onOpenChange: (b: boolean) => void;
   onEdit: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { activeProjectId } = useProject();
   const [tab, setTab] = useState<DetailTab>('overview');
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop');
@@ -165,17 +147,17 @@ export function DetailDrawer({
   };
 
   return (
-    <ZoruDrawer open={open} onOpenChange={onOpenChange}>
-      <ZoruDrawerContent className="max-h-[92vh]">
-        <ZoruDrawerHeader>
-          <ZoruDrawerTitle>
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="max-h-[92vh]">
+        <DrawerHeader>
+          <DrawerTitle>
             {app.name}
             <span className="ml-2 text-[11px] text-[var(--st-text-secondary)] font-normal">
               @{app.botUsername || '—'} / {app.slug}
             </span>
-          </ZoruDrawerTitle>
-          <ZoruDrawerDescription>{app.description || ' '}</ZoruDrawerDescription>
-        </ZoruDrawerHeader>
+          </DrawerTitle>
+          <DrawerDescription>{app.description || ' '}</DrawerDescription>
+        </DrawerHeader>
 
         {/* Segmented section nav */}
         <div className="flex gap-1 px-4">
@@ -338,8 +320,8 @@ export function DetailDrawer({
             </div>
           )}
         </div>
-      </ZoruDrawerContent>
-    </ZoruDrawer>
+      </DrawerContent>
+    </Drawer>
   );
 }
 
@@ -359,30 +341,30 @@ function SessionsTable({
     );
   return (
     <Table>
-      <ZoruTableHeader>
-        <ZoruTableRow>
-          <ZoruTableHead>User</ZoruTableHead>
-          <ZoruTableHead>User id</ZoruTableHead>
-          <ZoruTableHead>Validated</ZoruTableHead>
-          <ZoruTableHead>Device</ZoruTableHead>
-        </ZoruTableRow>
-      </ZoruTableHeader>
-      <ZoruTableBody>
+      <THead>
+        <Tr>
+          <Th>User</Th>
+          <Th>User id</Th>
+          <Th>Validated</Th>
+          <Th>Device</Th>
+        </Tr>
+      </THead>
+      <TBody>
         {sessions.map((s) => (
-          <ZoruTableRow key={s._id}>
-            <ZoruTableCell>
+          <Tr key={s._id}>
+            <Td>
               {s.username ? `@${s.username}` : s.firstName ?? '—'}
-            </ZoruTableCell>
-            <ZoruTableCell className="font-mono text-[11px]">
+            </Td>
+            <Td className="font-mono text-[11px]">
               {s.userId ?? '—'}
-            </ZoruTableCell>
-            <ZoruTableCell>
+            </Td>
+            <Td>
               <ClientDate date={s.validatedAt} />
-            </ZoruTableCell>
-            <ZoruTableCell>{s.device ?? '—'}</ZoruTableCell>
-          </ZoruTableRow>
+            </Td>
+            <Td>{s.device ?? '—'}</Td>
+          </Tr>
         ))}
-      </ZoruTableBody>
+      </TBody>
     </Table>
   );
 }

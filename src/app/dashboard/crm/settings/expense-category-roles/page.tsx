@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,
@@ -49,7 +31,7 @@ const initialState: FormState = {};
 type Row = WsExpenseCategoryRole & { _id: string };
 
 export default function ExpenseCategoryRolesPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [categories, setCategories] = useState<
     (WsExpenseCategoryExt & { _id: string })[]
@@ -154,16 +136,16 @@ export default function ExpenseCategoryRolesPage() {
                 value={categoryId}
                 onValueChange={setCategoryId}
               >
-                <ZoruSelectTrigger id="expense_category_id" className="mt-1.5">
-                  <ZoruSelectValue placeholder="Select category" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger id="expense_category_id" className="mt-1.5">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
                   {categories.map((c) => (
-                    <ZoruSelectItem key={String(c._id)} value={String(c._id)}>
+                    <SelectItem key={String(c._id)} value={String(c._id)}>
                       {c.category_name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div>
@@ -171,16 +153,16 @@ export default function ExpenseCategoryRolesPage() {
                 Role
               </Label>
               <Select name="role_id" value={roleId} onValueChange={setRoleId}>
-                <ZoruSelectTrigger id="role_id" className="mt-1.5">
-                  <ZoruSelectValue placeholder="Select role" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger id="role_id" className="mt-1.5">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
                   {roles.map((r) => (
-                    <ZoruSelectItem key={String(r._id)} value={String(r._id)}>
+                    <SelectItem key={String(r._id)} value={String(r._id)}>
                       {r.display_name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4">
@@ -236,26 +218,26 @@ export default function ExpenseCategoryRolesPage() {
           </div>
         ) : (
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Category</ZoruTableHead>
-                <ZoruTableHead>Role</ZoruTableHead>
-                <ZoruTableHead>Create</ZoruTableHead>
-                <ZoruTableHead>Approve</ZoruTableHead>
-                <ZoruTableHead className="w-[80px] text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Category</Th>
+                <Th>Role</Th>
+                <Th>Create</Th>
+                <Th>Approve</Th>
+                <Th className="w-[80px] text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {rows.map((row) => {
                 const cat = categoryById.get(String(row.expense_category_id));
                 const rl = roleById.get(String(row.role_id));
                 return (
-                  <ZoruTableRow key={String(row._id)}>
-                    <ZoruTableCell>{cat?.category_name ?? '—'}</ZoruTableCell>
-                    <ZoruTableCell>{rl?.display_name ?? '—'}</ZoruTableCell>
-                    <ZoruTableCell>{row.can_create ? 'Yes' : 'No'}</ZoruTableCell>
-                    <ZoruTableCell>{row.can_approve ? 'Yes' : 'No'}</ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                  <Tr key={String(row._id)}>
+                    <Td>{cat?.category_name ?? '—'}</Td>
+                    <Td>{rl?.display_name ?? '—'}</Td>
+                    <Td>{row.can_create ? 'Yes' : 'No'}</Td>
+                    <Td>{row.can_approve ? 'Yes' : 'No'}</Td>
+                    <Td className="text-right">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -264,11 +246,11 @@ export default function ExpenseCategoryRolesPage() {
                       >
                         <Trash2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         )}
       </Card>

@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   ListChecks,
   Search,
@@ -273,69 +257,69 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-            <ZoruSelectValue placeholder="Status" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
             {statusOptions.map((s) => (
-              <ZoruSelectItem key={s} value={s}>
+              <SelectItem key={s} value={s}>
                 {s}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select value={headTypeFilter} onValueChange={setHeadTypeFilter}>
-          <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-            <ZoruSelectValue placeholder="Head type" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All head types</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[160px] text-[13px]">
+            <SelectValue placeholder="Head type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All head types</SelectItem>
             {headTypeOptions.map((t) => (
-              <ZoruSelectItem key={t} value={t}>
+              <SelectItem key={t} value={t}>
                 {t}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select value={periodFilter} onValueChange={setPeriodFilter}>
-          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-            <ZoruSelectValue placeholder="Period" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All periods</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+            <SelectValue placeholder="Period" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All periods</SelectItem>
             {periodOptions.map((p) => (
-              <ZoruSelectItem key={p} value={p}>
+              <SelectItem key={p} value={p}>
                 {p}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select value={ownerFilter} onValueChange={setOwnerFilter}>
-          <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-            <ZoruSelectValue placeholder="Owner" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All owners</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[160px] text-[13px]">
+            <SelectValue placeholder="Owner" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All owners</SelectItem>
             {ownerOptions.map((o) => (
-              <ZoruSelectItem key={o.id} value={o.id}>
+              <SelectItem key={o.id} value={o.id}>
                 {o.name}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select value={scenarioFilter} onValueChange={setScenarioFilter}>
-          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-            <ZoruSelectValue placeholder="Scenario" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All scenarios</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+            <SelectValue placeholder="Scenario" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All scenarios</SelectItem>
             {scenarioOptions.map((s) => (
-              <ZoruSelectItem key={s} value={s}>
+              <SelectItem key={s} value={s}>
                 {s}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         {hasActiveFilters ? (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -369,37 +353,37 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
       <Card className="p-0">
         <div className="overflow-x-auto">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-8">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-8">
                   <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Head</ZoruTableHead>
-                <ZoruTableHead>Period</ZoruTableHead>
-                <ZoruTableHead>Planned</ZoruTableHead>
-                <ZoruTableHead>Actual</ZoruTableHead>
-                <ZoruTableHead>Variance</ZoruTableHead>
-                <ZoruTableHead>Owner</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Head</Th>
+                <Th>Period</Th>
+                <Th>Planned</Th>
+                <Th>Actual</Th>
+                <Th>Variance</Th>
+                <Th>Owner</Th>
+                <Th>Status</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={9}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {budgets.length === 0
                       ? 'No budgets yet. Create a budget to start tracking actuals against plan.'
                       : 'No budgets match these filters.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((r) => {
                   const variance =
@@ -411,48 +395,48 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
                         ? 'text-[var(--st-text)]'
                         : 'text-[var(--st-text)]';
                   return (
-                    <ZoruTableRow key={r._id}>
-                      <ZoruTableCell>
+                    <Tr key={r._id}>
+                      <Td>
                         <Checkbox
                           checked={selected.has(r._id)}
                           onCheckedChange={() => toggleOne(r._id)}
                           aria-label="Select"
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <EntityRowLink
                           href={`/dashboard/crm/budgets/${r._id}`}
                           label={r.budgetHead || '—'}
                           subtitle={r.headType || r.period || undefined}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell>{r.period || '—'}</ZoruTableCell>
-                      <ZoruTableCell>{fmtMoney(r.planAmount)}</ZoruTableCell>
-                      <ZoruTableCell>{fmtMoney(r.actual)}</ZoruTableCell>
-                      <ZoruTableCell className={varianceCls}>
+                      </Td>
+                      <Td>{r.period || '—'}</Td>
+                      <Td>{fmtMoney(r.planAmount)}</Td>
+                      <Td>{fmtMoney(r.actual)}</Td>
+                      <Td className={varianceCls}>
                         {fmtMoney(variance)}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         {r.ownerName || r.ownerId || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <StatusPill
                           label={r.status || 'draft'}
                           tone={statusToTone(r.status)}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <Button size="sm" variant="ghost" asChild>
                           <Link href={`/dashboard/crm/budgets/${r._id}/edit`}>
                             Edit
                           </Link>
                         </Button>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

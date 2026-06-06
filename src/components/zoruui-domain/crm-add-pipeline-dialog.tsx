@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useTransition,
   useState } from 'react';
@@ -50,20 +39,20 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button variant="outline" className={defaultName ? "hidden" : ""}>
                     <Plus className="mr-2 h-4 w-4" />
                     New Pipeline
                 </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="sm:max-w-md">
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit}>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle className="text-[var(--st-text)]">Create New Pipeline</ZoruDialogTitle>
-                        <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+                    <DialogHeader>
+                        <DialogTitle className="text-[var(--st-text)]">Create New Pipeline</DialogTitle>
+                        <DialogDescription className="text-[var(--st-text-secondary)]">
                             Add a new sales pipeline to your CRM.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="name" className="text-[var(--st-text)]">Pipeline Name</Label>
@@ -76,7 +65,7 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
                             />
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
                         <Button
                             type="submit"
@@ -86,9 +75,9 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
                         >
                             Create Pipeline
                         </Button>
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

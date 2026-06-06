@@ -1,21 +1,6 @@
 "use client";
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  EmptyState,
-  Skeleton,
-  Tooltip,
-  ZoruTooltipContent,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, Skeleton, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, cn } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarClock,
   ChevronLeft,
@@ -294,23 +279,23 @@ export default function SchedulerCalendarPage() {
   }
 
   return (
-    <ZoruTooltipProvider delayDuration={150}>
+    <TooltipProvider delayDuration={150}>
       <div className="p-4 md:p-6 lg:p-8 space-y-4">
         {/* ─── Breadcrumb ──────────────────────────────────────────── */}
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Scheduler</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Scheduler</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
 
         {/* ─── Toolbar ─────────────────────────────────────────────── */}
@@ -469,7 +454,7 @@ export default function SchedulerCalendarPage() {
         sessionId={sessionId}
         onSaved={() => void refresh()}
       />
-    </ZoruTooltipProvider>
+    </TooltipProvider>
   );
 }
 
@@ -524,7 +509,7 @@ function MonthGrid({
           const today = sameDay(d, new Date());
           return (
             <Tooltip key={key}>
-              <ZoruTooltipTrigger asChild>
+              <TooltipTrigger asChild>
                 <div
                   onDragOver={onCellDragOver}
                   onDrop={onCellDrop(d, "date")}
@@ -575,12 +560,12 @@ function MonthGrid({
                     )}
                   </div>
                 </div>
-              </ZoruTooltipTrigger>
+              </TooltipTrigger>
               {dayEvents.length > 0 && (
-                <ZoruTooltipContent side="top">
+                <TooltipContent side="top">
                   {dayEvents.length} scheduled item
                   {dayEvents.length === 1 ? "" : "s"}
-                </ZoruTooltipContent>
+                </TooltipContent>
               )}
             </Tooltip>
           );

@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-  Card,
-  ZoruCardContent,
-  Checkbox,
-  Input,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, Checkbox, Input, Skeleton, Table, TBody, Td, Th, THead, Tr, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Label } from '@/components/sabcrm/20ui/compat';
 import {
   Table2,
   Upload,
@@ -323,8 +300,8 @@ export default function BulkEditorPage() {
                 <AmBreadcrumb page="Bulk Editor" />
                 <Alert>
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>Pick an ad account to bulk edit.</ZoruAlertDescription>
+                    <AlertTitle>No ad account selected</AlertTitle>
+                    <AlertDescription>Pick an ad account to bulk edit.</AlertDescription>
                 </Alert>
             </div>
         );
@@ -498,7 +475,7 @@ export default function BulkEditorPage() {
             </div>
 
             <Card>
-                <ZoruCardContent className="p-0">
+                <CardBody className="p-0">
                     {loading ? (
                         <div className="p-4 space-y-2">
                             {Array.from({ length: 6 }).map((_, i) => (
@@ -508,62 +485,62 @@ export default function BulkEditorPage() {
                     ) : (
                         <div ref={parentRef} className="h-[600px] overflow-auto">
                             <Table>
-                                <ZoruTableHeader className="sticky top-0 z-10 bg-[var(--st-bg-secondary)]/95 backdrop-blur shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
-                                    <ZoruTableRow>
-                                        <ZoruTableHead className="w-10">
+                                <THead className="sticky top-0 z-10 bg-[var(--st-bg-secondary)]/95 backdrop-blur shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+                                    <Tr>
+                                        <Th className="w-10">
                                             <Checkbox
                                                 checked={allSelected}
                                                 onCheckedChange={toggleSelectAll}
                                                 aria-label="Select all"
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="w-40">ID</ZoruTableHead>
-                                        <ZoruTableHead>Name</ZoruTableHead>
-                                        <ZoruTableHead className="w-24">Status</ZoruTableHead>
-                                        {entityType !== 'ads' && <ZoruTableHead className="w-40">Daily budget</ZoruTableHead>}
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                        <Th className="w-40">ID</Th>
+                                        <Th>Name</Th>
+                                        <Th className="w-24">Status</Th>
+                                        {entityType !== 'ads' && <Th className="w-40">Daily budget</Th>}
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {paddingTop > 0 && <tr><td style={{ height: paddingTop }} /></tr>}
                                     {virtualItems.map((virtualRow) => {
                                         const r = rows[virtualRow.index];
                                         return (
-                                            <ZoruTableRow 
+                                            <Tr 
                                                 key={r.id} 
                                                 className={r.dirty ? 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20' : ''}
                                                 data-index={virtualRow.index}
                                                 ref={rowVirtualizer.measureElement}
                                             >
-                                                <ZoruTableCell className="w-10">
+                                                <Td className="w-10">
                                                     <Checkbox
                                                         checked={selectedIds.has(r.id)}
                                                         onCheckedChange={() => toggleSelect(r.id)}
                                                         aria-label={`Select ${r.name}`}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-xs font-mono text-[var(--st-text-secondary)] w-40 truncate">{r.id}</ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td className="text-xs font-mono text-[var(--st-text-secondary)] w-40 truncate">{r.id}</Td>
+                                                <Td>
                                                     <EditableNameCell row={r} onUpdate={handleUpdateRow} />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="w-24">
+                                                </Td>
+                                                <Td className="w-24">
                                                     <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded-full ${r.status === 'ACTIVE' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'}`}>
                                                         {r.status}
                                                     </span>
-                                                </ZoruTableCell>
+                                                </Td>
                                                 {entityType !== 'ads' && (
-                                                    <ZoruTableCell className="w-40">
+                                                    <Td className="w-40">
                                                         <EditableBudgetCell row={r} onUpdate={handleUpdateRow} />
-                                                    </ZoruTableCell>
+                                                    </Td>
                                                 )}
-                                            </ZoruTableRow>
+                                            </Tr>
                                         );
                                     })}
                                     {paddingBottom > 0 && <tr><td style={{ height: paddingBottom }} /></tr>}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

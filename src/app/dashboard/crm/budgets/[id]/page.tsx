@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, EmptyState, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle, EmptyState, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import { PieChart } from 'lucide-react';
 import {
   notFound } from 'next/navigation';
@@ -126,10 +126,10 @@ export default async function BudgetDetailPage({ params }: PageProps) {
           />
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Stewards</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Stewards</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-2 text-[12.5px]">
                 <div>
                   <div className="text-[11px] uppercase text-[var(--st-text-secondary)]">
@@ -144,14 +144,14 @@ export default async function BudgetDetailPage({ params }: PageProps) {
                   <div className="mt-0.5">{budget.approverName || '—'}</div>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Scenario</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Scenario</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--st-text-secondary)]">Current</span>
@@ -166,14 +166,14 @@ export default async function BudgetDetailPage({ params }: PageProps) {
                   Switch scenario →
                 </Link>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Related</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Related</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/purchases/expenses?budgetId=${id}`}
@@ -182,16 +182,16 @@ export default async function BudgetDetailPage({ params }: PageProps) {
                   Expenses against this budget →
                 </Link>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </>
       }
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Budget head" value={budget.budgetHead || '—'} />
             <Field label="Period" value={budget.period || '—'} />
@@ -233,66 +233,66 @@ export default async function BudgetDetailPage({ params }: PageProps) {
               }
             />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Allocation breakdown</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Allocation breakdown</CardTitle>
+        </CardHeader>
+        <CardBody>
           <EmptyState
             icon={<PieChart />}
             title="No allocation breakdown"
             description="Allocation rules are configured per cost center on the edit page."
             compact
           />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Actual vs Planned</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Actual vs Planned</CardTitle>
+        </CardHeader>
+        <CardBody>
           <Table className="text-[13px]">
-            <TableHeader>
-              <TableRow className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)] hover:bg-transparent">
-                <TableHead className="py-2">Metric</TableHead>
-                <TableHead className="py-2 text-right">Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow className="border-b border-[var(--st-border)]/40">
-                <TableCell className="py-2 text-[var(--st-text-secondary)]">Planned</TableCell>
-                <TableCell className="py-2 text-right font-mono tabular-nums">
+            <THead>
+              <Tr className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)] hover:bg-transparent">
+                <Th className="py-2">Metric</Th>
+                <Th className="py-2 text-right">Amount</Th>
+              </Tr>
+            </THead>
+            <TBody>
+              <Tr className="border-b border-[var(--st-border)]/40">
+                <Td className="py-2 text-[var(--st-text-secondary)]">Planned</Td>
+                <Td className="py-2 text-right font-mono tabular-nums">
                   {fmtMoney(budget.planAmount)}
-                </TableCell>
-              </TableRow>
-              <TableRow className="border-b border-[var(--st-border)]/40">
-                <TableCell className="py-2 text-[var(--st-text-secondary)]">Actual</TableCell>
-                <TableCell className="py-2 text-right font-mono tabular-nums">
+                </Td>
+              </Tr>
+              <Tr className="border-b border-[var(--st-border)]/40">
+                <Td className="py-2 text-[var(--st-text-secondary)]">Actual</Td>
+                <Td className="py-2 text-right font-mono tabular-nums">
                   {fmtMoney(budget.actual)}
-                </TableCell>
-              </TableRow>
-              <TableRow className="border-0">
-                <TableCell className="py-2 font-medium">Variance</TableCell>
-                <TableCell
+                </Td>
+              </Tr>
+              <Tr className="border-0">
+                <Td className="py-2 font-medium">Variance</Td>
+                <Td
                   className={`py-2 text-right font-mono font-medium tabular-nums ${overrun ? 'text-[var(--st-danger)]' : ''}`}
                 >
                   {fmtMoney(budget.variance)}
-                </TableCell>
-              </TableRow>
-            </TableBody>
+                </Td>
+              </Tr>
+            </TBody>
           </Table>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Variance analysis</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Variance analysis</CardTitle>
+        </CardHeader>
+        <CardBody>
           {actualLog.length === 0 ? (
             <EmptyState
               title="No actuals posted yet"
@@ -301,53 +301,53 @@ export default async function BudgetDetailPage({ params }: PageProps) {
             />
           ) : (
             <Table className="text-[13px]">
-              <TableHeader>
-                <TableRow className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)] hover:bg-transparent">
-                  <TableHead className="py-2">Posted at</TableHead>
-                  <TableHead className="py-2 text-right">Amount</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+              <THead>
+                <Tr className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)] hover:bg-transparent">
+                  <Th className="py-2">Posted at</Th>
+                  <Th className="py-2 text-right">Amount</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {actualLog.map((row, idx) => (
-                  <TableRow
+                  <Tr
                     key={row._id ?? `${row.postedAt}-${idx}`}
                     className="border-b border-[var(--st-border)]/40 last:border-0"
                   >
-                    <TableCell className="py-2">{fmtDate(row.postedAt)}</TableCell>
-                    <TableCell className="py-2 text-right font-mono tabular-nums">
+                    <Td className="py-2">{fmtDate(row.postedAt)}</Td>
+                    <Td className="py-2 text-right font-mono tabular-nums">
                       {fmtMoney(row.amount)}
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {budget.notes ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Notes</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Notes</CardTitle>
+          </CardHeader>
+          <CardBody>
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {budget.notes}
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       {budget.rejectReason ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Rejection reason</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Rejection reason</CardTitle>
+          </CardHeader>
+          <CardBody>
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-danger)]">
               {budget.rejectReason}
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </EntityDetailShell>

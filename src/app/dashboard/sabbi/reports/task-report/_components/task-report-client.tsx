@@ -24,21 +24,7 @@ import {
 } from 'recharts';
 import { Download, FileSpreadsheet } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  Badge,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatCard, fmtPct } from '../../_components/report-toolbar';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
@@ -221,20 +207,20 @@ export function TaskReportClient({ data, filters }: Props) {
       {/* Export toolbar */}
       <div className="flex justify-end">
         <DropdownMenu>
-          <ZoruDropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
               <Download className="mr-1.5 h-3.5 w-3.5" />
               Export
             </Button>
-          </ZoruDropdownMenuTrigger>
-          <ZoruDropdownMenuContent align="end">
-            <ZoruDropdownMenuItem onClick={handleCsv}>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleCsv}>
               <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
-            </ZoruDropdownMenuItem>
-            <ZoruDropdownMenuItem onClick={handleXlsx}>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleXlsx}>
               <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
-            </ZoruDropdownMenuItem>
-          </ZoruDropdownMenuContent>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
@@ -242,70 +228,70 @@ export function TaskReportClient({ data, filters }: Props) {
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Task</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Project</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Assignee</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Priority</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Time (Log/Est)</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Created</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Due</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Completed</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">Task</Th>
+                <Th className="text-[var(--st-text-secondary)]">Project</Th>
+                <Th className="text-[var(--st-text-secondary)]">Assignee</Th>
+                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                <Th className="text-[var(--st-text-secondary)]">Priority</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Time (Log/Est)</Th>
+                <Th className="text-[var(--st-text-secondary)]">Created</Th>
+                <Th className="text-[var(--st-text-secondary)]">Due</Th>
+                <Th className="text-[var(--st-text-secondary)]">Completed</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filteredRows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={8}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No tasks found for selected filters.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filteredRows.map((r: TaskDetailRow) => (
-                  <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
-                    <ZoruTableCell>
+                  <Tr key={r._id} className="border-[var(--st-border)]">
+                    <Td>
                       <EntityRowLink
                         href={`/dashboard/crm/tasks/${r._id}`}
                         label={r.title}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">{r.projectName}</ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">{r.assignedTo}</ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">{r.projectName}</Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">{r.assignedTo}</Td>
+                    <Td>
                       <Badge variant={STATUS_VARIANT[r.status] ?? 'secondary'}>
                         {r.status}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}>
                         {r.priority}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       <span className="text-[var(--st-text)] font-medium">
                         {(r as any).timeLogged || Math.floor(Math.random() * 10)}h
                       </span>
                       {' / '}
                       {(r as any).estimatedTime || 10}h
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.createdAt ? r.createdAt.slice(0, 10) : '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.dueDate ? r.dueDate.slice(0, 10) : '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.completedAt ? r.completedAt.slice(0, 10) : '—'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

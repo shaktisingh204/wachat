@@ -23,18 +23,7 @@ import {
     sendMailMessage,
 } from '@/app/actions/mailbox.actions';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Input,
-    Label,
-    Textarea,
-    Badge,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Badge, useToast } from '@/components/sabcrm/20ui/compat';
 
 interface ChipInputProps {
     id: string;
@@ -120,7 +109,7 @@ export function ComposeClient({
     sentFolderId,
 }: ComposeClientProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [to, setTo] = React.useState<string[]>([]);
     const [cc, setCc] = React.useState<string[]>([]);
@@ -249,16 +238,16 @@ export function ComposeClient({
     return (
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4">
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center justify-between">
+                <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
                         <span>New message</span>
                         <span className="text-xs font-normal text-[var(--st-text-secondary)]">
                             {statusLabel[busy]}
                             {draftId && busy === 'idle' ? ' Draft saved' : ''}
                         </span>
-                    </ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-3">
+                    </CardTitle>
+                </CardHeader>
+                <CardBody className="flex flex-col gap-3">
                     <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                         <span>From</span>
                         <Badge variant="secondary">
@@ -335,7 +324,7 @@ export function ComposeClient({
                             </SabFilePickerButton>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <div className="flex flex-wrap items-center justify-end gap-2">

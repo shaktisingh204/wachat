@@ -1,25 +1,6 @@
 'use client';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    Checkbox,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, Checkbox, useToast } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import Link from 'next/link';
 import { useDebouncedCallback } from 'use-debounce';
@@ -92,7 +73,7 @@ export default function BankAccountsClient({
     initialAccounts: WithId<CrmPaymentAccount>[];
     initialKpis: BankAccountKpis;
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isMounted = useMounted();
 
     const [accounts, setAccounts] = React.useState<WithId<CrmPaymentAccount>[]>(initialAccounts);
@@ -299,15 +280,15 @@ export default function BankAccountsClient({
                         <div className="flex flex-wrap items-center gap-2">
                             <div className="w-44">
                                 <Select value={bankFilter} onValueChange={(v) => { setBankFilter(v); setPage(1); }}>
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="Bank" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">All banks</ZoruSelectItem>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Bank" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All banks</SelectItem>
                                         {bankOptions.map((b) => (
-                                            <ZoruSelectItem key={b} value={b}>{b}</ZoruSelectItem>
+                                            <SelectItem key={b} value={b}>{b}</SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="w-40">
@@ -315,14 +296,14 @@ export default function BankAccountsClient({
                                     value={statusFilter}
                                     onValueChange={(v) => { setStatusFilter(v as StatusFilter); setPage(1); }}
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="Status" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                                        <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                        <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All statuses</SelectItem>
+                                        <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="inactive">Inactive</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             {hasActiveFilters ? (
@@ -424,61 +405,61 @@ export default function BankAccountsClient({
                     <Card>
                         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                        <ZoruTableHead className="w-10">
+                                <THead>
+                                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                        <Th className="w-10">
                                             <Checkbox
                                                 checked={pageRows.length > 0 && pageRows.every((r) => selected.has(String(r._id)))}
                                                 onCheckedChange={(v) => toggleAll(!!v)}
                                                 aria-label="Select all"
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Account Name</ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Bank</ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Account Number</ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Balance</ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">Account Name</Th>
+                                        <Th className="text-[var(--st-text-secondary)]">Bank</Th>
+                                        <Th className="text-[var(--st-text-secondary)]">Account Number</Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">Balance</Th>
+                                        <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">Actions</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {pageRows.map((account) => {
                                         const id = String(account._id);
                                         const checked = selected.has(id);
                                         return (
-                                            <ZoruTableRow key={id} className="border-[var(--st-border)]">
-                                                <ZoruTableCell>
+                                            <Tr key={id} className="border-[var(--st-border)]">
+                                                <Td>
                                                     <Checkbox
                                                         checked={checked}
                                                         onCheckedChange={() => toggleOne(id)}
                                                         aria-label={`Select ${account.accountName}`}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-medium text-[var(--st-text)]">
                                                     <EntityRowLink
                                                         href={`/dashboard/crm/banking/bank-accounts/${id}`}
                                                         label={account.accountName}
                                                         subtitle={account.bankDetails?.accountHolder || undefined}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[13px] text-[var(--st-text)]">
                                                     {account.bankDetails?.bankName || 'N/A'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-xs text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-mono text-xs text-[var(--st-text)]">
                                                     {account.bankDetails?.accountNumber || 'N/A'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-semibold text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right font-semibold text-[var(--st-text)]">
                                                     {new Intl.NumberFormat('en-IN', {
                                                         style: 'currency',
                                                         currency: account.currency || 'INR',
                                                     }).format(account.currentBalance || 0)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <Badge tone={account.status === 'active' ? 'green' : 'rose-soft'}>
                                                         {account.status}
                                                     </Badge>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <Button variant="ghost" size="icon" disabled>
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
@@ -490,18 +471,18 @@ export default function BankAccountsClient({
                                                     >
                                                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })}
                                     {pageRows.length === 0 && accounts.length > 0 ? (
-                                        <ZoruTableRow>
-                                            <ZoruTableCell colSpan={7} className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
+                                        <Tr>
+                                            <Td colSpan={7} className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
                                                 No accounts match your filters.
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ) : null}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     </Card>

@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -44,7 +34,7 @@ export function DiscussionsForm({
     discussion,
 }: DiscussionsFormProps): React.JSX.Element {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = useActionState(saveDiscussion, {
         message: '',
         error: '',
@@ -116,16 +106,16 @@ export function DiscussionsForm({
                                     name="category_id"
                                     defaultValue={discussion?.category_id ?? ''}
                                 >
-                                    <ZoruSelectTrigger id="category_id" className="mt-1.5 h-10">
-                                        <ZoruSelectValue placeholder="Select category" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger id="category_id" className="mt-1.5 h-10">
+                                        <SelectValue placeholder="Select category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {categories.map((c) => (
-                                            <ZoruSelectItem key={c._id} value={c._id}>
+                                            <SelectItem key={c._id} value={c._id}>
                                                 {c.name}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         </div>

@@ -1,13 +1,7 @@
 import { notFound } from 'next/navigation';
 import sanitizeHtml from 'sanitize-html';
 
-import {
-    Badge,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
     EntityDetailShell,
     type EntityStatusTone,
@@ -164,10 +158,10 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
             rightRail={
                 <>
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Status</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Status</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="space-y-2 text-[12.5px]">
                                 <div className="flex items-center justify-between">
                                     <span className="text-[var(--st-text-secondary)]">Current</span>
@@ -184,14 +178,14 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                                     </div>
                                 ) : null}
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Submitter context</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Submitter context</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="space-y-3 text-[12.5px]">
                                 <div>
                                     <div className="text-[var(--st-text-secondary)]">Source URL</div>
@@ -229,27 +223,27 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                                     </div>
                                 </div>
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Submission ID</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Submission ID</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <code className="block break-all rounded bg-[var(--st-bg-muted)] px-2 py-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
                                 {submissionId}
                             </code>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </>
             }
         >
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Response</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Response</CardTitle>
+                </CardHeader>
+                <CardBody>
                     {fieldDefs.length === 0 && extras.length === 0 ? (
                         <p className="text-[13px] text-[var(--st-text-secondary)]">
                             This submission has no recorded fields.
@@ -268,15 +262,15 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                             ))}
                         </div>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {submission.notes || submission.processedAt ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Activity</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Activity</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="space-y-2 text-[13px]">
                             {submission.processedAt ? (
                                 <div className="flex items-start gap-2">
@@ -295,7 +289,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                                 </p>
                             ) : null}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
         </EntityDetailShell>

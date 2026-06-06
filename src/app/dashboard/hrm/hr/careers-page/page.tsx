@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Skeleton,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Skeleton, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -50,7 +38,7 @@ import type { HrCareersPageConfig } from '@/lib/hr-types';
 type ConfigDoc = (HrCareersPageConfig & { _id: unknown }) | null;
 
 export default function CareersPageConfigPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [config, setConfig] = useState<ConfigDoc>(null);
   const [logoUrl, setLogoUrl] = useState('');
   const [isLoading, startLoading] = useTransition();
@@ -126,13 +114,13 @@ export default function CareersPageConfigPage() {
 
           {/* ─── Slug + theme ──────────────────────────────────────── */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle className="text-[15px]">Slug & theme</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle className="text-[15px]">Slug & theme</CardTitle>
+              <CardDescription>
                 Public URL slug and brand colours.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="grid gap-4 md:grid-cols-2">
               <div>
                 <Label htmlFor="slug">Slug</Label>
                 <Input
@@ -161,20 +149,20 @@ export default function CareersPageConfigPage() {
                   onChange={(v) => setLogoUrl(v)}
                 />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* ─── Intro text ────────────────────────────────────────── */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle className="text-[15px]">
+            <CardHeader>
+              <CardTitle className="text-[15px]">
                 Headline & intro
-              </ZoruCardTitle>
-              <ZoruCardDescription>
+              </CardTitle>
+              <CardDescription>
                 The top-of-fold copy candidates land on.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
                 <Label htmlFor="headline">Headline</Label>
                 <Input
@@ -194,18 +182,18 @@ export default function CareersPageConfigPage() {
                   placeholder="Tell candidates about the company, the mission, and what makes the team great."
                 />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* ─── Visibility + CTA ──────────────────────────────────── */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle className="text-[15px]">CTA & visibility</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle className="text-[15px]">CTA & visibility</CardTitle>
+              <CardDescription>
                 Apply button copy and whether the public page is live.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="grid gap-4 md:grid-cols-2">
               <div>
                 <Label htmlFor="ctaLabel">CTA label</Label>
                 <Input
@@ -225,18 +213,18 @@ export default function CareersPageConfigPage() {
                   placeholder="Published?"
                 />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* ─── SEO meta ──────────────────────────────────────────── */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle className="text-[15px]">SEO meta</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle className="text-[15px]">SEO meta</CardTitle>
+              <CardDescription>
                 Search engine optimization fields for the careers site.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-5">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-5">
               <div className="space-y-1.5">
                 <Label htmlFor="metaTitle" className="text-[13.5px] font-medium">Meta Title</Label>
                 <Input
@@ -267,7 +255,7 @@ export default function CareersPageConfigPage() {
                   placeholder="e.g. https://example.com/og-image.png"
                 />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <div className="sticky bottom-0 -mx-1 flex justify-end gap-2 bg-[var(--st-bg)]/95 px-1 py-3 backdrop-blur">

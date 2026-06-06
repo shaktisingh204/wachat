@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Button,
-  Card,
-  ZoruCardContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useState } from "react";
@@ -87,14 +77,14 @@ export function InviteAcceptClient({
 
   return (
     <Card>
-      <ZoruCardContent className="flex flex-col items-center gap-5 p-8 text-center">
+      <CardBody className="flex flex-col items-center gap-5 p-8 text-center">
         <Avatar className="h-16 w-16 rounded-[var(--st-radius-lg)]">
           {workspaceIconUrl ? (
-            <ZoruAvatarImage src={workspaceIconUrl} alt={workspaceName} />
+            <AvatarImage src={workspaceIconUrl} alt={workspaceName} />
           ) : null}
-          <ZoruAvatarFallback className="rounded-[var(--st-radius-lg)]">
+          <AvatarFallback className="rounded-[var(--st-radius-lg)]">
             <Building2 className="h-7 w-7" aria-hidden="true" />
-          </ZoruAvatarFallback>
+          </AvatarFallback>
         </Avatar>
 
         <div className="flex flex-col gap-1">
@@ -113,18 +103,18 @@ export function InviteAcceptClient({
 
         {emailMismatch && (
           <Alert variant="warning" className="w-full text-left">
-            <ZoruAlertTitle>Wrong account</ZoruAlertTitle>
-            <ZoruAlertDescription>
+            <AlertTitle>Wrong account</AlertTitle>
+            <AlertDescription>
               You&apos;re signed in as <strong>{sessionEmail}</strong>, but this
               invite was sent to <strong>{inviteEmail}</strong>. Sign in with
               the invited account before accepting.
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
         )}
 
         {error && (
           <Alert variant="destructive" className="w-full text-left">
-            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
@@ -158,7 +148,7 @@ export function InviteAcceptClient({
             )}
           </Button>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

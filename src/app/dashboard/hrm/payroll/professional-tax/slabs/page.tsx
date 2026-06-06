@@ -1,39 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -89,7 +56,7 @@ const ptTemplates = [
 ];
 
 function ImportTemplatesDropdown({ onImported }: { onImported: () => void }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
 
     const handleImport = (state: string, slabsData: Array<{minSalary: number, maxSalary: number, taxAmount: number}>) => {
@@ -142,7 +109,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 function SlabFormDialog({ onSave, slab }: { onSave: () => void; slab?: WithId<CrmProfessionalTaxSlab> | null }) {
     const [open, setOpen] = useState(false);
     const [state, formAction] = useActionState(saveCrmPtSlab, saveInitialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (state.message) {
@@ -159,29 +126,29 @@ function SlabFormDialog({ onSave, slab }: { onSave: () => void; slab?: WithId<Cr
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 {slab ? (
                     <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
                 ) : (
                     <Button><Plus className="h-4 w-4" />Add New Slab</Button>
                 )}
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
+            </DialogTrigger>
+            <DialogContent>
                 <form action={formAction}>
                     <input type="hidden" name="slabId" value={slab?._id.toString()} />
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>{slab ? 'Edit' : 'Add'} Professional Tax Slab</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                    <DialogHeader>
+                        <DialogTitle>{slab ? 'Edit' : 'Add'} Professional Tax Slab</DialogTitle>
+                    </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label>State <span className="text-[var(--st-danger)]">*</span></Label>
                             <Select name="state" required defaultValue={slab?.state}>
-                                <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                                    <ZoruSelectValue placeholder="Select a state..." />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent className="max-h-60">
-                                    {indianStates.map(s => <ZoruSelectItem key={s} value={s}>{s}</ZoruSelectItem>)}
-                                </ZoruSelectContent>
+                                <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                                    <SelectValue placeholder="Select a state..." />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-60">
+                                    {indianStates.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -202,18 +169,18 @@ function SlabFormDialog({ onSave, slab }: { onSave: () => void; slab?: WithId<Cr
                                 className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
                         <SubmitButton isEditing={!!slab} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
 
 function DeleteSlabButton({ slabId, onDeleted }: { slabId: string; onDeleted: () => void }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
 
     const handleDelete = () => {
@@ -229,25 +196,25 @@ function DeleteSlabButton({ slabId, onDeleted }: { slabId: string; onDeleted: ()
     };
 
     return (
-        <ZoruAlertDialog>
-            <ZoruAlertDialogTrigger asChild>
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-[var(--st-danger)] hover:text-[var(--st-danger)]">
                     <Trash2 className="h-4 w-4" />
                 </Button>
-            </ZoruAlertDialogTrigger>
-            <ZoruAlertDialogContent>
-                <ZoruAlertDialogHeader>
-                    <ZoruAlertDialogTitle>Delete Slab?</ZoruAlertDialogTitle>
-                    <ZoruAlertDialogDescription>Are you sure? This cannot be undone.</ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                    <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Slab?</AlertDialogTitle>
+                    <AlertDialogDescription>Are you sure? This cannot be undone.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Delete
-                    </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-            </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 }
 

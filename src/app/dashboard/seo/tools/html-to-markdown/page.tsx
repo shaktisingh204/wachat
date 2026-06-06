@@ -1,17 +1,7 @@
 'use client';
 
-import {
-  Textarea,
-  Button,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Card
-} from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Textarea, Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Card } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState, useEffect } from 'react';
 import { Copy, Check, Settings2 } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -57,7 +47,7 @@ export default function HtmlToMarkdownPage() {
     }
   }, [html, headingStyle, hr, bulletListMarker, codeBlockStyle, emDelimiter, strongDelimiter, linkStyle]);
 
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isCopied, setIsCopied] = useState(false);
 
   const copyToClipboard = async () => {

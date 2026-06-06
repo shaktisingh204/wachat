@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Label, Popover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Label, Popover, PopoverContent, PopoverTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   SlidersHorizontal,
@@ -65,7 +65,7 @@ export default function SalaryRegisterPage() {
     const [reportData, setReportData] = useState<SalaryRow[]>([]);
     const [summary, setSummary] = useState<Summary>({ totalGross: 0, totalDeductions: 0, totalNetPay: 0, totalEmployees: 0 });
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const now = new Date();
     const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
@@ -112,13 +112,13 @@ export default function SalaryRegisterPage() {
             primaryAction={
                 <>
                     <Popover>
-                        <ZoruPopoverTrigger asChild>
+                        <PopoverTrigger asChild>
                             <Button variant="outline">
                                 <SlidersHorizontal className="h-4 w-4" />
                                 Period
                             </Button>
-                        </ZoruPopoverTrigger>
-                            <ZoruPopoverContent className="w-64 space-y-4 p-4">
+                        </PopoverTrigger>
+                            <PopoverContent className="w-64 space-y-4 p-4">
                                 <div className="space-y-1.5">
                                     <Label className="text-[12.5px]">Month</Label>
                                     <select
@@ -143,7 +143,7 @@ export default function SalaryRegisterPage() {
                                     {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
                                     Apply
                                 </Button>
-                            </ZoruPopoverContent>
+                            </PopoverContent>
                         </Popover>
                         <Button
                             variant="outline"

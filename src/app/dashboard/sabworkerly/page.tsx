@@ -1,16 +1,7 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardContent,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardContent, PageHeader, PageTitle, PageDescription, Badge } from '@/components/sabcrm/20ui/compat';
 import { getSession } from '@/app/actions/user.actions';
 import {
     getSabworkerlyDashboardStats,
@@ -40,10 +31,10 @@ export default async function SabworkerlyOverviewPage() {
     return (
         <div className="zoruui flex flex-col gap-6">
             <PageHeader>
-                <ZoruPageTitle>SabWorkerly</ZoruPageTitle>
-                <ZoruPageDescription>
+                <PageTitle>SabWorkerly</PageTitle>
+                <PageDescription>
                     Temp/agency staffing — workers, clients, timesheets, invoices, and payroll.
-                </ZoruPageDescription>
+                </PageDescription>
             </PageHeader>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

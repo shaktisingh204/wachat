@@ -1,20 +1,6 @@
 import React from 'react';
 
-import {
-    Card,
-    CardContent,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Badge,
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { Receipt } from 'lucide-react';
 import {
     getSabworkerlyInvoices,
@@ -40,10 +26,10 @@ export default async function InvoicesPage() {
     return (
         <div className="zoruui flex flex-col gap-5">
             <PageHeader>
-                <ZoruPageTitle>Invoices</ZoruPageTitle>
-                <ZoruPageDescription>
+                <PageTitle>Invoices</PageTitle>
+                <PageDescription>
                     Aggregate approved timesheets into a client-facing invoice.
-                </ZoruPageDescription>
+                </PageDescription>
             </PageHeader>
 
             <Card>
@@ -63,31 +49,31 @@ export default async function InvoicesPage() {
                 <Card>
                     <CardContent className="p-0">
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Period</TableHead>
-                                    <TableHead>Lines</TableHead>
-                                    <TableHead>Total</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Period</Th>
+                                    <Th>Lines</Th>
+                                    <Th>Total</Th>
+                                    <Th>Status</Th>
+                                    <Th>Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {invoices.map((inv) => (
-                                    <TableRow key={inv._id}>
-                                        <TableCell>
+                                    <Tr key={inv._id}>
+                                        <Td>
                                             {new Date(inv.periodStart).toLocaleDateString()} —{' '}
                                             {new Date(inv.periodEnd).toLocaleDateString()}
-                                        </TableCell>
-                                        <TableCell>{inv.lineItems.length}</TableCell>
-                                        <TableCell>{money(inv.totalMinor, inv.currency)}</TableCell>
-                                        <TableCell><Badge variant="secondary">{inv.status}</Badge></TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>{inv.lineItems.length}</Td>
+                                        <Td>{money(inv.totalMinor, inv.currency)}</Td>
+                                        <Td><Badge variant="secondary">{inv.status}</Badge></Td>
+                                        <Td>
                                             <InvoiceStatusActions id={inv._id} status={inv.status} />
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     </CardContent>
                 </Card>

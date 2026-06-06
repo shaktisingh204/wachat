@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   Loader2 } from 'lucide-react';
 
@@ -137,13 +127,13 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={(next) => (isPending ? null : onOpenChange(next))}>
-      <ZoruDialogContent className="sm:max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>{title}</ZoruDialogTitle>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
           {description ? (
-            <ZoruDialogDescription>{description}</ZoruDialogDescription>
+            <DialogDescription>{description}</DialogDescription>
           ) : null}
-        </ZoruDialogHeader>
+        </DialogHeader>
 
         {needsTyped ? (
           <div className="flex flex-col gap-2">
@@ -166,7 +156,7 @@ export function ConfirmDialog({
           </div>
         ) : null}
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button
             type="button"
             variant="secondary"
@@ -193,8 +183,8 @@ export function ConfirmDialog({
               confirmLabel
             )}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,25 +1,6 @@
 'use client';
 
-import {
-  Input,
-  Label,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Card,
-  Button,
-  Badge,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Card, Button, Badge, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -65,7 +46,7 @@ export default function DesignationsPage() {
     const [departments, setDepartments] = useState<WithId<CrmDepartment>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const [saveState, formAction] = useActionState(saveCrmDesignation, saveInitialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
 
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -226,15 +207,15 @@ export default function DesignationsPage() {
             </Card>
 
             <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle className="text-[var(--st-text)]">
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-[var(--st-text)]">
                             {editing ? 'Edit Designation' : 'Add Designation'}
-                        </ZoruDialogTitle>
-                        <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+                        </DialogTitle>
+                        <DialogDescription className="text-[var(--st-text-secondary)]">
                             Fill in the designation details. Only the name is required.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <form action={formAction} ref={formRef} className="space-y-4">
                         {editing?._id ? (
                             <input type="hidden" name="_id" value={editing._id.toString()} />
@@ -276,20 +257,20 @@ export default function DesignationsPage() {
                                 Department
                             </Label>
                             <Select value={deptId} onValueChange={setDeptId}>
-                                <ZoruSelectTrigger
+                                <SelectTrigger
                                     id="desig-dept"
                                     className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 >
-                                    <ZoruSelectValue placeholder="— No department —" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="__none__">— No department —</ZoruSelectItem>
+                                    <SelectValue placeholder="— No department —" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__none__">— No department —</SelectItem>
                                     {departments.map((d) => (
-                                        <ZoruSelectItem key={d._id.toString()} value={d._id.toString()}>
+                                        <SelectItem key={d._id.toString()} value={d._id.toString()}>
                                             {d.name}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
 
@@ -298,22 +279,22 @@ export default function DesignationsPage() {
                                 Level / Grade
                             </Label>
                             <Select value={level} onValueChange={setLevel}>
-                                <ZoruSelectTrigger
+                                <SelectTrigger
                                     id="desig-level"
                                     className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 >
-                                    <ZoruSelectValue placeholder="— No level —" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="__none__">— No level —</ZoruSelectItem>
+                                    <SelectValue placeholder="— No level —" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__none__">— No level —</SelectItem>
                                     {GRADE_OPTIONS.map((g) => (
-                                        <ZoruSelectItem key={g} value={g}>{g}</ZoruSelectItem>
+                                        <SelectItem key={g} value={g}>{g}</SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
 
-                        <ZoruDialogFooter>
+                        <DialogFooter>
                             <Button
                                 type="button"
                                 variant="outline"
@@ -323,9 +304,9 @@ export default function DesignationsPage() {
                                 Cancel
                             </Button>
                             <SaveButton label={editing ? 'Save Changes' : 'Add Designation'} />
-                        </ZoruDialogFooter>
+                        </DialogFooter>
                     </form>
-                </ZoruDialogContent>
+                </DialogContent>
             </Dialog>
         </EntityListShell>
     );

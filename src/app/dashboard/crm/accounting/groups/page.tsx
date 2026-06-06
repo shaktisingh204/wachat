@@ -1,37 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruDialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruStatCard,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   LoaderCircle,
@@ -138,10 +107,10 @@ const saveInitialState: { message?: string; error?: string } = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ZoruButton type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             {isEditing ? 'Save changes' : 'Create group'}
-        </ZoruButton>
+        </Button>
     );
 }
 
@@ -158,7 +127,7 @@ function AccountGroupDialog({
 }) {
     const isEditing = !!initialData;
     const [state, formAction] = useActionState(saveCrmAccountGroup, saveInitialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [selectedType, setSelectedType] = React.useState<CrmAccountGroup['type'] | ''>(
         (initialData?.type as CrmAccountGroup['type']) || '',
     );
@@ -179,21 +148,21 @@ function AccountGroupDialog({
     }, [state, toast, onSave, onOpenChange]);
 
     return (
-        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent>
                 <form action={formAction}>
                     {isEditing ? (
                         <input type="hidden" name="groupId" value={initialData!._id.toString()} />
                     ) : null}
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                    <DialogHeader>
+                        <DialogTitle>
                             {isEditing ? 'Edit' : 'Create new'} account group
-                        </ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                        </DialogTitle>
+                    </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="name">Group name *</ZoruLabel>
-                            <ZoruInput
+                            <Label htmlFor="name">Group name *</Label>
+                            <Input
                                 id="name"
                                 name="name"
                                 placeholder="e.g. Bank Accounts"
@@ -202,7 +171,7 @@ function AccountGroupDialog({
                             />
                         </div>
                         <div className="space-y-2">
-                            <ZoruLabel htmlFor="type">Nature *</ZoruLabel>
+                            <Label htmlFor="type">Nature *</Label>
                             <EnumFormField
                                 name="type"
                                 enumName="accountNature"
@@ -216,35 +185,35 @@ function AccountGroupDialog({
                         </div>
                         {selectedType ? (
                             <div className="space-y-2">
-                                <ZoruLabel htmlFor="category">Parent / sub-nature *</ZoruLabel>
-                                <ZoruSelect
+                                <Label htmlFor="category">Parent / sub-nature *</Label>
+                                <Select
                                     name="category"
                                     required
                                     defaultValue={initialData?.category}
                                 >
-                                    <ZoruSelectTrigger id="category">
-                                        <ZoruSelectValue placeholder="Pick a sub-nature…" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger id="category">
+                                        <SelectValue placeholder="Pick a sub-nature…" />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {categoryMap[selectedType].map((c) => (
-                                            <ZoruSelectItem key={c} value={c}>
+                                            <SelectItem key={c} value={c}>
                                                 {c.replace(/_/g, ' ')}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                    </SelectContent>
+                                </Select>
                             </div>
                         ) : null}
                     </div>
-                    <ZoruDialogFooter>
-                        <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+                    <DialogFooter>
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
                             Cancel
-                        </ZoruButton>
+                        </Button>
                         <SubmitButton isEditing={isEditing} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
-        </ZoruDialog>
+            </DialogContent>
+        </Dialog>
     );
 }
 
@@ -260,7 +229,7 @@ export default function AccountGroupsPage() {
     const [selection, setSelection] = React.useState<Set<string>>(new Set());
     const [bulkPending, startBulkTransition] = React.useTransition();
     const [confirmBulkDelete, setConfirmBulkDelete] = React.useState(false);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -383,10 +352,10 @@ export default function AccountGroupsPage() {
 
             {/* KPI strip */}
             <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-                <ZoruStatCard label="Total groups" value={kpi.total.toLocaleString()} />
-                <ZoruStatCard label="Asset groups" value={(kpi.byNature['Asset'] ?? 0).toLocaleString()} />
-                <ZoruStatCard label="Liability groups" value={(kpi.byNature['Liability'] ?? 0).toLocaleString()} />
-                <ZoruStatCard label="Avg accounts / group" value={kpi.avgAccounts.toFixed(1)} />
+                <StatCard label="Total groups" value={kpi.total.toLocaleString()} />
+                <StatCard label="Asset groups" value={(kpi.byNature['Asset'] ?? 0).toLocaleString()} />
+                <StatCard label="Liability groups" value={(kpi.byNature['Liability'] ?? 0).toLocaleString()} />
+                <StatCard label="Avg accounts / group" value={kpi.avgAccounts.toFixed(1)} />
             </div>
 
             <EntityListShell
@@ -394,32 +363,32 @@ export default function AccountGroupsPage() {
                 subtitle="Group your chart-of-accounts by nature and sub-nature."
                 primaryAction={
                     <>
-                        <ZoruButton variant="outline" onClick={handleExport}>
+                        <Button variant="outline" onClick={handleExport}>
                             Export CSV
-                        </ZoruButton>
-                        <ZoruButton onClick={() => handleOpenDialog(null)}>
+                        </Button>
+                        <Button onClick={() => handleOpenDialog(null)}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New Group
-                        </ZoruButton>
+                        </Button>
                     </>
                 }
                 search={{ value: search, onChange: setSearch, placeholder: 'Search groups…' }}
                 filters={
-                    <ZoruSelect
+                    <Select
                         value={natureFilter}
                         onValueChange={(v) => setNatureFilter(v as typeof natureFilter)}
                     >
-                        <ZoruSelectTrigger className="h-9 w-[180px]">
-                            <ZoruSelectValue placeholder="Nature" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All natures</ZoruSelectItem>
+                        <SelectTrigger className="h-9 w-[180px]">
+                            <SelectValue placeholder="Nature" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All natures</SelectItem>
                             {accountNatures.map((n) => (
-                                <ZoruSelectItem key={n} value={n}>
+                                <SelectItem key={n} value={n}>
                                     {n}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        </SelectContent>
+                    </Select>
                 }
                 bulkBar={
                     selection.size > 0 ? (
@@ -427,14 +396,14 @@ export default function AccountGroupsPage() {
                             <span className="font-medium text-[var(--st-text)]">
                                 {selection.size} selected
                             </span>
-                            <ZoruButton
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={handleExport}
                             >
                                 Export
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 className="text-[var(--st-text)]"
@@ -442,148 +411,148 @@ export default function AccountGroupsPage() {
                                 disabled={bulkPending}
                             >
                                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
-                            </ZoruButton>
-                            <ZoruButton
+                            </Button>
+                            <Button
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => setSelection(new Set())}
                             >
                                 <X className="h-3.5 w-3.5" />
-                            </ZoruButton>
+                            </Button>
                         </div>
                     ) : null
                 }
                 loading={isLoading && groups.length === 0}
             >
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="w-10">
-                                    <ZoruCheckbox
+                    <Table>
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="w-10">
+                                    <Checkbox
                                         checked={allChecked || (someChecked ? 'indeterminate' : false)}
                                         onCheckedChange={(v) => handleToggleAll(!!v)}
                                         aria-label="Select all"
                                     />
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Nature</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Sub-nature</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Accounts</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Nature</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Sub-nature</Th>
+                                <Th className="text-right text-[var(--st-text-secondary)]">Accounts</Th>
+                                <Th className="text-right text-[var(--st-text-secondary)]">Actions</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={6} className="h-24 text-center">
                                         <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : filtered.length === 0 ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
                                         No account groups match this filter.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 filtered.map((g) => {
                                     const id = g._id.toString();
                                     return (
-                                        <ZoruTableRow key={id} className="border-[var(--st-border)]">
-                                            <ZoruTableCell>
-                                                <ZoruCheckbox
+                                        <Tr key={id} className="border-[var(--st-border)]">
+                                            <Td>
+                                                <Checkbox
                                                     checked={selection.has(id)}
                                                     onCheckedChange={() => handleToggle(id)}
                                                     aria-label={`Select ${g.name}`}
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="font-medium text-[var(--st-text)]">
                                                 <EntityRowLink
                                                     href={`/dashboard/crm/accounting/groups/${id}`}
                                                     label={g.name}
                                                     subtitle={`${g.accountCount ?? 0} account${(g.accountCount ?? 0) === 1 ? '' : 's'}`}
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <StatusPill label={g.type} tone={NATURE_TONE[g.type]} />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {g.category.replace(/_/g, ' ')}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right font-mono text-[var(--st-text)]">
                                                 {g.accountCount ?? 0}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
-                                                <ZoruButton
+                                            </Td>
+                                            <Td className="text-right">
+                                                <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => handleOpenDialog(g)}
                                                 >
                                                     <Edit className="h-4 w-4" />
-                                                </ZoruButton>
-                                                <ZoruButton
+                                                </Button>
+                                                <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => setPendingDelete(g)}
                                                 >
                                                     <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
-                                                </ZoruButton>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                                </Button>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })
                             )}
-                        </ZoruTableBody>
-                    </ZoruTable>
+                        </TBody>
+                    </Table>
                 </div>
             </EntityListShell>
 
             {/* Single delete confirm */}
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete account group?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete account group?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Deleting &ldquo;{pendingDelete?.name}&rdquo; will affect{' '}
                             {pendingDelete?.accountCount ?? 0} account(s) currently linked.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete} disabled={deletePending}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={deletePending}>
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {/* Bulk delete confirm */}
-            <ZoruAlertDialog
+            <AlertDialog
                 open={confirmBulkDelete}
                 onOpenChange={(o) => !o && setConfirmBulkDelete(false)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             Delete {selection.size} group{selection.size === 1 ? '' : 's'}?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             This permanently removes the selected account groups. Accounts linked to
                             them will lose their group assignment.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleBulkDelete} disabled={bulkPending}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleBulkDelete} disabled={bulkPending}>
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

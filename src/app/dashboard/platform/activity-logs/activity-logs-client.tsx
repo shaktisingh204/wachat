@@ -4,7 +4,7 @@ import { fmtDate } from "@/lib/utils";
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, Card, Button, ZoruDateRangePicker, Input } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td, Card, Button, DateRangePicker, Input } from '@/components/sabcrm/20ui/compat';
 import type { ActivityLog } from '@/types/platform';
 import { DateRange } from "react-day-picker";
 import { useDebounce } from 'use-debounce';
@@ -103,7 +103,7 @@ export function ActivityLogsClient({
   const filters = (
     <div className="flex flex-wrap items-center gap-3">
       <div className="w-64">
-        <ZoruDateRangePicker
+        <DateRangePicker
           value={dateRange}
           onChange={setDateRange}
           placeholder="Filter by date range"
@@ -166,36 +166,36 @@ export function ActivityLogsClient({
     >
       <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden opacity-100 transition-opacity duration-200" style={{ opacity: isPending ? 0.5 : 1 }}>
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>Timestamp</ZoruTableHead>
-              <ZoruTableHead>Action</ZoruTableHead>
-              <ZoruTableHead>Entity</ZoruTableHead>
-              <ZoruTableHead>User ID</ZoruTableHead>
-              <ZoruTableHead>IP Address</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>Timestamp</Th>
+              <Th>Action</Th>
+              <Th>Entity</Th>
+              <Th>User ID</Th>
+              <Th>IP Address</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {initialData.map(item => (
-              <ZoruTableRow key={item.id}>
-                <ZoruTableCell className="text-sm text-[var(--st-text-tertiary)]">
+              <Tr key={item.id}>
+                <Td className="text-sm text-[var(--st-text-tertiary)]">
                   {fmtDate(item.timestamp)}
-                </ZoruTableCell>
-                <ZoruTableCell className="font-medium text-[var(--st-text)]">{item.action}</ZoruTableCell>
-                <ZoruTableCell className="text-sm">
+                </Td>
+                <Td className="font-medium text-[var(--st-text)]">{item.action}</Td>
+                <Td className="text-sm">
                   <span className="bg-[var(--st-hover)] px-2 py-1 rounded-md mr-2">{item.entityType}</span>
                   <span className="text-[var(--st-text-tertiary)] font-mono text-xs">{item.entityId}</span>
-                </ZoruTableCell>
-                <ZoruTableCell className="font-mono text-xs">{item.userId || 'system'}</ZoruTableCell>
-                <ZoruTableCell className="text-sm">{item.ipAddress || '—'}</ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+                <Td className="font-mono text-xs">{item.userId || 'system'}</Td>
+                <Td className="text-sm">{item.ipAddress || '—'}</Td>
+              </Tr>
             ))}
             {initialData.length === 0 && !isPending && (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No logs found.</ZoruTableCell>
-              </ZoruTableRow>
+              <Tr>
+                <Td colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No logs found.</Td>
+              </Tr>
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </Card>
     </EntityListShell>

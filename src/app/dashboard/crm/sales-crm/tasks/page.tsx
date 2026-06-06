@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, StatCard, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
@@ -75,7 +75,7 @@ const EMPTY_KPIS: CrmTaskKpis = {
 
 export default function CrmTasksPage() {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // List state
     const [tasks, setTasks] = React.useState<WithId<CrmTask>[]>([]);

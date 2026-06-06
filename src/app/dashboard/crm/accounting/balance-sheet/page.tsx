@@ -12,19 +12,7 @@ import {
 } from 'recharts';
 import { Banknote, LoaderCircle, PieChart as PieChartIcon, Scale, ShieldCheck } from 'lucide-react';
 
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { generateBalanceSheetData } from '@/app/actions/crm-accounting.actions';
@@ -188,42 +176,42 @@ export default function BalanceSheetPage(): React.JSX.Element {
 
     const table = (
         <Table>
-            <TableHeader>
-                <TableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <TableHead className="text-[var(--st-text-secondary)]">Account</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)] text-right">Amount</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)] text-right">Share (%)</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="text-[var(--st-text-secondary)]">Account</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Amount</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Share (%)</Th>
+                </Tr>
+            </THead>
+            <TBody>
                 {pageRows.length === 0 ? (
-                    <TableRow className="border-[var(--st-border)]">
-                        <TableCell colSpan={3} className="h-24 text-center text-[var(--st-text-secondary)]">
+                    <Tr className="border-[var(--st-border)]">
+                        <Td colSpan={3} className="h-24 text-center text-[var(--st-text-secondary)]">
                             No accounts to display.
-                        </TableCell>
-                    </TableRow>
+                        </Td>
+                    </Tr>
                 ) : (
                     pageRows.map((entry, idx) => {
                         const share = totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00';
                         return (
-                            <TableRow
+                            <Tr
                                 key={`${entry.account}-${idx}`}
                                 className={`border-[var(--st-border)] ${entry.isMain ? 'bg-[var(--st-bg-muted)] font-semibold' : ''}`}
                             >
-                                <TableCell className={`text-[var(--st-text)] ${entry.isSub ? 'pl-8' : ''}`}>
+                                <Td className={`text-[var(--st-text)] ${entry.isSub ? 'pl-8' : ''}`}>
                                     {entry.account}
-                                </TableCell>
-                                <TableCell className="text-right font-mono text-[var(--st-text)]">
+                                </Td>
+                                <Td className="text-right font-mono text-[var(--st-text)]">
                                     {fmtMoney(entry.amount)}
-                                </TableCell>
-                                <TableCell className="text-right font-mono text-[var(--st-text)]">
+                                </Td>
+                                <Td className="text-right font-mono text-[var(--st-text)]">
                                     {share}%
-                                </TableCell>
-                            </TableRow>
+                                </Td>
+                            </Tr>
                         );
                     })
                 )}
-            </TableBody>
+            </TBody>
         </Table>
     );
 

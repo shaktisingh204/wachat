@@ -3,30 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { createSablensSession } from '@/app/actions/sablens.actions';
 import type { SablensSessionMode } from '@/lib/rust-client/sablens-sessions';
 
 export function NewSessionForm() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   const [customerName, setCustomerName] = useState('');
@@ -58,14 +41,14 @@ export function NewSessionForm() {
   return (
     <Card>
       <form onSubmit={onSubmit}>
-        <ZoruCardHeader>
-          <ZoruCardTitle>New SabLens session</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>New SabLens session</CardTitle>
+          <CardDescription>
             Create a session, then send the customer their unique join link
             (`/lens/&lt;token&gt;`). The link expires when the session ends.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex flex-col gap-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
               <Label htmlFor="customerName">Customer name</Label>
@@ -94,17 +77,17 @@ export function NewSessionForm() {
               value={mode}
               onValueChange={(v) => setMode(v as SablensSessionMode)}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="live_call">
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="live_call">
                   Live call — both ends connected in real time
-                </ZoruSelectItem>
-                <ZoruSelectItem value="async_recorded">
+                </SelectItem>
+                <SelectItem value="async_recorded">
                   Async recorded — customer captures, you review later
-                </ZoruSelectItem>
-              </ZoruSelectContent>
+                </SelectItem>
+              </SelectContent>
             </Select>
           </div>
 
@@ -117,8 +100,8 @@ export function NewSessionForm() {
               onChange={(e) => setNotes(e.target.value)}
             />
           </div>
-        </ZoruCardContent>
-        <ZoruCardFooter className="flex justify-end gap-2">
+        </CardBody>
+        <CardFooter className="flex justify-end gap-2">
           <Button
             type="button"
             variant="ghost"
@@ -129,7 +112,7 @@ export function NewSessionForm() {
           <Button type="submit" disabled={isPending}>
             {isPending ? 'Creating…' : 'Create session'}
           </Button>
-        </ZoruCardFooter>
+        </CardFooter>
       </form>
     </Card>
   );

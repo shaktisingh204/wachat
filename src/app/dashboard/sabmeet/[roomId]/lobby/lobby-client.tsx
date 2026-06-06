@@ -2,16 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { Mic, MicOff, Video, VideoOff, Loader2 } from 'lucide-react';
 import type { MeetRoom } from '@/app/actions/sabmeet.actions.types';
 import { joinMeetRoom } from '@/app/actions/sabmeet.actions';

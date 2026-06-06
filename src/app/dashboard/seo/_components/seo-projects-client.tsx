@@ -1,21 +1,6 @@
 'use client';
 
-import { 
-    Card, 
-    ZoruPageDescription, 
-    PageHeader, 
-    ZoruPageHeading, 
-    ZoruPageTitle, 
-    Skeleton, 
-    Input,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    useZoruToast,
-    Button
-} from '@/components/sabcrm/20ui/compat';
+import { Card, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -34,7 +19,7 @@ export function SeoProjectsClient({ initialProjects }: { initialProjects: SeoPro
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('newest');
     const [page, setPage] = useState(1);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const ITEMS_PER_PAGE = 6;
 
     useEffect(() => {
@@ -111,12 +96,12 @@ export function SeoProjectsClient({ initialProjects }: { initialProjects: SeoPro
         <div className="flex flex-col gap-8 w-full">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <PageHeader>
-                    <ZoruPageHeading>
-                        <ZoruPageTitle>SEO Projects</ZoruPageTitle>
-                        <ZoruPageDescription>
+                    <PageHeading>
+                        <PageTitle>SEO Projects</PageTitle>
+                        <PageDescription>
                             Manage your website rankings, audits, and competitors.
-                        </ZoruPageDescription>
-                    </ZoruPageHeading>
+                        </PageDescription>
+                    </PageHeading>
                 </PageHeader>
                 <CreateSeoProjectDialog />
             </div>

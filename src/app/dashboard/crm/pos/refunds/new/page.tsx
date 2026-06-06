@@ -1,4 +1,4 @@
-import { Button, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
@@ -56,7 +56,7 @@ export default async function NewPosRefundPage({ searchParams }: PageProps) {
                 back={{ href: BASE, label: 'Refunds' }}
             >
                 <Card>
-                    <ZoruCardContent className="flex flex-col items-center gap-2 p-8 text-center animate-in fade-in-50">
+                    <CardBody className="flex flex-col items-center gap-2 p-8 text-center animate-in fade-in-50">
                         <p className="text-sm text-[var(--st-text)]">
                             Provide a transaction id to start a refund.
                         </p>
@@ -68,7 +68,7 @@ export default async function NewPosRefundPage({ searchParams }: PageProps) {
                                 Pick a session
                             </Link>
                         </Button>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </EntityDetailShell>
         );

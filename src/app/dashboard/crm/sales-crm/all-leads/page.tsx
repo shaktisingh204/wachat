@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
@@ -64,7 +64,7 @@ const EMPTY_KPIS: CrmLeadKpis = {
 
 export default function AllLeadsPage() {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // List state
     const [leads, setLeads] = React.useState<WithId<CrmLead>[]>([]);

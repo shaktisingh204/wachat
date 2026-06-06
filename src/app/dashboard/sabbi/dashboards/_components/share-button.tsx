@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, useToast } from '@/components/sabcrm/20ui/compat';
 import { Share2, Copy, Check } from 'lucide-react';
 import { setDashboardVisibility } from './share-action';
 
@@ -10,7 +10,7 @@ export function ShareButton({ dashboardId, visibility }: { dashboardId: string; 
     const [copied, setCopied] = React.useState(false);
     const [isPublic, setIsPublic] = React.useState(visibility === 'public');
     const [isPending, startTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const publicUrl = typeof window !== 'undefined' 
         ? `${window.location.origin}/dashboard/sabbi/dashboards/${dashboardId}/public` 

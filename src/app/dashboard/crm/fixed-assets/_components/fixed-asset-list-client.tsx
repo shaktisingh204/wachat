@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams,
@@ -93,7 +75,7 @@ export function FixedAssetListClient({
   initialQuery,
   error,
 }: FixedAssetListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -335,53 +317,53 @@ export function FixedAssetListClient({
             setStatusFilter(v as 'all' | 'active' | 'retired')
           }
         >
-          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-            <ZoruSelectValue placeholder="Status" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-            <ZoruSelectItem value="active">Active</ZoruSelectItem>
-            <ZoruSelectItem value="retired">Retired</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="retired">Retired</SelectItem>
+          </SelectContent>
         </Select>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-            <ZoruSelectValue placeholder="Category" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All categories</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[160px] text-[13px]">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
             {categoryOptions.map((c) => (
-              <ZoruSelectItem key={c} value={c}>
+              <SelectItem key={c} value={c}>
                 {c}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select value={custodianFilter} onValueChange={setCustodianFilter}>
-          <ZoruSelectTrigger className="h-9 w-[180px] text-[13px]">
-            <ZoruSelectValue placeholder="Custodian" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All custodians</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[180px] text-[13px]">
+            <SelectValue placeholder="Custodian" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All custodians</SelectItem>
             {custodianOptions.map((c) => (
-              <ZoruSelectItem key={c} value={c}>
+              <SelectItem key={c} value={c}>
                 {c.slice(-6)}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select value={locationFilter} onValueChange={setLocationFilter}>
-          <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-            <ZoruSelectValue placeholder="Location" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All locations</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[160px] text-[13px]">
+            <SelectValue placeholder="Location" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All locations</SelectItem>
             {locationOptions.map((l) => (
-              <ZoruSelectItem key={l} value={l}>
+              <SelectItem key={l} value={l}>
                 {l}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Input
           type="date"
@@ -443,70 +425,70 @@ export function FixedAssetListClient({
         ) : null}
 
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead className="w-8">
+          <THead>
+            <Tr>
+              <Th className="w-8">
                 <Checkbox
                   checked={headChecked}
                   onCheckedChange={(c) => toggleAll(Boolean(c))}
                   aria-label="Select all"
                 />
-              </ZoruTableHead>
-              <ZoruTableHead>Code / Name</ZoruTableHead>
-              <ZoruTableHead>Category</ZoruTableHead>
-              <ZoruTableHead>Vendor</ZoruTableHead>
-              <ZoruTableHead>Custodian</ZoruTableHead>
-              <ZoruTableHead>Location</ZoruTableHead>
-              <ZoruTableHead>Condition</ZoruTableHead>
-              <ZoruTableHead>Cost</ZoruTableHead>
-              <ZoruTableHead>Net Book Value</ZoruTableHead>
-              <ZoruTableHead>Purchase Date</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+              </Th>
+              <Th>Code / Name</Th>
+              <Th>Category</Th>
+              <Th>Vendor</Th>
+              <Th>Custodian</Th>
+              <Th>Location</Th>
+              <Th>Condition</Th>
+              <Th>Cost</Th>
+              <Th>Net Book Value</Th>
+              <Th>Purchase Date</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filtered.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell
+              <Tr>
+                <Td
                   colSpan={11}
                   className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                 >
                   {initialQuery || hasActiveFilters
                     ? 'No fixed assets match these filters.'
                     : 'No fixed assets yet — click "New fixed asset" to add one.'}
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : (
               filtered.map((asset) => {
                 const id = String(asset._id);
                 const checked = selected.has(id);
                 return (
-                  <ZoruTableRow key={id}>
-                    <ZoruTableCell>
+                  <Tr key={id}>
+                    <Td>
                       <Checkbox
                         checked={checked}
                         onCheckedChange={() => toggleOne(id)}
                         aria-label={`Select asset ${asset.code}`}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <EntityRowLink
                         href={`/dashboard/crm/fixed-assets/${id}`}
                         label={asset.code}
                         subtitle={asset.name || undefined}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {asset.category || '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {asset.supplierId ? (
                         <EntityPickerChip entity="vendor" id={asset.supplierId} />
                       ) : (
                         '—'
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {asset.custodianEmployeeId ? (
                         <EntityPickerChip
                           entity="employee"
@@ -515,27 +497,27 @@ export function FixedAssetListClient({
                       ) : (
                         '—'
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {asset.location || '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {asset.condition ? (
                         <Badge variant="outline">{asset.condition}</Badge>
                       ) : (
                         <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] tabular-nums text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[12.5px] tabular-nums text-[var(--st-text)]">
                       {fmtMoney(asset.cost, asset.currency)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] tabular-nums text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[12.5px] tabular-nums text-[var(--st-text)]">
                       {fmtMoney(asset.netBookValue, asset.currency)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {fmtDate(asset.purchaseDate)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button size="sm" variant="ghost" asChild>
                           <Link href={`/dashboard/crm/fixed-assets/${id}/edit`}>
@@ -551,12 +533,12 @@ export function FixedAssetListClient({
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
 
         <PaginationBar page={page} limit={limit} hasMore={hasMore} />

@@ -1,16 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import {
-    Button,
-    ZoruAlertDialog,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogCancel,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from '@/components/sabcrm/20ui/compat';
 import { Archive, ArchiveRestore, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { setProjectArchived } from '@/app/actions/admin-hardening.actions';
@@ -48,7 +39,7 @@ export function AdminArchiveProjectButton({
     };
 
     return (
-        <ZoruAlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialog open={open} onOpenChange={setOpen}>
             <Button
                 variant="ghost"
                 size="icon"
@@ -58,19 +49,19 @@ export function AdminArchiveProjectButton({
             >
                 {isArchived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
             </Button>
-            <ZoruAlertDialogContent>
-                <ZoruAlertDialogHeader>
-                    <ZoruAlertDialogTitle>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>
                         {isArchived ? 'Restore project?' : 'Archive project?'}
-                    </ZoruAlertDialogTitle>
-                    <ZoruAlertDialogDescription>
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
                         {isArchived
                             ? `"${projectName}" will reappear in the user's project list and webhook processing will resume.`
                             : `"${projectName}" will be hidden from the user's project list. Webhooks and broadcasts will be paused. This action is reversible.`}
-                    </ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter className="mt-4">
-                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="mt-4">
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <Button
                         variant={isArchived ? 'default' : 'destructive'}
                         onClick={handleConfirm}
@@ -79,8 +70,8 @@ export function AdminArchiveProjectButton({
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         {isArchived ? 'Restore' : 'Archive'}
                     </Button>
-                </ZoruAlertDialogFooter>
-            </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 }

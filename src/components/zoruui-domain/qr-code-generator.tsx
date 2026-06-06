@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Popover, PopoverContent, PopoverTrigger, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useRef,
@@ -313,14 +292,14 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-7 space-y-6">
                 <Card className="border-0 shadow-lg ring-1 ring-[var(--st-border)]/5">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle className="flex items-center gap-2">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
                             <Wand2 className="h-5 w-5 text-[var(--st-text)]" />
                             Builder Configuration
-                        </ZoruCardTitle>
-                        <ZoruCardDescription>Customize the content and look of your QR code.</ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="space-y-6">
+                        </CardTitle>
+                        <CardDescription>Customize the content and look of your QR code.</CardDescription>
+                    </CardHeader>
+                    <CardBody className="space-y-6">
 
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
@@ -411,12 +390,12 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                         <div className="space-y-2 flex-1">
                                             <Label>Encryption</Label>
                                             <Select value={wifiEncryption} onValueChange={setWifiEncryption}>
-                                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                                <ZoruSelectContent>
-                                                    <ZoruSelectItem value="WPA">WPA/WPA2</ZoruSelectItem>
-                                                    <ZoruSelectItem value="WEP">WEP</ZoruSelectItem>
-                                                    <ZoruSelectItem value="nopass">None</ZoruSelectItem>
-                                                </ZoruSelectContent>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="WPA">WPA/WPA2</SelectItem>
+                                                    <SelectItem value="WEP">WEP</SelectItem>
+                                                    <SelectItem value="nopass">None</SelectItem>
+                                                </SelectContent>
                                             </Select>
                                         </div>
                                     </div>
@@ -561,12 +540,12 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                     <div className="space-y-2">
                                         <Label>Platform</Label>
                                         <Select value={socialPlatform} onValueChange={setSocialPlatform}>
-                                            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                            <ZoruSelectContent>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
                                                 {SOCIAL_PLATFORMS.map(p => (
-                                                    <ZoruSelectItem key={p.value} value={p.value}>{p.label}</ZoruSelectItem>
+                                                    <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
                                                 ))}
-                                            </ZoruSelectContent>
+                                            </SelectContent>
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
@@ -661,10 +640,10 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                                 <Label>Foreground Color</Label>
                                                 <div className="flex gap-2 items-center">
                                                     <Popover>
-                                                        <ZoruPopoverTrigger asChild>
+                                                        <PopoverTrigger asChild>
                                                             <div className="w-10 h-10 rounded border cursor-pointer ring-offset-2 hover:ring-2 ring-[var(--st-border)]" style={{ backgroundColor: dotColor }} />
-                                                        </ZoruPopoverTrigger>
-                                                        <ZoruPopoverContent className="w-auto p-3"><SketchPicker color={dotColor} onChange={c => setDotColor(c.hex)} disableAlpha /></ZoruPopoverContent>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-auto p-3"><SketchPicker color={dotColor} onChange={c => setDotColor(c.hex)} disableAlpha /></PopoverContent>
                                                     </Popover>
                                                     <Input value={dotColor} onChange={e => setDotColor(e.target.value)} className="w-[120px] font-mono" />
                                                 </div>
@@ -674,10 +653,10 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                             <Label>Background Color</Label>
                                             <div className="flex gap-2 items-center">
                                                 <Popover>
-                                                    <ZoruPopoverTrigger asChild>
+                                                    <PopoverTrigger asChild>
                                                         <div className="w-10 h-10 rounded border cursor-pointer ring-offset-2 hover:ring-2 ring-[var(--st-border)]" style={{ backgroundColor: bgColor }} />
-                                                    </ZoruPopoverTrigger>
-                                                    <ZoruPopoverContent className="w-auto p-3"><SketchPicker color={bgColor} onChange={c => setBgColor(c.hex)} disableAlpha /></ZoruPopoverContent>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-3"><SketchPicker color={bgColor} onChange={c => setBgColor(c.hex)} disableAlpha /></PopoverContent>
                                                 </Popover>
                                                 <Input value={bgColor} onChange={e => setBgColor(e.target.value)} className="w-[120px] font-mono" />
                                             </div>
@@ -686,13 +665,13 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                     <div className="space-y-2 max-w-xs">
                                         <Label>Error Correction Level</Label>
                                         <Select value={eccLevel} onValueChange={setEccLevel}>
-                                            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                            <ZoruSelectContent>
-                                                <ZoruSelectItem value="L">Low (7%) - Best for clean look</ZoruSelectItem>
-                                                <ZoruSelectItem value="M">Medium (15%)</ZoruSelectItem>
-                                                <ZoruSelectItem value="Q">Quartile (25%)</ZoruSelectItem>
-                                                <ZoruSelectItem value="H">High (30%) - Best if adding logo</ZoruSelectItem>
-                                            </ZoruSelectContent>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="L">Low (7%) - Best for clean look</SelectItem>
+                                                <SelectItem value="M">Medium (15%)</SelectItem>
+                                                <SelectItem value="Q">Quartile (25%)</SelectItem>
+                                                <SelectItem value="H">High (30%) - Best if adding logo</SelectItem>
+                                            </SelectContent>
                                         </Select>
                                         <p className="text-xs text-[var(--st-text-secondary)]">Higher correction allowed more damage/logo obstruction.</p>
                                     </div>
@@ -883,16 +862,16 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                             )}
                         </div>
 
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 
             <div className="lg:col-span-5 sticky top-6 space-y-6">
                 <Card className="border-0 shadow-lg ring-1 ring-[var(--st-border)]/5 overflow-hidden">
-                    <ZoruCardHeader className="bg-[var(--st-bg-muted)]/50 pb-4">
-                        <ZoruCardTitle className="text-center">Live Preview</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="flex flex-col items-center justify-center py-8 min-h-[350px] bg-[var(--st-bg-muted)]/50 relative">
+                    <CardHeader className="bg-[var(--st-bg-muted)]/50 pb-4">
+                        <CardTitle className="text-center">Live Preview</CardTitle>
+                    </CardHeader>
+                    <CardBody className="flex flex-col items-center justify-center py-8 min-h-[350px] bg-[var(--st-bg-muted)]/50 relative">
                         <div className="relative bg-white p-6 rounded-[2rem] shadow-xl border-4 border-[var(--st-border)] ring-4 ring-[var(--st-border)]" ref={qrWrapperRef}>
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-[var(--st-text)] rounded-b-xl z-10" />
                             <QrCodeRenderer
@@ -907,8 +886,8 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                         <p className="text-sm text-[var(--st-text-secondary)] mt-6 text-center max-w-[250px] truncate">
                             {qrValue || "Enter data to generate"}
                         </p>
-                    </ZoruCardContent>
-                    <ZoruCardFooter className="flex flex-col gap-3 pt-6 bg-white border-t">
+                    </CardBody>
+                    <CardFooter className="flex flex-col gap-3 pt-6 bg-white border-t">
                         <Button
                             className="w-full h-12 text-lg bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] shadow-lg shadow-[var(--st-border)] transition-all hover:scale-[1.02]"
                             onClick={handleSave}
@@ -953,11 +932,11 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                 </div>
                             )}
                         </div>
-                    </ZoruCardFooter>
+                    </CardFooter>
                 </Card>
 
                 <Card className="bg-[var(--st-bg-muted)] border-[var(--st-border)]">
-                    <ZoruCardContent className="pt-6">
+                    <CardBody className="pt-6">
                         <div className="flex gap-3">
                             <div className="mt-1 bg-[var(--st-bg-muted)] p-2 rounded-full h-fit"><RefreshCw className="h-4 w-4 text-[var(--st-text)]" /></div>
                             <div>
@@ -967,7 +946,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                 </p>
                             </div>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

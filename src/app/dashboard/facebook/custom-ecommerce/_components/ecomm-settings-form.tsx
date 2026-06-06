@@ -1,24 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -75,7 +57,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
     ) => Promise<typeof initialState>,
     initialState,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [ecommFlows, setEcommFlows] = useState<WithId<EcommFlow>[]>([]);
 
   useEffect(() => {
@@ -101,13 +83,13 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
     <form action={formAction}>
       <input type="hidden" name="shopId" value={shop._id.toString()} />
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Basic configuration</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Basic configuration</CardTitle>
+          <CardDescription>
             Set the fundamental properties for your custom shop.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-6">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="shopName">Shop name</Label>
@@ -126,19 +108,19 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                 defaultValue={shop.currency || "USD"}
                 required
               >
-                <ZoruSelectTrigger id="currency">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="USD">USD — US Dollar</ZoruSelectItem>
-                  <ZoruSelectItem value="EUR">EUR — Euro</ZoruSelectItem>
-                  <ZoruSelectItem value="INR">
+                <SelectTrigger id="currency">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USD">USD — US Dollar</SelectItem>
+                  <SelectItem value="EUR">EUR — Euro</SelectItem>
+                  <SelectItem value="INR">
                     INR — Indian Rupee
-                  </ZoruSelectItem>
-                  <ZoruSelectItem value="GBP">
+                  </SelectItem>
+                  <SelectItem value="GBP">
                     GBP — British Pound
-                  </ZoruSelectItem>
-                </ZoruSelectContent>
+                  </SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5 md:col-span-2">
@@ -147,22 +129,22 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                 name="customDomain"
                 defaultValue={shop.customDomain || "none"}
               >
-                <ZoruSelectTrigger id="customDomain">
-                  <ZoruSelectValue placeholder="Select a verified domain…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="none">
+                <SelectTrigger id="customDomain">
+                  <SelectValue placeholder="Select a verified domain…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">
                     None (use default)
-                  </ZoruSelectItem>
+                  </SelectItem>
                   {verifiedDomains.map((d) => (
-                    <ZoruSelectItem
+                    <SelectItem
                       key={d._id.toString()}
                       value={d.hostname}
                     >
                       {d.hostname}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
               <p className="text-xs text-[var(--st-text-secondary)]">
                 Add and verify domains in the section below.
@@ -259,28 +241,28 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                     name="abandonedCart.flowId"
                     defaultValue={shop.abandonedCart?.flowId}
                   >
-                    <ZoruSelectTrigger id="abandonedCart.flowId">
-                      <ZoruSelectValue placeholder="Select a flow…" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger id="abandonedCart.flowId">
+                      <SelectValue placeholder="Select a flow…" />
+                    </SelectTrigger>
+                    <SelectContent>
                       {ecommFlows.map((flow) => (
-                        <ZoruSelectItem
+                        <SelectItem
                           key={flow._id.toString()}
                           value={flow._id.toString()}
                         >
                           {flow.name}
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
             </div>
           </div>
-        </ZoruCardContent>
-        <ZoruCardFooter>
+        </CardBody>
+        <CardFooter>
           <SubmitButton />
-        </ZoruCardFooter>
+        </CardFooter>
       </Card>
     </form>
   );

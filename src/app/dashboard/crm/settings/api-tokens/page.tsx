@@ -1,45 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Checkbox, Input, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   Download,
@@ -85,7 +46,7 @@ function formatDate(iso: string | null): string {
 }
 
 export default function CrmApiTokensPage() {
-    const toast = useZoruToast();
+    const toast = useToast();
     const [rows, setRows] = React.useState<CrmApiTokenRow[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [pending, startTransition] = React.useTransition();
@@ -277,29 +238,29 @@ export default function CrmApiTokensPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/crm/settings">
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/crm/settings">
                             CRM Settings
-                        </ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>API Tokens</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>API Tokens</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader>
                 <div className="flex items-start justify-between gap-3">
                     <div>
-                        <ZoruPageHeading>
+                        <PageHeading>
                             <Key className="size-5" />
-                            <ZoruPageTitle>API Tokens</ZoruPageTitle>
-                        </ZoruPageHeading>
-                        <ZoruPageDescription>
+                            <PageTitle>API Tokens</PageTitle>
+                        </PageHeading>
+                        <PageDescription>
                             Bearer tokens for the CRM public REST API. {activeCount} active.
-                        </ZoruPageDescription>
+                        </PageDescription>
                     </div>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" onClick={handleExport} disabled={filtered.length === 0}>
@@ -336,14 +297,14 @@ export default function CrmApiTokensPage() {
                     value={statusFilter}
                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                 >
-                    <ZoruSelectTrigger className="h-9 w-[160px]">
-                        <ZoruSelectValue placeholder="Status" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                        <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                        <ZoruSelectItem value="revoked">Revoked</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger className="h-9 w-[160px]">
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All statuses</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="revoked">Revoked</SelectItem>
+                    </SelectContent>
                 </Select>
                 {(search || statusFilter !== 'all') && (
                     <Button
@@ -366,8 +327,8 @@ export default function CrmApiTokensPage() {
                         {selectedIds.length} selected
                     </span>
                     <div className="flex items-center gap-2">
-                        <ZoruAlertDialog open={bulkRevokeOpen} onOpenChange={setBulkRevokeOpen}>
-                            <ZoruAlertDialogTrigger asChild>
+                        <AlertDialog open={bulkRevokeOpen} onOpenChange={setBulkRevokeOpen}>
+                            <AlertDialogTrigger asChild>
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -375,26 +336,26 @@ export default function CrmApiTokensPage() {
                                 >
                                     Revoke selected
                                 </Button>
-                            </ZoruAlertDialogTrigger>
-                            <ZoruAlertDialogContent>
-                                <ZoruAlertDialogHeader>
-                                    <ZoruAlertDialogTitle>Revoke {selectedIds.length} token(s)?</ZoruAlertDialogTitle>
-                                    <ZoruAlertDialogDescription>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Revoke {selectedIds.length} token(s)?</AlertDialogTitle>
+                                    <AlertDialogDescription>
                                         All selected tokens will stop working immediately. This cannot be undone.
-                                    </ZoruAlertDialogDescription>
-                                </ZoruAlertDialogHeader>
-                                <ZoruAlertDialogFooter>
-                                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                    <ZoruAlertDialogAction onClick={handleBulkRevoke} disabled={pending}>
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleBulkRevoke} disabled={pending}>
                                         {pending ? <LoaderCircle className="mr-2 size-4 animate-spin" /> : null}
                                         Revoke
-                                    </ZoruAlertDialogAction>
-                                </ZoruAlertDialogFooter>
-                            </ZoruAlertDialogContent>
-                        </ZoruAlertDialog>
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
 
-                        <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-                            <ZoruAlertDialogTrigger asChild>
+                        <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+                            <AlertDialogTrigger asChild>
                                 <Button
                                     variant="destructive"
                                     size="sm"
@@ -403,23 +364,23 @@ export default function CrmApiTokensPage() {
                                     <Trash2 className="mr-1.5 size-3.5" />
                                     Delete selected
                                 </Button>
-                            </ZoruAlertDialogTrigger>
-                            <ZoruAlertDialogContent>
-                                <ZoruAlertDialogHeader>
-                                    <ZoruAlertDialogTitle>Delete {selectedIds.length} token(s)?</ZoruAlertDialogTitle>
-                                    <ZoruAlertDialogDescription>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete {selectedIds.length} token(s)?</AlertDialogTitle>
+                                    <AlertDialogDescription>
                                         This will permanently delete the selected tokens. Integrations using them will stop working immediately.
-                                    </ZoruAlertDialogDescription>
-                                </ZoruAlertDialogHeader>
-                                <ZoruAlertDialogFooter>
-                                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                    <ZoruAlertDialogAction onClick={handleBulkDelete} disabled={pending}>
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleBulkDelete} disabled={pending}>
                                         {pending ? <LoaderCircle className="mr-2 size-4 animate-spin" /> : null}
                                         Delete
-                                    </ZoruAlertDialogAction>
-                                </ZoruAlertDialogFooter>
-                            </ZoruAlertDialogContent>
-                        </ZoruAlertDialog>
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
 
                         <Button
                             variant="ghost"
@@ -434,9 +395,9 @@ export default function CrmApiTokensPage() {
 
             <Card className="p-0">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow>
-                            <ZoruTableHead className="w-10">
+                    <THead>
+                        <Tr>
+                            <Th className="w-10">
                                 <Checkbox
                                     checked={allChecked}
                                     aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
@@ -444,47 +405,47 @@ export default function CrmApiTokensPage() {
                                     aria-label="Select all"
                                     disabled={filtered.length === 0}
                                 />
-                            </ZoruTableHead>
-                            <ZoruTableHead>Name</ZoruTableHead>
-                            <ZoruTableHead>Prefix</ZoruTableHead>
-                            <ZoruTableHead>Scopes</ZoruTableHead>
-                            <ZoruTableHead>Created</ZoruTableHead>
-                            <ZoruTableHead>Last used</ZoruTableHead>
-                            <ZoruTableHead>Expires</ZoruTableHead>
-                            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                            </Th>
+                            <Th>Name</Th>
+                            <Th>Prefix</Th>
+                            <Th>Scopes</Th>
+                            <Th>Created</Th>
+                            <Th>Last used</Th>
+                            <Th>Expires</Th>
+                            <Th className="text-right">Actions</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {loading ? (
                             Array.from({ length: 3 }).map((_, i) => (
-                                <ZoruTableRow key={i}>
-                                    <ZoruTableCell colSpan={8}>
+                                <Tr key={i}>
+                                    <Td colSpan={8}>
                                         <Skeleton className="h-6 w-full" />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ))
                         ) : filtered.length === 0 ? (
-                            <ZoruTableRow>
-                                <ZoruTableCell
+                            <Tr>
+                                <Td
                                     colSpan={8}
                                     className="text-center text-[var(--st-text-secondary)] py-12"
                                 >
                                     {rows.length === 0
                                         ? 'No tokens yet. Create one to access the CRM API.'
                                         : 'No tokens match this filter.'}
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : (
                             filtered.map((row) => (
-                                <ZoruTableRow key={row._id}>
-                                    <ZoruTableCell>
+                                <Tr key={row._id}>
+                                    <Td>
                                         <Checkbox
                                             checked={selected.has(row._id)}
                                             onCheckedChange={() => toggleOne(row._id)}
                                             aria-label={`Select ${row.name}`}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="font-medium">
+                                    </Td>
+                                    <Td className="font-medium">
                                         <div className="flex items-center gap-2">
                                             <RowDrawer
                                                 label={row.name}
@@ -513,20 +474,20 @@ export default function CrmApiTokensPage() {
                                                 </Badge>
                                             )}
                                         </div>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-xs">
+                                    </Td>
+                                    <Td className="font-mono text-xs">
                                         {row.prefix}…
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <Badge variant="outline">
                                             {row.scopes.length} scope
                                             {row.scopes.length === 1 ? '' : 's'}
                                         </Badge>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>{formatDate(row.createdAt)}</ZoruTableCell>
-                                    <ZoruTableCell>{formatDate(row.lastUsedAt)}</ZoruTableCell>
-                                    <ZoruTableCell>{formatDate(row.expiresAt)}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td>{formatDate(row.createdAt)}</Td>
+                                    <Td>{formatDate(row.lastUsedAt)}</Td>
+                                    <Td>{formatDate(row.expiresAt)}</Td>
+                                    <Td className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <Button
                                                 variant="ghost"
@@ -538,8 +499,8 @@ export default function CrmApiTokensPage() {
                                                 <Check className="size-4 text-[var(--st-text)]" />
                                             </Button>
                                             {!row.revoked && (
-                                                <ZoruAlertDialog>
-                                                    <ZoruAlertDialogTrigger asChild>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
@@ -551,34 +512,34 @@ export default function CrmApiTokensPage() {
                                                                 <Trash2 className="size-4" />
                                                             )}
                                                         </Button>
-                                                    </ZoruAlertDialogTrigger>
-                                                    <ZoruAlertDialogContent>
-                                                        <ZoruAlertDialogHeader>
-                                                            <ZoruAlertDialogTitle>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>
                                                                 Revoke this token?
-                                                            </ZoruAlertDialogTitle>
-                                                            <ZoruAlertDialogDescription>
+                                                            </AlertDialogTitle>
+                                                            <AlertDialogDescription>
                                                                 Any integration using <strong>{row.name}</strong>{' '}
                                                                 will immediately stop working. This cannot be undone.
-                                                            </ZoruAlertDialogDescription>
-                                                        </ZoruAlertDialogHeader>
-                                                        <ZoruAlertDialogFooter>
-                                                            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                                            <ZoruAlertDialogAction
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction
                                                                 onClick={() => handleRevoke(row._id)}
                                                             >
                                                                 Revoke
-                                                            </ZoruAlertDialogAction>
-                                                        </ZoruAlertDialogFooter>
-                                                    </ZoruAlertDialogContent>
-                                                </ZoruAlertDialog>
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             )}
                                         </div>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ))
                         )}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             </Card>
         </div>

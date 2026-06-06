@@ -1,4 +1,4 @@
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import { ObjectId } from 'mongodb';
@@ -242,10 +242,10 @@ export default async function PurchaseOrderDetailPage({
 
           {/* Vendor chip + outstanding */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Vendor</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2 text-[12.5px]">
+            <CardHeader>
+              <CardTitle>Vendor</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-2 text-[12.5px]">
               {order.vendorId ? (
                 <EntityPickerChip entity="vendor" id={order.vendorId} />
               ) : (
@@ -265,15 +265,15 @@ export default async function PurchaseOrderDetailPage({
                   </span>
                 </div>
               ) : null}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* At a glance + inline status / vendor / buyer / approver */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>At a glance</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>At a glance</CardTitle>
+            </CardHeader>
+            <CardBody>
               <PurchaseOrderQuickEdits
                 poId={poId}
                 status={status}
@@ -307,7 +307,7 @@ export default async function PurchaseOrderDetailPage({
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Live-poll wrapper — refreshes related counts when a
@@ -345,10 +345,10 @@ export default async function PurchaseOrderDetailPage({
       {/* Notes (internal + T&C) */}
       {order.notes || order.termsAndConditions ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Notes</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Notes</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="grid gap-4 md:grid-cols-2 text-[13px]">
               {order.notes ? (
                 <div>
@@ -369,7 +369,7 @@ export default async function PurchaseOrderDetailPage({
                 </div>
               ) : null}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
@@ -377,10 +377,10 @@ export default async function PurchaseOrderDetailPage({
       {Array.isArray((order as { tags?: string[] }).tags) &&
       (order as { tags?: string[] }).tags!.length > 0 ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Tags</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Tags</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="flex flex-wrap gap-2">
               {(order as { tags?: string[] }).tags!.map((t) => (
                 <Badge key={t} variant="outline">
@@ -388,7 +388,7 @@ export default async function PurchaseOrderDetailPage({
                 </Badge>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </EntityDetailShell>

@@ -3,15 +3,7 @@
 import * as React from 'react';
 import { Play, Save } from 'lucide-react';
 
-import {
-    Button,
-    Card,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardContent,
-    Input,
-    Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardBody, Input, Badge } from '@/components/sabcrm/20ui/compat';
 import {
     previewRecipe,
     runRecipe,

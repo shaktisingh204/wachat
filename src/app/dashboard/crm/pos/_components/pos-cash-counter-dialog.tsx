@@ -1,17 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-    Dialog,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    Button,
-    Input,
-    Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 
 interface Props {
     open: boolean;
@@ -45,13 +35,13 @@ export function PosCashCounterDialog({ open, onOpenChange, onConfirm }: Props) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-[400px]">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Reconciliation</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            <DialogContent className="sm:max-w-[400px]">
+                <DialogHeader>
+                    <DialogTitle>Reconciliation</DialogTitle>
+                    <DialogDescription>
                         Count the cash in the drawer to close the session.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
                 <div className="flex justify-center gap-2 mb-4">
                     <Button 
@@ -111,11 +101,11 @@ export function PosCashCounterDialog({ open, onOpenChange, onConfirm }: Props) {
                     </span>
                 </div>
 
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                     <Button onClick={handleConfirm}>Close Session</Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

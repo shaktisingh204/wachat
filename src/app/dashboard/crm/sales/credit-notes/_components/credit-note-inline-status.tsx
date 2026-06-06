@@ -1,6 +1,6 @@
 'use client';
 
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { LoaderCircle,
@@ -34,7 +34,7 @@ interface Props {
 
 export function CreditNoteInlineStatus({ id, status }: Props) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [editing, setEditing] = React.useState(false);
     const [optimistic, setOptimistic] = React.useState(status);
     const [pending, startTransition] = React.useTransition();

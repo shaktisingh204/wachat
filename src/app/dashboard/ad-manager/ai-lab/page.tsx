@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   Sparkles,
   Wand2,
@@ -54,15 +54,15 @@ export default function AiLabPage() {
                         const Icon = t.icon;
                         const card = (
                             <Card className="cursor-pointer hover:border-[var(--st-border)]/50 transition-colors h-full">
-                                <ZoruCardHeader className="pb-2">
+                                <CardHeader className="pb-2">
                                     <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-[var(--st-text)]/10 to-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
                                         <Icon className="h-5 w-5" />
                                     </div>
-                                    <ZoruCardTitle className="text-base mt-2">{t.label}</ZoruCardTitle>
-                                </ZoruCardHeader>
-                                <ZoruCardContent>
+                                    <CardTitle className="text-base mt-2">{t.label}</CardTitle>
+                                </CardHeader>
+                                <CardBody>
                                     <p className="text-xs text-[var(--st-text-secondary)]">{t.desc}</p>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         );
                         return t.href ? (
@@ -74,12 +74,12 @@ export default function AiLabPage() {
                 </div>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle className="text-base flex items-center gap-2">
+                    <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
                             <Wand2 className="h-4 w-4" /> Quick ad copy generator
-                        </ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="space-y-3">
+                        </CardTitle>
+                    </CardHeader>
+                    <CardBody className="space-y-3">
                         <div className="space-y-2">
                             <Label>Product / offer brief</Label>
                             <Textarea
@@ -119,7 +119,7 @@ export default function AiLabPage() {
                                 ))}
                             </div>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </>

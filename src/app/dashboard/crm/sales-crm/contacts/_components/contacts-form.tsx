@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { LoaderCircle,
@@ -81,7 +81,7 @@ function splitName(full: string | undefined | null): {
 
 export function ContactForm({ mode, initial, prefill }: ContactFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const formRef = React.useRef<HTMLFormElement>(null);
 
     const [pending, startTransition] = React.useTransition();

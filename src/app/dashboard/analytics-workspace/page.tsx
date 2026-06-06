@@ -7,14 +7,7 @@
  */
 import Link from 'next/link';
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { listWorkbooksAction } from '@/app/actions/analytics-bi.actions';
 
 import { NewWorkbookButton } from './_components/new-workbook-button';

@@ -1,25 +1,6 @@
 'use client';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    Checkbox,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
     Clock,
     Download,
@@ -86,7 +67,7 @@ function oldestHoldLabel(holds: PosHoldDoc[]): string {
 }
 
 export function PosHoldRecallClient({ holds }: Props) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [search, setSearch] = React.useState('');
     const [cashierFilter, setCashierFilter] = React.useState<'all' | string>('all');
@@ -273,7 +254,7 @@ export function PosHoldRecallClient({ holds }: Props) {
                     icon={<ShoppingCart className="h-4 w-4" />}
                 />
                 <Card>
-                    <ZoruCardContent className="flex items-start justify-between p-3.5">
+                    <CardBody className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Cashiers holding
@@ -283,10 +264,10 @@ export function PosHoldRecallClient({ holds }: Props) {
                             </p>
                         </div>
                         <ListChecks className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardContent className="flex items-start justify-between p-3.5">
+                    <CardBody className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Most holds by
@@ -296,10 +277,10 @@ export function PosHoldRecallClient({ holds }: Props) {
                             </p>
                         </div>
                         <ListChecks className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardContent className="flex items-start justify-between p-3.5">
+                    <CardBody className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Oldest hold
@@ -309,7 +290,7 @@ export function PosHoldRecallClient({ holds }: Props) {
                             </p>
                         </div>
                         <Clock className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 
@@ -328,17 +309,17 @@ export function PosHoldRecallClient({ holds }: Props) {
                     value={cashierFilter}
                     onValueChange={setCashierFilter}
                 >
-                    <ZoruSelectTrigger className="h-9 w-[180px] text-[13px]">
-                        <ZoruSelectValue placeholder="Cashier" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All cashiers</ZoruSelectItem>
+                    <SelectTrigger className="h-9 w-[180px] text-[13px]">
+                        <SelectValue placeholder="Cashier" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All cashiers</SelectItem>
                         {cashierOptions.map((c) => (
-                            <ZoruSelectItem key={c.id} value={c.id}>
+                            <SelectItem key={c.id} value={c.id}>
                                 {c.name}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
                 <Input
                     type="date"
@@ -404,9 +385,9 @@ export function PosHoldRecallClient({ holds }: Props) {
             <Card className="p-0">
                 <div className="overflow-x-auto">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="w-8">
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="w-8">
                                     <Checkbox
                                         checked={headChecked}
                                         onCheckedChange={(c) =>
@@ -414,32 +395,32 @@ export function PosHoldRecallClient({ holds }: Props) {
                                         }
                                         aria-label="Select all"
                                     />
-                                </ZoruTableHead>
-                                <ZoruTableHead>Customer</ZoruTableHead>
-                                <ZoruTableHead>Lines</ZoruTableHead>
-                                <ZoruTableHead className="text-right">
+                                </Th>
+                                <Th>Customer</Th>
+                                <Th>Lines</Th>
+                                <Th className="text-right">
                                     Subtotal
-                                </ZoruTableHead>
-                                <ZoruTableHead>Cashier</ZoruTableHead>
-                                <ZoruTableHead>Held at</ZoruTableHead>
-                                <ZoruTableHead>Reason</ZoruTableHead>
-                                <ZoruTableHead className="text-right">
+                                </Th>
+                                <Th>Cashier</Th>
+                                <Th>Held at</Th>
+                                <Th>Reason</Th>
+                                <Th className="text-right">
                                     Actions
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {filtered.length === 0 ? (
-                                <ZoruTableRow>
-                                    <ZoruTableCell
+                                <Tr>
+                                    <Td
                                         colSpan={8}
                                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         {holds.length === 0
                                             ? 'No held tickets right now.'
                                             : 'No held tickets match these filters.'}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 filtered.map((h) => {
                                     const subtotal = h.lineItems.reduce(
@@ -447,8 +428,8 @@ export function PosHoldRecallClient({ holds }: Props) {
                                         0,
                                     );
                                     return (
-                                        <ZoruTableRow key={h._id}>
-                                            <ZoruTableCell>
+                                        <Tr key={h._id}>
+                                            <Td>
                                                 <Checkbox
                                                     checked={selected.has(h._id)}
                                                     onCheckedChange={() =>
@@ -456,31 +437,31 @@ export function PosHoldRecallClient({ holds }: Props) {
                                                     }
                                                     aria-label="Select"
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <EntityRowLink
                                                     href={`/dashboard/crm/pos/hold-recall/${h._id}`}
                                                     label={
                                                         h.customerName || 'Walk-in'
                                                     }
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 {h.lineItems.length}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right tabular-nums">
+                                            </Td>
+                                            <Td className="text-right tabular-nums">
                                                 {fmtMoney(subtotal)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 {h.heldByName || h.heldBy || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 {fmtDateTime(h.heldAt)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="max-w-[200px] truncate text-[12px] text-[var(--st-text-secondary)]">
+                                            </Td>
+                                            <Td className="max-w-[200px] truncate text-[12px] text-[var(--st-text-secondary)]">
                                                 {h.holdReason || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 <div className="flex justify-end gap-1">
                                                     <Button
                                                         size="sm"
@@ -506,12 +487,12 @@ export function PosHoldRecallClient({ holds }: Props) {
                                                         <Trash2 className="h-3.5 w-3.5" />
                                                     </Button>
                                                 </div>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
             </Card>

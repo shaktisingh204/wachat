@@ -1,6 +1,6 @@
 'use client';
 
-import { DatePicker, Input, Label, Switch, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { DatePicker, Input, Label, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { useActionState } from 'react';
@@ -34,7 +34,7 @@ export function PaymentAccountFormClient({
 }: PaymentAccountFormClientProps): React.JSX.Element {
     const isEdit = !!initial;
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [state, formAction] = useActionState(saveCrmPaymentAccount, initialState);
 

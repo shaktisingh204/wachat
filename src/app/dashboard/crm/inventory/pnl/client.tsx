@@ -24,22 +24,7 @@ import { useMemo, useState, useCallback } from 'react';
 import { useRouter } from "next/navigation";
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import {
-    Button,
-    Card,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Table, TBody, Td, Th, THead, Tr, useToast, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
 import { type PnlDeepKpis } from '@/app/actions/crm-inventory.actions';
 import {
     dateStamp,
@@ -105,7 +90,7 @@ export function ProductPnlClient({
     initialReportData: ProductPnlData[];
     initialKpis: PnlDeepKpis;
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
     const [sortConfig, setSortConfig] = useState<SortConfig>({
         key: 'grossProfit',
@@ -186,7 +171,7 @@ export function ProductPnlClient({
         columnKey: keyof ProductPnlData;
         label: string;
     }) => (
-        <ZoruTableHead
+        <Th
             onClick={() => requestSort(columnKey)}
             className="cursor-pointer text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
         >
@@ -194,7 +179,7 @@ export function ProductPnlClient({
                 {label}
                 <ArrowUpDown className="h-3 w-3" />
             </div>
-        </ZoruTableHead>
+        </Th>
     );
 
     const marginTone: 'positive' | 'negative' =
@@ -295,8 +280,8 @@ export function ProductPnlClient({
                 <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">All figures are in INR (₹).</p>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
                                 <SortableHeader columnKey="productName" label="Product" />
                                 <SortableHeader columnKey="netSoldQty" label="Net qty" />
                                 <SortableHeader columnKey="totalRevenue" label="Revenue" />
@@ -304,40 +289,40 @@ export function ProductPnlClient({
                                 <SortableHeader columnKey="totalCogs" label="COGS" />
                                 <SortableHeader columnKey="grossProfit" label="Profit" />
                                 <SortableHeader columnKey="grossMargin" label="Margin" />
-                                <ZoruTableHead className="w-[50px]"></ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                <Th className="w-[50px]"></Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {sortedData.length > 0 ? (
                                 sortedData.map((item) => (
-                                    <ZoruTableRow key={item.productId} className="border-[var(--st-border)]">
-                                        <ZoruTableCell>
+                                    <Tr key={item.productId} className="border-[var(--st-border)]">
+                                        <Td>
                                             <p className="font-medium text-[var(--st-text)]">{item.productName}</p>
                                             <p className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">{item.sku}</p>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-center text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-center text-[var(--st-text)]">
                                             {item.netSoldQty}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {fmtINR(item.totalRevenue)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {fmtINR(item.avgSellingPrice)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {fmtINR(item.totalCogs)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-semibold text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="font-semibold text-[var(--st-text)]">
                                             {fmtINR(item.grossProfit)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell
+                                        </Td>
+                                        <Td
                                             className={`font-semibold ${
                                                 item.grossMargin < 0 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'
                                             }`}
                                         >
                                             {item.grossMargin.toFixed(2)}%
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -364,17 +349,17 @@ export function ProductPnlClient({
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={8} className="h-64 text-center text-[var(--st-text-secondary)]">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={8} className="h-64 text-center text-[var(--st-text-secondary)]">
                                         No sales data found to generate the report.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
             </Card>

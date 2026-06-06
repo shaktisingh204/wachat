@@ -1,15 +1,4 @@
-import {
-  Badge,
-  Button,
-  Card,
-  Progress,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Progress, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   notFound,
   redirect } from 'next/navigation';
@@ -168,32 +157,32 @@ export default async function EmployeeLeaveQuotasSubPage({
                 <Card className="p-0">
                     <div className="overflow-x-auto">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Leave type
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Period
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-right text-[var(--st-text-secondary)]">
                                         Allotted
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-right text-[var(--st-text-secondary)]">
                                         Used
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-right text-[var(--st-text-secondary)]">
                                         Pending
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-right text-[var(--st-text-secondary)]">
                                         Carry forward
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="w-[160px] text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="w-[160px] text-[var(--st-text-secondary)]">
                                         Usage
-                                    </ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {balances.map((b) => {
                                     const remaining = Math.max(
                                         0,
@@ -202,29 +191,29 @@ export default async function EmployeeLeaveQuotasSubPage({
                                             (b.pending || 0),
                                     );
                                     return (
-                                        <ZoruTableRow
+                                        <Tr
                                             key={b._id}
                                             className="border-[var(--st-border)]"
                                         >
-                                            <ZoruTableCell className="font-medium capitalize text-[var(--st-text)]">
+                                            <Td className="font-medium capitalize text-[var(--st-text)]">
                                                 {b.leaveType.replace(/_/g, ' ')}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[var(--st-text)]">
                                                 {b.period || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                                 {b.allotted ?? 0}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                                 {b.used ?? 0}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                                 {b.pending ?? 0}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                                 {b.carryForward ?? 0}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <div className="flex items-center gap-2">
                                                     <Progress
                                                         value={pct(
@@ -237,11 +226,11 @@ export default async function EmployeeLeaveQuotasSubPage({
                                                         {remaining} left
                                                     </span>
                                                 </div>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </Card>

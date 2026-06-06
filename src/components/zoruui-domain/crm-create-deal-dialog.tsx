@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DatePicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DatePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,
@@ -81,7 +63,7 @@ export function CreateDealDialog({
     onOpenChange?.(next);
   };
   const [state, formAction] = useActionState(createCrmDeal, initialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [closeDate, setCloseDate] = useState<Date | undefined>();
   const [selectedAccountId, setSelectedAccountId] = useState<string>(defaultAccountId || '');
@@ -153,20 +135,20 @@ export function CreateDealDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {hideTrigger ? null : (
-        <ZoruDialogTrigger asChild>
+        <DialogTrigger asChild>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             Create Deal
           </Button>
-        </ZoruDialogTrigger>
+        </DialogTrigger>
       )}
-      <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={handleFormAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="closeDate" value={closeDate?.toISOString()} />
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle className="text-[var(--st-text)]">Create New Deal</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">Track a new sales opportunity.</ZoruDialogDescription>
-          </ZoruDialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle className="text-[var(--st-text)]">Create New Deal</DialogTitle>
+            <DialogDescription className="text-[var(--st-text-secondary)]">Track a new sales opportunity.</DialogDescription>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2"><Label htmlFor="name" className="text-[var(--st-text)]">Deal Name</Label><Input id="name" name="name" required placeholder="e.g. Website Redesign for Acme Corp" /></div>
@@ -181,12 +163,12 @@ export function CreateDealDialog({
                 <div className="space-y-2">
                   <Label htmlFor="stage" className="text-[var(--st-text)]">Stage</Label>
                   <Select name="stage" defaultValue={dealStages[0]} required>
-                    <ZoruSelectTrigger id="stage"><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger id="stage"><SelectValue /></SelectTrigger>
+                    <SelectContent>
                       {dealStages.map(stage => (
-                        <ZoruSelectItem key={stage} value={stage}>{stage}</ZoruSelectItem>
+                        <SelectItem key={stage} value={stage}>{stage}</SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2"><Label className="text-[var(--st-text)]">Expected Close Date</Label><DatePicker value={closeDate} onChange={setCloseDate} /></div>
@@ -221,13 +203,13 @@ export function CreateDealDialog({
                 <div className="space-y-2">
                   <Label htmlFor="priority" className="text-[var(--st-text)]">Priority</Label>
                   <Select name="priority" defaultValue="medium">
-                    <ZoruSelectTrigger id="priority" className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                      <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                      <ZoruSelectItem value="high">High</ZoruSelectItem>
-                      <ZoruSelectItem value="critical">Critical</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger id="priority" className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="critical">Critical</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -270,12 +252,12 @@ export function CreateDealDialog({
               ) : null}
             </div>
           </div>
-          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

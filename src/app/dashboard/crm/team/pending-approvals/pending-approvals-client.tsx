@@ -1,30 +1,7 @@
 'use client';
 
 import { useMemo, useState, useTransition } from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, PageDescription, PageHeader, PageHeading, PageTitle, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { Check, Clock, UserCheck, X } from 'lucide-react';
 import {
   approveSignup,
@@ -46,7 +23,7 @@ export function PendingApprovalsClient({
   initialKpis: Kpis;
   loadError: string | null;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = useState(initialRows);
   const [kpis, setKpis] = useState<Kpis>(initialKpis);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -147,12 +124,12 @@ export function PendingApprovalsClient({
   return (
     <div className="flex flex-col gap-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Pending approvals</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Pending approvals</PageTitle>
+          <PageDescription>
             Review new client signups awaiting admin approval. Approve to activate, or reject with a reason.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       {/* KPIs */}
@@ -204,44 +181,44 @@ export function PendingApprovalsClient({
       {/* Table */}
       <Card>
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead className="w-10">
+          <THead>
+            <Tr>
+              <Th className="w-10">
                 <Checkbox
                   checked={allSelected}
                   onCheckedChange={toggleAll}
                   aria-label="Select all"
                 />
-              </ZoruTableHead>
-              <ZoruTableHead>Name</ZoruTableHead>
-              <ZoruTableHead>Email</ZoruTableHead>
-              <ZoruTableHead>Company</ZoruTableHead>
-              <ZoruTableHead>Signed up</ZoruTableHead>
-              <ZoruTableHead>Pending</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+              </Th>
+              <Th>Name</Th>
+              <Th>Email</Th>
+              <Th>Company</Th>
+              <Th>Signed up</Th>
+              <Th>Pending</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {rows.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={7} className="py-12 text-center text-sm text-[var(--st-text-secondary)]">
+              <Tr>
+                <Td colSpan={7} className="py-12 text-center text-sm text-[var(--st-text-secondary)]">
                   No signups awaiting approval.
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : (
               rows.map((row) => (
-                <ZoruTableRow key={row._id}>
-                  <ZoruTableCell>
+                <Tr key={row._id}>
+                  <Td>
                     <Checkbox
                       checked={selected.has(row._id)}
                       onCheckedChange={() => toggleOne(row._id)}
                       aria-label={`Select ${row.name}`}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="font-medium">{row.name}</ZoruTableCell>
-                  <ZoruTableCell className="text-[var(--st-text-secondary)]">{row.email}</ZoruTableCell>
-                  <ZoruTableCell>{row.company || '—'}</ZoruTableCell>
-                  <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="font-medium">{row.name}</Td>
+                  <Td className="text-[var(--st-text-secondary)]">{row.email}</Td>
+                  <Td>{row.company || '—'}</Td>
+                  <Td className="text-[var(--st-text-secondary)]">
                     {(() => {
                       const date = new Date(row.signedUpAt);
                       if (Number.isNaN(date.getTime())) return '—';
@@ -253,13 +230,13 @@ export function PendingApprovalsClient({
                       const minutes = String(date.getUTCMinutes()).padStart(2, '0');
                       return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
                     })()}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Badge variant={row.daysPending > 7 ? 'destructive' : 'ghost'}>
                       {row.daysPending}d
                     </Badge>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <div className="flex items-center justify-end gap-2">
                       <Button
                         size="sm"
@@ -277,37 +254,37 @@ export function PendingApprovalsClient({
                         Reject
                       </Button>
                     </div>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </Card>
 
       <Dialog open={rejectOpen !== null} onOpenChange={(o) => !o && setRejectOpen(null)}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Reject signup{rejectOpen && rejectOpen.ids.length > 1 ? 's' : ''}</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject signup{rejectOpen && rejectOpen.ids.length > 1 ? 's' : ''}</DialogTitle>
+            <DialogDescription>
               The user will be notified. Rejected accounts are kept for 30 days then auto-deleted.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Textarea
             placeholder="Reason for rejection (optional)"
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
             rows={4}
           />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setRejectOpen(null)}>
               Cancel
             </Button>
             <Button onClick={handleConfirmReject} disabled={isPending}>
               Confirm reject
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

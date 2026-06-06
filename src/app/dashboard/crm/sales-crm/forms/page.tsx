@@ -15,28 +15,7 @@
 import * as React from 'react';
 import { useState, useEffect, useCallback, useTransition } from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-  Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast, Switch } from '@/components/sabcrm/20ui/compat';
 import {
   Archive,
   ClipboardList,
@@ -110,7 +89,7 @@ const FORMS_PER_PAGE = 20;
 
 export default function CrmFormsPage() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [forms, setForms] = useState<WithId<CrmForm>[]>([]);
   const [kpi, setKpi] = useState<CrmFormKpis>({
@@ -339,15 +318,15 @@ export default function CrmFormsPage() {
                 Status
               </Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <ZoruSelectTrigger className="h-8 w-[150px]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                  <ZoruSelectItem value="published">Published</ZoruSelectItem>
-                  <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                  <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-8 w-[150px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             {statusFilter !== 'all' ? (
@@ -458,72 +437,72 @@ export default function CrmFormsPage() {
           <Card className="overflow-hidden p-0">
             <div className="overflow-x-auto">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10 pl-3">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10 pl-3">
                       <Checkbox
                         checked={allSelectedOnPage}
                         onCheckedChange={toggleAll}
                         aria-label="Select all on page"
                       />
-                    </ZoruTableHead>
-                    <ZoruTableHead>Form Name</ZoruTableHead>
-                    <ZoruTableHead>Status</ZoruTableHead>
-                    <ZoruTableHead>Active</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Submissions</ZoruTableHead>
-                    <ZoruTableHead>Created</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th>Form Name</Th>
+                    <Th>Status</Th>
+                    <Th>Active</Th>
+                    <Th className="text-right">Submissions</Th>
+                    <Th>Created</Th>
+                    <Th className="text-right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {Object.entries(groupedFiltered).map(([category, catForms]) => (
                     <React.Fragment key={category}>
                       {Object.keys(groupedFiltered).length > 1 && (
-                        <ZoruTableRow className="bg-[var(--st-bg-secondary)]/50 hover:bg-[var(--st-bg-secondary)]/50">
-                          <ZoruTableCell colSpan={7} className="py-2 text-[12px] font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
+                        <Tr className="bg-[var(--st-bg-secondary)]/50 hover:bg-[var(--st-bg-secondary)]/50">
+                          <Td colSpan={7} className="py-2 text-[12px] font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
                             {category}
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       )}
                       {catForms.map((form) => {
                         const id = form._id.toString();
                         const status = resolveStatus(form);
                         const isActive = status === 'published';
                         return (
-                          <ZoruTableRow key={id} className="border-[var(--st-border)]">
-                            <ZoruTableCell className="pl-3">
+                          <Tr key={id} className="border-[var(--st-border)]">
+                            <Td className="pl-3">
                               <Checkbox
                                 checked={selected.has(id)}
                                 onCheckedChange={() => toggleRow(id)}
                                 aria-label={`Select ${form.name}`}
                               />
-                            </ZoruTableCell>
-                            <ZoruTableCell>
+                            </Td>
+                            <Td>
                               <EntityRowLink
                                 href={`/dashboard/crm/sales-crm/forms/${id}/submissions`}
                                 label={form.name}
                                 subtitle={`${form.submissionCount ?? 0} submission${(form.submissionCount ?? 0) === 1 ? '' : 's'}`}
                               />
-                            </ZoruTableCell>
-                            <ZoruTableCell>
+                            </Td>
+                            <Td>
                               <StatusBadge form={form} />
-                            </ZoruTableCell>
-                            <ZoruTableCell>
+                            </Td>
+                            <Td>
                               <Switch
                                 checked={isActive}
                                 onCheckedChange={() => handleToggleActive(id, status)}
                                 aria-label="Toggle active status"
                               />
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                            </Td>
+                            <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
                               {(form.submissionCount ?? 0).toLocaleString()}
-                            </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                            </Td>
+                        <Td className="text-[13px] text-[var(--st-text-secondary)]">
                           {form.createdAt
                             ? formatDistanceToNow(new Date(form.createdAt), { addSuffix: true })
                             : '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <div className="flex justify-end gap-1">
                             <a
                               href={`/embed/crm-form/${id}`}
@@ -549,13 +528,13 @@ export default function CrmFormsPage() {
                               <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                             </Button>
                           </div>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                         );
                       })}
                     </React.Fragment>
                   ))}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>

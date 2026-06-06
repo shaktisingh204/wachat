@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  DatePicker,
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  useZoruToast,
-  StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, DatePicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   GitCompare, Save, Download } from 'lucide-react';
@@ -67,7 +47,7 @@ export default function BankReconciliationMatchPage() {
     const [creditCol, setCreditCol] = useState('');
 
     const [isLoading, startLoading] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     useEffect(() => {
         getCrmPaymentAccounts().then((data) => {
@@ -499,18 +479,18 @@ const TransactionTable = ({
         <h3 className="mb-4 text-[15px] font-semibold text-[var(--st-text)]">{title}</h3>
         <div className="max-h-96 overflow-x-auto overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
             <Table>
-                <TableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10">
-                    <TableRow className="border-[var(--st-border)] hover:bg-transparent">
-                        <TableHead className="w-10 text-[var(--st-text-secondary)]">
+                <THead className="sticky top-0 bg-[var(--st-bg-secondary)] z-10">
+                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                        <Th className="w-10 text-[var(--st-text-secondary)]">
                             <Check className="h-4 w-4" />
-                        </TableHead>
-                        <TableHead className="text-[var(--st-text-secondary)]">Date</TableHead>
-                        <TableHead className="text-[var(--st-text-secondary)]">Description</TableHead>
-                        <TableHead className="text-right text-[var(--st-text-secondary)]">Debit</TableHead>
-                        <TableHead className="text-right text-[var(--st-text-secondary)]">Credit</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
+                        </Th>
+                        <Th className="text-[var(--st-text-secondary)]">Date</Th>
+                        <Th className="text-[var(--st-text-secondary)]">Description</Th>
+                        <Th className="text-right text-[var(--st-text-secondary)]">Debit</Th>
+                        <Th className="text-right text-[var(--st-text-secondary)]">Credit</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {entries.map((e) => {
                         const debit = isBankStatement
                             ? e.amount > 0
@@ -527,33 +507,33 @@ const TransactionTable = ({
                               ? e.amount
                               : 0;
                         return (
-                            <TableRow
+                            <Tr
                                 key={e._id}
                                 className="border-[var(--st-border)]"
                                 data-state={matchedIds.has(e._id) ? 'selected' : ''}
                             >
-                                <TableCell>
+                                <Td>
                                     <Checkbox
                                         checked={matchedIds.has(e._id)}
                                         onCheckedChange={() => onMatchToggle(e._id)}
                                     />
-                                </TableCell>
-                                <TableCell className="text-xs text-[var(--st-text)]">
+                                </Td>
+                                <Td className="text-xs text-[var(--st-text)]">
                                     {e.date ? format(new Date(e.date), 'dd MMM') : ''}
-                                </TableCell>
-                                <TableCell className="text-xs text-[var(--st-text)]">
+                                </Td>
+                                <Td className="text-xs text-[var(--st-text)]">
                                     {e.description}
-                                </TableCell>
-                                <TableCell className="text-right font-mono text-xs text-[var(--st-text)]">
+                                </Td>
+                                <Td className="text-right font-mono text-xs text-[var(--st-text)]">
                                     {debit > 0 ? debit.toFixed(2) : ''}
-                                </TableCell>
-                                <TableCell className="text-right font-mono text-xs text-[var(--st-text)]">
+                                </Td>
+                                <Td className="text-right font-mono text-xs text-[var(--st-text)]">
                                     {credit > 0 ? credit.toFixed(2) : ''}
-                                </TableCell>
-                            </TableRow>
+                                </Td>
+                            </Tr>
                         );
                     })}
-                </TableBody>
+                </TBody>
             </Table>
         </div>
         <div className="mt-4 flex justify-end gap-6 border-t border-[var(--st-border)] pt-4 text-[13px] font-semibold text-[var(--st-text)]">

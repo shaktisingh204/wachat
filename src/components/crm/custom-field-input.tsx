@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Input,
-  Textarea,
-  Label,
-  Checkbox,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Textarea, Label, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 /**
  * <CustomFieldInput> + <CustomFieldDisplay> — render a single
  * `WsCustomField` instance.
@@ -134,16 +124,16 @@ export function CustomFieldInput({
           onValueChange={(v) => onChange(v)}
           disabled={disabled}
         >
-          <ZoruSelectTrigger id={slug}>
-            <ZoruSelectValue placeholder={`Select ${label}…`} />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger id={slug}>
+            <SelectValue placeholder={`Select ${label}…`} />
+          </SelectTrigger>
+          <SelectContent>
             {options.map((opt) => (
-              <ZoruSelectItem key={opt} value={opt}>
+              <SelectItem key={opt} value={opt}>
                 {opt}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
       );
       break;

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   FileMinus } from 'lucide-react';
@@ -55,7 +55,7 @@ const EMPTY_KPIS: CreditNoteKpis = {
 };
 
 export default function CreditNotesPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [creditNotes, setCreditNotes] = React.useState<CrmCreditNoteDoc[]>([]);
     const [page, setPage] = React.useState(1);

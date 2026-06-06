@@ -4,7 +4,7 @@ import { crmAwardProgramsApi } from '@/lib/rust-client/crm-awards';
 import { StatCard } from '@/components/sabcrm/20ui/compat';
 import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import { Award, Trophy, Users, Star } from 'lucide-react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,10 +67,10 @@ function MetricsSkeleton() {
 function TimelineSkeleton() {
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle>Activity</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+                <CardTitle>Activity</CardTitle>
+            </CardHeader>
+            <CardBody>
                 <div className="space-y-6">
                     {Array.from({ length: 5 }).map((_, i) => (
                         <div key={i} className="flex gap-4">
@@ -85,7 +85,7 @@ function TimelineSkeleton() {
                         </div>
                     ))}
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

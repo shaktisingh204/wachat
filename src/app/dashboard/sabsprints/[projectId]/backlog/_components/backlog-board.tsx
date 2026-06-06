@@ -10,18 +10,7 @@
  */
 import { useMemo, useState, useTransition } from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, EmptyState } from '@/components/sabcrm/20ui/compat';
 import {
   createStory,
   reorderStories,
@@ -239,18 +228,18 @@ export function BacklogBoard({
                       <Select
                         onValueChange={(value) => handleMoveToSprint(s._id, value)}
                       >
-                        <ZoruSelectTrigger className="w-40">
-                          <ZoruSelectValue placeholder="Move to sprint…" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Move to sprint…" />
+                        </SelectTrigger>
+                        <SelectContent>
                           {sprints
                             .filter((sp) => sp.status !== 'completed' && sp.status !== 'cancelled')
                             .map((sp) => (
-                              <ZoruSelectItem key={sp._id} value={sp._id}>
+                              <SelectItem key={sp._id} value={sp._id}>
                                 {sp.name}
-                              </ZoruSelectItem>
+                              </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                       </Select>
                     </li>
                   );

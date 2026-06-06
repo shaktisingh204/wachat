@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Checkbox,
-  Label,
-  Progress,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Alert, AlertDescription, AlertTitle, Checkbox, Label, Progress } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 
 /**
@@ -36,16 +23,16 @@ export default function SetupPage() {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-12">
         <Card className="max-w-2xl w-full border-[var(--st-danger)]/20 shadow-lg">
-          <ZoruCardHeader className="bg-[var(--st-text)]/5 border-b border-destructive/10 pb-6">
-            <ZoruCardTitle className="flex items-center gap-2 text-[var(--st-danger)] text-xl">
+          <CardHeader className="bg-[var(--st-text)]/5 border-b border-destructive/10 pb-6">
+            <CardTitle className="flex items-center gap-2 text-[var(--st-danger)] text-xl">
               <AlertCircle className="h-6 w-6" />
               Meta Configuration Required
-            </ZoruCardTitle>
-            <ZoruCardDescription className="text-base mt-2">
+            </CardTitle>
+            <CardDescription className="text-base mt-2">
               Your Meta Embedded Signup environment variables are missing. Follow these steps to configure them and enable WhatsApp Business Account connections.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-8 pt-8">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-8 pt-8">
             <div className="space-y-6">
               <div className="flex gap-4">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--st-text)]/10 text-[var(--st-text)] font-bold">1</div>
@@ -74,12 +61,12 @@ export default function SetupPage() {
             
             <Alert variant="default" className="bg-[var(--st-bg-secondary)]/50 border-[var(--st-text)]/20">
               <AlertCircle className="h-4 w-4 text-[var(--st-text)]" />
-              <ZoruAlertTitle className="text-[var(--st-text)] font-semibold">Restart Required</ZoruAlertTitle>
-              <ZoruAlertDescription>
+              <AlertTitle className="text-[var(--st-text)] font-semibold">Restart Required</AlertTitle>
+              <AlertDescription>
                 After updating your <code className="bg-[var(--st-bg)] px-1 py-0.5 rounded text-xs border">.env</code> file, remember to restart your Next.js development server to apply the changes.
-              </ZoruAlertDescription>
+              </AlertDescription>
             </Alert>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     );
@@ -131,14 +118,14 @@ export default function SetupPage() {
         <div className="w-full max-w-xl mx-auto">
           <Card className="flex flex-col text-center shadow-lg border-[var(--st-text)]/20 overflow-hidden">
             <div className="h-2 bg-[var(--st-text)] w-full"></div>
-            <ZoruCardHeader className="pb-4">
-              <ZoruCardTitle className="text-2xl">Guided Setup</ZoruCardTitle>
-              <ZoruCardDescription className="text-base">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-2xl">Guided Setup</CardTitle>
+              <CardDescription className="text-base">
                 We recommend using the secure pop-up to connect your account in a few clicks.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
+              </CardDescription>
+            </CardHeader>
 
-            <ZoruCardContent className="flex-grow flex flex-col items-center justify-center text-center gap-6 py-6">
+            <CardBody className="flex-grow flex flex-col items-center justify-center text-center gap-6 py-6">
               <div className="w-full">
                 <EmbeddedSignup
                   appId={appId}
@@ -152,9 +139,9 @@ export default function SetupPage() {
                 <AlertCircle className="h-4 w-4" />
                 <span>You will be redirected to Facebook to authorize.</span>
               </div>
-            </ZoruCardContent>
+            </CardBody>
 
-            <ZoruCardFooter className="bg-[var(--st-bg-secondary)]/20 border-t pt-6">
+            <CardFooter className="bg-[var(--st-bg-secondary)]/20 border-t pt-6">
               <div className="flex flex-col items-start w-full space-y-4">
                 <div className="flex items-center space-x-3">
                   <Checkbox
@@ -176,7 +163,7 @@ export default function SetupPage() {
                   Enable this if you want to sync your product catalog and send product messages via WhatsApp.
                 </p>
               </div>
-            </ZoruCardFooter>
+            </CardFooter>
           </Card>
           
           <div className="mt-8 text-center text-sm text-[var(--st-text-secondary)] flex items-center justify-center gap-2">

@@ -3,17 +3,7 @@
 import { useActionState, useEffect, useRef } from 'react';
 import { handleChangePassword } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
-import {
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardFooter,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Input,
-    Label,
-    Button,
-    Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button, Separator } from '@/components/sabcrm/20ui/compat';
 import { KeyRound, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { ActionResponse } from './types';
@@ -47,11 +37,11 @@ export function PasswordForm() {
 
     return (
         <form action={formAction} ref={formRef}>
-            <ZoruCardHeader>
-                <ZoruCardTitle>Change Password</ZoruCardTitle>
-                <ZoruCardDescription>Enter your current and new password to update your credentials.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+            <CardHeader>
+                <CardTitle>Change Password</CardTitle>
+                <CardDescription>Enter your current and new password to update your credentials.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="currentPassword">Current Password</Label>
                     <Input id="currentPassword" name="currentPassword" type="password" required autoComplete="current-password" />
@@ -65,10 +55,10 @@ export function PasswordForm() {
                     <Label htmlFor="confirmPassword">Confirm New Password</Label>
                     <Input id="confirmPassword" name="confirmPassword" type="password" required autoComplete="new-password" />
                 </div>
-            </ZoruCardContent>
-            <ZoruCardFooter>
+            </CardBody>
+            <CardFooter>
                 <SubmitButton icon={KeyRound}>Update Password</SubmitButton>
-            </ZoruCardFooter>
+            </CardFooter>
         </form>
     );
 }

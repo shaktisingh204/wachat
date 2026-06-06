@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { useActionState } from 'react';
@@ -101,7 +87,7 @@ export function EventForm({ initialData }: EventFormProps) {
     const isEditing = Boolean(initialData?._id);
     const [state, formAction] = useActionState(saveEvent, initialState);
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // Controlled-but-uncontrolled hybrid: keep React state for fields that
     // toggle conditional rendering (is_online, is_recurring, banner_url)
@@ -154,7 +140,7 @@ export function EventForm({ initialData }: EventFormProps) {
 
     return (
         <Card>
-            <ZoruCardContent className="p-6">
+            <CardBody className="p-6">
                 <form action={formAction} className="flex flex-col gap-6">
                     {isEditing ? (
                         <input
@@ -197,16 +183,16 @@ export function EventForm({ initialData }: EventFormProps) {
                                     (initialData?.eventType as string | undefined) ?? 'meeting'
                                 }
                             >
-                                <ZoruSelectTrigger id="event_type">
-                                    <ZoruSelectValue placeholder="Select type" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger id="event_type">
+                                    <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {EVENT_TYPE_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
+                                        <SelectItem key={o.value} value={o.value}>
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
 
@@ -216,16 +202,16 @@ export function EventForm({ initialData }: EventFormProps) {
                                 name="status"
                                 defaultValue={initialData?.status ?? 'draft'}
                             >
-                                <ZoruSelectTrigger id="status">
-                                    <ZoruSelectValue placeholder="Select status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger id="status">
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
+                                        <SelectItem key={o.value} value={o.value}>
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>
@@ -447,7 +433,7 @@ export function EventForm({ initialData }: EventFormProps) {
                         <SubmitButtonGuarded isEditing={isEditing} disabled={endBeforeStartError} />
                     </div>
                 </form>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

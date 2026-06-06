@@ -1,23 +1,6 @@
 'use client';
 
-import {
-    Button,
-    Card,
-    Checkbox,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import {
     Download,
     ListChecks,
@@ -205,14 +188,14 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                     value={statusFilter}
                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                 >
-                    <ZoruSelectTrigger className="h-9 w-[150px] text-[13px]">
-                        <ZoruSelectValue placeholder="Status" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All terminals</ZoruSelectItem>
-                        <ZoruSelectItem value="online">Online</ZoruSelectItem>
-                        <ZoruSelectItem value="offline">Offline</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger className="h-9 w-[150px] text-[13px]">
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All terminals</SelectItem>
+                        <SelectItem value="online">Online</SelectItem>
+                        <SelectItem value="offline">Offline</SelectItem>
+                    </SelectContent>
                 </Select>
                 {hasFilters ? (
                     <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -266,9 +249,9 @@ export function PosTerminalManagerClient({ terminals }: Props) {
             <Card className="p-0">
                 <div className="overflow-x-auto">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="w-8">
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="w-8">
                                     <Checkbox
                                         checked={headChecked}
                                         onCheckedChange={(c) =>
@@ -276,38 +259,38 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                         }
                                         aria-label="Select all"
                                     />
-                                </ZoruTableHead>
-                                <ZoruTableHead>Terminal</ZoruTableHead>
-                                <ZoruTableHead>Status</ZoruTableHead>
-                                <ZoruTableHead>Active cashier</ZoruTableHead>
-                                <ZoruTableHead>Last heartbeat</ZoruTableHead>
-                                <ZoruTableHead className="text-right">
+                                </Th>
+                                <Th>Terminal</Th>
+                                <Th>Status</Th>
+                                <Th>Active cashier</Th>
+                                <Th>Last heartbeat</Th>
+                                <Th className="text-right">
                                     Txns today
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-right">
+                                </Th>
+                                <Th className="text-right">
                                     Revenue today
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-right">
+                                </Th>
+                                <Th className="text-right">
                                     Actions
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {filtered.length === 0 ? (
-                                <ZoruTableRow>
-                                    <ZoruTableCell
+                                <Tr>
+                                    <Td
                                         colSpan={8}
                                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         {terminals.length === 0
                                             ? 'No terminals yet. Open a session on a terminal to register it.'
                                             : 'No terminals match these filters.'}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 filtered.map((t) => (
-                                    <ZoruTableRow key={t.terminalId}>
-                                        <ZoruTableCell>
+                                    <Tr key={t.terminalId}>
+                                        <Td>
                                             <Checkbox
                                                 checked={selected.has(
                                                     t.terminalId,
@@ -317,8 +300,8 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                                 }
                                                 aria-label="Select terminal"
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {t.openSessionId ? (
                                                 <EntityRowLink
                                                     href={`/dashboard/crm/pos/sessions/${t.openSessionId}`}
@@ -339,8 +322,8 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                                     </span>
                                                 </div>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <span className="inline-flex items-center gap-2 text-[12.5px]">
                                                 <span
                                                     className={
@@ -355,22 +338,22 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                                     {t.status}
                                                 </span>
                                             </span>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {t.openedByName || '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <span title={t.lastHeartbeat ?? ''}>
                                                 {relativeTime(t.lastHeartbeat)}
                                             </span>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right tabular-nums">
+                                        </Td>
+                                        <Td className="text-right tabular-nums">
                                             {t.txnsToday}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right tabular-nums">
+                                        </Td>
+                                        <Td className="text-right tabular-nums">
                                             {fmtMoney(t.revenueToday)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
+                                        </Td>
+                                        <Td className="text-right">
                                             <div className="flex justify-end gap-1">
                                                 {t.status === 'online' ? (
                                                     <>
@@ -414,11 +397,11 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                                     </Button>
                                                 )}
                                             </div>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
             </Card>

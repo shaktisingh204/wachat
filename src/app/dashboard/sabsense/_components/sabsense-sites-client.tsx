@@ -4,34 +4,7 @@ import React, { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Plus, Globe, Trash2, KeyRound, Copy } from 'lucide-react';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    Dialog,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogFooter,
-    Input,
-    Label,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    ZoruPageActions,
-    Table,
-    ZoruTableHeader,
-    ZoruTableBody,
-    ZoruTableRow,
-    ZoruTableHead,
-    ZoruTableCell,
-    Badge,
-    EmptyState,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, Table, THead, TBody, Tr, Th, Td, Badge, EmptyState, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
     createPagesenseSite,
@@ -46,7 +19,7 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
     const [domain, setDomain] = useState('');
     const [pending, startTransition] = useTransition();
     const [snippetSite, setSnippetSite] = useState<PagesenseSite | null>(null);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const handleCreate = () => {
         if (!name.trim() || !domain.trim()) {
@@ -90,16 +63,16 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
     return (
         <div className="zoruui p-8 space-y-6">
             <PageHeader>
-                <ZoruPageTitle>PageSense</ZoruPageTitle>
-                <ZoruPageDescription>
+                <PageTitle>PageSense</PageTitle>
+                <PageDescription>
                     Conversion-rate optimization — heatmaps, funnels, session
                     recordings, and form analytics for your sites.
-                </ZoruPageDescription>
-                <ZoruPageActions>
+                </PageDescription>
+                <PageActions>
                     <Button onClick={() => setIsOpen(true)}>
                         <Plus className="mr-2 h-4 w-4" /> New site
                     </Button>
-                </ZoruPageActions>
+                </PageActions>
             </PageHeader>
 
             {sites.length === 0 ? (
@@ -115,42 +88,42 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                 />
             ) : (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Registered sites</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>Registered sites</CardTitle>
+                        <CardDescription>
                             Click a site to view its heatmaps, funnels, and recordings.
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody>
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Name</ZoruTableHead>
-                                    <ZoruTableHead>Domain</ZoruTableHead>
-                                    <ZoruTableHead>Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Name</Th>
+                                    <Th>Domain</Th>
+                                    <Th>Status</Th>
+                                    <Th className="text-right">Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {sites.map((s) => (
-                                    <ZoruTableRow key={s._id}>
-                                        <ZoruTableCell>
+                                    <Tr key={s._id}>
+                                        <Td>
                                             <Link
                                                 href={`/dashboard/pagesense/${s._id}/heatmaps`}
                                                 className="font-medium text-[color:var(--st-text)] hover:underline"
                                             >
                                                 {s.name}
                                             </Link>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono text-xs">
+                                        </Td>
+                                        <Td className="font-mono text-xs">
                                             {s.domain}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <Badge variant={s.isActive ? 'default' : 'secondary'}>
                                                 {s.isActive ? 'Active' : 'Paused'}
                                             </Badge>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
+                                        </Td>
+                                        <Td className="text-right">
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
@@ -166,21 +139,21 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
 
             {/* Create dialog */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Register a new site</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Register a new site</DialogTitle>
+                    </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="space-y-2">
                             <Label htmlFor="ps-name">Site name</Label>
@@ -201,23 +174,23 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                             />
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="ghost" onClick={() => setIsOpen(false)}>
                             Cancel
                         </Button>
                         <Button onClick={handleCreate} disabled={pending}>
                             Create
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Snippet install dialog */}
             <Dialog open={!!snippetSite} onOpenChange={(o) => !o && setSnippetSite(null)}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Install snippet</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Install snippet</DialogTitle>
+                    </DialogHeader>
                     {snippetSite && (
                         <div className="space-y-3 py-2">
                             <p className="text-sm text-[color:var(--st-text-secondary)]">
@@ -240,10 +213,10 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                             </Button>
                         </div>
                     )}
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button onClick={() => setSnippetSite(null)}>Done</Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

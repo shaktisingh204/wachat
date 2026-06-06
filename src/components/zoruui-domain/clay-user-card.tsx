@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
 import { LuEllipsis } from 'react-icons/lu';
 
 import * as React from 'react';
@@ -41,10 +41,10 @@ export function ClayUserCard({
       )}
     >
       <Avatar className="h-10 w-10 shrink-0 ring-2 ring-background">
-        {avatarSrc ? <ZoruAvatarImage src={avatarSrc} alt={name} /> : null}
-        <ZoruAvatarFallback className="bg-gradient-to-br from-muted to-border text-[12px] font-semibold text-[var(--st-text-secondary)]">
+        {avatarSrc ? <AvatarImage src={avatarSrc} alt={name} /> : null}
+        <AvatarFallback className="bg-gradient-to-br from-muted to-border text-[12px] font-semibold text-[var(--st-text-secondary)]">
           {initials}
-        </ZoruAvatarFallback>
+        </AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] font-semibold text-[var(--st-text)] leading-[1.2]">

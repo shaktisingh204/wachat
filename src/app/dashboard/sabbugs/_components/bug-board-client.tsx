@@ -4,15 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import {
-  Card,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { updateBug } from '@/app/actions/bug-tracker.actions';
 import type { BugDoc, BugStatus } from '@/lib/rust-client/bug-tracker-bugs';
@@ -32,7 +24,7 @@ export function BugBoardClient({
   initialError?: string;
 }) {
   const router = useRouter();
-  const toast = useZoruToast();
+  const toast = useToast();
   const [bugs, setBugs] = React.useState(initialBugs);
 
   const grouped = React.useMemo(() => {
@@ -138,16 +130,16 @@ function BoardCard({
         value={bug.status}
         onValueChange={(v) => onMove(bug, v as BugStatus)}
       >
-        <ZoruSelectTrigger className="h-7 text-xs">
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="h-7 text-xs">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
           {BUG_STATUSES.map((s) => (
-            <ZoruSelectItem key={s} value={s}>
+            <SelectItem key={s} value={s}>
               Move to {s}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
     </div>
   );

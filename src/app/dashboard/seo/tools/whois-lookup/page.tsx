@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 
 void _zoruCn;
@@ -30,10 +30,10 @@ export default function WhoisLookupPage() {
         <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
         <Button onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Lookup'}</Button>
       </div>
-      {error && <Card className="border-[var(--st-border)]"><ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-[var(--st-border)]"><CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody></Card>}
       {data && (
         <>
-          <Card><ZoruCardContent className="p-4">
+          <Card><CardBody className="p-4">
             <div className="text-xs text-[var(--st-text-secondary)] mb-2">Server: {data.server}</div>
             <table className="w-full text-xs">
               <tbody>
@@ -42,7 +42,7 @@ export default function WhoisLookupPage() {
                 ))}
               </tbody>
             </table>
-          </ZoruCardContent></Card>
+          </CardBody></Card>
           <Button variant="outline" onClick={() => setShowRaw((s) => !s)}>{showRaw ? 'Hide' : 'Show'} raw WHOIS</Button>
           {showRaw && <pre className="text-xs bg-[var(--st-bg-muted)] p-3 rounded overflow-auto max-h-96 whitespace-pre-wrap">{data.raw}</pre>}
         </>

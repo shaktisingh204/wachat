@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, ZoruCardContent, ZoruDateRangePicker, Label } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, DateRangePicker, Label } from '@/components/sabcrm/20ui/compat';
 import {
   CheckCircle2,
   Clock,
@@ -62,7 +62,7 @@ export interface TasksFiltersRowProps {
 export function TasksFiltersRow(props: TasksFiltersRowProps) {
     return (
         <Card>
-            <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
+            <CardBody className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <div className="space-y-1">
                     <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
@@ -136,7 +136,7 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                     <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Due
                     </Label>
-                    <ZoruDateRangePicker
+                    <DateRangePicker
                         value={props.dateRange}
                         onChange={(r) => props.onDateRangeChange(r)}
                     />
@@ -149,7 +149,7 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                         </Button>
                     </div>
                 ) : null}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

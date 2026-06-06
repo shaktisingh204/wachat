@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Checkbox,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   CheckCircle,
   Edit,
@@ -59,97 +46,97 @@ export function VoucherBooksTable({
     return (
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                        <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
+                <THead>
+                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                        <Th className="w-10 text-[var(--st-text-secondary)]">
                             <Checkbox
                                 checked={allSelected}
                                 data-indeterminate={someSelected ? 'true' : undefined}
                                 onCheckedChange={(v) => onToggleAll(Boolean(v))}
                                 aria-label="Select all rows"
                             />
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Prefix</ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Last #</ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Reset</ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Default</ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Active</ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">Approval</ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody className={loading ? 'opacity-50 pointer-events-none' : ''}>
+                        </Th>
+                        <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                        <Th className="text-[var(--st-text-secondary)]">Type</Th>
+                        <Th className="text-[var(--st-text-secondary)]">Prefix</Th>
+                        <Th className="text-[var(--st-text-secondary)]">Last #</Th>
+                        <Th className="text-[var(--st-text-secondary)]">Reset</Th>
+                        <Th className="text-[var(--st-text-secondary)]">Default</Th>
+                        <Th className="text-[var(--st-text-secondary)]">Active</Th>
+                        <Th className="text-[var(--st-text-secondary)]">Approval</Th>
+                        <Th className="text-[var(--st-text-secondary)] text-right">Actions</Th>
+                    </Tr>
+                </THead>
+                <TBody className={loading ? 'opacity-50 pointer-events-none' : ''}>
                     {loading && rows.length === 0 ? (
-                        <ZoruTableRow className="border-[var(--st-border)]">
-                            <ZoruTableCell colSpan={10} className="h-24 text-center">
+                        <Tr className="border-[var(--st-border)]">
+                            <Td colSpan={10} className="h-24 text-center">
                                 <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                        </Tr>
                     ) : rows.length === 0 ? (
-                        <ZoruTableRow className="border-[var(--st-border)]">
-                            <ZoruTableCell colSpan={10} className="h-24 text-center text-[var(--st-text-secondary)]">
+                        <Tr className="border-[var(--st-border)]">
+                            <Td colSpan={10} className="h-24 text-center text-[var(--st-text-secondary)]">
                                 No voucher books match this filter.
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                        </Tr>
                     ) : (
                         rows.map((row) => {
                             const checked = selection.has(row._id);
                             return (
-                                <ZoruTableRow
+                                <Tr
                                     key={row._id}
                                     className="border-[var(--st-border)]"
                                     data-state={checked ? 'selected' : undefined}
                                 >
-                                    <ZoruTableCell>
+                                    <Td>
                                         <Checkbox
                                             checked={checked}
                                             onCheckedChange={() => onToggle(row._id)}
                                             aria-label={`Select ${row.name}`}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="font-medium">
+                                    </Td>
+                                    <Td className="font-medium">
                                         <EntityRowLink
                                             href={`/dashboard/crm/accounting/vouchers/${row._id}`}
                                             label={row.name}
                                             subtitle={row.prefix ? `Prefix ${row.prefix}` : undefined}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <StatusPill label={row.type} tone="neutral" />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                                         {row.prefix || '—'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                         {lastNumberDisplay(row)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="capitalize text-[12px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="capitalize text-[12px] text-[var(--st-text)]">
                                         {row.resetFrequency ?? 'none'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {row.isDefault ? (
                                             <CheckCircle className="h-4 w-4 text-[var(--st-text)]" />
                                         ) : (
                                             <XCircle className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {row.isActive === false ? (
                                             <StatusPill label="Inactive" tone="neutral" />
                                         ) : (
                                             <StatusPill label="Active" tone="green" />
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {row.approvalRequired ? (
                                             <StatusPill label="Required" tone="amber" />
                                         ) : (
                                             <span className="text-[12px] text-[var(--st-text-secondary)]">No</span>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <div className="flex justify-end items-center gap-1">
                                             <Button asChild variant="ghost" size="icon">
                                                 <Link href={`/dashboard/crm/accounting/vouchers/${row._id}/edit`}>
@@ -157,42 +144,42 @@ export function VoucherBooksTable({
                                                 </Link>
                                             </Button>
                                             <DropdownMenu>
-                                                <ZoruDropdownMenuTrigger asChild>
+                                                <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" size="icon" aria-label="More actions">
                                                         <MoreHorizontal className="h-4 w-4" />
                                                     </Button>
-                                                </ZoruDropdownMenuTrigger>
-                                                <ZoruDropdownMenuContent align="end">
-                                                    <ZoruDropdownMenuItem asChild>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem asChild>
                                                         <Link href={`/dashboard/crm/accounting/vouchers/${row._id}`}>
                                                             View entries
                                                         </Link>
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem asChild>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem asChild>
                                                         <Link
                                                             href={`/dashboard/crm/accounting/vouchers/new?mode=entry&bookId=${row._id}`}
                                                         >
                                                             New entry
                                                         </Link>
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem asChild>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem asChild>
                                                         <Link href={`/dashboard/crm/accounting/vouchers/${row._id}/activity`}>
                                                             Activity
                                                         </Link>
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem onSelect={() => onDelete(row)}>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => onDelete(row)}>
                                                         <Trash2 className="mr-2 h-3.5 w-3.5 text-[var(--st-text)]" />
                                                         Delete
-                                                    </ZoruDropdownMenuItem>
-                                                </ZoruDropdownMenuContent>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
                                             </DropdownMenu>
                                         </div>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             );
                         })
                     )}
-                </ZoruTableBody>
+                </TBody>
             </Table>
         </div>
     );

@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, useToast } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { Upload, LoaderCircle } from 'lucide-react';
 import { importProfessionalTaxRecordsCsv } from '@/app/actions/crm-professional-tax.actions';
@@ -16,7 +8,7 @@ import { useRouter } from 'next/navigation';
 
 export function BulkUploadPtCard() {
   const [isUploading, setIsUploading] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,14 +53,14 @@ export function BulkUploadPtCard() {
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>Bulk Upload (CSV)</ZoruCardTitle>
-        <ZoruCardDescription>
+      <CardHeader>
+        <CardTitle>Bulk Upload (CSV)</CardTitle>
+        <CardDescription>
           Upload a CSV file containing multiple Professional Tax records.
           Required columns: employeeName, state, month (YYYY-MM).
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+        </CardDescription>
+      </CardHeader>
+      <CardBody>
         <div className="flex items-center gap-4">
           <Button
             type="button"
@@ -91,7 +83,7 @@ export function BulkUploadPtCard() {
             onChange={handleFileChange}
           />
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

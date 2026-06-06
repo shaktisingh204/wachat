@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { Suspense } from 'react';
 
-import { ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle, EmptyState, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { PageDescription, PageHeader, PageHeading, PageTitle, EmptyState, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { getAnalyticsData } from '@/app/actions/crm-analytics.actions';
 import { AnalyticsDashboard } from '@/components/crm/analytics/analytics-dashboard';
 import { getT } from '@/lib/i18n/server';
@@ -156,12 +156,12 @@ export default async function AnalyticsHubPage(props: {
                     <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
                         <BarChart className="h-5 w-5 text-[var(--st-text)]" strokeWidth={1.75} />
                     </div>
-                    <ZoruPageHeading>
-                        <ZoruPageTitle>{t('crm.analytics.title')}</ZoruPageTitle>
-                        <ZoruPageDescription>
+                    <PageHeading>
+                        <PageTitle>{t('crm.analytics.title')}</PageTitle>
+                        <PageDescription>
                             {t('crm.analytics.subtitle', { year })}
-                        </ZoruPageDescription>
-                    </ZoruPageHeading>
+                        </PageDescription>
+                    </PageHeading>
                 </div>
             </PageHeader>
 

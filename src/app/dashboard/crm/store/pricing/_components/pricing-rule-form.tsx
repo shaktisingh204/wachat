@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -87,7 +75,7 @@ export function PricingRuleForm({
     defaultStorefrontId,
 }: PricingRuleFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = useActionState(savePricingRule, initialState);
 
     const [storefrontId, setStorefrontId] = useState<string>(
@@ -203,16 +191,16 @@ export function PricingRuleForm({
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="kind-select">Kind</Label>
                         <Select value={kind} onValueChange={setKind}>
-                            <ZoruSelectTrigger id="kind-select">
-                                <ZoruSelectValue placeholder="Kind" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="kind-select">
+                                <SelectValue placeholder="Kind" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {KINDS.map((k) => (
-                                    <ZoruSelectItem key={k.value} value={k.value}>
+                                    <SelectItem key={k.value} value={k.value}>
                                         {k.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
@@ -250,16 +238,16 @@ export function PricingRuleForm({
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="status-select">Status</Label>
                         <Select value={status} onValueChange={setStatus}>
-                            <ZoruSelectTrigger id="status-select">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="status-select">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {STATUSES.map((s) => (
-                                    <ZoruSelectItem key={s.value} value={s.value}>
+                                    <SelectItem key={s.value} value={s.value}>
                                         {s.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>
@@ -292,16 +280,16 @@ export function PricingRuleForm({
                             value={appliesToTarget}
                             onValueChange={setAppliesToTarget}
                         >
-                            <ZoruSelectTrigger id="appliesToTarget">
-                                <ZoruSelectValue placeholder="Scope" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="appliesToTarget">
+                                <SelectValue placeholder="Scope" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {APPLIES_TO_TARGETS.map((t) => (
-                                    <ZoruSelectItem key={t.value} value={t.value}>
+                                    <SelectItem key={t.value} value={t.value}>
                                         {t.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     {appliesToTarget !== 'all' ? (

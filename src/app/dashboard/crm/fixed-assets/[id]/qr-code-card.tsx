@@ -1,7 +1,7 @@
 'use client';
 
 import QRCode from 'react-qr-code';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button } from '@/components/sabcrm/20ui/compat';
 import { Printer } from 'lucide-react';
 
 export function QrCodeCard({ value, code }: { value: string, code: string }) {
@@ -42,18 +42,18 @@ export function QrCodeCard({ value, code }: { value: string, code: string }) {
 
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between">
-        <ZoruCardTitle>Asset QR Code</ZoruCardTitle>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Asset QR Code</CardTitle>
         <Button size="sm" variant="ghost" onClick={printQR} title="Print Label">
           <Printer className="h-4 w-4" />
         </Button>
-      </ZoruCardHeader>
-      <ZoruCardContent className="flex flex-col items-center justify-center p-6">
+      </CardHeader>
+      <CardBody className="flex flex-col items-center justify-center p-6">
         <div className="rounded-lg bg-white p-4 shadow-sm border border-[var(--st-border)]" id="qr-svg-wrapper">
           <QRCode id="asset-qr-code" value={value} size={150} level="H" />
         </div>
         <p className="mt-4 text-[12px] text-[var(--st-text-secondary)]">Scan to open asset in CRM</p>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

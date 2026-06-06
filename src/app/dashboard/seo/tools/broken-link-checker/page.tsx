@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, cn, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Badge, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Download, Copy } from 'lucide-react';
@@ -22,7 +22,7 @@ export default function BrokenLinkCheckerPage() {
   const [rows, setRows] = useState<LinkRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const run = async () => {
     if (!url) return;
@@ -151,13 +151,13 @@ export default function BrokenLinkCheckerPage() {
 
       {error && (
         <Card className="border-[var(--st-border)]/50">
-          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)]">{error}</ZoruCardContent>
+          <CardBody className="p-4 text-sm text-[var(--st-text)]">{error}</CardBody>
         </Card>
       )}
 
       {rows && (
         <Card>
-          <ZoruCardContent className="p-4 space-y-3">
+          <CardBody className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="text-sm text-[var(--st-text-secondary)]">{rows.length} links</div>
               <div className="flex gap-2">
@@ -186,7 +186,7 @@ export default function BrokenLinkCheckerPage() {
                 </div>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

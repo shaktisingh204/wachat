@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Checkbox,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   Archive,
   BadgeCheck,
@@ -73,9 +58,9 @@ export function WarehousesTable({
     return (
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                        <ZoruTableHead className="w-[36px]">
+                <THead>
+                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                        <Th className="w-[36px]">
                             <Checkbox
                                 aria-label="Select all"
                                 checked={
@@ -87,36 +72,36 @@ export function WarehousesTable({
                                 }
                                 onCheckedChange={(c) => onToggleAll(c === true)}
                             />
-                        </ZoruTableHead>
-                        <ZoruTableHead>Code</ZoruTableHead>
-                        <ZoruTableHead>Name</ZoruTableHead>
-                        <ZoruTableHead>Type</ZoruTableHead>
-                        <ZoruTableHead>City</ZoruTableHead>
-                        <ZoruTableHead>Manager</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Capacity</ZoruTableHead>
-                        <ZoruTableHead>Default</ZoruTableHead>
-                        <ZoruTableHead>Status</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                        </Th>
+                        <Th>Code</Th>
+                        <Th>Name</Th>
+                        <Th>Type</Th>
+                        <Th>City</Th>
+                        <Th>Manager</Th>
+                        <Th className="text-right">Capacity</Th>
+                        <Th>Default</Th>
+                        <Th>Status</Th>
+                        <Th className="text-right">Actions</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {loading ? (
                         Array.from({ length: 6 }).map((_, i) => (
-                            <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                                <ZoruTableCell colSpan={10}>
+                            <Tr key={i} className="border-[var(--st-border)]">
+                                <Td colSpan={10}>
                                     <Skeleton className="h-10 w-full" />
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ))
                     ) : rows.length === 0 ? (
-                        <ZoruTableRow className="border-[var(--st-border)]">
-                            <ZoruTableCell
+                        <Tr className="border-[var(--st-border)]">
+                            <Td
                                 colSpan={10}
                                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 No warehouses match the current filters.
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                        </Tr>
                     ) : (
                         rows.map((w) => (
                             <WarehouseRow
@@ -130,7 +115,7 @@ export function WarehousesTable({
                             />
                         ))
                     )}
-                </ZoruTableBody>
+                </TBody>
             </Table>
         </div>
     );
@@ -160,39 +145,39 @@ function WarehouseRow({
     const sqft = w.capacitySqft;
 
     return (
-        <ZoruTableRow
+        <Tr
             className={[
                 'border-[var(--st-border)] transition-colors',
                 w.archived ? 'opacity-70' : '',
                 selected ? 'bg-[var(--st-bg-muted)]/70' : '',
             ].join(' ')}
         >
-            <ZoruTableCell>
+            <Td>
                 <Checkbox
                     aria-label={`Select ${w.name}`}
                     checked={selected}
                     onCheckedChange={() => onToggle(id)}
                 />
-            </ZoruTableCell>
-            <ZoruTableCell className="font-mono text-[12.5px] text-[var(--st-text-secondary)]">
+            </Td>
+            <Td className="font-mono text-[12.5px] text-[var(--st-text-secondary)]">
                 {w.code || '—'}
-            </ZoruTableCell>
-            <ZoruTableCell>
+            </Td>
+            <Td>
                 <EntityRowLink
                     href={`/dashboard/crm/inventory/warehouses/${id}`}
                     label={w.name}
                     subtitle={w.code ? `Code ${w.code}` : undefined}
                 />
-            </ZoruTableCell>
-            <ZoruTableCell className="text-[12.5px]">
+            </Td>
+            <Td className="text-[12.5px]">
                 <Badge variant="secondary">
                     {warehouseTypeLabel(w.type)}
                 </Badge>
-            </ZoruTableCell>
-            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+            </Td>
+            <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                 {w.city || '—'}
-            </ZoruTableCell>
-            <ZoruTableCell className="text-[12.5px]">
+            </Td>
+            <Td className="text-[12.5px]">
                 {w.managerId ? (
                     <EntityPickerChip
                         entity="employee"
@@ -204,30 +189,30 @@ function WarehouseRow({
                 ) : (
                     <span className="text-[var(--st-text-secondary)]">—</span>
                 )}
-            </ZoruTableCell>
-            <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
+            </Td>
+            <Td className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                 {cap
                     ? `${cap.toLocaleString()} u`
                     : sqft
                       ? `${sqft.toLocaleString()} sqft`
                       : '—'}
-            </ZoruTableCell>
-            <ZoruTableCell>
+            </Td>
+            <Td>
                 {w.isDefault ? (
                     <Badge variant="info">Default</Badge>
                 ) : (
                     <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>
                 )}
-            </ZoruTableCell>
-            <ZoruTableCell>
+            </Td>
+            <Td>
                 <StatusPill
                     label={String(statusLabel)}
                     tone={statusToTone(String(statusLabel))}
                 />
-            </ZoruTableCell>
-            <ZoruTableCell className="text-right">
+            </Td>
+            <Td className="text-right">
                 <DropdownMenu>
-                    <ZoruDropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
                         <button
                             type="button"
                             aria-label={`Actions for ${w.name}`}
@@ -235,44 +220,44 @@ function WarehouseRow({
                         >
                             <MoreHorizontal className="h-4 w-4" />
                         </button>
-                    </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem asChild>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
                             <Link href={`/dashboard/crm/inventory/warehouses/${id}`}>
                                 View
                             </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                             <Link
                                 href={`/dashboard/crm/inventory/warehouses/${id}/edit`}
                             >
                                 <Edit className="mr-1.5 h-3.5 w-3.5" />
                                 Edit
                             </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                             disabled={!!w.isDefault}
                             onClick={() => onSetDefault(id)}
                         >
                             <BadgeCheck className="mr-1.5 h-3.5 w-3.5" />
                             Set as default
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuSeparator />
-                        <ZoruDropdownMenuItem onClick={() => onArchive(id)}>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => onArchive(id)}>
                             <Archive className="mr-1.5 h-3.5 w-3.5" />
                             {w.archived ? 'Restore' : 'Archive'}
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                             onClick={() => onDelete(id)}
                             className="text-[var(--st-danger)]"
                         >
                             <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                             Delete
-                        </ZoruDropdownMenuItem>
-                    </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
                 </DropdownMenu>
-            </ZoruTableCell>
-        </ZoruTableRow>
+            </Td>
+        </Tr>
     );
 }
 

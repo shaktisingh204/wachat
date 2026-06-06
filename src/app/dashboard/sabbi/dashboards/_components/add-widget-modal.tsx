@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 /**
  * §6.5 Add-widget modal.
  *
@@ -125,17 +110,17 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="max-w-lg">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>
+            <DialogContent className="max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>
                         {step === 1 ? 'Add a widget — pick a kind' : 'Add a widget — pick data'}
-                    </ZoruDialogTitle>
-                    <ZoruDialogDescription>
+                    </DialogTitle>
+                    <DialogDescription>
                         {step === 1
                             ? 'What should this widget look like?'
                             : 'Where should the widget read from?'}
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
                 {step === 1 ? (
                     <div className="grid grid-cols-2 gap-2">
@@ -175,16 +160,16 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                                 value={dsType}
                                 onValueChange={(v) => setDsType(v as WidgetDataSourceType)}
                             >
-                                <ZoruSelectTrigger id="ds-type">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger id="ds-type">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {DATA_SOURCE_TYPES.map((d) => (
-                                        <ZoruSelectItem key={d.value} value={d.value}>
+                                        <SelectItem key={d.value} value={d.value}>
                                             {d.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                 {DATA_SOURCE_TYPES.find((d) => d.value === dsType)?.hint}
@@ -221,7 +206,7 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                     </div>
                 )}
 
-                <ZoruDialogFooter className="flex gap-2">
+                <DialogFooter className="flex gap-2">
                     {step === 1 ? (
                         <>
                             <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -239,8 +224,8 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                             </Button>
                         </>
                     )}
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

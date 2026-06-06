@@ -24,18 +24,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { downloadCsv, downloadXlsx, type ExportRow } from '@/lib/crm-list-export';
 import {
@@ -79,7 +68,7 @@ function fmtDate(v: unknown): Date | null {
 }
 
 export default function EventsCalendarPage(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [events, setEvents] = React.useState<(WsEvent & { _id: string })[]>([]);
   const [attendees, setAttendees] = React.useState<Record<string, WsEventAttendee[]>>({});
   const [loading, startTransition] = React.useTransition();
@@ -344,30 +333,30 @@ export default function EventsCalendarPage(): React.JSX.Element {
               value={filters.color}
               onValueChange={(v) => setFilters((p) => ({ ...p, color: v }))}
             >
-              <ZoruSelectTrigger className="h-9 w-[160px]">
-                <ZoruSelectValue placeholder="Any colour" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">Any colour</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[160px]">
+                <SelectValue placeholder="Any colour" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any colour</SelectItem>
                 {distinctColors.map((c) => (
-                  <ZoruSelectItem key={c} value={c}>
+                  <SelectItem key={c} value={c}>
                     {c}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Select
               value={filters.mode}
               onValueChange={(v) => setFilters((p) => ({ ...p, mode: v as ModeFilter }))}
             >
-              <ZoruSelectTrigger className="h-9 w-[160px]">
-                <ZoruSelectValue placeholder="Mode" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">Any mode</ZoruSelectItem>
-                <ZoruSelectItem value="online">Online</ZoruSelectItem>
-                <ZoruSelectItem value="in-person">In-person</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[160px]">
+                <SelectValue placeholder="Mode" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any mode</SelectItem>
+                <SelectItem value="online">Online</SelectItem>
+                <SelectItem value="in-person">In-person</SelectItem>
+              </SelectContent>
             </Select>
             {filtersActive ? (
               <Button

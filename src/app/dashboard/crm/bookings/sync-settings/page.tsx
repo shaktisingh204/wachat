@@ -1,14 +1,6 @@
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  Button,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription, Button, Badge } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Calendar, Mail, ArrowLeft, RefreshCw, XCircle } from 'lucide-react';
 
@@ -31,21 +23,21 @@ export default function SyncSettingsPage() {
       <div className="grid gap-6 md:grid-cols-2">
         {/* Google Calendar Sync */}
         <Card className="flex flex-col transition-all hover:shadow-sm">
-          <ZoruCardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
             <div className="space-y-1">
-              <ZoruCardTitle className="flex items-center text-base font-semibold">
+              <CardTitle className="flex items-center text-base font-semibold">
                 <Calendar className="mr-2 h-5 w-5 text-[var(--st-text)]" />
                 Google Calendar
-              </ZoruCardTitle>
-              <ZoruCardDescription>
+              </CardTitle>
+              <CardDescription>
                 Sync your Bookings with Google Workspace.
-              </ZoruCardDescription>
+              </CardDescription>
             </div>
             <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
               <XCircle className="mr-1 h-3 w-3" /> Not Connected
             </Badge>
-          </ZoruCardHeader>
-          <ZoruCardContent className="flex flex-1 flex-col justify-between space-y-6 pt-4">
+          </CardHeader>
+          <CardBody className="flex flex-1 flex-col justify-between space-y-6 pt-4">
             <p className="text-[13px] leading-relaxed text-[var(--st-text-secondary)]">
               Appointments created here will automatically appear in your Google Calendar.
               Busy slots from your Google Calendar will also block out your availability
@@ -60,26 +52,26 @@ export default function SyncSettingsPage() {
                 <RefreshCw className="mr-2 h-4 w-4" /> Connect Google Calendar
               </Button>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* Outlook Calendar Sync */}
         <Card className="flex flex-col transition-all hover:shadow-sm">
-          <ZoruCardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
             <div className="space-y-1">
-              <ZoruCardTitle className="flex items-center text-base font-semibold">
+              <CardTitle className="flex items-center text-base font-semibold">
                 <Mail className="mr-2 h-5 w-5 text-[var(--st-text)]" />
                 Outlook Calendar
-              </ZoruCardTitle>
-              <ZoruCardDescription>
+              </CardTitle>
+              <CardDescription>
                 Sync your Bookings with Microsoft 365.
-              </ZoruCardDescription>
+              </CardDescription>
             </div>
             <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
               <XCircle className="mr-1 h-3 w-3" /> Not Connected
             </Badge>
-          </ZoruCardHeader>
-          <ZoruCardContent className="flex flex-1 flex-col justify-between space-y-6 pt-4">
+          </CardHeader>
+          <CardBody className="flex flex-1 flex-col justify-between space-y-6 pt-4">
             <p className="text-[13px] leading-relaxed text-[var(--st-text-secondary)]">
               Enable two-way sync for Microsoft Outlook and Office 365 calendars. Ensure
               your schedule is always up to date across all your devices and client meetings.
@@ -93,7 +85,7 @@ export default function SyncSettingsPage() {
                 <RefreshCw className="mr-2 h-4 w-4" /> Connect Outlook Calendar
               </Button>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </EntityListShell>

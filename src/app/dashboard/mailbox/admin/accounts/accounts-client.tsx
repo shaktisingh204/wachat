@@ -20,26 +20,7 @@ import {
 } from '@/app/actions/mailbox.actions';
 import type { MailDomainDoc } from '@/lib/rust-client/mail-domains';
 import type { MailAccountDoc } from '@/lib/rust-client/mail-accounts';
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    EmptyState,
-    Input,
-    Label,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    Separator,
-    Switch,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 
 export interface AccountsClientProps {
     domains: MailDomainDoc[];
@@ -48,7 +29,7 @@ export interface AccountsClientProps {
 
 export function AccountsClient({ domains, initialAccounts }: AccountsClientProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [filterDomain, setFilterDomain] = React.useState<string>('__all');
     const [submitting, setSubmitting] = React.useState(false);
@@ -130,13 +111,13 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
     return (
         <div className="flex flex-col gap-6">
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>New mailbox</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>New mailbox</CardTitle>
+                    <CardDescription>
                         Pick a domain, choose a local part, set a quota and (optional) password.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
                     <form onSubmit={handleCreate} className="grid gap-4 sm:grid-cols-2">
                         <div className="flex flex-col gap-1.5">
                             <Label>Domain</Label>
@@ -212,7 +193,7 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                             </Button>
                         </div>
                     </form>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <div className="flex items-center gap-3">
@@ -247,7 +228,7 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                         const busy = busyId === id;
                         return (
                             <Card key={id}>
-                                <ZoruCardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+                                <CardBody className="flex flex-wrap items-center justify-between gap-3 p-4">
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
                                             <Mail className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -291,7 +272,7 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         );
                     })}

@@ -1,35 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertTitle,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -73,7 +44,7 @@ import type { WebhookLogListItem } from '@/lib/definitions';
  *                      is stubbed pending a dedicated server action)
  *   - test-webhook    (re-uses handleReprocessWebhook on the most recent
  *                      log entry — equivalent to a "send test event")
- *   - delete-webhook  (destructive ZoruAlertDialog wrapping
+ *   - delete-webhook  (destructive AlertDialog wrapping
  *                      handleClearProcessedLogs)
  */
 
@@ -89,7 +60,7 @@ function ReprocessButton({
   onReprocessComplete: () => void;
 }) {
   const [isProcessing, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const onReprocess = () => {
     startTransition(async () => {
@@ -134,7 +105,7 @@ export function FacebookWebhookLogs({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [selectedLog, setSelectedLog] = useState<WebhookLogListItem | null>(
     null,
@@ -362,44 +333,44 @@ export function FacebookWebhookLogs({
       {isClient && filterByProject && !projectId && !isLoading ? (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>No project selected</AlertTitle>
+          <AlertDescription>
             Please select a project from the main dashboard page to view its
             webhook logs.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       ) : (
         <>
           <div className="overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Timestamp</ZoruTableHead>
-                  <ZoruTableHead>Event field</ZoruTableHead>
-                  <ZoruTableHead>Details</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Timestamp</Th>
+                  <Th>Event field</Th>
+                  <Th>Details</Th>
+                  <Th className="text-right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {isLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <ZoruTableRow key={i}>
-                      <ZoruTableCell colSpan={4}>
+                    <Tr key={i}>
+                      <Td colSpan={4}>
                         <Skeleton className="h-5 w-full" />
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 ) : logs.length > 0 ? (
                   logs.map((log) => (
-                    <ZoruTableRow key={log._id.toString()}>
-                      <ZoruTableCell>
+                    <Tr key={log._id.toString()}>
+                      <Td>
                         {new Date(log.createdAt).toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="font-mono">
+                      </Td>
+                      <Td className="font-mono">
                         {log.eventField}
-                      </ZoruTableCell>
-                      <ZoruTableCell>{log.eventSummary}</ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td>{log.eventSummary}</Td>
+                      <Td className="text-right">
                         <div className="flex items-center justify-end gap-1">
                           <ReprocessButton
                             logId={log._id.toString()}
@@ -416,20 +387,20 @@ export function FacebookWebhookLogs({
                             <Eye />
                           </Button>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 ) : (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={4}
                       className="h-24 text-center text-[var(--st-text-secondary)]"
                     >
                       No webhook logs found.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
           <div className="flex items-center justify-end gap-2 py-2">
@@ -461,17 +432,17 @@ export function FacebookWebhookLogs({
         open={!!selectedLog}
         onOpenChange={(open) => !open && setSelectedLog(null)}
       >
-        <ZoruDialogContent className="max-w-3xl">
-          <ZoruDialogHeader>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
             <div className="flex items-start justify-between gap-4">
               <div>
-                <ZoruDialogTitle>Webhook payload</ZoruDialogTitle>
-                <ZoruDialogDescription>
+                <DialogTitle>Webhook payload</DialogTitle>
+                <DialogDescription>
                   Full JSON payload received from Meta at{' '}
                   {selectedLog
                     ? new Date(selectedLog.createdAt).toLocaleString()
                     : ''}
-                </ZoruDialogDescription>
+                </DialogDescription>
               </div>
               {selectedLogPayload && (
                 <Button
@@ -484,7 +455,7 @@ export function FacebookWebhookLogs({
                 </Button>
               )}
             </div>
-          </ZoruDialogHeader>
+          </DialogHeader>
           <div className="mt-2 max-h-[60vh] overflow-y-auto text-[13px]">
             {loadingPayload ? (
               <div className="flex items-center justify-center p-8">
@@ -500,21 +471,21 @@ export function FacebookWebhookLogs({
               </div>
             )}
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
       {/* Create-webhook dialog (informational stub; subscription is
           configured per-project in the Setup wizard) */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <ZoruDialogContent className="max-w-lg">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Create webhook endpoint</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Create webhook endpoint</DialogTitle>
+            <DialogDescription>
               Webhook endpoints are configured automatically when you connect
               a Facebook Page. Use the values below in your Meta App
               configuration if you ever need to recreate them.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           {/* TODO: wire to a dedicated facebook.actions endpoint that
               creates an additional webhook subscription with custom
               callback / verify-token values once that backend exists. */}
@@ -540,26 +511,26 @@ export function FacebookWebhookLogs({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>
               Close
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Test-webhook dialog */}
       <Dialog open={testOpen} onOpenChange={setTestOpen}>
-        <ZoruDialogContent className="max-w-md">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Send test event</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Send test event</DialogTitle>
+            <DialogDescription>
               Re-processes the most recent webhook log entry. This is useful
               for verifying that flows and auto-replies still trigger
               correctly.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setTestOpen(false)}>
               Cancel
             </Button>
@@ -567,23 +538,23 @@ export function FacebookWebhookLogs({
               {isTesting ? <Loader2 className="animate-spin" /> : <TestTube />}
               Send test
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Delete-webhook (clear processed logs) destructive alert */}
-      <ZoruAlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Clear processed logs?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear processed logs?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes every successfully-processed webhook
               log from the system. Pending and failed events are kept.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               destructive
               onClick={(e) => {
                 e.preventDefault();
@@ -593,10 +564,10 @@ export function FacebookWebhookLogs({
             >
               {isClearing ? <Loader2 className="animate-spin" /> : <Trash2 />}
               Clear logs
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

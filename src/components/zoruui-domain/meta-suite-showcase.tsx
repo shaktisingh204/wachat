@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Input,
-  Textarea,
-  Label,
-  Switch,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardFooter, CardHeader, CardTitle, CardDescription, Avatar, AvatarFallback, AvatarImage, Input, Textarea, Label, Switch, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   Send,
   Megaphone,
@@ -51,15 +35,15 @@ import Link from 'next/link';
 
 const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { icon: React.ElementType, title: string, description: string, gradient?: string }) => (
     <Card className={cn("hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient", gradient)}>
-        <ZoruCardHeader className="items-center">
+        <CardHeader className="items-center">
             <div className="p-4 bg-[var(--st-text)]/10 rounded-full">
                 <Icon className="h-8 w-8 text-[var(--st-text)]" />
             </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-2 flex-grow text-center">
+        </CardHeader>
+        <CardBody className="space-y-2 flex-grow text-center">
             <h3 className="text-xl font-semibold">{title}</h3>
             <p className="text-[var(--st-text-secondary)]">{description}</p>
-        </ZoruCardContent>
+        </CardBody>
     </Card>
 );
 
@@ -127,17 +111,17 @@ export const MetaSuiteShowcase = () => {
                                         <div className="p-3 border-b"><Input placeholder="Search..." /></div>
                                         <div className="flex-1 overflow-y-auto">
                                             <div className="p-3 flex gap-3 border-b bg-[var(--st-bg-muted)]">
-                                                <Avatar><ZoruAvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="woman portrait" /><ZoruAvatarFallback>A</ZoruAvatarFallback></Avatar>
+                                                <Avatar><AvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="woman portrait" /><AvatarFallback>A</AvatarFallback></Avatar>
                                                 <div><p className="font-semibold text-sm">Aisha Ahmed</p><p className="text-xs text-[var(--st-text-secondary)]">Thanks for the help!</p></div>
                                             </div>
                                             <div className="p-3 flex gap-3 border-b">
-                                                <Avatar><ZoruAvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="man portrait" /><ZoruAvatarFallback>D</ZoruAvatarFallback></Avatar>
+                                                <Avatar><AvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="man portrait" /><AvatarFallback>D</AvatarFallback></Avatar>
                                                 <div><p className="font-semibold text-sm">David Chen</p><p className="text-xs text-[var(--st-text-secondary)]">Sure, here is my order #...</p></div>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="w-2/3 flex flex-col">
-                                        <div className="p-3 border-b flex-shrink-0 flex items-center gap-2"><Avatar><ZoruAvatarFallback>A</ZoruAvatarFallback></Avatar><p className="font-semibold">Aisha Ahmed</p></div>
+                                        <div className="p-3 border-b flex-shrink-0 flex items-center gap-2"><Avatar><AvatarFallback>A</AvatarFallback></Avatar><p className="font-semibold">Aisha Ahmed</p></div>
                                         <div className="flex-1 p-4 space-y-3 bg-[var(--st-bg-muted)]">
                                             <div className="flex justify-start"><div className="bg-[var(--st-bg-muted)] p-2 rounded-lg text-sm">Is the blue shirt in stock?</div></div>
                                             <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-[var(--st-text)] text-white p-2 rounded-lg text-sm">Yes it is! Would you like to order?</div></div>

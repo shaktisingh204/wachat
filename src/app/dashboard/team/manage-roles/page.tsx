@@ -1,42 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -121,7 +85,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     const [open, setOpen] = useState(false);
     const [roleName, setRoleName] = useState('');
     const [isPending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const handleAddRole = () => {
         if (!roleName.trim()) {
@@ -143,19 +107,19 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button size="sm">
                     <Plus className="h-4 w-4" />
                     New role
                 </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Create a new role</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Create a new role</DialogTitle>
+                    <DialogDescription>
                         Give the role a name. You can configure permissions once it appears in the list.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <div className="py-2">
                     <Label htmlFor="roleName" className="mb-1.5 block text-[12.5px] text-[var(--st-text)]">
                         Role name
@@ -167,7 +131,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                         placeholder="e.g. Marketing Manager"
                     />
                 </div>
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
                         Cancel
                     </Button>
@@ -175,8 +139,8 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                         {isPending && <LoaderCircle className="h-4 w-4 animate-spin" />}
                         Create role
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -185,7 +149,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
 
 function DeleteRoleButton({ role, onRoleDeleted }: { role: { id: string; name: string }; onRoleDeleted: () => void }) {
     const [isPending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     if (role.id === 'agent') return null;
 
@@ -202,8 +166,8 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: { id: string; name: s
     };
 
     return (
-        <ZoruAlertDialog>
-            <ZoruAlertDialogTrigger asChild>
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
                 <button
                     type="button"
                     className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] transition-colors hover:border-[var(--st-danger)] hover:text-[var(--st-danger)]"
@@ -212,27 +176,27 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: { id: string; name: s
                 >
                     <Trash2 className="h-4 w-4" />
                 </button>
-            </ZoruAlertDialogTrigger>
-            <ZoruAlertDialogContent>
-                <ZoruAlertDialogHeader>
-                    <ZoruAlertDialogTitle>Delete role?</ZoruAlertDialogTitle>
-                    <ZoruAlertDialogDescription>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Delete role?</AlertDialogTitle>
+                    <AlertDialogDescription>
                         This permanently removes the &ldquo;{role.name}&rdquo; role. Members assigned to it will
                         lose these permissions immediately.
-                    </ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                    <ZoruAlertDialogAction
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
                         onClick={handleDelete}
                         disabled={isPending}
                         className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90"
                     >
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
-                    </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-            </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 }
 
@@ -399,7 +363,7 @@ export default function ManageRolesPage() {
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [state, formAction] = useActionState(saveRolePermissions, initialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const fetchUser = () => {
         startLoading(async () => {
@@ -449,24 +413,24 @@ export default function ManageRolesPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/team">Team</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Roles & permissions</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/team">Team</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Roles & permissions</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Roles & permissions</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Roles & permissions</PageTitle>
+                    <PageDescription>
                         Define what each role can access and do across every module of the platform.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <AddRoleDialog onRoleAdded={fetchUser} />
             </PageHeader>
 

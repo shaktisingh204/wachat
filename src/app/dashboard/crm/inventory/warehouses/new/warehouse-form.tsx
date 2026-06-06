@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkbox, Input, Label, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Checkbox, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 
 /**
@@ -34,7 +34,7 @@ export interface WarehouseFormProps {
 
 export function WarehouseForm({ initialData }: WarehouseFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [country, setCountry] = React.useState<string>(
         (initialData?.country as string) || '',

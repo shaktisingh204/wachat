@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState, useRef } from 'react';
 
 void _zoruCn;
@@ -69,7 +69,7 @@ export default function ReverseImageSearchPage() {
       <div className="flex flex-col gap-6">
         
         <Card>
-          <ZoruCardContent className="p-4 flex flex-col gap-4">
+          <CardBody className="p-4 flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">Image URL</label>
               <div className="flex gap-2">
@@ -112,7 +112,7 @@ export default function ReverseImageSearchPage() {
               </div>
               {error && <p className="text-sm text-[var(--st-text)] mt-1">{error}</p>}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {preview && (
@@ -131,7 +131,7 @@ export default function ReverseImageSearchPage() {
 
         {links.length > 0 && (
           <Card>
-            <ZoruCardContent className="p-4 space-y-3">
+            <CardBody className="p-4 space-y-3">
               <h3 className="text-sm font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)] border-b pb-2 mb-2">Search Engines</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {links.map((l) => (
@@ -147,7 +147,7 @@ export default function ReverseImageSearchPage() {
                   </a>
                 ))}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
       </div>

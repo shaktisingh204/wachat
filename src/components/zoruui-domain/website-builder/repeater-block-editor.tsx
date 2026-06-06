@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Label,
-  Button,
-  Input,
-  Textarea,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Separator,
-  Card,
-  ZoruCardContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Textarea, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Separator, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -70,12 +52,12 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
     return (
         <div className="space-y-4">
             <Accordion type="multiple" className="w-full" defaultValue={['items', 'layout']}>
-                <ZoruAccordionItem value="items">
-                    <ZoruAccordionTrigger>Repeater Items</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                <AccordionItem value="items">
+                    <AccordionTrigger>Repeater Items</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         {items.map((item: RepeaterItem, index: number) => (
                             <Card key={item.id} className="relative bg-[var(--st-bg-secondary)]">
-                                <ZoruCardContent className="p-4 space-y-3">
+                                <CardBody className="p-4 space-y-3">
                                     <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeItem(index)}>
                                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                     </Button>
@@ -97,37 +79,37 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
                                     <div className="space-y-2"><Label>Description</Label><Textarea placeholder="Item description..." value={item.description || ''} onChange={(e) => handleItemChange(index, 'description', e.target.value)} /></div>
                                     <div className="space-y-2"><Label>Button Text</Label><Input placeholder="e.g., Learn More" value={item.buttonText || ''} onChange={(e) => handleItemChange(index, 'buttonText', e.target.value)} /></div>
                                     <div className="space-y-2"><Label>Button Link</Label><Input placeholder="https://..." value={item.buttonLink || ''} onChange={(e) => handleItemChange(index, 'buttonLink', e.target.value)} /></div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         ))}
                         <Button type="button" variant="outline" onClick={addItem}><Plus className="mr-2 h-4 w-4" /> Add Item</Button>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
-                <ZoruAccordionItem value="layout">
-                    <ZoruAccordionTrigger>Layout Settings</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="layout">
+                    <AccordionTrigger>Layout Settings</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <Label>Layout</Label>
                             <Select value={settings.layout || 'grid'} onValueChange={(val) => handleUpdate('layout', val)}>
-                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="grid">Grid</ZoruSelectItem>
-                                    <ZoruSelectItem value="list">List</ZoruSelectItem>
-                                    <ZoruSelectItem value="carousel">Carousel</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="grid">Grid</SelectItem>
+                                    <SelectItem value="list">List</SelectItem>
+                                    <SelectItem value="carousel">Carousel</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         {settings.layout === 'grid' && (
                             <div className="space-y-2">
                                 <Label>Columns</Label>
                                 <Select value={String(settings.columns || 3)} onValueChange={(val) => handleUpdate('columns', Number(val))}>
-                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="1">1</ZoruSelectItem>
-                                        <ZoruSelectItem value="2">2</ZoruSelectItem>
-                                        <ZoruSelectItem value="3">3</ZoruSelectItem>
-                                        <ZoruSelectItem value="4">4</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="1">1</SelectItem>
+                                        <SelectItem value="2">2</SelectItem>
+                                        <SelectItem value="3">3</SelectItem>
+                                        <SelectItem value="4">4</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         )}
@@ -146,11 +128,11 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
                                 )}
                             </div>
                         )}
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
-                 <ZoruAccordionItem value="outerLayout">
-                    <ZoruAccordionTrigger>Sizing &amp; Layout</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                    </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="outerLayout">
+                    <AccordionTrigger>Sizing &amp; Layout</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Width</Label>
@@ -174,16 +156,16 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
                         <div className="space-y-2">
                             <Label>Overflow</Label>
                             <Select value={settings.layout?.overflow || 'visible'} onValueChange={(val) => handleSubFieldUpdate('layout', 'overflow', val)}>
-                                <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="visible">Visible</ZoruSelectItem>
-                                    <ZoruSelectItem value="hidden">Hidden</ZoruSelectItem>
-                                    <ZoruSelectItem value="scroll">Scroll</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="visible">Visible</SelectItem>
+                                    <SelectItem value="hidden">Hidden</SelectItem>
+                                    <SelectItem value="scroll">Scroll</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
             </Accordion>
         </div>
     );

@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Skeleton,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Skeleton, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -25,11 +12,11 @@ import { getBrandMentions } from '@/app/actions/seo.actions';
 import type { BrandMention } from '@/lib/definitions';
 import { formatDistanceToNow } from 'date-fns';
 
-const ChartContainer = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ZoruChartContainer), {
+const ChartContainer = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ChartContainer), {
     ssr: false,
     loading: () => <Skeleton className="h-64 w-full" />,
 });
-const ChartTooltip = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ZoruChartTooltip), { ssr: false });
+const ChartTooltip = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ChartTooltip), { ssr: false });
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 const chartConfigSentiment = { count: { label: 'Count', color: 'hsl(var(--chart-2))' } };
@@ -107,10 +94,10 @@ export default function BrandRadarPage() {
             </div>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Configure Tracking</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid gap-4 md:grid-cols-2 items-end">
+                <CardHeader>
+                    <CardTitle>Configure Tracking</CardTitle>
+                </CardHeader>
+                <CardBody className="grid gap-4 md:grid-cols-2 items-end">
                     <div className="space-y-2">
                         <Label htmlFor="brand-keywords">Brand Name / Keywords</Label>
                         <Input
@@ -125,17 +112,17 @@ export default function BrandRadarPage() {
                             {isLoading ? 'Scanning...' : 'Scan for Mentions'}
                         </Button>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {mentions.length > 0 && (
                 <div className="grid gap-8 md:grid-cols-2">
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Sentiment Analysis</ZoruCardTitle>
-                            <ZoruCardDescription>Overall sentiment of recent mentions.</ZoruCardDescription>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Sentiment Analysis</CardTitle>
+                            <CardDescription>Overall sentiment of recent mentions.</CardDescription>
+                        </CardHeader>
+                        <CardBody>
                             {isLoading ? (
                                 <Skeleton className="h-64 w-full" />
                             ) : (
@@ -149,13 +136,13 @@ export default function BrandRadarPage() {
                                     </BarChart>
                                 </ChartContainer>
                             )}
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Recent Mentions</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Recent Mentions</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="space-y-4">
                                 {isLoading
                                     ? [...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
@@ -182,7 +169,7 @@ export default function BrandRadarPage() {
                                           </div>
                                       ))}
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </div>
             )}

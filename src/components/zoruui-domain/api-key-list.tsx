@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Button,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr, Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useTransition } from 'react';
@@ -51,28 +33,28 @@ function RevokeButton({ apiKey, onKeyRevoked }: { apiKey: Omit<ApiKey, 'key'>, o
     }
 
     return (
-        <ZoruAlertDialog>
-            <ZoruAlertDialogTrigger asChild>
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="sm" disabled={apiKey.revoked}>
                     <Trash2 className="mr-2 h-4 w-4"/>
                     Revoke
                 </Button>
-            </ZoruAlertDialogTrigger>
-            <ZoruAlertDialogContent>
-                 <ZoruAlertDialogHeader>
-                    <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
-                    <ZoruAlertDialogDescription>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                 <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
                         This action will permanently revoke the API key "{apiKey.name}". Any applications using this key will no longer have access.
-                    </ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                    <ZoruAlertDialogAction onClick={handleRevoke} disabled={isPending}>
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleRevoke} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Revoke Key
-                    </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-            </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 }
 
@@ -84,30 +66,30 @@ export function ApiKeyList({ keys, onKeyRevoked }: ApiKeyListProps) {
     return (
         <div className="border rounded-md">
             <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow>
-                        <ZoruTableHead>Name</ZoruTableHead>
-                        <ZoruTableHead>Status</ZoruTableHead>
-                        <ZoruTableHead>Created</ZoruTableHead>
-                        <ZoruTableHead>Last Used</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                <THead>
+                    <Tr>
+                        <Th>Name</Th>
+                        <Th>Status</Th>
+                        <Th>Created</Th>
+                        <Th>Last Used</Th>
+                        <Th className="text-right">Actions</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {keys.map(key => (
-                        <ZoruTableRow key={key._id.toString()}>
-                            <ZoruTableCell className="font-medium">{key.name}</ZoruTableCell>
-                            <ZoruTableCell>
+                        <Tr key={key._id.toString()}>
+                            <Td className="font-medium">{key.name}</Td>
+                            <Td>
                                 {key.revoked ? <Badge variant="destructive">Revoked</Badge> : <Badge>Active</Badge>}
-                            </ZoruTableCell>
-                            <ZoruTableCell>{new Date(key.createdAt).toLocaleDateString()}</ZoruTableCell>
-                             <ZoruTableCell>{key.lastUsed ? formatDistanceToNow(new Date(key.lastUsed), { addSuffix: true }) : 'Never'}</ZoruTableCell>
-                            <ZoruTableCell className="text-right">
+                            </Td>
+                            <Td>{new Date(key.createdAt).toLocaleDateString()}</Td>
+                             <Td>{key.lastUsed ? formatDistanceToNow(new Date(key.lastUsed), { addSuffix: true }) : 'Never'}</Td>
+                            <Td className="text-right">
                                 <RevokeButton apiKey={key} onKeyRevoked={onKeyRevoked} />
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                        </Tr>
                     ))}
-                </ZoruTableBody>
+                </TBody>
             </Table>
         </div>
     );

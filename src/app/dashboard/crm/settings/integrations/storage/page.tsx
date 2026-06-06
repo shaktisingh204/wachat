@@ -18,20 +18,7 @@ import {
   Upload,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ConnectionHeader,
@@ -268,18 +255,18 @@ export default function StorageIntegrationPage() {
                   value={driver}
                   onValueChange={(val) => setDriver(val as WsStorageDriver)}
                 >
-                  <ZoruSelectTrigger id="storage_driver_select">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger id="storage_driver_select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
                     {(Object.keys(DRIVER_LABELS) as WsStorageDriver[]).map(
                       (k) => (
-                        <ZoruSelectItem key={k} value={k}>
+                        <SelectItem key={k} value={k}>
                           {DRIVER_LABELS[k]}
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ),
                     )}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
             </div>
@@ -393,7 +380,7 @@ export default function StorageIntegrationPage() {
 
         {stats?.lastErrorMessage ? (
           <Card>
-            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
+            <CardBody className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-[var(--st-danger)]" />
               <div>
                 <p className="text-sm font-medium text-[var(--st-text)]">
@@ -403,7 +390,7 @@ export default function StorageIntegrationPage() {
                   {stats.lastErrorMessage}
                 </p>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         ) : null}
 

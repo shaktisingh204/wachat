@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';
@@ -103,7 +86,7 @@ export function SavedViewsBar({
 }: SavedViewsBarProps): React.ReactElement {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [views, setViews] = React.useState<SavedView[]>([]);
     const [loading, setLoading] = React.useState(true);
@@ -378,14 +361,14 @@ export function SavedViewsBar({
             </div>
 
             <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
-                <ZoruDialogContent className="sm:max-w-[480px]">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Save current view</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent className="sm:max-w-[480px]">
+                    <DialogHeader>
+                        <DialogTitle>Save current view</DialogTitle>
+                        <DialogDescription>
                             Captures your filters, columns and sort so you can
                             jump back in one click.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
 
                     <div className="flex flex-col gap-3">
                         <div className="flex flex-col gap-1.5">
@@ -409,17 +392,17 @@ export function SavedViewsBar({
                                     )
                                 }
                             >
-                                <ZoruSelectTrigger id="savedview-scope">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="private">
+                                <SelectTrigger id="savedview-scope">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="private">
                                         Private (only me)
-                                    </ZoruSelectItem>
-                                    <ZoruSelectItem value="shared">
+                                    </SelectItem>
+                                    <SelectItem value="shared">
                                         Shared (everyone in this workspace)
-                                    </ZoruSelectItem>
-                                </ZoruSelectContent>
+                                    </SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
 
@@ -435,7 +418,7 @@ export function SavedViewsBar({
                         </label>
                     </div>
 
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button
                             variant="ghost"
                             type="button"
@@ -451,8 +434,8 @@ export function SavedViewsBar({
                         >
                             {savePending ? 'Saving…' : 'Save view'}
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

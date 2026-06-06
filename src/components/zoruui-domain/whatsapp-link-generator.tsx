@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Label,
-  Input,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Label, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useMemo } from 'react';
@@ -45,30 +30,30 @@ export function WhatsappLinkGenerator({ project }: WhatsappLinkGeneratorProps) {
 
   return (
     <Card className="card-gradient card-gradient-green">
-      <ZoruCardHeader>
+      <CardHeader>
         <div className="flex items-center gap-3">
             <WhatsAppIcon className="h-8 w-8" />
             <div>
-                <ZoruCardTitle>WhatsApp Link Generator</ZoruCardTitle>
-                <ZoruCardDescription>Create a shareable link that opens a WhatsApp chat with a pre-filled message.</ZoruCardDescription>
+                <CardTitle>WhatsApp Link Generator</CardTitle>
+                <CardDescription>Create a shareable link that opens a WhatsApp chat with a pre-filled message.</CardDescription>
             </div>
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-4">
+      </CardHeader>
+      <CardBody className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
                 <Label htmlFor="phone-number">Phone Number</Label>
                 <Select value={selectedPhone} onValueChange={setSelectedPhone}>
-                    <ZoruSelectTrigger id="phone-number">
-                        <ZoruSelectValue placeholder="Select a number..." />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger id="phone-number">
+                        <SelectValue placeholder="Select a number..." />
+                    </SelectTrigger>
+                    <SelectContent>
                         {project.phoneNumbers.map(phone => (
-                            <ZoruSelectItem key={phone.id} value={phone.display_phone_number}>
+                            <SelectItem key={phone.id} value={phone.display_phone_number}>
                                 {phone.display_phone_number} ({phone.verified_name})
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
         </div>
@@ -105,7 +90,7 @@ export function WhatsappLinkGenerator({ project }: WhatsappLinkGeneratorProps) {
                 </Button>
             </div>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

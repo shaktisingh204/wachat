@@ -16,7 +16,7 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Button, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { RefreshCcw, FileDown, FileSpreadsheet } from 'lucide-react';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
 
@@ -129,16 +129,16 @@ export function FyReportToolbar({
       <label className="flex flex-col gap-1">
         <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">FY</span>
         <Select value={matchedFy?.anchor ?? ''} onValueChange={onFyChange}>
-          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-            <ZoruSelectValue placeholder="Custom range" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+            <SelectValue placeholder="Custom range" />
+          </SelectTrigger>
+          <SelectContent>
             {options.map((o) => (
-              <ZoruSelectItem key={o.anchor} value={o.anchor}>
+              <SelectItem key={o.anchor} value={o.anchor}>
                 {o.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
       </label>
 

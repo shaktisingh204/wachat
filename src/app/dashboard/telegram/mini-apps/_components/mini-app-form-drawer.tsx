@@ -2,26 +2,7 @@
 
 import { useState, useRef, useEffect, useTransition, useCallback, useMemo } from 'react';
 import { Loader2, X as XIcon } from 'lucide-react';
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Textarea,
-  cn,
-  useZoruToast,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerFooter,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, cn, useToast, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from '@/components/sabcrm/20ui/compat';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
 import {
@@ -211,7 +192,7 @@ export function MiniAppFormDrawer({
   mode: 'create' | 'edit';
   onSaved: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { activeProjectId } = useProject();
   const [form, setForm] = useState<FormState>(emptyForm());
   const [saving, startSaving] = useTransition();
@@ -310,17 +291,17 @@ export function MiniAppFormDrawer({
   ]);
 
   return (
-    <ZoruDrawer open={open} onOpenChange={onOpenChange}>
-      <ZoruDrawerContent className="max-h-[92vh]">
-        <ZoruDrawerHeader>
-          <ZoruDrawerTitle>
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="max-h-[92vh]">
+        <DrawerHeader>
+          <DrawerTitle>
             {mode === 'edit' ? 'Edit mini app' : 'New mini app'}
-          </ZoruDrawerTitle>
-          <ZoruDrawerDescription>
+          </DrawerTitle>
+          <DrawerDescription>
             Register a Telegram Web App URL for one of your bots. Users open
             it from a chat or the bot's menu button.
-          </ZoruDrawerDescription>
-        </ZoruDrawerHeader>
+          </DrawerDescription>
+        </DrawerHeader>
 
         <div className="grid gap-6 overflow-y-auto px-4 py-2 md:grid-cols-2">
           {/* ------- Basics ------- */}
@@ -333,16 +314,16 @@ export function MiniAppFormDrawer({
                 onValueChange={(v) => setForm((p) => ({ ...p, botId: v }))}
                 disabled={mode === 'edit'}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Select a bot" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a bot" />
+                </SelectTrigger>
+                <SelectContent>
                   {bots.map((b) => (
-                    <ZoruSelectItem key={b._id} value={b._id}>
+                    <SelectItem key={b._id} value={b._id}>
                       @{b.username || b.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
 
@@ -541,7 +522,7 @@ export function MiniAppFormDrawer({
           </section>
         </div>
 
-        <ZoruDrawerFooter>
+        <DrawerFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -555,8 +536,8 @@ export function MiniAppFormDrawer({
             ) : null}
             {mode === 'edit' ? 'Save changes' : 'Create mini app'}
           </Button>
-        </ZoruDrawerFooter>
-      </ZoruDrawerContent>
-    </ZoruDrawer>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }

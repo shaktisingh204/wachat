@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Tooltip,
-  ZoruTooltipContent,
-  ZoruTooltipTrigger,
-  ZoruTooltipProvider,
-  Button,
-  Separator,
-  Avatar,
-  ZoruAvatarFallback,
-} from '@/components/sabcrm/20ui/compat';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider, Button, Separator, Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
 import {
   handleTranslateMessage } from '@/app/actions/ai-actions';
 import type { AnyMessage,
@@ -78,12 +69,12 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
     };
 
     return (
-        <ZoruTooltipProvider>
+        <TooltipProvider>
             <Tooltip>
-                <ZoruTooltipTrigger asChild>
+                <TooltipTrigger asChild>
                     <span className="text-white/70 hover:text-white cursor-pointer">{getIcon()}</span>
-                </ZoruTooltipTrigger>
-                <ZoruTooltipContent side="top" align="end">
+                </TooltipTrigger>
+                <TooltipContent side="top" align="end">
                     <div className="text-xs space-y-1 p-1">
                         {statusTimestamps?.read && <p>Read: {formatTimestamp(statusTimestamps.read)}</p>}
                         {statusTimestamps?.delivered && <p>Delivered: {formatTimestamp(statusTimestamps.delivered)}</p>}
@@ -97,9 +88,9 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
                             </div>
                         )}
                     </div>
-                </ZoruTooltipContent>
+                </TooltipContent>
             </Tooltip>
-        </ZoruTooltipProvider>
+        </TooltipProvider>
     );
 }
 
@@ -436,7 +427,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
         <div className={cn("flex items-end gap-2 group/message relative", isOutgoing ? "justify-end" : "justify-start")}>
             {!isOutgoing && (
                 <Avatar className="h-8 w-8 self-end">
-                    <ZoruAvatarFallback>{message.content?.profile?.name?.charAt(0) || 'U'}</ZoruAvatarFallback>
+                    <AvatarFallback>{message.content?.profile?.name?.charAt(0) || 'U'}</AvatarFallback>
                 </Avatar>
             )}
             <div className="absolute top-0 opacity-0 group-hover/message:opacity-100 transition-opacity"

@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruButton,
-  ZoruAlert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import { ChevronLeft, AlertCircle } from 'lucide-react';
 import type { WalletTransaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -94,27 +85,27 @@ export default function BillingHistoryPage() {
     return (
         <div className="flex flex-col gap-8">
             <div>
-                <ZoruButton variant="ghost" asChild className="mb-4 -ml-4">
+                <Button variant="ghost" asChild className="mb-4 -ml-4">
                     <Link href="/dashboard/user/billing"><ChevronLeft className="mr-2 h-4 w-4" />Back to Billing</Link>
-                </ZoruButton>
+                </Button>
                 <h1 className="text-3xl font-bold font-headline text-[var(--st-text)]">Billing History</h1>
                 <p className="text-[var(--st-text-secondary)]">A record of all your plan upgrades and credit purchases.</p>
             </div>
 
             {error && (
-                <ZoruAlert variant="destructive">
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Error</ZoruAlertTitle>
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
-                </ZoruAlert>
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
             )}
 
             {isInitialLoad ? (
                 <TransactionSkeleton />
             ) : (
-                <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
-                    <ZoruCardHeader className="pb-4">
-                        <ZoruCardTitle className="text-[var(--st-text)] mb-4">Your Transactions</ZoruCardTitle>
+                <Card className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-[var(--st-text)] mb-4">Your Transactions</CardTitle>
                         <TransactionFilters 
                             searchQuery={searchQuery}
                             setSearchQuery={setSearchQuery}
@@ -127,14 +118,14 @@ export default function BillingHistoryPage() {
                             onRefresh={fetchTransactions}
                             isRefreshing={isPending}
                         />
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    </CardHeader>
+                    <CardBody>
                         <TransactionTable 
                             transactions={filteredAndSortedTransactions} 
                             isLoading={isPending}
                         />
-                    </ZoruCardContent>
-                </ZoruCard>
+                    </CardBody>
+                </Card>
             )}
         </div>
     );

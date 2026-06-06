@@ -1,4 +1,4 @@
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   Pencil,
   Printer,
@@ -182,10 +182,10 @@ export function DetailCard({
 }) {
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-[15px]">{title}</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-2.5 text-[13px]">
+      <CardHeader>
+        <CardTitle className="text-[15px]">{title}</CardTitle>
+      </CardHeader>
+      <CardBody className="space-y-2.5 text-[13px]">
         {rows ? (
           <dl className="grid gap-2.5 md:grid-cols-2">
             {rows.map((r, i) => (
@@ -205,7 +205,7 @@ export function DetailCard({
           </dl>
         ) : null}
         {children}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -220,14 +220,14 @@ export function RailCard({
 }) {
   return (
     <Card className="p-0">
-      <ZoruCardHeader className="pb-2">
-        <ZoruCardTitle className="text-[13px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-[13px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
           {title}
-        </ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-2 text-[13px]">
+        </CardTitle>
+      </CardHeader>
+      <CardBody className="space-y-2 text-[13px]">
         {children}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

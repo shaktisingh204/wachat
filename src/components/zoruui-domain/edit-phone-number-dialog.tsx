@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  Separator,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Separator, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -118,7 +101,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-[680px] max-h-[85vh] flex flex-col overflow-hidden p-0 rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-lg">
+      <DialogContent className="max-w-[680px] max-h-[85vh] flex flex-col overflow-hidden p-0 rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-lg">
         <form
           action={profileFormAction}
           ref={formRef}
@@ -127,20 +110,20 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input type="hidden" name="phoneNumberId" value={phone.id} />
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
+          <DialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <LuUserRound className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
+              <DialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
                 Edit phone number profile
-              </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
+              </DialogTitle>
+              <DialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
                 Update the public business profile details for{' '}
                 {phone.display_phone_number}.
-              </ZoruDialogDescription>
+              </DialogDescription>
             </div>
-          </ZoruDialogHeader>
+          </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-6">
@@ -202,12 +185,12 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                   <div className="space-y-2">
                     <Label htmlFor="vertical">Business Category</Label>
                     <Select name="vertical" defaultValue={phone.profile?.vertical}>
-                      <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Select a category..." />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        {verticals.map(v => <ZoruSelectItem key={v} value={v} className="capitalize">{v.replace(/_/g, ' ').toLowerCase()}</ZoruSelectItem>)}
-                      </ZoruSelectContent>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {verticals.map(v => <SelectItem key={v} value={v} className="capitalize">{v.replace(/_/g, ' ').toLowerCase()}</SelectItem>)}
+                      </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
@@ -256,7 +239,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
             </div>
           </div>
 
-          <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
             <Button
               type="button"
               variant="pill"
@@ -266,9 +249,9 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
               Cancel
             </Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

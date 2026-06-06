@@ -1,10 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import {
-    Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle,
-    Button, Badge, Skeleton, cn, useZoruToast
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Badge, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import { History, RotateCcw, LoaderCircle, Clock } from 'lucide-react';
 import { getShortUrlHistory, rollbackShortUrl } from '@/app/actions/url-shortener.actions';
 
@@ -19,7 +16,7 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
     const [loading, setLoading] = useState(false);
     const [rolling, setRolling] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const load = () => {
         setLoading(true);
@@ -63,10 +60,10 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
                 History
             </Button>
             <Dialog open={open} onOpenChange={setOpen}>
-                <ZoruDialogContent className="max-w-lg">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Link History</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Link History</DialogTitle>
+                    </DialogHeader>
 
                     {/* Current */}
                     <div className="space-y-1 py-1">
@@ -121,7 +118,7 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
                             </div>
                         )}
                     </div>
-                </ZoruDialogContent>
+                </DialogContent>
             </Dialog>
         </>
     );

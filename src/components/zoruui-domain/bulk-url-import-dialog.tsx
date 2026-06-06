@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -69,32 +58,32 @@ export function BulkImportDialog({ onImportComplete }: BulkImportDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="outline">
             <UploadCloud className="mr-2 h-4 w-4" />
             Bulk Import
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
-            <ZoruDialogHeader>
-                <ZoruDialogTitle>Bulk Import URLs</ZoruDialogTitle>
-                <ZoruDialogDescription>
+            <DialogHeader>
+                <DialogTitle>Bulk Import URLs</DialogTitle>
+                <DialogDescription>
                     Upload a CSV or XLSX file. The first column should be the long URL, and the optional second column can be a custom alias.
-                </ZoruDialogDescription>
-            </ZoruDialogHeader>
+                </DialogDescription>
+            </DialogHeader>
             <div className="grid gap-4 py-4">
                 <div className="space-y-2">
                     <Label htmlFor="urlFile">File</Label>
                     <Input id="urlFile" name="urlFile" type="file" accept=".csv,.xlsx" required />
                 </div>
             </div>
-            <ZoruDialogFooter>
+            <DialogFooter>
                 <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                 <SubmitButton />
-            </ZoruDialogFooter>
+            </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

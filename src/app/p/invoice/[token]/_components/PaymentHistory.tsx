@@ -1,13 +1,4 @@
-import {
-  Card,
-  ZoruCardContent,
-  Table,
-  ZoruTableHeader,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableHead,
-  ZoruTableCell,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
 import { CreditCard } from 'lucide-react';
 import { fmtCurrency, fmtDateTime } from '@/lib/worksuite/format';
 import { PaymentData } from '../types';
@@ -24,36 +15,36 @@ export function PaymentHistory({ payments, currency }: { payments: PaymentData[]
         <span>Verified Payment Logs (Transactions)</span>
       </div>
       <Card>
-        <ZoruCardContent className="p-0">
+        <CardBody className="p-0">
           <Table>
-            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/15">
-              <ZoruTableRow>
-                <ZoruTableHead className="font-mono text-[11px]">Txn ID</ZoruTableHead>
-                <ZoruTableHead className="font-mono text-[11px]">Gateway</ZoruTableHead>
-                <ZoruTableHead className="font-mono text-[11px]">Timestamp</ZoruTableHead>
-                <ZoruTableHead className="font-mono text-[11px] text-right">Amount</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead className="bg-[var(--st-bg-muted)]/15">
+              <Tr>
+                <Th className="font-mono text-[11px]">Txn ID</Th>
+                <Th className="font-mono text-[11px]">Gateway</Th>
+                <Th className="font-mono text-[11px]">Timestamp</Th>
+                <Th className="font-mono text-[11px] text-right">Amount</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {payments.map((p, i) => (
-                <ZoruTableRow key={i}>
-                  <ZoruTableCell className="font-mono text-[12px] max-w-[120px] truncate">
+                <Tr key={i}>
+                  <Td className="font-mono text-[12px] max-w-[120px] truncate">
                     {String(p.transaction_id || '')}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11.5px] uppercase">
+                  </Td>
+                  <Td className="font-mono text-[11.5px] uppercase">
                     {String(p.gateway || '')}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]" suppressHydrationWarning>
+                  </Td>
+                  <Td className="text-[12px] text-[var(--st-text-secondary)]" suppressHydrationWarning>
                     {fmtDateTime(p.paid_at || p.createdAt)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right font-mono text-[12.5px] font-bold text-[var(--st-text)]" suppressHydrationWarning>
+                  </Td>
+                  <Td className="text-right font-mono text-[12.5px] font-bold text-[var(--st-text)]" suppressHydrationWarning>
                     {fmtCurrency(Number(p.amount || 0), currency)}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

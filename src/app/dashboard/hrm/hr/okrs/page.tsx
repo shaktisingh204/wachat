@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Progress,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   LoaderCircle,
@@ -34,7 +11,7 @@ import {
  * OKRs — list page.
  *
  * Columns: Objective · Period · Owner · Progress% · Confidence · Status.
- * Search + status filter, inline-rendered Table, delete via ZoruAlertDialog.
+ * Search + status filter, inline-rendered Table, delete via AlertDialog.
  * Talks to the Rust-backed actions in `crm-okrs.actions.ts`.
  */
 
@@ -90,7 +67,7 @@ export default function OkrsListPage() {
     const [statusFilter, setStatusFilter] = React.useState<CrmOkrStatus | 'all'>('all');
     const [pendingDelete, setPendingDelete] = React.useState<CrmOkrDoc | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -156,71 +133,71 @@ export default function OkrsListPage() {
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as CrmOkrStatus | 'all')}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[180px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     }
                     loading={isLoading && okrs.length === 0}
                 >
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Objective</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Period</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Owner</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Progress</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Confidence</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">Objective</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Period</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Owner</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Progress</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Confidence</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell colSpan={7} className="h-24 text-center">
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td colSpan={7} className="h-24 text-center">
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : okrs.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={7}
                                             className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No OKRs match this filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     okrs.map((o) => {
                                         const status = (o.status ?? 'draft') as CrmOkrStatus;
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         const progress = clampPercent(o.progress);
                                         return (
-                                            <ZoruTableRow key={o._id} className="border-[var(--st-border)]">
-                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                            <Tr key={o._id} className="border-[var(--st-border)]">
+                                                <Td className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${o._id}`}
                                                         className="block max-w-[280px] truncate hover:underline"
                                                     >
                                                         {o.objective}
                                                     </Link>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {o.period ?? '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {o.ownerName ?? o.ownerId ?? '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="min-w-[140px]">
+                                                </Td>
+                                                <Td className="min-w-[140px]">
                                                     <div className="flex items-center gap-2">
                                                         <Progress
                                                             value={progress}
@@ -230,16 +207,16 @@ export default function OkrsListPage() {
                                                             {progress}%
                                                         </span>
                                                     </div>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] tabular-nums text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-mono text-[12px] tabular-nums text-[var(--st-text)]">
                                                     {typeof o.confidence === 'number'
                                                         ? `${clampPercent(o.confidence)}%`
                                                         : '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill label={statusLabel(status)} tone={tone} />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <Button variant="ghost" size="icon" asChild>
                                                         <Link href={`${BASE}/${o._id}/edit`}>
                                                             <Edit className="h-4 w-4" />
@@ -252,36 +229,36 @@ export default function OkrsListPage() {
                                                     >
                                                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete OKR?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete OKR?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Deleting &ldquo;{pendingDelete?.objective}&rdquo; will remove it from
                             the active list. This action cannot be undone.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete} disabled={deletePending}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={deletePending}>
                             {deletePending ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

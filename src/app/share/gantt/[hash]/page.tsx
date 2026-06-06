@@ -8,13 +8,7 @@
 
 import * as React from 'react';
 import { notFound } from 'next/navigation';
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { getPublicGantt } from '@/app/actions/public-gantt.actions';
 import { PublicGanttChart } from './_components/public-gantt-chart';
 import { PdfExportButton } from './_components/pdf-export-button';
@@ -47,12 +41,12 @@ async function PublicGanttContainer({ hash }: { hash: string }) {
   return (
     <div className="space-y-6">
       <Card>
-        <ZoruCardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
               Project timeline
             </p>
-            <ZoruCardTitle className="mt-1">{project.name}</ZoruCardTitle>
+            <CardTitle className="mt-1">{project.name}</CardTitle>
             <p className="mt-1 text-sm text-[var(--st-text)]">
               {fmtDate(project.startDate)} &middot;{' '}
               {fmtDate(project.deadline)}
@@ -68,26 +62,26 @@ async function PublicGanttContainer({ hash }: { hash: string }) {
           >
             {project.status}
           </Badge>
-        </ZoruCardHeader>
-        <ZoruCardContent className="grid gap-3 border-t border-[var(--st-border)] pt-4 sm:grid-cols-3">
+        </CardHeader>
+        <CardBody className="grid gap-3 border-t border-[var(--st-border)] pt-4 sm:grid-cols-3">
           <Stat label="Tasks" value={tasks.length} />
           <Stat label="Milestones" value={milestones.length} />
           <Stat label="Dependencies" value={links.length} />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card id="gantt-chart-container">
-        <ZoruCardHeader className="flex flex-row items-center justify-between">
-          <ZoruCardTitle>Gantt</ZoruCardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Gantt</CardTitle>
           <PdfExportButton targetId="gantt-chart-container" filename={`${project.name.replace(/\s+/g, '-').toLowerCase()}-timeline.pdf`} />
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           <PublicGanttChart
             project={project}
             tasks={tasks}
             milestones={milestones}
           />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <ItemsListClient> — canonical Items list view per CRM_REBUILD_PLAN §1D.
  *
@@ -106,7 +106,7 @@ export function ItemsListClient({
   defaultCurrency,
   error,
 }: ItemsListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* WebSocket for live inventory tracking */
   React.useEffect(() => {

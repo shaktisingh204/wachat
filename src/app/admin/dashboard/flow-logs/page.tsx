@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, ScrollArea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, ScrollArea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -23,7 +23,7 @@ export default function FlowLogsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedLog, setSelectedLog] = useState<WithId<FlowLog> | null>(null);
     const [loadingPayload, setLoadingPayload] = useState(false);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const fetchLogs = useCallback((page: number, query: string) => {
         startTransition(async () => {

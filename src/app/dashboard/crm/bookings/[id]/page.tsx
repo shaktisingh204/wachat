@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 /**
  * Booking detail — `/dashboard/crm/bookings/[id]`.
@@ -130,10 +130,10 @@ export default async function BookingDetailPage({
       rightRail={
         <>
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Status</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Status</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--st-text-secondary)]">Booking</span>
@@ -152,14 +152,14 @@ export default async function BookingDetailPage({
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Resource</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Resource</CardTitle>
+            </CardHeader>
+            <CardBody>
               {booking.resourceId ? (
                 <EntityPickerChip entity="user" id={booking.resourceId} fallback="Deleted resource" />
               ) : (
@@ -167,14 +167,14 @@ export default async function BookingDetailPage({
                   No resource
                 </span>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Customer</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Customer</CardTitle>
+            </CardHeader>
+            <CardBody>
               {booking.customerId ? (
                 <EntityPickerChip entity="client" id={booking.customerId} fallback="Deleted customer" />
               ) : (
@@ -182,14 +182,14 @@ export default async function BookingDetailPage({
                   No customer
                 </span>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Slot</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Slot</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex justify-between">
                   <span className="text-[var(--st-text-secondary)]">Start</span>
@@ -206,14 +206,14 @@ export default async function BookingDetailPage({
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Related</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Related</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/bookings/${id}/portal`}
@@ -240,16 +240,16 @@ export default async function BookingDetailPage({
                   Payments →
                 </Link>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </>
       }
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Service">{booking.service || '—'}</Field>
             <Field label="Capacity used">{booking.capacityUsed ?? 1}</Field>
@@ -265,14 +265,14 @@ export default async function BookingDetailPage({
               {booking.cancellationPolicy || '—'}
             </Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Resource &amp; customer</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Resource &amp; customer</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Customer">
               {booking.customerId ? (
@@ -289,14 +289,14 @@ export default async function BookingDetailPage({
               )}
             </Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Payment</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Payment</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Payment status">
               <Badge variant="outline">
@@ -305,15 +305,15 @@ export default async function BookingDetailPage({
             </Field>
             <Field label="No-show">{booking.noShow ? 'Yes' : 'No'}</Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {booking.reminders && booking.reminders.length > 0 ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Reminders</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Reminders</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="space-y-2 text-[12.5px] text-[var(--st-text)]">
               {booking.reminders.map((r, i) => (
                 <div key={i} className="flex items-center justify-between border-b border-[var(--st-border)] pb-1 last:border-0 last:pb-0">
@@ -322,29 +322,29 @@ export default async function BookingDetailPage({
                 </div>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Reminders</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Reminders</CardTitle>
+          </CardHeader>
+          <CardBody>
             <p className="text-[12.5px] text-[var(--st-text-secondary)]">No automated reminders configured.</p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {booking.notes ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Notes</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Notes</CardTitle>
+          </CardHeader>
+          <CardBody>
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {booking.notes}
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 

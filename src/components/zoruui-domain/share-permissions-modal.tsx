@@ -1,12 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
-import {
-    Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle,
-    Button, Input, Label, Badge, Select,
-    ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue,
-    Skeleton, Separator, cn, useZoruToast
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Input, Label, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Separator, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import { Share2, Trash2, LoaderCircle, UserPlus, Mail, Eye, Pencil } from 'lucide-react';
 import {
     getShares, createShare, revokeShare, updateShareRole,
@@ -26,7 +21,7 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
     const [email, setEmail] = useState('');
     const [role, setRole] = useState<ShareRole>('viewer');
     const [isPending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const load = useCallback(() => {
         setLoading(true);
@@ -75,13 +70,13 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                 Share
             </Button>
             <Dialog open={open} onOpenChange={setOpen}>
-                <ZoruDialogContent className="max-w-md">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>
                             Share {resourceType === 'url' ? 'Link' : 'QR Code'}
                             {resourceName ? ` — ${resourceName}` : ''}
-                        </ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                        </DialogTitle>
+                    </DialogHeader>
 
                     {/* Invite row */}
                     <div className="space-y-2">
@@ -99,21 +94,21 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                                 />
                             </div>
                             <Select value={role} onValueChange={(v) => setRole(v as ShareRole)}>
-                                <ZoruSelectTrigger className="w-[110px]">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="viewer">
+                                <SelectTrigger className="w-[110px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="viewer">
                                         <span className="flex items-center gap-1.5">
                                             <Eye className="h-3 w-3" /> Viewer
                                         </span>
-                                    </ZoruSelectItem>
-                                    <ZoruSelectItem value="editor">
+                                    </SelectItem>
+                                    <SelectItem value="editor">
                                         <span className="flex items-center gap-1.5">
                                             <Pencil className="h-3 w-3" /> Editor
                                         </span>
-                                    </ZoruSelectItem>
-                                </ZoruSelectContent>
+                                    </SelectItem>
+                                </SelectContent>
                             </Select>
                             <Button
                                 size="sm"
@@ -158,13 +153,13 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                                             value={share.role}
                                             onValueChange={(v) => handleRoleChange(share._id, v as ShareRole)}
                                         >
-                                            <ZoruSelectTrigger className="h-7 w-[90px] text-[11.5px]">
-                                                <ZoruSelectValue />
-                                            </ZoruSelectTrigger>
-                                            <ZoruSelectContent>
-                                                <ZoruSelectItem value="viewer">Viewer</ZoruSelectItem>
-                                                <ZoruSelectItem value="editor">Editor</ZoruSelectItem>
-                                            </ZoruSelectContent>
+                                            <SelectTrigger className="h-7 w-[90px] text-[11.5px]">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="viewer">Viewer</SelectItem>
+                                                <SelectItem value="editor">Editor</SelectItem>
+                                            </SelectContent>
                                         </Select>
                                         <Button
                                             variant="ghost"
@@ -180,7 +175,7 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                             </div>
                         )}
                     </div>
-                </ZoruDialogContent>
+                </DialogContent>
             </Dialog>
         </>
     );

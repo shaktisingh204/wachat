@@ -1,6 +1,6 @@
 'use client';
 
-import { Switch, Label, Skeleton, ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle } from '@/components/sabcrm/20ui/compat';
+import { Switch, Label, Skeleton, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/sabcrm/20ui/compat';
 import { useState, useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle } from 'lucide-react';
@@ -56,24 +56,24 @@ export function MaintenanceModeToggle() {
                 </div>
             </div>
 
-            <ZoruAlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>{pendingState ? 'Enable' : 'Disable'} Maintenance Mode?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+            <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{pendingState ? 'Enable' : 'Disable'} Maintenance Mode?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             {pendingState 
                                 ? 'Are you sure you want to enable maintenance mode? All regular users will be logged out and presented with a maintenance screen.' 
                                 : 'Are you sure you want to disable maintenance mode? The system will become available to all users again.'}
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel onClick={handleCancel}>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleConfirm}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleConfirm}>
                             Continue
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import {
   FileText,
   Send,
@@ -56,7 +56,7 @@ const STATUS_OPTIONS = [
 ];
 
 export function OffersView({ initial }: { initial: Offer[] }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Offer[]>(initial);
   const [search, setSearch] = React.useState('');
   const [activeKpi, setActiveKpi] = React.useState<string | undefined>();

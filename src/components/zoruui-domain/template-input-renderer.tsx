@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Label,
-  Button,
-  Input,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Select,
-  Card,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, RadioGroup, ZoruRadioGroupItem, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Popover, PopoverContent, PopoverTrigger, Select, Card } from '@/components/sabcrm/20ui/compat';
 import { UploadCloud, Link as LinkIcon, MapPin, ChevronsUpDown, Check } from 'lucide-react';
 import type { WithId } from 'mongodb';
 import type { Template } from '@/lib/definitions';
@@ -69,7 +52,7 @@ function SmartVariableInput({ id, name, placeholder, required, variableOptions =
                 />
                 {variableOptions.length > 0 && (
                     <Popover open={open} onOpenChange={setOpen}>
-                        <ZoruPopoverTrigger asChild>
+                        <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
                                 role="combobox"
@@ -81,15 +64,15 @@ function SmartVariableInput({ id, name, placeholder, required, variableOptions =
                                 <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                                 <span className="sr-only">Select Variable</span>
                             </Button>
-                        </ZoruPopoverTrigger>
-                        <ZoruPopoverContent className="w-[200px] p-0" align="end">
-                            <ZoruCommand>
-                                <ZoruCommandInput placeholder="Search variable..." />
-                                <ZoruCommandList>
-                                    <ZoruCommandEmpty>No variable found.</ZoruCommandEmpty>
-                                    <ZoruCommandGroup heading="Variables">
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0" align="end">
+                            <Command>
+                                <CommandInput placeholder="Search variable..." />
+                                <CommandList>
+                                    <CommandEmpty>No variable found.</CommandEmpty>
+                                    <CommandGroup heading="Variables">
                                         {variableOptions.map((variable) => (
-                                            <ZoruCommandItem
+                                            <CommandItem
                                                 key={variable}
                                                 value={variable}
                                                 onSelect={() => handleSelect(variable)}
@@ -101,12 +84,12 @@ function SmartVariableInput({ id, name, placeholder, required, variableOptions =
                                                     )}
                                                 />
                                                 {variable}
-                                            </ZoruCommandItem>
+                                            </CommandItem>
                                         ))}
-                                    </ZoruCommandGroup>
-                                </ZoruCommandList>
-                            </ZoruCommand>
-                        </ZoruPopoverContent>
+                                    </CommandGroup>
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
                     </Popover>
                 )}
             </div>

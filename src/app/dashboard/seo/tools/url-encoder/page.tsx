@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Textarea,
-  Card,
-  ZoruCardContent,
-  Label,
-  cn,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Label, cn, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -104,13 +92,13 @@ export default function UrlEncoderPage() {
 
       {output && (
         <Card className="mt-6">
-          <ZoruCardContent className="p-4 space-y-3">
+          <CardBody className="p-4 space-y-3">
             <Label>Output</Label>
             <Textarea readOnly value={output} className="min-h-[140px] font-mono text-sm" />
             <Button variant="outline" onClick={copy}>
               {copied ? 'Copied!' : 'Copy'}
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

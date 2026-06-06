@@ -1,19 +1,6 @@
 import { ArrowLeft, Database, Shield } from 'lucide-react';
 import Link from 'next/link';
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Table, TBody, Td, Th, THead, Tr, cn } from '@/components/sabcrm/20ui/compat';
 import catalogData from './_data/catalog.json';
 import { CodeTerminal, ModuleSelector } from './_components/ClientComponents';
 
@@ -73,32 +60,32 @@ export default async function ApiDocsPage({
           </p>
 
           <Card className="border border-[var(--st-border)] shadow-none">
-            <ZoruCardHeader className="border-b border-[var(--st-border)] py-3 bg-[var(--st-bg-muted)]">
+            <CardHeader className="border-b border-[var(--st-border)] py-3 bg-[var(--st-bg-muted)]">
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-[var(--st-text)]">
+                <CardTitle className="text-[12px] font-mono uppercase tracking-wider text-[var(--st-text)]">
                   Header Parameters
-                </ZoruCardTitle>
+                </CardTitle>
               </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="p-0">
+            </CardHeader>
+            <CardBody className="p-0">
               <Table>
-                <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50">
-                  <ZoruTableRow>
-                    <ZoruTableHead className="font-mono text-[11.5px] text-[var(--st-text)]">Parameter</ZoruTableHead>
-                    <ZoruTableHead className="font-mono text-[11.5px] text-[var(--st-text)]">Type</ZoruTableHead>
-                    <ZoruTableHead className="font-mono text-[11.5px] text-[var(--st-text)] text-right">Value</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
-                  <ZoruTableRow>
-                    <ZoruTableCell className="font-mono text-[12.5px] text-black font-bold">Authorization</ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text)]">string</ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[12px] font-mono text-[var(--st-text)]">Bearer YOUR_API_KEY</ZoruTableCell>
-                  </ZoruTableRow>
-                </ZoruTableBody>
+                <THead className="bg-[var(--st-bg-muted)]/50">
+                  <Tr>
+                    <Th className="font-mono text-[11.5px] text-[var(--st-text)]">Parameter</Th>
+                    <Th className="font-mono text-[11.5px] text-[var(--st-text)]">Type</Th>
+                    <Th className="font-mono text-[11.5px] text-[var(--st-text)] text-right">Value</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  <Tr>
+                    <Td className="font-mono text-[12.5px] text-black font-bold">Authorization</Td>
+                    <Td className="font-mono text-[11px] text-[var(--st-text)]">string</Td>
+                    <Td className="text-right text-[12px] font-mono text-[var(--st-text)]">Bearer YOUR_API_KEY</Td>
+                  </Tr>
+                </TBody>
               </Table>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
 
@@ -178,41 +165,41 @@ export default async function ApiDocsPage({
 
                 {params.length > 0 ? (
                   <Card className="border border-[var(--st-border)] shadow-none">
-                    <ZoruCardHeader className="border-b border-[var(--st-border)] py-3 bg-[var(--st-bg-muted)]">
+                    <CardHeader className="border-b border-[var(--st-border)] py-3 bg-[var(--st-bg-muted)]">
                       <div className="flex items-center gap-2">
                         <Database className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                        <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-[var(--st-text)]">
+                        <CardTitle className="text-[12px] font-mono uppercase tracking-wider text-[var(--st-text)]">
                           Parameters
-                        </ZoruCardTitle>
+                        </CardTitle>
                       </div>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="p-0 overflow-x-auto">
+                    </CardHeader>
+                    <CardBody className="p-0 overflow-x-auto">
                       <Table>
-                        <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50">
-                          <ZoruTableRow>
-                            <ZoruTableHead className="font-mono text-[11.5px] text-[var(--st-text)]">Name</ZoruTableHead>
-                            <ZoruTableHead className="font-mono text-[11.5px] text-[var(--st-text)]">In</ZoruTableHead>
-                            <ZoruTableHead className="font-mono text-[11.5px] text-[var(--st-text)]">Type</ZoruTableHead>
-                            <ZoruTableHead className="font-mono text-[11.5px] text-[var(--st-text)]">Description</ZoruTableHead>
-                          </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead className="bg-[var(--st-bg-muted)]/50">
+                          <Tr>
+                            <Th className="font-mono text-[11.5px] text-[var(--st-text)]">Name</Th>
+                            <Th className="font-mono text-[11.5px] text-[var(--st-text)]">In</Th>
+                            <Th className="font-mono text-[11.5px] text-[var(--st-text)]">Type</Th>
+                            <Th className="font-mono text-[11.5px] text-[var(--st-text)]">Description</Th>
+                          </Tr>
+                        </THead>
+                        <TBody>
                           {params.map(param => (
-                            <ZoruTableRow key={param.name}>
-                              <ZoruTableCell className="font-mono text-[12.5px] text-black font-bold whitespace-nowrap">
+                            <Tr key={param.name}>
+                              <Td className="font-mono text-[12.5px] text-black font-bold whitespace-nowrap">
                                 <div className="flex items-center gap-1.5">
                                   {param.name}
                                   {param.required && <span className="text-[9px] text-[var(--st-text)] font-sans uppercase">Req</span>}
                                 </div>
-                              </ZoruTableCell>
-                              <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text)]">{param.in}</ZoruTableCell>
-                              <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text)]">{param.type}</ZoruTableCell>
-                              <ZoruTableCell className="text-[var(--st-text)] text-[12px] leading-normal">{param.description}</ZoruTableCell>
-                            </ZoruTableRow>
+                              </Td>
+                              <Td className="font-mono text-[11px] text-[var(--st-text)]">{param.in}</Td>
+                              <Td className="font-mono text-[11px] text-[var(--st-text)]">{param.type}</Td>
+                              <Td className="text-[var(--st-text)] text-[12px] leading-normal">{param.description}</Td>
+                            </Tr>
                           ))}
-                        </ZoruTableBody>
+                        </TBody>
                       </Table>
-                    </ZoruCardContent>
+                    </CardBody>
                   </Card>
                 ) : null}
 

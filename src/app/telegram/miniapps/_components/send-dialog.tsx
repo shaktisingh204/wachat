@@ -2,24 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { Loader2, Send } from 'lucide-react';
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { useProject } from '@/context/project-context';
 import { sendTelegramMiniAppAction } from '@/app/actions/telegram-extra.actions';
 import type { MiniAppRow } from '@/lib/rust-client/telegram-mini-apps';
@@ -35,7 +18,7 @@ export function SendDialog({
   open: boolean;
   onOpenChange: (b: boolean) => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { activeProjectId } = useProject();
   const [chatId, setChatId] = useState('');
   const [label, setLabel] = useState('');
@@ -89,15 +72,15 @@ export function SendDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Send mini app to a chat</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Send mini app to a chat</DialogTitle>
+          <DialogDescription>
             {app
               ? `Send ${app.name} as a button in a chat the bot can write to.`
               : null}
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="flex flex-col gap-3">
           <div>
             <Label>Chat ID</Label>
@@ -128,22 +111,22 @@ export function SendDialog({
               value={style}
               onValueChange={(v) => setStyle(v as typeof style)}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="inline">
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="inline">
                   Inline keyboard
-                </ZoruSelectItem>
-                <ZoruSelectItem value="keyboard">Reply keyboard</ZoruSelectItem>
-                <ZoruSelectItem value="web_app_button">
+                </SelectItem>
+                <SelectItem value="keyboard">Reply keyboard</SelectItem>
+                <SelectItem value="web_app_button">
                   Web app button (inline)
-                </ZoruSelectItem>
-              </ZoruSelectContent>
+                </SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -159,8 +142,8 @@ export function SendDialog({
             )}
             Send
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

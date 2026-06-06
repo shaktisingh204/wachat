@@ -1,6 +1,6 @@
 'use client';
 
-import { Tooltip, ZoruTooltipContent, ZoruTooltipTrigger, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Tooltip, TooltipContent, TooltipTrigger, Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
 import {
   usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -163,22 +163,22 @@ export function AppRail({ activeApp }: AppRailProps) {
 
                 {/* User avatar → user settings */}
                 <Tooltip>
-                    <ZoruTooltipTrigger asChild>
+                    <TooltipTrigger asChild>
                         <Link
                             href="/dashboard/user/profile"
                             className="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:scale-105 mt-0.5"
                         >
                             <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-border transition-all duration-200">
-                                <ZoruAvatarImage src={avatarSrc} />
-                                <ZoruAvatarFallback className="text-[11px] font-bold bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                                <AvatarImage src={avatarSrc} />
+                                <AvatarFallback className="text-[11px] font-bold bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                     {initials}
-                                </ZoruAvatarFallback>
+                                </AvatarFallback>
                             </Avatar>
                         </Link>
-                    </ZoruTooltipTrigger>
-                    <ZoruTooltipContent side="right" sideOffset={12}>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={12}>
                         <p>{(sessionUser as any)?.name || 'Profile'}</p>
-                    </ZoruTooltipContent>
+                    </TooltipContent>
                 </Tooltip>
 
                 {/* Logout */}
@@ -215,7 +215,7 @@ function RailItem({
 }) {
     return (
         <Tooltip>
-            <ZoruTooltipTrigger asChild>
+            <TooltipTrigger asChild>
                 <Link
                     href={href}
                     prefetch={prefetch}
@@ -235,10 +235,10 @@ function RailItem({
                     <Icon className="h-[18px] w-[18px] shrink-0" />
                     <span className="sr-only">{label}</span>
                 </Link>
-            </ZoruTooltipTrigger>
-            <ZoruTooltipContent side="right" sideOffset={12}>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={12}>
                 <p>{label}</p>
-            </ZoruTooltipContent>
+            </TooltipContent>
         </Tooltip>
     );
 }

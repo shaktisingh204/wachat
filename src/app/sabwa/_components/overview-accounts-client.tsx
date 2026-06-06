@@ -1,35 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Skeleton,
-  StatCard,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Skeleton, StatCard, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -135,7 +106,7 @@ function RenameDialog({
   onOpenChange: (open: boolean) => void;
   onRenamed: () => void;
 }) {
-  const toast = useZoruToast();
+  const toast = useToast();
   const [value, setValue] = React.useState('');
   const [pending, startTransition] = React.useTransition();
 
@@ -166,10 +137,10 @@ function RenameDialog({
 
   return (
     <Dialog open={!!session} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Rename account</ZoruDialogTitle>
-        </ZoruDialogHeader>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Rename account</DialogTitle>
+        </DialogHeader>
         <form onSubmit={submit} className="space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor="sabwa-rename-label">Label</Label>
@@ -182,7 +153,7 @@ function RenameDialog({
               placeholder="e.g. Primary number"
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
@@ -194,9 +165,9 @@ function RenameDialog({
             <Button type="submit" disabled={pending || !value.trim()}>
               Save
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -290,7 +261,7 @@ function AccountRow({
 
 export function OverviewAccountsClient() {
   const router = useRouter();
-  const toast = useZoruToast();
+  const toast = useToast();
   const { activeProjectId, projects } = useProject();
   const { current, sessions, setCurrent, refresh, loading } =
     useSabwaSession();
@@ -401,21 +372,21 @@ export function OverviewAccountsClient() {
   return (
     <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 sm:px-6">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>
               {activeProject?.name ?? 'Project'}
-            </ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
@@ -589,24 +560,24 @@ export function OverviewAccountsClient() {
         }}
       />
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!logoutTarget}
         onOpenChange={(o) => !o && setLogoutTarget(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Log out this account?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Log out this account?</AlertDialogTitle>
+            <AlertDialogDescription>
               This unlinks the WhatsApp session from SabWa. Chats stored
               in your workspace are kept; you can re-link the number at
               any time.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={logoutPending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={logoutPending}>
               Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 handleLogout();
@@ -614,10 +585,10 @@ export function OverviewAccountsClient() {
               disabled={logoutPending}
             >
               Log out
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

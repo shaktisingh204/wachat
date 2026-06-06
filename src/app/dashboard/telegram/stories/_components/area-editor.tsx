@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { Trash2 } from 'lucide-react';
 import { TelegramProjectGate } from './telegram-project-gate';
 import type { StoryArea } from '@/lib/rust-client/telegram-stories';
@@ -55,20 +55,20 @@ export function AreaEditor({
                     value={area.type || 'suggested_reaction'}
                     onValueChange={(v) => onChange({ ...area, type: v })}
                 >
-                    <ZoruSelectTrigger className="w-[200px]">
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="suggested_reaction">
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="suggested_reaction">
                             Reaction
-                        </ZoruSelectItem>
-                        <ZoruSelectItem value="location">Location</ZoruSelectItem>
-                        <ZoruSelectItem value="link">Link</ZoruSelectItem>
-                        <ZoruSelectItem value="weather">Weather</ZoruSelectItem>
-                        <ZoruSelectItem value="unique_gift">
+                        </SelectItem>
+                        <SelectItem value="location">Location</SelectItem>
+                        <SelectItem value="link">Link</SelectItem>
+                        <SelectItem value="weather">Weather</SelectItem>
+                        <SelectItem value="unique_gift">
                             Unique gift
-                        </ZoruSelectItem>
-                    </ZoruSelectContent>
+                        </SelectItem>
+                    </SelectContent>
                 </Select>
                 <Button
                     type="button"

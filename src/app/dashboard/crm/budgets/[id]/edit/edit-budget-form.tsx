@@ -20,18 +20,7 @@
  */
 
 import * as React from 'react';
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Input,
-    Label,
-    Switch,
-    Textarea,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { FileText, LoaderCircle, Plus, Save, Trash2, X, Upload } from 'lucide-react';
@@ -149,7 +138,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
         ) => Promise<typeof initialState>,
         initialState,
     );
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
 
     const [headType, setHeadType] = useState<HeadType>(
@@ -306,10 +295,10 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                 <input type="hidden" name="locked" value={locked ? 'true' : 'false'} />
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Identification</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Identification</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
@@ -386,14 +375,14 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 </div>
                             </div>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Plan & alerts</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Plan & alerts</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="grid gap-4 md:grid-cols-3">
                             <div className="space-y-2">
                                 <Label
@@ -463,14 +452,14 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 aria-label="Lock budget"
                             />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Allocation breakdown</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Allocation breakdown</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         {allocations.length === 0 ? (
                             <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 No sub-line allocations yet. Add one to break the plan amount
@@ -611,14 +600,14 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 </div>
                             ) : null}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Ownership</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Ownership</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
@@ -647,14 +636,14 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 />
                             </div>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Supporting document</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Supporting document</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="flex flex-wrap items-center gap-2">
                             <SabFilePickerButton
                                 accept="document"
@@ -683,14 +672,14 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 </span>
                             )}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Notes</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Notes</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <Textarea
                             id="notes"
                             name="notes"
@@ -699,7 +688,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             placeholder="Assumptions, escalation policy, or context for reviewers."
                             className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                         />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-3">

@@ -5,21 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { createJoinAction } from '@/app/actions/analytics-bi.actions';
 import type { BiJoinType } from '@/lib/rust-client/bi-dataset-joins';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 interface DatasetRef {
   id: string;
@@ -104,45 +90,45 @@ export function JoinBuilder({ datasets }: { datasets: DatasetRef[] }) {
           <div className="grid gap-1.5">
             <Label htmlFor="join-type">Type</Label>
             <Select value={joinType} onValueChange={(v) => setJoinType(v as BiJoinType)}>
-              <ZoruSelectTrigger id="join-type">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="inner">Inner</ZoruSelectItem>
-                <ZoruSelectItem value="left">Left</ZoruSelectItem>
-                <ZoruSelectItem value="right">Right</ZoruSelectItem>
-                <ZoruSelectItem value="outer">Outer</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger id="join-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="inner">Inner</SelectItem>
+                <SelectItem value="left">Left</SelectItem>
+                <SelectItem value="right">Right</SelectItem>
+                <SelectItem value="outer">Outer</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="grid gap-1.5">
             <Label>Left dataset</Label>
             <Select value={leftId} onValueChange={setLeftId}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Pick a dataset" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue placeholder="Pick a dataset" />
+              </SelectTrigger>
+              <SelectContent>
                 {datasets.map((d) => (
-                  <ZoruSelectItem key={d.id} value={d.id}>
+                  <SelectItem key={d.id} value={d.id}>
                     {d.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="grid gap-1.5">
             <Label>Right dataset</Label>
             <Select value={rightId} onValueChange={setRightId}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Pick a dataset" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue placeholder="Pick a dataset" />
+              </SelectTrigger>
+              <SelectContent>
                 {datasets.map((d) => (
-                  <ZoruSelectItem key={d.id} value={d.id}>
+                  <SelectItem key={d.id} value={d.id}>
                     {d.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
         </div>

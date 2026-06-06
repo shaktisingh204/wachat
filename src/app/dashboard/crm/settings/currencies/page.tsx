@@ -1,38 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useFormStatus } from 'react-dom';
 import { useActionState } from 'react';
@@ -106,7 +74,7 @@ function CurrencyDialog({
 }) {
     const isEditing = !!initialData;
     const [state, formAction] = useActionState(saveCurrency, saveInitialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [isBase, setIsBase] = React.useState<boolean>(!!initialData?.isBase);
     const [isActive, setIsActive] = React.useState<boolean>(initialData?.isActive ?? true);
@@ -137,7 +105,7 @@ function CurrencyDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-[560px]">
+            <DialogContent className="sm:max-w-[560px]">
                 <form action={formAction}>
                     {isEditing ? (
                         <input type="hidden" name="_id" value={initialData!._id} />
@@ -146,11 +114,11 @@ function CurrencyDialog({
                     <input type="hidden" name="isActive" value={isActive ? 'true' : 'false'} />
                     <input type="hidden" name="displayFormat" value={displayFormat} />
 
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                    <DialogHeader>
+                        <DialogTitle>
                             {isEditing ? 'Edit currency' : 'Create new currency'}
-                        </ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                        </DialogTitle>
+                    </DialogHeader>
 
                     <div className="space-y-4 py-4">
                         <div className="grid grid-cols-2 gap-3">
@@ -225,13 +193,13 @@ function CurrencyDialog({
                                     value={displayFormat}
                                     onValueChange={(v) => setDisplayFormat(v as CrmCurrencyDisplayFormat)}
                                 >
-                                    <ZoruSelectTrigger id="displayFormat">
-                                        <ZoruSelectValue placeholder="Pick…" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="prefix">Prefix ($100)</ZoruSelectItem>
-                                        <ZoruSelectItem value="suffix">Suffix (100$)</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger id="displayFormat">
+                                        <SelectValue placeholder="Pick…" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="prefix">Prefix ($100)</SelectItem>
+                                        <SelectItem value="suffix">Suffix (100$)</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
@@ -303,14 +271,14 @@ function CurrencyDialog({
                         </div>
                     </div>
 
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
                         <SubmitButton isEditing={isEditing} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -325,7 +293,7 @@ export default function CurrenciesPage() {
     const [pendingDelete, setPendingDelete] = React.useState<Row | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
     const [bulkPending, startBulkTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // Selection
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -512,14 +480,14 @@ export default function CurrenciesPage() {
                         value={statusFilter}
                         onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                     >
-                        <ZoruSelectTrigger className="h-9 w-[180px]">
-                            <ZoruSelectValue placeholder="Status" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                            <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger className="h-9 w-[180px]">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
+                            <SelectItem value="all">All statuses</SelectItem>
+                        </SelectContent>
                     </Select>
                 }
                 loading={isLoading && rows.length === 0}
@@ -565,7 +533,7 @@ export default function CurrenciesPage() {
                         </Button>
 
                         {selectedNonBaseIds.length > 0 && (
-                            <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+                            <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
                                 <Button
                                     variant="destructive"
                                     size="sm"
@@ -575,25 +543,25 @@ export default function CurrenciesPage() {
                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                     Delete {selectedNonBaseIds.length} non-base
                                 </Button>
-                                <ZoruAlertDialogContent>
-                                    <ZoruAlertDialogHeader>
-                                        <ZoruAlertDialogTitle>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>
                                             Delete {selectedNonBaseIds.length} currency/currencies?
-                                        </ZoruAlertDialogTitle>
-                                        <ZoruAlertDialogDescription>
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription>
                                             Base currencies are skipped. Existing documents that
                                             reference deleted currencies keep their saved values.
-                                        </ZoruAlertDialogDescription>
-                                    </ZoruAlertDialogHeader>
-                                    <ZoruAlertDialogFooter>
-                                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                        <ZoruAlertDialogAction onClick={handleBulkDelete} disabled={bulkPending}>
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleBulkDelete} disabled={bulkPending}>
                                             {bulkPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
                                             Delete
-                                        </ZoruAlertDialogAction>
-                                    </ZoruAlertDialogFooter>
-                                </ZoruAlertDialogContent>
-                            </ZoruAlertDialog>
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         )}
 
                         <Button
@@ -608,9 +576,9 @@ export default function CurrenciesPage() {
 
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="w-10">
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="w-10">
                                     <Checkbox
                                         checked={allChecked}
                                         aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
@@ -618,55 +586,55 @@ export default function CurrenciesPage() {
                                         aria-label="Select all"
                                         disabled={filtered.length === 0}
                                     />
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Code</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Symbol</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">Code</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Symbol</Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">
                                     Exchange rate
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">
                                     Decimals
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-center">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)] text-center">
                                     Base
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">
                                     Actions
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={9} className="h-24 text-center">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={9} className="h-24 text-center">
                                         <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : filtered.length === 0 ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td
                                         colSpan={9}
                                         className="h-24 text-center text-[var(--st-text-secondary)]"
                                     >
                                         No currencies match this filter.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 filtered.map((r) => (
-                                    <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
-                                        <ZoruTableCell>
+                                    <Tr key={r._id} className="border-[var(--st-border)]">
+                                        <Td>
                                             <Checkbox
                                                 checked={selected.has(r._id)}
                                                 onCheckedChange={() => toggleOne(r._id)}
                                                 aria-label={`Select ${r.code}`}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono font-medium text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="font-mono font-medium text-[var(--st-text)]">
                                             {r.code}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             <RowDrawer
                                                 label={r.name}
                                                 subtitle={`${r.code}${r.symbol ? ` · ${r.symbol}` : ''}`}
@@ -715,19 +683,19 @@ export default function CurrenciesPage() {
                                                     </div>
                                                 </div>
                                             </RowDrawer>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {r.symbol ?? '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right font-mono text-[var(--st-text)]">
                                             {Number(r.exchangeRate).toLocaleString(undefined, {
                                                 maximumFractionDigits: 6,
                                             })}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right font-mono text-[var(--st-text)]">
                                             {r.decimalPlaces}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-center">
+                                        </Td>
+                                        <Td className="text-center">
                                             {r.isBase ? (
                                                 <Check
                                                     className="mx-auto h-4 w-4 text-[var(--st-text)]"
@@ -738,14 +706,14 @@ export default function CurrenciesPage() {
                                                     —
                                                 </span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <StatusPill
                                                 label={r.status}
                                                 tone={STATUS_TONE[r.status] ?? 'neutral'}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
+                                        </Td>
+                                        <Td className="text-right">
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
@@ -762,23 +730,23 @@ export default function CurrenciesPage() {
                                             >
                                                 <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                             </Button>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete currency?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete currency?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Deleting &ldquo;{pendingDelete?.code} – {pendingDelete?.name}&rdquo; will
                             remove it from pickers. Existing documents that reference it will keep
                             the saved values.
@@ -787,16 +755,16 @@ export default function CurrenciesPage() {
                                     Warning: this is your base currency.
                                 </span>
                             ) : null}
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete} disabled={deletePending}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={deletePending}>
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

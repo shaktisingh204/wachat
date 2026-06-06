@@ -27,31 +27,7 @@ import {
     Users,
 } from 'lucide-react';
 
-import {
-    Avatar,
-    ZoruAvatarFallback,
-    ZoruAvatarImage,
-    Badge,
-    Button,
-    Card,
-    Checkbox,
-    Dialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogTrigger,
-    Input,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Skeleton,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -107,7 +83,7 @@ function isRecentJoin(member: MemberRow): boolean {
 }
 
 export default function TeamHubPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [members, setMembers] = React.useState<MemberRow[]>([]);
     const [invites, setInvites] = React.useState<InvitationView[]>([]);
@@ -456,13 +432,13 @@ export default function TeamHubPage() {
                                             />
                                             <div className="flex min-w-0 flex-1 items-center gap-3">
                                                 <Avatar className="h-8 w-8">
-                                                    <ZoruAvatarImage
+                                                    <AvatarImage
                                                         src={`https://i.pravatar.cc/150?u=${m.email}`}
                                                         alt={m.name}
                                                     />
-                                                    <ZoruAvatarFallback className="text-[11px]">
+                                                    <AvatarFallback className="text-[11px]">
                                                         {m.name.substring(0, 2).toUpperCase()}
-                                                    </ZoruAvatarFallback>
+                                                    </AvatarFallback>
                                                 </Avatar>
                                                 <div className="min-w-0 flex-1">
                                                     <EntityRowLink
@@ -619,42 +595,42 @@ function FilterRow({
     return (
         <>
             <Select value={roleFilter} onValueChange={onRoleChange}>
-                <ZoruSelectTrigger className="h-9 w-[160px] text-[12.5px]">
-                    <ZoruSelectValue placeholder="Role" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All roles</ZoruSelectItem>
-                    <ZoruSelectItem value="owner">Owner</ZoruSelectItem>
-                    <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
-                    <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
-                    <ZoruSelectItem value="member">Member</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-9 w-[160px] text-[12.5px]">
+                    <SelectValue placeholder="Role" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All roles</SelectItem>
+                    <SelectItem value="owner">Owner</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="agent">Agent</SelectItem>
+                    <SelectItem value="member">Member</SelectItem>
+                </SelectContent>
             </Select>
             <Select
                 value={statusFilter}
                 onValueChange={(v) => onStatusChange(v as 'all' | 'active' | 'pending')}
             >
-                <ZoruSelectTrigger className="h-9 w-[160px] text-[12.5px]">
-                    <ZoruSelectValue placeholder="Status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All status</ZoruSelectItem>
-                    <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                    <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-9 w-[160px] text-[12.5px]">
+                    <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                </SelectContent>
             </Select>
             <Select value={departmentFilter} onValueChange={onDepartmentChange}>
-                <ZoruSelectTrigger className="h-9 w-[200px] text-[12.5px]">
-                    <ZoruSelectValue placeholder="Department" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All departments</ZoruSelectItem>
+                <SelectTrigger className="h-9 w-[200px] text-[12.5px]">
+                    <SelectValue placeholder="Department" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All departments</SelectItem>
                     {departments.map((d) => (
-                        <ZoruSelectItem key={d} value={d}>
+                        <SelectItem key={d} value={d}>
                             {d}
-                        </ZoruSelectItem>
+                        </SelectItem>
                     ))}
-                </ZoruSelectContent>
+                </SelectContent>
             </Select>
             {hasActiveFilters ? (
                 <Button variant="ghost" size="sm" onClick={onClear}>
@@ -700,14 +676,14 @@ function BulkBar({
             </Button>
             <div className="flex items-center gap-1">
                 <Select value={roleValue} onValueChange={onRoleValueChange}>
-                    <ZoruSelectTrigger className="h-8 w-[120px] text-[12px]">
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
-                        <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
-                        <ZoruSelectItem value="member">Member</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger className="h-8 w-[120px] text-[12px]">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="agent">Agent</SelectItem>
+                        <SelectItem value="member">Member</SelectItem>
+                    </SelectContent>
                 </Select>
                 <Button
                     variant="outline"
@@ -775,7 +751,7 @@ interface InviteMemberDialogProps {
 }
 
 function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemberDialogProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = React.useActionState(handleInviteAgent, inviteInitialState);
     const [isPending, startTransition] = React.useTransition();
     const formRef = React.useRef<HTMLFormElement>(null);
@@ -800,19 +776,19 @@ function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemberDialo
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button>
                     <Plus className="h-4 w-4" /> Invite teammate
                 </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="sm:max-w-md">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Invite a teammate</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Invite a teammate</DialogTitle>
+                    <DialogDescription>
                         We email them a secure invite link. If they don&apos;t have a SabNode
                         account yet they can sign up and accept in one step.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <form ref={formRef} action={handleSubmit} className="flex flex-col gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="invite-email">Email</Label>
@@ -827,17 +803,17 @@ function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemberDialo
                     <div className="space-y-2">
                         <Label htmlFor="invite-role">Role</Label>
                         <Select name="role" defaultValue="agent">
-                            <ZoruSelectTrigger id="invite-role">
-                                <ZoruSelectValue placeholder="Select role" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
-                                <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
-                                <ZoruSelectItem value="member">Member</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger id="invite-role">
+                                <SelectValue placeholder="Select role" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="admin">Admin</SelectItem>
+                                <SelectItem value="agent">Agent</SelectItem>
+                                <SelectItem value="member">Member</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button
                             type="button"
                             variant="outline"
@@ -854,9 +830,9 @@ function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemberDialo
                             )}
                             Send invite
                         </Button>
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

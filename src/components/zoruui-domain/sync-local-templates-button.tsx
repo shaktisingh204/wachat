@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/sabcrm/20ui/compat';
 import { useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -41,8 +30,8 @@ export function SyncLocalTemplatesButton() {
   };
 
   return (
-    <ZoruAlertDialog>
-      <ZoruAlertDialogTrigger asChild>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
         <Button variant="outline" disabled={isPending}>
           {isPending ? (
             <>
@@ -56,21 +45,21 @@ export function SyncLocalTemplatesButton() {
             </>
           )}
         </Button>
-      </ZoruAlertDialogTrigger>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Sync Local Templates?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Sync Local Templates?</AlertDialogTitle>
+          <AlertDialogDescription>
             This will submit your local templates to Meta. Are you sure you want to proceed?
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction onClick={onSync}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onSync}>
             Continue
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

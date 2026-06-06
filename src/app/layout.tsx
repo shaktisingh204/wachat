@@ -1,8 +1,7 @@
-import { ZoruTooltipProvider } from '@/components/sabcrm/20ui/compat';
+import { TooltipProvider } from '@/components/sabcrm/20ui/compat';
 // Legacy ZoruUI Sonner toaster (self-contained) kept for files still on ZoruUI;
 // migrated files use the 20ui ToastProvider/Toaster mounted below.
-import { ZoruToaster as Toaster } from '@/components/sabcrm/20ui/compat'
-import { Plus_Jakarta_Sans,
+import { ZoruToaster as Toaster } from '@/components/sabcrm/20ui/compat';import { Plus_Jakarta_Sans,
   Geist,
   Geist_Mono,
   Hanken_Grotesk,
@@ -103,12 +102,12 @@ export default function RootLayout({
         />
         <MotionProvider>
           <SessionProvider>
-            <ZoruTooltipProvider>
+            <TooltipProvider>
               <Ui20ToastProvider>
                 {children}
                 <Ui20Toaster />
               </Ui20ToastProvider>
-            </ZoruTooltipProvider>
+            </TooltipProvider>
           </SessionProvider>
           <Toaster />
         </MotionProvider>

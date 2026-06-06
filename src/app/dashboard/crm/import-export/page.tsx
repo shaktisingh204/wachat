@@ -30,19 +30,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { listImportJobs } from '@/app/actions/crm-import.actions';
 import { hasPermissionGroup } from '@/lib/permission-groups/check';
-import {
-    Breadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    Skeleton,
-    PageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Skeleton, PageHeader, PageHeading, PageTitle, PageDescription } from '@/components/sabcrm/20ui/compat';
 import { HubKpiGrid, type HubKpi } from '../_components/hub-kpi-grid';
 import { formatDate } from '../_components/hub-data';
 import { ImportWizardShell } from './_components/import-wizard-shell';
@@ -203,15 +191,15 @@ export default async function ImportExportLandingPage(props: { searchParams?: Pr
     return (
         <div className="flex w-full flex-col gap-5">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/crm">CRM</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Import &amp; Export</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/crm">CRM</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Import &amp; Export</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
             
             <PageHeader>
@@ -219,16 +207,16 @@ export default async function ImportExportLandingPage(props: { searchParams?: Pr
                     <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
                         <FileSpreadsheet className="h-5 w-5 text-[var(--st-text)]" strokeWidth={1.75} />
                     </div>
-                    <ZoruPageHeading>
-                        <ZoruPageTitle>
+                    <PageHeading>
+                        <PageTitle>
                             Import &amp; Export
-                        </ZoruPageTitle>
-                        <ZoruPageDescription>
+                        </PageTitle>
+                        <PageDescription>
                             Bulk-load data from CSV or export a snapshot of an
                             entity. The same field schema is used in both
                             directions so an export can be re-imported losslessly.
-                        </ZoruPageDescription>
-                    </ZoruPageHeading>
+                        </PageDescription>
+                    </PageHeading>
                 </div>
             </PageHeader>
 

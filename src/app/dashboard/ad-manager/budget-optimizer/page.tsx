@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardHeader, CardTitle, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   Wallet,
   CircleAlert,
@@ -93,15 +76,15 @@ function CampaignBudgetCard({
 
     return (
         <Card className="flex flex-col">
-            <ZoruCardHeader className="pb-2">
-                <ZoruCardTitle className="text-sm font-medium flex items-center justify-between">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center justify-between">
                     <span className="truncate mr-2">{rec.campaignName}</span>
                     <Badge variant={style.variant} className="capitalize shrink-0">
                         <Icon className="h-3 w-3 mr-1" />{rec.recommendation}
                     </Badge>
-                </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4 text-sm flex-1 flex flex-col">
+                </CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-4 text-sm flex-1 flex flex-col">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[var(--st-text-secondary)]">
                     <span>Spend</span><span className="text-[var(--st-text)] tabular-nums">${rec.spend.toFixed(2)}</span>
                     <span>Clicks</span><span className="text-[var(--st-text)] tabular-nums">{rec.clicks}</span>
@@ -164,7 +147,7 @@ function CampaignBudgetCard({
                         Apply
                     </Button>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -221,8 +204,8 @@ export default function BudgetOptimizerPage() {
                 <AmBreadcrumb page="Budget Optimizer" />
                 <Alert>
                     <CircleAlert className="h-4 w-4" />
-                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>Pick an ad account to view budget recommendations.</ZoruAlertDescription>
+                    <AlertTitle>No ad account selected</AlertTitle>
+                    <AlertDescription>Pick an ad account to view budget recommendations.</AlertDescription>
                 </Alert>
             </div>
         );
@@ -270,56 +253,56 @@ export default function BudgetOptimizerPage() {
                 </div>
             ) : tab === 'history' ? (
                 <Card>
-                    <ZoruCardContent className="p-0">
+                    <CardBody className="p-0">
                         {history.length === 0 ? (
                             <div className="p-8 text-center text-[var(--st-text-secondary)]">No history yet.</div>
                         ) : (
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow>
-                                        <ZoruTableHead>Date</ZoruTableHead>
-                                        <ZoruTableHead>Campaign</ZoruTableHead>
-                                        <ZoruTableHead>Action</ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                <THead>
+                                    <Tr>
+                                        <Th>Date</Th>
+                                        <Th>Campaign</Th>
+                                        <Th>Action</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {history.map((h, i) => (
-                                        <ZoruTableRow key={i}>
-                                            <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">{h.date}</ZoruTableCell>
-                                            <ZoruTableCell className="font-medium">{h.campaignName}</ZoruTableCell>
-                                            <ZoruTableCell>{h.action}</ZoruTableCell>
-                                        </ZoruTableRow>
+                                        <Tr key={i}>
+                                            <Td className="text-sm text-[var(--st-text-secondary)]">{h.date}</Td>
+                                            <Td className="font-medium">{h.campaignName}</Td>
+                                            <Td>{h.action}</Td>
+                                        </Tr>
                                     ))}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <Card>
-                            <ZoruCardContent className="p-4">
+                            <CardBody className="p-4">
                                 <div className="text-sm text-[var(--st-text-secondary)]">Increase budget</div>
                                 <div className="text-3xl font-bold text-[var(--st-text)]">{countByType('increase')}</div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                         <Card>
-                            <ZoruCardContent className="p-4">
+                            <CardBody className="p-4">
                                 <div className="text-sm text-[var(--st-text-secondary)]">Decrease budget</div>
                                 <div className="text-3xl font-bold text-[var(--st-text)]">{countByType('decrease')}</div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                         <Card>
-                            <ZoruCardContent className="p-4">
+                            <CardBody className="p-4">
                                 <div className="text-sm text-[var(--st-text-secondary)]">Pause</div>
                                 <div className="text-3xl font-bold text-[var(--st-text)]">{countByType('pause')}</div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     </div>
 
                     {recs.length === 0 ? (
-                        <Card><ZoruCardContent className="p-8 text-center text-[var(--st-text-secondary)]">No active campaigns with insights found.</ZoruCardContent></Card>
+                        <Card><CardBody className="p-8 text-center text-[var(--st-text-secondary)]">No active campaigns with insights found.</CardBody></Card>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {recs.map((r) => (

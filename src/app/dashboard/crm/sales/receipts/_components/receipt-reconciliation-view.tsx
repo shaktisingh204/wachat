@@ -4,7 +4,7 @@ import { Button } from '@/components/sabcrm/20ui/compat';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { CrmPaymentReceiptDoc } from '@/lib/rust-client/crm-payment-receipts';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { setPaymentReceiptStatus } from '@/app/actions/crm/payment-receipts.actions';
 
 interface ReceiptReconciliationViewProps {
@@ -18,7 +18,7 @@ export function ReceiptReconciliationView({
   loading,
   onStatusUpdated,
 }: ReceiptReconciliationViewProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [busyId, setBusyId] = React.useState<string | null>(null);
 
   // Filter out receipts that are already cleared/bounced if we want this to be a strict "pending" view,

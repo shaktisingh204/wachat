@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { XMLParser } from 'fast-xml-parser';
 
@@ -134,10 +134,10 @@ export default function SitemapValidatorPage() {
         <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/sitemap.xml" />
         <Button onClick={run} disabled={loading}>{loading ? 'Validating…' : 'Validate'}</Button>
       </div>
-      {error && <Card className="border-[var(--st-border)]"><ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-[var(--st-border)]"><CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody></Card>}
       {result && (
         <Card>
-          <ZoruCardContent className="p-4 space-y-4 text-sm">
+          <CardBody className="p-4 space-y-4 text-sm">
             <div className="space-y-1">
               <div>XML header: {result.isXml ? '✅' : '❌'}</div>
               <div>Urlset: {result.hasUrlset ? '✅' : '❌'}</div>
@@ -183,7 +183,7 @@ export default function SitemapValidatorPage() {
                 </div>
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

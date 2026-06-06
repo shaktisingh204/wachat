@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 import {
   Timer } from 'lucide-react';
 
@@ -29,7 +29,7 @@ export function ChartResponseHistogram({ data }: ChartResponseHistogramProps) {
     );
   }
   return (
-    <ZoruChartContainer height={288}>
+    <ChartContainer height={288}>
       <ZoruChart.BarChart
         data={data}
         margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -45,13 +45,13 @@ export function ChartResponseHistogram({ data }: ChartResponseHistogramProps) {
           axisLine={false}
         />
         <ZoruChart.YAxis fontSize={11} tickLine={false} axisLine={false} />
-        <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+        <ZoruChart.Tooltip content={<ChartTooltip />} />
         <ZoruChart.Bar
           dataKey="count"
           fill={ZORU_CHART_PALETTE[0]}
           radius={[4, 4, 0, 0]}
         />
       </ZoruChart.BarChart>
-    </ZoruChartContainer>
+    </ChartContainer>
   );
 }

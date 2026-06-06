@@ -1,36 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  EmptyState,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -139,7 +109,7 @@ function formatTs(ts: Date): string {
 }
 
 export default function SabWaCallsPage() {
-  const toast = useZoruToast();
+  const toast = useToast();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? '';
 
@@ -212,29 +182,29 @@ export default function SabWaCallsPage() {
   return (
     <div className="space-y-4 p-4 md:p-6 lg:p-8">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Calls</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Calls</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Audit-only notice */}
       <Alert>
         <Phone className="h-4 w-4" />
-        <ZoruAlertTitle>Read-only call history</ZoruAlertTitle>
-        <ZoruAlertDescription>
+        <AlertTitle>Read-only call history</AlertTitle>
+        <AlertDescription>
           Voice and video calls happen on your phone — this page is for
           audit and visibility. Filter, search, and export below.
-        </ZoruAlertDescription>
+        </AlertDescription>
       </Alert>
 
       {/* Header */}
@@ -269,7 +239,7 @@ export default function SabWaCallsPage() {
 
       {/* Filters */}
       <Card>
-        <ZoruCardContent className="grid gap-3 p-3 sm:grid-cols-2 lg:grid-cols-5">
+        <CardBody className="grid gap-3 p-3 sm:grid-cols-2 lg:grid-cols-5">
           <div className="space-y-1 lg:col-span-2">
             <Label className="text-xs font-medium" htmlFor="calls-search">
               Search
@@ -291,34 +261,34 @@ export default function SabWaCallsPage() {
               value={typeFilter}
               onValueChange={(v) => setTypeFilter(v as typeof typeFilter)}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All types</ZoruSelectItem>
-                <ZoruSelectItem value="incoming">Incoming</ZoruSelectItem>
-                <ZoruSelectItem value="outgoing">Outgoing</ZoruSelectItem>
-                <ZoruSelectItem value="missed">Missed</ZoruSelectItem>
-                <ZoruSelectItem value="video">Video</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All types</SelectItem>
+                <SelectItem value="incoming">Incoming</SelectItem>
+                <SelectItem value="outgoing">Outgoing</SelectItem>
+                <SelectItem value="missed">Missed</SelectItem>
+                <SelectItem value="video">Video</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
             <Label className="text-xs font-medium">Contact</Label>
             <Select value={contactFilter} onValueChange={setContactFilter}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All contacts</ZoruSelectItem>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All contacts</SelectItem>
                 {(chats ?? [])
                   .filter((c) => c.type === "individual")
                   .map((c) => (
-                    <ZoruSelectItem key={c.jid} value={c.jid}>
+                    <SelectItem key={c.jid} value={c.jid}>
                       {c.name ?? c.jid}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
@@ -359,12 +329,12 @@ export default function SabWaCallsPage() {
               <Filter className="mr-2 h-3.5 w-3.5" /> Reset filters
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Table */}
       <Card>
-        <ZoruCardContent className="p-0">
+        <CardBody className="p-0">
           {loading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -383,21 +353,21 @@ export default function SabWaCallsPage() {
             </div>
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead className="w-[110px]">Type</ZoruTableHead>
-                  <ZoruTableHead>Counterpart</ZoruTableHead>
-                  <ZoruTableHead className="w-[120px]">Duration</ZoruTableHead>
-                  <ZoruTableHead className="w-[180px]">When</ZoruTableHead>
-                  <ZoruTableHead className="w-[60px]" />
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th className="w-[110px]">Type</Th>
+                  <Th>Counterpart</Th>
+                  <Th className="w-[120px]">Duration</Th>
+                  <Th className="w-[180px]">When</Th>
+                  <Th className="w-[60px]" />
+                </Tr>
+              </THead>
+              <TBody>
                 {filtered.map((c) => {
                   const Icon = typeIcon(c.type);
                   return (
-                    <ZoruTableRow key={c.id}>
-                      <ZoruTableCell>
+                    <Tr key={c.id}>
+                      <Td>
                         <Badge
                           variant={typeBadgeVariant(c.type)}
                           className="gap-1"
@@ -405,8 +375,8 @@ export default function SabWaCallsPage() {
                           <Icon className="h-3 w-3" />
                           {typeLabel(c.type)}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-[var(--st-text)]">
                             {c.counterpartName ?? c.counterpartJid}
@@ -417,14 +387,14 @@ export default function SabWaCallsPage() {
                             <ArrowUpRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                           )}
                         </div>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[var(--st-text-secondary)]">
                         {formatDuration(c.durationSec)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[var(--st-text-secondary)]">
                         {formatTs(c.ts)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <Button asChild type="button" size="sm" variant="ghost">
                           <Link
                             href={`/sabwa/inbox?jid=${encodeURIComponent(
@@ -435,14 +405,14 @@ export default function SabWaCallsPage() {
                             <ArrowUpRight className="h-3.5 w-3.5" />
                           </Link>
                         </Button>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

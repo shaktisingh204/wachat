@@ -1,20 +1,6 @@
 import React from 'react';
 
-import {
-    Card,
-    CardContent,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Badge,
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { Banknote } from 'lucide-react';
 import { getSabworkerlyPayrollRuns } from '@/app/actions/sabworkerly.actions';
 import { RunPayrollForm } from './_run-form';
@@ -34,10 +20,10 @@ export default async function PayrollPage() {
     return (
         <div className="zoruui flex flex-col gap-5">
             <PageHeader>
-                <ZoruPageTitle>Payroll</ZoruPageTitle>
-                <ZoruPageDescription>
+                <PageTitle>Payroll</PageTitle>
+                <PageDescription>
                     Pay workers for approved timesheets. Uses each placement&apos;s pay rate.
-                </ZoruPageDescription>
+                </PageDescription>
             </PageHeader>
 
             <Card>
@@ -57,31 +43,31 @@ export default async function PayrollPage() {
                 <Card>
                     <CardContent className="p-0">
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Period</TableHead>
-                                    <TableHead>Workers</TableHead>
-                                    <TableHead>Total</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Period</Th>
+                                    <Th>Workers</Th>
+                                    <Th>Total</Th>
+                                    <Th>Status</Th>
+                                    <Th>Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {runs.map((r) => (
-                                    <TableRow key={r._id}>
-                                        <TableCell>
+                                    <Tr key={r._id}>
+                                        <Td>
                                             {new Date(r.periodStart).toLocaleDateString()} —{' '}
                                             {new Date(r.periodEnd).toLocaleDateString()}
-                                        </TableCell>
-                                        <TableCell>{r.lineItems.length}</TableCell>
-                                        <TableCell>{money(r.totalMinor, r.currency)}</TableCell>
-                                        <TableCell><Badge variant="secondary">{r.status}</Badge></TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>{r.lineItems.length}</Td>
+                                        <Td>{money(r.totalMinor, r.currency)}</Td>
+                                        <Td><Badge variant="secondary">{r.status}</Badge></Td>
+                                        <Td>
                                             <PayrollRunActions id={r._id} status={r.status} />
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     </CardContent>
                 </Card>

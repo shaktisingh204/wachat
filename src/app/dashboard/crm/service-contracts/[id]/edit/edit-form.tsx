@@ -24,17 +24,7 @@
  */
 
 import * as React from 'react';
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Input,
-    Label,
-    Switch,
-    Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { FileText, LoaderCircle, Plus, Save, X } from 'lucide-react';
@@ -171,10 +161,10 @@ export function ServiceContractEditForm({
             />
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Identification</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Identification</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="contractNo">
@@ -231,14 +221,14 @@ export function ServiceContractEditForm({
                             </select>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Parties</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Parties</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label>Customer</Label>
@@ -286,14 +276,14 @@ export function ServiceContractEditForm({
                             />
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Period & billing</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Period & billing</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="periodStart">Start date</Label>
@@ -345,14 +335,14 @@ export function ServiceContractEditForm({
                             />
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Renewal</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Renewal</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-3 py-2">
                         <div className="text-[12.5px] text-[var(--st-text)]">
                             <div className="font-medium">Auto-renew</div>
@@ -390,14 +380,14 @@ export function ServiceContractEditForm({
                             />
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Terms & conditions</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Terms & conditions</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <Textarea
                         id="terms"
                         name="terms"
@@ -408,14 +398,14 @@ export function ServiceContractEditForm({
                     <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                         Plain text — rich-text editor not available in this build.
                     </p>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Document attachments</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Document attachments</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="space-y-2">
                         {documents.length === 0 ? (
                             <p className="text-[12.5px] text-[var(--st-text-secondary)]">
@@ -457,14 +447,14 @@ export function ServiceContractEditForm({
                             </span>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Notes</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Notes</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <Textarea
                         id="notes"
                         name="notes"
@@ -472,7 +462,7 @@ export function ServiceContractEditForm({
                         rows={4}
                         placeholder="Internal notes about this contract."
                     />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-3">

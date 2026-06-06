@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -64,7 +52,7 @@ export function EditProformaForm({
 }) {
     const [state, formAction] = useActionState(updateProformaInvoice, initialState);
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (state.message) {
@@ -101,17 +89,17 @@ export function EditProformaForm({
                                 name="status"
                                 defaultValue={(initial.status as string) || 'Draft'}
                             >
-                                <ZoruSelectTrigger id="status">
-                                    <ZoruSelectValue placeholder="Select status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="Draft">Draft</ZoruSelectItem>
-                                    <ZoruSelectItem value="Sent">Sent</ZoruSelectItem>
-                                    <ZoruSelectItem value="Accepted">Accepted</ZoruSelectItem>
-                                    <ZoruSelectItem value="Rejected">Rejected</ZoruSelectItem>
-                                    <ZoruSelectItem value="Expired">Expired</ZoruSelectItem>
-                                    <ZoruSelectItem value="Converted">Converted</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger id="status">
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Draft">Draft</SelectItem>
+                                    <SelectItem value="Sent">Sent</SelectItem>
+                                    <SelectItem value="Accepted">Accepted</SelectItem>
+                                    <SelectItem value="Rejected">Rejected</SelectItem>
+                                    <SelectItem value="Expired">Expired</SelectItem>
+                                    <SelectItem value="Converted">Converted</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>

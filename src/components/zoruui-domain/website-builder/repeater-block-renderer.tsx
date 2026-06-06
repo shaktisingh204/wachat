@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardFooter, CardHeader, CardTitle, Button } from '@/components/sabcrm/20ui/compat';
 import {
   cn } from '@/lib/utils';
 
@@ -37,7 +37,7 @@ interface RepeaterBlockRendererProps {
 
 const RepeaterItemCard = ({ item }: { item: RepeaterItem }) => (
     <Card className="h-full flex flex-col">
-        <ZoruCardHeader className="p-0">
+        <CardHeader className="p-0">
             {item.imageUrl ? (
                 <div className="relative aspect-video">
                     <Image src={item.imageUrl} alt={item.title} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="repeater item image" />
@@ -48,18 +48,18 @@ const RepeaterItemCard = ({ item }: { item: RepeaterItem }) => (
                 </div>
             )}
             <div className="p-4">
-                <ZoruCardTitle className="text-lg">{item.title}</ZoruCardTitle>
+                <CardTitle className="text-lg">{item.title}</CardTitle>
             </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-4 pt-0 flex-grow">
+        </CardHeader>
+        <CardBody className="p-4 pt-0 flex-grow">
             <p className="text-sm text-[var(--st-text-secondary)]">{item.description}</p>
-        </ZoruCardContent>
+        </CardBody>
         {item.buttonText && item.buttonLink && (
-            <ZoruCardFooter className="p-4 pt-0">
+            <CardFooter className="p-4 pt-0">
                 <Button asChild className="w-full">
                     <Link href={item.buttonLink}>{item.buttonText}</Link>
                 </Button>
-            </ZoruCardFooter>
+            </CardFooter>
         )}
     </Card>
 );

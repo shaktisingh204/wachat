@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Textarea,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, cn } from '@/components/sabcrm/20ui/compat';
 import {
   Loader2,
   RefreshCw,
@@ -67,26 +47,26 @@ export function RuleDetailDrawer({ open, onOpenChange, rule, projectId }: Props)
 
     if (!rule) {
         return (
-            <ZoruDrawer open={open} onOpenChange={onOpenChange}>
-                <ZoruDrawerContent />
-            </ZoruDrawer>
+            <Drawer open={open} onOpenChange={onOpenChange}>
+                <DrawerContent />
+            </Drawer>
         );
     }
 
     return (
-        <ZoruDrawer open={open} onOpenChange={onOpenChange}>
-            <ZoruDrawerContent className="max-h-[92vh]">
-                <ZoruDrawerHeader>
-                    <ZoruDrawerTitle>{rule.name}</ZoruDrawerTitle>
-                    <ZoruDrawerDescription>
+        <Drawer open={open} onOpenChange={onOpenChange}>
+            <DrawerContent className="max-h-[92vh]">
+                <DrawerHeader>
+                    <DrawerTitle>{rule.name}</DrawerTitle>
+                    <DrawerDescription>
                         {triggerSummary(rule.trigger)} ·{' '}
                         <Badge
                             variant={rule.status === 'enabled' ? 'success' : 'ghost'}
                         >
                             {rule.status}
                         </Badge>
-                    </ZoruDrawerDescription>
-                </ZoruDrawerHeader>
+                    </DrawerDescription>
+                </DrawerHeader>
 
                 <div className="px-6 pb-3">
                     <div role="tablist" className="inline-flex rounded-md border bg-[var(--st-bg-secondary)] p-0.5">
@@ -125,8 +105,8 @@ export function RuleDetailDrawer({ open, onOpenChange, rule, projectId }: Props)
                         <RunsPane rule={rule} projectId={projectId} />
                     )}
                 </div>
-            </ZoruDrawerContent>
-        </ZoruDrawer>
+            </DrawerContent>
+        </Drawer>
     );
 }
 
@@ -134,7 +114,7 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
     return (
         <div className="grid gap-4">
             <Card>
-                <ZoruCardContent className="space-y-2 p-4 text-sm">
+                <CardBody className="space-y-2 p-4 text-sm">
                     <Row label="Priority" value={rule.priority} />
                     <Row label="Bot" value={rule.botId ?? 'All bots'} />
                     <Row label="Status" value={rule.status} />
@@ -158,18 +138,18 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
                                 : 'Never'
                         }
                     />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <section>
                 <h4 className="mb-2 text-sm font-semibold">Trigger</h4>
                 <Card>
-                    <ZoruCardContent className="p-4 text-sm">
+                    <CardBody className="p-4 text-sm">
                         <p>{triggerSummary(rule.trigger)}</p>
                         <pre className="mt-2 max-h-40 overflow-auto rounded bg-[var(--st-bg-muted)]/40 p-2 text-xs">
                             {JSON.stringify(rule.trigger, null, 2)}
                         </pre>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </section>
 
@@ -301,13 +281,13 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                             setMsg((m) => ({ ...m, isGroup: v === 'group' }))
                         }
                     >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="private">Private (DM)</ZoruSelectItem>
-                            <ZoruSelectItem value="group">Group</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="private">Private (DM)</SelectItem>
+                            <SelectItem value="group">Group</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="space-y-1">

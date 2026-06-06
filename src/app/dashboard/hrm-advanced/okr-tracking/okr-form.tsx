@@ -1,6 +1,6 @@
 import React from 'react';
 import { OKR } from '@/lib/hrm-advanced-types';
-import { Input, Button, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Input, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
 
 interface OKRFormProps {
   open: boolean;
@@ -38,11 +38,11 @@ export function OKRForm({ open, onOpenChange, initialData, onSave, isLoading }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{initialData?._id ? 'Edit OKR' : 'Add OKR'}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+          <DialogHeader>
+            <DialogTitle>{initialData?._id ? 'Edit OKR' : 'Add OKR'}</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <label htmlFor="objective" className="text-sm font-medium">Objective</label>
@@ -93,16 +93,16 @@ export function OKRForm({ open, onOpenChange, initialData, onSave, isLoading }: 
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? 'Saving...' : 'Save'}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

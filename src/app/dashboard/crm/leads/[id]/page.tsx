@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Button,
-  Card,
-  Separator,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, Separator, Skeleton, Table, TBody, Td, Th, THead, Tr, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -245,9 +224,9 @@ export default function LeadDetailPage() {
             <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
               <div className="flex flex-col items-center text-center">
                 <Avatar className="mb-3 h-20 w-20 border border-[var(--st-border)]">
-                  <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[24px] text-[var(--st-text)] font-semibold">
+                  <AvatarFallback className="bg-[var(--st-bg-muted)] text-[24px] text-[var(--st-text)] font-semibold">
                     {fullName.charAt(0)}
-                  </ZoruAvatarFallback>
+                  </AvatarFallback>
                 </Avatar>
                 <h2 className="text-[16px] font-bold text-[var(--st-text)] leading-tight">{fullName}</h2>
                 <p className="mt-1 text-[12px] text-[var(--st-text-secondary)] font-medium">
@@ -450,36 +429,36 @@ export default function LeadDetailPage() {
               </div>
               <div className="overflow-x-auto rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/10">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                      <ZoruTableHead className="text-[var(--st-text-secondary)] font-semibold text-[12px]">Deal Name</ZoruTableHead>
-                      <ZoruTableHead className="text-[var(--st-text-secondary)] font-semibold text-[12px]">Stage</ZoruTableHead>
-                      <ZoruTableHead className="text-right text-[var(--st-text-secondary)] font-semibold text-[12px]">Pipeline Value</ZoruTableHead>
-                      <ZoruTableHead className="w-[50px]"></ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                  <THead>
+                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                      <Th className="text-[var(--st-text-secondary)] font-semibold text-[12px]">Deal Name</Th>
+                      <Th className="text-[var(--st-text-secondary)] font-semibold text-[12px]">Stage</Th>
+                      <Th className="text-right text-[var(--st-text-secondary)] font-semibold text-[12px]">Pipeline Value</Th>
+                      <Th className="w-[50px]"></Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {deals.length > 0 ? (
                       deals.map((deal) => (
-                        <ZoruTableRow
+                        <Tr
                           key={deal._id.toString()}
                           onClick={() =>
                             router.push(`/dashboard/crm/deals/${deal._id.toString()}`)
                           }
                           className="cursor-pointer border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/30"
                         >
-                          <ZoruTableCell className="text-[13px] font-semibold text-[var(--st-text)]">
+                          <Td className="text-[13px] font-semibold text-[var(--st-text)]">
                             {deal.name}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <Badge variant={(deal.stage || '').toLowerCase() === 'won' ? 'success' : (deal.stage || '').toLowerCase() === 'lost' ? 'danger' : 'info'}>
                               {deal.stage ?? '—'}
                             </Badge>
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right font-semibold text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-right font-semibold text-[var(--st-text)]">
                             {fmtMoney(deal.value, deal.currency)}
-                          </ZoruTableCell>
-                          <ZoruTableCell onClick={(e) => e.stopPropagation()}>
+                          </Td>
+                          <Td onClick={(e) => e.stopPropagation()}>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="h-8 w-8 p-0">
@@ -498,20 +477,20 @@ export default function LeadDetailPage() {
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       ))
                     ) : (
-                      <ZoruTableRow className="border-[var(--st-border)]">
-                        <ZoruTableCell
+                      <Tr className="border-[var(--st-border)]">
+                        <Td
                           colSpan={4}
                           className="h-24 text-center text-[12.5px] text-[var(--st-text-secondary)] font-medium"
                         >
                           No active deals currently associated with this lead.
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     )}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
               </div>
             </Card>

@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   format } from 'date-fns';
 import { Eye,
@@ -72,82 +63,82 @@ export function HolidaysTable({
   return (
     <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow className="hover:bg-transparent">
-            <ZoruTableHead className="w-10">
+        <THead>
+          <Tr className="hover:bg-transparent">
+            <Th className="w-10">
               <Checkbox
                 aria-label="Select all rows on this page"
                 checked={allSelected}
                 onCheckedChange={(v) => onToggleAll(Boolean(v))}
               />
-            </ZoruTableHead>
-            <ZoruTableHead>Date</ZoruTableHead>
-            <ZoruTableHead>Name</ZoruTableHead>
-            <ZoruTableHead>Type</ZoruTableHead>
-            <ZoruTableHead className="text-center">Recurring</ZoruTableHead>
-            <ZoruTableHead>Applicable locations</ZoruTableHead>
-            <ZoruTableHead>Notes</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+            </Th>
+            <Th>Date</Th>
+            <Th>Name</Th>
+            <Th>Type</Th>
+            <Th className="text-center">Recurring</Th>
+            <Th>Applicable locations</Th>
+            <Th>Notes</Th>
+            <Th className="text-right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {rows.length === 0 ? (
-            <ZoruTableRow>
-              <ZoruTableCell
+            <Tr>
+              <Td
                 colSpan={8}
                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 {hasActiveFilters
                   ? 'No holidays match the current filters.'
                   : 'No holidays.'}
-              </ZoruTableCell>
-            </ZoruTableRow>
+              </Td>
+            </Tr>
           ) : (
             rows.map((h) => {
               const id = h._id.toString();
               return (
-                <ZoruTableRow key={id} className="border-[var(--st-border)]">
-                  <ZoruTableCell>
+                <Tr key={id} className="border-[var(--st-border)]">
+                  <Td>
                     <Checkbox
                       aria-label={`Select ${h.name}`}
                       checked={selected.has(id)}
                       onCheckedChange={() => onToggleOne(id)}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                  </Td>
+                  <Td className="text-[13px] text-[var(--st-text)]">
                     {fmtDate(h.date)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                  </Td>
+                  <Td className="text-[13px] text-[var(--st-text)]">
                     <Link
                       href={`/dashboard/hrm/payroll/holidays/${id}`}
                       className="hover:underline"
                     >
                       {h.name}
                     </Link>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <StatusPill
                       label={(h.type ?? 'national').toString()}
                       tone={statusToTone(h.type ?? 'national')}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-center">
+                  </Td>
+                  <Td className="text-center">
                     {h.recurring ? (
                       <StatusPill label="Yes" tone="green" />
                     ) : (
                       <StatusPill label="No" tone="neutral" />
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[13px] text-[var(--st-text-secondary)]">
                     {locationsText(h) || '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell
+                  </Td>
+                  <Td
                     className="max-w-[220px] truncate text-[13px] text-[var(--st-text-secondary)]"
                     title={h.notes ?? ''}
                   >
                     {h.notes ?? '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <div className="flex justify-end gap-1">
                       <Button variant="ghost" size="icon" asChild>
                         <Link
@@ -174,12 +165,12 @@ export function HolidaysTable({
                         <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                       </Button>
                     </div>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               );
             })
           )}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </div>
   );

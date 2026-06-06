@@ -28,20 +28,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, Link2 } from 'lucide-react';
 
-import {
-  Tabs,
-  ZoruTabsList,
-  ZoruTabsTrigger,
-  ZoruTabsContent,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Badge,
-  EmptyState,
-  Separator,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsList, TabsTrigger, TabsContent, Card, CardContent, CardHeader, CardTitle, Badge, EmptyState, Separator, cn } from '@/components/sabcrm/20ui/compat';
 import type {
   CrmRecordWithLabel,
   FieldMetadata,
@@ -189,20 +176,20 @@ export function RecordDetailTabs({
       defaultValue={defaultTab}
       className={cn('flex w-full flex-col gap-4', className)}
     >
-      <ZoruTabsList>
-        <ZoruTabsTrigger value={TAB_DETAILS}>Details</ZoruTabsTrigger>
-        <ZoruTabsTrigger value={TAB_RELATED}>
+      <TabsList>
+        <TabsTrigger value={TAB_DETAILS}>Details</TabsTrigger>
+        <TabsTrigger value={TAB_RELATED}>
           Related
           {relatedTotal > 0 && (
             <Badge variant="outline" className="ml-2">
               {relatedTotal}
             </Badge>
           )}
-        </ZoruTabsTrigger>
-        <ZoruTabsTrigger value={TAB_ACTIVITY}>Activity</ZoruTabsTrigger>
-      </ZoruTabsList>
+        </TabsTrigger>
+        <TabsTrigger value={TAB_ACTIVITY}>Activity</TabsTrigger>
+      </TabsList>
 
-      <ZoruTabsContent value={TAB_DETAILS}>
+      <TabsContent value={TAB_DETAILS}>
         <RecordDetail
           object={object}
           record={record}
@@ -213,9 +200,9 @@ export function RecordDetailTabs({
           onDeleted={onDeleted}
           resolveRelationLabel={resolveRelationLabel}
         />
-      </ZoruTabsContent>
+      </TabsContent>
 
-      <ZoruTabsContent value={TAB_RELATED}>
+      <TabsContent value={TAB_RELATED}>
         {relations.length === 0 ? (
           <Card>
             <CardContent className="py-10">
@@ -236,9 +223,9 @@ export function RecordDetailTabs({
             ))}
           </div>
         )}
-      </ZoruTabsContent>
+      </TabsContent>
 
-      <ZoruTabsContent value={TAB_ACTIVITY}>
+      <TabsContent value={TAB_ACTIVITY}>
         {activitySlot ?? (
           <Card>
             <CardContent className="py-10">
@@ -249,7 +236,7 @@ export function RecordDetailTabs({
             </CardContent>
           </Card>
         )}
-      </ZoruTabsContent>
+      </TabsContent>
     </Tabs>
   );
 }

@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 
@@ -25,19 +16,19 @@ export function CrmAddPaymentAccountDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
           Add Account
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col overflow-hidden p-0">
-        <ZoruDialogHeader className="px-6 pt-6 pb-2">
-          <ZoruDialogTitle className="text-[var(--st-text)]">Add New Payment Account</ZoruDialogTitle>
-          <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col overflow-hidden p-0">
+        <DialogHeader className="px-6 pt-6 pb-2">
+          <DialogTitle className="text-[var(--st-text)]">Add New Payment Account</DialogTitle>
+          <DialogDescription className="text-[var(--st-text-secondary)]">
             This feature has moved to a dedicated page for a better experience.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="flex-1 overflow-y-auto px-6 py-2 text-center">
           <p className="mb-4 text-[var(--st-text-secondary)]">Please use the new page to add payment accounts.</p>
           <Button asChild>
@@ -46,10 +37,10 @@ export function CrmAddPaymentAccountDialog() {
             </Link>
           </Button>
         </div>
-        <ZoruDialogFooter className="px-6 pb-6 pt-2">
+        <DialogFooter className="px-6 pb-6 pt-2">
           <Button type="button" variant="outline" onClick={() => setOpen(false)}>Close</Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

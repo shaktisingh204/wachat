@@ -1,28 +1,5 @@
 import * as React from 'react';
-import {
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    Badge,
-    Button,
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr, Badge, Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { Download, Globe2, Loader2, Trash2 } from 'lucide-react';
 import { NumberRow, SectionCard } from './shared';
 import type { ProjectSettings, GdprRequestRow } from '@/lib/rust-client/telegram-settings';
@@ -31,7 +8,7 @@ import {
     requestTelegramDataDeletionAction,
     requestTelegramDataExportAction,
 } from '@/app/actions/telegram-settings.actions';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 export function GdprSection({
     projectId,
@@ -46,7 +23,7 @@ export function GdprSection({
     onSave: () => void;
     saving: boolean;
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const g = settings.gdpr;
     const update = <K extends keyof typeof g>(key: K, value: (typeof g)[K]) => {
         setSettings((prev) => ({ ...prev, gdpr: { ...prev.gdpr, [key]: value } }));
@@ -191,14 +168,14 @@ export function GdprSection({
                         <div className="text-sm font-semibold">Recent requests</div>
                         <div className="flex items-center gap-2">
                             <Select value={filterKind} onValueChange={setFilterKind}>
-                                <ZoruSelectTrigger className="h-8 text-xs">
-                                    <ZoruSelectValue placeholder="All kinds" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="all">All kinds</ZoruSelectItem>
-                                    <ZoruSelectItem value="export">Export</ZoruSelectItem>
-                                    <ZoruSelectItem value="delete">Delete</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger className="h-8 text-xs">
+                                    <SelectValue placeholder="All kinds" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All kinds</SelectItem>
+                                    <SelectItem value="export">Export</SelectItem>
+                                    <SelectItem value="delete">Delete</SelectItem>
+                                </SelectContent>
                             </Select>
                             <Button
                                 variant="outline"
@@ -213,20 +190,20 @@ export function GdprSection({
                         <p className="text-sm text-[var(--st-text)]/60">No GDPR requests found.</p>
                     ) : (
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Created</ZoruTableHead>
-                                    <ZoruTableHead>Kind</ZoruTableHead>
-                                    <ZoruTableHead>Status</ZoruTableHead>
-                                    <ZoruTableHead>Request id</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Created</Th>
+                                    <Th>Kind</Th>
+                                    <Th>Status</Th>
+                                    <Th>Request id</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {filteredRequests.map((r) => (
-                                    <ZoruTableRow key={r._id}>
-                                        <ZoruTableCell>{r.createdAt.slice(0, 19).replace('T', ' ')}</ZoruTableCell>
-                                        <ZoruTableCell>{r.kind}</ZoruTableCell>
-                                        <ZoruTableCell>
+                                    <Tr key={r._id}>
+                                        <Td>{r.createdAt.slice(0, 19).replace('T', ' ')}</Td>
+                                        <Td>{r.kind}</Td>
+                                        <Td>
                                             <Badge
                                                 variant={
                                                     r.status === 'done'
@@ -238,45 +215,45 @@ export function GdprSection({
                                             >
                                                 {r.status}
                                             </Badge>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono text-xs">
+                                        </Td>
+                                        <Td className="font-mono text-xs">
                                             {r._id}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     )}
                 </div>
             </div>
 
-            <ZoruAlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Confirm data deletion</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+            <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Confirm data deletion</AlertDialogTitle>
+                        <AlertDialogDescription>
                             This queues a deletion job for every Telegram artefact attached to
                             this project (bots, chats, broadcasts, deliveries). The job is
                             irreversible once processed. Type <strong>DELETE</strong> to confirm.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
                     <Input
                         value={confirm}
                         onChange={(e) => setConfirm(e.target.value)}
                         placeholder="Type DELETE"
                     />
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={requestDelete}
                             disabled={confirm !== 'DELETE' || busy}
                         >
                             {busy ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null}
                             Queue deletion
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </SectionCard>
     );
 }

@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Label,
-  Input,
-  Switch,
-  Textarea,
-  Avatar,
-  ZoruAvatarImage,
-  ZoruAvatarFallback,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Label, Input, Switch, Textarea, Avatar, AvatarImage, AvatarFallback } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useMemo,
@@ -81,16 +66,16 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
             <form action={formAction}>
                 <input type="hidden" name="_form" value="widget" />
                 <input type="hidden" name="settings" value={JSON.stringify(settings)} />
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="flex items-center gap-3">
                         <Code className="h-8 w-8" />
                         <div>
-                            <ZoruCardTitle>Widget Configuration</ZoruCardTitle>
-                            <ZoruCardDescription>Customize and install the live chat widget on your website.</ZoruCardDescription>
+                            <CardTitle>Widget Configuration</CardTitle>
+                            <CardDescription>Customize and install the live chat widget on your website.</CardDescription>
                         </div>
                     </div>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <div className="grid lg:grid-cols-2 gap-8 items-start">
                         {/* Customization Panel */}
                         <div className="space-y-4">
@@ -141,8 +126,8 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                                         <div className="absolute bottom-[96px] right-[16px] w-[350px] bg-white rounded-lg shadow-2xl flex flex-col h-[300px]">
                                             <div style={{ backgroundColor: settings.widgetColor }} className="text-white p-4 flex items-center gap-3 rounded-t-lg">
                                                 <Avatar>
-                                                    {settings.avatarUrl && <ZoruAvatarImage src={settings.avatarUrl} />}
-                                                    <ZoruAvatarFallback>{settings.teamName?.charAt(0) || 'S'}</ZoruAvatarFallback>
+                                                    {settings.avatarUrl && <AvatarImage src={settings.avatarUrl} />}
+                                                    <AvatarFallback>{settings.teamName?.charAt(0) || 'S'}</AvatarFallback>
                                                 </Avatar>
                                                 <div>
                                                     <h4 className="font-bold">{settings.teamName}</h4>
@@ -164,10 +149,10 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                             </div>
                         </div>
                     </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <SubmitButton />
-                </ZoruCardFooter>
+                </CardFooter>
             </form>
         </Card>
     );

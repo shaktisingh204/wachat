@@ -1,11 +1,5 @@
 import * as React from 'react';
-import {
-    Card,
-    Input,
-    Label,
-    Switch,
-    ZoruCardContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Label, Switch, CardBody } from '@/components/sabcrm/20ui/compat';
 import { Loader2, X } from 'lucide-react';
 import { Button } from '@/components/sabcrm/20ui/compat';
 
@@ -142,7 +136,7 @@ export function SectionCard({
 }) {
     return (
         <Card>
-            <ZoruCardContent className="space-y-5 p-6">
+            <CardBody className="space-y-5 p-6">
                 <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2">
                         <span
@@ -169,7 +163,7 @@ export function SectionCard({
                         </Button>
                     </div>
                 ) : null}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

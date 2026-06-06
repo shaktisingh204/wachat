@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Badge, Button, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Dialog, DialogContent, DialogHeader, DialogTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import { Download, Check, X, Eye } from 'lucide-react';
 import { updateVoucherStatus } from '../extended-actions';
 
@@ -37,7 +37,7 @@ interface VoucherTableProps {
 }
 
 export function VoucherTable({ floatId, currency, vouchers }: VoucherTableProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [lightboxUrl, setLightboxUrl] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
 
@@ -141,10 +141,10 @@ export function VoucherTable({ floatId, currency, vouchers }: VoucherTableProps)
       </table>
 
       <Dialog open={!!lightboxUrl} onOpenChange={(open) => !open && setLightboxUrl(null)}>
-        <ZoruDialogContent className="sm:max-w-xl">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Receipt Image</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Receipt Image</DialogTitle>
+          </DialogHeader>
           {lightboxUrl && (
             <div className="mt-4 flex justify-center bg-[var(--st-hover)] p-4 rounded-lg">
               <img 
@@ -157,7 +157,7 @@ export function VoucherTable({ floatId, currency, vouchers }: VoucherTableProps)
               />
             </div>
           )}
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </div>
   );

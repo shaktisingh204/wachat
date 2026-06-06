@@ -12,17 +12,7 @@ import {
   XCircle,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Separator,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Separator, useToast } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 
 import type {
@@ -96,7 +86,7 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
     onTestConnection,
   } = props;
 
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [connection, setConnection] =
     React.useState<CrmModuleConnectionDTO | null>(null);
@@ -232,7 +222,7 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
     <div className="space-y-6">
       {/* Hero */}
       <Card className="overflow-hidden">
-        <ZoruCardHeader>
+        <CardHeader>
           <div className="flex items-start gap-4">
             <motion.div
               initial={{ scale: 0.7, opacity: 0 }}
@@ -244,15 +234,15 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
             </motion.div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <ZoruCardTitle>{title}</ZoruCardTitle>
+                <CardTitle>{title}</CardTitle>
                 <ConnectionBadge
                   loading={loading}
                   status={connection?.status ?? 'disconnected'}
                 />
               </div>
-              <ZoruCardDescription className="mt-1">
+              <CardDescription className="mt-1">
                 {subtitle}
-              </ZoruCardDescription>
+              </CardDescription>
               <p className="mt-2 text-xs text-[var(--st-text-secondary)]">
                 Routes to:{' '}
                 <span className="font-medium text-[var(--st-text)]">
@@ -287,7 +277,7 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
               )}
             </div>
           </div>
-        </ZoruCardHeader>
+        </CardHeader>
       </Card>
 
       {/* Body */}
@@ -301,14 +291,14 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
             transition={{ duration: 0.25 }}
           >
             <Card>
-              <ZoruCardHeader>
+              <CardHeader>
                 <StepperHeader
                   steps={steps}
                   current={stepIdx}
                 />
-              </ZoruCardHeader>
+              </CardHeader>
               <Separator />
-              <ZoruCardContent className="p-6">
+              <CardBody className="p-6">
                 <AnimatePresence mode="wait" custom={direction}>
                   <motion.div
                     key={steps[stepIdx].id}
@@ -342,7 +332,7 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
                     ) : null}
                   </motion.div>
                 </AnimatePresence>
-              </ZoruCardContent>
+              </CardBody>
               <Separator />
               <div className="flex items-center justify-between p-4">
                 <Button
@@ -385,7 +375,7 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
               manageView({ connection, onReconnect: startWizard })
             ) : (
               <Card>
-                <ZoruCardContent className="p-8 flex flex-col items-center text-center gap-3">
+                <CardBody className="p-8 flex flex-col items-center text-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] border border-[var(--st-border)]">
                     <Plug className="h-6 w-6 text-[var(--st-text-secondary)]" />
                   </div>
@@ -403,7 +393,7 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
                     <Plug className="h-4 w-4" />
                     Start setup
                   </Button>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             )}
           </motion.div>

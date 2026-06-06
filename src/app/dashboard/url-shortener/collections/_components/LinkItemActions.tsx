@@ -1,11 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import {
-    Button, ZoruDialog as Dialog, ZoruDialogContent as DialogContent, ZoruDialogHeader as DialogHeader, ZoruDialogTitle as DialogTitle,
-    ZoruDropdownMenu as DropdownMenu, ZoruDropdownMenuContent as DropdownMenuContent, ZoruDropdownMenuItem as DropdownMenuItem, ZoruDropdownMenuTrigger as DropdownMenuTrigger,
-    Input, Label, useZoruToast, Skeleton, ZoruDialogDescription as DialogDescription
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Input, Label, useToast, Skeleton, DialogDescription } from '@/components/sabcrm/20ui/compat';
 import { MoreVertical, BarChart, Settings, QrCode as QrCodeIcon, Download, Trash, Plus } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { updateShortUrl, getShortUrlAnalyticsGeo } from '@/app/actions/url-shortener.actions';
@@ -24,7 +20,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
 
     const [geoData, setGeoData] = useState<{ country: string; count: number }[] | null>(null);
     const [isPending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // A/B test state
     const [splitTargets, setSplitTargets] = useState<{ url: string; weight: number }[]>(url.splitTargets || []);

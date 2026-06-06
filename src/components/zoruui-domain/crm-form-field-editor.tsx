@@ -1,21 +1,6 @@
 'use client';
 
-import {
-    Label,
-    Button,
-    Input,
-    Textarea,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Switch,
-    Accordion,
-    ZoruAccordionContent,
-    ZoruAccordionItem,
-    ZoruAccordionTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui/compat';
 import type { FormField, FormFieldValidation } from '@/lib/definitions';
 
 interface CrmFormFieldEditorProps {
@@ -75,12 +60,12 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
             <div className="space-y-2">
                 <Label>Field Type</Label>
                 <Select value={field.type} onValueChange={(val) => handleUpdate('type', val as FormField['type'])}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
                         {FIELD_TYPE_OPTIONS.map(opt => (
-                            <ZoruSelectItem key={opt.value} value={opt.value}>{opt.label}</ZoruSelectItem>
+                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
             <div className="space-y-2">
@@ -130,9 +115,9 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
             </div>
 
             <Accordion type="single" collapsible>
-                <ZoruAccordionItem value="validation">
-                    <ZoruAccordionTrigger>Validation rules</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-3 pt-2">
+                <AccordionItem value="validation">
+                    <AccordionTrigger>Validation rules</AccordionTrigger>
+                    <AccordionContent className="space-y-3 pt-2">
                         {isStringy && (
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="space-y-1">
@@ -202,13 +187,13 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                                         : { fieldId: val, operator: validation.requireIf?.operator ?? 'isFilled', value: validation.requireIf?.value }
                                 })}
                             >
-                                <ZoruSelectTrigger><ZoruSelectValue placeholder="No conditional rule"/></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="__none__">-- None --</ZoruSelectItem>
+                                <SelectTrigger><SelectValue placeholder="No conditional rule"/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__none__">-- None --</SelectItem>
                                     {otherFields.filter(f => f.id !== field.id && f.type !== 'html').map(f => (
-                                        <ZoruSelectItem key={f.id} value={f.fieldId || f.id}>{f.label || f.fieldId || f.id}</ZoruSelectItem>
+                                        <SelectItem key={f.id} value={f.fieldId || f.id}>{f.label || f.fieldId || f.id}</SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             {validation.requireIf && (
                                 <div className="grid grid-cols-2 gap-2">
@@ -216,12 +201,12 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                                         value={validation.requireIf.operator}
                                         onValueChange={(val) => updateValidation({ requireIf: { ...validation.requireIf!, operator: val as 'equals' | 'notEquals' | 'isFilled' } })}
                                     >
-                                        <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
-                                        <ZoruSelectContent>
-                                            <ZoruSelectItem value="isFilled">is filled</ZoruSelectItem>
-                                            <ZoruSelectItem value="equals">equals</ZoruSelectItem>
-                                            <ZoruSelectItem value="notEquals">not equals</ZoruSelectItem>
-                                        </ZoruSelectContent>
+                                        <SelectTrigger><SelectValue/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="isFilled">is filled</SelectItem>
+                                            <SelectItem value="equals">equals</SelectItem>
+                                            <SelectItem value="notEquals">not equals</SelectItem>
+                                        </SelectContent>
                                     </Select>
                                     {validation.requireIf.operator !== 'isFilled' && (
                                         <Input
@@ -243,13 +228,13 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                                         : { fieldId: val, operator: (validation as any).showIf?.operator ?? 'isFilled', value: (validation as any).showIf?.value }
                                 } as any)}
                             >
-                                <ZoruSelectTrigger><ZoruSelectValue placeholder="Always show"/></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="__none__">-- Always show --</ZoruSelectItem>
+                                <SelectTrigger><SelectValue placeholder="Always show"/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__none__">-- Always show --</SelectItem>
                                     {otherFields.filter(f => f.id !== field.id && f.type !== 'html').map(f => (
-                                        <ZoruSelectItem key={f.id} value={f.fieldId || f.id}>{f.label || f.fieldId || f.id}</ZoruSelectItem>
+                                        <SelectItem key={f.id} value={f.fieldId || f.id}>{f.label || f.fieldId || f.id}</SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             {(validation as any).showIf && (
                                 <div className="grid grid-cols-2 gap-2">
@@ -257,12 +242,12 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                                         value={(validation as any).showIf.operator}
                                         onValueChange={(val) => updateValidation({ showIf: { ...(validation as any).showIf!, operator: val as 'equals' | 'notEquals' | 'isFilled' } } as any)}
                                     >
-                                        <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
-                                        <ZoruSelectContent>
-                                            <ZoruSelectItem value="isFilled">is filled</ZoruSelectItem>
-                                            <ZoruSelectItem value="equals">equals</ZoruSelectItem>
-                                            <ZoruSelectItem value="notEquals">not equals</ZoruSelectItem>
-                                        </ZoruSelectContent>
+                                        <SelectTrigger><SelectValue/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="isFilled">is filled</SelectItem>
+                                            <SelectItem value="equals">equals</SelectItem>
+                                            <SelectItem value="notEquals">not equals</SelectItem>
+                                        </SelectContent>
                                     </Select>
                                     {(validation as any).showIf.operator !== 'isFilled' && (
                                         <Input
@@ -274,8 +259,8 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                                 </div>
                             )}
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
             </Accordion>
 
             <Button variant="destructive" onClick={onRemove} className="w-full">

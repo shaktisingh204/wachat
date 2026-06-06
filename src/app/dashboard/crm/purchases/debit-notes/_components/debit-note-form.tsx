@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -194,7 +181,7 @@ function fmtMoney(value: number, currency: string): string {
 export function DebitNoteForm({ initial }: DebitNoteFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(saveDebitNoteAction, INITIAL_STATE);
 
@@ -381,21 +368,21 @@ export function DebitNoteForm({ initial }: DebitNoteFormProps) {
         </div>
         <div className="overflow-x-auto">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="min-w-[200px]">Item</ZoruTableHead>
-                <ZoruTableHead className="min-w-[180px]">Description</ZoruTableHead>
-                <ZoruTableHead className="w-[90px]">Qty</ZoruTableHead>
-                <ZoruTableHead className="w-[110px]">Unit price</ZoruTableHead>
-                <ZoruTableHead className="min-w-[150px]">Tax rate</ZoruTableHead>
-                <ZoruTableHead className="w-[120px] text-right">Line total</ZoruTableHead>
-                <ZoruTableHead className="w-[40px]" />
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th className="min-w-[200px]">Item</Th>
+                <Th className="min-w-[180px]">Description</Th>
+                <Th className="w-[90px]">Qty</Th>
+                <Th className="w-[110px]">Unit price</Th>
+                <Th className="min-w-[150px]">Tax rate</Th>
+                <Th className="w-[120px] text-right">Line total</Th>
+                <Th className="w-[40px]" />
+              </Tr>
+            </THead>
+            <TBody>
               {items.map((row) => (
-                <ZoruTableRow key={row.rowKey}>
-                  <ZoruTableCell className="align-top">
+                <Tr key={row.rowKey}>
+                  <Td className="align-top">
                     <EntityFormField
                       entity="item"
                       name={`__item_${row.rowKey}`}
@@ -425,16 +412,16 @@ export function DebitNoteForm({ initial }: DebitNoteFormProps) {
                         });
                       }}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="align-top">
+                  </Td>
+                  <Td className="align-top">
                     <Input
                       value={row.description}
                       onChange={(e) => updateRow(row.rowKey, { description: e.target.value })}
                       placeholder="Item or service"
                       className="h-8 text-[12.5px]"
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="align-top">
+                  </Td>
+                  <Td className="align-top">
                     <Input
                       type="number"
                       min={0}
@@ -443,8 +430,8 @@ export function DebitNoteForm({ initial }: DebitNoteFormProps) {
                       onChange={(e) => updateRow(row.rowKey, { qty: e.target.value })}
                       className="h-8 text-right text-[12.5px]"
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="align-top">
+                  </Td>
+                  <Td className="align-top">
                     <Input
                       type="number"
                       min={0}
@@ -453,8 +440,8 @@ export function DebitNoteForm({ initial }: DebitNoteFormProps) {
                       onChange={(e) => updateRow(row.rowKey, { rate: e.target.value })}
                       className="h-8 text-right text-[12.5px]"
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="align-top">
+                  </Td>
+                  <Td className="align-top">
                     <EntityFormField
                       entity="taxRate"
                       name={`__tax_${row.rowKey}`}
@@ -474,11 +461,11 @@ export function DebitNoteForm({ initial }: DebitNoteFormProps) {
                         });
                       }}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right align-top tabular-nums text-[12.5px]">
+                  </Td>
+                  <Td className="text-right align-top tabular-nums text-[12.5px]">
                     {fmtMoney(computeRowTotal(row), currency)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="align-top">
+                  </Td>
+                  <Td className="align-top">
                     <Button
                       type="button"
                       size="sm"
@@ -489,10 +476,10 @@ export function DebitNoteForm({ initial }: DebitNoteFormProps) {
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

@@ -1,18 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -64,7 +52,7 @@ export function ManualSetupDialog({
     handleManualFacebookPageSetup,
     initialState,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -94,24 +82,24 @@ export function ManualSetupDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Wrench /> {triggerLabel}
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-lg">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
         <form
           action={formAction}
           ref={formRef}
           className="flex flex-col gap-5"
         >
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Manual Facebook connection</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Manual Facebook connection</DialogTitle>
+            <DialogDescription>
               Enter the IDs and tokens from your Meta Developer account. For
               advanced users only.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="grid gap-4">
             <div className="grid gap-1.5">
@@ -158,7 +146,7 @@ export function ManualSetupDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -167,9 +155,9 @@ export function ManualSetupDialog({
               Cancel
             </Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

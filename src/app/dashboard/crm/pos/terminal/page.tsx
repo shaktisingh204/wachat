@@ -3,11 +3,7 @@ import Link from 'next/link';
 import { ObjectId } from 'mongodb';
 import { Plus, ShoppingCart, Store } from 'lucide-react';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -65,7 +61,7 @@ function LiveTerminalSkeleton() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-5 animate-pulse">
                 {/* Left 60% — item picker skeleton */}
                 <Card className="md:col-span-3">
-                    <ZoruCardContent className="flex flex-col gap-3 p-4">
+                    <CardBody className="flex flex-col gap-3 p-4">
                         <div className="h-10 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-full animate-pulse" />
                         <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
                             {[...Array(8)].map((_, i) => (
@@ -76,12 +72,12 @@ function LiveTerminalSkeleton() {
                                 </div>
                             ))}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* Right 40% — cart panel skeleton */}
                 <Card className="md:col-span-2">
-                    <ZoruCardContent className="flex flex-col gap-4 p-4">
+                    <CardBody className="flex flex-col gap-4 p-4">
                         <div className="flex items-center justify-between">
                             <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-1/4 animate-pulse" />
                             <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-12 animate-pulse" />
@@ -123,7 +119,7 @@ function LiveTerminalSkeleton() {
                             <div className="h-10 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded flex-1 animate-pulse" />
                             <div className="h-10 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded flex-1 animate-pulse" />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </EntityDetailShell>
@@ -137,13 +133,13 @@ function TerminalManagerSkeleton() {
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 border-none shadow-none">
                 {[...Array(4)].map((_, i) => (
                     <Card key={i}>
-                        <ZoruCardContent className="flex items-start justify-between p-3.5 h-[68px]">
+                        <CardBody className="flex items-start justify-between p-3.5 h-[68px]">
                             <div className="space-y-1.5 w-full">
                                 <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-16 animate-pulse" />
                                 <div className="h-5 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-8 animate-pulse" />
                             </div>
                             <div className="h-4 w-4 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] animate-pulse" />
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 ))}
             </div>
@@ -224,7 +220,7 @@ async function LiveTerminalContainer({ sp }: { sp: { holdId?: string; live?: str
                 back={{ href: '/dashboard/crm/pos', label: 'POS' }}
             >
                 <Card>
-                    <ZoruCardContent className="flex flex-col items-center justify-center gap-3 p-10 text-center">
+                    <CardBody className="flex flex-col items-center justify-center gap-3 p-10 text-center">
                         <p className="text-sm font-medium text-[var(--st-text)]">
                             No open POS session
                         </p>
@@ -238,7 +234,7 @@ async function LiveTerminalContainer({ sp }: { sp: { holdId?: string; live?: str
                                 <Plus className="h-4 w-4" /> Open session
                             </Link>
                         </Button>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </EntityDetailShell>
         );
@@ -396,7 +392,7 @@ async function TerminalManagerContainer() {
             {/* Manager KPIs */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Card>
-                    <ZoruCardContent className="flex items-start justify-between p-3.5">
+                    <CardBody className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Total terminals
@@ -406,10 +402,10 @@ async function TerminalManagerContainer() {
                             </p>
                         </div>
                         <Store className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardContent className="flex items-start justify-between p-3.5">
+                    <CardBody className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Online
@@ -419,10 +415,10 @@ async function TerminalManagerContainer() {
                             </p>
                         </div>
                         <span className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--st-text)]" />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardContent className="flex items-start justify-between p-3.5">
+                    <CardBody className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Offline
@@ -432,10 +428,10 @@ async function TerminalManagerContainer() {
                             </p>
                         </div>
                         <span className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--st-bg-muted)]" />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardContent className="flex items-start justify-between p-3.5">
+                    <CardBody className="flex items-start justify-between p-3.5">
                         <div>
                             <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Last sync
@@ -447,7 +443,7 @@ async function TerminalManagerContainer() {
                             </p>
                         </div>
                         <Store className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 

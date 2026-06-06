@@ -1,17 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Loader2,
   Save } from "lucide-react";
@@ -43,7 +32,7 @@ export function UpdatePostDialog({
   onPostUpdated,
 }: UpdatePostDialogProps) {
   const [isPending, startTransition] = React.useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = React.useRef<HTMLFormElement>(null);
 
   const handleAction = (formData: FormData) => {
@@ -68,17 +57,17 @@ export function UpdatePostDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <form action={handleAction} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="postId" value={post.id} />
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit post</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Edit post</DialogTitle>
+            <DialogDescription>
               Edit the message of your post. Media attachments cannot be
               changed after publishing.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -92,7 +81,7 @@ export function UpdatePostDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
@@ -105,9 +94,9 @@ export function UpdatePostDialog({
               {isPending ? <Loader2 className="animate-spin" /> : <Save />}
               Save changes
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

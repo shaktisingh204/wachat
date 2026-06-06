@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Skeleton,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Skeleton, EmptyState } from '@/components/sabcrm/20ui/compat';
 import {
   Package,
   Plus,
@@ -94,8 +74,8 @@ export default function CatalogsPage() {
                 <AmBreadcrumb page="Catalogs" />
                 <Alert>
                     <CircleAlert className="h-4 w-4" />
-                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>Pick an ad account to manage catalogs.</ZoruAlertDescription>
+                    <AlertTitle>No ad account selected</AlertTitle>
+                    <AlertDescription>Pick an ad account to manage catalogs.</AlertDescription>
                 </Alert>
             </div>
         );
@@ -121,11 +101,11 @@ export default function CatalogsPage() {
 
             <Alert>
                 <Package className="h-4 w-4" />
-                <ZoruAlertTitle>Tip</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Tip</AlertTitle>
+                <AlertDescription>
                     Catalogs live at the business level. Connect a Meta Business account from Settings
                     to manage product feeds, product sets, and DPA creative here.
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
 
             {loading ? (
@@ -150,10 +130,10 @@ export default function CatalogsPage() {
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {catalogs.map((c) => (
                             <Card key={c.id}>
-                                <ZoruCardHeader className="pb-2">
-                                    <ZoruCardTitle className="text-base">{c.name}</ZoruCardTitle>
-                                </ZoruCardHeader>
-                                <ZoruCardContent className="space-y-2">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-base">{c.name}</CardTitle>
+                                </CardHeader>
+                                <CardBody className="space-y-2">
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-[var(--st-text-secondary)]">Products</span>
                                         <span className="font-medium tabular-nums">{c.product_count ?? 0}</span>
@@ -163,7 +143,7 @@ export default function CatalogsPage() {
                                         <Badge variant="outline">{c.vertical || 'COMMERCE'}</Badge>
                                     </div>
                                     <div className="text-xs text-[var(--st-text-secondary)]">ID: {c.id}</div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         ))}
                     </div>
@@ -179,24 +159,24 @@ export default function CatalogsPage() {
 
             {/* Create dialog */}
             <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setDialogOpen(false); setName(''); } else setDialogOpen(true); }}>
-                <ZoruDialogContent className="max-w-md">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>New catalog</ZoruDialogTitle>
-                        <ZoruDialogDescription>Create a product catalog for your ad account.</ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>New catalog</DialogTitle>
+                        <DialogDescription>Create a product catalog for your ad account.</DialogDescription>
+                    </DialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label>Catalog name *</Label>
                             <Input placeholder="e.g. Spring Collection 2026" value={name} onChange={e => setName(e.target.value)} />
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" onClick={() => { setDialogOpen(false); setName(''); }}>Cancel</Button>
                         <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={handleCreate} disabled={submitting || !name.trim()}>
                             {submitting ? 'Creating…' : 'Create'}
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

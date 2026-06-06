@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui/compat';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -124,13 +124,13 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
             <style>{dynamicStyles}</style>
             <Accordion type={behavior as any} collapsible className="w-full space-y-2" defaultValue={defaultActiveItem as any} style={{ gap: `${spaceBetween}px` }}>
                 {items.map(item => (
-                    <ZoruAccordionItem 
+                    <AccordionItem 
                         key={item.id} 
                         value={item.id} 
                         style={itemStyle} 
                         className={cn(`accordion-item-${(settings as any).id} border-none overflow-hidden`, shadowClass)}
                     >
-                        <ZoruAccordionTrigger style={triggerStyle} asChild>
+                        <AccordionTrigger style={triggerStyle} asChild>
                              <TitleTag className={cn('flex flex-1 items-center justify-between font-medium transition-all hover:underline', iconPosition === 'right' && 'flex-row-reverse')}>
                                 {item.icon && <IconRenderer iconName={item.icon} className="mr-2" />}
                                 {item.title}
@@ -139,11 +139,11 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
                                     <IconRenderer iconName={activeIcon} className="active-icon" />
                                 </div>
                             </TitleTag>
-                        </ZoruAccordionTrigger>
-                        <ZoruAccordionContent>
+                        </AccordionTrigger>
+                        <AccordionContent>
                            <div style={contentStyle} className="whitespace-pre-wrap">{item.content}</div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
+                        </AccordionContent>
+                    </AccordionItem>
                 ))}
             </Accordion>
         </div>

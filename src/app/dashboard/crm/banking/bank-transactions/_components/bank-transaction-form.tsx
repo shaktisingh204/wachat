@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -64,7 +64,7 @@ export function BankTransactionForm({
     defaultDate: serverDefaultDate,
 }: BankTransactionFormProps): React.JSX.Element {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = useActionState(saveBankTransaction, {
         message: '',
         error: '',

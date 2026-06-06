@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input } from '@/components/sabcrm/20ui/compat';
 import { Calendar, Copy, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -30,13 +30,13 @@ export function CalendlySchedulingCard({ candidateName, candidateEmail }: { cand
 
   return (
     <Card className="mt-6">
-      <ZoruCardHeader>
-        <ZoruCardTitle className="flex items-center gap-2 text-sm font-semibold">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
           <Calendar className="h-4 w-4" />
           Calendly Scheduling
-        </ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+        </CardTitle>
+      </CardHeader>
+      <CardBody>
         {!link ? (
           <Button variant="outline" size="sm" onClick={generateLink} className="w-full">
             Generate Interview Link
@@ -49,7 +49,7 @@ export function CalendlySchedulingCard({ candidateName, candidateEmail }: { cand
             </Button>
           </div>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

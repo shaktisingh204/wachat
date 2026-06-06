@@ -1,26 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Checkbox,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Input,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, Input, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Plus,
@@ -172,7 +153,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
   onPageChange,
   rowHref,
 }: RecruitmentListShellProps<T>): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
@@ -323,17 +304,17 @@ export function RecruitmentListShell<T extends { _id: string }>({
                 onFilterChange(f.key, v === '__all' ? '' : v)
               }
             >
-              <ZoruSelectTrigger className="h-8 w-auto min-w-[140px] text-[12px]">
-                <ZoruSelectValue placeholder={f.placeholder || f.label} />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="__all">All {f.label}</ZoruSelectItem>
+              <SelectTrigger className="h-8 w-auto min-w-[140px] text-[12px]">
+                <SelectValue placeholder={f.placeholder || f.label} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all">All {f.label}</SelectItem>
                 {(f.options || []).map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
+                  <SelectItem key={o.value} value={o.value}>
                     {o.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           );
         }
@@ -421,12 +402,12 @@ export function RecruitmentListShell<T extends { _id: string }>({
 
   const tableBody = (
     <Card className="p-0">
-      <ZoruCardContent className="p-0">
+      <CardBody className="p-0">
         <div className="overflow-x-auto">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-10">
+            <THead>
+              <Tr>
+                <Th className="w-10">
                   <Checkbox
                     checked={
                       rows.length > 0 && selected.size === rows.length
@@ -434,51 +415,51 @@ export function RecruitmentListShell<T extends { _id: string }>({
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
+                </Th>
                 {columns.map((c) => (
-                  <ZoruTableHead key={c.key} className={c.className}>
+                  <Th key={c.key} className={c.className}>
                     {c.label}
-                  </ZoruTableHead>
+                  </Th>
                 ))}
-                <ZoruTableHead className="w-[80px] text-right">
+                <Th className="w-[80px] text-right">
                   Actions
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {rows.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={columns.length + 2}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No {singular.toLowerCase()} matches the current filters.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 rows.map((row) => {
                   const id = String(row._id);
                   const href = rowHref ? rowHref(row) : `${basePath}/${id}`;
                   return (
-                    <ZoruTableRow key={id}>
-                      <ZoruTableCell className="w-10">
+                    <Tr key={id}>
+                      <Td className="w-10">
                         <Checkbox
                           checked={selected.has(id)}
                           onCheckedChange={() => toggleOne(id)}
                           aria-label={`Select ${id}`}
                         />
-                      </ZoruTableCell>
+                      </Td>
                       {columns.map((c) => (
-                        <ZoruTableCell
+                        <Td
                           key={c.key}
                           className="text-[13px] text-[var(--st-text)]"
                         >
                           {c.render
                             ? c.render(row)
                             : asNode((row as any)[c.key])}
-                        </ZoruTableCell>
+                        </Td>
                       ))}
-                      <ZoruTableCell className="text-right">
+                      <Td className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button variant="ghost" size="sm" asChild>
                             <Link
@@ -499,15 +480,15 @@ export function RecruitmentListShell<T extends { _id: string }>({
                             </Button>
                           ) : null}
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 

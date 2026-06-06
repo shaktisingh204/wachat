@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useDebouncedCallback } from 'use-debounce';
 import { LayoutGrid,
@@ -49,7 +49,7 @@ export function EventsListClient({
     initialEvents,
     initialKpis: _initialKpis,
 }: EventsListClientProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [events, setEvents] = React.useState<(WsEvent & { _id: string })[]>(initialEvents);
     const [loading, startTransition] = React.useTransition();

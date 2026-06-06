@@ -1,6 +1,6 @@
 'use client';
 
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 /**
  * useItemsBulk — bulk-action runner for the items list.
  *
@@ -21,7 +21,7 @@ interface UseItemsBulkArgs {
 }
 
 export function useItemsBulk({ selected, onCleared }: UseItemsBulkArgs) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const [pending, setPending] = React.useState(false);
 

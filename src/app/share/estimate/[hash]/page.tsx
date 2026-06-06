@@ -1,13 +1,7 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
 import { getPublicEstimate } from '@/app/actions/public-estimate.actions';
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { EstimateActionsPanel } from './estimate-actions-panel';
 import { fmtDate, fmtINR } from '@/lib/utils';
 
@@ -28,9 +22,9 @@ async function PublicEstimateContainer({ hash }: { hash: string }) {
   return (
     <div className="space-y-6">
       <Card>
-        <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <ZoruCardTitle>Estimate {estimate.estimateNumber}</ZoruCardTitle>
+            <CardTitle>Estimate {estimate.estimateNumber}</CardTitle>
             <p className="mt-1 text-sm text-[var(--st-text)]">
               Valid till {fmtDate(estimate.validTill)}
             </p>
@@ -48,8 +42,8 @@ async function PublicEstimateContainer({ hash }: { hash: string }) {
               Download PDF
             </a>
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-6">
+        </CardHeader>
+        <CardBody className="space-y-6">
           <section>
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
               Line items
@@ -105,7 +99,7 @@ async function PublicEstimateContainer({ hash }: { hash: string }) {
               <p className="whitespace-pre-line">{estimate.notes}</p>
             </section>
           ) : null}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <EstimateActionsPanel

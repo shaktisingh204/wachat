@@ -4,15 +4,8 @@ import { useState, useMemo } from 'react';
 import type { ClientContract } from '@/lib/client-portal/types';
 import { Badge } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
-import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
-import {
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import { ChevronDown, Download, History, FileText, ArrowUpDown, MoreHorizontal } from 'lucide-react';
@@ -112,41 +105,41 @@ export function ClientContractsClient({ contracts }: { contracts: ClientContract
             </div>
 
             <Card>
-                <ZoruCardContent className="p-0 overflow-x-auto">
+                <CardBody className="p-0 overflow-x-auto">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow>
-                                <ZoruTableHead onClick={() => handleSort('title')} className="cursor-pointer">
+                        <THead>
+                            <Tr>
+                                <Th onClick={() => handleSort('title')} className="cursor-pointer">
                                     <div className="flex items-center gap-1 hover:text-[var(--st-text)]">Name <ArrowUpDown className="h-3 w-3" /></div>
-                                </ZoruTableHead>
-                                <ZoruTableHead>Type</ZoruTableHead>
-                                <ZoruTableHead onClick={() => handleSort('value')} className="cursor-pointer">
+                                </Th>
+                                <Th>Type</Th>
+                                <Th onClick={() => handleSort('value')} className="cursor-pointer">
                                     <div className="flex items-center gap-1 hover:text-[var(--st-text)]">Amount <ArrowUpDown className="h-3 w-3" /></div>
-                                </ZoruTableHead>
-                                <ZoruTableHead onClick={() => handleSort('startDate')} className="cursor-pointer">
+                                </Th>
+                                <Th onClick={() => handleSort('startDate')} className="cursor-pointer">
                                     <div className="flex items-center gap-1 hover:text-[var(--st-text)]">Period <ArrowUpDown className="h-3 w-3" /></div>
-                                </ZoruTableHead>
-                                <ZoruTableHead>Status</ZoruTableHead>
-                                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                                <Th>Status</Th>
+                                <Th className="text-right">Actions</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {filteredAndSorted.map((c) => {
                                 const unsigned = !c.signedAt;
                                 return (
-                                    <ZoruTableRow key={c._id}>
-                                        <ZoruTableCell className="font-medium text-[var(--st-text)]">{c.title}</ZoruTableCell>
-                                        <ZoruTableCell>{c.type ?? '—'}</ZoruTableCell>
-                                        <ZoruTableCell>{fmtCurrency(c.value, c.currency)}</ZoruTableCell>
-                                        <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
+                                    <Tr key={c._id}>
+                                        <Td className="font-medium text-[var(--st-text)]">{c.title}</Td>
+                                        <Td>{c.type ?? '—'}</Td>
+                                        <Td>{fmtCurrency(c.value, c.currency)}</Td>
+                                        <Td className="text-xs text-[var(--st-text-secondary)]">
                                             {fmtDate(c.startDate)} – {fmtDate(c.endDate)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <Badge variant={unsigned ? 'outline' : 'secondary'}>
                                                 {c.signedAt ? 'Signed' : c.status}
                                             </Badge>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
+                                        </Td>
+                                        <Td className="text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 {unsigned && c.publicHash && (
                                                     <Button asChild size="sm">
@@ -176,20 +169,20 @@ export function ClientContractsClient({ contracts }: { contracts: ClientContract
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </div>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 );
                             })}
                             {filteredAndSorted.length === 0 && (
-                                <ZoruTableRow>
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center">
+                                <Tr>
+                                    <Td colSpan={6} className="h-24 text-center">
                                         No matching contracts.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>

@@ -1,35 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Switch,
-  Label,
-  Input,
-  Separator,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Label, Input, Separator, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Table, TBody, Td, Th, THead, Tr, EmptyState } from '@/components/sabcrm/20ui/compat';
 import {
   ShieldCheck,
   KeyRound,
@@ -220,31 +191,31 @@ export default function PrivacySettingsPage() {
     >,
   ) => (
     <Card key={field}>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-base">{title}</ZoruCardTitle>
-        <ZoruCardDescription>{description}</ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="flex flex-wrap items-center gap-3 justify-between">
+      <CardHeader>
+        <CardTitle className="text-base">{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardBody className="flex flex-wrap items-center gap-3 justify-between">
         <Select
           value={settings[field]}
           onValueChange={(v) => setSettings((s) => ({ ...s, [field]: v as SabwaVisibility }))}
           disabled={loading || pending}
         >
-          <ZoruSelectTrigger className="w-56">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="w-56">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
             {VISIBILITY_OPTIONS.map((o) => (
-              <ZoruSelectItem key={o.value} value={o.value}>
+              <SelectItem key={o.value} value={o.value}>
                 {o.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Button size="sm" onClick={() => save({ [field]: settings[field] } as Partial<SabwaPrivacySettings>, title)} disabled={pending}>
           Save
         </Button>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 
@@ -282,16 +253,16 @@ export default function PrivacySettingsPage() {
 
       {/* Two-factor authentication */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="flex items-center gap-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <Lock className="h-4 w-4" />
             Two-factor authentication
-          </ZoruCardTitle>
-          <ZoruCardDescription>
+          </CardTitle>
+          <CardDescription>
             Require a 6-digit PIN when registering this phone number on a new device.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex flex-wrap items-center justify-between gap-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Switch
               checked={settings.twoFactorEnabled}
@@ -314,46 +285,46 @@ export default function PrivacySettingsPage() {
               Change PIN
             </Button>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Blocked contacts */}
       <Card>
-        <ZoruCardHeader className="flex flex-row items-start justify-between gap-3 flex-wrap">
+        <CardHeader className="flex flex-row items-start justify-between gap-3 flex-wrap">
           <div>
-            <ZoruCardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2">
               <UserX className="h-4 w-4" />
               Blocked contacts
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Numbers in this list cannot message or call you on WhatsApp.
-            </ZoruCardDescription>
+            </CardDescription>
           </div>
           <Button size="sm" onClick={() => setBlockOpen(true)} disabled={pending}>
             <Plus className="mr-2 h-4 w-4" />
             Block contact
           </Button>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           {settings.blocked.length === 0 ? (
             <p className="text-sm text-[var(--st-text-secondary)]">No blocked contacts.</p>
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Contact</ZoruTableHead>
-                  <ZoruTableHead>Blocked</ZoruTableHead>
-                  <ZoruTableHead className="w-24" />
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Contact</Th>
+                  <Th>Blocked</Th>
+                  <Th className="w-24" />
+                </Tr>
+              </THead>
+              <TBody>
                 {settings.blocked.map((b) => (
-                  <ZoruTableRow key={b.jid}>
-                    <ZoruTableCell className="font-mono text-sm">{b.name || b.jid}</ZoruTableCell>
-                    <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
+                  <Tr key={b.jid}>
+                    <Td className="font-mono text-sm">{b.name || b.jid}</Td>
+                    <Td className="text-sm text-[var(--st-text-secondary)]">
                       {b.blockedAt ? new Date(b.blockedAt).toLocaleDateString() : '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <Button
                         variant="outline"
                         size="sm"
@@ -362,24 +333,24 @@ export default function PrivacySettingsPage() {
                       >
                         Unblock
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Read receipts */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Read receipts</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-base">Read receipts</CardTitle>
+          <CardDescription>
             If turned off, you won&apos;t send or receive read receipts. Group chats always send them.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex flex-wrap items-center justify-between gap-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Switch
               checked={settings.readReceipts}
@@ -394,7 +365,7 @@ export default function PrivacySettingsPage() {
           <Button size="sm" onClick={() => save({ readReceipts: settings.readReceipts }, 'Read receipts')} disabled={pending}>
             Save
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Visibility selectors */}
@@ -405,28 +376,28 @@ export default function PrivacySettingsPage() {
 
       {/* Disappearing messages default timer */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Default message timer</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-base">Default message timer</CardTitle>
+          <CardDescription>
             Start new chats with disappearing messages turned on.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex flex-wrap items-center gap-3 justify-between">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="flex flex-wrap items-center gap-3 justify-between">
           <Select
             value={settings.disappearingTimer?.toString() || '0'}
             onValueChange={(v) => setSettings((s) => ({ ...s, disappearingTimer: parseInt(v, 10) }))}
             disabled={loading || pending}
           >
-            <ZoruSelectTrigger className="w-56">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="w-56">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {TIMER_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value.toString()}>
+                <SelectItem key={o.value} value={o.value.toString()}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <Button
             size="sm"
@@ -435,56 +406,56 @@ export default function PrivacySettingsPage() {
           >
             Save
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* E2EE disclaimer */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="flex items-center gap-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-[var(--st-text)]" />
             End-to-end encryption
-          </ZoruCardTitle>
-          <ZoruCardDescription>
+          </CardTitle>
+          <CardDescription>
             Messages, calls, and media you send to other WhatsApp users are protected with the Signal protocol —
             no one outside the chat, not even SabNode or WhatsApp, can read or listen to them. SabNode stores a
             local cache of decrypted messages so the SabWa inbox works; that cache is encrypted at rest with
             your session key.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
+          </CardDescription>
+        </CardHeader>
       </Card>
 
       {/* Session key rotation */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="flex items-center gap-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <KeyRound className="h-4 w-4" />
             Session encryption key
-          </ZoruCardTitle>
-          <ZoruCardDescription>
+          </CardTitle>
+          <CardDescription>
             Rotate the SabNode-side key that wraps this session&apos;s auth state. Existing chats stay intact;
             cached data is re-encrypted in the background.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <Button variant="outline" onClick={onRotate} disabled={pending}>
             {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}
             Rotate now
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Separator />
 
       {/* 2FA setup dialog */}
       <Dialog open={twoFAOpen} onOpenChange={setTwoFAOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Set up two-factor PIN</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set up two-factor PIN</DialogTitle>
+            <DialogDescription>
               Choose a 6-digit PIN. You&apos;ll need it whenever you re-register this number on a new device.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="pin">6-digit PIN</Label>
@@ -511,27 +482,27 @@ export default function PrivacySettingsPage() {
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setTwoFAOpen(false)}>
               Cancel
             </Button>
             <Button onClick={onTwoFASubmit} disabled={pending}>
               Save PIN
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Block contact dialog (simple JID input — proper contact picker is a
           shared component slated for the broader Contacts work). */}
       <Dialog open={blockOpen} onOpenChange={setBlockOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Block a contact</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Block a contact</DialogTitle>
+            <DialogDescription>
               Enter the phone number (E.164) of the contact you want to block.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-1.5">
             <Label htmlFor="block-jid">Phone number</Label>
             <Input
@@ -541,15 +512,15 @@ export default function PrivacySettingsPage() {
               placeholder="+919876543210"
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setBlockOpen(false)}>
               Cancel
             </Button>
             <Button onClick={onBlockSubmit} disabled={pending}>
               Block
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

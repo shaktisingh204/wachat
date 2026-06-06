@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Input } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -102,14 +93,14 @@ export function ProjectTagsManagerDialog({ isOpen, onOpenChange, project, onTags
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-lg">
+            <DialogContent className="sm:max-w-lg">
                 <form action={validateAndSubmit}>
                     <input type="hidden" name="projectId" value={project._id.toString()} />
                     <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color, _id: t._id })).filter(t => t.name.trim()))} />
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Manage Project Tags</ZoruDialogTitle>
-                        <ZoruDialogDescription>Create, edit, or delete tags for this project.</ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                    <DialogHeader>
+                        <DialogTitle>Manage Project Tags</DialogTitle>
+                        <DialogDescription>Create, edit, or delete tags for this project.</DialogDescription>
+                    </DialogHeader>
                     <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
                         <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 font-medium text-sm text-[var(--st-text-secondary)]">
                             <span>Tag Name</span>
@@ -142,12 +133,12 @@ export function ProjectTagsManagerDialog({ isOpen, onOpenChange, project, onTags
                         </Button>
                         {validationError && <p className="text-sm text-[var(--st-text)]">{validationError}</p>}
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton disabled={!!validationError} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

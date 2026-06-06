@@ -23,13 +23,7 @@ import {
   Users,
   Megaphone,
 } from 'lucide-react';
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import type { WidgetKey } from '@/app/actions/dashboard-widgets.config';
 import type {
   DashboardWidgetItem,
@@ -54,14 +48,14 @@ interface WidgetShellProps {
 function WidgetShell({ title, icon: Icon, hint, href, children }: WidgetShellProps) {
   return (
     <Card className="p-0">
-      <ZoruCardHeader className="pb-2">
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <ZoruCardTitle className="flex items-center gap-2 text-[14px] text-[var(--st-text)]">
+          <CardTitle className="flex items-center gap-2 text-[14px] text-[var(--st-text)]">
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
               <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
             </span>
             {title}
-          </ZoruCardTitle>
+          </CardTitle>
           {hint != null ? (
             typeof hint === 'string' || typeof hint === 'number' ? (
               <Badge variant="ghost">{hint}</Badge>
@@ -70,8 +64,8 @@ function WidgetShell({ title, icon: Icon, hint, href, children }: WidgetShellPro
             )
           ) : null}
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent className="pt-2">{children}</ZoruCardContent>
+      </CardHeader>
+      <CardBody className="pt-2">{children}</CardBody>
       {href ? (
         <div className="border-t border-[var(--st-border)] px-5 py-2">
           <Link

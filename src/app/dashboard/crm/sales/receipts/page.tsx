@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   FileCheck } from 'lucide-react';
@@ -60,7 +60,7 @@ const EMPTY_KPIS: PaymentReceiptKpis = {
 };
 
 export default function PaymentReceiptsPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [receipts, setReceipts] = React.useState<CrmPaymentReceiptDoc[]>([]);
     const [page, setPage] = React.useState(1);

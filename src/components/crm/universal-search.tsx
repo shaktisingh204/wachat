@@ -3,13 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
-import {
-  Input,
-  ZoruKbd,
-  Popover,
-  ZoruPopoverAnchor,
-  ZoruPopoverContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Kbd, Popover, PopoverAnchor, PopoverContent } from '@/components/sabcrm/20ui/compat';
 import { searchAll, type UniversalSearchResult } from '@/app/actions/universal-search.actions';
 import { cn } from '@/components/sabcrm/20ui/compat';
 
@@ -91,7 +85,7 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
 
   return (
     <Popover open={showDropdown} onOpenChange={setOpen}>
-      <ZoruPopoverAnchor asChild>
+      <PopoverAnchor asChild>
         <div className={cn('w-full max-w-md', className)}>
           <Input
             ref={inputRef}
@@ -103,12 +97,12 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
             }}
             onFocus={() => setOpen(true)}
             leadingSlot={<Search />}
-            trailingSlot={<ZoruKbd>⌘K</ZoruKbd>}
+            trailingSlot={<Kbd>⌘K</Kbd>}
             aria-label="Universal search"
           />
         </div>
-      </ZoruPopoverAnchor>
-      <ZoruPopoverContent
+      </PopoverAnchor>
+      <PopoverContent
         align="start"
         sideOffset={6}
         className="w-[480px] max-w-[90vw] p-0"
@@ -128,7 +122,7 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
               <li>• Find tickets by subject keyword</li>
             </ul>
             <p className="mt-4 text-[11px] text-[var(--st-text-tertiary)]">
-              Press <ZoruKbd>⌘K</ZoruKbd> anywhere to focus
+              Press <Kbd>⌘K</Kbd> anywhere to focus
             </p>
           </div>
         ) : loading && !results ? (
@@ -170,7 +164,7 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
             })}
           </div>
         )}
-      </ZoruPopoverContent>
+      </PopoverContent>
     </Popover>
   );
 }

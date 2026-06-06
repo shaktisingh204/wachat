@@ -10,12 +10,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, History, RotateCcw } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent } from '@/components/sabcrm/20ui/compat';
 import {
   listSabwriterVersions,
   restoreSabwriterVersion,

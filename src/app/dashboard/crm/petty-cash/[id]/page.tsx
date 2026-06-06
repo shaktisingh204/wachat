@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -121,10 +121,10 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
       rightRail={
         <>
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Balance</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Balance</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--st-text-secondary)]">Current</span>
@@ -151,36 +151,36 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Custodian</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Custodian</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="text-[12.5px] text-[var(--st-text)]">
                 {float.custodianName || '—'}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Branch</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Branch</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="text-[12.5px] text-[var(--st-text)]">
                 {float.branchName || '—'}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Reconcile</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Reconcile</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex justify-between">
                   <span className="text-[var(--st-text-secondary)]">Last</span>
@@ -197,14 +197,14 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
                   </div>
                 ) : null}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Related</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Related</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/petty-cash/${id}/vouchers`}
@@ -213,16 +213,16 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
                   All vouchers →
                 </Link>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </>
       }
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Float name" value={float.name || '—'} />
             <Field label="Branch" value={float.branchName || '—'} />
@@ -241,37 +241,37 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
               value={<Badge variant="outline">{status}</Badge>}
             />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Recent vouchers</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Recent vouchers</CardTitle>
+        </CardHeader>
+        <CardBody>
           <VoucherTable floatId={id} currency={float.currency} vouchers={vouchers} />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Timeline</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Timeline</CardTitle>
+        </CardHeader>
+        <CardBody>
           <EntityAuditTimeline entityKind="petty_cash" entityId={id} />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {float.notes ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Notes</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Notes</CardTitle>
+          </CardHeader>
+          <CardBody>
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {float.notes}
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </EntityDetailShell>

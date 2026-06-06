@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * New-ticket drawer for the client portal. Opens the ZoruDrawer
+ * New-ticket drawer for the client portal. Opens the Drawer
  * with a small form (subject + priority + description) and submits
  * via the `createClientTicket` server action.
  *
@@ -18,14 +18,7 @@ import { Button } from '@/components/sabcrm/20ui/compat';
 import { Input } from '@/components/sabcrm/20ui/compat';
 import { Label } from '@/components/sabcrm/20ui/compat';
 import { Textarea } from '@/components/sabcrm/20ui/compat';
-import {
-    ZoruDrawer,
-    ZoruDrawerContent,
-    ZoruDrawerHeader,
-    ZoruDrawerTitle,
-    ZoruDrawerDescription,
-    ZoruDrawerFooter,
-} from '@/components/sabcrm/20ui/compat';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from '@/components/sabcrm/20ui/compat';
 import { createClientTicket } from '@/app/actions/client-portal.actions';
 
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'] as const;
@@ -79,15 +72,15 @@ export function NewTicketDrawer() {
             <Button onClick={() => setOpen(true)}>
                 <Plus className="mr-1 h-4 w-4" /> New Ticket
             </Button>
-            <ZoruDrawer open={open} onOpenChange={handleOpenChange}>
-                <ZoruDrawerContent>
+            <Drawer open={open} onOpenChange={handleOpenChange}>
+                <DrawerContent>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                        <ZoruDrawerHeader>
-                            <ZoruDrawerTitle>New support ticket</ZoruDrawerTitle>
-                            <ZoruDrawerDescription>
+                        <DrawerHeader>
+                            <DrawerTitle>New support ticket</DrawerTitle>
+                            <DrawerDescription>
                                 Describe the issue and our team will reply soon.
-                            </ZoruDrawerDescription>
-                        </ZoruDrawerHeader>
+                            </DrawerDescription>
+                        </DrawerHeader>
                         <div className="flex flex-col gap-4 px-4">
                             <div className="flex flex-col gap-1.5">
                                 <Label htmlFor="ct-subject">Subject</Label>
@@ -132,17 +125,17 @@ export function NewTicketDrawer() {
                                 </div>
                             ) : null}
                         </div>
-                        <ZoruDrawerFooter>
+                        <DrawerFooter>
                             <Button type="submit" disabled={submitting}>
                                 {submitting ? 'Submitting…' : 'Submit ticket'}
                             </Button>
                             <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                                 Cancel
                             </Button>
-                        </ZoruDrawerFooter>
+                        </DrawerFooter>
                     </form>
-                </ZoruDrawerContent>
-            </ZoruDrawer>
+                </DrawerContent>
+            </Drawer>
         </>
     );
 }

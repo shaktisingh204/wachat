@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Checkbox,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   formatDistanceToNow } from 'date-fns';
 import {
@@ -84,55 +70,55 @@ export function AccountsTable({
     return (
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                        <ZoruTableHead className="w-10">
+                <THead>
+                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                        <Th className="w-10">
                             <Checkbox
                                 checked={allSelected}
                                 onCheckedChange={(c) => onToggleAll(c === true)}
                                 aria-label="Select all"
                             />
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        </Th>
+                        <Th className="text-[var(--st-text-secondary)]">
                             Account
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        </Th>
+                        <Th className="text-[var(--st-text-secondary)]">
                             Industry
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        </Th>
+                        <Th className="text-[var(--st-text-secondary)]">
                             Country
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        </Th>
+                        <Th className="text-[var(--st-text-secondary)]">
                             Category
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        </Th>
+                        <Th className="text-[var(--st-text-secondary)]">
                             Phone
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        </Th>
+                        <Th className="text-[var(--st-text-secondary)]">
                             GSTIN
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        </Th>
+                        <Th className="text-[var(--st-text-secondary)]">
                             Currency
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        </Th>
+                        <Th className="text-[var(--st-text-secondary)]">
                             Status
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        </Th>
+                        <Th className="text-[var(--st-text-secondary)]">
                             Created
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                        </Th>
+                        <Th className="text-right text-[var(--st-text-secondary)]">
                             Actions
-                        </ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                        </Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {loading
                         ? Array.from({ length: 5 }).map((_, i) => (
-                              <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                                  <ZoruTableCell colSpan={11}>
+                              <Tr key={i} className="border-[var(--st-border)]">
+                                  <Td colSpan={11}>
                                       <Skeleton className="h-10 w-full" />
-                                  </ZoruTableCell>
-                              </ZoruTableRow>
+                                  </Td>
+                              </Tr>
                           ))
                         : accounts.length === 0
                           ? null
@@ -140,11 +126,11 @@ export function AccountsTable({
                                 const id = String(account._id);
                                 const isArchived = account.status === 'archived';
                                 return (
-                                    <ZoruTableRow
+                                    <Tr
                                         key={id}
                                         className="border-[var(--st-border)]"
                                     >
-                                        <ZoruTableCell>
+                                        <Td>
                                             <Checkbox
                                                 checked={selectedIds.has(id)}
                                                 onCheckedChange={() =>
@@ -152,8 +138,8 @@ export function AccountsTable({
                                                 }
                                                 aria-label={`Select ${account.name}`}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <EntityRowLink
                                                 href={`/dashboard/crm/accounts/${id}`}
                                                 label={
@@ -176,22 +162,22 @@ export function AccountsTable({
                                                     {account.website}
                                                 </a>
                                             ) : null}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[13px] text-[var(--st-text)]">
                                             {account.industry || (
                                                 <span className="text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[13px] text-[var(--st-text)]">
                                             {account.country || (
                                                 <span className="text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {account.category ? (
                                                 <StatusPill
                                                     label={account.category}
@@ -204,37 +190,37 @@ export function AccountsTable({
                                                     —
                                                 </span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[13px] text-[var(--st-text)]">
                                             {account.phone || (
                                                 <span className="text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] font-mono text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[12.5px] font-mono text-[var(--st-text)]">
                                             {account.gstin || (
                                                 <span className="font-sans text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[13px] text-[var(--st-text)]">
                                             {account.currency || (
                                                 <span className="text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <StatusPill
                                                 label={
                                                     isArchived ? 'archived' : 'active'
                                                 }
                                                 tone={statusTone(account.status)}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell
+                                        </Td>
+                                        <Td
                                             className="text-[12.5px] text-[var(--st-text-secondary)]"
                                             title={
                                                 account.createdAt
@@ -250,10 +236,10 @@ export function AccountsTable({
                                                       { addSuffix: true },
                                                   )
                                                 : '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
+                                        </Td>
+                                        <Td className="text-right">
                                             <DropdownMenu>
-                                                <ZoruDropdownMenuTrigger asChild>
+                                                <DropdownMenuTrigger asChild>
                                                     <button
                                                         type="button"
                                                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
@@ -261,26 +247,26 @@ export function AccountsTable({
                                                     >
                                                         <MoreHorizontal className="h-4 w-4" />
                                                     </button>
-                                                </ZoruDropdownMenuTrigger>
-                                                <ZoruDropdownMenuContent align="end">
-                                                    <ZoruDropdownMenuItem asChild>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem asChild>
                                                         <Link
                                                             href={`/dashboard/crm/accounts/${id}`}
                                                         >
                                                             <Eye className="h-3.5 w-3.5" />{' '}
                                                             View
                                                         </Link>
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem asChild>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem asChild>
                                                         <Link
                                                             href={`/dashboard/crm/accounts/${id}/edit`}
                                                         >
                                                             <Edit className="h-3.5 w-3.5" />{' '}
                                                             Edit
                                                         </Link>
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuSeparator />
-                                                    <ZoruDropdownMenuItem
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem
                                                         onSelect={() =>
                                                             onArchive(id)
                                                         }
@@ -289,14 +275,14 @@ export function AccountsTable({
                                                         {isArchived
                                                             ? 'Restore'
                                                             : 'Archive'}
-                                                    </ZoruDropdownMenuItem>
-                                                </ZoruDropdownMenuContent>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
                                             </DropdownMenu>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 );
                             })}
-                </ZoruTableBody>
+                </TBody>
             </Table>
         </div>
     );

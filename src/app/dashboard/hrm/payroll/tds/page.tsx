@@ -8,7 +8,7 @@ import { startOfMonth, format } from 'date-fns';
 import { LoaderCircle, AlertCircle } from 'lucide-react';
 import { TdsPeriodSelector } from './period-selector';
 import { TdsDataView } from './tds-client-view';
-import { ZoruEmptyState, ZoruButton } from '@/components/sabcrm/20ui/compat';
+import { EmptyState, Button } from '@/components/sabcrm/20ui/compat';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -53,17 +53,17 @@ class TdsErrorBoundary extends React.Component<{ children: React.ReactNode, onRe
         if (this.state.hasError) {
             return (
                 <div className="flex justify-center p-24">
-                    <ZoruEmptyState
+                    <EmptyState
                         icon={AlertCircle}
                         title="Error Loading TDS Data"
                         description={this.state.error?.message || "Something went wrong while fetching data."}
                         action={
-                            <ZoruButton onClick={() => {
+                            <Button onClick={() => {
                                 this.setState({ hasError: false, error: null });
                                 this.props.onReset();
                             }}>
                                 Retry
-                            </ZoruButton>
+                            </Button>
                         }
                     />
                 </div>

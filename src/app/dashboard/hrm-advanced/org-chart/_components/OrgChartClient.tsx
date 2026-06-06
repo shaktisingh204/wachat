@@ -4,7 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { OrgChartNode } from '@/lib/hrm-advanced-types';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, EmptyState, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Checkbox, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { OrgChartForm } from './OrgChartForm';
 import { saveOrgChartNode, deleteOrgChartNode } from '@/app/actions/hrm-advanced/org-chart';
 import { Download, MoreVertical, Trash, Edit, RefreshCw } from 'lucide-react';
@@ -27,7 +27,7 @@ export function OrgChartClient({ initialData }: OrgChartClientProps) {
   const [editingItem, setEditingItem] = useState<Partial<OrgChartNode> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   // Mock WebSocket for collaborative editing
   useEffect(() => {

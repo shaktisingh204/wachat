@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Textarea,
-  Label,
-  Card,
-  ZoruCardContent,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Badge,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Label, Card, CardBody, RadioGroup, ZoruRadioGroupItem, Badge, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import {

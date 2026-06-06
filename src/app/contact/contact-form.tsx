@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useRef } from 'react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button, Input, Textarea, Label } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Input, Textarea, Label } from '@/components/sabcrm/20ui/compat';
 import { submitContact, type ContactFormState } from './actions';
 import { toast } from 'sonner';
 
@@ -22,10 +22,10 @@ export function ContactForm() {
 
   return (
     <Card className="bg-black border-white/20 text-white rounded-none shadow-none">
-      <ZoruCardHeader className="border-b border-white/20 pb-4">
-        <ZoruCardTitle className="text-lg font-bold">Try it out</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent className="pt-6 space-y-5">
+      <CardHeader className="border-b border-white/20 pb-4">
+        <CardTitle className="text-lg font-bold">Try it out</CardTitle>
+      </CardHeader>
+      <CardBody className="pt-6 space-y-5">
         <form action={formAction} ref={formRef} className="space-y-5">
           <div className="space-y-2">
               <Label htmlFor="name" className="text-white">name <span className="text-white/50">*</span></Label>
@@ -46,7 +46,7 @@ export function ContactForm() {
             {pending ? 'Executing...' : 'Execute'}
           </Button>
         </form>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

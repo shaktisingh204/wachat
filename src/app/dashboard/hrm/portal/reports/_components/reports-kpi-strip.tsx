@@ -1,11 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Card,
-  ZoruCardContent,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { ClipboardList, Clock, CheckCircle2, CalendarDays } from 'lucide-react';
 
 export interface KpiItem {
@@ -32,7 +28,7 @@ export function ReportsKpiStrip({ kpisPromise }: ReportsKpiStripProps) {
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {kpis.map((kpi, i) => (
         <Card key={kpi.label} variant="soft">
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[12px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
                 {kpi.label}
@@ -51,7 +47,7 @@ export function ReportsKpiStrip({ kpisPromise }: ReportsKpiStripProps) {
             {kpi.hint ? (
               <p className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">{kpi.hint}</p>
             ) : null}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ))}
     </div>
@@ -63,10 +59,10 @@ export function ReportsKpiStripSkeleton() {
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {Array.from({ length: 4 }).map((_, i) => (
         <Card key={i} variant="soft">
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <Skeleton className="mb-2 h-4 w-20" />
             <Skeleton className="h-7 w-12" />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ))}
     </div>

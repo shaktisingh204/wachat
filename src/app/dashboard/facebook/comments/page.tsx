@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
-  Input,
-  ScrollArea,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Input, ScrollArea, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -83,7 +66,7 @@ function safeDistance(iso?: string): string {
 export default function FacebookCommentsPage(): React.JSX.Element {
   const { activeProject } = useProject();
   const projectId = activeProject?._id?.toString() ?? '';
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [posts, setPosts] = useState<FacebookPost[]>([]);
   const [postsError, setPostsError] = useState<string | null>(null);
@@ -218,19 +201,19 @@ export default function FacebookCommentsPage(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">Dashboard</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">Meta Suite</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Comments</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">Meta Suite</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Comments</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
@@ -249,8 +232,8 @@ export default function FacebookCommentsPage(): React.JSX.Element {
       {postsError && (
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>Could not load posts</ZoruAlertTitle>
-          <ZoruAlertDescription>{postsError}</ZoruAlertDescription>
+          <AlertTitle>Could not load posts</AlertTitle>
+          <AlertDescription>{postsError}</AlertDescription>
         </Alert>
       )}
 
@@ -348,8 +331,8 @@ export default function FacebookCommentsPage(): React.JSX.Element {
               {commentsError && (
                 <Alert variant="destructive">
                   <AlertCircle />
-                  <ZoruAlertTitle>Could not load comments</ZoruAlertTitle>
-                  <ZoruAlertDescription>{commentsError}</ZoruAlertDescription>
+                  <AlertTitle>Could not load comments</AlertTitle>
+                  <AlertDescription>{commentsError}</AlertDescription>
                 </Alert>
               )}
 

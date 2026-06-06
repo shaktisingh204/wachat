@@ -18,22 +18,7 @@ import * as React from 'react';
 import { Search, UserCircle2, UserMinus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Button,
-  Input,
-  Sheet,
-  ZoruSheetClose,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button, Input, Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   getAssignableEmployees,
@@ -85,7 +70,7 @@ export function AssignmentControl({
   size = 'md',
   label = 'Assigned to',
 }: AssignmentControlProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const [open, setOpen] = React.useState(false);
@@ -215,15 +200,15 @@ export function AssignmentControl({
       >
         <Avatar className={chipSize}>
           {current?.avatar ? (
-            <ZoruAvatarImage src={current.avatar} alt={fullName(current)} />
+            <AvatarImage src={current.avatar} alt={fullName(current)} />
           ) : null}
-          <ZoruAvatarFallback>
+          <AvatarFallback>
             {current ? (
               initials(current)
             ) : (
               <UserCircle2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
             )}
-          </ZoruAvatarFallback>
+          </AvatarFallback>
         </Avatar>
         <div className="flex min-w-0 flex-col">
           {currentLoading ? (
@@ -248,13 +233,13 @@ export function AssignmentControl({
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <ZoruSheetContent className="flex w-full max-w-md flex-col gap-4">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>Assign owner</ZoruSheetTitle>
-            <ZoruSheetDescription>
+        <SheetContent className="flex w-full max-w-md flex-col gap-4">
+          <SheetHeader>
+            <SheetTitle>Assign owner</SheetTitle>
+            <SheetDescription>
               Pick a team member to take ownership of this {entityType}.
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </SheetDescription>
+          </SheetHeader>
 
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
@@ -297,14 +282,14 @@ export function AssignmentControl({
                       >
                         <Avatar className="h-8 w-8">
                           {emp.avatar ? (
-                            <ZoruAvatarImage
+                            <AvatarImage
                               src={emp.avatar}
                               alt={fullName(emp)}
                             />
                           ) : null}
-                          <ZoruAvatarFallback>
+                          <AvatarFallback>
                             {initials(emp)}
-                          </ZoruAvatarFallback>
+                          </AvatarFallback>
                         </Avatar>
                         <div className="flex min-w-0 flex-1 flex-col">
                           <span className="truncate text-[13px] font-medium text-[var(--st-text)]">
@@ -338,13 +323,13 @@ export function AssignmentControl({
               <UserMinus className="mr-1.5 h-3.5 w-3.5" />
               Unassign
             </Button>
-            <ZoruSheetClose asChild>
+            <SheetClose asChild>
               <Button type="button" variant="outline" size="sm">
                 Close
               </Button>
-            </ZoruSheetClose>
+            </SheetClose>
           </div>
-        </ZoruSheetContent>
+        </SheetContent>
       </Sheet>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ExpenseClaim } from '@/lib/hrm-advanced-types';
-import { Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
 
 interface ClaimFormProps {
   open: boolean;
@@ -37,11 +37,11 @@ export function ClaimForm({ open, onOpenChange, initialData, onSave }: ClaimForm
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
+      <DialogContent>
         <form onSubmit={handleSubmit}>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{initialData?._id ? 'Edit' : 'Add'} Expense Claim</ZoruDialogTitle>
-          </ZoruDialogHeader>
+          <DialogHeader>
+            <DialogTitle>{initialData?._id ? 'Edit' : 'Add'} Expense Claim</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-medium">Employee ID</label>
@@ -94,12 +94,12 @@ export function ClaimForm({ open, onOpenChange, initialData, onSave }: ClaimForm
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button type="submit" loading={isSubmitting}>Save</Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

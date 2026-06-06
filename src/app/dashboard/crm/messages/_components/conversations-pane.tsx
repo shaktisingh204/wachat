@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { UserCircle2, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { Button, Input, Dialog, ZoruDialogContent, Card, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Dialog, DialogContent, Card, Badge } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
@@ -12,9 +12,9 @@ import type { WsConversationSummary } from '@/lib/worksuite/chat-types';
 function Modal({ open, onOpenChange, children }: { open: boolean; onOpenChange: (open: boolean) => void; children: React.ReactNode }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent hideClose className="p-0">
+      <DialogContent hideClose className="p-0">
         {children}
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

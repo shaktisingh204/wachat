@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Textarea, Tabs, ZoruTabsList, ZoruTabsTrigger, ZoruTabsContent, Switch, Label } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Textarea, Tabs, TabsList, TabsTrigger, TabsContent, Switch, Label } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -17,7 +17,7 @@ export default function KeywordDensityPage() {
 
   const renderTable = (density: { word: string; count: number; density: number }[]) => (
     <Card>
-      <ZoruCardContent className="p-4">
+      <CardBody className="p-4">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs text-[var(--st-text-secondary)]">
@@ -45,7 +45,7 @@ export default function KeywordDensityPage() {
             )}
           </tbody>
         </table>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 
@@ -73,20 +73,20 @@ export default function KeywordDensityPage() {
       </div>
       
       <Tabs defaultValue="2-word">
-        <ZoruTabsList className="mb-4">
-          <ZoruTabsTrigger value="1-word">1-Word (Unigrams)</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="2-word">2-Word (Bigrams)</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="3-word">3-Word (Trigrams)</ZoruTabsTrigger>
-        </ZoruTabsList>
-        <ZoruTabsContent value="1-word">
+        <TabsList className="mb-4">
+          <TabsTrigger value="1-word">1-Word (Unigrams)</TabsTrigger>
+          <TabsTrigger value="2-word">2-Word (Bigrams)</TabsTrigger>
+          <TabsTrigger value="3-word">3-Word (Trigrams)</TabsTrigger>
+        </TabsList>
+        <TabsContent value="1-word">
           {renderTable(density1)}
-        </ZoruTabsContent>
-        <ZoruTabsContent value="2-word">
+        </TabsContent>
+        <TabsContent value="2-word">
           {renderTable(density2)}
-        </ZoruTabsContent>
-        <ZoruTabsContent value="3-word">
+        </TabsContent>
+        <TabsContent value="3-word">
           {renderTable(density3)}
-        </ZoruTabsContent>
+        </TabsContent>
       </Tabs>
     </ToolShell>
   );

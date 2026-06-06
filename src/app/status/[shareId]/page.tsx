@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 
@@ -112,10 +112,10 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Rank Movement (Last 7 Days)</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="flex gap-8">
+                        <CardHeader>
+                            <CardTitle>Rank Movement (Last 7 Days)</CardTitle>
+                        </CardHeader>
+                        <CardBody className="flex gap-8">
                             <div>
                                 <div className="text-2xl font-bold text-[var(--st-text)]">+{data.keywordsUp}</div>
                                 <div className="text-sm text-[var(--st-text-secondary)]">Improved</div>
@@ -124,14 +124,14 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
                                 <div className="text-2xl font-bold text-[var(--st-text)]">-{data.keywordsDown}</div>
                                 <div className="text-sm text-[var(--st-text-secondary)]">Declined</div>
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Top Keywords</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Top Keywords</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="space-y-3">
                                 {data.topKeywords.map((k, i) => (
                                     <div key={i} className="flex justify-between items-center text-sm border-b last:border-0 pb-2 last:pb-0">
@@ -144,7 +144,7 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
                                     </div>
                                 ))}
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </div>
 

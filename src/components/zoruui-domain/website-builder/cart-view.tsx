@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, Separator } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardFooter, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useCart } from '@/context/cart-context';
 
@@ -55,10 +55,10 @@ export function CartView() {
             </div>
             <div className="md:col-span-1">
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Order Summary</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="space-y-4">
+                    <CardHeader>
+                        <CardTitle>Order Summary</CardTitle>
+                    </CardHeader>
+                    <CardBody className="space-y-4">
                         <div className="flex justify-between">
                             <span>Subtotal ({itemCount} items)</span>
                             <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}</span>
@@ -72,12 +72,12 @@ export function CartView() {
                             <span>Total</span>
                             <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}</span>
                         </div>
-                    </ZoruCardContent>
-                    <ZoruCardFooter>
+                    </CardBody>
+                    <CardFooter>
                         <Button asChild size="lg" className="w-full">
                              <Link href={`/shop/${shopSlug}/checkout`}>Proceed to Checkout</Link>
                         </Button>
-                    </ZoruCardFooter>
+                    </CardFooter>
                 </Card>
             </div>
         </div>

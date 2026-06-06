@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, Textarea, Switch } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea, Switch } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -101,7 +101,7 @@ export default function GaTagGeneratorPage() {
         <div className="space-y-6">
           <h2 className="text-lg font-semibold tracking-tight">Global Site Tag</h2>
           <Card>
-            <ZoruCardContent className="p-4 space-y-4">
+            <CardBody className="p-4 space-y-4">
               <div className="space-y-3">
                 <Label htmlFor="ga-id">GA4 Measurement ID</Label>
                 <Input
@@ -182,7 +182,7 @@ export default function GaTagGeneratorPage() {
                   </div>
                 </div>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <div className="space-y-2">
@@ -203,7 +203,7 @@ export default function GaTagGeneratorPage() {
         <div className="space-y-6">
           <h2 className="text-lg font-semibold tracking-tight">Custom Event Snippet</h2>
           <Card>
-            <ZoruCardContent className="p-4 space-y-4">
+            <CardBody className="p-4 space-y-4">
               <div className="space-y-3">
                 <Label htmlFor="event-name">Event Name</Label>
                 <Input
@@ -224,7 +224,7 @@ export default function GaTagGeneratorPage() {
                   className="font-mono text-xs min-h-[120px]"
                 />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <div className="space-y-2">

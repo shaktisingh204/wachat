@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -55,7 +48,7 @@ function fmtMoney(n: number, currency = 'INR'): string {
 
 export default function NewRecurringInvoicePage() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, formAction, isPending] = useActionState(
     saveRecurringInvoice,
     initial,

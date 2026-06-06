@@ -1,35 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  ScrollArea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  Badge,
-  Avatar,
-  ZoruAvatarFallback,
-  Tabs,
-  ZoruTabsContent as TabsContent,
-  ZoruTabsList as TabsList,
-  ZoruTabsTrigger as TabsTrigger,
-  useZoruToast,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Popover, PopoverContent, PopoverTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Badge, Avatar, AvatarFallback, Tabs, TabsContent, TabsList, TabsTrigger, useToast, cn } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useTransition,
@@ -88,7 +59,7 @@ function MultiSelectCombobox({
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
                 <Button
                     variant="outline"
                     role="combobox"
@@ -117,15 +88,15 @@ function MultiSelectCombobox({
                     </div>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                <ZoruCommand>
-                    <ZoruCommandInput placeholder="Search tags..." />
-                    <ZoruCommandList>
-                        <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
-                        <ZoruCommandGroup>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command>
+                    <CommandInput placeholder="Search tags..." />
+                    <CommandList>
+                        <CommandEmpty>No tags found.</CommandEmpty>
+                        <CommandGroup>
                             {options.map((option) => (
-                                <ZoruCommandItem
+                                <CommandItem
                                     key={option.value}
                                     value={option.label}
                                     onSelect={() => handleSelect(option.value)}
@@ -137,12 +108,12 @@ function MultiSelectCombobox({
                                         )}
                                     />
                                     {option.label}
-                                </ZoruCommandItem>
+                                </CommandItem>
                             ))}
-                        </ZoruCommandGroup>
-                    </ZoruCommandList>
-                </ZoruCommand>
-            </ZoruPopoverContent>
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
         </Popover>
     );
 }
@@ -157,7 +128,7 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
     const [isTagsManagerOpen, setIsTagsManagerOpen] = useState(false);
 
     const [isPending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const { reloadProject } = useProject();
     const userAttributes = project.userAttributes || [];
 
@@ -274,7 +245,7 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
             <ScrollArea className="flex-1">
                 <div className="p-4 flex flex-col items-center border-b">
                     <Avatar className="h-20 w-20 mb-3 shadow-sm border">
-                        <ZoruAvatarFallback className="text-xl">{contact.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
+                        <AvatarFallback className="text-xl">{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
 
                     {isEditingName ? (
@@ -306,24 +277,24 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                         <div className="space-y-1.5">
                             <Label className="text-xs text-[var(--st-text-secondary)]">Status</Label>
                             <Select value={status} onValueChange={handleStatusChange} disabled={isPending}>
-                                <ZoruSelectTrigger id="status" className="h-9"><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="new">New</ZoruSelectItem>
-                                    <ZoruSelectItem value="open">Open</ZoruSelectItem>
-                                    <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger id="status" className="h-9"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="new">New</SelectItem>
+                                    <SelectItem value="open">Open</SelectItem>
+                                    <SelectItem value="resolved">Resolved</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-1.5">
                             <Label className="text-xs text-[var(--st-text-secondary)]">Agent</Label>
                             <Select value={assignedAgentId || 'unassigned'} onValueChange={handleAgentChange} disabled={isPending}>
-                                <ZoruSelectTrigger id="agent" className="h-9"><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="unassigned">Unassigned</ZoruSelectItem>
+                                <SelectTrigger id="agent" className="h-9"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="unassigned">Unassigned</SelectItem>
                                     {project.agents?.map((agent: Agent) => (
-                                        <ZoruSelectItem key={agent.userId.toString()} value={agent.userId.toString()}>{agent.name}</ZoruSelectItem>
+                                        <SelectItem key={agent.userId.toString()} value={agent.userId.toString()}>{agent.name}</SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>

@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Card,
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useTransition,
@@ -86,7 +74,7 @@ export default function ApplyLeaveClient({
   initialBalances: WsLeaveBalanceEmployee[];
 }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const types = initialTypes;
   const employees = initialEmployees;
   const balances = initialBalances;
@@ -194,16 +182,16 @@ export default function ApplyLeaveClient({
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value || undefined} onValueChange={field.onChange}>
-                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] ${errors.userId ? 'border-[var(--st-border)]' : ''}`}>
-                      <ZoruSelectValue placeholder="Select employee" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger className={`mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] ${errors.userId ? 'border-[var(--st-border)]' : ''}`}>
+                      <SelectValue placeholder="Select employee" />
+                    </SelectTrigger>
+                    <SelectContent>
                       {employees.map((e) => (
-                        <ZoruSelectItem key={e._id} value={e._id}>
+                        <SelectItem key={e._id} value={e._id}>
                           {[e.firstName, e.lastName].filter(Boolean).join(' ') || 'Unnamed'}
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
                 )}
               />
@@ -218,12 +206,12 @@ export default function ApplyLeaveClient({
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value || undefined} onValueChange={field.onChange}>
-                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] ${errors.leaveTypeId ? 'border-[var(--st-border)]' : ''}`}>
-                      <ZoruSelectValue placeholder="Select leave type" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger className={`mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] ${errors.leaveTypeId ? 'border-[var(--st-border)]' : ''}`}>
+                      <SelectValue placeholder="Select leave type" />
+                    </SelectTrigger>
+                    <SelectContent>
                       {types.map((t) => (
-                        <ZoruSelectItem key={String(t._id)} value={String(t._id)}>
+                        <SelectItem key={String(t._id)} value={String(t._id)}>
                           <span className="inline-flex items-center gap-2">
                             <span
                               aria-hidden
@@ -232,9 +220,9 @@ export default function ApplyLeaveClient({
                             />
                             {t.type_name}
                           </span>
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
                 )}
               />

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useOptimistic } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Save, LoaderCircle } from 'lucide-react';
@@ -24,7 +24,7 @@ function SaveButton({ isOptimistic }: { isOptimistic: boolean }) {
 
 export function PayrollSettingsForm({ settings }: { settings: PayrollSettings }) {
   const [state, formAction] = useActionState(savePayrollSettings, initialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   // We use useOptimistic here to immediately reflect saving state 
   // before the server action completely finishes

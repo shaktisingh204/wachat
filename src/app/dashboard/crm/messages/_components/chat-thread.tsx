@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Input, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Input, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { Paperclip, Send, LoaderCircle, Download, Check, CheckCheck } from 'lucide-react';
 
 import * as React from 'react';
@@ -44,7 +44,7 @@ interface PendingFile {
 }
 
 export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatThreadProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [messages, setMessages] = React.useState<ThreadMessage[]>(initialMessages);
   const [draft, setDraft] = React.useState('');
   const [fileUrl, setFileUrl] = React.useState('');

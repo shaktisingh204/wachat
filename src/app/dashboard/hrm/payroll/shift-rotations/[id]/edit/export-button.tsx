@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
 import { Download, FileText, Table } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -13,7 +13,7 @@ interface ExportRotationButtonProps {
 }
 
 export function ExportRotationButton({ rotation, shifts }: ExportRotationButtonProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const handleExportCSV = () => {
         try {

@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Input,
-  Label,
-  Badge,
-  Button,
-  Card,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, Label, Badge, Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useMemo,
@@ -82,7 +65,7 @@ function expiryLabel(expiryDate?: Date | string): string {
 }
 
 export default function EmployeeDocumentsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [docs, setDocs] = useState<DocRow[]>([]);
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -276,12 +259,12 @@ export default function EmployeeDocumentsPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-md border-[var(--st-border)] bg-[var(--st-bg)]">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-[var(--st-text)]">
+        <DialogContent className="max-w-md border-[var(--st-border)] bg-[var(--st-bg)]">
+          <DialogHeader>
+            <DialogTitle className="text-[var(--st-text)]">
               {form._id ? 'Edit Document' : 'Add Document'}
-            </ZoruDialogTitle>
-          </ZoruDialogHeader>
+            </DialogTitle>
+          </DialogHeader>
 
           <div className="grid gap-4 py-2">
             <div>
@@ -292,17 +275,17 @@ export default function EmployeeDocumentsPage() {
                 value={form.user_id || '__none__'}
                 onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}
               >
-                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                  <ZoruSelectValue placeholder="Select employee…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="__none__">— Select employee —</ZoruSelectItem>
+                <SelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                  <SelectValue placeholder="Select employee…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Select employee —</SelectItem>
                   {employees.map((e) => (
-                    <ZoruSelectItem key={e._id} value={e._id}>
+                    <SelectItem key={e._id} value={e._id}>
                       {e.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
 
@@ -359,7 +342,7 @@ export default function EmployeeDocumentsPage() {
             </div>
           </div>
 
-          <ZoruDialogFooter className="gap-2">
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
@@ -367,8 +350,8 @@ export default function EmployeeDocumentsPage() {
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Add'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

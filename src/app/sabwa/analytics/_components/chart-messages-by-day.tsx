@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 import {
   MessageSquare } from 'lucide-react';
 
@@ -31,7 +31,7 @@ export function ChartMessagesByDay({ data }: ChartMessagesByDayProps) {
     );
   }
   return (
-    <ZoruChartContainer height={288}>
+    <ChartContainer height={288}>
       <ZoruChart.LineChart
         data={data}
         margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -47,7 +47,7 @@ export function ChartMessagesByDay({ data }: ChartMessagesByDayProps) {
           axisLine={false}
         />
         <ZoruChart.YAxis fontSize={11} tickLine={false} axisLine={false} />
-        <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+        <ZoruChart.Tooltip content={<ChartTooltip />} />
         <ZoruChart.Legend wrapperStyle={{ fontSize: 12 }} />
         <ZoruChart.Line
           type="monotone"
@@ -67,6 +67,6 @@ export function ChartMessagesByDay({ data }: ChartMessagesByDayProps) {
           name="Outbound"
         />
       </ZoruChart.LineChart>
-    </ZoruChartContainer>
+    </ChartContainer>
   );
 }

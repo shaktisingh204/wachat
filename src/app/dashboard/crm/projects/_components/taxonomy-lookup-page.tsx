@@ -1,27 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   FileSpreadsheet,
@@ -108,7 +88,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
   bulkDelete,
   exportFilenameStem,
 }: TaxonomyLookupPageProps<R>) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<R[]>([]);
   const [isLoading, startLoading] = React.useTransition();
   const [, startMutate] = React.useTransition();
@@ -295,24 +275,24 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
             {hasColor ? (
               <div className="w-44">
                 <Select value={colorFilter} onValueChange={(v) => setColorFilter(v as typeof colorFilter)}>
-                  <ZoruSelectTrigger><ZoruSelectValue placeholder="Color" /></ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All colors</ZoruSelectItem>
-                    <ZoruSelectItem value="has">Has color</ZoruSelectItem>
-                    <ZoruSelectItem value="none">No color</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger><SelectValue placeholder="Color" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All colors</SelectItem>
+                    <SelectItem value="has">Has color</SelectItem>
+                    <SelectItem value="none">No color</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             ) : null}
             {hasStatus ? (
               <div className="w-44">
                 <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
-                  <ZoruSelectTrigger><ZoruSelectValue placeholder="Status" /></ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                    <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                    <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             ) : null}
@@ -577,14 +557,14 @@ function TaxonomyDialog<R extends TaxonomyRow>({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl">
         <form onSubmit={handleSubmit}>
           {isEditing ? <input type="hidden" name="_id" value={editing!._id} /> : null}
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+          <DialogHeader>
+            <DialogTitle>
               {isEditing ? `Edit ${singular.toLowerCase()}` : `Create new ${singular.toLowerCase()}`}
-            </ZoruDialogTitle>
-          </ZoruDialogHeader>
+            </DialogTitle>
+          </DialogHeader>
           <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
             {fields.map((f) => {
               const defaultVal = editing
@@ -644,7 +624,7 @@ function TaxonomyDialog<R extends TaxonomyRow>({
               );
             })}
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
@@ -652,9 +632,9 @@ function TaxonomyDialog<R extends TaxonomyRow>({
               {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
               {isEditing ? 'Save changes' : `Create ${singular.toLowerCase()}`}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

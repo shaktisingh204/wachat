@@ -15,28 +15,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -90,7 +69,7 @@ function buildCsv(rows: CrmWebhookRow[]): string {
 }
 
 export default function CrmWebhooksListPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<CrmWebhookRow[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState('');
@@ -261,17 +240,17 @@ export default function CrmWebhooksListPage() {
           ))}
           {allEvents.length > 0 ? (
             <Select value={eventFilter || '__all__'} onValueChange={(v) => setEventFilter(v === '__all__' ? '' : v)}>
-              <ZoruSelectTrigger className="h-9 w-[200px]">
-                <ZoruSelectValue placeholder="Event type" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="__all__">All events</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[200px]">
+                <SelectValue placeholder="Event type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">All events</SelectItem>
                 {allEvents.map((ev) => (
-                  <ZoruSelectItem key={ev} value={ev}>
+                  <SelectItem key={ev} value={ev}>
                     {ev}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           ) : null}
           {hasActiveFilters ? (
@@ -385,86 +364,86 @@ export default function CrmWebhooksListPage() {
         {/* Table */}
         <Card className="p-0">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-10">
+            <THead>
+              <Tr>
+                <Th className="w-10">
                   <Checkbox
                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                     onCheckedChange={(v) => toggleAll(v === true)}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Name</ZoruTableHead>
-                <ZoruTableHead>Target URL</ZoruTableHead>
-                <ZoruTableHead>Events</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Last delivery</ZoruTableHead>
-                <ZoruTableHead className="text-right">Failures</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Name</Th>
+                <Th>Target URL</Th>
+                <Th>Events</Th>
+                <Th>Status</Th>
+                <Th>Last delivery</Th>
+                <Th className="text-right">Failures</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {loading ? (
                 Array.from({ length: 3 }).map((_, i) => (
-                  <ZoruTableRow key={i}>
-                    <ZoruTableCell colSpan={7}>
+                  <Tr key={i}>
+                    <Td colSpan={7}>
                       <Skeleton className="h-6 w-full" />
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               ) : filtered.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={7}
                     className="text-center text-[var(--st-text-secondary)] py-12"
                   >
                     {rows.length === 0
                       ? 'No subscriptions yet.'
                       : 'No webhooks match this filter.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((row) => (
-                  <ZoruTableRow
+                  <Tr
                     key={row._id}
                     className={cn(selected.has(row._id) && 'bg-[var(--st-bg-secondary)]')}
                   >
-                    <ZoruTableCell>
+                    <Td>
                       <Checkbox
                         checked={selected.has(row._id)}
                         onCheckedChange={() => toggleOne(row._id)}
                         aria-label={`Select ${row.name}`}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <EntityRowLink
                         href={`/dashboard/crm/settings/webhooks/${row._id}`}
                         label={row.name}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-xs truncate max-w-[280px]">
+                    </Td>
+                    <Td className="font-mono text-xs truncate max-w-[280px]">
                       {row.targetUrl}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant="outline">
                         {row.events.length} event
                         {row.events.length === 1 ? '' : 's'}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge
                         variant={row.status === 'active' ? 'default' : 'secondary'}
                       >
                         {row.status}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell>{formatDate(row.lastDeliveryAt)}</ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td>{formatDate(row.lastDeliveryAt)}</Td>
+                    <Td className="text-right">
                       {row.failureCount}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       </div>

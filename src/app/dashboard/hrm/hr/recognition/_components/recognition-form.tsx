@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -106,7 +93,7 @@ export interface RecognitionFormProps {
 export function RecognitionForm({ initialData }: RecognitionFormProps) {
     const isEditing = !!initialData?._id;
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [state, formAction] = useActionState(saveRecognition, initialState);
 
@@ -248,19 +235,19 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                                     setCategory(v as CrmRecognitionCategory)
                                 }
                             >
-                                <ZoruSelectTrigger id="category-trigger">
-                                    <ZoruSelectValue placeholder="Category" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger id="category-trigger">
+                                    <SelectValue placeholder="Category" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {CATEGORY_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
+                                        <SelectItem
                                             key={o.value}
                                             value={o.value}
                                         >
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-1.5">
@@ -371,19 +358,19 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                                 setStatus(v as CrmRecognitionStatus)
                             }
                         >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="status-trigger">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem
+                                    <SelectItem
                                         key={o.value}
                                         value={o.value}
                                     >
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>

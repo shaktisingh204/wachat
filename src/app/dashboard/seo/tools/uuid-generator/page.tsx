@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 
 void _zoruCn;
@@ -26,10 +26,10 @@ export default function UuidGeneratorPage() {
         <Button onClick={generate}>Generate UUID</Button>
         {list[0] && <Button variant="outline" onClick={() => navigator.clipboard.writeText(list[0])}>Copy latest</Button>}
       </div>
-      <Card><ZoruCardContent className="p-4 space-y-1">
+      <Card><CardBody className="p-4 space-y-1">
         {list.length === 0 && <div className="text-sm text-[var(--st-text-secondary)]">Click to generate.</div>}
         {list.map((u, i) => <div key={i} className="font-mono text-xs border-t last:border-0 first:border-t-0 py-1">{u}</div>)}
-      </ZoruCardContent></Card>
+      </CardBody></Card>
     </ToolShell>
   );
 }

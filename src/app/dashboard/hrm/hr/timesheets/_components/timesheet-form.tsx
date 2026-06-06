@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { LoaderCircle,
@@ -75,7 +63,7 @@ function plusDaysIso(iso: string, days: number): string {
 
 export function TimesheetForm({ initial }: Props): React.JSX.Element {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [employees, setEmployees] = React.useState<EmployeeLite[]>([]);
     const [isSaving, startSave] = React.useTransition();
 
@@ -182,16 +170,16 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                         <Label>Employee *</Label>
                         {/* TODO 1E.sweep: dynamic list — needs EntityKey "employee" (already exists; just swap to <EntityFormField entity="employee">) */}
                         <Select value={employeeId || undefined} onValueChange={setEmployeeId}>
-                            <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                                <ZoruSelectValue placeholder="Select employee" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                                <SelectValue placeholder="Select employee" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {employees.map((e) => (
-                                    <ZoruSelectItem key={e._id} value={e._id}>
+                                    <SelectItem key={e._id} value={e._id}>
                                         {employeeName(e)}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div>

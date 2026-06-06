@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Switch,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import type { WithId,
@@ -43,11 +34,11 @@ export function AutoReplySettingsTab({ project }: AutoReplySettingsTabProps) {
     return (
         <div className="space-y-6">
             <Card>
-                 <ZoruCardHeader>
+                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div className="space-y-1.5">
-                            <ZoruCardTitle>Master Auto-Reply Switch</ZoruCardTitle>
-                            <ZoruCardDescription>Enable or disable all auto-reply functionality for this project.</ZoruCardDescription>
+                            <CardTitle>Master Auto-Reply Switch</CardTitle>
+                            <CardDescription>Enable or disable all auto-reply functionality for this project.</CardDescription>
                         </div>
                          <div className="flex items-center gap-2">
                              {isSwitchPending && <LoaderCircle className="h-4 w-4 animate-spin text-[var(--st-text-secondary)]" />}
@@ -58,7 +49,7 @@ export function AutoReplySettingsTab({ project }: AutoReplySettingsTabProps) {
                             />
                         </div>
                     </div>
-                </ZoruCardHeader>
+                </CardHeader>
             </Card>
 
             <Separator />

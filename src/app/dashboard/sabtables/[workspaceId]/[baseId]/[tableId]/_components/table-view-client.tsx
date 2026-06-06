@@ -22,26 +22,7 @@ import {
   Eye,
 } from 'lucide-react';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Sheet,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, SheetContent, SheetHeader, SheetTitle, Sheet, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@/components/sabcrm/20ui/compat';
 import {
   createSabtablesRecord,
   updateSabtablesRecord,
@@ -610,10 +591,10 @@ function AddFieldDialog({
   const [fieldType, setFieldType] = useState<SabtablesFieldType>('text');
   return (
     <Dialog open={open} onOpenChange={(o) => (!o ? onClose() : null)}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Add field</ZoruDialogTitle>
-        </ZoruDialogHeader>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add field</DialogTitle>
+        </DialogHeader>
         <div className="space-y-4 py-2">
           <div>
             <Label htmlFor="field-name">Field name</Label>
@@ -626,20 +607,20 @@ function AddFieldDialog({
           <div>
             <Label htmlFor="field-type">Type</Label>
             <Select value={fieldType} onValueChange={(v) => setFieldType(v as SabtablesFieldType)}>
-              <ZoruSelectTrigger id="field-type">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="field-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {FIELD_TYPE_OPTIONS.map((opt) => (
-                  <ZoruSelectItem key={opt.value} value={opt.value}>
+                  <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
           <Button
             onClick={() => onSubmit(name, fieldType)}
@@ -647,8 +628,8 @@ function AddFieldDialog({
           >
             Add field
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

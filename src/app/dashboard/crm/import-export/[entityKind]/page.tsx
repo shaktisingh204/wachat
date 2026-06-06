@@ -14,21 +14,7 @@ import { getExportHistory } from './_components/export-history.actions';
 import { hasPermissionGroup } from '@/lib/permission-groups/check';
 import { format } from 'date-fns';
 import { Suspense } from 'react';
-import {
-    Breadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    Card,
-    Table,
-    ZoruTableHeader,
-    ZoruTableRow,
-    ZoruTableHead,
-    ZoruTableBody,
-    ZoruTableCell,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,19 +44,19 @@ export default async function ImportExportEntityPage({
     return (
         <div className="flex w-full flex-col gap-4">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/crm">CRM</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/crm/import-export">Import &amp; Export</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>{entityKind}</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/crm">CRM</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/crm/import-export">Import &amp; Export</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{entityKind}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
             <h1 className="text-lg font-semibold text-[var(--st-text)]">
                 Import / Export — {entityKind}
@@ -96,24 +82,24 @@ async function ExportHistoryList({ entityKind }: { entityKind: string }) {
                 <div className="p-4 text-sm text-[var(--st-text-secondary)]">No recent exports found.</div>
             ) : (
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow>
-                            <ZoruTableHead>Date</ZoruTableHead>
-                            <ZoruTableHead>Rows Exported</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                    <THead>
+                        <Tr>
+                            <Th>Date</Th>
+                            <Th>Rows Exported</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {history.map(h => (
-                            <ZoruTableRow key={h.id}>
-                                <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+                            <Tr key={h.id}>
+                                <Td className="text-[12.5px] text-[var(--st-text)]">
                                     {format(new Date(h.createdAt), 'PPpp')}
-                                </ZoruTableCell>
-                                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                </Td>
+                                <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                     {h.rowCount.toLocaleString()}
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ))}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             )}
         </Card>

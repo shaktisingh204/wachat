@@ -2,16 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
 
-import {
-  Badge,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -27,7 +18,7 @@ import {
 } from '@/app/actions/crm-reports.actions';
 import { getOverdueTasksDeep } from '@/app/actions/worksuite/reports.actions';
 import { OverdueTasksClient } from '../overdue-tasks/_components/overdue-tasks-client';
-import { Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
 
 interface PageProps {
   searchParams: Promise<{
@@ -139,11 +130,11 @@ export default async function LateReportPage(props: PageProps) {
       }
     >
       <Tabs defaultValue={sp.view === 'tasks' ? 'tasks' : 'all'} className="w-full">
-        <ZoruTabsList className="mb-4">
-          <ZoruTabsTrigger value="all">All Late Items</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="tasks">Overdue Tasks Details</ZoruTabsTrigger>
-        </ZoruTabsList>
-        <ZoruTabsContent value="all" className="space-y-4">
+        <TabsList className="mb-4">
+          <TabsTrigger value="all">All Late Items</TabsTrigger>
+          <TabsTrigger value="tasks">Overdue Tasks Details</TabsTrigger>
+        </TabsList>
+        <TabsContent value="all" className="space-y-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               label="Total late items"
@@ -191,46 +182,46 @@ export default async function LateReportPage(props: PageProps) {
           <Card className="p-0">
             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Kind</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Project</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Owner</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Due</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Late</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Action</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="text-[var(--st-text-secondary)]">Kind</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Title</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Project</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Owner</Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">Due</Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">Late</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">Action</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-[var(--st-border)]">
-                      <ZoruTableCell
+                    <Tr className="border-[var(--st-border)]">
+                      <Td
                         colSpan={8}
                         className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         No late items in this range.
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     pageRows.map((r) => (
-                      <ZoruTableRow
+                      <Tr
                         key={`${r.kind}-${r._id}`}
                         className="border-[var(--st-border)]"
                       >
-                        <ZoruTableCell>
+                        <Td>
                           <Badge variant={kindVariant(r.kind)}>
                             {KIND_LABEL[r.kind]}
                           </Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <EntityRowLink
                             href={kindHref(r.kind, r._id)}
                             label={r.title}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {r.projectId ? (
                             <EntityRowLink
                               href={`/dashboard/crm/projects/${r.projectId}`}
@@ -239,36 +230,36 @@ export default async function LateReportPage(props: PageProps) {
                           ) : (
                             <span className="text-[var(--st-text-secondary)]">—</span>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {r.ownerName}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right text-[13px] text-[var(--st-text)]">
                           {r.dueDate ? r.dueDate.slice(0, 10) : '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
                           {r.lateDays}d
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {r.status}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <a
                             href={kindHref(r.kind, r._id)}
                             className="text-[13px] text-[var(--st-text)] hover:underline font-medium"
                           >
                             Resolve
                           </a>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>
-        </ZoruTabsContent>
-        <ZoruTabsContent value="tasks" className="space-y-4">
+        </TabsContent>
+        <TabsContent value="tasks" className="space-y-4">
           <OverdueTasksClient
             data={overdueTasksData}
             filters={{
@@ -277,7 +268,7 @@ export default async function LateReportPage(props: PageProps) {
               maxDays: sp.maxDays,
             }}
           />
-        </ZoruTabsContent>
+        </TabsContent>
       </Tabs>
     </EntityListShell>
   );

@@ -7,14 +7,7 @@ import {
     createSabcatalystDomain,
     deleteSabcatalystDomain,
 } from '@/app/actions/sabcatalyst.actions';
-import {
-    Button,
-    Card,
-    Input,
-    Label,
-    EmptyState,
-    Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, EmptyState, Badge } from '@/components/sabcrm/20ui/compat';
 import type { SabcatalystDomain } from '@/lib/rust-client/sabcatalyst-domains';
 
 interface Props { projectId: string; initialDomains: SabcatalystDomain[] }

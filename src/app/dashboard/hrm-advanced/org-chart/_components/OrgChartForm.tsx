@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { OrgChartNode } from '@/lib/hrm-advanced-types';
-import { Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Input, Button } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Button } from '@/components/sabcrm/20ui/compat';
 
 interface OrgChartFormProps {
   open: boolean;
@@ -25,10 +25,10 @@ export function OrgChartForm({ open, onOpenChange, initialData, onSave, isLoadin
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>{initialData?._id ? 'Edit' : 'Add'} Node</ZoruDialogTitle>
-        </ZoruDialogHeader>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{initialData?._id ? 'Edit' : 'Add'} Node</DialogTitle>
+        </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium">Name</label>
@@ -63,13 +63,13 @@ export function OrgChartForm({ open, onOpenChange, initialData, onSave, isLoadin
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>Cancel</Button>
           <Button onClick={handleSubmit} disabled={isLoading}>
             {isLoading ? 'Saving...' : 'Save'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -12,24 +12,11 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { createSupportTicket } from '@/app/actions/helpdesk.actions';
 
 export default function NewSupportTicketPage(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const [subject, setSubject] = React.useState('');
   const [body, setBody] = React.useState('');
@@ -52,7 +39,7 @@ export default function NewSupportTicketPage(): React.JSX.Element {
   return (
     <div className="mx-auto max-w-2xl">
       <Card>
-        <ZoruCardContent className="space-y-4 p-6">
+        <CardBody className="space-y-4 p-6">
           <div>
             <h1 className="text-[18px] font-semibold text-[var(--st-text)]">Open a support request</h1>
             <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
@@ -74,15 +61,15 @@ export default function NewSupportTicketPage(): React.JSX.Element {
             <div>
               <Label htmlFor="priority">Priority</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as typeof priority)}>
-                <ZoruSelectTrigger className="mt-1">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="low">Low — when you have time</ZoruSelectItem>
-                  <ZoruSelectItem value="medium">Medium — within a day</ZoruSelectItem>
-                  <ZoruSelectItem value="high">High — blocks my work</ZoruSelectItem>
-                  <ZoruSelectItem value="urgent">Urgent — production impact</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low — when you have time</SelectItem>
+                  <SelectItem value="medium">Medium — within a day</SelectItem>
+                  <SelectItem value="high">High — blocks my work</SelectItem>
+                  <SelectItem value="urgent">Urgent — production impact</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div>
@@ -106,7 +93,7 @@ export default function NewSupportTicketPage(): React.JSX.Element {
               </Button>
             </div>
           </form>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

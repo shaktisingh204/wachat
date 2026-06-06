@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useRef,
@@ -61,7 +43,7 @@ export function CannedMessageFormDialog({
   const [isPending, startTransition] = useTransition();
   const [state, setState] = useState<any>(initialState);
   const formRef = useRef<HTMLFormElement>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [messageType, setMessageType] = useState<CannedMessage['type'] | ''>(
     existingMessage?.type || 'text',
   );
@@ -97,7 +79,7 @@ export function CannedMessageFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <ZoruDialogContent className="max-w-[540px] border border-[var(--st-border)] bg-[var(--st-bg)] p-0 shadow-lg">
+      <DialogContent className="max-w-[540px] border border-[var(--st-border)] bg-[var(--st-bg)] p-0 shadow-lg">
         <form action={action} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
           {existingMessage && (
@@ -108,19 +90,19 @@ export function CannedMessageFormDialog({
             />
           )}
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
+          <DialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <Bookmark className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
+              <DialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
                 {existingMessage ? 'Edit canned message' : 'Create canned message'}
-              </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
+              </DialogTitle>
+              <DialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
                 Save a message for quick use in live chat conversations.
-              </ZoruDialogDescription>
+              </DialogDescription>
             </div>
-          </ZoruDialogHeader>
+          </DialogHeader>
 
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* Name */}
@@ -159,16 +141,16 @@ export function CannedMessageFormDialog({
                 }
                 required
               >
-                <ZoruSelectTrigger id="type">
-                  <ZoruSelectValue placeholder="Select message type" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="text">Text</ZoruSelectItem>
-                  <ZoruSelectItem value="image">Image</ZoruSelectItem>
-                  <ZoruSelectItem value="video">Video</ZoruSelectItem>
-                  <ZoruSelectItem value="audio">Audio</ZoruSelectItem>
-                  <ZoruSelectItem value="document">Document</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger id="type">
+                  <SelectValue placeholder="Select message type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text">Text</SelectItem>
+                  <SelectItem value="image">Image</SelectItem>
+                  <SelectItem value="video">Video</SelectItem>
+                  <SelectItem value="audio">Audio</SelectItem>
+                  <SelectItem value="document">Document</SelectItem>
+                </SelectContent>
               </Select>
             </div>
 
@@ -267,7 +249,7 @@ export function CannedMessageFormDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
             <Button
               type="button"
               variant="outline"
@@ -284,9 +266,9 @@ export function CannedMessageFormDialog({
               )}
               {isPending ? 'Saving…' : 'Save message'}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

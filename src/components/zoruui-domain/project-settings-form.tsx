@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-  Label,
-  Separator,
-  Accordion,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ZoruAccordionContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Input, Label, Separator, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -64,15 +49,15 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
         <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
             <Card className="card-gradient card-gradient-blue">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Project Settings</ZoruCardTitle>
-                    <ZoruCardDescription>Manage general and branding settings for your project.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Project Settings</CardTitle>
+                    <CardDescription>Manage general and branding settings for your project.</CardDescription>
+                </CardHeader>
+                <CardBody>
                     <Accordion type="single" collapsible defaultValue="general" className="w-full">
-                        <ZoruAccordionItem value="general">
-                            <ZoruAccordionTrigger>General Settings</ZoruAccordionTrigger>
-                            <ZoruAccordionContent>
+                        <AccordionItem value="general">
+                            <AccordionTrigger>General Settings</AccordionTrigger>
+                            <AccordionContent>
                                 <div className="space-y-4 pt-2">
                                     <div className="grid gap-4 md:grid-cols-2">
                                         <div className="space-y-2">
@@ -110,11 +95,11 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
                                         <p className="text-xs text-[var(--st-text-secondary)]">The maximum number of messages your broadcast campaign will attempt to send per second.</p>
                                     </div>
                                 </div>
-                            </ZoruAccordionContent>
-                        </ZoruAccordionItem>
-                        <ZoruAccordionItem value="branding">
-                            <ZoruAccordionTrigger>Web Chat Branding</ZoruAccordionTrigger>
-                            <ZoruAccordionContent>
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="branding">
+                            <AccordionTrigger>Web Chat Branding</AccordionTrigger>
+                            <AccordionContent>
                                 <div className="space-y-4 pt-2">
                                     <div className="grid gap-4 md:grid-cols-2">
                                         <div className="space-y-2">
@@ -162,13 +147,13 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
                                         </div>
                                     </div>
                                 </div>
-                            </ZoruAccordionContent>
-                        </ZoruAccordionItem>
+                            </AccordionContent>
+                        </AccordionItem>
                     </Accordion>
-                </ZoruCardContent>
-                <ZoruCardFooter className="pt-4 border-t border-[var(--st-border)]">
+                </CardBody>
+                <CardFooter className="pt-4 border-t border-[var(--st-border)]">
                     <SubmitButton />
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </form>
     );

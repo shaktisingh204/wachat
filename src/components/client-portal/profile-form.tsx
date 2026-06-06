@@ -15,7 +15,7 @@ import { Input } from '@/components/sabcrm/20ui/compat';
 import { Label } from '@/components/sabcrm/20ui/compat';
 import { Switch } from '@/components/sabcrm/20ui/compat';
 import { Checkbox } from '@/components/sabcrm/20ui/compat';
-import { Avatar, ZoruAvatarFallback as AvatarFallback, ZoruAvatarImage as AvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
 import { updateClientProfile } from '@/app/actions/client-portal.actions';
 
 export interface ProfileFormProps {

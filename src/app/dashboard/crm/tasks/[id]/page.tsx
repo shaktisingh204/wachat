@@ -1,4 +1,4 @@
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound,
   redirect } from 'next/navigation';
@@ -103,28 +103,28 @@ export default async function TaskDetailPage({ params }: PageProps) {
             }
             rightRail={
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>People</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>People</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <AssignmentControl
                             entityType="task"
                             entityId={id}
                             currentAssigneeId={task.assignedTo ?? null}
                         />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             }
         >
 
             <Card>
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="flex items-center justify-between">
-                        <ZoruCardTitle>Overview</ZoruCardTitle>
+                        <CardTitle>Overview</CardTitle>
                         <StatusPill label={status} tone={tone} />
                     </div>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <dl>
                         <Field label="Title" value={task.title} />
                         <Field label="Priority" value={task.priority ?? '—'} />
@@ -149,27 +149,27 @@ export default async function TaskDetailPage({ params }: PageProps) {
                         />
                         <Field label="Created" value={fmtDate(task.createdAt)} />
                     </dl>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {task.description ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Description</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Description</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                             {task.description}
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Checklist</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Checklist</CardTitle>
+                </CardHeader>
+                <CardBody>
                     {checklist.length === 0 ? (
                         <p className="text-[13px] text-[var(--st-text-secondary)]">
                             No checklist items.
@@ -198,15 +198,15 @@ export default async function TaskDetailPage({ params }: PageProps) {
                             ))}
                         </ul>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {attachments.length > 0 ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Attachments</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Attachments</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <ul className="flex flex-col gap-1.5">
                             {attachments.map((url, idx) => (
                                 <li
@@ -225,7 +225,7 @@ export default async function TaskDetailPage({ params }: PageProps) {
                                 </li>
                             ))}
                         </ul>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
         </EntityDetailShell>

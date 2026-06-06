@@ -1,26 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCollapsible,
-  ZoruCollapsibleContent,
-  ZoruCollapsibleTrigger,
-  EmptyState,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Collapsible, CollapsibleContent, CollapsibleTrigger, EmptyState, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ChevronDown,
   CircleSlash,
@@ -144,7 +124,7 @@ function timeAgo(iso?: string): string {
 }
 
 export default function SabWaFlowsPage() {
-  const toast = useZoruToast();
+  const toast = useToast();
   const { activeProjectId } = useProject();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? '';
@@ -207,19 +187,19 @@ export default function SabWaFlowsPage() {
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Chatbot flows</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Chatbot flows</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* ── Header ───────────────────────────────────────────────────── */}
@@ -284,7 +264,7 @@ export default function SabWaFlowsPage() {
 
         {!loading && error && (
           <Card>
-            <ZoruCardContent className="flex flex-col items-start gap-2 p-4 text-[13px]">
+            <CardBody className="flex flex-col items-start gap-2 p-4 text-[13px]">
               <div className="flex items-center gap-2 text-[var(--st-danger)]">
                 <CircleSlash className="h-4 w-4" />
                 <span className="font-medium">Couldn&apos;t load flows</span>
@@ -301,13 +281,13 @@ export default function SabWaFlowsPage() {
               >
                 <RefreshCw className="mr-2 h-4 w-4" /> Try again
               </Button>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
 
         {!loading && !error && flows.length === 0 && (
           <Card className="border-dashed">
-            <ZoruCardContent className="flex flex-col items-center gap-3 p-8 text-center">
+            <CardBody className="flex flex-col items-center gap-3 p-8 text-center">
               <div
                 aria-hidden
                 className="flex h-12 w-12 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
@@ -331,7 +311,7 @@ export default function SabWaFlowsPage() {
                   <Plus className="mr-2 h-4 w-4" /> Create your first flow
                 </Link>
               </Button>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
 
@@ -344,7 +324,7 @@ export default function SabWaFlowsPage() {
                   key={flow._id}
                   className="transition hover:shadow-[var(--st-shadow-md)]"
                 >
-                  <ZoruCardContent className="flex flex-col gap-3 p-4">
+                  <CardBody className="flex flex-col gap-3 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h3 className="truncate text-[15px] font-semibold text-[var(--st-text)]">
@@ -385,7 +365,7 @@ export default function SabWaFlowsPage() {
                         </Link>
                       </Button>
                     </div>
-                  </ZoruCardContent>
+                  </CardBody>
                 </Card>
               );
             })}
@@ -406,27 +386,27 @@ export default function SabWaFlowsPage() {
           when scoped to SabWa.
         </p>
 
-        <ZoruCollapsible defaultOpen>
+        <Collapsible defaultOpen>
           <Card>
-            <ZoruCollapsibleTrigger asChild>
+            <CollapsibleTrigger asChild>
               <button
                 type="button"
                 className="flex w-full items-center justify-between rounded-t-[var(--st-radius-lg)] p-4 text-left transition hover:bg-[var(--st-bg-muted)]"
                 aria-label="Toggle SabWa triggers reference"
               >
-                <ZoruCardHeader className="p-0">
-                  <ZoruCardTitle className="text-[13px]">
+                <CardHeader className="p-0">
+                  <CardTitle className="text-[13px]">
                     Available triggers
-                  </ZoruCardTitle>
-                  <ZoruCardDescription className="text-[11.5px]">
+                  </CardTitle>
+                  <CardDescription className="text-[11.5px]">
                     What can start a SabWa flow.
-                  </ZoruCardDescription>
-                </ZoruCardHeader>
+                  </CardDescription>
+                </CardHeader>
                 <ChevronDown className="h-4 w-4 transition data-[state=open]:rotate-180" />
               </button>
-            </ZoruCollapsibleTrigger>
-            <ZoruCollapsibleContent>
-              <ZoruCardContent className="grid gap-3 pt-0 md:grid-cols-2">
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardBody className="grid gap-3 pt-0 md:grid-cols-2">
                 {SABWA_TRIGGERS.map((trigger) => (
                   <div
                     key={trigger.id}
@@ -445,32 +425,32 @@ export default function SabWaFlowsPage() {
                     </p>
                   </div>
                 ))}
-              </ZoruCardContent>
-            </ZoruCollapsibleContent>
+              </CardBody>
+            </CollapsibleContent>
           </Card>
-        </ZoruCollapsible>
+        </Collapsible>
 
-        <ZoruCollapsible defaultOpen>
+        <Collapsible defaultOpen>
           <Card>
-            <ZoruCollapsibleTrigger asChild>
+            <CollapsibleTrigger asChild>
               <button
                 type="button"
                 className="flex w-full items-center justify-between rounded-t-[var(--st-radius-lg)] p-4 text-left transition hover:bg-[var(--st-bg-muted)]"
                 aria-label="Toggle SabWa actions reference"
               >
-                <ZoruCardHeader className="p-0">
-                  <ZoruCardTitle className="text-[13px]">
+                <CardHeader className="p-0">
+                  <CardTitle className="text-[13px]">
                     Available actions
-                  </ZoruCardTitle>
-                  <ZoruCardDescription className="text-[11.5px]">
+                  </CardTitle>
+                  <CardDescription className="text-[11.5px]">
                     What a SabWa flow can do after a trigger fires.
-                  </ZoruCardDescription>
-                </ZoruCardHeader>
+                  </CardDescription>
+                </CardHeader>
                 <ChevronDown className="h-4 w-4 transition data-[state=open]:rotate-180" />
               </button>
-            </ZoruCollapsibleTrigger>
-            <ZoruCollapsibleContent>
-              <ZoruCardContent className="grid gap-3 pt-0 md:grid-cols-2">
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardBody className="grid gap-3 pt-0 md:grid-cols-2">
                 {SABWA_ACTIONS.map((action) => (
                   <div
                     key={action.id}
@@ -489,10 +469,10 @@ export default function SabWaFlowsPage() {
                     </p>
                   </div>
                 ))}
-              </ZoruCardContent>
-            </ZoruCollapsibleContent>
+              </CardBody>
+            </CollapsibleContent>
           </Card>
-        </ZoruCollapsible>
+        </Collapsible>
       </section>
     </div>
   );

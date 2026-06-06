@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Textarea, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Textarea, cn } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import * as sbd from 'sbd';
 
@@ -89,22 +89,22 @@ export default function SentenceCounterPage() {
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-6">
         <Card>
-          <ZoruCardContent className="p-4 flex flex-col justify-center items-center">
+          <CardBody className="p-4 flex flex-col justify-center items-center">
             <div className="text-3xl font-bold text-[var(--st-text)]">{sentencesCount}</div>
             <div className="text-sm text-[var(--st-text-tertiary)] font-medium mt-1">Sentences</div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardContent className="p-4 flex flex-col justify-center items-center">
+          <CardBody className="p-4 flex flex-col justify-center items-center">
             <div className="text-3xl font-bold text-[var(--st-text)]">{wordsCount}</div>
             <div className="text-sm text-[var(--st-text-tertiary)] font-medium mt-1">Words</div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardContent className="p-4 flex flex-col justify-center items-center">
+          <CardBody className="p-4 flex flex-col justify-center items-center">
             <div className="text-3xl font-bold text-[var(--st-text)]">{avg}</div>
             <div className="text-sm text-[var(--st-text-tertiary)] font-medium mt-1">Words / sentence</div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 

@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Button, Card, Input, Label, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useParams,
   useRouter } from 'next/navigation';
@@ -80,7 +65,7 @@ export default function RoleDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const roleId = params?.id as string;
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [role, setRole] = useState<(WsRole & { _id: string }) | null>(null);
   const [groups, setGroups] = useState<Grouped[]>([]);
@@ -283,9 +268,9 @@ export default function RoleDetailPage() {
                   >
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
-                        <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
+                        <AvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
                           {initials(label)}
-                        </ZoruAvatarFallback>
+                        </AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="text-[13px] text-[var(--st-text)]">{label}</div>
@@ -339,53 +324,53 @@ export default function RoleDetailPage() {
             </div>
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Permission</ZoruTableHead>
+              <THead>
+                <Tr className="hover:bg-transparent">
+                  <Th className="text-[var(--st-text-secondary)]">Permission</Th>
                   {types.map((t) => (
-                    <ZoruTableHead key={t._id} className="text-center text-[var(--st-text-secondary)]">
+                    <Th key={t._id} className="text-center text-[var(--st-text-secondary)]">
                       {t.display_name || t.name}
-                    </ZoruTableHead>
+                    </Th>
                   ))}
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                </Tr>
+              </THead>
+              <TBody>
                 {groups.map((g, gi) => (
                   <React.Fragment key={g.module?._id || `orphan-${gi}`}>
-                    <ZoruTableRow className="bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)]">
-                      <ZoruTableCell
+                    <Tr className="bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)]">
+                      <Td
                         colSpan={types.length + 1}
                         className="text-[13px] text-[var(--st-text)]"
                       >
                         {g.module?.display_name ||
                           g.module?.module_name ||
                           'Uncategorised'}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                     {g.permissions.length === 0 ? (
-                      <ZoruTableRow>
-                        <ZoruTableCell
+                      <Tr>
+                        <Td
                           colSpan={types.length + 1}
                           className="py-3 text-center text-[12px] text-[var(--st-text-secondary)]"
                         >
                           No permissions in this module.
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ) : (
                       g.permissions.map((p) => {
                         const activeType = grants.get(String(p._id));
                         return (
-                          <ZoruTableRow key={p._id}>
-                            <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                          <Tr key={p._id}>
+                            <Td className="text-[13px] text-[var(--st-text)]">
                               <div>{p.display_name || p.name}</div>
                               <div className="text-[12px] text-[var(--st-text-secondary)]">
                                 <code>{p.name}</code>
                               </div>
-                            </ZoruTableCell>
+                            </Td>
                             {types.map((t) => {
                               const checked = activeType === String(t._id);
                               return (
-                                <ZoruTableCell key={t._id} className="text-center">
+                                <Td key={t._id} className="text-center">
                                   <input
                                     type="checkbox"
                                     className="h-4 w-4 cursor-pointer accent-[var(--st-text)]"
@@ -396,16 +381,16 @@ export default function RoleDetailPage() {
                                     }
                                     aria-label={`${p.name} — ${t.name}`}
                                   />
-                                </ZoruTableCell>
+                                </Td>
                               );
                             })}
-                          </ZoruTableRow>
+                          </Tr>
                         );
                       })
                     )}
                   </React.Fragment>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
         </div>

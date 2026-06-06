@@ -2,22 +2,7 @@ import * as React from 'react';
 import { Suspense } from 'react';
 
 import { listSabpracticeTimeLogs } from '@/app/actions/sabpractice.actions';
-import {
-    Badge,
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    EmptyState,
-    PageHeader,
-    StatCard,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, PageHeader, StatCard, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import { LogTimeForm } from './_components/log-time-form';
 
@@ -93,31 +78,31 @@ async function TimeData() {
                 </CardHeader>
                 <CardContent>
                     <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Day</TableHead>
-                                <TableHead>Hours</TableHead>
-                                <TableHead>Billable</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                        <THead>
+                            <Tr>
+                                <Th>Day</Th>
+                                <Th>Hours</Th>
+                                <Th>Billable</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {days.map((d) => {
                                 const t = dayTotals.get(d.key) ?? { hours: 0, billable: 0 };
                                 return (
-                                    <TableRow key={d.key}>
-                                        <TableCell>
+                                    <Tr key={d.key}>
+                                        <Td>
                                             {d.date.toLocaleDateString(undefined, {
                                                 weekday: 'short',
                                                 month: 'short',
                                                 day: 'numeric',
                                             })}
-                                        </TableCell>
-                                        <TableCell>{t.hours.toFixed(2)}</TableCell>
-                                        <TableCell>{t.billable.toFixed(2)}</TableCell>
-                                    </TableRow>
+                                        </Td>
+                                        <Td>{t.hours.toFixed(2)}</Td>
+                                        <Td>{t.billable.toFixed(2)}</Td>
+                                    </Tr>
                                 );
                             })}
-                        </TableBody>
+                        </TBody>
                     </Table>
                 </CardContent>
             </Card>
@@ -134,34 +119,34 @@ async function TimeData() {
                         />
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Task</TableHead>
-                                    <TableHead>Hours</TableHead>
-                                    <TableHead>Notes</TableHead>
-                                    <TableHead>Billable</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Date</Th>
+                                    <Th>Task</Th>
+                                    <Th>Hours</Th>
+                                    <Th>Notes</Th>
+                                    <Th>Billable</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {list.items.map((tl) => (
-                                    <TableRow key={tl._id}>
-                                        <TableCell>
+                                    <Tr key={tl._id}>
+                                        <Td>
                                             {new Date(tl.date).toLocaleDateString()}
-                                        </TableCell>
-                                        <TableCell className="font-mono text-xs">
+                                        </Td>
+                                        <Td className="font-mono text-xs">
                                             {tl.taskId.slice(-6)}
-                                        </TableCell>
-                                        <TableCell>{tl.hours.toFixed(2)}</TableCell>
-                                        <TableCell className="text-sm text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td>{tl.hours.toFixed(2)}</Td>
+                                        <Td className="text-sm text-[var(--st-text-secondary)]">
                                             {tl.notes ?? '—'}
-                                        </TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>
                                             {tl.billable ? <Badge>billable</Badge> : '—'}
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>

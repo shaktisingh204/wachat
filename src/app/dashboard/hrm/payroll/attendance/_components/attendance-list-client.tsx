@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <AttendanceListClient> — canonical Attendance list view per §1D.
  *
@@ -89,7 +89,7 @@ export function AttendanceListClient({
   kpi,
   error,
 }: AttendanceListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [view, setView] = React.useState<AttendanceViewMode>('table');
 

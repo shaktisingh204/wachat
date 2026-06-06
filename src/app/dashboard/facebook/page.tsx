@@ -1,35 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -200,16 +171,16 @@ function PostItemCard({ post }: { post: FacebookPost }) {
           {post.message || "Media Post"}
         </p>
         <DropdownMenu>
-          <ZoruDropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon-sm" aria-label="Post actions">
               <MoreHorizontal />
             </Button>
-          </ZoruDropdownMenuTrigger>
-          <ZoruDropdownMenuContent align="end">
-            <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
-            <ZoruDropdownMenuSeparator />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
             {post.permalink_url ? (
-              <ZoruDropdownMenuItem asChild>
+              <DropdownMenuItem asChild>
                 <a
                   href={post.permalink_url}
                   target="_blank"
@@ -217,22 +188,22 @@ function PostItemCard({ post }: { post: FacebookPost }) {
                 >
                   <ArrowRight /> View on Facebook
                 </a>
-              </ZoruDropdownMenuItem>
+              </DropdownMenuItem>
             ) : null}
-            <ZoruDropdownMenuItem onSelect={copyLink}>
+            <DropdownMenuItem onSelect={copyLink}>
               <Share2 /> Copy link
-            </ZoruDropdownMenuItem>
-            <ZoruDropdownMenuItem asChild>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link href="/dashboard/facebook/posts">
                 <Edit /> Edit post
               </Link>
-            </ZoruDropdownMenuItem>
-            <ZoruDropdownMenuItem asChild>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link href="/dashboard/facebook/insights">
                 <TrendingUp /> Insights
               </Link>
-            </ZoruDropdownMenuItem>
-          </ZoruDropdownMenuContent>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
       </div>
       {post.full_picture ? (
@@ -278,11 +249,11 @@ function CommentItemCard({ comment }: { comment: FacebookComment }) {
     <Card className="p-3">
       <div className="flex items-start gap-3">
         <Avatar className="h-9 w-9">
-          <ZoruAvatarImage
+          <AvatarImage
             src={`https://graph.facebook.com/${comment.from.id}/picture`}
             alt={comment.from.name}
           />
-          <ZoruAvatarFallback>{comment.from.name.charAt(0)}</ZoruAvatarFallback>
+          <AvatarFallback>{comment.from.name.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
@@ -524,15 +495,15 @@ function FacebookOverviewContent() {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Meta Suite</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Meta Suite</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
         <div className="mt-6">
           <EmptyState
@@ -557,21 +528,21 @@ function FacebookOverviewContent() {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard/facebook/all-projects">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard/facebook/all-projects">
                 Meta Suite
-              </ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Connection issue</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Connection issue</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
         <div className="mt-6 flex justify-center">
           <Card className="max-w-xl p-6 text-center">
@@ -588,8 +559,8 @@ function FacebookOverviewContent() {
               <div className="mt-4 text-left">
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <ZoruAlertTitle>Error from Meta</ZoruAlertTitle>
-                  <ZoruAlertDescription>{firstError}</ZoruAlertDescription>
+                  <AlertTitle>Error from Meta</AlertTitle>
+                  <AlertDescription>{firstError}</AlertDescription>
                 </Alert>
               </div>
             ) : null}
@@ -635,30 +606,30 @@ function FacebookOverviewContent() {
 
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard/facebook/all-projects">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard/facebook/all-projects">
                 Meta Suite
-              </ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>{pageDetails.name}</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{pageDetails.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
 
         <PageHeader className="mt-5" bordered={false}>
-          <ZoruPageHeading>
+          <PageHeading>
             <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
               Page overview
             </p>
             <div className="flex items-center gap-3">
-              <ZoruPageTitle>{pageDetails.name}</ZoruPageTitle>
+              <PageTitle>{pageDetails.name}</PageTitle>
               {activeProject?.wabaId ? (
                 <span
                   title="WhatsApp linked"
@@ -676,10 +647,10 @@ function FacebookOverviewContent() {
                 </span>
               ) : null}
             </div>
-            <ZoruPageDescription>
+            <PageDescription>
               Followers, engagement and the latest activity across this Page.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
 
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -687,17 +658,17 @@ function FacebookOverviewContent() {
               <Input placeholder="Search posts…" className="h-9 w-56 pl-8" />
             </div>
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <SlidersHorizontal /> Filters
                 </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent align="end">
-                <ZoruDropdownMenuLabel>Filter posts</ZoruDropdownMenuLabel>
-                <ZoruDropdownMenuItem>Image posts</ZoruDropdownMenuItem>
-                <ZoruDropdownMenuItem>Video posts</ZoruDropdownMenuItem>
-                <ZoruDropdownMenuItem>Text posts</ZoruDropdownMenuItem>
-              </ZoruDropdownMenuContent>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Filter posts</DropdownMenuLabel>
+                <DropdownMenuItem>Image posts</DropdownMenuItem>
+                <DropdownMenuItem>Video posts</DropdownMenuItem>
+                <DropdownMenuItem>Text posts</DropdownMenuItem>
+              </DropdownMenuContent>
             </DropdownMenu>
             <Button asChild size="sm">
               <Link href="/dashboard/facebook/create-post">
@@ -711,10 +682,10 @@ function FacebookOverviewContent() {
           <div className="mt-5">
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <ZoruAlertTitle>Notice</ZoruAlertTitle>
-              <ZoruAlertDescription>
+              <AlertTitle>Notice</AlertTitle>
+              <AlertDescription>
                 We had trouble loading some data: {firstError}
-              </ZoruAlertDescription>
+              </AlertDescription>
             </Alert>
           </div>
         ) : null}

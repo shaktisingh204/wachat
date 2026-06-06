@@ -6,26 +6,7 @@ import { format, isValid, parseISO } from 'date-fns';
 import Papa from 'papaparse';
 import { Download, ChevronDown, SlidersHorizontal, LoaderCircle } from "lucide-react";
 
-import {
-  Button,
-  Card,
-  DatePicker,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Label,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, DatePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Popover, PopoverContent, PopoverTrigger, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { generateProfitAndLossData } from "@/app/actions/crm-accounting.actions";
 
@@ -47,7 +28,7 @@ export function PnlClient({ initialData, initialStartDate, initialEndDate }: Pnl
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
 
     const [startDate, setStartDate] = useState<Date | undefined>(initialStartDate);
@@ -111,13 +92,13 @@ export function PnlClient({ initialData, initialStartDate, initialEndDate }: Pnl
                 subtitle="An overview of your business's profitability."
                 primaryAction={
                     <Popover>
-                        <ZoruPopoverTrigger asChild>
+                        <PopoverTrigger asChild>
                             <Button variant="outline">
                                 <SlidersHorizontal className="mr-2 h-4 w-4" />
                                 Filters
                             </Button>
-                        </ZoruPopoverTrigger>
-                        <ZoruPopoverContent className="w-80 space-y-4" align="end">
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 space-y-4" align="end">
                             <div className="space-y-2">
                                 <Label>Start Date</Label>
                                 <DatePicker value={startDate} onChange={setStartDate} />
@@ -132,7 +113,7 @@ export function PnlClient({ initialData, initialStartDate, initialEndDate }: Pnl
                                     Apply Filters
                                 </Button>
                             </div>
-                        </ZoruPopoverContent>
+                        </PopoverContent>
                     </Popover>
                 }
             >
@@ -151,13 +132,13 @@ export function PnlClient({ initialData, initialStartDate, initialEndDate }: Pnl
             subtitle="An overview of your business's profitability."
             primaryAction={
                 <Popover>
-                    <ZoruPopoverTrigger asChild>
+                    <PopoverTrigger asChild>
                         <Button variant="outline">
                             <SlidersHorizontal className="mr-2 h-4 w-4" />
                             Filters
                         </Button>
-                    </ZoruPopoverTrigger>
-                    <ZoruPopoverContent className="w-80 space-y-4" align="end">
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 space-y-4" align="end">
                         <div className="space-y-2">
                             <Label>Start Date</Label>
                             <DatePicker value={startDate} onChange={setStartDate} />
@@ -172,7 +153,7 @@ export function PnlClient({ initialData, initialStartDate, initialEndDate }: Pnl
                                 Apply Filters
                             </Button>
                         </div>
-                    </ZoruPopoverContent>
+                    </PopoverContent>
                 </Popover>
             }
         >
@@ -205,37 +186,37 @@ export function PnlClient({ initialData, initialStartDate, initialEndDate }: Pnl
                     <div className="p-6 pb-4 flex justify-between items-center border-b border-[var(--st-border)]">
                         <h3 className="font-medium text-sm">Account Breakdown</h3>
                         <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm">
                                     <Download className="mr-2 h-4 w-4" />
                                     Download As
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                                <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV Document</ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem disabled>Excel Spreadsheet (XLS)</ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem disabled>PDF Document</ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV Document</DropdownMenuItem>
+                                <DropdownMenuItem disabled>Excel Spreadsheet (XLS)</DropdownMenuItem>
+                                <DropdownMenuItem disabled>PDF Document</DropdownMenuItem>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                     <div className="overflow-x-auto">
                         <Table>
-                            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50">
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Accounts</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Amount</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">% of Total</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead className="bg-[var(--st-bg-muted)]/50">
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">Accounts</Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">Amount</Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">% of Total</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {entries.map((entry: any, index: number) => (
-                                    <ZoruTableRow key={index} className={`border-[var(--st-border)] ${entry.isMain ? 'bg-[var(--st-bg-muted)]/50 font-semibold' : ''}`}>
-                                        <ZoruTableCell className="text-[var(--st-text)] pl-6">{index + 1}. {entry.account}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">₹{entry.amount.toFixed(2)}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)] pr-6">{summary.totalIncome > 0 ? ((entry.amount / summary.totalIncome) * 100).toFixed(2) : '0.00'}%</ZoruTableCell>
-                                    </ZoruTableRow>
+                                    <Tr key={index} className={`border-[var(--st-border)] ${entry.isMain ? 'bg-[var(--st-bg-muted)]/50 font-semibold' : ''}`}>
+                                        <Td className="text-[var(--st-text)] pl-6">{index + 1}. {entry.account}</Td>
+                                        <Td className="text-right font-mono text-[var(--st-text)]">₹{entry.amount.toFixed(2)}</Td>
+                                        <Td className="text-right font-mono text-[var(--st-text)] pr-6">{summary.totalIncome > 0 ? ((entry.amount / summary.totalIncome) * 100).toFixed(2) : '0.00'}%</Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </Card>

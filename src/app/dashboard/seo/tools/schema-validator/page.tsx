@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Textarea, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 import { validateSchema } from './validator';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -34,9 +34,9 @@ export default function SchemaValidatorPage() {
   return (
     <ToolShell title="Schema Validator" description="Validate and inspect JSON-LD structured data.">
       <Textarea value={raw} onChange={(e) => setRaw(e.target.value)} placeholder="Paste JSON-LD or <script> tag…" className="min-h-[240px] font-mono text-xs" />
-      {result?.ok === false && <Card className="border-[var(--st-border)]"><ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{result.error}</ZoruCardContent></Card>}
+      {result?.ok === false && <Card className="border-[var(--st-border)]"><CardBody className="p-4 text-[var(--st-text)] text-sm">{result.error}</CardBody></Card>}
       {result?.ok && (
-        <Card><ZoruCardContent className="p-4 space-y-4">
+        <Card><CardBody className="p-4 space-y-4">
           <div className="space-y-2">
             <div className="text-sm"><span className="font-semibold">@context:</span> {result.parsed['@context'] || <span className="text-[var(--st-text-secondary)]">—</span>}</div>
             <div className="text-sm"><span className="font-semibold">@type:</span> {result.parsed['@type'] || <span className="text-[var(--st-text-secondary)]">—</span>}</div>
@@ -73,7 +73,7 @@ export default function SchemaValidatorPage() {
           )}
 
           <pre className="text-xs bg-[var(--st-bg-muted)] p-3 rounded overflow-auto">{JSON.stringify(result.parsed, null, 2)}</pre>
-        </ZoruCardContent></Card>
+        </CardBody></Card>
       )}
     </ToolShell>
   );

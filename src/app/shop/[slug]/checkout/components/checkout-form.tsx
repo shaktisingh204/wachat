@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui/compat';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -177,8 +169,8 @@ export function CheckoutForm({ currency }: { currency: string }) {
             </div>
             <div>
                 <Card>
-                    <ZoruCardHeader><ZoruCardTitle>Your Order</ZoruCardTitle></ZoruCardHeader>
-                    <ZoruCardContent className="space-y-4">
+                    <CardHeader><CardTitle>Your Order</CardTitle></CardHeader>
+                    <CardBody className="space-y-4">
                         {cart.length === 0 ? (
                           <div className="text-sm text-[var(--st-text-secondary)] text-center py-4">Your cart is empty</div>
                         ) : (
@@ -194,7 +186,7 @@ export function CheckoutForm({ currency }: { currency: string }) {
                             <span>Total</span>
                             <span>{formatPrice(cartTotal, currency)}</span>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

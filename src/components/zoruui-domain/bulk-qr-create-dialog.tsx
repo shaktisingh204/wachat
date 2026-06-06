@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 
@@ -21,19 +12,19 @@ export function BulkCreateQrDialog() {
   
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="outline" disabled>
             <Upload className="mr-2 h-4 w-4" />
             Bulk Create
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Bulk QR Code Creation</ZoruDialogTitle>
-            <ZoruDialogDescription>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Bulk QR Code Creation</DialogTitle>
+            <DialogDescription>
               Create multiple QR codes at once by uploading a file.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="py-6">
             <Alert>
               <AlertTitle>Coming Soon!</AlertTitle>
@@ -42,10 +33,10 @@ export function BulkCreateQrDialog() {
               </AlertDescription>
             </Alert>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Close</Button>
-          </ZoruDialogFooter>
-      </ZoruDialogContent>
+          </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

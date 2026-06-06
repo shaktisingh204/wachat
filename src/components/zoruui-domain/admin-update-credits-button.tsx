@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -47,20 +36,20 @@ export function AdminUpdateCreditsButton({ projectId, currentCredits }: AdminUpd
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="ghost" size="sm">
           <Edit className="mr-2 h-4 w-4" />
           Credits
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Update User Credits</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Update User Credits</DialogTitle>
+            <DialogDescription>
               Set a new credit balance for this user.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="py-6">
             <Label htmlFor="credits-input">New Credit Balance</Label>
             <Input
@@ -71,15 +60,15 @@ export function AdminUpdateCreditsButton({ projectId, currentCredits }: AdminUpd
               required
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
              <Button type="submit" disabled={isPending}>
               {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Save Credits
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

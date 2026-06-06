@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, FetchUrlResult } from '@/lib/seo-tools/api-client';
@@ -106,9 +106,9 @@ export default function PageSizeCheckerPage() {
 
       {error && (
         <Card className="border-[var(--st-border)]">
-          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">
+          <CardBody className="p-4 text-[var(--st-text)] text-sm">
             {error}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
@@ -116,10 +116,10 @@ export default function PageSizeCheckerPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-pulse">
           {[...Array(4)].map((_, i) => (
             <Card key={i}>
-              <ZoruCardContent className="p-4 flex flex-col gap-2">
+              <CardBody className="p-4 flex flex-col gap-2">
                 <div className="h-8 bg-[var(--st-bg-muted)] rounded w-1/2"></div>
                 <div className="h-4 bg-[var(--st-bg-muted)] rounded w-1/3"></div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ))}
         </div>
@@ -138,15 +138,15 @@ export default function PageSizeCheckerPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card>
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <div className={cn("text-2xl font-bold", res.status >= 400 ? 'text-[var(--st-text)]' : (res.status >= 300 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'))}>
                   {res.status}
                 </div>
                 <div className="text-xs text-[var(--st-text-secondary)]">HTTP Status</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <div className={cn("text-2xl font-bold", sizeColor)}>
                   {formatBytes(res.bytes)}
                 </div>
@@ -154,26 +154,26 @@ export default function PageSizeCheckerPage() {
                   <span>Size</span>
                   <span className={sizeColor}>{sizeStatus}</span>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <div className="text-sm font-bold truncate mt-1 mb-2" title={res.contentType || '—'}>
                   {res.contentType || '—'}
                 </div>
                 <div className="text-xs text-[var(--st-text-secondary)]">Content-Type</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <div className="text-2xl font-bold">{res.redirectChain.length}</div>
                 <div className="text-xs text-[var(--st-text-secondary)]">Redirection Hops</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
 
           <Card>
-            <ZoruCardContent className="p-6">
+            <CardBody className="p-6">
               <h3 className="text-lg font-semibold mb-4">Size Breakdown</h3>
               <div className="space-y-4">
                 <div>
@@ -189,14 +189,14 @@ export default function PageSizeCheckerPage() {
                   Note: The current API returns only the raw HTML document size. Embedded resources (images, external CSS/JS) are not included in this breakdown.
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       )}
 
       {history.length > 0 && !loading && !res && (
         <Card className="mt-8">
-          <ZoruCardContent className="p-6">
+          <CardBody className="p-6">
             <h3 className="text-lg font-semibold mb-4">Recent Checks</h3>
             <div className="space-y-2">
               {history.map((h, i) => (
@@ -218,7 +218,7 @@ export default function PageSizeCheckerPage() {
                 </div>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

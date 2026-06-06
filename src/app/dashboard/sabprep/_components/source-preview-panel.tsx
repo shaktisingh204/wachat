@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
 import type { Row } from '@/lib/rust-client/sabprep-steps';
 
 const ROW_LIMIT = 50;
@@ -15,12 +15,12 @@ export function SourcePreviewPanel({ rows }: { rows: Row[] }) {
 
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle className="text-sm">
+            <CardHeader>
+                <CardTitle className="text-sm">
                     Source preview · {rows.length} rows
-                </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
                 {cols.length === 0 ? (
                     <p className="text-xs opacity-60">
                         Pick a dataset or upload a CSV to begin.
@@ -54,7 +54,7 @@ export function SourcePreviewPanel({ rows }: { rows: Row[] }) {
                         </table>
                     </div>
                 )}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

@@ -1,25 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-  Switch,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -138,11 +119,11 @@ export function BotDetailDrawer({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <ZoruSheetContent
+            <SheetContent
                 side="right"
                 className="flex w-full max-w-[640px] flex-col gap-0 p-0 sm:max-w-[640px]"
             >
-                <ZoruSheetHeader className="border-b border-[var(--st-border)] p-6">
+                <SheetHeader className="border-b border-[var(--st-border)] p-6">
                     <div className="flex items-center gap-3">
                         <div
                             className="flex h-10 w-10 items-center justify-center rounded-xl text-base font-semibold text-white"
@@ -157,10 +138,10 @@ export function BotDetailDrawer({
                                 .toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <ZoruSheetTitle className="truncate text-left text-[16px]">
+                            <SheetTitle className="truncate text-left text-[16px]">
                                 {bot?.name || bot?.username || 'Bot'}
-                            </ZoruSheetTitle>
-                            <ZoruSheetDescription className="text-left">
+                            </SheetTitle>
+                            <SheetDescription className="text-left">
                                 {bot?.username ? (
                                     <a
                                         href={`https://t.me/${bot.username}`}
@@ -178,7 +159,7 @@ export function BotDetailDrawer({
                                         Bot details unavailable
                                     </span>
                                 )}
-                            </ZoruSheetDescription>
+                            </SheetDescription>
                         </div>
                     </div>
                     <nav
@@ -205,7 +186,7 @@ export function BotDetailDrawer({
                             );
                         })}
                     </nav>
-                </ZoruSheetHeader>
+                </SheetHeader>
 
                 <div className="flex-1 overflow-y-auto p-6">
                     {loading ? (
@@ -272,7 +253,7 @@ export function BotDetailDrawer({
                         />
                     )}
                 </div>
-            </ZoruSheetContent>
+            </SheetContent>
         </Sheet>
     );
 }
@@ -940,14 +921,14 @@ function MenuButtonPanel({
                     Menu type
                 </Label>
                 <Select value={type} onValueChange={(v) => setType(v as MenuType)}>
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="default">Default</ZoruSelectItem>
-                        <ZoruSelectItem value="commands">Commands list</ZoruSelectItem>
-                        <ZoruSelectItem value="web_app">Web app</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger>
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="default">Default</SelectItem>
+                        <SelectItem value="commands">Commands list</SelectItem>
+                        <SelectItem value="web_app">Web app</SelectItem>
+                    </SelectContent>
                 </Select>
             </div>
 
@@ -1289,13 +1270,13 @@ function AdminRightsPanel({
                     value={forChannels ? 'channel' : 'group'}
                     onValueChange={(v) => setForChannels(v === 'channel')}
                 >
-                    <ZoruSelectTrigger className="max-w-[200px]">
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="group">Groups</ZoruSelectItem>
-                        <ZoruSelectItem value="channel">Channels</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger className="max-w-[200px]">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="group">Groups</SelectItem>
+                        <SelectItem value="channel">Channels</SelectItem>
+                    </SelectContent>
                 </Select>
             </div>
 

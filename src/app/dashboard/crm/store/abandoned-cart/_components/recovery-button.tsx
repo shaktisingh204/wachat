@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { useTransition } from 'react';
 import { Send } from 'lucide-react';
 
@@ -14,7 +14,7 @@ import { Send } from 'lucide-react';
 import { dispatchRecoveryEmail } from '@/app/actions/crm-store.actions';
 
 export function RecoveryButton({ cartId }: { cartId: string }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [pending, startTransition] = useTransition();
 
     return (

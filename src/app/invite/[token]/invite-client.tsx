@@ -14,7 +14,7 @@ import {
     LuX,
 } from 'react-icons/lu';
 
-import { Badge, Button, Card, type ZoruBadgeProps } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, type BadgeProps } from '@/components/sabcrm/20ui/compat';
 import { useToast } from '@/hooks/use-toast';
 import {
     acceptInvitation,
@@ -49,7 +49,7 @@ export function InviteClient({
 
     const expiresIn = React.useMemo(() => formatExpiresIn(invitation.expiresAt), [invitation.expiresAt]);
 
-    const statusTone: Record<InvitationView['status'], NonNullable<ZoruBadgeProps['tone']>> = {
+    const statusTone: Record<InvitationView['status'], NonNullable<BadgeProps['tone']>> = {
         pending: 'amber',
         accepted: 'green',
         expired: 'red',
@@ -184,7 +184,7 @@ function HeaderSection({
     statusTone,
 }: {
     invitation: InvitationView;
-    statusTone: Record<InvitationView['status'], NonNullable<ZoruBadgeProps['tone']>>;
+    statusTone: Record<InvitationView['status'], NonNullable<BadgeProps['tone']>>;
 }) {
     return (
         <>

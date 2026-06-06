@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast, Select } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -8,7 +8,7 @@ import {
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 
-import { ZoruDatePicker as DatePicker } from '@/components/sabcrm/20ui/compat';
+import { DatePicker } from '@/components/sabcrm/20ui/compat';
 import { LoaderCircle, Save } from 'lucide-react';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { updatePaymentReceipt } from '@/app/actions/crm-payment-receipts.actions';
@@ -32,7 +32,7 @@ interface EditReceiptFormProps {
 
 export function EditReceiptForm({ receipt }: EditReceiptFormProps) {
     const [state, formAction] = useActionState(updatePaymentReceipt, initialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
 
     const [bankAccountId, setBankAccountId] = useState<string>(

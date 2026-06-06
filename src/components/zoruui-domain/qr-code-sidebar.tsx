@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Separator,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Separator, cn } from '@/components/sabcrm/20ui/compat';
 import { Filter, Search } from 'lucide-react';
 
 export type SortKey = 'newest' | 'oldest' | 'name-asc' | 'name-desc';

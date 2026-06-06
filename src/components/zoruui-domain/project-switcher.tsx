@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Button,
-  Avatar,
-  ZoruAvatarFallback,
-  Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Button, Avatar, AvatarFallback, Switch } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -50,28 +39,28 @@ export function ProjectSwitcher() {
 
     return (
         <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="w-full justify-start h-auto p-2">
                     <div className="flex items-center gap-2 w-full">
                         <Avatar className="h-8 w-8">
-                           <ZoruAvatarFallback><WhatsAppIcon className="h-5 w-5"/></ZoruAvatarFallback>
+                           <AvatarFallback><WhatsAppIcon className="h-5 w-5"/></AvatarFallback>
                         </Avatar>
                         <span className="truncate flex-1 text-left font-semibold">{activeProject.name}</span>
                         <ChevronsUpDown className="h-4 w-4 opacity-50 flex-shrink-0" />
                     </div>
                 </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)]">
-                <ZoruDropdownMenuLabel>Switch Project</ZoruDropdownMenuLabel>
-                <ZoruDropdownMenuSeparator />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)]">
+                <DropdownMenuLabel>Switch Project</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 {projects.map(project => (
-                    <ZoruDropdownMenuItem key={project._id.toString()} onSelect={() => handleSelectProject(project)}>
+                    <DropdownMenuItem key={project._id.toString()} onSelect={() => handleSelectProject(project)}>
                          <WhatsAppIcon className="mr-2 h-4 w-4" />
                         <span className="truncate">{project.name}</span>
                         {project._id.toString() === activeProject._id.toString() && <Check className="ml-auto h-4 w-4" />}
-                    </ZoruDropdownMenuItem>
+                    </DropdownMenuItem>
                 ))}
-            </ZoruDropdownMenuContent>
+            </DropdownMenuContent>
         </DropdownMenu>
     );
 }

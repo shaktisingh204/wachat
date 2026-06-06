@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ZoruAlert, ZoruAlertTitle, ZoruAlertDescription, ZoruButton } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertTitle, AlertDescription, Button } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -20,18 +20,18 @@ export default function ProductError({
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <ZoruAlert variant="destructive">
+      <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>Failed to load product</ZoruAlertTitle>
-        <ZoruAlertDescription>
+        <AlertTitle>Failed to load product</AlertTitle>
+        <AlertDescription>
           {error.message || 'An unexpected error occurred while loading this product.'}
-        </ZoruAlertDescription>
-      </ZoruAlert>
+        </AlertDescription>
+      </Alert>
       <div className="flex gap-4">
-        <ZoruButton onClick={() => reset()}>Try again</ZoruButton>
-        <ZoruButton variant="outline" onClick={() => router.push('/dashboard/crm/products')}>
+        <Button onClick={() => reset()}>Try again</Button>
+        <Button variant="outline" onClick={() => router.push('/dashboard/crm/products')}>
           Back to Products
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -109,10 +109,10 @@ export default async function PortalDetailPage({ params }: PageProps) {
       rightRail={
         <>
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Status</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Status</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--st-text-secondary)]">Status</span>
@@ -129,14 +129,14 @@ export default async function PortalDetailPage({ params }: PageProps) {
                   <span>{user.activeSessions ?? 0}</span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Linked entity</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Linked entity</CardTitle>
+            </CardHeader>
+            <CardBody>
               {user.linkedEntityId ? (
                 <Link
                   href={
@@ -153,27 +153,27 @@ export default async function PortalDetailPage({ params }: PageProps) {
                   Not linked
                 </span>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Last invite</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Last invite</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="text-[12.5px] text-[var(--st-text)]">
                 {fmtDateTime(user.lastMagicLinkAt)}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </>
       }
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Name" value={user.name || '—'} />
             <Field label="Email" value={user.email || '—'} />
@@ -188,14 +188,14 @@ export default async function PortalDetailPage({ params }: PageProps) {
               value={fmtDateTime(user.suspendedAt)}
             />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Capabilities</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Capabilities</CardTitle>
+        </CardHeader>
+        <CardBody>
           {capabilities.length === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">
               No capabilities granted.
@@ -209,14 +209,14 @@ export default async function PortalDetailPage({ params }: PageProps) {
               ))}
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Login history</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Login history</CardTitle>
+        </CardHeader>
+        <CardBody>
           {loginHistory.length === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">
               {/* TODO 1D.2: portal login-history collection not yet wired */}
@@ -249,14 +249,14 @@ export default async function PortalDetailPage({ params }: PageProps) {
               </tbody>
             </table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Linked entity</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Linked entity</CardTitle>
+        </CardHeader>
+        <CardBody>
           {user.linkedEntityId ? (
             <Link
               href={
@@ -274,19 +274,19 @@ export default async function PortalDetailPage({ params }: PageProps) {
               or vendor.
             </p>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {user.notes ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Notes</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Notes</CardTitle>
+          </CardHeader>
+          <CardBody>
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {user.notes}
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </EntityDetailShell>

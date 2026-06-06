@@ -1,30 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  Checkbox,
-  ZoruEmptyState,
-  Input,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Checkbox, EmptyState, Input, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   CheckCheck,
   CheckSquare,
@@ -95,7 +71,7 @@ function sortChats(chats: SabwaChat[], mode: SortMode): SabwaChat[] {
 }
 
 export default function SabWaChatsPage() {
-  const toast = useZoruToast();
+  const toast = useToast();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? null;
   const resolve = useResolveJid(sessionId);
@@ -221,22 +197,22 @@ export default function SabWaChatsPage() {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 sm:px-6">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Chats</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Chats</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
         <div className="mt-6">
-          <ZoruEmptyState
+          <EmptyState
             icon={<Smartphone />}
             title="No active WhatsApp account"
             description="Pick a connected account on the SabWa overview to start using this page."
@@ -256,19 +232,19 @@ export default function SabWaChatsPage() {
       {/* ── Breadcrumb ─────────────────────────────────────────────── */}
       <div className="shrink-0 border-b border-[var(--st-border)] px-4 py-2 md:px-6">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Chats</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Chats</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
       </div>
 
@@ -356,13 +332,13 @@ export default function SabWaChatsPage() {
           </div>
           <div className="flex items-center gap-2">
             <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
-              <ZoruSelectTrigger className="h-9 flex-1">
-                <ZoruSelectValue placeholder="Sort" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="recent">Recent</ZoruSelectItem>
-                <ZoruSelectItem value="name">Name</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-9 flex-1">
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recent">Recent</SelectItem>
+                <SelectItem value="name">Name</SelectItem>
+              </SelectContent>
             </Select>
             <Button
               type="button"
@@ -535,13 +511,13 @@ function Toolbar({
       </div>
 
       <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
-        <ZoruSelectTrigger className="h-9 w-32">
-          <ZoruSelectValue placeholder="Sort" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
-          <ZoruSelectItem value="recent">Recent</ZoruSelectItem>
-          <ZoruSelectItem value="name">Name</ZoruSelectItem>
-        </ZoruSelectContent>
+        <SelectTrigger className="h-9 w-32">
+          <SelectValue placeholder="Sort" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="recent">Recent</SelectItem>
+          <SelectItem value="name">Name</SelectItem>
+        </SelectContent>
       </Select>
 
       <Button
@@ -618,7 +594,7 @@ function BulkFooter({
         Archive
       </Button>
       <Popover>
-        <ZoruPopoverTrigger asChild>
+        <PopoverTrigger asChild>
           <Button
             type="button"
             size="sm"
@@ -629,8 +605,8 @@ function BulkFooter({
             <BellOff className="mr-1.5 h-3.5 w-3.5" />
             Mute
           </Button>
-        </ZoruPopoverTrigger>
-        <ZoruPopoverContent align="end" className="w-44 p-1">
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-44 p-1">
           <ul className="flex flex-col">
             {MUTE_DURATIONS.map((d) => (
               <li key={d.label}>
@@ -646,10 +622,10 @@ function BulkFooter({
               </li>
             ))}
           </ul>
-        </ZoruPopoverContent>
+        </PopoverContent>
       </Popover>
       <Popover>
-        <ZoruPopoverTrigger asChild>
+        <PopoverTrigger asChild>
           <Button
             type="button"
             size="sm"
@@ -660,8 +636,8 @@ function BulkFooter({
             <TagIcon className="mr-1.5 h-3.5 w-3.5" />
             Add label
           </Button>
-        </ZoruPopoverTrigger>
-        <ZoruPopoverContent align="end" className="w-56 p-1">
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-56 p-1">
           {labels.length === 0 ? (
             <p className="px-2 py-2 text-xs text-[var(--st-text-secondary)]">
               No labels yet. Create one in Labels.
@@ -686,7 +662,7 @@ function BulkFooter({
               ))}
             </ul>
           )}
-        </ZoruPopoverContent>
+        </PopoverContent>
       </Popover>
     </footer>
   );
@@ -722,7 +698,7 @@ function EmptyState({
   const isFiltered = Boolean(query) || filter !== "all";
   return (
     <div className="m-4">
-      <ZoruEmptyState
+      <EmptyState
         icon={<MessageSquare />}
         title={isFiltered ? "No matching chats" : "No individual chats yet"}
         description={
@@ -754,7 +730,7 @@ function ErrorState({
 }) {
   return (
     <Card className="m-4 border-[var(--st-danger)]/50">
-      <ZoruCardContent className="flex flex-col items-start gap-2 py-6">
+      <CardBody className="flex flex-col items-start gap-2 py-6">
         <p className="text-sm font-semibold text-[var(--st-danger)]">
           Couldn’t load chats
         </p>
@@ -762,7 +738,7 @@ function ErrorState({
         <Button type="button" size="sm" variant="outline" onClick={onRetry}>
           Retry
         </Button>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,27 +1,6 @@
 "use client";
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Switch,
-  Textarea,
-  useZoruToast,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Switch, Textarea, useToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useMemo,
@@ -73,7 +52,7 @@ export function ZoruSabChatWidgetGenerator({
     saveSabChatSettings,
     initialState,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [showWidget, setShowWidget] = useState(false);
   const [activeTab, setActiveTab] = useState<'design' | 'pre-chat' | 'advanced'>('design');
 
@@ -154,20 +133,20 @@ export function ZoruSabChatWidgetGenerator({
           name="settings"
           value={JSON.stringify(settings)}
         />
-        <ZoruCardHeader>
+        <CardHeader>
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
               <Code className="h-4 w-4" />
             </span>
             <div>
-              <ZoruCardTitle>Widget configuration</ZoruCardTitle>
-              <ZoruCardDescription>
+              <CardTitle>Widget configuration</CardTitle>
+              <CardDescription>
                 Customize and install the live chat widget on your website.
-              </ZoruCardDescription>
+              </CardDescription>
             </div>
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           <div className="flex flex-col gap-8 lg:flex-row">
             {/* Sidebar Navigation */}
             <div className="flex flex-row lg:flex-col gap-2 w-full lg:w-48 shrink-0 border-b lg:border-b-0 lg:border-r border-[var(--st-border)] pb-4 lg:pb-0 lg:pr-4 overflow-x-auto">
@@ -244,13 +223,13 @@ export function ZoruSabChatWidgetGenerator({
                         value={settings.widgetPosition}
                         onValueChange={(v) => handleSettingChange("widgetPosition", v)}
                       >
-                        <ZoruSelectTrigger>
-                          <ZoruSelectValue placeholder="Position" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                          <ZoruSelectItem value="left">Left</ZoruSelectItem>
-                          <ZoruSelectItem value="right">Right</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Position" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="left">Left</SelectItem>
+                          <SelectItem value="right">Right</SelectItem>
+                        </SelectContent>
                       </Select>
                     </div>
 
@@ -260,14 +239,14 @@ export function ZoruSabChatWidgetGenerator({
                         value={settings.darkMode}
                         onValueChange={(v) => handleSettingChange("darkMode", v)}
                       >
-                        <ZoruSelectTrigger>
-                          <ZoruSelectValue placeholder="Theme" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                          <ZoruSelectItem value="light">Light</ZoruSelectItem>
-                          <ZoruSelectItem value="dark">Dark</ZoruSelectItem>
-                          <ZoruSelectItem value="auto">Auto (System)</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Theme" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="light">Light</SelectItem>
+                          <SelectItem value="dark">Dark</SelectItem>
+                          <SelectItem value="auto">Auto (System)</SelectItem>
+                        </SelectContent>
                       </Select>
                     </div>
 
@@ -457,11 +436,11 @@ export function ZoruSabChatWidgetGenerator({
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10 border-2 border-white/20">
                               {settings.avatarUrl && (
-                                <ZoruAvatarImage src={settings.avatarUrl} />
+                                <AvatarImage src={settings.avatarUrl} />
                               )}
-                              <ZoruAvatarFallback className="bg-white/10 text-white">
+                              <AvatarFallback className="bg-white/10 text-white">
                                 {settings.teamName?.charAt(0) || "S"}
-                              </ZoruAvatarFallback>
+                              </AvatarFallback>
                             </Avatar>
                             <div>
                               <h4 className="font-semibold leading-tight">{settings.teamName}</h4>
@@ -476,11 +455,11 @@ export function ZoruSabChatWidgetGenerator({
                         <div className="flex gap-2">
                           <Avatar className="h-6 w-6 mt-1">
                             {settings.avatarUrl && (
-                              <ZoruAvatarImage src={settings.avatarUrl} />
+                              <AvatarImage src={settings.avatarUrl} />
                             )}
-                            <ZoruAvatarFallback className="text-[10px]">
+                            <AvatarFallback className="text-[10px]">
                               {settings.teamName?.charAt(0) || "S"}
-                            </ZoruAvatarFallback>
+                            </AvatarFallback>
                           </Avatar>
                           <div className={`rounded-2xl rounded-tl-sm px-4 py-2 text-sm ${settings.darkMode === 'dark' ? 'bg-[var(--st-text)] text-white' : 'bg-white text-[var(--st-text)]'} shadow-sm`}>
                             {settings.welcomeMessage}
@@ -548,10 +527,10 @@ export function ZoruSabChatWidgetGenerator({
               </div>
             </div>
           </div>
-        </ZoruCardContent>
-        <ZoruCardFooter className="border-t border-[var(--st-border)] pt-6">
+        </CardBody>
+        <CardFooter className="border-t border-[var(--st-border)] pt-6">
           <SubmitButton />
-        </ZoruCardFooter>
+        </CardFooter>
       </form>
     </Card>
   );

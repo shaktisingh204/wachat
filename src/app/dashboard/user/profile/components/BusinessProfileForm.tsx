@@ -3,17 +3,7 @@
 import { useActionState, useEffect } from 'react';
 import { handleUpdateUserProfile } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
-import {
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardFooter,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Input,
-    Label,
-    Button,
-    Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button, Textarea } from '@/components/sabcrm/20ui/compat';
 import { Save, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { UserProfileFormProps, ActionResponse } from './types';
@@ -46,11 +36,11 @@ export function BusinessProfileForm({ user }: UserProfileFormProps) {
             <input type="hidden" name="appRailPosition" value={user.appRailPosition || 'left'} />
             <input type="hidden" name="language" value={user.language || 'en'} />
 
-            <ZoruCardHeader>
-                <ZoruCardTitle>Business Profile</ZoruCardTitle>
-                <ZoruCardDescription>This information will be used in invoices, vouchers, and other accounting documents.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+            <CardHeader>
+                <CardTitle>Business Profile</CardTitle>
+                <CardDescription>This information will be used in invoices, vouchers, and other accounting documents.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="businessName">Business Name</Label>
                     <Input id="businessName" name="businessName" defaultValue={user.businessProfile?.name} />
@@ -69,10 +59,10 @@ export function BusinessProfileForm({ user }: UserProfileFormProps) {
                         <Input id="businessPan" name="businessPan" defaultValue={user.businessProfile?.pan} />
                     </div>
                 </div>
-            </ZoruCardContent>
-            <ZoruCardFooter>
+            </CardBody>
+            <CardFooter>
                 <SubmitButton icon={Save}>Save Business Profile</SubmitButton>
-            </ZoruCardFooter>
+            </CardFooter>
         </form>
     );
 }

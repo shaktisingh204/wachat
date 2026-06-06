@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Input, Label, Textarea, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -88,18 +76,18 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
+            <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     <input type="hidden" name="contactId" value={contact._id.toString()} />
                     <input type="hidden" name="projectId" value={project._id.toString()} />
                     <input type="hidden" name="productRetailerIds" value={selectedProducts.join(',')} />
 
-                    <ZoruDialogHeader className="px-6 pt-6 pb-2">
-                        <ZoruDialogTitle className="flex items-center gap-2"><ShoppingBag />Send Product Catalog</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                    <DialogHeader className="px-6 pt-6 pb-2">
+                        <DialogTitle className="flex items-center gap-2"><ShoppingBag />Send Product Catalog</DialogTitle>
+                        <DialogDescription>
                             Select products to send to {contact.name}. You can send up to 30 items at a time.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
 
                     <div className="flex-1 overflow-y-auto px-6 py-2">
                         <div className="grid gap-6">
@@ -153,12 +141,12 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
                         </div>
                     </div>
 
-                    <ZoruDialogFooter className="px-6 pb-6 pt-2">
+                    <DialogFooter className="px-6 pb-6 pt-2">
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

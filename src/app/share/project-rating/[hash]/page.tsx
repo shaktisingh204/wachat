@@ -9,12 +9,7 @@
 
 import * as React from 'react';
 import { notFound } from 'next/navigation';
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { getPublicProjectRating } from '@/app/actions/public-project-rating.actions';
 import { PublicRatingForm } from './_components/public-rating-form';
 
@@ -31,11 +26,11 @@ async function PublicProjectRatingContainer({ hash }: { hash: string }) {
   return (
     <div className="mx-auto max-w-xl space-y-4">
       <Card>
-        <ZoruCardHeader>
+        <CardHeader>
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
             Project feedback
           </p>
-          <ZoruCardTitle className="mt-1">{project.name}</ZoruCardTitle>
+          <CardTitle className="mt-1">{project.name}</CardTitle>
           {project.clientName ? (
             <p className="mt-1 text-sm text-[var(--st-text)]">
               for {project.clientName}
@@ -45,15 +40,15 @@ async function PublicProjectRatingContainer({ hash }: { hash: string }) {
             Please rate your experience working on this project. Your feedback
             helps us improve.
           </p>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           <PublicRatingForm 
             hash={hash}
             alreadyRated={alreadyRated}
             existingRating={data.existingRating}
             syndicationUrls={project.syndicationUrls}
           />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, LoaderCircle, ShieldCheck } from 'lucide-react';
-import { Button, Badge, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   updatePermissionGroup,
   removeGroupFromEmployee,
@@ -37,7 +37,7 @@ export function ClientPage({
   allEmployees,
 }: ClientPageProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [group, setGroup] = React.useState<HrmPermissionGroup | null>(initialGroup);
   const [assignedEmployees, setAssignedEmployees] = React.useState<AssignedEmployee[]>([]);

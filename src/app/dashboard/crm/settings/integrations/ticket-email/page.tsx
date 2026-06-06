@@ -4,15 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Mail, Inbox, Ticket, ArrowUpRight } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, Label, Switch } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ModuleConnectionWizard,
@@ -176,7 +168,7 @@ export default function TicketEmailPage() {
         steps={steps}
         manageView={({ connection, onReconnect }) => (
           <Card>
-            <ZoruCardContent className="p-6 space-y-4">
+            <CardBody className="p-6 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                 <div>
                   <p className="text-xs text-[var(--st-text-secondary)]">Inbox</p>
@@ -212,7 +204,7 @@ export default function TicketEmailPage() {
                   Edit
                 </Button>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
       />

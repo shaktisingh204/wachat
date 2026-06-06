@@ -2,27 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  Input,
-  Label,
-  Textarea,
-  PageHeader,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  StatCard,
-  Tabs,
-  ZoruTabsList,
-  ZoruTabsTrigger,
-  ZoruTabsContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions, StatCard, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   type Sabwebinar,
@@ -69,14 +49,14 @@ export function SabwebinarDetailClient({
   return (
     <div className="zoruui flex flex-col gap-6 p-6">
       <PageHeader>
-        <ZoruPageTitle>{webinar.title}</ZoruPageTitle>
-        <ZoruPageDescription>
+        <PageTitle>{webinar.title}</PageTitle>
+        <PageDescription>
           <Link href={publicUrl} className="inline-flex items-center gap-1 underline">
             {publicUrl} <ExternalLink className="size-3" />
           </Link>{' '}
           · <Badge variant="secondary">{webinar.status}</Badge>
-        </ZoruPageDescription>
-        <ZoruPageActions>
+        </PageDescription>
+        <PageActions>
           {webinar.status !== 'live' ? (
             <Button onClick={onStart} disabled={busy || webinar.status === 'ended'}>
               <Play className="size-4" /> Start broadcast
@@ -86,54 +66,54 @@ export function SabwebinarDetailClient({
               <StopCircle className="size-4" /> End broadcast
             </Button>
           )}
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <Tabs defaultValue="overview">
-        <ZoruTabsList>
-          <ZoruTabsTrigger value="overview">Overview</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="landing">Landing</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="registrations">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="landing">Landing</TabsTrigger>
+          <TabsTrigger value="registrations">
             Registrations ({registrations.length})
-          </ZoruTabsTrigger>
-          <ZoruTabsTrigger value="live">Live</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="polls">Polls ({polls.length})</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="qna">Q&amp;A ({qna.length})</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="recording">Recording</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="analytics">Analytics</ZoruTabsTrigger>
-        </ZoruTabsList>
+          </TabsTrigger>
+          <TabsTrigger value="live">Live</TabsTrigger>
+          <TabsTrigger value="polls">Polls ({polls.length})</TabsTrigger>
+          <TabsTrigger value="qna">Q&amp;A ({qna.length})</TabsTrigger>
+          <TabsTrigger value="recording">Recording</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
 
-        <ZoruTabsContent value="overview" className="mt-4">
+        <TabsContent value="overview" className="mt-4">
           <OverviewTab webinar={webinar} analytics={analytics} />
-        </ZoruTabsContent>
+        </TabsContent>
 
-        <ZoruTabsContent value="landing" className="mt-4">
+        <TabsContent value="landing" className="mt-4">
           <LandingTab webinar={webinar} />
-        </ZoruTabsContent>
+        </TabsContent>
 
-        <ZoruTabsContent value="registrations" className="mt-4">
+        <TabsContent value="registrations" className="mt-4">
           <RegistrationsTab registrations={registrations} />
-        </ZoruTabsContent>
+        </TabsContent>
 
-        <ZoruTabsContent value="live" className="mt-4">
+        <TabsContent value="live" className="mt-4">
           <LiveTab webinar={webinar} />
-        </ZoruTabsContent>
+        </TabsContent>
 
-        <ZoruTabsContent value="polls" className="mt-4">
+        <TabsContent value="polls" className="mt-4">
           <PollsTab webinarId={webinar._id} polls={polls} />
-        </ZoruTabsContent>
+        </TabsContent>
 
-        <ZoruTabsContent value="qna" className="mt-4">
+        <TabsContent value="qna" className="mt-4">
           <QnaTab items={qna} />
-        </ZoruTabsContent>
+        </TabsContent>
 
-        <ZoruTabsContent value="recording" className="mt-4">
+        <TabsContent value="recording" className="mt-4">
           <RecordingTab webinar={webinar} />
-        </ZoruTabsContent>
+        </TabsContent>
 
-        <ZoruTabsContent value="analytics" className="mt-4">
+        <TabsContent value="analytics" className="mt-4">
           <AnalyticsTab analytics={analytics} />
-        </ZoruTabsContent>
+        </TabsContent>
       </Tabs>
     </div>
   );

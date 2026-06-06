@@ -1,40 +1,6 @@
 'use client';
 
-import {
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Button,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -117,7 +83,7 @@ function countPermissions(permissions: Record<string, unknown>): number {
 function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     const [open, setOpen] = useState(false);
     const [roleName, setRoleName] = useState('');
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
 
     const handleAddRole = () => {
@@ -140,14 +106,14 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button><Plus className="h-4 w-4" strokeWidth={1.75} />Add Role</Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Create New Role</ZoruDialogTitle>
-                    <ZoruDialogDescription>Give your new role a name. You can set its permissions after creating it.</ZoruDialogDescription>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Create New Role</DialogTitle>
+                    <DialogDescription>Give your new role a name. You can set its permissions after creating it.</DialogDescription>
+                </DialogHeader>
                 <div className="py-4">
                     <Label htmlFor="roleName">Role Name</Label>
                     <Input
@@ -157,14 +123,14 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                         className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                     />
                 </div>
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                     <Button onClick={handleAddRole} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         Create Role
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -176,7 +142,7 @@ function DeleteRoleButton({
     role: { id: string; name: string };
     onRoleDeleted: () => void;
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
 
     if (role.id === 'agent') return null;
@@ -194,8 +160,8 @@ function DeleteRoleButton({
     };
 
     return (
-        <ZoruAlertDialog>
-            <ZoruAlertDialogTrigger asChild>
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
                 <Button
                     variant="ghost"
                     size="icon"
@@ -204,23 +170,23 @@ function DeleteRoleButton({
                 >
                     <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                 </Button>
-            </ZoruAlertDialogTrigger>
-            <ZoruAlertDialogContent>
-                <ZoruAlertDialogHeader>
-                    <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
-                    <ZoruAlertDialogDescription>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
                         This will permanently delete the &ldquo;{role.name}&rdquo; role. Team
                         members with this role will lose their special permissions.
-                    </ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                    <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
-                    </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-            </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 }
 
@@ -229,7 +195,7 @@ export default function ManageRolesPage() {
     const [isLoading, startLoading] = useTransition();
     const [state, formAction] = useActionState(saveRolePermissions, initialState);
     const [bulkPending, startBulkTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // Search filter
     const [search, setSearch] = useState('');
@@ -431,7 +397,7 @@ export default function ManageRolesPage() {
                     <span className="font-medium text-[var(--st-text)]">
                         {selectedIds.length} selected
                     </span>
-                    <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+                    <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
                         <Button
                             variant="destructive"
                             size="sm"
@@ -441,19 +407,19 @@ export default function ManageRolesPage() {
                             <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                             Delete selected
                         </Button>
-                        <ZoruAlertDialogContent>
-                            <ZoruAlertDialogHeader>
-                                <ZoruAlertDialogTitle>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>
                                     Delete {selectedIds.length} role(s)?
-                                </ZoruAlertDialogTitle>
-                                <ZoruAlertDialogDescription>
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
                                     Team members with these roles will lose their special
                                     permissions. System roles (Agent) are never deleted.
-                                </ZoruAlertDialogDescription>
-                            </ZoruAlertDialogHeader>
-                            <ZoruAlertDialogFooter>
-                                <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                <ZoruAlertDialogAction
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
                                     onClick={handleBulkDelete}
                                     disabled={bulkPending}
                                 >
@@ -461,10 +427,10 @@ export default function ManageRolesPage() {
                                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                                     ) : null}
                                     Delete
-                                </ZoruAlertDialogAction>
-                            </ZoruAlertDialogFooter>
-                        </ZoruAlertDialogContent>
-                    </ZoruAlertDialog>
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                     <Button
                         variant="ghost"
                         size="sm"
@@ -482,12 +448,12 @@ export default function ManageRolesPage() {
                         const isSystem = role.id === 'agent';
 
                         return (
-                            <ZoruAccordionItem
+                            <AccordionItem
                                 key={role.id}
                                 value={role.id}
                                 className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)]"
                             >
-                                <ZoruAccordionTrigger className="p-4 font-semibold text-[15px] hover:no-underline">
+                                <AccordionTrigger className="p-4 font-semibold text-[15px] hover:no-underline">
                                     <div className="flex items-center gap-3">
                                         {!isSystem && (
                                             <Checkbox
@@ -502,8 +468,8 @@ export default function ManageRolesPage() {
                                             <DeleteRoleButton role={role} onRoleDeleted={fetchUser} />
                                         )}
                                     </div>
-                                </ZoruAccordionTrigger>
-                                <ZoruAccordionContent className="p-4 pt-0">
+                                </AccordionTrigger>
+                                <AccordionContent className="p-4 pt-0">
                                     <input type="hidden" name="roleId" value={role.id} />
                                     <div className="flex flex-col gap-6">
                                         {permissionTree.map((category) => (
@@ -535,8 +501,8 @@ export default function ManageRolesPage() {
                                             </div>
                                         ))}
                                     </div>
-                                </ZoruAccordionContent>
-                            </ZoruAccordionItem>
+                                </AccordionContent>
+                            </AccordionItem>
                         );
                     })}
                 </Accordion>

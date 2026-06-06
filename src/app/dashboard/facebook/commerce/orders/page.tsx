@@ -1,29 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  DataTable,
-  EmptyState,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Button, DataTable, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useMemo,
@@ -47,7 +24,7 @@ import type { FacebookOrder } from "@/lib/definitions";
  * /dashboard/facebook/commerce/orders — Meta Suite Commerce orders.
  *
  * Orders table via DataTable, per-order detail in a Sheet, and
- * a refund confirmation via ZoruAlertDialog. Same data fetcher as before
+ * a refund confirmation via AlertDialog. Same data fetcher as before
  * (getFacebookOrders); refund handler is wired locally to a no-op until
  * a server action is connected — same pattern as the previous page,
  * which surfaced the action button without firing a request.
@@ -93,7 +70,7 @@ export default function OrdersPage() {
   const [isLoading, startLoading] = useTransition();
   const [activeOrder, setActiveOrder] = useState<FacebookOrder | null>(null);
   const [refundOrder, setRefundOrder] = useState<FacebookOrder | null>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const fetchData = React.useCallback(() => {
     const storedProjectId =
@@ -228,8 +205,8 @@ export default function OrdersPage() {
       {error ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Could not fetch orders</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not fetch orders</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : orders.length === 0 ? (
         <div className="mt-8">
@@ -256,13 +233,13 @@ export default function OrdersPage() {
         open={!!activeOrder}
         onOpenChange={(open) => !open && setActiveOrder(null)}
       >
-        <ZoruSheetContent className="w-full sm:max-w-md">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>Order details</ZoruSheetTitle>
-            <ZoruSheetDescription>
+        <SheetContent className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Order details</SheetTitle>
+            <SheetDescription>
               Full information for the selected order.
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </SheetDescription>
+          </SheetHeader>
           {activeOrder ? (
             <div className="mt-4 space-y-4 text-sm">
               <div>
@@ -350,33 +327,33 @@ export default function OrdersPage() {
               </div>
             </div>
           ) : null}
-        </ZoruSheetContent>
+        </SheetContent>
       </Sheet>
 
       {/* ── Refund confirmation ── */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!refundOrder}
         onOpenChange={(open) => !open && setRefundOrder(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Refund this order?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Refund this order?</AlertDialogTitle>
+            <AlertDialogDescription>
               {refundOrder
                 ? `Refund order ${refundOrder.id}? This will trigger a refund flow in Meta Commerce and may take up to 24 hours to settle.`
                 : ""}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={() => refundOrder && handleRefund(refundOrder)}
             >
               Refund
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </CommercePage>
   );
 }

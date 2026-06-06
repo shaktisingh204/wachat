@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardContent,
-  ZoruCardDescription,
-  Button,
-  Input,
-  Label,
-  Alert,
-  ZoruAlertDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, CardDescription, Button, Input, Label, Alert, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useTransition } from 'react';
@@ -92,16 +81,16 @@ export function WalletCard({ user }: { user: WithId<User> }) {
 
     return (
         <Card className="relative overflow-hidden bg-[var(--st-bg)] border border-[var(--st-border)] shadow-md text-[var(--st-text)]">
-            <ZoruCardHeader className="pb-2 bg-[var(--st-bg-muted)] border-b border-[var(--st-border)]">
+            <CardHeader className="pb-2 bg-[var(--st-bg-muted)] border-b border-[var(--st-border)]">
                 <div className="flex items-center justify-between">
-                    <ZoruCardTitle className="flex items-center gap-2 text-[var(--st-text)] text-lg tracking-tight">
+                    <CardTitle className="flex items-center gap-2 text-[var(--st-text)] text-lg tracking-tight">
                         <IndianRupee className="h-5 w-5 text-[var(--st-text-secondary)]" />
                         Wallet Balance
-                    </ZoruCardTitle>
+                    </CardTitle>
                     <div className="h-2 w-2 rounded-full bg-[var(--st-status-ok)] animate-pulse" />
                 </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-6 pt-6">
+            </CardHeader>
+            <CardBody className="space-y-6 pt-6">
                 {paymentStatus === 'success' && paymentType === 'wallet' && (
                     <div className="flex items-center gap-2 rounded-lg bg-[var(--st-status-ok)]/10 p-3 text-sm text-[var(--st-status-ok)] border border-[var(--st-status-ok)]/30">
                         <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" />
@@ -177,7 +166,7 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                 <p className="text-center text-[10px] text-[var(--st-text-tertiary)] uppercase tracking-widest font-medium flex items-center justify-center gap-1.5">
                     <Lock className="h-3 w-3" /> Secure payment via PayU
                 </p>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

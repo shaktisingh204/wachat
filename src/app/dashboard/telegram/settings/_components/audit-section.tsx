@@ -1,23 +1,13 @@
 import * as React from 'react';
-import {
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    Button,
-    Input,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr, Button, Input, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { ChevronRight, ClipboardList, Loader2 } from 'lucide-react';
 import { SectionCard } from './shared';
 import type { AuditRow } from '@/lib/rust-client/telegram-settings';
 import { listTelegramSettingsAuditAction } from '@/app/actions/telegram-settings.actions';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 export function AuditSection({ projectId }: { projectId: string }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [rows, setRows] = React.useState<AuditRow[]>([]);
     const [nextCursor, setNextCursor] = React.useState<string | undefined>(undefined);
     const [loading, setLoading] = React.useState(false);
@@ -85,27 +75,27 @@ export function AuditSection({ projectId }: { projectId: string }) {
             ) : (
                 <>
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow>
-                                <ZoruTableHead>When</ZoruTableHead>
-                                <ZoruTableHead>Actor</ZoruTableHead>
-                                <ZoruTableHead>Field</ZoruTableHead>
-                                <ZoruTableHead>Change</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr>
+                                <Th>When</Th>
+                                <Th>Actor</Th>
+                                <Th>Field</Th>
+                                <Th>Change</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {filteredRows.map((r) => (
-                                <ZoruTableRow key={r._id}>
-                                    <ZoruTableCell className="whitespace-nowrap text-xs">
+                                <Tr key={r._id}>
+                                    <Td className="whitespace-nowrap text-xs">
                                         {r.changedAt.slice(0, 19).replace('T', ' ')}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-xs">
+                                    </Td>
+                                    <Td className="font-mono text-xs">
                                         {r.actorId}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-xs">
+                                    </Td>
+                                    <Td className="font-mono text-xs">
                                         {r.field}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-xs">
+                                    </Td>
+                                    <Td className="text-xs">
                                         <span className="font-mono text-[var(--st-text)]">
                                             {r.oldValue.length > 60
                                                 ? `${r.oldValue.slice(0, 60)}…`
@@ -117,10 +107,10 @@ export function AuditSection({ projectId }: { projectId: string }) {
                                                 ? `${r.newValue.slice(0, 60)}…`
                                                 : r.newValue || '∅'}
                                         </span>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ))}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                     {filteredRows.length === 0 && (
                         <p className="text-sm text-center text-[var(--st-text)]/60 mt-4">No matching audit entries.</p>

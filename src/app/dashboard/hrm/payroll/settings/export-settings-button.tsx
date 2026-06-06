@@ -3,11 +3,11 @@
 import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import { Download, FileJson, FileText, FileSpreadsheet } from 'lucide-react';
 import { useState } from 'react';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions.types';
 
 export function ExportSettingsButton({ settings }: { settings: PayrollSettings }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
   const downloadFile = (content: BlobPart, filename: string, type: string) => {

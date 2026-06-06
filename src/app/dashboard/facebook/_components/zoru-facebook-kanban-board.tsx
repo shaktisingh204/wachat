@@ -1,30 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Input,
-  ScrollArea,
-  ZoruScrollBar,
-  Skeleton,
-  useZoruToast,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, Badge, Button, Card, CardBody, CardHeader, CardTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, ScrollArea, ScrollBar, Skeleton, useToast, cn } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -173,7 +149,7 @@ function ZoruFacebookKanbanCard({
     <Card className="p-3" variant="default">
       <div className="flex items-start gap-2.5">
         <Avatar className="h-8 w-8 shrink-0">
-          <ZoruAvatarFallback>{initial}</ZoruAvatarFallback>
+          <AvatarFallback>{initial}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
@@ -187,7 +163,7 @@ function ZoruFacebookKanbanCard({
                 </Badge>
               )}
               <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                   <button
                     type="button"
                     aria-label="Card actions"
@@ -195,23 +171,23 @@ function ZoruFacebookKanbanCard({
                   >
                     <MoreHorizontal className="h-3.5 w-3.5" />
                   </button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end" className="w-48">
-                  <ZoruDropdownMenuLabel>Move to status</ZoruDropdownMenuLabel>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Move to status</DropdownMenuLabel>
                   {allColumns.map((col) => (
-                    <ZoruDropdownMenuItem
+                    <DropdownMenuItem
                       key={col}
                       disabled={col === currentColumn}
                       onSelect={() => onMove(id, col)}
                     >
                       {col.replace(/_/g, " ")}
-                    </ZoruDropdownMenuItem>
+                    </DropdownMenuItem>
                   ))}
-                  <ZoruDropdownMenuSeparator />
-                  <ZoruDropdownMenuItem onSelect={handleGoToChat}>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={handleGoToChat}>
                     <MessageSquare /> Open thread
-                  </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
@@ -254,18 +230,18 @@ function ZoruFacebookKanbanColumn({ title, count, children }: KanbanColumnProps)
       )}
       variant="soft"
     >
-      <ZoruCardHeader className="shrink-0 border-b border-[var(--st-border)]">
-        <ZoruCardTitle className="flex items-center gap-2 text-[14px] capitalize">
+      <CardHeader className="shrink-0 border-b border-[var(--st-border)]">
+        <CardTitle className="flex items-center gap-2 text-[14px] capitalize">
           <span>{title.replace(/_/g, " ")}</span>
           <Badge variant="secondary" className="h-5 px-2 text-[10px]">
             {count}
           </Badge>
-        </ZoruCardTitle>
-      </ZoruCardHeader>
+        </CardTitle>
+      </CardHeader>
       <ScrollArea className="flex-1">
-        <ZoruCardContent className="flex flex-col gap-3 p-3">
+        <CardBody className="flex flex-col gap-3 p-3">
           {children}
-        </ZoruCardContent>
+        </CardBody>
       </ScrollArea>
     </Card>
   );
@@ -278,7 +254,7 @@ export function ZoruFacebookKanbanBoard() {
   const [boardData, setBoardData] = useState<FacebookKanbanColumnData[]>([]);
   const [isLoading, startLoadingTransition] = useTransition();
   const [isClient, setIsClient] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const fetchData = React.useCallback(() => {
     const storedProjectId =
@@ -379,11 +355,11 @@ export function ZoruFacebookKanbanBoard() {
       <div className="p-4">
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>No project selected</AlertTitle>
+          <AlertDescription>
             Please select a project from the main dashboard page to view the
             chat kanban board.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       </div>
     );
@@ -420,7 +396,7 @@ export function ZoruFacebookKanbanBoard() {
           ))}
           <AddListInline onAddList={handleAddList} />
         </div>
-        <ZoruScrollBar orientation="horizontal" />
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </div>
   );

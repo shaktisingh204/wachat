@@ -8,18 +8,8 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { getClientProjects } from '@/app/actions/client-portal.actions';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import {
-    Card,
-    ZoruCardContent,
-} from '@/components/sabcrm/20ui/compat';
-import {
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { Progress } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/components/sabcrm/20ui/compat';
@@ -125,38 +115,38 @@ async function ClientProjectsPageContent(props: {
                         />
                     ) : (
                         <Card>
-                            <ZoruCardContent className="p-0">
+                            <CardBody className="p-0">
                                 <Table>
-                                    <ZoruTableHeader>
-                                        <ZoruTableRow>
-                                            <ZoruTableHead>Name</ZoruTableHead>
-                                            <ZoruTableHead>Status</ZoruTableHead>
-                                            <ZoruTableHead>Health</ZoruTableHead>
-                                            <ZoruTableHead>Deadline</ZoruTableHead>
-                                            <ZoruTableHead>Progress</ZoruTableHead>
-                                        </ZoruTableRow>
-                                    </ZoruTableHeader>
-                                    <ZoruTableBody>
+                                    <THead>
+                                        <Tr>
+                                            <Th>Name</Th>
+                                            <Th>Status</Th>
+                                            <Th>Health</Th>
+                                            <Th>Deadline</Th>
+                                            <Th>Progress</Th>
+                                        </Tr>
+                                    </THead>
+                                    <TBody>
                                         {projects.map((p) => {
                                             const health = getProjectHealth(p);
                                             return (
-                                                <ZoruTableRow key={p._id}>
-                                                    <ZoruTableCell>
+                                                <Tr key={p._id}>
+                                                    <Td>
                                                         <Link
                                                             href={`/portal/client/projects/${p._id}`}
                                                             className="font-medium text-[var(--st-text)] hover:underline"
                                                         >
                                                             {p.name}
                                                         </Link>
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell>
+                                                    </Td>
+                                                    <Td>
                                                         <Badge variant={statusVariant(p.status)}>{p.status}</Badge>
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell>
+                                                    </Td>
+                                                    <Td>
                                                         <Badge variant={healthVariant(health)}>{health}</Badge>
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell>{fmtDate(p.endDate)}</ZoruTableCell>
-                                                    <ZoruTableCell>
+                                                    </Td>
+                                                    <Td>{fmtDate(p.endDate)}</Td>
+                                                    <Td>
                                                         <div className="flex flex-col gap-1 w-32">
                                                             <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
                                                                 <span>Progress</span>
@@ -164,13 +154,13 @@ async function ClientProjectsPageContent(props: {
                                                             </div>
                                                             <Progress value={p.progress} className="h-2" />
                                                         </div>
-                                                    </ZoruTableCell>
-                                                </ZoruTableRow>
+                                                    </Td>
+                                                </Tr>
                                             );
                                         })}
-                                    </ZoruTableBody>
+                                    </TBody>
                                 </Table>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     )}
                 </>

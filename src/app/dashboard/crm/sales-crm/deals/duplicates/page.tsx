@@ -13,20 +13,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Copy, GitMerge, RefreshCcw, X } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    RadioGroup,
-    ZoruRadioGroupItem,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Skeleton,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
@@ -84,7 +71,7 @@ interface MergePanelProps {
 }
 
 function MergePanel({ group, onMerged }: MergePanelProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [survivor, setSurvivor] = React.useState<string>(group.members[0]?._id ?? '');
     const [confirmOpen, setConfirmOpen] = React.useState(false);
     const [pending, setPending] = React.useState(false);
@@ -166,7 +153,7 @@ function MergePanel({ group, onMerged }: MergePanelProps) {
 }
 
 export default function DealDuplicatesPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [groups, setGroups] = React.useState<DealDuplicateGroup[]>([]);
     const [resolutions, setResolutions] = React.useState<DealDuplicateResolution[]>([]);
     const [isPending, startTransition] = React.useTransition();
@@ -294,15 +281,15 @@ export default function DealDuplicatesPage() {
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="All" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All</ZoruSelectItem>
-                                <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-                                <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
-                                <ZoruSelectItem value="ignored">Ignored</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="resolved">Resolved</SelectItem>
+                                <SelectItem value="ignored">Ignored</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     <p className="text-[12px] text-[var(--st-text-secondary)]">

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Sheet, ZoruSheetContent, ZoruSheetHeader, ZoruSheetTitle, ZoruSheetDescription, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Badge } from '@/components/sabcrm/20ui/compat';
 import { ChevronDown, ChevronRight, Loader2, ArrowRight } from 'lucide-react';
 
 /**
@@ -188,21 +188,21 @@ export function CoaTree({ rows }: CoaTreeProps) {
 
             {/* General Ledger Sliding Drawer */}
             <Sheet open={!!selectedAccount} onOpenChange={(open) => { if (!open) setSelectedAccount(null); }}>
-                <ZoruSheetContent side="right" className="sm:max-w-md md:max-w-lg w-full flex flex-col h-full bg-[var(--st-bg)] border-l border-[var(--st-border)] p-0">
+                <SheetContent side="right" className="sm:max-w-md md:max-w-lg w-full flex flex-col h-full bg-[var(--st-bg)] border-l border-[var(--st-border)] p-0">
                     <div className="p-6 border-b border-[var(--st-border)]">
-                        <ZoruSheetHeader className="pr-8">
-                            <ZoruSheetTitle className="text-[16px] font-bold text-[var(--st-text)] flex flex-wrap items-center gap-2">
+                        <SheetHeader className="pr-8">
+                            <SheetTitle className="text-[16px] font-bold text-[var(--st-text)] flex flex-wrap items-center gap-2">
                                 <span>{selectedAccount?.name}</span>
                                 {selectedAccount?.code && (
                                     <span className="font-mono text-[11px] bg-[var(--st-bg-secondary)] border border-[var(--st-border)] px-1.5 py-0.5 rounded text-[var(--st-text-secondary)]">
                                         {selectedAccount.code}
                                     </span>
                                 )}
-                            </ZoruSheetTitle>
-                            <ZoruSheetDescription className="text-[12.5px] text-[var(--st-text-secondary)] mt-1">
+                            </SheetTitle>
+                            <SheetDescription className="text-[12.5px] text-[var(--st-text-secondary)] mt-1">
                                 General Ledger Vouchers &amp; Transaction Entries
-                            </ZoruSheetDescription>
-                        </ZoruSheetHeader>
+                            </SheetDescription>
+                        </SheetHeader>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -319,7 +319,7 @@ export function CoaTree({ rows }: CoaTreeProps) {
                             )}
                         </div>
                     </div>
-                </ZoruSheetContent>
+                </SheetContent>
             </Sheet>
         </>
     );

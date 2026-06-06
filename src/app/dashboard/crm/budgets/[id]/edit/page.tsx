@@ -7,7 +7,7 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 import { getBudgetById } from '@/app/actions/crm-budgets.actions';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
@@ -72,10 +72,10 @@ export default async function EditBudgetPage({ params }: PageProps) {
             rightRail={
                 <>
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Plan vs actual</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Plan vs actual</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="space-y-2 text-[12.5px]">
                                 <div className="flex items-center justify-between">
                                     <span className="text-[var(--st-text-secondary)]">Plan</span>
@@ -102,13 +102,13 @@ export default async function EditBudgetPage({ params }: PageProps) {
                                     {utilisation}% utilised
                                 </div>
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Owner</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Owner</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="text-[12.5px] text-[var(--st-text)]">
                                 {budget.ownerName || '—'}
                             </div>
@@ -117,7 +117,7 @@ export default async function EditBudgetPage({ params }: PageProps) {
                                     Approver: {budget.approverName}
                                 </div>
                             ) : null}
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </>
             }

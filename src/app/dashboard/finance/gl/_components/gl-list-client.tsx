@@ -4,27 +4,7 @@ import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGSAP } from '@gsap/react';
 import gsapCore from 'gsap';
-import { 
-  Button, 
-  Input, 
-  Label, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createGlEntry, updateGlEntry, deleteGlEntry, GlEntry } from '@/app/actions/finance/gl.actions';
@@ -262,30 +242,30 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
 
       <div className="rounded-md border bg-white overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Currency</TableHead><TableHead>BaseAmount</TableHead><TableHead>ExchangeRate</TableHead><TableHead>AccountId</TableHead><TableHead>Credit</TableHead><TableHead>Debit</TableHead><TableHead>TransactionDate</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <THead>
+            <Tr>
+              <Th>Currency</Th><Th>BaseAmount</Th><Th>ExchangeRate</Th><Th>AccountId</Th><Th>Credit</Th><Th>Debit</Th><Th>TransactionDate</Th>
+              <Th className="w-[80px]"></Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredItems.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
+              <Tr>
+                <Td colSpan={8} className="h-24 text-center">
                   No results.
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ) : (
               filteredItems.map((item) => (
-                <TableRow key={item._id} className="animate-row">
-                  <TableCell>{String(item.currency ?? '')}</TableCell>
-                  <TableCell>{fmtINR(Number(item.baseAmount || 0), item.currency || 'INR')}</TableCell>
-                  <TableCell>{String(item.exchangeRate ?? '')}</TableCell>
-                  <TableCell>{String(item.accountId ?? '')}</TableCell>
-                  <TableCell>{fmtINR(Number(item.credit || 0), item.currency || 'INR')}</TableCell>
-                  <TableCell>{fmtINR(Number(item.debit || 0), item.currency || 'INR')}</TableCell>
-                  <TableCell>{item.transactionDate ? fmtDate(new Date(item.transactionDate)) : ''}</TableCell>
-                  <TableCell>
+                <Tr key={item._id} className="animate-row">
+                  <Td>{String(item.currency ?? '')}</Td>
+                  <Td>{fmtINR(Number(item.baseAmount || 0), item.currency || 'INR')}</Td>
+                  <Td>{String(item.exchangeRate ?? '')}</Td>
+                  <Td>{String(item.accountId ?? '')}</Td>
+                  <Td>{fmtINR(Number(item.credit || 0), item.currency || 'INR')}</Td>
+                  <Td>{fmtINR(Number(item.debit || 0), item.currency || 'INR')}</Td>
+                  <Td>{item.transactionDate ? fmtDate(new Date(item.transactionDate)) : ''}</Td>
+                  <Td>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -304,11 +284,11 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </TableBody>
+          </TBody>
         </Table>
       </div>
 

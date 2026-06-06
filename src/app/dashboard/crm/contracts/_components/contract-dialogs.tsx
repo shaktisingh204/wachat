@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -50,7 +38,7 @@ export function ContractSendDialog({
   initialEmail,
 }: ContractSendDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState(initialEmail ?? '');
   const [pending, startTransition] = React.useTransition();
@@ -89,14 +77,14 @@ export function ContractSendDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Send contract for signature</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Send contract for signature</DialogTitle>
+          <DialogDescription>
             Marks the contract as <strong>sent</strong> and stores the signer
             on record.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="signer-name">Signer name</Label>
@@ -120,15 +108,15 @@ export function ContractSendDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Sending…' : 'Send'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -144,7 +132,7 @@ export function ContractRenewDialog({
   initialEndDate,
 }: ContractRenewDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [endDate, setEndDate] = React.useState('');
   const [pending, startTransition] = React.useTransition();
 
@@ -192,13 +180,13 @@ export function ContractRenewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Renew contract</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Renew contract</DialogTitle>
+          <DialogDescription>
             Extends the contract's end date and resets the status to draft.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="renew-end-date">New end date</Label>
@@ -211,15 +199,15 @@ export function ContractRenewDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Saving…' : 'Renew'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -230,7 +218,7 @@ export function ContractVoidDialog({
   contractId,
 }: BaseDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [reason, setReason] = React.useState('');
   const [pending, startTransition] = React.useTransition();
 
@@ -257,14 +245,14 @@ export function ContractVoidDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Void this contract?</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Void this contract?</DialogTitle>
+          <DialogDescription>
             Marks the contract <strong>terminated</strong>. Note the reason so
             the audit log captures it.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="void-reason">Reason</Label>
@@ -278,7 +266,7 @@ export function ContractVoidDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -289,8 +277,8 @@ export function ContractVoidDialog({
           >
             {pending ? 'Voiding…' : 'Void'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

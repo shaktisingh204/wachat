@@ -5,26 +5,7 @@ import {
   createPersonalToken,
   revokePersonalToken,
 } from '@/app/actions/developer-platform.actions';
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Button,
-  Input,
-  Label,
-  Alert,
-  Table,
-  ZoruTableHeader,
-  ZoruTableHead,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableCell,
-  Badge,
-  EmptyState,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Input, Label, Alert, Table, THead, Th, TBody, Tr, Td, Badge, EmptyState, useToast } from '@/components/sabcrm/20ui/compat';
 import { TriangleAlert, Copy, KeyRound } from 'lucide-react';
 
 interface PatRow {
@@ -50,7 +31,7 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
   const [expiresAt, setExpiresAt] = useState('');
   const [revealed, setRevealed] = useState<string | null>(null);
   const [busy, startBusy] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleCreate = (): void => {
     if (!name.trim()) return;
@@ -133,11 +114,11 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
       ) : null}
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Generate Personal Access Token</ZoruCardTitle>
-          <ZoruCardDescription>PATs inherit your RBAC and can only do what your account is allowed to do.</ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Generate Personal Access Token</CardTitle>
+          <CardDescription>PATs inherit your RBAC and can only do what your account is allowed to do.</CardDescription>
+        </CardHeader>
+        <CardBody>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3 items-end">
             <div className="space-y-1.5">
               <Label>Name</Label>
@@ -161,51 +142,51 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
               {busy ? 'Working…' : 'Generate'}
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>Name</ZoruTableHead>
-              <ZoruTableHead>Scopes</ZoruTableHead>
-              <ZoruTableHead>Created</ZoruTableHead>
-              <ZoruTableHead>Expires</ZoruTableHead>
-              <ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Scopes</Th>
+              <Th>Created</Th>
+              <Th>Expires</Th>
+              <Th>Status</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {tokens.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={6}>
+              <Tr>
+                <Td colSpan={6}>
                   <EmptyState
                     icon={<KeyRound className="h-8 w-8" />}
                     title="No tokens yet"
                     description="Generate a PAT above to get started."
                   />
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : null}
             {tokens.map((t) => (
-              <ZoruTableRow key={t._id}>
-                <ZoruTableCell>{t.name}</ZoruTableCell>
-                <ZoruTableCell className="font-mono text-xs text-[var(--st-text-secondary)]">
+              <Tr key={t._id}>
+                <Td>{t.name}</Td>
+                <Td className="font-mono text-xs text-[var(--st-text-secondary)]">
                   {t.scopes.join(' ') || '*'}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]" suppressHydrationWarning>{fmt(t.createdAt)}</ZoruTableCell>
-                <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]" suppressHydrationWarning>
+                </Td>
+                <Td className="text-xs text-[var(--st-text-secondary)]" suppressHydrationWarning>{fmt(t.createdAt)}</Td>
+                <Td className="text-xs text-[var(--st-text-secondary)]" suppressHydrationWarning>
                   {t.expiresAt ? fmt(t.expiresAt) : '—'}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </Td>
+                <Td>
                   {t.revoked ? (
                     <Badge variant="destructive">Revoked</Badge>
                   ) : (
                     <Badge variant="success">Active</Badge>
                   )}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right">
+                </Td>
+                <Td className="text-right">
                   {!t.revoked ? (
                     <Button
                       variant="ghost"
@@ -217,10 +198,10 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
                       Revoke
                     </Button>
                   ) : null}
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </Card>
     </div>

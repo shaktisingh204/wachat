@@ -4,28 +4,14 @@ import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Plus, Edit2, Trash2, TrendingUp, Mail, MousePointerClick, Target, Activity } from 'lucide-react';
-import { 
-  Table, 
-  ZoruTableHeader, 
-  ZoruTableBody, 
-  ZoruTableRow, 
-  ZoruTableHead, 
-  ZoruTableCell 
-} from '@/components/sabcrm/20ui/compat';
-import { 
-  Dialog, 
-  ZoruDialogTrigger, 
-  ZoruDialogContent, 
-  ZoruDialogHeader, 
-  ZoruDialogFooter, 
-  ZoruDialogTitle 
-} from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import { Input } from '@/components/sabcrm/20ui/compat';
 import { Label } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { StatCard } from '@/components/sabcrm/20ui/compat';
-import { ZoruChart, ZoruChartContainer, ZoruChartTooltip, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { ZoruChart, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { createDripCampaign, updateDripCampaign, deleteDripCampaign } from '@/app/actions/marketing/drip-campaigns.actions';
 
@@ -35,7 +21,7 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   // Form State
   const [name, setName] = useState<any>("");
@@ -128,16 +114,16 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
       search={{ value: search, onChange: setSearch, placeholder: 'Search...' }}
       primaryAction={
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <ZoruDialogTrigger asChild>
+          <DialogTrigger asChild>
             <Button onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" />
               Create New
             </Button>
-          </ZoruDialogTrigger>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</ZoruDialogTitle>
-            </ZoruDialogHeader>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
+            </DialogHeader>
             <div className="grid gap-4 py-4">
               
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -187,10 +173,10 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
                 </div>
               
             </div>
-            <ZoruDialogFooter>
+            <DialogFooter>
               <Button disabled={loading} onClick={handleSave}>Save</Button>
-            </ZoruDialogFooter>
-          </ZoruDialogContent>
+            </DialogFooter>
+          </DialogContent>
         </Dialog>
       }
     >
@@ -225,7 +211,7 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
 
       <div className="mb-8 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6">
         <h3 className="mb-4 text-sm font-medium text-[var(--st-text)]">Cross-Channel ROI (%)</h3>
-        <ZoruChartContainer height={250}>
+        <ChartContainer height={250}>
           <BarChart data={roiData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
             <XAxis 
@@ -240,10 +226,10 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
               tickLine={false}
               tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }}
             />
-            <Tooltip content={<ZoruChartTooltip />} cursor={{ fill: "var(--st-border-strong)", opacity: 0.2 }} />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: "var(--st-border-strong)", opacity: 0.2 }} />
             <Bar dataKey="roi" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} barSize={40} />
           </BarChart>
-        </ZoruChartContainer>
+        </ChartContainer>
       </div>
 
       {filteredData.length === 0 ? (
@@ -260,24 +246,24 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
       ) : (
         <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="capitalize">name</ZoruTableHead>
-                <ZoruTableHead className="capitalize">status</ZoruTableHead>
-                <ZoruTableHead className="capitalize">audienceId</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th className="capitalize">name</Th>
+                <Th className="capitalize">status</Th>
+                <Th className="capitalize">audienceId</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filteredData.map((item) => (
-                <ZoruTableRow key={item._id}>
+                <Tr key={item._id}>
                   
-                    <ZoruTableCell>
+                    <Td>
                       {String(item.name || '')}
-                    </ZoruTableCell>
+                    </Td>
                   
                   
-                    <ZoruTableCell>
+                    <Td>
                       {item.status === 'active' ? (
                         <Badge tone="green">Active</Badge>
                       ) : item.status === 'paused' ? (
@@ -287,24 +273,24 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
                       ) : (
                         <Badge tone="neutral">Draft</Badge>
                       )}
-                    </ZoruTableCell>
+                    </Td>
                   
                   
-                    <ZoruTableCell>
+                    <Td>
                       {String(item.audienceId || '')}
-                    </ZoruTableCell>
+                    </Td>
                   
-                  <ZoruTableCell className="text-right space-x-2">
+                  <Td className="text-right space-x-2">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
                       <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
                       <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                     </Button>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       )}

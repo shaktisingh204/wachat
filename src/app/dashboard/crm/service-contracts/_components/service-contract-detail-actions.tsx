@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -49,7 +49,7 @@ export function ServiceContractDetailActions({
   periodEnd,
 }: ServiceContractDetailActionsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [, startTransition] = React.useTransition();
 
   const [scheduleOpen, setScheduleOpen] = React.useState(false);

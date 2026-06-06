@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, Switch, Separator, Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger, Card } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Switch, Separator, Tabs, TabsContent, TabsList, TabsTrigger, Card } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useState, useEffect } from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
@@ -57,17 +57,17 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
     return (
         <form action={formAction}>
             <Tabs defaultValue="general" className="w-full">
-                <ZoruTabsList className="grid w-full grid-cols-2 lg:grid-cols-6 h-auto">
-                    <ZoruTabsTrigger value="general" className="py-2"><Building className="w-4 h-4 mr-2" /> General</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="sales" className="py-2"><FileText className="w-4 h-4 mr-2" /> Sales</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="inventory" className="py-2"><Package className="w-4 h-4 mr-2" /> Inventory</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="hr" className="py-2"><Users className="w-4 h-4 mr-2" /> HR</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="modules" className="py-2"><Layers className="w-4 h-4 mr-2" /> Modules</ZoruTabsTrigger>
-                    {/* <ZoruTabsTrigger value="notifications" className="py-2"><Bell className="w-4 h-4 mr-2" /> Alerts</ZoruTabsTrigger> */}
-                </ZoruTabsList>
+                <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 h-auto">
+                    <TabsTrigger value="general" className="py-2"><Building className="w-4 h-4 mr-2" /> General</TabsTrigger>
+                    <TabsTrigger value="sales" className="py-2"><FileText className="w-4 h-4 mr-2" /> Sales</TabsTrigger>
+                    <TabsTrigger value="inventory" className="py-2"><Package className="w-4 h-4 mr-2" /> Inventory</TabsTrigger>
+                    <TabsTrigger value="hr" className="py-2"><Users className="w-4 h-4 mr-2" /> HR</TabsTrigger>
+                    <TabsTrigger value="modules" className="py-2"><Layers className="w-4 h-4 mr-2" /> Modules</TabsTrigger>
+                    {/* <TabsTrigger value="notifications" className="py-2"><Bell className="w-4 h-4 mr-2" /> Alerts</TabsTrigger> */}
+                </TabsList>
 
                 {/* --- GENERAL SETTINGS --- */}
-                <ZoruTabsContent value="general" className="mt-6 space-y-6">
+                <TabsContent value="general" className="mt-6 space-y-6">
                     <Card className="p-0">
                         <div className="p-5 border-b border-[var(--st-border)]">
                             <h3 className="text-[var(--st-text)] font-semibold">Organization Profile</h3>
@@ -146,10 +146,10 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                             </div>
                         </div>
                     </Card>
-                </ZoruTabsContent>
+                </TabsContent>
 
                 {/* --- SALES SETTINGS --- */}
-                <ZoruTabsContent value="sales" className="mt-6 space-y-6">
+                <TabsContent value="sales" className="mt-6 space-y-6">
                     <Card className="p-0">
                         <div className="p-5 border-b border-[var(--st-border)]">
                             <h3 className="text-[var(--st-text)] font-semibold">Document Prefixes & Defaults</h3>
@@ -198,10 +198,10 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                             </div>
                         </div>
                     </Card>
-                </ZoruTabsContent>
+                </TabsContent>
 
                 {/* --- INVENTORY SETTINGS --- */}
-                <ZoruTabsContent value="inventory" className="mt-6 space-y-6">
+                <TabsContent value="inventory" className="mt-6 space-y-6">
                     <Card className="p-0">
                         <div className="p-5 border-b border-[var(--st-border)]">
                             <h3 className="text-[var(--st-text)] font-semibold">Stock Management</h3>
@@ -225,10 +225,10 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                             )}
                         </div>
                     </Card>
-                </ZoruTabsContent>
+                </TabsContent>
 
                 {/* --- HR SETTINGS --- */}
-                <ZoruTabsContent value="hr" className="mt-6 space-y-6">
+                <TabsContent value="hr" className="mt-6 space-y-6">
                     <Card className="p-0">
                         <div className="p-5 border-b border-[var(--st-border)]">
                             <h3 className="text-[var(--st-text)] font-semibold">Work & Payroll Defaults</h3>
@@ -245,10 +245,10 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                             </div>
                         </div>
                     </Card>
-                </ZoruTabsContent>
+                </TabsContent>
 
                 {/* --- MODULES --- */}
-                <ZoruTabsContent value="modules" className="mt-6 space-y-6">
+                <TabsContent value="modules" className="mt-6 space-y-6">
                     <Card className="p-0">
                         <div className="p-5 border-b border-[var(--st-border)]">
                             <h3 className="text-[var(--st-text)] font-semibold">Feature Management</h3>
@@ -276,7 +276,7 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                             ))}
                         </div>
                     </Card>
-                </ZoruTabsContent>
+                </TabsContent>
 
                 <div className="mt-6 flex justify-end">
                     <SubmitButton />

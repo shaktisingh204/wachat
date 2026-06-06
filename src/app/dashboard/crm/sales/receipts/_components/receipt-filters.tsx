@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  ZoruDateRangePicker,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, DateRangePicker, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   X } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
@@ -110,16 +101,16 @@ export function ReceiptFiltersRow(props: ReceiptFiltersRowProps) {
                         value={props.statusFilter}
                         onValueChange={(v) => props.onStatusChange(v as ReceiptKpiFilter)}
                     >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue placeholder="Status" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {STATUSES.map((s) => (
-                                <ZoruSelectItem key={s.value} value={s.value}>
+                                <SelectItem key={s.value} value={s.value}>
                                     {s.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="w-56">
@@ -137,17 +128,17 @@ export function ReceiptFiltersRow(props: ReceiptFiltersRowProps) {
                         value={props.modeFilter || ''}
                         onValueChange={(v) => props.onModeChange(v === 'all' ? '' : v)}
                     >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue placeholder="Mode" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All modes</ZoruSelectItem>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Mode" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All modes</SelectItem>
                             {MODES.filter((m) => m.value).map((m) => (
-                                <ZoruSelectItem key={m.value} value={m.value}>
+                                <SelectItem key={m.value} value={m.value}>
                                     {m.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="w-56">
@@ -160,7 +151,7 @@ export function ReceiptFiltersRow(props: ReceiptFiltersRowProps) {
                     />
                 </div>
                 <div className="w-72">
-                    <ZoruDateRangePicker
+                    <DateRangePicker
                         value={props.dateRange}
                         onChange={(r) => props.onDateRangeChange(r)}
                     />

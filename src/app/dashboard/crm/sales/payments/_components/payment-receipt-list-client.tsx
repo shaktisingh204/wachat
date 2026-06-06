@@ -1,32 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams,
@@ -175,7 +149,7 @@ export function PaymentReceiptListClient({
   kpis,
   error,
 }: PaymentReceiptListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -402,16 +376,16 @@ export function PaymentReceiptListClient({
               pushParams({ status: v === '__all' ? undefined : v, page: '1' })
             }
           >
-            <ZoruSelectTrigger className="h-9 w-[150px] text-[13px]">
-              <ZoruSelectValue placeholder="Status" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="h-9 w-[150px] text-[13px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
               {STATUS_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value || '__all'} value={o.value || '__all'}>
+                <SelectItem key={o.value || '__all'} value={o.value || '__all'}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <Select
             value={initialMode || '__all'}
@@ -419,16 +393,16 @@ export function PaymentReceiptListClient({
               pushParams({ mode: v === '__all' ? undefined : v, page: '1' })
             }
           >
-            <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-              <ZoruSelectValue placeholder="Method" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="h-9 w-[160px] text-[13px]">
+              <SelectValue placeholder="Method" />
+            </SelectTrigger>
+            <SelectContent>
               {MODE_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value || '__all'} value={o.value || '__all'}>
+                <SelectItem key={o.value || '__all'} value={o.value || '__all'}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <div className="w-[200px]">
             <EntityPicker
@@ -496,14 +470,14 @@ export function PaymentReceiptListClient({
             </Button>
             <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
             <Select onValueChange={(v) => bulkStatus(v as CrmReceiptStatus)}>
-              <ZoruSelectTrigger className="h-8 w-[150px] text-[12px]">
-                <ZoruSelectValue placeholder="Change status…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="received">Received</ZoruSelectItem>
-                <ZoruSelectItem value="cleared">Cleared</ZoruSelectItem>
-                <ZoruSelectItem value="bounced">Bounced</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-8 w-[150px] text-[12px]">
+                <SelectValue placeholder="Change status…" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="received">Received</SelectItem>
+                <SelectItem value="cleared">Cleared</SelectItem>
+                <SelectItem value="bounced">Bounced</SelectItem>
+              </SelectContent>
             </Select>
             <Button variant="outline" size="sm" onClick={bulkExportCsv}>
               <Download className="h-3.5 w-3.5" /> Export CSV
@@ -523,68 +497,68 @@ export function PaymentReceiptListClient({
         ) : null}
 
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead className="w-[36px]">
+          <THead>
+            <Tr>
+              <Th className="w-[36px]">
                 <Checkbox
                   checked={allSelected}
                   onCheckedChange={toggleAll}
                   aria-label="Select all"
                 />
-              </ZoruTableHead>
-              <ZoruTableHead>Receipt #</ZoruTableHead>
-              <ZoruTableHead>Customer</ZoruTableHead>
-              <ZoruTableHead>Date</ZoruTableHead>
-              <ZoruTableHead>Method</ZoruTableHead>
-              <ZoruTableHead>Reference</ZoruTableHead>
-              <ZoruTableHead className="text-right">Amount</ZoruTableHead>
-              <ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+              </Th>
+              <Th>Receipt #</Th>
+              <Th>Customer</Th>
+              <Th>Date</Th>
+              <Th>Method</Th>
+              <Th>Reference</Th>
+              <Th className="text-right">Amount</Th>
+              <Th>Status</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {receipts.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={9} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
+              <Tr>
+                <Td colSpan={9} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                   {initialQuery || hasActive
                     ? 'No payment receipts match these filters.'
                     : 'No payment receipts yet — click "New receipt" to add one.'}
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : (
               receipts.map((receipt) => {
                 const id = String(receipt._id);
                 const isSelected = selected.has(id);
                 return (
-                  <ZoruTableRow key={id} data-state={isSelected ? 'selected' : undefined}>
-                    <ZoruTableCell>
+                  <Tr key={id} data-state={isSelected ? 'selected' : undefined}>
+                    <Td>
                       <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => toggleOne(id)}
                         aria-label={`Select ${receipt.receiptNo}`}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <EntityRowLink
                         href={`/dashboard/crm/sales/payments/${id}`}
                         label={receipt.receiptNo || id}
                         subtitle={fmtDate(receipt.date)}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {receipt.clientId ? (
                         <EntityPickerChip entity="client" id={receipt.clientId} />
                       ) : (
                         '—'
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {fmtDate(receipt.date)}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant="outline">{receipt.mode}</Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                       <div className="flex flex-col">
                         {receipt.reference ? <span>{receipt.reference}</span> : null}
                         {receipt.txnId ? (
@@ -595,18 +569,18 @@ export function PaymentReceiptListClient({
                           <span>—</span>
                         ) : null}
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                       {fmtMoney(receipt.amount, receipt.currency)}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {receipt.status ? (
                         <Badge variant="outline">{receipt.status}</Badge>
                       ) : (
                         <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button size="sm" variant="ghost" asChild>
                           <Link href={`/dashboard/crm/sales/payments/${id}/edit`}>
@@ -622,33 +596,33 @@ export function PaymentReceiptListClient({
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
 
         <PaginationBar page={page} limit={limit} hasMore={hasMore} />
       </Card>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingDelete !== null}
         onOpenChange={(o) => !o && setPendingDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete payment receipt?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete payment receipt?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes receipt{' '}
               <strong>{pendingDelete?.receiptNo ?? ''}</strong> from the
               database. The action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 confirmDelete();
@@ -658,26 +632,26 @@ export function PaymentReceiptListClient({
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingBulkDelete}
         onOpenChange={(o) => !o && setPendingBulkDelete(false)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete {selected.size} payment receipts?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selected.size} payment receipts?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes the selected receipts. The action
               cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 confirmBulkDelete();
@@ -687,10 +661,10 @@ export function PaymentReceiptListClient({
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

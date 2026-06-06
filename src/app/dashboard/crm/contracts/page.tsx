@@ -1,32 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -72,7 +46,7 @@ function fmtDate(v: unknown): string {
 }
 
 export default function ContractsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = useState<Contract[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -328,30 +302,30 @@ export default function ContractsPage() {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-            <ZoruSelectValue placeholder="Status" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-            <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-            <ZoruSelectItem value="sent">Sent</ZoruSelectItem>
-            <ZoruSelectItem value="signed">Signed</ZoruSelectItem>
-            <ZoruSelectItem value="expired">Expired</ZoruSelectItem>
-            <ZoruSelectItem value="terminated">Terminated</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="sent">Sent</SelectItem>
+            <SelectItem value="signed">Signed</SelectItem>
+            <SelectItem value="expired">Expired</SelectItem>
+            <SelectItem value="terminated">Terminated</SelectItem>
+          </SelectContent>
         </Select>
         <Select value={partyFilter} onValueChange={setPartyFilter}>
-          <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-            <ZoruSelectValue placeholder="Party" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All parties</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[160px] text-[13px]">
+            <SelectValue placeholder="Party" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All parties</SelectItem>
             {partyOptions.map((p) => (
-              <ZoruSelectItem key={p.id} value={p.id}>
+              <SelectItem key={p.id} value={p.id}>
                 {p.name}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select
           value={expiryFilter}
@@ -359,15 +333,15 @@ export default function ContractsPage() {
             setExpiryFilter(v as 'all' | '30d' | '60d' | '90d')
           }
         >
-          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-            <ZoruSelectValue placeholder="Expiry" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">Any expiry</ZoruSelectItem>
-            <ZoruSelectItem value="30d">Expiring 30d</ZoruSelectItem>
-            <ZoruSelectItem value="60d">Expiring 60d</ZoruSelectItem>
-            <ZoruSelectItem value="90d">Expiring 90d</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+            <SelectValue placeholder="Expiry" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Any expiry</SelectItem>
+            <SelectItem value="30d">Expiring 30d</SelectItem>
+            <SelectItem value="60d">Expiring 60d</SelectItem>
+            <SelectItem value="90d">Expiring 90d</SelectItem>
+          </SelectContent>
         </Select>
         {hasActiveFilters ? (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -408,87 +382,87 @@ export default function ContractsPage() {
       <Card>
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-8">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-8">
                   <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Client</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Value</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Start</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">End</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                <ZoruTableHead className="w-[200px] text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">Title</Th>
+                <Th className="text-[var(--st-text-secondary)]">Client</Th>
+                <Th className="text-[var(--st-text-secondary)]">Value</Th>
+                <Th className="text-[var(--st-text-secondary)]">Start</Th>
+                <Th className="text-[var(--st-text-secondary)]">End</Th>
+                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                <Th className="w-[200px] text-right text-[var(--st-text-secondary)]">
                   Actions
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {isLoading && rows.length === 0 ? (
                 [...Array(3)].map((_, i) => (
-                  <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                    <ZoruTableCell colSpan={8}>
+                  <Tr key={i} className="border-[var(--st-border)]">
+                    <Td colSpan={8}>
                       <Skeleton className="h-8 w-full" />
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               ) : filtered.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={8}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {rows.length === 0
                       ? 'No contracts yet — click Add Contract to get started.'
                       : 'No contracts match these filters.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((row) => (
-                  <ZoruTableRow key={row._id} className="border-[var(--st-border)] contract-row">
-                    <ZoruTableCell>
+                  <Tr key={row._id} className="border-[var(--st-border)] contract-row">
+                    <Td>
                       <Checkbox
                         checked={selected.has(row._id)}
                         onCheckedChange={() => toggleOne(row._id)}
                         aria-label={`Select ${row.title}`}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] font-medium text-[var(--st-text)]">
                       <EntityRowLink
                         href={`/dashboard/crm/contracts/${row._id}`}
                         label={row.title}
                         subtitle={row.clientName || undefined}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {row.clientName || '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {row.value != null
                         ? new Intl.NumberFormat('en-IN', {
                             style: 'currency',
                             currency: row.currency || 'INR',
                           }).format(row.value)
                         : '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {fmtDate(row.startDate)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {fmtDate(row.endDate)}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <StatusPill
                         label={row.status || 'draft'}
                         tone={statusToTone(row.status)}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex justify-end gap-1">
                         <Link href={`/dashboard/crm/contracts/${row._id}`}>
                           <Button variant="outline" size="sm">
@@ -513,41 +487,41 @@ export default function ContractsPage() {
                           <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                         </Button>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={bulkConfirmOpen}
         onOpenChange={setBulkConfirmOpen}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Delete {selected.size} contract{selected.size === 1 ? '' : 's'}?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               This action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 runBulkDelete();
               }}
             >
               Delete all
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <ContractFormDialog
         open={dialogOpen}
@@ -557,25 +531,25 @@ export default function ContractsPage() {
         action={saveFormAction}
       />
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-[var(--st-text)]">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[var(--st-text)]">
               Delete contract?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[var(--st-text-secondary)]">
               This action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
     </div>
   );

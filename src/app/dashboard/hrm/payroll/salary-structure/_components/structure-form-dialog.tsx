@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, RadioGroup, ZoruRadioGroupItem, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -52,7 +40,7 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
     structure?: WithId<CrmSalaryStructure> | null;
 }) {
     const [state, formAction] = useActionState(saveSalaryStructure, saveInitialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!structure;
     
     const [components, setComponents] = useState<ComponentRowWithId[]>([]);
@@ -165,13 +153,13 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="max-w-2xl bg-[var(--st-bg)] border-[var(--st-border)]">
+            <DialogContent className="max-w-2xl bg-[var(--st-bg)] border-[var(--st-border)]">
                 <form action={formAction}>
                     {isEditing && <input type="hidden" name="id" value={structure?._id.toString()} />}
                     <input type="hidden" name="components" value={JSON.stringify(components)} />
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>{isEditing ? 'Edit' : 'Create'} Salary Structure</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                    <DialogHeader>
+                        <DialogTitle>{isEditing ? 'Edit' : 'Create'} Salary Structure</DialogTitle>
+                    </DialogHeader>
                     <div className="max-h-[70vh] space-y-4 overflow-y-auto py-4 pr-2">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -190,12 +178,12 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
                             {renderComponents('deduction')}
                         </div>
                     </div>
-                    <ZoruDialogFooter className="pt-2">
+                    <DialogFooter className="pt-2">
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton isEditing={isEditing} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

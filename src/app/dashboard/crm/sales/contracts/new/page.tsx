@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -45,7 +38,7 @@ function SubmitButton() {
 export default function NewContractPage() {
   const [state, formAction] = useActionState(saveContract, initialState);
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [autoRenew, setAutoRenew] = useState(false);
 
   useEffect(() => {

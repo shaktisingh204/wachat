@@ -3,18 +3,7 @@
  */
 import Link from 'next/link';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Table,
-  TableBody,
-  TableHeader,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui/compat';
 import {
   listSchedulesAction,
   listWorkbooksAction,
@@ -63,7 +52,7 @@ export default async function SchedulesPage() {
             <p className="text-sm text-[var(--st-text-secondary)]">No scheduled reports.</p>
           ) : (
             <Table>
-              <TableHeader>
+              <THead>
                 <tr>
                   <th className="text-left">Name</th>
                   <th className="text-left">Workbook</th>
@@ -72,8 +61,8 @@ export default async function SchedulesPage() {
                   <th className="text-left">Status</th>
                   <th className="text-left">Last run</th>
                 </tr>
-              </TableHeader>
-              <TableBody>
+              </THead>
+              <TBody>
                 {schedules.map((s) => (
                   <tr key={s._id} className="border-t border-[var(--st-border)]">
                     <td className="py-2">{s.name}</td>
@@ -88,7 +77,7 @@ export default async function SchedulesPage() {
                     <td className="py-2 text-[var(--st-text-secondary)]">{s.lastRunAt ?? '—'}</td>
                   </tr>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
           )}
         </CardContent>

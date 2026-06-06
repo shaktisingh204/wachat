@@ -2,28 +2,7 @@
 
 import React, { useState } from 'react';
 import { SabsmsPageShell } from '@/components/sabsms/page-toolkit';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-  Switch,
-  Button,
-  Label,
-  Badge,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Tabs, TabsList, TabsTrigger, TabsContent, Switch, Button, Label, Badge, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { 
   Bell, CheckCircle2, Download, Upload, Trash2, 
   RefreshCcw, Search, MessageSquare, Mail, Slack, 

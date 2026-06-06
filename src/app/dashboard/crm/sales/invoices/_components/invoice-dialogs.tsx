@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -54,7 +42,7 @@ export function InvoiceEmailDialog({
   initialTo,
 }: InvoiceEmailDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [to, setTo] = React.useState(initialTo ?? '');
   const [subject, setSubject] = React.useState(`Invoice ${invoiceNo}`);
   const [message, setMessage] = React.useState(
@@ -96,13 +84,13 @@ export function InvoiceEmailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Email invoice</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Email invoice</DialogTitle>
+          <DialogDescription>
             Marks this invoice as sent and queues the email.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="email-to">Recipient</Label>
@@ -135,15 +123,15 @@ export function InvoiceEmailDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onSubmit} disabled={pending}>
             {pending ? 'Sending…' : 'Send'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -178,13 +166,13 @@ export function InvoiceWhatsAppDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Send via WhatsApp</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Send via WhatsApp</DialogTitle>
+          <DialogDescription>
             Opens wa.me with the message prefilled.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="wa-phone">Phone (with country code)</Label>
@@ -207,13 +195,13 @@ export function InvoiceWhatsAppDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onSubmit}>Open WhatsApp</Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -229,7 +217,7 @@ export function InvoiceMarkPaidDialog({
   onCompleted,
 }: InvoiceMarkPaidDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [pending, startTransition] = React.useTransition();
 
   const onConfirm = () => {
@@ -252,23 +240,23 @@ export function InvoiceMarkPaidDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Mark this invoice paid?</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Mark this invoice paid?</DialogTitle>
+          <DialogDescription>
             Sets the status to <strong>paid</strong>. Use Record payment if you
             need to capture amount, method, and a receipt number.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
-        <ZoruDialogFooter>
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onConfirm} disabled={pending}>
             {pending ? 'Saving…' : 'Mark paid'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

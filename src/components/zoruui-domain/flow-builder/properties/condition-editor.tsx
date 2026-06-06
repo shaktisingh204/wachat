@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 interface EditorProps {
   node: any;
   onUpdate: (data: any) => void;
@@ -36,16 +26,16 @@ export function ConditionEditor({ node, onUpdate }: EditorProps) {
         <div className="space-y-2">
             <Label htmlFor="condition-operator">Operator</Label>
             <Select value={node.data.operator || 'equals'} onValueChange={(val) => onUpdate({ operator: val })}>
-                <ZoruSelectTrigger id="condition-operator"><ZoruSelectValue/></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="equals">Equals</ZoruSelectItem>
-                    <ZoruSelectItem value="not_equals">Does not equal</ZoruSelectItem>
-                    <ZoruSelectItem value="contains">Contains</ZoruSelectItem>
-                    <ZoruSelectItem value="is_one_of">Is one of (comma-sep)</ZoruSelectItem>
-                    <ZoruSelectItem value="is_not_one_of">Is not one of (comma-sep)</ZoruSelectItem>
-                    <ZoruSelectItem value="greater_than">Greater than</ZoruSelectItem>
-                    <ZoruSelectItem value="less_than">Less than</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger id="condition-operator"><SelectValue/></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="equals">Equals</SelectItem>
+                    <SelectItem value="not_equals">Does not equal</SelectItem>
+                    <SelectItem value="contains">Contains</SelectItem>
+                    <SelectItem value="is_one_of">Is one of (comma-sep)</SelectItem>
+                    <SelectItem value="is_not_one_of">Is not one of (comma-sep)</SelectItem>
+                    <SelectItem value="greater_than">Greater than</SelectItem>
+                    <SelectItem value="less_than">Less than</SelectItem>
+                </SelectContent>
             </Select>
         </div>
         <div className="space-y-2">

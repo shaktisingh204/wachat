@@ -1,28 +1,6 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import { Settings,
@@ -71,7 +49,7 @@ const TIMEZONES = [
 export default function TeamSettingsPage() {
     const [settings, setSettings] = useState<Settings>(DEFAULTS);
     const [saving, setSaving] = useState(false);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
         setSettings((s) => ({ ...s, [key]: value }));
@@ -90,24 +68,24 @@ export default function TeamSettingsPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/team">Team</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Workspace settings</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/team">Team</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Workspace settings</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Workspace settings</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Workspace settings</PageTitle>
+                    <PageDescription>
                         Defaults for invites, agent routing, and business hours.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <Button size="sm" onClick={handleSave} disabled={saving}>
                     {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     {saving ? 'Saving…' : 'Save settings'}
@@ -127,13 +105,13 @@ export default function TeamSettingsPage() {
                             value={settings.defaultRole}
                             onValueChange={(v) => update('defaultRole', v as Settings['defaultRole'])}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
-                                <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="agent">Agent</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
                         </Select>
                     </Field>
                     <Field label="Invitation TTL (days)">
@@ -241,16 +219,16 @@ export default function TeamSettingsPage() {
                             onValueChange={(v) => update('timezone', v)}
                             disabled={!settings.businessHoursEnabled}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {TIMEZONES.map((tz) => (
-                                    <ZoruSelectItem key={tz} value={tz}>
+                                    <SelectItem key={tz} value={tz}>
                                         {tz}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </Field>
                 </div>

@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Avatar,
-  ZoruAvatarFallback,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  ScrollArea,
-  Select,
-  Calendar,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Popover, PopoverContent, PopoverTrigger, Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, ScrollArea, Select, Calendar, cn } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -63,9 +45,9 @@ function AccountSwitcher() {
             >
                 <div className="flex items-center gap-2 truncate">
                     <Avatar className="h-6 w-6 border">
-                        <ZoruAvatarFallback className="text-[10px] bg-[var(--st-text)] text-white">
+                        <AvatarFallback className="text-[10px] bg-[var(--st-text)] text-white">
                             {(activeAccount?.name || 'AD').slice(0, 2).toUpperCase()}
-                        </ZoruAvatarFallback>
+                        </AvatarFallback>
                     </Avatar>
                     <div className="truncate">
                         <div className="truncate leading-tight">
@@ -97,7 +79,7 @@ function DateRangeBar({
 }) {
     return (
         <Popover>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="h-10 rounded-lg">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {DATE_PRESETS.find((p) => p.id === preset)?.label ||
@@ -105,8 +87,8 @@ function DateRangeBar({
                             ? `${format(date.from, 'LLL dd')} – ${date.to ? format(date.to, 'LLL dd') : ''}`
                             : 'Last 7 days')}
                 </Button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent className="p-0 w-auto" align="end">
+            </PopoverTrigger>
+            <PopoverContent className="p-0 w-auto" align="end">
                 <div className="flex">
                     <ScrollArea className="h-[340px] border-r w-40">
                         <div className="p-2 flex flex-col">
@@ -136,7 +118,7 @@ function DateRangeBar({
                         initialFocus
                     />
                 </div>
-            </ZoruPopoverContent>
+            </PopoverContent>
         </Popover>
     );
 }
@@ -209,25 +191,25 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
                                 <Bell className="h-4 w-4" />
                             </Button>
                             <DropdownMenu>
-                                <ZoruDropdownMenuTrigger asChild>
+                                <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
                                         <HelpCircle className="h-4 w-4" />
                                     </Button>
-                                </ZoruDropdownMenuTrigger>
-                                <ZoruDropdownMenuContent align="end">
-                                    <ZoruDropdownMenuLabel>Help & resources</ZoruDropdownMenuLabel>
-                                    <ZoruDropdownMenuSeparator />
-                                    <ZoruDropdownMenuItem asChild>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Help & resources</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem asChild>
                                         <a href="https://www.facebook.com/business/help" target="_blank" rel="noreferrer">
                                             Meta Business Help Center
                                         </a>
-                                    </ZoruDropdownMenuItem>
-                                    <ZoruDropdownMenuItem asChild>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
                                         <a href="https://developers.facebook.com/docs/marketing-apis" target="_blank" rel="noreferrer">
                                             Marketing API docs
                                         </a>
-                                    </ZoruDropdownMenuItem>
-                                </ZoruDropdownMenuContent>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
                     </div>
@@ -248,25 +230,25 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
                             <Bell className="h-4 w-4" />
                         </Button>
                         <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
                                     <HelpCircle className="h-4 w-4" />
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                                <ZoruDropdownMenuLabel>Help & resources</ZoruDropdownMenuLabel>
-                                <ZoruDropdownMenuSeparator />
-                                <ZoruDropdownMenuItem asChild>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Help & resources</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
                                     <a href="https://www.facebook.com/business/help" target="_blank" rel="noreferrer">
                                         Meta Business Help Center
                                     </a>
-                                </ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem asChild>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
                                     <a href="https://developers.facebook.com/docs/marketing-apis" target="_blank" rel="noreferrer">
                                         Marketing API docs
                                     </a>
-                                </ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 </div>

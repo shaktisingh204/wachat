@@ -1,60 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-  Badge,
-  Checkbox,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  Switch,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Table, TBody, Td, Th, THead, Tr, Textarea, useToast, Badge, Checkbox, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Switch, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState } from "react";
@@ -113,7 +59,7 @@ function FaqFormDialog({
   faqItem?: SabChatFaqItem;
   onSave: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   // @ts-expect-error - sabchat action signature
   const [state, formAction] = useActionState(saveSabChatFaq, formInitialState);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -140,33 +86,33 @@ function FaqFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px]">
         <form action={formAction}>
           {faqItem?._id && (
             <input type="hidden" name="id" value={faqItem._id.toString()} />
           )}
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+          <DialogHeader>
+            <DialogTitle>
               {faqItem ? "Edit FAQ Article" : "Create FAQ Article"}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               This article will be used by the AI to answer customer questions automatically.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-5 py-4">
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Category</Label>
                 <Select defaultValue="general">
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Select category" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="general">General</ZoruSelectItem>
-                    <ZoruSelectItem value="billing">Billing</ZoruSelectItem>
-                    <ZoruSelectItem value="technical">Technical Support</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">General</SelectItem>
+                    <SelectItem value="billing">Billing</SelectItem>
+                    <SelectItem value="technical">Technical Support</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2 flex flex-col justify-center pt-6">
@@ -207,14 +153,14 @@ function FaqFormDialog({
               <p className="text-[10px] text-[var(--st-text-secondary)]">Markdown formatting is supported (bold, italics, links, lists).</p>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <SubmitButton isEditing={!!faqItem} />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -222,7 +168,7 @@ function FaqFormDialog({
 export default function SabChatFaqPage() {
   const { sessionUser, reloadProject } = useProject();
   const [faqs, setFaqs] = useState<SabChatFaqItem[]>([]);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingFaq, setEditingFaq] = useState<SabChatFaqItem | undefined>(undefined);
   
@@ -272,47 +218,47 @@ export default function SabChatFaqPage() {
       />
 
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/sabchat/inbox">
               SabChat
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Knowledge Base</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Knowledge Base</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Knowledge Base FAQs</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Knowledge Base FAQs</PageTitle>
+          <PageDescription>
             Manage articles used by the AI assistant to resolve customer queries instantly.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions className="flex items-center gap-3">
-          <ZoruDropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+          </PageDescription>
+        </PageHeading>
+        <PageActions className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline">More Actions</Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuItem><Upload className="h-4 w-4 mr-2" /> Import CSV</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem><Download className="h-4 w-4 mr-2" /> Export CSV</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem><FolderOpen className="h-4 w-4 mr-2" /> Manage Categories</ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem><Upload className="h-4 w-4 mr-2" /> Import CSV</DropdownMenuItem>
+              <DropdownMenuItem><Download className="h-4 w-4 mr-2" /> Export CSV</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem><FolderOpen className="h-4 w-4 mr-2" /> Manage Categories</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button onClick={() => handleOpenDialog()}>
             <Plus className="mr-2 h-4 w-4" />
             Add Article
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {/* Advanced Filter Toolbar */}
@@ -329,14 +275,14 @@ export default function SabChatFaqPage() {
               />
             </div>
             <Select defaultValue="all">
-              <ZoruSelectTrigger className="w-[140px] h-9">
-                <ZoruSelectValue placeholder="Category" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All Categories</ZoruSelectItem>
-                <ZoruSelectItem value="general">General</ZoruSelectItem>
-                <ZoruSelectItem value="billing">Billing</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="w-[140px] h-9">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="general">General</SelectItem>
+                <SelectItem value="billing">Billing</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           
@@ -366,21 +312,21 @@ export default function SabChatFaqPage() {
       ) : (
         <Card className="overflow-hidden p-0 shadow-sm">
           <Table>
-            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50">
-              <ZoruTableRow>
-                <ZoruTableHead className="w-12 text-center">
+            <THead className="bg-[var(--st-bg-muted)]/50">
+              <Tr>
+                <Th className="w-12 text-center">
                   <Checkbox checked={selectedBulk.length === filteredFaqs.length && filteredFaqs.length > 0} 
                             onCheckedChange={() => setSelectedBulk(selectedBulk.length === filteredFaqs.length ? [] : filteredFaqs.map(f => f._id.toString()))} />
-                </ZoruTableHead>
-                <ZoruTableHead className="w-8"></ZoruTableHead>
-                <ZoruTableHead className="w-[40%]">Article</ZoruTableHead>
-                <ZoruTableHead>Category</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead className="text-right">Performance</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th className="w-8"></Th>
+                <Th className="w-[40%]">Article</Th>
+                <Th>Category</Th>
+                <Th>Status</Th>
+                <Th className="text-right">Performance</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filteredFaqs.map((faq, index) => {
                 // Mock metrics
                 const views = Math.floor(Math.random() * 500) + 10;
@@ -388,69 +334,69 @@ export default function SabChatFaqPage() {
                 const isGeneral = index % 2 === 0;
 
                 return (
-                  <ZoruTableRow key={faq._id.toString()} className="group">
-                    <ZoruTableCell className="text-center">
+                  <Tr key={faq._id.toString()} className="group">
+                    <Td className="text-center">
                       <Checkbox checked={selectedBulk.includes(faq._id.toString())} onCheckedChange={() => toggleBulk(faq._id.toString())} />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Button variant="ghost" size="icon-sm" className="h-6 w-6 cursor-grab active:cursor-grabbing text-[var(--st-text-tertiary)] hover:text-[var(--st-text)]">
                         <GripVertical className="h-4 w-4" />
                       </Button>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <div className="flex flex-col gap-1 pr-4">
                         <span className="font-medium text-sm text-[var(--st-text)] line-clamp-1">{faq.question}</span>
                         <span className="text-xs text-[var(--st-text-secondary)] line-clamp-1">{faq.answer}</span>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant="outline" className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         {isGeneral ? "General" : "Billing"}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant="success" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]">
                         Published
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex flex-col items-end gap-1 text-xs text-[var(--st-text-secondary)]">
                         <span className="flex items-center gap-1.5"><Eye className="h-3 w-3" /> {views}</span>
                         <span className="flex items-center gap-1.5 text-[var(--st-text)]"><ThumbsUp className="h-3 w-3" /> {helpful}%</span>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button variant="ghost" size="icon-sm" onClick={() => handleOpenDialog(faq)} aria-label="Edit FAQ">
                           <Pencil />
                         </Button>
-                        <ZoruAlertDialog>
-                          <ZoruAlertDialogTrigger asChild>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon-sm" className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
                               <Trash2 />
                             </Button>
-                          </ZoruAlertDialogTrigger>
-                          <ZoruAlertDialogContent>
-                            <ZoruAlertDialogHeader>
-                              <ZoruAlertDialogTitle>Delete Article?</ZoruAlertDialogTitle>
-                              <ZoruAlertDialogDescription>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Article?</AlertDialogTitle>
+                              <AlertDialogDescription>
                                 Are you sure you want to delete this FAQ? The AI will no longer use it for resolving chats.
-                              </ZoruAlertDialogDescription>
-                            </ZoruAlertDialogHeader>
-                            <ZoruAlertDialogFooter>
-                              <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                              <ZoruAlertDialogAction destructive onClick={() => handleDelete(faq._id.toString())}>
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction destructive onClick={() => handleDelete(faq._id.toString())}>
                                 Delete
-                              </ZoruAlertDialogAction>
-                            </ZoruAlertDialogFooter>
-                          </ZoruAlertDialogContent>
-                        </ZoruAlertDialog>
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       )}

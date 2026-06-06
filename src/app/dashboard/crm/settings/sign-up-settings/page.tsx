@@ -1,20 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   getSignupSettingsForAdmin,
   saveSignupSettings,
@@ -22,7 +9,7 @@ import {
 } from '@/app/actions/client-signup.actions';
 
 export default function SignUpSettingsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [settings, setSettings] = useState<SignupSettings | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -66,12 +53,12 @@ export default function SignUpSettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Sign-up settings</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Sign-up settings</PageTitle>
+          <PageDescription>
             Control public client signup, admin approval, and the terms shown on the public form.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <Card className="p-6">

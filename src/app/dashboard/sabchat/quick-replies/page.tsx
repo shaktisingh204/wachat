@@ -1,64 +1,6 @@
 "use client";
 
-import {
-  cn,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-  Badge,
-  Checkbox,
-  Switch,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruTooltip,
-  ZoruTooltipContent,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { cn, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Table, TBody, Td, Th, THead, Tr, Textarea, useToast, Badge, Checkbox, Switch, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState } from "react";
@@ -120,7 +62,7 @@ function QuickReplyFormDialog({
   reply?: SabChatQuickReply;
   onSave: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   // @ts-expect-error - sabchat action signature
   const [state, formAction] = useActionState(
     saveSabChatQuickReply,
@@ -154,19 +96,19 @@ function QuickReplyFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-[650px]">
+      <DialogContent className="sm:max-w-[650px]">
         <form action={formAction}>
           {reply?._id && (
             <input type="hidden" name="id" value={reply._id.toString()} />
           )}
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+          <DialogHeader>
+            <DialogTitle>
               {reply ? "Edit" : "Add"} quick reply
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Create a canned response for your agents to use in live chat.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           
           <div className="space-y-5 py-4">
             
@@ -229,14 +171,14 @@ function QuickReplyFormDialog({
               <div className="space-y-2">
                 <Label>Category</Label>
                 <Select defaultValue="general">
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Select category" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="general">General</ZoruSelectItem>
-                    <ZoruSelectItem value="sales">Sales</ZoruSelectItem>
-                    <ZoruSelectItem value="support">Support</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">General</SelectItem>
+                    <SelectItem value="sales">Sales</SelectItem>
+                    <SelectItem value="support">Support</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
@@ -250,7 +192,7 @@ function QuickReplyFormDialog({
             </div>
 
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -259,9 +201,9 @@ function QuickReplyFormDialog({
               Cancel
             </Button>
             <SubmitButton isEditing={!!reply} />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -269,7 +211,7 @@ function QuickReplyFormDialog({
 export default function SabChatQuickRepliesPage() {
   const { sessionUser, reloadProject } = useProject();
   const [replies, setReplies] = useState<SabChatQuickReply[]>([]);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingReply, setEditingReply] = useState<SabChatQuickReply | undefined>(undefined);
 
@@ -319,45 +261,45 @@ export default function SabChatQuickRepliesPage() {
       />
 
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/sabchat/inbox">
               SabChat
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Quick Replies</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Quick Replies</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Quick replies</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Quick replies</PageTitle>
+          <PageDescription>
             Canned responses for agents to use in live chat to speed up resolution times.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions className="flex items-center gap-3">
-          <ZoruDropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+          </PageDescription>
+        </PageHeading>
+        <PageActions className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline">More Actions</Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuItem><Upload className="h-4 w-4 mr-2" /> Import CSV</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem><Download className="h-4 w-4 mr-2" /> Export CSV</ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem><Upload className="h-4 w-4 mr-2" /> Import CSV</DropdownMenuItem>
+              <DropdownMenuItem><Download className="h-4 w-4 mr-2" /> Export CSV</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button onClick={() => handleOpenDialog()}>
             <Plus className="mr-2 h-4 w-4" />
             Add reply
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {/* Advanced Filter Toolbar */}
@@ -374,14 +316,14 @@ export default function SabChatQuickRepliesPage() {
               />
             </div>
             <Select defaultValue="all">
-              <ZoruSelectTrigger className="w-[160px] h-9">
-                <ZoruSelectValue placeholder="Scope" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All Replies</ZoruSelectItem>
-                <ZoruSelectItem value="team">Team Scope</ZoruSelectItem>
-                <ZoruSelectItem value="personal">Personal Scope</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="w-[160px] h-9">
+                <SelectValue placeholder="Scope" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Replies</SelectItem>
+                <SelectItem value="team">Team Scope</SelectItem>
+                <SelectItem value="personal">Personal Scope</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           
@@ -411,65 +353,65 @@ export default function SabChatQuickRepliesPage() {
       ) : (
         <Card className="overflow-hidden p-0 shadow-sm">
           <Table>
-            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50">
-              <ZoruTableRow>
-                <ZoruTableHead className="w-12 text-center">
+            <THead className="bg-[var(--st-bg-muted)]/50">
+              <Tr>
+                <Th className="w-12 text-center">
                   <Checkbox checked={selectedBulk.length === filteredReplies.length && filteredReplies.length > 0} 
                             onCheckedChange={() => setSelectedBulk(selectedBulk.length === filteredReplies.length ? [] : filteredReplies.map(r => r._id.toString()))} />
-                </ZoruTableHead>
-                <ZoruTableHead className="w-8"></ZoruTableHead>
-                <ZoruTableHead className="w-48">Shortcut</ZoruTableHead>
-                <ZoruTableHead>Message Template</ZoruTableHead>
-                <ZoruTableHead>Scope</ZoruTableHead>
-                <ZoruTableHead className="text-right">Usage</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th className="w-8"></Th>
+                <Th className="w-48">Shortcut</Th>
+                <Th>Message Template</Th>
+                <Th>Scope</Th>
+                <Th className="text-right">Usage</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filteredReplies.map((reply, index) => {
                 const uses = Math.floor(Math.random() * 1000) + 10;
                 const isTeam = index % 3 !== 0;
 
                 return (
-                  <ZoruTableRow key={reply._id.toString()} className="group">
-                    <ZoruTableCell className="text-center">
+                  <Tr key={reply._id.toString()} className="group">
+                    <Td className="text-center">
                       <Checkbox checked={selectedBulk.includes(reply._id.toString())} onCheckedChange={() => toggleBulk(reply._id.toString())} />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Button variant="ghost" size="icon-sm" className="h-6 w-6 cursor-grab active:cursor-grabbing text-[var(--st-text-tertiary)] hover:text-[var(--st-text)]">
                         <GripVertical className="h-4 w-4" />
                       </Button>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-sm text-[var(--st-text)] font-medium">
+                    </Td>
+                    <Td className="font-mono text-sm text-[var(--st-text)] font-medium">
                       {reply.shortcut}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <div className="flex flex-col gap-1">
                         <span className="max-w-lg truncate text-sm text-[var(--st-text-secondary)]">
                           {reply.message}
                         </span>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      <ZoruTooltipProvider>
-                        <ZoruTooltip>
-                          <ZoruTooltipTrigger asChild>
+                    </Td>
+                    <Td>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
                             <Badge variant="outline" className={cn("gap-1.5", isTeam ? "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]" : "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]")}>
                               {isTeam ? <Users className="h-3 w-3" /> : <User className="h-3 w-3" />}
                               {isTeam ? "Team" : "Personal"}
                             </Badge>
-                          </ZoruTooltipTrigger>
-                          <ZoruTooltipContent>{isTeam ? "Available to all agents" : "Only available to you"}</ZoruTooltipContent>
-                        </ZoruTooltip>
-                      </ZoruTooltipProvider>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                          </TooltipTrigger>
+                          <TooltipContent>{isTeam ? "Available to all agents" : "Only available to you"}</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex flex-col items-end gap-1 text-xs text-[var(--st-text-secondary)]">
                         <span className="flex items-center gap-1.5 font-medium text-[var(--st-text)]"><Activity className="h-3 w-3 text-[var(--st-text)]" /> {uses}</span>
                         <span className="text-[10px] flex items-center gap-1"><Clock className="h-3 w-3" /> 2d ago</span>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
                           variant="ghost"
@@ -479,40 +421,40 @@ export default function SabChatQuickRepliesPage() {
                         >
                           <Pencil />
                         </Button>
-                        <ZoruAlertDialog>
-                          <ZoruAlertDialogTrigger asChild>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon-sm" className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
                               <Trash2 />
                             </Button>
-                          </ZoruAlertDialogTrigger>
-                          <ZoruAlertDialogContent>
-                            <ZoruAlertDialogHeader>
-                              <ZoruAlertDialogTitle>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
                                 Delete quick reply?
-                              </ZoruAlertDialogTitle>
-                              <ZoruAlertDialogDescription>
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
                                 Are you sure you want to delete the &ldquo;{reply.shortcut}&rdquo; reply? This action cannot be undone.
-                              </ZoruAlertDialogDescription>
-                            </ZoruAlertDialogHeader>
-                            <ZoruAlertDialogFooter>
-                              <ZoruAlertDialogCancel>
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>
                                 Cancel
-                              </ZoruAlertDialogCancel>
-                              <ZoruAlertDialogAction
+                              </AlertDialogCancel>
+                              <AlertDialogAction
                                 destructive
                                 onClick={() => handleDelete(reply._id.toString())}
                               >
                                 Delete
-                              </ZoruAlertDialogAction>
-                            </ZoruAlertDialogFooter>
-                          </ZoruAlertDialogContent>
-                        </ZoruAlertDialog>
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { useState, useRef, useEffect, useActionState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { saveCrmProduct } from '@/app/actions/crm-products.actions';
@@ -60,13 +60,13 @@ export function QuickAddProductDialog({ open, onOpenChange, onProductAdded, defa
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-[500px]">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle className="text-[var(--st-text)]">Add New Product</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+            <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                    <DialogTitle className="text-[var(--st-text)]">Add New Product</DialogTitle>
+                    <DialogDescription className="text-[var(--st-text-secondary)]">
                         Quickly add a new product. Edit full details later.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <input type="hidden" name="quickAdd" value="true" /> {/* Optional flag if needed on server */}
                     <div className="grid gap-2">
@@ -103,12 +103,12 @@ export function QuickAddProductDialog({ open, onOpenChange, onProductAdded, defa
                             />
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

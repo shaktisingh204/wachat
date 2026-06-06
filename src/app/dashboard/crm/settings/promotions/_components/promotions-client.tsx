@@ -11,41 +11,7 @@ import {
   BanIcon,
 } from 'lucide-react';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 
@@ -117,7 +83,7 @@ function EditDialog({
   initial: Row | null;
 }) {
   const isEditing = !!initial;
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, formAction] = useActionState(savePromotionExt, { message: '', error: '' });
 
   React.useEffect(() => {
@@ -127,12 +93,12 @@ function EditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl">
         <form action={formAction}>
           {isEditing && <input type="hidden" name="_id" value={initial!._id} />}
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{isEditing ? 'Edit Promotion' : 'New Promotion'}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+          <DialogHeader>
+            <DialogTitle>{isEditing ? 'Edit Promotion' : 'New Promotion'}</DialogTitle>
+          </DialogHeader>
           <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Name <span className="text-[var(--st-danger)]">*</span></Label>
@@ -145,11 +111,11 @@ function EditDialog({
             <div className="space-y-2">
               <Label htmlFor="type">Type <span className="text-[var(--st-danger)]">*</span></Label>
               <Select name="type" defaultValue={initial?.type ?? 'percent'}>
-                <ZoruSelectTrigger id="type"><ZoruSelectValue /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="percent">Percent</ZoruSelectItem>
-                  <ZoruSelectItem value="fixed">Fixed amount</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger id="type"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="percent">Percent</SelectItem>
+                  <SelectItem value="fixed">Fixed amount</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
@@ -163,11 +129,11 @@ function EditDialog({
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
               <Select name="status" defaultValue={initial?.status ?? 'active'}>
-                <ZoruSelectTrigger id="status"><ZoruSelectValue /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                  <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger id="status"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
@@ -179,18 +145,18 @@ function EditDialog({
               <Input id="end_date" name="end_date" type="date" defaultValue={fmtDate(initial?.end_date) === '—' ? '' : fmtDate(initial?.end_date)} />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitBtn isEditing={isEditing} />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
 
 export function PromotionsClient(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<Row[]>([]);
   const [kpis, setKpis] = React.useState({ total: 0, active: 0, expired: 0, totalDiscountValue: 0 });
@@ -348,12 +314,12 @@ export function PromotionsClient(): React.JSX.Element {
         filters={
           <div className="flex flex-wrap items-center gap-2">
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <ZoruSelectTrigger className="h-9 w-[150px]"><ZoruSelectValue placeholder="Status" /></ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                <ZoruSelectItem value="inactive">Inactive / Expired</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive / Expired</SelectItem>
+              </SelectContent>
             </Select>
             <div className="flex items-center gap-1.5">
               <label className="text-[12px] text-[var(--st-text-secondary)]">From</label>
@@ -427,38 +393,38 @@ export function PromotionsClient(): React.JSX.Element {
           <Card className="p-0">
             <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10">
                       <Checkbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => togglePage(v === true)} aria-label="Select all on page" />
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Code</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Discount</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Usage limit</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Valid until</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Code</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Discount</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Usage limit</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Valid until</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {loading && rows.length === 0 ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                      <ZoruTableRow key={i}><ZoruTableCell colSpan={8}><Skeleton className="h-8 w-full" /></ZoruTableCell></ZoruTableRow>
+                      <Tr key={i}><Td colSpan={8}><Skeleton className="h-8 w-full" /></Td></Tr>
                     ))
                   ) : pageRows.length === 0 ? (
-                    <ZoruTableRow>
-                      <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
+                    <Tr>
+                      <Td colSpan={8} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                         No promotions match this filter.
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     pageRows.map((row) => (
-                      <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
-                        <ZoruTableCell>
+                      <Tr key={row._id} className="border-[var(--st-border)]">
+                        <Td>
                           <Checkbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.name}`} />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                        </Td>
+                        <Td className="font-medium text-[var(--st-text)]">
                           <RowDrawer label={row.name} title={`Promotion · ${row.name}`} description="Promotion details. Use Edit to modify.">
                             <div className="space-y-3 text-sm">
                               <div><div className="text-xs text-[var(--st-text-secondary)]">Name</div><div>{row.name}</div></div>
@@ -470,79 +436,79 @@ export function PromotionsClient(): React.JSX.Element {
                               <div><div className="text-xs text-[var(--st-text-secondary)]">Status</div><Badge variant={statusVariant(row)}>{statusLabel(row)}</Badge></div>
                             </div>
                           </RowDrawer>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px]">
+                        </Td>
+                        <Td className="text-[13px]">
                           <Badge>{row.code}</Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {row.type === 'percent' ? `${row.value}%` : row.value}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {row.usage_limit ?? 'Unlimited'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {fmtDate(row.end_date)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px]">
+                        </Td>
+                        <Td className="text-[13px]">
                           <Badge variant={statusVariant(row)}>{statusLabel(row)}</Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <div className="flex justify-end gap-1">
                             <Button variant="ghost" size="sm" onClick={() => { setEditing(row); setDialogOpen(true); }} aria-label={`Edit ${row.name}`}>Edit</Button>
                             <Button variant="ghost" size="sm" onClick={() => setPendingDelete(row)} aria-label={`Delete ${row.name}`}>
                               <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           </div>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>
         </div>
       </EntityListShell>
 
-      <ZoruAlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete promotion?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete promotion?</AlertDialogTitle>
+            <AlertDialogDescription>
               {pendingDelete ? `"${pendingDelete.name}" (${pendingDelete.code}) will be permanently removed.` : 'This cannot be undone.'}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDeleteOne} disabled={deletePending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteOne} disabled={deletePending}>
               {deletePending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <ZoruAlertDialog open={!!pendingBulk} onOpenChange={(o) => !o && setPendingBulk(null)}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+      <AlertDialog open={!!pendingBulk} onOpenChange={(o) => !o && setPendingBulk(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               {pendingBulk === 'delete'
                 ? `Delete ${selected.size} promotion${selected.size === 1 ? '' : 's'}?`
                 : `Deactivate ${selected.size} promotion${selected.size === 1 ? '' : 's'}?`}
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               {pendingBulk === 'delete'
                 ? 'Selected promotions will be permanently removed.'
                 : 'Selected promotions will be set to inactive.'}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleBulkAction} disabled={bulkPending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkAction} disabled={bulkPending}>
               {bulkPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Confirm
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

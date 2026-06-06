@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-  Checkbox,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardContent
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast, Checkbox, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
@@ -79,7 +68,7 @@ const initialState = { message: '', error: '' };
 
 export default function NewPortalUserPage() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, formAction] = useActionState(savePortalUser, initialState);
   const [clientError, setClientError] = useState('');
 
@@ -215,10 +204,10 @@ export default function NewPortalUserPage() {
         </Card>
 
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle>Role & Access</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+                <CardTitle>Role & Access</CardTitle>
+            </CardHeader>
+            <CardBody>
                 <div className="space-y-3">
                     <div className="grid gap-2 md:grid-cols-3">
                         {ROLE_OPTIONS.map((opt) => (
@@ -281,7 +270,7 @@ export default function NewPortalUserPage() {
                         </div>
                     </div>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
 
         {clientError && (

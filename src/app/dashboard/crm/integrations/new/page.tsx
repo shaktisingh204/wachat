@@ -7,7 +7,7 @@ import { Suspense } from 'react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
-import { ZoruWaterLoader } from '@/components/sabcrm/20ui/compat';
+import { WaterLoader } from '@/components/sabcrm/20ui/compat';
 
 import { IntegrationForm } from '../_components/integration-form';
 
@@ -23,7 +23,7 @@ export default async function NewIntegrationPage() {
             title="New custom integration"
             back={{ href: '/dashboard/crm/integrations', label: 'Integrations' }}
         >
-            <Suspense fallback={<div className="flex h-64 items-center justify-center"><ZoruWaterLoader /></div>}>
+            <Suspense fallback={<div className="flex h-64 items-center justify-center"><WaterLoader /></div>}>
                 <IntegrationForm />
             </Suspense>
         </EntityDetailShell>

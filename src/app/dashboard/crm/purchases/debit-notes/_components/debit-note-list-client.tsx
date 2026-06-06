@@ -3,16 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Badge,
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { MoreHorizontal, Trash2, Pencil, BadgeDollarSign } from 'lucide-react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -81,7 +72,7 @@ export function DebitNoteListClient({
     onToggleAll,
     onDelete,
 }: DebitNoteListClientProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
 
     const bulky = useCrmBulkyState<CrmDebitNoteDoc>({
@@ -223,13 +214,13 @@ export function DebitNoteListClient({
                             </Link>
                         </Button>
                         <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button size="sm" variant="ghost">
                                     <MoreHorizontal className="h-3.5 w-3.5" />
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                                <ZoruDropdownMenuItem onClick={() => {
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => {
                                     setDebitNoteStatus(id, 'refunded').then(res => {
                                         if (res.success) {
                                             toast({ title: 'Marked refunded' });
@@ -241,13 +232,13 @@ export function DebitNoteListClient({
                                 }}>
                                     <BadgeDollarSign className="h-3.5 w-3.5 mr-1.5" />
                                     Mark refunded
-                                </ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuSeparator />
-                                <ZoruDropdownMenuItem onClick={() => onDelete(id)} className="text-[var(--st-danger)]">
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => onDelete(id)} className="text-[var(--st-danger)]">
                                     <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                                     Delete
-                                </ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 );

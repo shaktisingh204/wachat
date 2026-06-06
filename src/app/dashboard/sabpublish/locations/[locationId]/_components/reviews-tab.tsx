@@ -2,14 +2,7 @@
 
 import * as React from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  EmptyState,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, EmptyState, Textarea } from '@/components/sabcrm/20ui/compat';
 import { replySabpublishReview } from '@/app/actions/sabpublish.actions';
 import type { SabpublishReviewDoc } from '@/lib/rust-client/sabpublish-reviews';
 

@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/sabcrm/20ui/compat';
 import { useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { DatabaseBackup, LoaderCircle } from 'lucide-react';
@@ -38,8 +27,8 @@ export function SystemBackupButton() {
   };
 
   return (
-    <ZoruAlertDialog>
-      <ZoruAlertDialogTrigger asChild>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
         <Button variant="outline" disabled={isPending}>
           {isPending ? (
             <>
@@ -53,21 +42,21 @@ export function SystemBackupButton() {
             </>
           )}
         </Button>
-      </ZoruAlertDialogTrigger>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Trigger System Backup?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Trigger System Backup?</AlertDialogTitle>
+          <AlertDialogDescription>
             This will initiate a full database and file system backup. This process might take some time and can impact system performance during the operation. Are you sure you want to proceed?
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction onClick={onBackup}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onBackup}>
             Start Backup
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

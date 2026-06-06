@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -66,7 +66,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export function ProbationForm({ initialData }: ProbationFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const recordId = initialData?._id
         ? typeof initialData._id === 'string'
             ? initialData._id

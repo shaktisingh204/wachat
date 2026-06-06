@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/sabcrm/20ui/compat';
 import {
   LoaderCircle } from 'lucide-react';
 
@@ -36,18 +27,18 @@ export function BookingSingleDeleteDialog({
   onConfirm,
 }: SingleDeleteDialogProps) {
   return (
-    <ZoruAlertDialog open={open} onOpenChange={onOpenChange}>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Delete booking?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete booking?</AlertDialogTitle>
+          <AlertDialogDescription>
             This permanently removes <strong>{label}</strong> from the
             database. The action cannot be undone.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
               onConfirm();
@@ -57,10 +48,10 @@ export function BookingSingleDeleteDialog({
           >
             {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
             Delete permanently
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -80,20 +71,20 @@ export function BookingBulkDeleteDialog({
   onConfirm,
 }: BulkDeleteDialogProps) {
   return (
-    <ZoruAlertDialog open={open} onOpenChange={onOpenChange}>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
             Delete {count} booking{count === 1 ? '' : 's'}?
-          </ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+          </AlertDialogTitle>
+          <AlertDialogDescription>
             This permanently removes the selected bookings. This action cannot
             be undone.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
               onConfirm();
@@ -103,9 +94,9 @@ export function BookingBulkDeleteDialog({
           >
             {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
             Delete all
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

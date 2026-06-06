@@ -7,7 +7,7 @@ import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar-overrides.css';
 
-import { Alert, ZoruAlertDescription, ZoruAlertTitle, Button, Card, ZoruCardContent, Skeleton, ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Input, Label } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, Skeleton, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { CircleAlert } from 'lucide-react';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
@@ -83,8 +83,8 @@ export default function CampaignCalendarPage() {
                 <AmBreadcrumb page="Calendar" />
                 <Alert>
                     <CircleAlert className="h-4 w-4" />
-                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>Pick an ad account to view the campaign calendar.</ZoruAlertDescription>
+                    <AlertTitle>No ad account selected</AlertTitle>
+                    <AlertDescription>Pick an ad account to view the campaign calendar.</AlertDescription>
                 </Alert>
             </div>
         );
@@ -147,7 +147,7 @@ export default function CampaignCalendarPage() {
                 <Skeleton className="h-[600px] w-full" />
             ) : (
                 <Card>
-                    <ZoruCardContent className="p-4">
+                    <CardBody className="p-4">
                         <div className="h-[600px]">
                             <Calendar
                                 localizer={localizer}
@@ -162,15 +162,15 @@ export default function CampaignCalendarPage() {
                                 popup={true}
                             />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
 
-            <ZoruDialog open={!!selectedCampaign} onOpenChange={(open) => !open && setSelectedCampaign(null)}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Quick Edit Campaign</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+            <Dialog open={!!selectedCampaign} onOpenChange={(open) => !open && setSelectedCampaign(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Quick Edit Campaign</DialogTitle>
+                    </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label>Campaign Name</Label>
@@ -188,7 +188,7 @@ export default function CampaignCalendarPage() {
                             <strong>End:</strong> {selectedCampaign?.stop_time ? new Date(selectedCampaign.stop_time).toLocaleString() : 'Ongoing'}
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" onClick={() => setSelectedCampaign(null)}>Cancel</Button>
                         <Button 
                             className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white"
@@ -205,9 +205,9 @@ export default function CampaignCalendarPage() {
                         >
                             Save Changes
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
-            </ZoruDialog>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

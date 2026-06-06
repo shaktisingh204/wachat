@@ -1,12 +1,4 @@
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   getEcommOrderById,
   getEcommShopBySlug
@@ -49,16 +41,16 @@ async function OrderDetails({ orderId, slug }: { orderId: string, slug: string }
 
     return (
         <Card className="w-full max-w-2xl text-center">
-            <ZoruCardHeader>
+            <CardHeader>
                 <div className="mx-auto bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded-full h-16 w-16 flex items-center justify-center mb-4">
                     <CheckCircle className="h-10 w-10" />
                 </div>
-                <ZoruCardTitle className="text-3xl">Thank you for your order!</ZoruCardTitle>
-                <ZoruCardDescription>
+                <CardTitle className="text-3xl">Thank you for your order!</CardTitle>
+                <CardDescription>
                     Your order has been placed successfully. A confirmation has been sent to your email.
-                </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-6 text-left">
+                </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-6 text-left">
                 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[var(--st-bg-muted)]/50 rounded-lg">
                     <div>
@@ -134,7 +126,7 @@ async function OrderDetails({ orderId, slug }: { orderId: string, slug: string }
                         <Link href={`/shop/${slug}`}>Continue Shopping</Link>
                     </Button>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

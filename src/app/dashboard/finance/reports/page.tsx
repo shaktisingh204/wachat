@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { useGSAP } from '@gsap/react';
 import gsapCore from 'gsap';
 import { Download, Printer } from 'lucide-react';
@@ -77,40 +77,40 @@ export default function ReportsPage() {
         <CardContent>
           {activeReport === 'trial_balance' && (
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Particulars</TableHead>
-                  <TableHead className="text-right">Debit (₹)</TableHead>
-                  <TableHead className="text-right">Credit (₹)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">Cash in Hand</TableCell>
-                  <TableCell className="text-right">45,000.00</TableCell>
-                  <TableCell className="text-right"></TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Bank Accounts</TableCell>
-                  <TableCell className="text-right">1,25,000.00</TableCell>
-                  <TableCell className="text-right"></TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Sales Account</TableCell>
-                  <TableCell className="text-right"></TableCell>
-                  <TableCell className="text-right">3,50,000.00</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Capital Account</TableCell>
-                  <TableCell className="text-right"></TableCell>
-                  <TableCell className="text-right">5,00,000.00</TableCell>
-                </TableRow>
-                <TableRow className="border-t-2 font-bold">
-                  <TableCell>Total</TableCell>
-                  <TableCell className="text-right">8,50,000.00</TableCell>
-                  <TableCell className="text-right">8,50,000.00</TableCell>
-                </TableRow>
-              </TableBody>
+              <THead>
+                <Tr>
+                  <Th>Particulars</Th>
+                  <Th className="text-right">Debit (₹)</Th>
+                  <Th className="text-right">Credit (₹)</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                <Tr>
+                  <Td className="font-medium">Cash in Hand</Td>
+                  <Td className="text-right">45,000.00</Td>
+                  <Td className="text-right"></Td>
+                </Tr>
+                <Tr>
+                  <Td className="font-medium">Bank Accounts</Td>
+                  <Td className="text-right">1,25,000.00</Td>
+                  <Td className="text-right"></Td>
+                </Tr>
+                <Tr>
+                  <Td className="font-medium">Sales Account</Td>
+                  <Td className="text-right"></Td>
+                  <Td className="text-right">3,50,000.00</Td>
+                </Tr>
+                <Tr>
+                  <Td className="font-medium">Capital Account</Td>
+                  <Td className="text-right"></Td>
+                  <Td className="text-right">5,00,000.00</Td>
+                </Tr>
+                <Tr className="border-t-2 font-bold">
+                  <Td>Total</Td>
+                  <Td className="text-right">8,50,000.00</Td>
+                  <Td className="text-right">8,50,000.00</Td>
+                </Tr>
+              </TBody>
             </Table>
           )}
 

@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';
@@ -90,7 +79,7 @@ function SubmitButton({ label }: { label: string }) {
 
 export function PoForm({ initial }: PoFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const searchParams = useSearchParams();
     const prefillBomId = searchParams?.get('bomId') ?? '';
 
@@ -198,11 +187,11 @@ export function PoForm({ initial }: PoFormProps) {
             </header>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Header</ZoruCardTitle>
-                    <ZoruCardDescription>Pick a BOM to auto-populate components.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <CardHeader>
+                    <CardTitle>Header</CardTitle>
+                    <CardDescription>Pick a BOM to auto-populate components.</CardDescription>
+                </CardHeader>
+                <CardBody className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-1">
                         <Label htmlFor="orderNo">PO #</Label>
                         <Input
@@ -279,14 +268,14 @@ export function PoForm({ initial }: PoFormProps) {
                             initialId={initial?.status ?? 'planned'}
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Schedule</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <CardHeader>
+                    <CardTitle>Schedule</CardTitle>
+                </CardHeader>
+                <CardBody className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-1">
                         <Label htmlFor="plannedStart">Planned start</Label>
                         <Input
@@ -326,14 +315,14 @@ export function PoForm({ initial }: PoFormProps) {
                             placeholder="Pick an operator…"
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Notes & cost preview</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-4">
+                <CardHeader>
+                    <CardTitle>Notes & cost preview</CardTitle>
+                </CardHeader>
+                <CardBody className="flex flex-col gap-4">
                     <Textarea
                         name="notes"
                         defaultValue={initial?.notes ?? ''}
@@ -398,7 +387,7 @@ export function PoForm({ initial }: PoFormProps) {
                             </div>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <div className="sticky bottom-0 flex justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] py-3">

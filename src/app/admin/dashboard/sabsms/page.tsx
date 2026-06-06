@@ -5,19 +5,7 @@ import { getAdminSession } from '@/lib/admin-session';
 import { sabsmsEngine, SabsmsEngineError } from '@/lib/sabsms/engine-client';
 import { connectToDatabase } from '@/lib/mongodb';
 import { SABSMS_COLLECTIONS } from '@/lib/sabsms/db/collections';
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle, StatCard } from '@/components/sabcrm/20ui/compat';
 import { SabsmsHistoricalChart } from './HistoricalChart';
 import { QueueActions } from './QueueActions';
 
@@ -116,9 +104,9 @@ export default async function SabsmsAdminOverviewPage() {
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>SabSMS</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>SabSMS</PageTitle>
+          <PageDescription>
             Rust engine at{' '}
             <code className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 text-xs">
               {process.env.SABSMS_ENGINE_URL ?? 'http://localhost:4002'}
@@ -130,19 +118,19 @@ export default async function SabsmsAdminOverviewPage() {
             >
               open send debug
             </Link>
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Engine</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Engine</CardTitle>
+            <CardDescription>
               Live status reported by the Rust service.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="flex flex-wrap items-center gap-3 text-sm">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="flex flex-wrap items-center gap-3 text-sm">
             {health.reachable ? (
               <Badge variant="default">healthy</Badge>
             ) : (
@@ -154,7 +142,7 @@ export default async function SabsmsAdminOverviewPage() {
             {health.error && (
               <span className="text-[var(--st-text)]">{health.error}</span>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         
         <QueueActions />

@@ -8,24 +8,7 @@
  */
 
 import * as React from 'react';
-import {
-  Alert,
-  ZoruAlertDescription,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { SignaturePad } from '@/components/share/signature-pad';
 import {
   acceptEstimate,
@@ -62,10 +45,10 @@ export function EstimateActionsPanel({ hash, status, signature, declineReason, i
   if (status === 'accepted') {
     return (
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Estimate accepted</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3 text-sm">
+        <CardHeader>
+          <CardTitle>Estimate accepted</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-3 text-sm">
           {signature ? (
             <>
               <p>
@@ -93,7 +76,7 @@ export function EstimateActionsPanel({ hash, status, signature, declineReason, i
               </Button>
             </div>
           ) : null}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     );
   }
@@ -101,16 +84,16 @@ export function EstimateActionsPanel({ hash, status, signature, declineReason, i
   if (status === 'declined') {
     return (
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Estimate declined</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-2 text-sm text-[var(--st-text)]">
+        <CardHeader>
+          <CardTitle>Estimate declined</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-2 text-sm text-[var(--st-text)]">
           {declineReason ? (
             <p className="whitespace-pre-line">Reason: {declineReason}</p>
           ) : (
             <p>This estimate has been declined.</p>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     );
   }
@@ -151,13 +134,13 @@ export function EstimateActionsPanel({ hash, status, signature, declineReason, i
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>Respond to this estimate</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-4">
+      <CardHeader>
+        <CardTitle>Respond to this estimate</CardTitle>
+      </CardHeader>
+      <CardBody className="space-y-4">
         {banner ? (
           <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
-            <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
+            <AlertDescription>{banner.message}</AlertDescription>
           </Alert>
         ) : null}
 
@@ -194,30 +177,30 @@ export function EstimateActionsPanel({ hash, status, signature, declineReason, i
         )}
 
         <Dialog open={declineOpen} onOpenChange={setDeclineOpen}>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>Decline estimate</ZoruDialogTitle>
-              <ZoruDialogDescription>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Decline estimate</DialogTitle>
+              <DialogDescription>
                 Optionally let the sender know why.
-              </ZoruDialogDescription>
-            </ZoruDialogHeader>
+              </DialogDescription>
+            </DialogHeader>
             <Textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Reason (optional)"
               rows={4}
             />
-            <ZoruDialogFooter>
+            <DialogFooter>
               <Button variant="ghost" onClick={() => setDeclineOpen(false)}>
                 Cancel
               </Button>
               <Button variant="destructive" onClick={handleDecline} disabled={pending}>
                 {pending ? 'Submitting…' : 'Decline'}
               </Button>
-            </ZoruDialogFooter>
-          </ZoruDialogContent>
+            </DialogFooter>
+          </DialogContent>
         </Dialog>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

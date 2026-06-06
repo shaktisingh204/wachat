@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Badge } from '@/components/sabcrm/20ui/compat';
 import { Plus, Store } from 'lucide-react';
 
 import { listStorefronts } from '@/app/actions/sabshop.actions';
@@ -44,13 +44,13 @@ export default async function SabShopPage(): Promise<React.JSX.Element> {
 
             {!res.ok ? (
                 <Card>
-                    <ZoruCardContent className="p-6 text-sm text-[var(--st-text)]">
+                    <CardBody className="p-6 text-sm text-[var(--st-text)]">
                         {res.error}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : items.length === 0 ? (
                 <Card>
-                    <ZoruCardContent className="flex flex-col items-center gap-3 p-12 text-center">
+                    <CardBody className="flex flex-col items-center gap-3 p-12 text-center">
                         <Store className="h-10 w-10 text-[var(--st-text-secondary)]" />
                         <h2 className="text-lg font-medium text-[var(--st-text)]">No storefronts yet</h2>
                         <p className="text-sm text-[var(--st-text-secondary)]">
@@ -61,19 +61,19 @@ export default async function SabShopPage(): Promise<React.JSX.Element> {
                                 <Plus className="h-4 w-4" /> Create first storefront
                             </Link>
                         </Button>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {items.map((sf) => (
                         <Card key={sf._id}>
-                            <ZoruCardHeader>
+                            <CardHeader>
                                 <div className="flex items-center justify-between gap-2">
-                                    <ZoruCardTitle className="text-base">{sf.displayName}</ZoruCardTitle>
+                                    <CardTitle className="text-base">{sf.displayName}</CardTitle>
                                     <Badge variant={statusVariant(sf.status)}>{sf.status ?? 'draft'}</Badge>
                                 </div>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="flex flex-col gap-3 text-sm">
+                            </CardHeader>
+                            <CardBody className="flex flex-col gap-3 text-sm">
                                 <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                                     <span>/store/{sf.slug}</span>
                                     <span>{sf.currency ?? 'INR'}</span>
@@ -92,7 +92,7 @@ export default async function SabShopPage(): Promise<React.JSX.Element> {
                                         <Link href={`/store/${sf.slug}`} target="_blank">View store →</Link>
                                     </Button>
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     ))}
                 </div>

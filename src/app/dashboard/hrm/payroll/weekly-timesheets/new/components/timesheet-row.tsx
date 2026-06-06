@@ -1,13 +1,4 @@
-import {
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruCheckbox,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Button } from '@/components/sabcrm/20ui/compat';
 import { Trash } from 'lucide-react';
 import type { EmployeeLite } from '../new-timesheet-client';
 
@@ -40,7 +31,7 @@ export function TimesheetRow({
       style={style}
       className="flex items-center gap-4 px-4 border-b border-[var(--st-border)]/50 hover:bg-[var(--st-bg)]/50 transition-colors"
     >
-      <ZoruCheckbox 
+      <Checkbox 
         checked={isSelected}
         onCheckedChange={() => onToggleSelect(entry.id)}
       />
@@ -50,16 +41,16 @@ export function TimesheetRow({
           value={entry.userId} 
           onValueChange={(val) => onUpdate(entry.id, 'userId', val)}
         >
-          <ZoruSelectTrigger className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-            <ZoruSelectValue placeholder="Select employee" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+            <SelectValue placeholder="Select employee" />
+          </SelectTrigger>
+          <SelectContent>
             {employees.map((e) => (
-              <ZoruSelectItem key={e._id} value={e._id}>
+              <SelectItem key={e._id} value={e._id}>
                 {[e.firstName, e.lastName].filter(Boolean).join(' ') || 'Unnamed'}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
       </div>
 

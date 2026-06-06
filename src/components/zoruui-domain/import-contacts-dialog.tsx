@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -121,7 +106,7 @@ export function ImportContactsDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button
           variant="pill"
           size="md"
@@ -129,8 +114,8 @@ export function ImportContactsDialog({
         >
           Import
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="max-w-[520px] rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0 shadow-lg">
+      </DialogTrigger>
+      <DialogContent className="max-w-[520px] rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0 shadow-lg">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input
@@ -139,21 +124,21 @@ export function ImportContactsDialog({
             value={selectedPhoneNumberId}
           />
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
+          <DialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <LuFileUp className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
+              <DialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
                 Import contacts
-              </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
+              </DialogTitle>
+              <DialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
                 Upload a CSV or XLSX file to add or update contacts. First
                 column must be the phone number (WhatsApp ID); second should
                 be the name.
-              </ZoruDialogDescription>
+              </DialogDescription>
             </div>
-          </ZoruDialogHeader>
+          </DialogHeader>
 
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* WhatsApp number */}
@@ -165,16 +150,16 @@ export function ImportContactsDialog({
                 value={selectedPhoneNumberId}
                 onValueChange={setSelectedPhoneNumberId}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Choose a number…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a number…" />
+                </SelectTrigger>
+                <SelectContent>
                   {(project?.phoneNumbers || []).map((phone) => (
-                    <ZoruSelectItem key={phone.id} value={phone.id}>
+                    <SelectItem key={phone.id} value={phone.id}>
                       {phone.display_phone_number} ({phone.verified_name})
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
 
@@ -232,7 +217,7 @@ export function ImportContactsDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
             <Button
               type="button"
               variant="pill"
@@ -242,9 +227,9 @@ export function ImportContactsDialog({
               Cancel
             </Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

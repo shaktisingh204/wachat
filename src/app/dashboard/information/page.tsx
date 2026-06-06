@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Skeleton,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Separator,
-  Button,
-  Input,
-  Checkbox,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton, Alert, AlertDescription, AlertTitle, Badge, Separator, Button, Input, Checkbox, useToast } from '@/components/sabcrm/20ui/compat';
 import { getProjectById } from '@/app/actions/index';
 import type { WithId } from 'mongodb';
 import type { Project, PaymentConfiguration, BusinessCapabilities } from '@/lib/definitions';
@@ -66,28 +50,28 @@ function LoadingSkeleton() {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <Card>
-                    <ZoruCardHeader>
+                    <CardHeader>
                         <Skeleton className="h-6 w-1/4" />
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    </CardHeader>
+                    <CardBody>
                         <div className="space-y-4">
                             <Skeleton className="h-6 w-full" />
                             <Skeleton className="h-6 w-full" />
                             <Skeleton className="h-6 w-full" />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardHeader>
+                    <CardHeader>
                         <Skeleton className="h-6 w-1/4" />
                         <Skeleton className="h-4 w-1/2" />
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    </CardHeader>
+                    <CardBody>
                         <div className="space-y-4">
                             <Skeleton className="h-6 w-full" />
                             <Skeleton className="h-6 w-full" />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>
@@ -177,7 +161,7 @@ function InfoRecordForm({
 
 function InformationRecordsSection() {
     const initialRecords = fetchRecordsSuspense();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [records, setRecords] = useState<InfoRecord[]>(initialRecords);
     const [search, setSearch] = useState('');
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -303,11 +287,11 @@ function InformationRecordsSection() {
 
     return (
         <Card className="flex flex-col h-[600px]">
-            <ZoruCardHeader className="shrink-0 border-b pb-4">
+            <CardHeader className="shrink-0 border-b pb-4">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <ZoruCardTitle>Additional Information</ZoruCardTitle>
-                        <ZoruCardDescription>Manage key-value metadata for this project. Showing {filteredRecords.length} records.</ZoruCardDescription>
+                        <CardTitle>Additional Information</CardTitle>
+                        <CardDescription>Manage key-value metadata for this project. Showing {filteredRecords.length} records.</CardDescription>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         <Button variant="outline" size="sm" onClick={exportCSV} title="Export CSV"><Download className="w-4 h-4 mr-1" /> CSV</Button>
@@ -334,8 +318,8 @@ function InformationRecordsSection() {
                         </div>
                     )}
                 </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex-1 overflow-hidden p-0 relative">
+            </CardHeader>
+            <CardBody className="flex-1 overflow-hidden p-0 relative">
                 {/* Header row */}
                 <div className="flex items-center border-b bg-[var(--st-bg-muted)]/50 p-3 sticky top-0 z-10 text-sm font-medium">
                     <div className="w-[50px] flex justify-center">
@@ -417,7 +401,7 @@ function InformationRecordsSection() {
                         })}
                     </div>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -426,7 +410,7 @@ export default function ProjectInformationPage() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
     const [loading, setLoading] = useState(true);
     const [isClient, setIsClient] = useState(false);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     useEffect(() => {
         setIsClient(true);
@@ -475,10 +459,10 @@ export default function ProjectInformationPage() {
                 </div>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>
+                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertDescription>
                         Please select a project from the main dashboard page to see its information.
-                    </ZoruAlertDescription>
+                    </AlertDescription>
                 </Alert>
             </div>
         );
@@ -496,13 +480,13 @@ export default function ProjectInformationPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle className="flex items-center gap-2">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
                             <Briefcase className="h-5 w-5" />
                             General Details
-                        </ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <dl className="space-y-1">
                             <InfoRow label="Project Name" value={project.name} />
                             <InfoRow label="WABA ID" value={<span className="font-mono text-sm break-all">{project.wabaId}</span>} />
@@ -523,18 +507,18 @@ export default function ProjectInformationPage() {
                                 </>
                             )}
                         </dl>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle className="flex items-center gap-2">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
                             <Banknote className="h-5 w-5" />
                             Payment Configuration
-                        </ZoruCardTitle>
-                        <ZoruCardDescription>Details for payment integrations received via webhook.</ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                        </CardTitle>
+                        <CardDescription>Details for payment integrations received via webhook.</CardDescription>
+                    </CardHeader>
+                    <CardBody>
                         {paymentConfig ? (
                             <dl className="space-y-1">
                                 <InfoRow label="Provider Name" value={<span className="capitalize">{paymentConfig.provider_name}</span>} />
@@ -548,15 +532,15 @@ export default function ProjectInformationPage() {
                                 <p>No payment configuration data received for this project yet.</p>
                             </div>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 
             <ErrorBoundary fallback={
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Error Loading Information</ZoruAlertTitle>
-                    <ZoruAlertDescription>There was a problem loading the project metadata records.</ZoruAlertDescription>
+                    <AlertTitle>Error Loading Information</AlertTitle>
+                    <AlertDescription>There was a problem loading the project metadata records.</AlertDescription>
                 </Alert>
             }>
                 <Suspense fallback={

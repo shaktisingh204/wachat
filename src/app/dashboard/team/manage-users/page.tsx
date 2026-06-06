@@ -1,42 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowRight,
   Check,
@@ -77,7 +41,7 @@ type MemberWithRoles = WithId<User & { roles: Record<string, string> }>;
 type Tab = 'members' | 'invites';
 
 export default function ManageUsersPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const canInvite = useCan('team_users', 'create');
     const canEditRoles = useCan('team_users', 'edit');
     const canRemove = useCan('team_users', 'delete');
@@ -216,28 +180,28 @@ export default function ManageUsersPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/team/manage-users">Team</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Manage Users</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/team/manage-users">Team</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Manage Users</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Team</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Team</PageTitle>
+                    <PageDescription>
                         Invite teammates, assign roles, and manage access across your projects.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <div className="flex items-center gap-2">
                     <Button variant="outline" size="md" onClick={fetchAll} disabled={loading}>
                         {loading ? (
@@ -282,17 +246,17 @@ export default function ManageUsersPage() {
                     />
                     <div className="w-[160px]">
                         <Select value={roleFilter} onValueChange={setRoleFilter}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All roles</ZoruSelectItem>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All roles</SelectItem>
                                 {roleOptions.map((r) => (
-                                    <ZoruSelectItem key={r.value} value={r.value}>
+                                    <SelectItem key={r.value} value={r.value}>
                                         {r.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>
@@ -445,7 +409,7 @@ function InviteDialog({
     projects: WithId<Project>[];
     customRoles: CrmCustomRole[];
     onInvited: () => void;
-    toast: ReturnType<typeof useZoruToast>['toast'];
+    toast: ReturnType<typeof useToast>['toast'];
 }) {
     const [pending, setPending] = React.useState(false);
     const [role, setRole] = React.useState('agent');
@@ -479,16 +443,16 @@ function InviteDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button size="md">
                     <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
                     Invite member
                 </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="max-w-md">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Invite a teammate</ZoruDialogTitle>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Invite a teammate</DialogTitle>
+                </DialogHeader>
                 <p className="-mt-2 text-[12.5px] text-[var(--st-text-secondary)]">
                     They&apos;ll receive a branded email with a one-click accept link valid for 7 days.
                 </p>
@@ -511,18 +475,18 @@ function InviteDialog({
                                 Role
                             </label>
                             <Select value={role} onValueChange={setRole}>
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="agent">Agent (default)</ZoruSelectItem>
-                                    <ZoruSelectItem value="admin">Admin (full access)</ZoruSelectItem>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="agent">Agent (default)</SelectItem>
+                                    <SelectItem value="admin">Admin (full access)</SelectItem>
                                     {customRoles.map((r) => (
-                                        <ZoruSelectItem key={r.id} value={r.id}>
+                                        <SelectItem key={r.id} value={r.id}>
                                             {r.name}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="flex flex-col gap-1.5">
@@ -533,17 +497,17 @@ function InviteDialog({
                                 value={projectId || '__all'}
                                 onValueChange={(v) => setProjectId(v === '__all' ? '' : v)}
                             >
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="__all">All my projects</ZoruSelectItem>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__all">All my projects</SelectItem>
                                     {projects.map((p) => (
-                                        <ZoruSelectItem key={p._id.toString()} value={p._id.toString()}>
+                                        <SelectItem key={p._id.toString()} value={p._id.toString()}>
                                             {p.name}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>
@@ -567,7 +531,7 @@ function InviteDialog({
                         </Button>
                     </div>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -599,7 +563,7 @@ function MembersTable({
     onToggleSelect: (id: string) => void;
     onToggleAll: (ids: string[], on: boolean) => void;
     onRefresh: () => void;
-    toast: ReturnType<typeof useZoruToast>['toast'];
+    toast: ReturnType<typeof useToast>['toast'];
 }) {
     const allIds = React.useMemo(() => members.map((m) => m._id.toString()), [members]);
     const allChecked = allIds.length > 0 && allIds.every((id) => selectedIds.has(id));
@@ -676,7 +640,7 @@ function MemberRow({
     selected: boolean;
     onToggleSelect: () => void;
     onRefresh: () => void;
-    toast: ReturnType<typeof useZoruToast>['toast'];
+    toast: ReturnType<typeof useToast>['toast'];
 }) {
     const [removing, setRemoving] = React.useState(false);
     const roleEntries = Object.entries(member.roles || {});
@@ -755,8 +719,8 @@ function MemberRow({
 
             <div className="flex justify-end">
                 {!canRemove ? null : (
-                    <ZoruAlertDialog>
-                        <ZoruAlertDialogTrigger asChild>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -770,20 +734,20 @@ function MemberRow({
                                     <Trash2 className="h-4 w-4" strokeWidth={1.75} />
                                 )}
                             </Button>
-                        </ZoruAlertDialogTrigger>
-                        <ZoruAlertDialogContent>
-                            <ZoruAlertDialogHeader>
-                                <ZoruAlertDialogTitle>Remove {member.name || member.email}?</ZoruAlertDialogTitle>
-                                <ZoruAlertDialogDescription>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Remove {member.name || member.email}?</AlertDialogTitle>
+                                <AlertDialogDescription>
                                     This will revoke their access to every project you own. They can be re-invited later.
-                                </ZoruAlertDialogDescription>
-                            </ZoruAlertDialogHeader>
-                            <ZoruAlertDialogFooter>
-                                <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                <ZoruAlertDialogAction onClick={onRemoveAll}>Remove access</ZoruAlertDialogAction>
-                            </ZoruAlertDialogFooter>
-                        </ZoruAlertDialogContent>
-                    </ZoruAlertDialog>
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={onRemoveAll}>Remove access</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 )}
             </div>
         </div>
@@ -809,7 +773,7 @@ function ChangeRoleBadge({
     roleLabel: (id: string) => string;
     canEdit: boolean;
     onRefresh: () => void;
-    toast: ReturnType<typeof useZoruToast>['toast'];
+    toast: ReturnType<typeof useToast>['toast'];
 }) {
     const [open, setOpen] = React.useState(false);
     const [saving, setSaving] = React.useState(false);
@@ -852,7 +816,7 @@ function ChangeRoleBadge({
     }
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <button
                     type="button"
                     className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 h-6 text-[11.5px] text-[var(--st-text)] hover:bg-[var(--st-bg)]"
@@ -861,11 +825,11 @@ function ChangeRoleBadge({
                     <span className="text-[var(--st-text-secondary)]">·</span>
                     <span>{roleLabel(role)}</span>
                 </button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="max-w-sm">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Change role on {projectName}</ZoruDialogTitle>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent className="max-w-sm">
+                <DialogHeader>
+                    <DialogTitle>Change role on {projectName}</DialogTitle>
+                </DialogHeader>
                 <div className="mt-3 flex flex-col gap-2">
                     {roleOptions.map((r) => (
                         <button
@@ -885,7 +849,7 @@ function ChangeRoleBadge({
                         </button>
                     ))}
                 </div>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -903,7 +867,7 @@ function InvitesTable({
     invites: InvitationView[];
     roleLabel: (id: string) => string;
     onRefresh: () => void;
-    toast: ReturnType<typeof useZoruToast>['toast'];
+    toast: ReturnType<typeof useToast>['toast'];
 }) {
     if (loading) return <SkeletonRows />;
     if (!invites.length) {
@@ -948,7 +912,7 @@ function InviteRow({
     invite: InvitationView;
     roleLabel: (id: string) => string;
     onRefresh: () => void;
-    toast: ReturnType<typeof useZoruToast>['toast'];
+    toast: ReturnType<typeof useToast>['toast'];
 }) {
     const [busy, setBusy] = React.useState<false | 'resend' | 'revoke' | 'copy'>(false);
 
@@ -1209,16 +1173,16 @@ function BulkBar({
                                 if (v) onChangeRole(v);
                             }}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Set role to…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Set role to…" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {roleOptions.map((r) => (
-                                    <ZoruSelectItem key={r.value} value={r.value}>
+                                    <SelectItem key={r.value} value={r.value}>
                                         {r.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 ) : null}

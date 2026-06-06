@@ -1,34 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Label,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Label, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useParams,
   useRouter } from 'next/navigation';
@@ -91,7 +63,7 @@ function fmtDate(iso?: string): string {
 export default function GdprEraseRequestDetailPage() {
     const params = useParams<{ id: string }>();
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const id = params?.id ?? '';
     const [row, setRow] = React.useState<CrmEraseRequestDTO | null>(null);
     const [isLoading, startLoading] = React.useTransition();
@@ -394,36 +366,36 @@ export default function GdprEraseRequestDetailPage() {
                 {row.dryRunReport ? (
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                            <THead>
+                                <Tr className="hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Collection
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-right text-[var(--st-text-secondary)]">
                                         Rows
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Sample IDs
-                                    </ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {row.dryRunReport.rowsAffected.map((r) => (
-                                    <ZoruTableRow key={r.collection}>
-                                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                    <Tr key={r.collection}>
+                                        <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                             {r.collection}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right text-[13px] text-[var(--st-text)]">
                                             {r.count.toLocaleString()}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="font-mono text-[11px] text-[var(--st-text-secondary)]">
                                             {r.sampleIds.length === 0
                                                 ? '—'
                                                 : r.sampleIds.join(', ')}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 ) : null}
@@ -451,14 +423,14 @@ export default function GdprEraseRequestDetailPage() {
                     }
                 }}
             >
-                <ZoruDialogContent className="max-w-lg">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Reject erase request</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Reject erase request</DialogTitle>
+                        <DialogDescription>
                             Reason is required and is recorded in the chained-hash audit
                             ledger.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="space-y-2">
                         <Label htmlFor="reject-reason-detail">Reason</Label>
                         <Textarea
@@ -469,7 +441,7 @@ export default function GdprEraseRequestDetailPage() {
                             placeholder="Outstanding legal obligation under tax law…"
                         />
                     </div>
-                    <ZoruDialogFooter className="gap-2">
+                    <DialogFooter className="gap-2">
                         <Button
                             type="button"
                             variant="outline"
@@ -490,19 +462,19 @@ export default function GdprEraseRequestDetailPage() {
                             ) : null}
                             Reject
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Execute confirmation */}
-            <ZoruAlertDialog
+            <AlertDialog
                 open={executing}
                 onOpenChange={(o) => !o && setExecuting(false)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Execute erase?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Execute erase?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             This action {row.scope === 'hard_delete' ? 'deletes' : 'redacts PII in'}{' '}
                             {row.dryRunReport?.totalRows.toLocaleString() ?? 'all matched'} row(s)
                             across {row.dryRunReport?.collectionsScanned ?? 'multiple'} collection(s).{' '}
@@ -510,21 +482,21 @@ export default function GdprEraseRequestDetailPage() {
                             <code>GDPR_EXECUTION_ENABLED</code> is not <code>true</code>, the
                             execution path is walked but no rows are mutated — the audit ledger
                             still records the attempt.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={onExecuteConfirm}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={onExecuteConfirm}>
                             {isPending ? (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : (
                                 <PlayCircle className="mr-2 h-4 w-4" />
                             )}
                             Execute
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </EntityDetailShell>
     );
 }

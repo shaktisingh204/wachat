@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge, Skeleton, Dialog, ZoruDialogContent, ZoruDialogTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Badge, Skeleton, Dialog, DialogContent, DialogTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   Image as ImageIcon,
   CircleAlert,
@@ -93,7 +93,7 @@ export default function AdPreviewsPage() {
                     {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-64" />)}
                 </div>
             ) : filtered.length === 0 ? (
-                <Card><ZoruCardContent className="p-8 text-center text-[var(--st-text-secondary)]">No ads found.</ZoruCardContent></Card>
+                <Card><CardBody className="p-8 text-center text-[var(--st-text-secondary)]">No ads found.</CardBody></Card>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filtered.map((ad) => {
@@ -102,30 +102,30 @@ export default function AdPreviewsPage() {
                             <Card key={ad.id} className="overflow-hidden">
                                 {img ? (
                                     <Dialog>
-                                        <ZoruDialogTrigger asChild>
+                                        <DialogTrigger asChild>
                                             <div className="h-40 bg-[var(--st-bg-muted)] overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img src={img} alt={ad.name} className="w-full h-full object-cover" />
                                             </div>
-                                        </ZoruDialogTrigger>
-                                        <ZoruDialogContent className="w-[90vw] max-w-6xl h-[90vh] p-2 flex flex-col justify-center items-center bg-black/95 border-none shadow-2xl [&>button]:text-white [&>button:hover]:text-white [&>button:hover]:bg-white/20">
+                                        </DialogTrigger>
+                                        <DialogContent className="w-[90vw] max-w-6xl h-[90vh] p-2 flex flex-col justify-center items-center bg-black/95 border-none shadow-2xl [&>button]:text-white [&>button:hover]:text-white [&>button:hover]:bg-white/20">
                                             <img src={img} alt={ad.name} className="w-full h-full object-contain" />
-                                        </ZoruDialogContent>
+                                        </DialogContent>
                                     </Dialog>
                                 ) : (
                                     <div className="h-40 bg-[var(--st-bg-muted)] flex items-center justify-center text-[var(--st-text-secondary)]">
                                         <ImageIcon className="h-10 w-10" />
                                     </div>
                                 )}
-                                <ZoruCardHeader className="pb-2">
-                                    <ZoruCardTitle className="text-sm font-medium flex items-center justify-between">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-sm font-medium flex items-center justify-between">
                                         <span className="truncate mr-2">{ad.name}</span>
                                         <Badge variant={ad.status === 'ACTIVE' ? 'default' : 'secondary'}>
                                             {ad.status}
                                         </Badge>
-                                    </ZoruCardTitle>
-                                </ZoruCardHeader>
-                                <ZoruCardContent className="space-y-1 text-sm">
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardBody className="space-y-1 text-sm">
                                     {ad.creative?.title && <p className="font-medium">{ad.creative.title}</p>}
                                     {ad.creative?.body && (
                                         <p className="text-[var(--st-text-secondary)] text-xs line-clamp-3">{ad.creative.body}</p>
@@ -138,7 +138,7 @@ export default function AdPreviewsPage() {
                                     >
                                         View on Facebook <ExternalLink className="h-3 w-3" />
                                     </a>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         );
                     })}

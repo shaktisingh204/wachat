@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge, Card, ZoruCardHeader, ZoruCardTitle, Input } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardHeader, CardTitle, Input } from '@/components/sabcrm/20ui/compat';
 import { PublicTaskboardView } from '@/app/actions/public-taskboard.actions';
 
 function formatDate(iso: string | null): string {
@@ -65,12 +65,12 @@ export default function TaskboardClient({
   return (
     <div className="space-y-6">
       <Card>
-        <ZoruCardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
               Project taskboard
             </p>
-            <ZoruCardTitle className="mt-1">{project.name}</ZoruCardTitle>
+            <CardTitle className="mt-1">{project.name}</CardTitle>
             <p className="mt-1 text-sm text-[var(--st-text)]">
               {formatDate(project.startDate)} &middot;{' '}
               {formatDate(project.deadline)}
@@ -92,7 +92,7 @@ export default function TaskboardClient({
               />
             </div>
           </div>
-        </ZoruCardHeader>
+        </CardHeader>
       </Card>
 
       <div className="overflow-x-auto">

@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -82,8 +71,8 @@ export default function MediaDetailsPage() {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>Error Loading Media</ZoruAlertTitle>
-        <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        <AlertTitle>Error Loading Media</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
       </Alert>
     );
   }
@@ -119,15 +108,15 @@ export default function MediaDetailsPage() {
               />
             </div>
             <div className="p-6 flex flex-col">
-              <ZoruCardHeader className="p-0">
-                <ZoruCardDescription>
+              <CardHeader className="p-0">
+                <CardDescription>
                   {format(new Date(media.timestamp), 'PPP p')}
-                </ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="p-0 py-4 flex-grow">
+                </CardDescription>
+              </CardHeader>
+              <CardBody className="p-0 py-4 flex-grow">
                 <p>{media.caption || 'No caption for this post.'}</p>
-              </ZoruCardContent>
-              <ZoruCardFooter className="p-0 flex flex-col items-start gap-4">
+              </CardBody>
+              <CardFooter className="p-0 flex flex-col items-start gap-4">
                 <div className="flex gap-6 text-lg">
                   <div className="flex items-center gap-2">
                     <ThumbsUp className="h-5 w-5 text-[var(--st-text-secondary)]" />
@@ -147,7 +136,7 @@ export default function MediaDetailsPage() {
                     </a>
                   </Button>
                 </div>
-              </ZoruCardFooter>
+              </CardFooter>
             </div>
           </div>
         </Card>

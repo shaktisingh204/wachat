@@ -2,17 +2,7 @@
 
 import * as React from 'react';
 import { GripVertical, Settings2 } from 'lucide-react';
-import {
-  Button,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetTrigger,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   getMyWidgets,
   reorderWidgets,
@@ -39,7 +29,7 @@ export function WidgetConfigDrawer({
   triggerVariant = 'outline',
   onConfigChange,
 }: WidgetConfigDrawerProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [widgets, setWidgets] = React.useState<WidgetPref[]>([]);
   const [loading, setLoading] = React.useState(false);
@@ -103,22 +93,22 @@ export function WidgetConfigDrawer({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <ZoruSheetTrigger asChild>
+      <SheetTrigger asChild>
         <Button variant={triggerVariant} size="sm">
           <Settings2 className="h-4 w-4" strokeWidth={1.75} />
           {triggerLabel}
         </Button>
-      </ZoruSheetTrigger>
-      <ZoruSheetContent
+      </SheetTrigger>
+      <SheetContent
         side="right"
         className="flex w-full max-w-md flex-col overflow-hidden p-0"
       >
-        <ZoruSheetHeader className="shrink-0 border-b border-[var(--st-border)] px-6 pb-4 pt-6">
-          <ZoruSheetTitle>Configure dashboard widgets</ZoruSheetTitle>
-          <ZoruSheetDescription>
+        <SheetHeader className="shrink-0 border-b border-[var(--st-border)] px-6 pb-4 pt-6">
+          <SheetTitle>Configure dashboard widgets</SheetTitle>
+          <SheetDescription>
             Toggle widgets on/off and drag to reorder. Changes save automatically.
-          </ZoruSheetDescription>
-        </ZoruSheetHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
           <div className="flex flex-col gap-2">
@@ -158,7 +148,7 @@ export function WidgetConfigDrawer({
             )}
           </div>
         </div>
-      </ZoruSheetContent>
+      </SheetContent>
     </Sheet>
   );
 }

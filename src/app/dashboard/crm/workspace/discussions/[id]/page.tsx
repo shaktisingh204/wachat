@@ -15,15 +15,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { MessageSquare } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, EmptyState } from '@/components/sabcrm/20ui/compat';
 
 import {
     EntityDetailShell,
@@ -183,10 +175,10 @@ export default async function DiscussionDetailPage({
                 rightRail={
                     <>
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Key facts</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            <CardHeader>
+                                <CardTitle>Key facts</CardTitle>
+                            </CardHeader>
+                            <CardBody>
                                 <dl className="grid grid-cols-2 gap-y-1.5 text-[12.5px]">
                                     <dt className="text-[var(--st-text-secondary)]">Status</dt>
                                     <dd>
@@ -217,16 +209,16 @@ export default async function DiscussionDetailPage({
                                         {lastActivity(d, replies)}
                                     </dd>
                                 </dl>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>
+                            <CardHeader>
+                                <CardTitle>
                                     Participants ({participantIds.length})
-                                </ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardBody>
                                 {participantIds.length === 0 ? (
                                     <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         No replies yet — the participant roster
@@ -248,28 +240,28 @@ export default async function DiscussionDetailPage({
                                         ) : null}
                                     </div>
                                 )}
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         {d.project_id ? (
                             <Card>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle>Project</ZoruCardTitle>
-                                </ZoruCardHeader>
-                                <ZoruCardContent>
+                                <CardHeader>
+                                    <CardTitle>Project</CardTitle>
+                                </CardHeader>
+                                <CardBody>
                                     <EntityPickerChip
                                         entity="project"
                                         id={d.project_id}
                                     />
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         ) : null}
 
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Quick actions</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            <CardHeader>
+                                <CardTitle>Quick actions</CardTitle>
+                            </CardHeader>
+                            <CardBody>
                                 <div className="flex flex-col gap-2 text-[12.5px]">
                                     <Button asChild variant="outline" size="sm">
                                         <a href="#section-thread">
@@ -290,7 +282,7 @@ export default async function DiscussionDetailPage({
                                         </Link>
                                     </Button>
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     </>
                 }
@@ -298,10 +290,10 @@ export default async function DiscussionDetailPage({
                 <SectionNav />
 
                 <Card id="section-overview">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Overview</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Overview</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="mb-3 flex flex-wrap items-center gap-2">
                             <Badge variant="ghost">
                                 Category: {cat?.name ?? 'Uncategorized'}
@@ -321,14 +313,14 @@ export default async function DiscussionDetailPage({
                                 </span>
                             )}
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card id="section-details">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Details</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Details</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="grid gap-4 md:grid-cols-2">
                             <Field label="Title">{d.title || '—'}</Field>
                             <Field label="Category">
@@ -358,7 +350,7 @@ export default async function DiscussionDetailPage({
                                 {fmtDateTime(d.updatedAt ?? d.createdAt)}
                             </Field>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <div id="section-thread">
@@ -366,22 +358,22 @@ export default async function DiscussionDetailPage({
                 </div>
 
                 <Card id="section-files">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Files</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Files</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <EmptyState
                             title="No files attached"
                             description="A getDiscussionFiles() server action and SabFile picker integration land with the §1D.2 attachments roster."
                         />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card id="section-moderation">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Moderation</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Moderation</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Lock thread, pin reply, and mark solved actions are
                             wired through the header action menu (Lock / Pin /
@@ -411,14 +403,14 @@ export default async function DiscussionDetailPage({
                                 </Link>
                             </Button>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card id="section-related">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Related</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Related</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="flex flex-col gap-2 text-[12.5px]">
                             <Link
                                 href="/dashboard/crm/workspace/discussions"
@@ -443,7 +435,7 @@ export default async function DiscussionDetailPage({
                                 </Link>
                             ) : null}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <p className="text-[11px] text-[var(--st-text-secondary)]">

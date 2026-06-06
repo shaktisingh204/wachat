@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuGroup,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuGroup, Select } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { ChevronsUpDown, Check, LayoutTemplate, File, ShoppingCart } from 'lucide-react';
@@ -43,35 +33,35 @@ export function SurfaceSwitcher({ shop, pages, activeSurface, onSwitch }: Surfac
 
     return (
         <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-56 justify-between">
                     <span className="truncate">{activeSurfaceLabel}</span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent className="w-56">
-                <ZoruDropdownMenuLabel>Site Parts</ZoruDropdownMenuLabel>
-                <ZoruDropdownMenuGroup>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>Site Parts</DropdownMenuLabel>
+                <DropdownMenuGroup>
                     {siteParts.map(part => (
-                        <ZoruDropdownMenuItem key={part.id} onSelect={() => onSwitch(part.id)}>
+                        <DropdownMenuItem key={part.id} onSelect={() => onSwitch(part.id)}>
                             <LayoutTemplate className="mr-2 h-4 w-4" />
                             <span>{part.name}</span>
                             {activeSurface === part.id && <Check className="ml-auto h-4 w-4" />}
-                        </ZoruDropdownMenuItem>
+                        </DropdownMenuItem>
                     ))}
-                </ZoruDropdownMenuGroup>
-                <ZoruDropdownMenuSeparator />
-                <ZoruDropdownMenuLabel>Pages</ZoruDropdownMenuLabel>
-                <ZoruDropdownMenuGroup>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Pages</DropdownMenuLabel>
+                <DropdownMenuGroup>
                     {allPages.map(page => (
-                        <ZoruDropdownMenuItem key={page._id.toString()} onSelect={() => onSwitch(page._id.toString())}>
+                        <DropdownMenuItem key={page._id.toString()} onSelect={() => onSwitch(page._id.toString())}>
                             <File className="mr-2 h-4 w-4" />
                             <span>{page.name}</span>
                             {activeSurface === page._id.toString() && <Check className="ml-auto h-4 w-4" />}
-                        </ZoruDropdownMenuItem>
+                        </DropdownMenuItem>
                     ))}
-                </ZoruDropdownMenuGroup>
-            </ZoruDropdownMenuContent>
+                </DropdownMenuGroup>
+            </DropdownMenuContent>
         </DropdownMenu>
     );
 }

@@ -1,24 +1,6 @@
 'use client';
 
-import {
-    Button,
-    Card,
-    DatePicker,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, DatePicker, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { Download, LoaderCircle, TrendingUp } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
 import {
@@ -60,7 +42,7 @@ export default function LeadSourceReportPage() {
     const [reportData, setReportData] = useState<ReportRow[]>([]);
     const [users, setUsers] = useState<UserOption[]>([]);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [startDate, setStartDate] = useState<Date | undefined>();
     const [endDate, setEndDate] = useState<Date | undefined>();
@@ -225,45 +207,45 @@ export default function LeadSourceReportPage() {
                     <div className="space-y-1">
                         <Label className="text-[var(--st-text)]">Pipeline</Label>
                         <Select value={pipelineId} onValueChange={setPipelineId}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="All pipelines" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="__all__">All pipelines</ZoruSelectItem>
-                                <ZoruSelectItem value="sales">Sales Pipeline</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All pipelines" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="__all__">All pipelines</SelectItem>
+                                <SelectItem value="sales">Sales Pipeline</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1">
                         <Label className="text-[var(--st-text)]">Assigned to</Label>
                         <Select value={assigneeId} onValueChange={setAssigneeId}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="All assignees" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="__all__">All assignees</ZoruSelectItem>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All assignees" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="__all__">All assignees</SelectItem>
                                 {users.map((u) => (
-                                    <ZoruSelectItem key={u.salespersonId} value={u.salespersonId}>
+                                    <SelectItem key={u.salespersonId} value={u.salespersonId}>
                                         {u.salespersonName}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1">
                         <Label className="text-[var(--st-text)]">Source</Label>
                         <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="All sources" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All sources</ZoruSelectItem>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All sources" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All sources</SelectItem>
                                 {availableSources.map((s) => (
-                                    <ZoruSelectItem key={s} value={s}>
+                                    <SelectItem key={s} value={s}>
                                         {s}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>
@@ -308,73 +290,73 @@ export default function LeadSourceReportPage() {
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Lead Source</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Revenue</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Conv. Rate</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Leads</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Open</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Closed</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Lost</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Not Serviceable</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Avg Deal</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Avg Closure (days)</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="text-[var(--st-text-secondary)]">Lead Source</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Revenue</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Conv. Rate</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Leads</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Open</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Closed</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Lost</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Not Serviceable</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Avg Deal</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Avg Closure (days)</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={10} className="h-24 text-center">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={10} className="h-24 text-center">
                                         <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : filteredReportData.length > 0 ? (
                                 filteredReportData.map((row) => (
-                                    <ZoruTableRow key={row.leadSource} className="border-[var(--st-border)]">
-                                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                    <Tr key={row.leadSource} className="border-[var(--st-border)]">
+                                        <Td className="font-medium text-[var(--st-text)]">
                                             {row.leadSource || 'Unknown'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             ₹{row.totalRevenue.toLocaleString()}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {row.leadConversionRate.toFixed(1)}%
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {row.leadsGenerated}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {row.openLeads}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)] dark:text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)] dark:text-[var(--st-text)]">
                                             {row.closedLeads}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {row.lostLeads}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {row.notServiceable}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             ₹{row.avgDealValue.toLocaleString()}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {row.avgLeadClosureTime}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td
                                         colSpan={10}
                                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         No data for selected filters.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
             </Card>

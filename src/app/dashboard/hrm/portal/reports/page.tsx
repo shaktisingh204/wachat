@@ -1,11 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
-import {
-  Button,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   Inbox,
@@ -115,7 +112,7 @@ export default function TaskReportsPage() {
 }
 
 function TaskReportsContent() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   // View selector: 'inbox' | 'history'
   const [view, setView] = React.useState<'inbox' | 'history'>('inbox');

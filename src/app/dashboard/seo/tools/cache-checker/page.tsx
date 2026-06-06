@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Textarea,
-  Card,
-  ZoruCardContent,
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Table, THead, Tr, Th, TBody, Td, Badge } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { Download, Copy, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
@@ -175,7 +163,7 @@ export default function CacheCheckerPage() {
 
       {results.length > 0 && (
         <Card className="mt-8">
-          <ZoruCardContent className="p-0">
+          <CardBody className="p-0">
             <div className="flex justify-between items-center p-4 border-b border-[var(--st-border)]/50">
               <h3 className="text-lg font-semibold">Results</h3>
               <div className="flex gap-2">
@@ -191,20 +179,20 @@ export default function CacheCheckerPage() {
             </div>
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>URL</TableHead>
-                    <TableHead>Google Cache</TableHead>
-                    <TableHead>Wayback Machine</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead>
+                  <Tr>
+                    <Th>URL</Th>
+                    <Th>Google Cache</Th>
+                    <Th>Wayback Machine</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {results.map((r, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="max-w-[300px] truncate" title={r.url}>
+                    <Tr key={i}>
+                      <Td className="max-w-[300px] truncate" title={r.url}>
                         {r.url}
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <div className="flex items-center gap-2">
                           <StatusBadge status={r.googleCacheStatus} />
                           {r.googleCacheUrl && (
@@ -218,8 +206,8 @@ export default function CacheCheckerPage() {
                             </a>
                           )}
                         </div>
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <div className="flex items-center gap-2">
                           <StatusBadge status={r.waybackStatus} />
                           {r.waybackUrl && (
@@ -233,13 +221,13 @@ export default function CacheCheckerPage() {
                             </a>
                           )}
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -73,7 +62,7 @@ function downloadCsv(rows: CoaRow[]) {
 
 export function CoaListClient(): React.JSX.Element {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [rows, setRows] = React.useState<CoaRow[]>([]);
     const [groups, setGroups] = React.useState<{ _id: string; name: string; type: string }[]>([]);
@@ -323,52 +312,52 @@ export function CoaListClient(): React.JSX.Element {
             </div>
 
             {/* Delete single */}
-            <ZoruAlertDialog open={!!pendingRow} onOpenChange={(o) => !o && setPendingRow(null)}>
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete account?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+            <AlertDialog open={!!pendingRow} onOpenChange={(o) => !o && setPendingRow(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete account?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             This permanently removes &ldquo;{pendingRow?.name}&rdquo;. Voucher entries already posted
                             against it will remain — but the account label will read as deleted.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleRowDelete} disabled={isPending}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleRowDelete} disabled={isPending}>
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {/* Bulk confirm */}
-            <ZoruAlertDialog open={!!confirmBulk} onOpenChange={(o) => !o && setConfirmBulk(null)}>
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+            <AlertDialog open={!!confirmBulk} onOpenChange={(o) => !o && setConfirmBulk(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             {confirmBulk === 'delete'
                                 ? `Delete ${selection.size} account${selection.size === 1 ? '' : 's'}?`
                                 : confirmBulk === 'archive'
                                   ? `Archive ${selection.size} account${selection.size === 1 ? '' : 's'}?`
                                   : `Activate ${selection.size} account${selection.size === 1 ? '' : 's'}?`}
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             {confirmBulk === 'delete'
                                 ? 'Delete is permanent — make sure none of these accounts have posted vouchers.'
                                 : 'You can reverse this from the bulk bar at any time.'}
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={() => confirmBulk && handleBulk(confirmBulk)}
                             disabled={isPending}
                         >
                             Confirm
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

@@ -2,16 +2,7 @@
 
 import { FileText, Link as LinkIcon, Phone, Video, Image as ImageIcon, File, Ticket, Calendar, Gift, ShoppingCart, View } from "lucide-react";
 import React from "react";
-import {
-    Button,
-    Badge,
-    Card,
-    ZoruCardContent as CardContent,
-    ZoruCardDescription as CardDescription,
-    ZoruCardFooter as CardFooter,
-    ZoruCardHeader as CardHeader,
-    ZoruCardTitle as CardTitle,
-} from "@/components/sabcrm/20ui/compat";
+import { Button, Badge, Card, CardBody as CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import Image from "next/image";
 import CountdownTimer from "../countdown-timer";
 

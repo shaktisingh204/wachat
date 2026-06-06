@@ -1,29 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   LoaderCircle,
@@ -130,7 +108,7 @@ function titleCase(s?: string): string {
 /* ─── Page ───────────────────────────────────────────────────────────── */
 
 export default function NoticesListPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [items, setItems] = React.useState<CrmNoticeDoc[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
@@ -219,19 +197,19 @@ export default function NoticesListPage() {
                                     setStatusFilter(v as StatusFilter)
                                 }
                             >
-                                <ZoruSelectTrigger className="h-9 w-[170px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger className="h-9 w-[170px]">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
+                                        <SelectItem
                                             key={o.value}
                                             value={o.value}
                                         >
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             <Select
                                 value={categoryFilter}
@@ -239,19 +217,19 @@ export default function NoticesListPage() {
                                     setCategoryFilter(v as CategoryFilter)
                                 }
                             >
-                                <ZoruSelectTrigger className="h-9 w-[170px]">
-                                    <ZoruSelectValue placeholder="Category" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger className="h-9 w-[170px]">
+                                    <SelectValue placeholder="Category" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {CATEGORY_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
+                                        <SelectItem
                                             key={o.value}
                                             value={o.value}
                                         >
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             <EnumFilterField
                                 enumName="announcementSeverity"
@@ -265,53 +243,53 @@ export default function NoticesListPage() {
                 >
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Notice No.
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Title
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Category
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Severity
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Issued To
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Issued At
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Status
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">
                                         Actions
-                                    </ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={8}
                                             className="h-24 text-center"
                                         >
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : items.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={8}
                                             className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No notices match these filters.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     items.map((n) => {
                                         const severityKey = String(
@@ -321,30 +299,30 @@ export default function NoticesListPage() {
                                             n.status ?? 'draft',
                                         ).toLowerCase();
                                         return (
-                                            <ZoruTableRow
+                                            <Tr
                                                 key={n._id}
                                                 className="border-[var(--st-border)]"
                                             >
-                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                                <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                                     <Link
                                                         href={`/dashboard/hrm/hr/notices/${n._id}`}
                                                         className="hover:underline"
                                                     >
                                                         {n.noticeNumber || n._id.slice(-8)}
                                                     </Link>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`/dashboard/hrm/hr/notices/${n._id}`}
                                                         className="hover:underline"
                                                     >
                                                         {n.title}
                                                     </Link>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {titleCase(n.category as string)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill
                                                         label={SEVERITY_DISPLAY[severityKey] ?? titleCase(n.severity as string)}
                                                         tone={
@@ -352,16 +330,16 @@ export default function NoticesListPage() {
                                                             'neutral'
                                                         }
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {titleCase(n.issuedTo as string)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {fmtDate(
                                                         n.issuedAt ?? n.createdAt,
                                                     )}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill
                                                         label={titleCase(n.status)}
                                                         tone={
@@ -369,8 +347,8 @@ export default function NoticesListPage() {
                                                             'neutral'
                                                         }
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
@@ -403,39 +381,39 @@ export default function NoticesListPage() {
                                                     >
                                                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete notice?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete notice?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             &ldquo;{pendingDelete?.title}&rdquo; will be removed
                             and no longer visible to recipients.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deletePending}
                         >
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 interface EntityCrudPageProps<T> {
   title: string;
@@ -33,7 +33,7 @@ export function EntityCrudPage<T extends { _id?: string }>({
   const [search, setSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<T> | null>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const loadData = () => {
     setIsLoading(true);
@@ -96,37 +96,37 @@ export function EntityCrudPage<T extends { _id?: string }>({
     >
       <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              {columns.map(c => <ZoruTableHead key={String(c.accessorKey)}>{c.header}</ZoruTableHead>)}
-              <ZoruTableHead className="w-[120px] text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              {columns.map(c => <Th key={String(c.accessorKey)}>{c.header}</Th>)}
+              <Th className="w-[120px] text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredData.map((row, i) => (
-              <ZoruTableRow key={row._id || i}>
+              <Tr key={row._id || i}>
                 {columns.map(c => (
-                  <ZoruTableCell key={String(c.accessorKey)}>
+                  <Td key={String(c.accessorKey)}>
                     {c.render ? c.render(row[c.accessorKey], row) : String(row[c.accessorKey] || '')}
-                  </ZoruTableCell>
+                  </Td>
                 ))}
-                <ZoruTableCell className="text-right">
+                <Td className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="sm" onClick={() => { setEditingItem(row); setIsDialogOpen(true); }}>Edit</Button>
                     <Button variant="ghost" size="sm" className="text-[var(--st-text)]" onClick={() => handleDelete(row._id!)}>Del</Button>
                   </div>
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{editingItem?._id ? 'Edit' : 'Add'} {entityName}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingItem?._id ? 'Edit' : 'Add'} {entityName}</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             {formFields.map(f => (
               <div key={String(f.name)} className="flex flex-col gap-1">
@@ -156,11 +156,11 @@ export function EntityCrudPage<T extends { _id?: string }>({
               </div>
             ))}
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave}>Save</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

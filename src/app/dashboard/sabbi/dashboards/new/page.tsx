@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-  Checkbox,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast, Checkbox } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -47,7 +34,7 @@ function SubmitButton() {
 export default function NewDashboardPage() {
   const [state, formAction] = useActionState(saveDashboard, initialState);
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (state.message) {
@@ -101,15 +88,15 @@ export default function NewDashboardPage() {
                 Layout
               </Label>
               <Select name="layout" defaultValue="2col">
-                <ZoruSelectTrigger id="layout">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="1col">1 Column</ZoruSelectItem>
-                  <ZoruSelectItem value="2col">2 Columns</ZoruSelectItem>
-                  <ZoruSelectItem value="3col">3 Columns</ZoruSelectItem>
-                  <ZoruSelectItem value="masonry">Masonry</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger id="layout">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1col">1 Column</SelectItem>
+                  <SelectItem value="2col">2 Columns</SelectItem>
+                  <SelectItem value="3col">3 Columns</SelectItem>
+                  <SelectItem value="masonry">Masonry</SelectItem>
+                </SelectContent>
               </Select>
             </div>
 
@@ -118,14 +105,14 @@ export default function NewDashboardPage() {
                 Visibility
               </Label>
               <Select name="sharedWith" defaultValue="private">
-                <ZoruSelectTrigger id="sharedWith">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="private">Private</ZoruSelectItem>
-                  <ZoruSelectItem value="team">Team</ZoruSelectItem>
-                  <ZoruSelectItem value="workspace">Workspace</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger id="sharedWith">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="private">Private</SelectItem>
+                  <SelectItem value="team">Team</SelectItem>
+                  <SelectItem value="workspace">Workspace</SelectItem>
+                </SelectContent>
               </Select>
             </div>
           </div>

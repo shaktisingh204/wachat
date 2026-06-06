@@ -3,12 +3,7 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'motion/react';
-import {
-  Badge,
-  Button,
-  EmptyState,
-  StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, EmptyState, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   Briefcase,
   CheckSquare,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarRange,
   Copy,
@@ -77,30 +77,30 @@ export function PurchaseOrdersToolbar({
           value={preset}
           onValueChange={(v) => onPresetChange(v as PurchaseOrderPresetKey)}
         >
-          <ZoruSelectTrigger className="h-9 w-[200px]">
-            <ZoruSelectValue placeholder="Saved view" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[200px]">
+            <SelectValue placeholder="Saved view" />
+          </SelectTrigger>
+          <SelectContent>
             {PO_PRESETS.map((p) => (
-              <ZoruSelectItem key={p.key} value={p.key}>
+              <SelectItem key={p.key} value={p.key}>
                 {p.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         <Select
           value={density}
           onValueChange={(v) => onDensityChange(v as PurchaseOrderDensity)}
         >
-          <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Row density">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="comfortable">Comfortable</ZoruSelectItem>
-            <ZoruSelectItem value="compact">Compact</ZoruSelectItem>
-            <ZoruSelectItem value="dense">Dense</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[140px]" aria-label="Row density">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="comfortable">Comfortable</SelectItem>
+            <SelectItem value="compact">Compact</SelectItem>
+            <SelectItem value="dense">Dense</SelectItem>
+          </SelectContent>
         </Select>
 
         <div className="flex items-center rounded border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">

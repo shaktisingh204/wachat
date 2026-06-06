@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Input, Table, TBody, Td, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -61,11 +49,11 @@ export function AdminTemplateCategoryManager() {
 
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle>Template Categories</ZoruCardTitle>
-                <ZoruCardDescription>Manage the categories available for custom library templates.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+                <CardTitle>Template Categories</CardTitle>
+                <CardDescription>Manage the categories available for custom library templates.</CardDescription>
+            </CardHeader>
+            <CardBody>
                 <form action={handleSubmit} ref={formRef} className="flex flex-col sm:flex-row gap-2 mb-4">
                     <Input name="name" placeholder="New Category Name" required />
                     <Input name="description" placeholder="Description (optional)" />
@@ -76,24 +64,24 @@ export function AdminTemplateCategoryManager() {
                 </form>
                 <div className="border rounded-md">
                     <Table>
-                        <ZoruTableBody>
-                            {isLoading ? <ZoruTableRow><ZoruTableCell><LoaderCircle className="h-5 w-5 animate-spin"/></ZoruTableCell></ZoruTableRow>
+                        <TBody>
+                            {isLoading ? <Tr><Td><LoaderCircle className="h-5 w-5 animate-spin"/></Td></Tr>
                             : categories.length > 0 ? categories.map(cat => (
-                                <ZoruTableRow key={cat._id.toString()}>
-                                    <ZoruTableCell className="font-medium">{cat.name}</ZoruTableCell>
-                                    <ZoruTableCell className="text-[var(--st-text-secondary)]">{cat.description}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right w-16">
+                                <Tr key={cat._id.toString()}>
+                                    <Td className="font-medium">{cat.name}</Td>
+                                    <Td className="text-[var(--st-text-secondary)]">{cat.description}</Td>
+                                    <Td className="text-right w-16">
                                         <Button variant="ghost" size="icon" disabled>
                                             <Trash2 className="h-4 w-4 text-[var(--st-text)]"/>
                                         </Button>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ))
-                            : <ZoruTableRow><ZoruTableCell className="text-center text-[var(--st-text-secondary)]">No custom categories created yet.</ZoruTableCell></ZoruTableRow>}
-                        </ZoruTableBody>
+                            : <Tr><Td className="text-center text-[var(--st-text-secondary)]">No custom categories created yet.</Td></Tr>}
+                        </TBody>
                     </Table>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

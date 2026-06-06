@@ -1,19 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -78,7 +65,7 @@ export default function ProductsCatalogListPage() {
   const [isSyncing, startSync] = useTransition();
   const [isLoading, startLoading] = useTransition();
   const { activeProject, activeProjectId, isLoadingProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const fetchData = useCallback(() => {
     if (!activeProjectId) return;
@@ -161,41 +148,41 @@ export default function ProductsCatalogListPage() {
       {!activeProjectId ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>No project selected</AlertTitle>
+          <AlertDescription>
             Pick a Facebook Page project from the Connections page to manage
             catalogs.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       ) : !isFacebookProject ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Invalid project type</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Invalid project type</AlertTitle>
+          <AlertDescription>
             This section is for Facebook Page projects. Switch to a Facebook
             project to continue.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       ) : !hasCatalogAccess ? (
         <Card className="mt-8">
-          <ZoruCardHeader>
+          <CardHeader>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <Lock className="h-5 w-5" />
             </div>
-            <ZoruCardTitle>Catalog management locked</ZoruCardTitle>
-            <ZoruCardDescription>
+            <CardTitle>Catalog management locked</CardTitle>
+            <CardDescription>
               This project was set up without catalog management permissions.
               Re-authorize to grant <code>catalog_management</code> and{" "}
               <code>business_management</code>.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <Button asChild>
               <Link href="/dashboard/facebook/all-projects">
                 Re-authorize project
               </Link>
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : isLoading && catalogs.length === 0 ? (
         <ProductsSkeleton />
@@ -235,17 +222,17 @@ function CatalogTile({ catalog }: { catalog: WithId<Catalog> }) {
   const id = catalog.metaCatalogId ?? (catalog as unknown as { id?: string }).id;
   return (
     <Card className="flex h-full flex-col">
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-base">{catalog.name}</ZoruCardTitle>
-        <ZoruCardDescription className="break-all font-mono text-[11px]">
+      <CardHeader>
+        <CardTitle className="text-base">{catalog.name}</CardTitle>
+        <CardDescription className="break-all font-mono text-[11px]">
           ID: {id}
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="flex-1 text-xs text-[var(--st-text-secondary)]">
+        </CardDescription>
+      </CardHeader>
+      <CardBody className="flex-1 text-xs text-[var(--st-text-secondary)]">
         {catalog.createdAt
           ? `Created ${new Date(catalog.createdAt).toLocaleDateString()}`
           : "No creation date available"}
-      </ZoruCardContent>
+      </CardBody>
       <div className="px-6 pb-6">
         <Button asChild size="sm" className="w-full">
           <Link href={`/dashboard/facebook/commerce/products/${id}`}>

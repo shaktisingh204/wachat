@@ -7,20 +7,8 @@ import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 import { createRoadmap, type RoadmapPhase } from '@/app/actions/hrm-roadmaps.actions';
-import {
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Card,
-  ZoruCardContent,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-} from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 function generateId() {
   return crypto.randomUUID();
@@ -28,7 +16,7 @@ function generateId() {
 
 export function RoadmapForm() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   const [title, setTitle] = useState('');
@@ -126,7 +114,7 @@ export function RoadmapForm() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Basic info */}
         <Card>
-          <ZoruCardContent className="flex flex-col gap-4 pt-5">
+          <CardBody className="flex flex-col gap-4 pt-5">
             <div className="flex flex-col gap-1.5">
               <Label required>Title</Label>
               <Input
@@ -153,13 +141,13 @@ export function RoadmapForm() {
                 value={status}
                 onValueChange={(v) => setStatus(v as 'draft' | 'active')}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                  <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                </SelectContent>
               </Select>
             </div>
 
@@ -181,12 +169,12 @@ export function RoadmapForm() {
                 />
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* Phases */}
         <Card>
-          <ZoruCardContent className="flex flex-col gap-4 pt-5">
+          <CardBody className="flex flex-col gap-4 pt-5">
             <div className="flex items-center justify-between">
               <Label>Initial Phases</Label>
               <Button type="button" variant="outline" size="sm" onClick={addPhase}>
@@ -248,7 +236,7 @@ export function RoadmapForm() {
                 </div>
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* Submit */}

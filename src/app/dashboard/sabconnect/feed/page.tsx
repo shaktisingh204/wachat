@@ -10,13 +10,7 @@
 
 import Link from 'next/link';
 
-import {
-    PageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Button,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Button } from '@/components/sabcrm/20ui/compat';
 
 import {
     getSabConnectFeed,
@@ -43,12 +37,12 @@ export default async function SabConnectFeedPage() {
     return (
         <div className="flex w-full flex-col gap-6">
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Connect</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Connect</PageTitle>
+                    <PageDescription>
                         One feed for posts, announcements, recognition and events across the workspace.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <div className="flex gap-2">
                     <Button asChild variant="outline">
                         <Link href="/dashboard/sabconnect/announcements/new">

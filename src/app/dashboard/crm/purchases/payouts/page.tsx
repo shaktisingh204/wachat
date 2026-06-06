@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   Wallet } from 'lucide-react';
@@ -58,7 +58,7 @@ const EMPTY_KPIS: PayoutKpis = {
 };
 
 export default function PayoutsPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [payouts, setPayouts] = React.useState<CrmPayoutDoc[]>([]);
     const [page, setPage] = React.useState(1);

@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -169,7 +156,7 @@ function fmtMoney(value: number, currency: string): string {
 
 export function CreditNoteForm({ initial }: CreditNoteFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(saveCreditNoteAction, INITIAL_STATE);
 
@@ -371,38 +358,38 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
         </div>
         <div className="overflow-x-auto">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="min-w-[200px]">Description</ZoruTableHead>
-                <ZoruTableHead className="w-[110px]">HSN/SAC</ZoruTableHead>
-                <ZoruTableHead className="w-[90px]">Qty</ZoruTableHead>
-                <ZoruTableHead className="w-[90px]">Unit</ZoruTableHead>
-                <ZoruTableHead className="w-[110px]">Rate</ZoruTableHead>
-                <ZoruTableHead className="w-[90px]">Disc %</ZoruTableHead>
-                <ZoruTableHead className="w-[90px]">Tax %</ZoruTableHead>
-                <ZoruTableHead className="w-[120px] text-right">Line total</ZoruTableHead>
-                <ZoruTableHead className="w-[40px]" />
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th className="min-w-[200px]">Description</Th>
+                <Th className="w-[110px]">HSN/SAC</Th>
+                <Th className="w-[90px]">Qty</Th>
+                <Th className="w-[90px]">Unit</Th>
+                <Th className="w-[110px]">Rate</Th>
+                <Th className="w-[90px]">Disc %</Th>
+                <Th className="w-[90px]">Tax %</Th>
+                <Th className="w-[120px] text-right">Line total</Th>
+                <Th className="w-[40px]" />
+              </Tr>
+            </THead>
+            <TBody>
               {items.map((row) => (
-                <ZoruTableRow key={row.rowKey}>
-                  <ZoruTableCell>
+                <Tr key={row.rowKey}>
+                  <Td>
                     <Input
                       value={row.description}
                       onChange={(e) => updateRow(row.rowKey, { description: e.target.value })}
                       placeholder="Item or service"
                       className="h-8 text-[12.5px]"
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Input
                       value={row.hsnSac}
                       onChange={(e) => updateRow(row.rowKey, { hsnSac: e.target.value })}
                       className="h-8 text-[12.5px]"
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Input
                       type="number"
                       min={0}
@@ -411,8 +398,8 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
                       onChange={(e) => updateRow(row.rowKey, { qty: e.target.value })}
                       className="h-8 text-right text-[12.5px]"
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <EntityPicker
                       entity="unit"
                       value={row.unit || null}
@@ -422,8 +409,8 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
                         updateRow(row.rowKey, { unit: id });
                       }}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Input
                       type="number"
                       min={0}
@@ -432,8 +419,8 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
                       onChange={(e) => updateRow(row.rowKey, { rate: e.target.value })}
                       className="h-8 text-right text-[12.5px]"
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Input
                       type="number"
                       min={0}
@@ -445,8 +432,8 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
                       }
                       className="h-8 text-right text-[12.5px]"
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Input
                       type="number"
                       min={0}
@@ -458,11 +445,11 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
                       }
                       className="h-8 text-right text-[12.5px]"
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
+                  </Td>
+                  <Td className="text-right tabular-nums text-[12.5px]">
                     {fmtMoney(computeRowTotal(row), currency)}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Button
                       type="button"
                       size="sm"
@@ -473,10 +460,10 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

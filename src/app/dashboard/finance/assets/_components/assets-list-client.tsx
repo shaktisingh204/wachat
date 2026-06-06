@@ -2,27 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Button, 
-  Input, 
-  Label, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createAsset, updateAsset, deleteAsset, Asset } from '@/app/actions/finance/assets.actions';
@@ -227,28 +207,28 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
 
       <div className="rounded-md border bg-white overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead><TableHead>PurchasePrice</TableHead><TableHead>SalvageValue</TableHead><TableHead>UsefulLifeYears</TableHead><TableHead>AccumulatedDepreciation</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <THead>
+            <Tr>
+              <Th>Name</Th><Th>PurchasePrice</Th><Th>SalvageValue</Th><Th>UsefulLifeYears</Th><Th>AccumulatedDepreciation</Th>
+              <Th className="w-[80px]"></Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredItems.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+              <Tr>
+                <Td colSpan={6} className="h-24 text-center">
                   No results.
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ) : (
               filteredItems.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell>{String(item.name ?? '')}</TableCell>
-                  <TableCell>{fmtINR(Number(item.purchasePrice || 0))}</TableCell>
-                  <TableCell>{fmtINR(Number(item.salvageValue || 0))}</TableCell>
-                  <TableCell>{String(item.usefulLifeYears ?? '')}</TableCell>
-                  <TableCell>{fmtINR(Number(item.accumulatedDepreciation || 0))}</TableCell>
-                  <TableCell>
+                <Tr key={item._id}>
+                  <Td>{String(item.name ?? '')}</Td>
+                  <Td>{fmtINR(Number(item.purchasePrice || 0))}</Td>
+                  <Td>{fmtINR(Number(item.salvageValue || 0))}</Td>
+                  <Td>{String(item.usefulLifeYears ?? '')}</Td>
+                  <Td>{fmtINR(Number(item.accumulatedDepreciation || 0))}</Td>
+                  <Td>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -267,11 +247,11 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </TableBody>
+          </TBody>
         </Table>
       </div>
 

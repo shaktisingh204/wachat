@@ -3,22 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Checkbox,
-  Input,
-  Label,
-  Textarea,
-  PageHeader,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Checkbox, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
 import { ArrowLeft } from 'lucide-react';
 import { createMeetRoom } from '@/app/actions/sabmeet.actions';
 
@@ -79,18 +64,18 @@ export function NewMeetingForm() {
     <div className="space-y-6 p-6">
       <PageHeader>
         <div>
-          <ZoruPageTitle>New meeting</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>New meeting</PageTitle>
+          <PageDescription>
             Create an instant or scheduled video conference.
-          </ZoruPageDescription>
+          </PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Button asChild variant="outline">
             <Link href="/dashboard/meetings">
               <ArrowLeft className="h-4 w-4 mr-2" /> Back
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <form onSubmit={handleSubmit} className="grid gap-4 max-w-3xl">

@@ -31,20 +31,7 @@ import {
     X,
 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Checkbox,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -90,7 +77,7 @@ export function DiscussionsListClient({
     initialCategories,
     initialKpis,
 }: DiscussionsListClientProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [discussions, setDiscussions] = React.useState<
         (WsDiscussion & { _id: string })[]
@@ -407,15 +394,15 @@ export function DiscussionsListClient({
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[150px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                                <ZoruSelectItem value="open">Open</ZoruSelectItem>
-                                <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
-                                <ZoruSelectItem value="pinned">Pinned</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[150px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All statuses</SelectItem>
+                                <SelectItem value="open">Open</SelectItem>
+                                <SelectItem value="closed">Closed</SelectItem>
+                                <SelectItem value="pinned">Pinned</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Select
                             value={filters.category || 'any'}
@@ -423,17 +410,17 @@ export function DiscussionsListClient({
                                 updateFilter('category', v === 'any' ? '' : v)
                             }
                         >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Category" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="any">Any category</ZoruSelectItem>
+                            <SelectTrigger className="h-9 w-[180px]">
+                                <SelectValue placeholder="Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="any">Any category</SelectItem>
                                 {categories.map((c) => (
-                                    <ZoruSelectItem key={c._id} value={c._id}>
+                                    <SelectItem key={c._id} value={c._id}>
                                         {c.name}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                         <Input
                             type="date"

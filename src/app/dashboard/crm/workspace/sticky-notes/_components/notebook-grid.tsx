@@ -16,26 +16,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Notebook, Plus, StickyNote, Zap } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Textarea,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, CardFooter, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   createSabnotebookNotebook,
@@ -225,14 +206,14 @@ export function NotebookGrid({
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New notebook</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New notebook</DialogTitle>
+            <DialogDescription>
               Notebooks group related notes. You can change the cover and
               color later.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="nb-name">Name</Label>
@@ -286,7 +267,7 @@ export function NotebookGrid({
               </SabFilePickerButton>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setOpen(false)}
@@ -297,8 +278,8 @@ export function NotebookGrid({
             <Button onClick={handleCreate} disabled={creating}>
               {creating ? 'Creating…' : 'Create'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

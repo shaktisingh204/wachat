@@ -1,14 +1,6 @@
 import React, { Suspense } from 'react';
 
-import {
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -140,50 +132,50 @@ async function ProfitLossContainer({
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">
                   Period
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Revenue
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   COGS
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Expense
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Profit
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={5}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No data.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 pageRows.map((r) => {
                   const periodHref = `/dashboard/sabbi/reports/income?from=${r.period.length === 7 ? `${r.period}-01` : `${r.period.split('-')[0]}-${String((Number(r.period.split('Q')[1]) - 1) * 3 + 1).padStart(2, '0')}-01`}`;
                   return (
-                    <ZoruTableRow key={r.period} className="border-[var(--st-border)]">
-                      <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                    <Tr key={r.period} className="border-[var(--st-border)]">
+                      <Td className="font-medium text-[var(--st-text)]">
                         <EntityRowLink
                           href={periodHref}
                           label={r.period}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-status-ok)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-status-ok)]">
                         {fmtMoney(r.revenue)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                         <details className="group">
                           <summary className="cursor-pointer font-medium hover:text-[var(--st-text)] transition-colors">
                             {fmtMoney(r.cogs)}
@@ -201,8 +193,8 @@ async function ProfitLossContainer({
                             )}
                           </div>
                         </details>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-danger)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-danger)]">
                         <details className="group">
                           <summary className="cursor-pointer font-medium hover:text-[var(--st-text)] transition-colors">
                             {fmtMoney(r.expense)}
@@ -220,8 +212,8 @@ async function ProfitLossContainer({
                             )}
                           </div>
                         </details>
-                      </ZoruTableCell>
-                      <ZoruTableCell
+                      </Td>
+                      <Td
                         className={`text-right text-[13px] font-medium ${
                           r.profit >= 0
                             ? 'text-[var(--st-status-ok)]'
@@ -229,12 +221,12 @@ async function ProfitLossContainer({
                         }`}
                       >
                         {fmtMoney(r.profit)}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

@@ -1,5 +1,5 @@
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
 import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function LoadingActivity() {
@@ -9,10 +9,10 @@ export default function LoadingActivity() {
             eyebrow="LOAN ACTIVITY"
         >
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Activity</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Activity</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="space-y-6">
                         {Array.from({ length: 5 }).map((_, i) => (
                             <div key={i} className="flex gap-4">
@@ -24,7 +24,7 @@ export default function LoadingActivity() {
                             </div>
                         ))}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </EntityDetailShell>
     );

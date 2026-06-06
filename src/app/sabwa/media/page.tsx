@@ -1,34 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Checkbox, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowLeft,
   ArrowRight,
@@ -142,7 +114,7 @@ function formatTs(ts?: Date | string): string {
 }
 
 export default function SabWaMediaPage() {
-  const toast = useZoruToast();
+  const toast = useToast();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? '';
 
@@ -295,19 +267,19 @@ export default function SabWaMediaPage() {
   return (
     <div className="space-y-4 p-4 md:p-6 lg:p-8">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Media library</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Media library</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Header */}
@@ -362,23 +334,23 @@ export default function SabWaMediaPage() {
 
       {/* Filter strip */}
       <Card>
-        <ZoruCardContent className="grid gap-3 p-3 sm:grid-cols-3 lg:grid-cols-4">
+        <CardBody className="grid gap-3 p-3 sm:grid-cols-3 lg:grid-cols-4">
           <div className="space-y-1">
             <Label className="text-xs font-medium">Chat</Label>
             <Select value={chatFilter} onValueChange={setChatFilter}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue
+              <SelectTrigger>
+                <SelectValue
                   placeholder={chatsLoading ? "Loading..." : "All chats"}
                 />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All chats</ZoruSelectItem>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All chats</SelectItem>
                 {(chats ?? []).map((c) => (
-                  <ZoruSelectItem key={c.jid} value={c.jid}>
+                  <SelectItem key={c.jid} value={c.jid}>
                     {c.name ?? c.jid}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
@@ -420,7 +392,7 @@ export default function SabWaMediaPage() {
               <CalendarDays className="mr-2 h-3.5 w-3.5" /> Reset filters
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Type switcher — segmented Button group (no tab UI) */}
@@ -498,23 +470,23 @@ export default function SabWaMediaPage() {
 
         {!mediaLoading && mediaError && (
           <Card>
-            <ZoruCardContent className="flex items-start gap-2 p-4 text-sm">
+            <CardBody className="flex items-start gap-2 p-4 text-sm">
               <CircleSlash className="h-4 w-4 text-[var(--st-danger)]" />
               <span className="text-[var(--st-text-secondary)]">{mediaError}</span>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
 
         {!mediaLoading && !mediaError && items.length === 0 && (
           <Card className="border-dashed">
-            <ZoruCardContent className="flex flex-col items-center gap-2 p-10 text-center">
+            <CardBody className="flex flex-col items-center gap-2 p-10 text-center">
               <Folder className="h-7 w-7 text-[var(--st-text-secondary)]" />
               <h3 className="text-sm font-semibold text-[var(--st-text)]">No media yet</h3>
               <p className="max-w-sm text-[11.5px] text-[var(--st-text-secondary)]">
                 Once your session is connected and chats sync, every photo,
                 video, voice note and document will land here.
               </p>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
 
@@ -595,21 +567,21 @@ export default function SabWaMediaPage() {
           if (!o) closeLightbox();
         }}
       >
-        <ZoruDialogContent className="max-w-3xl">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="truncate">
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="truncate">
               {lightboxItem
                 ? fileNameFromMessage(lightboxItem.message)
                 : "Media"}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription className="truncate">
+            </DialogTitle>
+            <DialogDescription className="truncate">
               {lightboxItem?.chatName ?? lightboxItem?.chatJid}{" "}
               {lightboxItem ? `· ${formatTs(lightboxItem.message.ts)}` : ""}{" "}
               {lightboxItem?.message.mediaSize
                 ? `· ${formatBytes(lightboxItem.message.mediaSize)}`
                 : ""}
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           {lightboxItem && (
             <div className="space-y-3">
@@ -709,7 +681,7 @@ export default function SabWaMediaPage() {
               </div>
             </div>
           )}
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </div>
   );

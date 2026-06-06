@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
 /**
  * <LeadsFunnel> — compact 5-segment horizontal bar that visualises the
  * conversion funnel (New → Contacted → Qualified → Proposal → Won).
@@ -51,7 +51,7 @@ export function LeadsFunnel({ stages, activeKey, onSelect }: LeadsFunnelProps) {
     const total = Math.max(1, stages.reduce((sum, s) => sum + (s.count || 0), 0));
     return (
         <Card className="h-full">
-            <ZoruCardContent className="flex h-full flex-col gap-2 pt-4">
+            <CardBody className="flex h-full flex-col gap-2 pt-4">
                 <div className="flex items-center justify-between">
                     <span className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Conversion funnel
@@ -93,7 +93,7 @@ export function LeadsFunnel({ stages, activeKey, onSelect }: LeadsFunnelProps) {
                         </li>
                     ))}
                 </ul>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

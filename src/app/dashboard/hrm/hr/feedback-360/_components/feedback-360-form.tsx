@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -99,7 +87,7 @@ interface Feedback360FormProps {
 
 export function Feedback360Form({ initialData }: Feedback360FormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveFeedback360, initialState);
@@ -328,19 +316,19 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                                                     )
                                                 }
                                             >
-                                                <ZoruSelectTrigger>
-                                                    <ZoruSelectValue />
-                                                </ZoruSelectTrigger>
-                                                <ZoruSelectContent>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
                                                     {REVIEWER_ROLE_OPTIONS.map((o) => (
-                                                        <ZoruSelectItem
+                                                        <SelectItem
                                                             key={o.value}
                                                             value={o.value}
                                                         >
                                                             {o.label}
-                                                        </ZoruSelectItem>
+                                                        </SelectItem>
                                                     ))}
-                                                </ZoruSelectContent>
+                                                </SelectContent>
                                             </Select>
                                         </div>
                                         <Button

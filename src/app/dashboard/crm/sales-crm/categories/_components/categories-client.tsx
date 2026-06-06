@@ -1,24 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { Download, ListChecks, Tags, Trash2, X } from 'lucide-react';
 import { useTransition } from 'react';
 
@@ -55,7 +38,7 @@ function CategoryEditForm({
   row: Row;
   onDone: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -87,13 +70,13 @@ function CategoryEditForm({
       <div className="space-y-1.5">
         <Label htmlFor="cat-default">Default</Label>
         <Select name="is_default" defaultValue={row.is_default ? 'yes' : 'no'}>
-          <ZoruSelectTrigger id="cat-default">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="no">No</ZoruSelectItem>
-            <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger id="cat-default">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="no">No</SelectItem>
+            <SelectItem value="yes">Yes</SelectItem>
+          </SelectContent>
         </Select>
       </div>
       <Button type="submit" disabled={isPending} className="w-full">
@@ -105,7 +88,7 @@ function CategoryEditForm({
 
 /* ─── Main client component ─────────────────────────────────────── */
 export function CategoriesClient({ rows: initialRows, kpi }: Props) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>(initialRows);
   const [search, setSearch] = React.useState('');
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -229,9 +212,9 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
       >
         <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-8">
+            <THead>
+              <Tr>
+                <Th className="w-8">
                   <input
                     type="checkbox"
                     checked={allSelectedOnPage}
@@ -239,17 +222,17 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                     aria-label="Select all"
                     className="rounded border-[var(--st-border)]"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Name</ZoruTableHead>
-                <ZoruTableHead>Default</ZoruTableHead>
-                <ZoruTableHead>Created</ZoruTableHead>
-                <ZoruTableHead className="w-24">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Name</Th>
+                <Th>Default</Th>
+                <Th>Created</Th>
+                <Th className="w-24">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.map((row) => (
-                <ZoruTableRow key={row._id} data-selected={selected.has(row._id)}>
-                  <ZoruTableCell>
+                <Tr key={row._id} data-selected={selected.has(row._id)}>
+                  <Td>
                     <input
                       type="checkbox"
                       checked={selected.has(row._id)}
@@ -257,8 +240,8 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                       aria-label={`Select ${row.category_name}`}
                       className="rounded border-[var(--st-border)]"
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                  </Td>
+                  <Td className="font-medium text-[var(--st-text)]">
                     <RowDrawer
                       label={row.category_name}
                       title="Edit Category"
@@ -273,8 +256,8 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                         }}
                       />
                     </RowDrawer>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <span
                       className={
                         row.is_default
@@ -284,11 +267,11 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                     >
                       {row.is_default ? 'Yes' : 'No'}
                     </span>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12px] text-[var(--st-text-secondary)]">
                     {fmtDate(row.createdAt)}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Button
                       size="sm"
                       variant="ghost"
@@ -298,10 +281,10 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                     >
                       <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                     </Button>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </EntityListShell>

@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Loader2 } from 'lucide-react';
 
@@ -114,7 +102,7 @@ export function HrActionButtons({
   className,
   size = 'sm',
 }: HrActionButtonsProps): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = React.useTransition();
   const [pendingKey, setPendingKey] = React.useState<string | null>(null);
   const [confirmKey, setConfirmKey] = React.useState<string | null>(null);
@@ -234,7 +222,7 @@ interface PromptDialogProps {
 }
 
 function PromptDialog({ action, open, onOpenChange }: PromptDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [submitting, setSubmitting] = React.useState(false);
   const [values, setValues] = React.useState<Record<string, string>>(() =>
     Object.fromEntries(action.fields.map((f) => [f.name, f.defaultValue ?? ''])),
@@ -288,15 +276,15 @@ function PromptDialog({ action, open, onOpenChange }: PromptDialogProps) {
       open={open}
       onOpenChange={(next) => (submitting ? null : onOpenChange(next))}
     >
-      <ZoruDialogContent className="sm:max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>{action.promptTitle}</ZoruDialogTitle>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{action.promptTitle}</DialogTitle>
           {action.promptDescription ? (
-            <ZoruDialogDescription>
+            <DialogDescription>
               {action.promptDescription}
-            </ZoruDialogDescription>
+            </DialogDescription>
           ) : null}
-        </ZoruDialogHeader>
+        </DialogHeader>
 
         <div className="flex flex-col gap-3">
           {action.fields.map((f) => (
@@ -333,7 +321,7 @@ function PromptDialog({ action, open, onOpenChange }: PromptDialogProps) {
           ))}
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button
             type="button"
             variant="secondary"
@@ -357,8 +345,8 @@ function PromptDialog({ action, open, onOpenChange }: PromptDialogProps) {
               action.submitLabel ?? 'Submit'
             )}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

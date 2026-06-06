@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -73,11 +56,11 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
         <form action={formAction}>
             <input type="hidden" name="shopId" value={shop._id.toString()} />
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Basic Configuration</ZoruCardTitle>
-                    <ZoruCardDescription>Set the fundamental properties for your custom shop.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-6">
+                <CardHeader>
+                    <CardTitle>Basic Configuration</CardTitle>
+                    <CardDescription>Set the fundamental properties for your custom shop.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="shopName">Shop Name</Label>
@@ -86,27 +69,27 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                         <div className="space-y-2">
                             <Label htmlFor="currency">Currency</Label>
                             <Select name="currency" defaultValue={shop.currency || 'USD'} required>
-                                <ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="USD">USD - US Dollar</ZoruSelectItem>
-                                    <ZoruSelectItem value="EUR">EUR - Euro</ZoruSelectItem>
-                                    <ZoruSelectItem value="INR">INR - Indian Rupee</ZoruSelectItem>
-                                    <ZoruSelectItem value="GBP">GBP - British Pound</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="USD">USD - US Dollar</SelectItem>
+                                    <SelectItem value="EUR">EUR - Euro</SelectItem>
+                                    <SelectItem value="INR">INR - Indian Rupee</SelectItem>
+                                    <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2 md:col-span-2">
                             <Label htmlFor="customDomain">Custom Domain</Label>
                             <Select name="customDomain" defaultValue={shop.customDomain || 'none'}>
-                                <ZoruSelectTrigger id="customDomain">
-                                    <ZoruSelectValue placeholder="Select a verified domain..." />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="none">None (Use default)</ZoruSelectItem>
+                                <SelectTrigger id="customDomain">
+                                    <SelectValue placeholder="Select a verified domain..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">None (Use default)</SelectItem>
                                     {verifiedDomains.map(d => (
-                                        <ZoruSelectItem key={d._id.toString()} value={d.hostname}>{d.hostname}</ZoruSelectItem>
+                                        <SelectItem key={d._id.toString()} value={d.hostname}>{d.hostname}</SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             <p className="text-xs text-[var(--st-text-secondary)]">Add and verify domains in the section below.</p>
                         </div>
@@ -147,21 +130,21 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                                 <div className="space-y-2">
                                     <Label htmlFor="abandonedCart.flowId">Reminder Flow</Label>
                                     <Select name="abandonedCart.flowId" defaultValue={shop.abandonedCart?.flowId}>
-                                        <ZoruSelectTrigger id="abandonedCart.flowId"><ZoruSelectValue placeholder="Select a flow..."/></ZoruSelectTrigger>
-                                        <ZoruSelectContent>
+                                        <SelectTrigger id="abandonedCart.flowId"><SelectValue placeholder="Select a flow..."/></SelectTrigger>
+                                        <SelectContent>
                                             {ecommFlows.map(flow => (
-                                                <ZoruSelectItem key={flow._id.toString()} value={flow._id.toString()}>{flow.name}</ZoruSelectItem>
+                                                <SelectItem key={flow._id.toString()} value={flow._id.toString()}>{flow.name}</SelectItem>
                                             ))}
-                                        </ZoruSelectContent>
+                                        </SelectContent>
                                     </Select>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <SubmitButton />
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </form>
     );

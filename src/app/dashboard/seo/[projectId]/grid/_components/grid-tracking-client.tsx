@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { MapPin, Play, Search, Map as MapIcon } from 'lucide-react';
 import { startGridTracking, getSeoProject, updateSeoProjectSettings } from '@/app/actions/seo.actions';
@@ -88,7 +78,7 @@ function GridMap({ points, center, loading, onMapClick }: { points: any[], cente
 }
 
 export function GridTrackingClient({ projectId, initialProj }: { projectId: string, initialProj: any }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     
     // Dynamic settings states
     const [keyword, setKeyword] = useState('');
@@ -139,11 +129,11 @@ export function GridTrackingClient({ projectId, initialProj }: { projectId: stri
             <div className="grid gap-6 md:grid-cols-[350px_1fr]">
                 <div className="flex flex-col gap-6">
                     <Card className="h-fit">
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Scan Configuration</ZoruCardTitle>
-                            <ZoruCardDescription>Setup your local grid parameters.</ZoruCardDescription>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="space-y-4">
+                        <CardHeader>
+                            <CardTitle>Scan Configuration</CardTitle>
+                            <CardDescription>Setup your local grid parameters.</CardDescription>
+                        </CardHeader>
+                        <CardBody className="space-y-4">
                             <div className="space-y-2">
                                 <Label>Target Keyword</Label>
                                 <Input
@@ -208,26 +198,26 @@ export function GridTrackingClient({ projectId, initialProj }: { projectId: stri
                                     </>
                                 )}
                             </Button>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>How it works</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>How it works</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <p className="text-sm text-[var(--st-text-secondary)]">
                                 We simulate GPS coordinates at multiple points around your business location in a grid pattern. This reveals exactly where you rank in local search results across different neighborhoods.
                             </p>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </div>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Rank Map</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Rank Map</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <GridMap 
                             points={points} 
                             center={{ lat, lng }} 
@@ -237,7 +227,7 @@ export function GridTrackingClient({ projectId, initialProj }: { projectId: stri
                                 setLng(e.lng);
                             }}
                         />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

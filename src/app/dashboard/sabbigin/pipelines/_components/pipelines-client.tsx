@@ -1,22 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Button,
-  Card,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Card, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { Columns3, Download, ListChecks, Trash2, X } from 'lucide-react';
 import { useTransition } from 'react';
 import Link from 'next/link';
@@ -53,7 +38,7 @@ function fmtMoney(value: number, currency = 'INR'): string {
 }
 
 export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [pipelines, setPipelines] = React.useState<CrmPipeline[]>(initialPipelines);
   const [search, setSearch] = React.useState('');
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -206,9 +191,9 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
             {/* Table summary */}
             <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow>
-                    <ZoruTableHead className="w-8">
+                <THead>
+                  <Tr>
+                    <Th className="w-8">
                       <input
                         type="checkbox"
                         checked={allSelectedOnPage}
@@ -216,16 +201,16 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                         aria-label="Select all"
                         className="rounded border-[var(--st-border)]"
                       />
-                    </ZoruTableHead>
-                    <ZoruTableHead>Pipeline Name</ZoruTableHead>
-                    <ZoruTableHead>Stages</ZoruTableHead>
-                    <ZoruTableHead className="w-24">Actions</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th>Pipeline Name</Th>
+                    <Th>Stages</Th>
+                    <Th className="w-24">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {filtered.map((p) => (
-                    <ZoruTableRow key={p.id} data-selected={selected.has(p.id)}>
-                      <ZoruTableCell>
+                    <Tr key={p.id} data-selected={selected.has(p.id)}>
+                      <Td>
                         <input
                           type="checkbox"
                           checked={selected.has(p.id)}
@@ -233,24 +218,24 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                           aria-label={`Select ${p.name}`}
                           className="rounded border-[var(--st-border)]"
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                      </Td>
+                      <Td className="font-medium text-[var(--st-text)]">
                         <EntityRowLink
                           href={`${BASE}/${p.id}`}
                           label={p.name}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                         {p.stages?.length ?? 0}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Button asChild size="sm" variant="ghost">
                           <Link href={`${BASE}/${p.id}/edit`}>Edit</Link>
                         </Button>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
 
@@ -262,18 +247,18 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                 className="w-full space-y-2"
               >
                 {filtered.map((pipeline) => (
-                  <ZoruAccordionItem
+                  <AccordionItem
                     key={pipeline.id}
                     value={pipeline.id}
                     className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
                   >
-                    <ZoruAccordionTrigger className="px-4 py-3 text-[13.5px] font-semibold text-[var(--st-text)] hover:no-underline">
+                    <AccordionTrigger className="px-4 py-3 text-[13.5px] font-semibold text-[var(--st-text)] hover:no-underline">
                       {pipeline.name}
                       <span className="ml-auto mr-2 font-normal text-[11.5px] text-[var(--st-text-secondary)]">
                         {pipeline.stages?.length ?? 0} stage{(pipeline.stages?.length ?? 0) === 1 ? '' : 's'}
                       </span>
-                    </ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="px-4 pb-4 pt-0">
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4 pt-0">
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                         {(pipeline.stages ?? []).map((stage) => (
                           <div
@@ -301,8 +286,8 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                           </Link>
                         </Button>
                       </div>
-                    </ZoruAccordionContent>
-                  </ZoruAccordionItem>
+                    </AccordionContent>
+                  </AccordionItem>
                 ))}
               </Accordion>
             ) : null}

@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -107,7 +94,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveOneOnOne, initialState);
@@ -283,16 +270,16 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                             value={status}
                             onValueChange={(v) => setStatus(v as CrmOneOnOneStatus)}
                         >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="status-trigger">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1.5">
@@ -301,16 +288,16 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                             value={mood || ''}
                             onValueChange={(v) => setMood((v as CrmOneOnOneMood) || '')}
                         >
-                            <ZoruSelectTrigger id="mood-trigger">
-                                <ZoruSelectValue placeholder="Mood" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="mood-trigger">
+                                <SelectValue placeholder="Mood" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {MOOD_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value || 'none'} value={o.value}>
+                                    <SelectItem key={o.value || 'none'} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1.5">
@@ -547,19 +534,19 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                                     updateAction(ai.id, 'status', v)
                                                 }
                                             >
-                                                <ZoruSelectTrigger>
-                                                    <ZoruSelectValue />
-                                                </ZoruSelectTrigger>
-                                                <ZoruSelectContent>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
                                                     {ACTION_STATUS_OPTIONS.map((o) => (
-                                                        <ZoruSelectItem
+                                                        <SelectItem
                                                             key={o.value}
                                                             value={o.value}
                                                         >
                                                             {o.label}
-                                                        </ZoruSelectItem>
+                                                        </SelectItem>
                                                     ))}
-                                                </ZoruSelectContent>
+                                                </SelectContent>
                                             </Select>
                                         </div>
                                     </div>

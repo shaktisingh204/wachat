@@ -1,36 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Calendar,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Calendar, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Popover, PopoverContent, PopoverTrigger, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarIcon,
   Clock,
@@ -274,7 +244,7 @@ export function ScheduleDialog({
   sessionId,
   onSaved,
 }: ScheduleDialogProps) {
-  const toast = useZoruToast();
+  const toast = useToast();
 
   // ─ State ────────────────────────────────────────────────────────────────
   const initialDate = React.useMemo(
@@ -592,15 +562,15 @@ export function ScheduleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
             {mode === "edit" ? "Edit scheduled message" : "New schedule"}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             Pick recipients, compose your message, and choose when it sends.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="grid gap-5">
           {/* ─── Target ─────────────────────────────────────────────── */}
@@ -630,11 +600,11 @@ export function ScheduleDialog({
 
             {/* Searchable picker — live chats list */}
             <div className="mt-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)]">
-              <ZoruCommand
+              <Command
                 shouldFilter={false}
                 className="rounded-[var(--st-radius-sm)]"
               >
-                <ZoruCommandInput
+                <CommandInput
                   placeholder={
                     targetTab === "individual"
                       ? "Search chats or contacts…"
@@ -645,21 +615,21 @@ export function ScheduleDialog({
                   value={search}
                   onValueChange={setSearch}
                 />
-                <ZoruCommandList className="max-h-[200px]">
+                <CommandList className="max-h-[200px]">
                   {chatsLoading && (
                     <div className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
                       Loading chats…
                     </div>
                   )}
-                  <ZoruCommandEmpty>
+                  <CommandEmpty>
                     {chatsLoading
                       ? "Loading…"
                       : visibleChats.length === 0
                         ? "No chats available for this session."
                         : "No matches. Try a different search."}
-                  </ZoruCommandEmpty>
+                  </CommandEmpty>
                   {filteredChats.length > 0 && (
-                    <ZoruCommandGroup heading="Chats">
+                    <CommandGroup heading="Chats">
                       {filteredChats.map((c) => {
                         const meta = targetTypeMeta(
                           c.type === "group"
@@ -675,7 +645,7 @@ export function ScheduleDialog({
                           (t) => t.jid === c.jid,
                         );
                         return (
-                          <ZoruCommandItem
+                          <CommandItem
                             key={c.jid}
                             value={`${name} ${phone} ${c.jid}`}
                             onSelect={() => {
@@ -706,13 +676,13 @@ export function ScheduleDialog({
                                 Picked
                               </span>
                             )}
-                          </ZoruCommandItem>
+                          </CommandItem>
                         );
                       })}
-                    </ZoruCommandGroup>
+                    </CommandGroup>
                   )}
-                </ZoruCommandList>
-              </ZoruCommand>
+                </CommandList>
+              </Command>
             </div>
 
             {/* Power-user fallback: paste a raw JID */}
@@ -850,7 +820,7 @@ export function ScheduleDialog({
                 open={datePopoverOpen}
                 onOpenChange={setDatePopoverOpen}
               >
-                <ZoruPopoverTrigger asChild>
+                <PopoverTrigger asChild>
                   <Button
                     type="button"
                     variant="outline"
@@ -866,8 +836,8 @@ export function ScheduleDialog({
                       <span>Pick a date</span>
                     )}
                   </Button>
-                </ZoruPopoverTrigger>
-                <ZoruPopoverContent className="w-auto p-0" align="start">
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={calendarSelected}
@@ -877,7 +847,7 @@ export function ScheduleDialog({
                     }}
                     initialFocus
                   />
-                </ZoruPopoverContent>
+                </PopoverContent>
               </Popover>
             </div>
             <div className="space-y-1.5">
@@ -900,21 +870,21 @@ export function ScheduleDialog({
                 Timezone
               </Label>
               <Select value={timezone} onValueChange={setTimezone}>
-                <ZoruSelectTrigger id="schedule-tz">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger id="schedule-tz">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {TIMEZONES.map((tz) => (
-                    <ZoruSelectItem key={tz} value={tz}>
+                    <SelectItem key={tz} value={tz}>
                       {tz}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
                   {!TIMEZONES.includes(DEFAULT_TIMEZONE) && (
-                    <ZoruSelectItem value={DEFAULT_TIMEZONE}>
+                    <SelectItem value={DEFAULT_TIMEZONE}>
                       {DEFAULT_TIMEZONE}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   )}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
           </section>
@@ -1021,7 +991,7 @@ export function ScheduleDialog({
           )}
         </div>
 
-        <ZoruDialogFooter className="gap-2 sm:gap-2">
+        <DialogFooter className="gap-2 sm:gap-2">
           <Button
             type="button"
             variant="ghost"
@@ -1047,8 +1017,8 @@ export function ScheduleDialog({
             {submitting && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
             {mode === "edit" ? "Save changes" : "Schedule"}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -33,7 +33,7 @@ export function SuccessionForm({ plan }: { plan?: Record<string, any> }) {
 
     return (
         <Card>
-            <ZoruCardContent className="p-6">
+            <CardBody className="p-6">
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     {plan?._id ? <input type="hidden" name="planId" value={String(plan._id)} /> : null}
                     <Field name="role" label="Role / position" defaultValue={plan?.role} required />
@@ -71,7 +71,7 @@ export function SuccessionForm({ plan }: { plan?: Record<string, any> }) {
                         <SubmitButton />
                     </div>
                 </form>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

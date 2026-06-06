@@ -1,24 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   Trash2 } from "lucide-react";
@@ -32,7 +14,7 @@ import type { WithId } from "mongodb";
  * Zoru-only replacement for `@/components/zoruui-domain/ecomm-product-card`.
  *
  * Same data shape and same `deleteEcommProduct` server action — visuals are
- * rebuilt with Card, Badge, Button, and ZoruAlertDialog.
+ * rebuilt with Card, Badge, Button, and AlertDialog.
  */
 
 import * as React from "react";
@@ -54,7 +36,7 @@ export function EcommProductCard({
   onDelete,
   shopSlug,
 }: EcommProductCardProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleDelete = async () => {
     const result = await deleteEcommProduct(product._id.toString());
@@ -92,7 +74,7 @@ export function EcommProductCard({
   return (
     <Card className="flex flex-col overflow-hidden p-0">
       <Wrapper>
-        <ZoruCardHeader className="p-0">
+        <CardHeader className="p-0">
           <div className="relative aspect-[4/5] bg-[var(--st-bg-muted)]">
             <Image
               src={product.imageUrl || "https://placehold.co/400x500.png"}
@@ -103,12 +85,12 @@ export function EcommProductCard({
             />
           </div>
           <div className="p-4 pb-0">
-            <ZoruCardTitle className="text-[16px] tracking-tight">
+            <CardTitle className="text-[16px] tracking-tight">
               {product.name}
-            </ZoruCardTitle>
+            </CardTitle>
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex-1 px-4 pb-4 pt-2">
+        </CardHeader>
+        <CardBody className="flex-1 px-4 pb-4 pt-2">
           <p className="line-clamp-2 h-10 text-[13px] text-[var(--st-text-secondary)]">
             {product.description}
           </p>
@@ -123,36 +105,36 @@ export function EcommProductCard({
               {inStock ? `${stock} in stock` : "Out of stock"}
             </Badge>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Wrapper>
-      <ZoruCardFooter className="flex justify-end gap-2 border-t border-[var(--st-border)] p-4">
+      <CardFooter className="flex justify-end gap-2 border-t border-[var(--st-border)] p-4">
         <Button variant="outline" size="sm" onClick={onEdit}>
           <Edit />
           Edit
         </Button>
-        <ZoruAlertDialog>
-          <ZoruAlertDialogTrigger asChild>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
             <Button variant="destructive" size="sm">
               <Trash2 />
               Delete
             </Button>
-          </ZoruAlertDialogTrigger>
-          <ZoruAlertDialogContent>
-            <ZoruAlertDialogHeader>
-              <ZoruAlertDialogTitle>Delete product?</ZoruAlertDialogTitle>
-              <ZoruAlertDialogDescription>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete product?</AlertDialogTitle>
+              <AlertDialogDescription>
                 This will permanently delete &ldquo;{product.name}&rdquo;.
-              </ZoruAlertDialogDescription>
-            </ZoruAlertDialogHeader>
-            <ZoruAlertDialogFooter>
-              <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-              <ZoruAlertDialogAction onClick={handleDelete}>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete}>
                 Delete
-              </ZoruAlertDialogAction>
-            </ZoruAlertDialogFooter>
-          </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
-      </ZoruCardFooter>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </CardFooter>
     </Card>
   );
 }

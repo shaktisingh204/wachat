@@ -3,7 +3,7 @@
 import React, { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
 import { CheckCircle2, FileText, Send, XCircle } from 'lucide-react';
 
 interface ContractStatusTimelineProps {
@@ -53,10 +53,10 @@ export function ContractStatusTimeline({
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>Status Timeline</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      <CardHeader>
+        <CardTitle>Status Timeline</CardTitle>
+      </CardHeader>
+      <CardBody>
         <div ref={containerRef} className="flex items-center w-full max-w-2xl py-4 overflow-hidden">
           {ALL_STEPS.map((step, i) => {
             const isCompleted = i < currentStepIdx;
@@ -92,7 +92,7 @@ export function ContractStatusTimeline({
             );
           })}
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, useZoruToast, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, useToast, Input } from '@/components/sabcrm/20ui/compat';
 import { Plus, Receipt } from 'lucide-react';
 
 /**
@@ -137,7 +137,7 @@ export function InvoiceListClient({
   currentUserId,
   error,
 }: InvoiceListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* View + density */
   const [view, setView] = React.useState<InvoiceViewMode>('table');

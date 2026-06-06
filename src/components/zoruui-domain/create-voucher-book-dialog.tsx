@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -64,14 +48,14 @@ export function CreateVoucherBookDialog({ onSave }: { onSave: () => void }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="outline"><PlusCircle className="mr-2 h-4 w-4" /> New Voucher Book</Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle>Create New Voucher Book</ZoruDialogTitle>
-          </ZoruDialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Create New Voucher Book</DialogTitle>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -81,24 +65,24 @@ export function CreateVoucherBookDialog({ onSave }: { onSave: () => void }) {
               <div className="space-y-2">
                 <Label htmlFor="voucherBookType">Voucher Book Type *</Label>
                 <Select name="voucherBookType" required>
-                  <ZoruSelectTrigger id="voucherBookType">
-                    <ZoruSelectValue placeholder="Select Voucher Book Type" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger id="voucherBookType">
+                    <SelectValue placeholder="Select Voucher Book Type" />
+                  </SelectTrigger>
+                  <SelectContent>
                     {voucherTypes.map(type => (
-                      <ZoruSelectItem key={type} value={type}>{type}</ZoruSelectItem>
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
             </div>
           </div>
-          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

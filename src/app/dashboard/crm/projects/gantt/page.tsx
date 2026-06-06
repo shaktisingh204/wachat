@@ -3,25 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { GanttChart, LoaderCircle } from 'lucide-react';
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Card,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getWsProjects,
@@ -107,7 +89,7 @@ interface DragState {
 }
 
 export default function GanttPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [hasMounted, setHasMounted] = React.useState<boolean>(false);
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = React.useState<string>('');
@@ -616,16 +598,16 @@ export default function GanttPage() {
               value={selectedProjectId}
               onValueChange={(v) => setSelectedProjectId(v)}
             >
-              <ZoruSelectTrigger className="h-9 w-[260px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                <ZoruSelectValue placeholder="Select a project" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[260px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                <SelectValue placeholder="Select a project" />
+              </SelectTrigger>
+              <SelectContent>
                 {projects.map((p) => (
-                  <ZoruSelectItem key={p._id} value={p._id}>
+                  <SelectItem key={p._id} value={p._id}>
                     {p.name || p.projectName}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
 
@@ -788,28 +770,28 @@ export default function GanttPage() {
         )}
       </Card>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={deletingLink !== null}
         onOpenChange={(o) => !o && setDeletingLink(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-[var(--st-text)]">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[var(--st-text)]">
               Delete dependency?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[var(--st-text-secondary)]">
               Remove the link between these two tasks? This does not delete the
               tasks themselves.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDeleteLink}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteLink}>
               Delete dependency
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Card, ZoruCardContent, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, Alert, ZoruAlertTitle, ZoruAlertDescription, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Table, THead, Tr, Th, TBody, Td, Alert, AlertTitle, AlertDescription, Badge } from '@/components/sabcrm/20ui/compat';
 import { Download, Copy, AlertCircle } from 'lucide-react';
 import { useState, Component, ReactNode, ErrorInfo } from 'react';
 
@@ -35,10 +35,10 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
       return (
         <Alert variant="destructive" className="m-4">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Something went wrong</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Something went wrong</AlertTitle>
+          <AlertDescription>
             {this.state.error?.message || 'An unexpected error occurred.'}
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       );
     }
@@ -168,46 +168,46 @@ function CanonicalTagChecker() {
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <ZoruAlertTitle>Error</ZoruAlertTitle>
-            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
         
         {results.length > 0 && (
           <Card>
-            <ZoruCardContent className="p-0">
+            <CardBody className="p-0">
               <div className="flex justify-end gap-2 p-4 border-b border-[var(--st-border)]">
                 <Button variant="outline" size="sm" onClick={copyToClipboard}><Copy className="w-4 h-4 mr-2"/> Copy</Button>
                 <Button variant="outline" size="sm" onClick={exportCSV}><Download className="w-4 h-4 mr-2"/> Export CSV</Button>
               </div>
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>URL</TableHead>
-                    <TableHead>Final URL</TableHead>
-                    <TableHead>Canonical URL</TableHead>
-                    <TableHead>Evaluation</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead>
+                  <Tr>
+                    <Th>URL</Th>
+                    <Th>Final URL</Th>
+                    <Th>Canonical URL</Th>
+                    <Th>Evaluation</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {results.map((r, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="max-w-[200px] truncate" title={r.url}>{r.url}</TableCell>
-                      <TableCell className="max-w-[200px] truncate" title={r.finalUrl}>
+                    <Tr key={i}>
+                      <Td className="max-w-[200px] truncate" title={r.url}>{r.url}</Td>
+                      <Td className="max-w-[200px] truncate" title={r.finalUrl}>
                         <div className="flex flex-col">
                           <span>{r.finalUrl}</span>
                           <span className="text-xs text-[var(--st-text-secondary)]">HTTP {r.httpStatus || '-'}</span>
                         </div>
-                      </TableCell>
-                      <TableCell className="max-w-[200px] truncate" title={r.canonical || ''}>{r.canonical || '-'}</TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td className="max-w-[200px] truncate" title={r.canonical || ''}>{r.canonical || '-'}</Td>
+                      <Td>
                         <Badge variant={r.evaluation.variant}>{r.evaluation.label}</Badge>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </TableBody>
+                </TBody>
               </Table>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
       </div>

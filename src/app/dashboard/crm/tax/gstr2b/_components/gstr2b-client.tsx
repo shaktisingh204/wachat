@@ -12,25 +12,7 @@
 
 import * as React from 'react';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   Download,
@@ -153,7 +135,7 @@ function KpiStrip({ kpis }: { kpis: Gstr2bKpis }) {
 /* ─── Main client component ──────────────────────────────────────────────── */
 
 export function Gstr2bClient() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [period, setPeriod] = React.useState<Period>(currentPeriod);
   const [loading, setLoading] = React.useState(false);
   const [parsed, setParsed] = React.useState<Gstr2bReturn | null>(null);
@@ -329,16 +311,16 @@ export function Gstr2bClient() {
                 setPeriod((p) => ({ ...p, month: Number(v) }))
               }
             >
-              <ZoruSelectTrigger className="w-40">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {MONTHS.map((m) => (
-                  <ZoruSelectItem key={m.value} value={m.value}>
+                  <SelectItem key={m.value} value={m.value}>
                     {m.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div>
@@ -476,87 +458,87 @@ export function Gstr2bClient() {
 
             <div className="overflow-x-auto">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10 text-[var(--st-text-secondary)]">
                       <Checkbox
                         checked={allChecked}
                         onCheckedChange={(c) => toggleAll(Boolean(c))}
                         aria-label="Select all suppliers"
                       />
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">GSTIN</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">GSTIN</Th>
+                    <Th className="text-[var(--st-text-secondary)]">
                       Trade name
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">
                       Invoices
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">
                       Taxable
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">
                       IGST
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">
                       CGST
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">
                       SGST
-                    </ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {filteredSuppliers.length === 0 ? (
-                    <ZoruTableRow>
-                      <ZoruTableCell
+                    <Tr>
+                      <Td
                         colSpan={8}
                         className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         {gstinSearch
                           ? 'No suppliers match that GSTIN / name.'
                           : 'No suppliers in this period.'}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     filteredSuppliers.map((s) => (
-                      <ZoruTableRow
+                      <Tr
                         key={s.gstin}
                         className="border-[var(--st-border)]"
                         data-state={selected.has(s.gstin) ? 'selected' : undefined}
                       >
-                        <ZoruTableCell>
+                        <Td>
                           <Checkbox
                             checked={selected.has(s.gstin)}
                             onCheckedChange={() => toggle(s.gstin)}
                             aria-label={`Select ${s.gstin}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="font-mono text-[12px] text-[var(--st-text)]">
                           {s.gstin}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text)]">
                           {s.tradeName ?? '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                           {s.invoiceCount}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right font-mono text-[12px] text-[var(--st-text)]">
                           {s.taxableValue.toFixed(2)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right font-mono text-[12px] text-[var(--st-text)]">
                           {s.igst.toFixed(2)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right font-mono text-[12px] text-[var(--st-text)]">
                           {s.cgst.toFixed(2)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right font-mono text-[12px] text-[var(--st-text)]">
                           {s.sgst.toFixed(2)}
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>

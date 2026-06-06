@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, PageDescription, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   format,
   formatDistanceToNowStrict,
@@ -58,7 +37,7 @@ import { SabFileToFileButton } from '@/components/sabfiles';
 const POLL_MS = 3000;
 
 export default function TeamChatPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const { sessionUser } = useProject();
     const canRead = useCan('team_chat', 'view');
     const canSend = useCan('team_chat', 'create');
@@ -240,28 +219,28 @@ export default function TeamChatPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/crm/team/manage-users">Team</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Chat</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/crm/team/manage-users">Team</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Chat</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Team chat</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Team chat</PageTitle>
+                    <PageDescription>
                         Direct messages and group channels. Polling at 3s.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <div className="flex items-center gap-2">
                     {notifPerm === 'default' ? (
                         <Button variant="outline" size="md" onClick={requestNotifPerm}>
@@ -671,7 +650,7 @@ function NewGroupDialog({
 }: {
     members: WithId<User>[];
     onCreated: () => void;
-    toast: ReturnType<typeof useZoruToast>['toast'];
+    toast: ReturnType<typeof useToast>['toast'];
 }) {
     const [open, setOpen] = React.useState(false);
     const [name, setName] = React.useState('');
@@ -701,17 +680,17 @@ function NewGroupDialog({
 
     return (
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button size="md">
                     <Plus className="h-3.5 w-3.5" />
                     New group
                 </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="max-w-md">
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
                 <form onSubmit={submit} className="flex flex-col gap-4">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>New group chat</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                    <DialogHeader>
+                        <DialogTitle>New group chat</DialogTitle>
+                    </DialogHeader>
                     <div>
                         <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
                             Group name
@@ -781,7 +760,7 @@ function NewGroupDialog({
                         </Button>
                     </div>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

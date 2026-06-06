@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, Switch, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Badge, Switch, Label } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState, useTransition } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { generateKeywords } from './actions';
@@ -128,11 +128,11 @@ export default function KeywordGeneratorPage() {
               Copy All
             </Button>
           </div>
-          <ZoruCardContent className="p-4 flex flex-wrap gap-2 max-h-[500px] overflow-y-auto">
+          <CardBody className="p-4 flex flex-wrap gap-2 max-h-[500px] overflow-y-auto">
             {results.map((r) => (
               <Badge key={r} variant="secondary" className="text-sm font-medium">{r}</Badge>
             ))}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

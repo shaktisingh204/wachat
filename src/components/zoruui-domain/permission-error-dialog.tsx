@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Alert, AlertDescription, AlertTitle, Button } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, Facebook } from 'lucide-react';
 import type { WithId,
   Project } from '@/lib/definitions';
@@ -32,22 +22,22 @@ export function PermissionErrorDialog({ isOpen, onOpenChange, error, project, on
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="flex items-center gap-2">
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
             <AlertCircle className="text-[var(--st-text)] h-6 w-6" />
             Permissions Required
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             SabNode needs additional permissions to access this feature.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="py-4 space-y-4">
           <Alert variant="destructive">
-            <ZoruAlertTitle>Error Details</ZoruAlertTitle>
-            <ZoruAlertDescription>
+            <AlertTitle>Error Details</AlertTitle>
+            <AlertDescription>
               {error}
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
           <p className="text-sm text-[var(--st-text-secondary)]">
             To fix this, please reconnect your Facebook account and ensure you grant all requested permissions. Your existing settings will be preserved.
@@ -61,7 +51,7 @@ export function PermissionErrorDialog({ isOpen, onOpenChange, error, project, on
             </Button>
           </div>
         </div>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input, Label, ScrollArea, Separator } from "@/components/sabcrm/20ui/compat";
+import { Button, Input, Label, ScrollArea, Separator } from '@/components/sabcrm/20ui/compat';
 import { Settings2, Trash2 } from "lucide-react";
 
 import { TextEditor } from "../dialogs/text-editor";

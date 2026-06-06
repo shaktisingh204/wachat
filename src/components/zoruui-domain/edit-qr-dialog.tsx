@@ -2,10 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { updateQrCode } from '@/app/actions/qr-code.actions';
-import {
-    Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle,
-    Button, Input, Label, cn, useZoruToast
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Input, Label, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import type { QrCodeWithShortUrl } from '@/lib/definitions';
 import { LoaderCircle, Pencil } from 'lucide-react';
 
@@ -17,7 +14,7 @@ interface EditQrDialogProps {
 export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [name, setName] = useState(qrCode.name);
     const [color, setColor] = useState(qrCode.config?.color ?? '#000000');
     const [bgColor, setBgColor] = useState(qrCode.config?.bgColor ?? '#FFFFFF');
@@ -44,10 +41,10 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
                 <Pencil className="h-3.5 w-3.5" />
             </Button>
             <Dialog open={open} onOpenChange={setOpen}>
-                <ZoruDialogContent className="max-w-sm">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Edit QR Code</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Edit QR Code</DialogTitle>
+                    </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="space-y-1.5">
                             <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Name</Label>
@@ -101,7 +98,7 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
                             Save
                         </Button>
                     </div>
-                </ZoruDialogContent>
+                </DialogContent>
             </Dialog>
         </>
     );

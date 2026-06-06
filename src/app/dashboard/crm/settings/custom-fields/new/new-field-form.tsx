@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Checkbox,
-  Card,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useActionState,
   useEffect,
@@ -91,7 +78,7 @@ type FieldRow = WsCustomField & { _id: string };
 export function NewCustomFieldForm() {
   const sp = useSearchParams();
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const groupParam = sp.get('group') || '';
   const idParam = sp.get('id') || '';
@@ -162,19 +149,19 @@ export function NewCustomFieldForm() {
             Group <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Select name="group_id" defaultValue={defaultGroup} required>
-            <ZoruSelectTrigger
+            <SelectTrigger
               id="group_id"
               className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
             >
-              <ZoruSelectValue placeholder="Select a group" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+              <SelectValue placeholder="Select a group" />
+            </SelectTrigger>
+            <SelectContent>
               {groups.map((g) => (
-                <ZoruSelectItem key={g._id} value={g._id}>
+                <SelectItem key={g._id} value={g._id}>
                   {g.name} ({g.belongs_to})
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
 
@@ -213,24 +200,24 @@ export function NewCustomFieldForm() {
             {/* TODO §1E: type needs enumName="customFieldType" — pending label/value alignment
                 between this form (radio, checkbox) and the CRM_ENUMS set (boolean, multiselect, etc.) */}
             <Select name="type" value={type} onValueChange={setType}>
-              <ZoruSelectTrigger
+              <SelectTrigger
                 id="type"
                 className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               >
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="text">Text</ZoruSelectItem>
-                <ZoruSelectItem value="textarea">Long text</ZoruSelectItem>
-                <ZoruSelectItem value="select">Select (single)</ZoruSelectItem>
-                <ZoruSelectItem value="radio">Radio</ZoruSelectItem>
-                <ZoruSelectItem value="checkbox">Checkbox</ZoruSelectItem>
-                <ZoruSelectItem value="number">Number</ZoruSelectItem>
-                <ZoruSelectItem value="date">Date</ZoruSelectItem>
-                <ZoruSelectItem value="email">Email</ZoruSelectItem>
-                <ZoruSelectItem value="url">URL</ZoruSelectItem>
-                <ZoruSelectItem value="entity_ref">Linked record</ZoruSelectItem>
-              </ZoruSelectContent>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="text">Text</SelectItem>
+                <SelectItem value="textarea">Long text</SelectItem>
+                <SelectItem value="select">Select (single)</SelectItem>
+                <SelectItem value="radio">Radio</SelectItem>
+                <SelectItem value="checkbox">Checkbox</SelectItem>
+                <SelectItem value="number">Number</SelectItem>
+                <SelectItem value="date">Date</SelectItem>
+                <SelectItem value="email">Email</SelectItem>
+                <SelectItem value="url">URL</SelectItem>
+                <SelectItem value="entity_ref">Linked record</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div>
@@ -273,19 +260,19 @@ export function NewCustomFieldForm() {
                 onValueChange={setTargetEntity}
                 required
               >
-                <ZoruSelectTrigger
+                <SelectTrigger
                   id="targetEntity"
                   className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 >
-                  <ZoruSelectValue placeholder="Pick an entity to link" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                  <SelectValue placeholder="Pick an entity to link" />
+                </SelectTrigger>
+                <SelectContent>
                   {ENTITY_KEYS.map((k) => (
-                    <ZoruSelectItem key={k} value={k}>
+                    <SelectItem key={k} value={k}>
                       {ENTITY_LABELS[k]}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
               <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                 Renders as a searchable picker for the chosen entity.
@@ -300,16 +287,16 @@ export function NewCustomFieldForm() {
                 value={multi ? 'true' : 'false'}
                 onValueChange={(v) => setMulti(v === 'true')}
               >
-                <ZoruSelectTrigger
+                <SelectTrigger
                   id="multi"
                   className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 >
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="false">Single</ZoruSelectItem>
-                  <ZoruSelectItem value="true">Multiple</ZoruSelectItem>
-                </ZoruSelectContent>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="false">Single</SelectItem>
+                  <SelectItem value="true">Multiple</SelectItem>
+                </SelectContent>
               </Select>
             </div>
           </div>
@@ -324,16 +311,16 @@ export function NewCustomFieldForm() {
               name="is_required"
               defaultValue={existing?.is_required ? 'true' : 'false'}
             >
-              <ZoruSelectTrigger
+              <SelectTrigger
                 id="is_required"
                 className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               >
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="false">No</ZoruSelectItem>
-                <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-              </ZoruSelectContent>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="false">No</SelectItem>
+                <SelectItem value="true">Yes</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div>
@@ -344,16 +331,16 @@ export function NewCustomFieldForm() {
               name="display_in_table"
               defaultValue={existing?.display_in_table ? 'true' : 'false'}
             >
-              <ZoruSelectTrigger
+              <SelectTrigger
                 id="display_in_table"
                 className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               >
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="false">No</ZoruSelectItem>
-                <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-              </ZoruSelectContent>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="false">No</SelectItem>
+                <SelectItem value="true">Yes</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </div>

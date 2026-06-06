@@ -26,29 +26,7 @@ import {
   Users,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruDateRangePicker,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -113,7 +91,7 @@ function formatExpiryRule(days: number | undefined | null): string {
 }
 
 export default function SalesLoyaltyPage(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<AnyLoyaltyProgram[]>([]);
   const [total, setTotal] = React.useState(0);
@@ -312,20 +290,20 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                   setPage(1);
                 }}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
                   {STATUS_OPTIONS.map((s) => (
-                    <ZoruSelectItem key={s} value={s}>
+                    <SelectItem key={s} value={s}>
                       {s === 'all' ? 'All statuses' : s[0].toUpperCase() + s.slice(1)}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="w-64">
-              <ZoruDateRangePicker
+              <DateRangePicker
                 value={dateRange}
                 onChange={(r) => {
                   setDateRange(r);
@@ -340,19 +318,19 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
               </Button>
             ) : null}
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Download className="h-4 w-4" /> Export
                 </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent align="end">
-                <ZoruDropdownMenuItem onClick={() => exportFile('csv')}>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => exportFile('csv')}>
                   <FileText className="h-4 w-4" /> CSV
-                </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuItem onClick={() => exportFile('xlsx')}>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportFile('xlsx')}>
                   <FileSpreadsheet className="h-4 w-4" /> XLSX
-                </ZoruDropdownMenuItem>
-              </ZoruDropdownMenuContent>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
             </DropdownMenu>
           </div>
         }
@@ -361,40 +339,40 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
             <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--st-text)]">
               <span className="font-medium">{selected.size} selected</span>
               <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
                     Set status
                   </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'active')}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'active')}>
                     Active
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'paused')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'paused')}>
                     Paused
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'draft')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'draft')}>
                     Draft
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'cancelled')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'cancelled')}>
                     Cancelled
-                  </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
               <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
                     <Download className="h-4 w-4" /> Export selected
                   </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                  <ZoruDropdownMenuItem onClick={() => exportFile('csv')}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => exportFile('csv')}>
                     <FileText className="h-4 w-4" /> CSV
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => exportFile('xlsx')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => exportFile('xlsx')}>
                     <FileSpreadsheet className="h-4 w-4" /> XLSX
-                  </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
               <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
                 Delete
@@ -461,72 +439,72 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
           <Card className="p-0">
             <div className="overflow-x-auto rounded-lg">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10">
                       <input
                         type="checkbox"
                         aria-label="Select all"
                         checked={allSelected}
                         onChange={(e) => handleToggleAll(e.target.checked)}
                       />
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Program name</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Tiers</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Points/unit</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Expiry rule</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">Program name</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Tiers</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Points/unit</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Expiry rule</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {rows.length === 0 ? (
-                    <ZoruTableRow className="border-[var(--st-border)]">
-                      <ZoruTableCell
+                    <Tr className="border-[var(--st-border)]">
+                      <Td
                         colSpan={6}
                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         {isPending ? 'Loading…' : 'No loyalty programs match these filters.'}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     rows.map((p, idx) => {
                       const id = getId(p, idx);
                       const checked = selected.has(id);
                       const tiers = Array.isArray(p.tiers) ? p.tiers.length : 0;
                       return (
-                        <ZoruTableRow key={id} className="border-[var(--st-border)]">
-                          <ZoruTableCell>
+                        <Tr key={id} className="border-[var(--st-border)]">
+                          <Td>
                             <input
                               type="checkbox"
                               aria-label={`Select ${p.name ?? id}`}
                               checked={checked}
                               onChange={() => handleToggleOne(id)}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             <EntityRowLink
                               href={`/dashboard/sabthrive/loyalty/${id}`}
                               label={p.name || 'Untitled program'}
                               subtitle={tiers ? `${tiers} tier${tiers === 1 ? '' : 's'}` : undefined}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[var(--st-text)]">{tiers}</ZoruTableCell>
-                          <ZoruTableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">{tiers}</Td>
+                          <Td className="text-[var(--st-text)]">
                             {formatPointsRate(p.pointsPerCurrencyUnit)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             {formatExpiryRule(p.expiryDays)}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <Badge variant={getStatusVariant(p.status)}>
                               {p.status || 'draft'}
                             </Badge>
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       );
                     })
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>

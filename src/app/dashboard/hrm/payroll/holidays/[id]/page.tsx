@@ -1,4 +1,4 @@
-import { Button, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -32,13 +32,13 @@ export default async function HolidayDetailPage({ params }: PageProps) {
             audit={<EntityAuditTimeline entityKind="holiday" entityId={id} />}
         >
             <Card>
-                <ZoruCardContent className="space-y-3 p-6 text-sm">
+                <CardBody className="space-y-3 p-6 text-sm">
                     <Row label="Date" value={holiday.date} />
                     <Row label="Type" value={holiday.type} />
                     <Row label="Recurring" value={holiday.recurring ? 'Yes' : 'No'} />
                     <Row label="Locations" value={Array.isArray(holiday.applicableLocations) ? holiday.applicableLocations.join(', ') : holiday.applicableLocations} />
                     <Row label="Notes" value={holiday.notes} />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </EntityDetailShell>
     );

@@ -1,22 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState } from "react";
@@ -110,7 +94,7 @@ const API_AREAS = [
 const PLACEHOLDER_KEY = "sk_meta_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
 export default function CommerceApiPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [showKey, setShowKey] = useState(false);
   const [keyValue, setKeyValue] = useState(PLACEHOLDER_KEY);
   const [webhookUrl, setWebhookUrl] = useState("");
@@ -180,16 +164,16 @@ export default function CommerceApiPage() {
 
       {/* ── Integration config ── */}
       <Card className="mt-6">
-        <ZoruCardHeader>
-          <ZoruCardTitle className="flex items-center gap-2 text-base">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
             <Server className="h-4 w-4" /> Integration configuration
-          </ZoruCardTitle>
-          <ZoruCardDescription>
+          </CardTitle>
+          <CardDescription>
             Manage credentials and the webhook endpoint Meta will call when
             commerce events occur.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="grid gap-5">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="grid gap-5">
           <div className="grid gap-1.5">
             <Label htmlFor="api-key">Commerce API key</Label>
             <div className="flex gap-2">
@@ -262,8 +246,8 @@ export default function CommerceApiPage() {
               onCheckedChange={setAutoSync}
             />
           </div>
-        </ZoruCardContent>
-        <ZoruCardFooter className="flex flex-wrap items-center justify-between gap-3">
+        </CardBody>
+        <CardFooter className="flex flex-wrap items-center justify-between gap-3">
           <Button
             variant="outline"
             onClick={() => setRotateOpen(true)}
@@ -275,13 +259,13 @@ export default function CommerceApiPage() {
             <KeyRound />
             Save configuration
           </Button>
-        </ZoruCardFooter>
+        </CardFooter>
       </Card>
 
       <Alert className="mt-6">
         <KeyRound className="h-4 w-4" />
-        <ZoruAlertTitle>Need to wire a webhook?</ZoruAlertTitle>
-        <ZoruAlertDescription>
+        <AlertTitle>Need to wire a webhook?</AlertTitle>
+        <AlertDescription>
           Webhook subscriptions and signing live under{" "}
           <Link
             href="/dashboard/facebook/webhooks"
@@ -291,7 +275,7 @@ export default function CommerceApiPage() {
           </Link>
           . Configure your endpoint there and return here to plug in the
           signing secret.
-        </ZoruAlertDescription>
+        </AlertDescription>
       </Alert>
 
       {/* ── API reference cards ── */}
@@ -308,24 +292,24 @@ export default function CommerceApiPage() {
             const Icon = area.icon;
             return (
               <Card key={area.title} className="flex h-full flex-col">
-                <ZoruCardHeader>
+                <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                       <Icon className="h-4 w-4" />
                     </div>
-                    <ZoruCardTitle className="text-base">
+                    <CardTitle className="text-base">
                       {area.title}
-                    </ZoruCardTitle>
+                    </CardTitle>
                   </div>
-                  <ZoruCardDescription>{area.description}</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="mt-auto flex flex-wrap gap-2">
+                  <CardDescription>{area.description}</CardDescription>
+                </CardHeader>
+                <CardBody className="mt-auto flex flex-wrap gap-2">
                   {area.apis.map((api) => (
                     <Badge key={api} variant="outline">
                       {api}
                     </Badge>
                   ))}
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             );
           })}

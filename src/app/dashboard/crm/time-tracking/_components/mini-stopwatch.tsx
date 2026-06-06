@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { Clock, Pause, Square } from 'lucide-react';
 import { getTimeLogs, stopTimer } from '@/app/actions/worksuite/time.actions';
 import type { WsProjectTimeLog } from '@/lib/worksuite/time-types';
@@ -31,7 +31,7 @@ function LiveElapsed({ start }: { start: string | Date }) {
 export function MiniStopwatch() {
   const [runningLog, setRunningLog] = React.useState<WsProjectTimeLog | null>(null);
   const [loading, setLoading] = React.useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const fetchRunning = React.useCallback(async () => {
     try {

@@ -5,22 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { createDatasetAction } from '@/app/actions/analytics-bi.actions';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 
 type Source = 'csv_upload' | 'mongo_collection' | 'rest_api';
 
@@ -104,14 +89,14 @@ export function NewDatasetPanel() {
           <div className="grid gap-1.5">
             <Label htmlFor="ds-source">Source</Label>
             <Select value={source} onValueChange={(v) => setSource(v as Source)}>
-              <ZoruSelectTrigger id="ds-source">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="csv_upload">CSV (SabFiles)</ZoruSelectItem>
-                <ZoruSelectItem value="mongo_collection">System collection</ZoruSelectItem>
-                <ZoruSelectItem value="rest_api">REST endpoint</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger id="ds-source">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="csv_upload">CSV (SabFiles)</SelectItem>
+                <SelectItem value="mongo_collection">System collection</SelectItem>
+                <SelectItem value="rest_api">REST endpoint</SelectItem>
+              </SelectContent>
             </Select>
           </div>
 

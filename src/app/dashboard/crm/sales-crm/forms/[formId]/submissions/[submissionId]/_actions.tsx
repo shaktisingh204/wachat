@@ -14,7 +14,7 @@ import {
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
     updateSubmissionStatus,
     deleteSubmission,
@@ -34,7 +34,7 @@ export function SubmissionDetailActions({
     formId,
 }: SubmissionDetailActionsProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [pending, startTransition] = React.useTransition();
 
     const setStatus = (status: StatusValue) => {

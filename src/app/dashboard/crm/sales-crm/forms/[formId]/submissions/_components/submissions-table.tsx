@@ -19,24 +19,7 @@ import {
 
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Checkbox,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import {
@@ -121,7 +104,7 @@ export function SubmissionsTable({
     total,
 }: SubmissionsTableProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [pending, startTransition] = React.useTransition();
 
@@ -386,23 +369,23 @@ export function SubmissionsTable({
             <Card className="overflow-hidden p-0 flex flex-col">
                 <div ref={parentRef} className="max-h-[600px] overflow-auto relative">
                 <Table>
-                    <ZoruTableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
-                        <ZoruTableRow>
-                            <ZoruTableHead className="w-8">
+                    <THead className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
+                        <Tr>
+                            <Th className="w-8">
                                 <Checkbox
                                     checked={headChecked}
                                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                                     aria-label="Select all"
                                 />
-                            </ZoruTableHead>
-                            <ZoruTableHead>Submitted</ZoruTableHead>
-                            <ZoruTableHead>Summary</ZoruTableHead>
-                            <ZoruTableHead>Source</ZoruTableHead>
-                            <ZoruTableHead>Status</ZoruTableHead>
-                            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                            </Th>
+                            <Th>Submitted</Th>
+                            <Th>Summary</Th>
+                            <Th>Source</Th>
+                            <Th>Status</Th>
+                            <Th className="text-right">Actions</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {paddingTop > 0 && (
                             <tr><td style={{ height: `${paddingTop}px` }} /></tr>
                         )}
@@ -412,18 +395,18 @@ export function SubmissionsTable({
                             const checked = selected.has(id);
                             const status = (s.status ?? 'new') as StatusValue;
                             return (
-                                <ZoruTableRow key={id} ref={rowVirtualizer.measureElement} data-index={virtualRow.index}>
-                                    <ZoruTableCell>
+                                <Tr key={id} ref={rowVirtualizer.measureElement} data-index={virtualRow.index}>
+                                    <Td>
                                         <Checkbox
                                             checked={checked}
                                             onCheckedChange={() => toggleOne(id)}
                                             aria-label="Select submission"
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {fmtRelative(s.createdAt)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <EntityRowLink
                                             href={`/dashboard/crm/sales-crm/forms/${formId}/submissions/${id}`}
                                             label={summarise(s.data as Record<string, unknown> | undefined, fieldOrder)}
@@ -436,55 +419,55 @@ export function SubmissionsTable({
                                                 ))}
                                             </div>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {safeHost(s.sourceUrl)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <Badge variant={STATUS_VARIANT[status]}>
                                             {status}
                                         </Badge>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <DropdownMenu>
-                                            <ZoruDropdownMenuTrigger asChild>
+                                            <DropdownMenuTrigger asChild>
                                                 <Button size="sm" variant="ghost" aria-label="Row actions">
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </Button>
-                                            </ZoruDropdownMenuTrigger>
-                                            <ZoruDropdownMenuContent align="end">
-                                                <ZoruDropdownMenuItem asChild>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem asChild>
                                                     <Link href={`/dashboard/crm/sales-crm/forms/${formId}/submissions/${id}`}>
                                                         <Eye className="h-4 w-4" /> View
                                                     </Link>
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuSeparator />
-                                                <ZoruDropdownMenuItem onClick={() => singleAction(id, 'processed')}>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem onClick={() => singleAction(id, 'processed')}>
                                                     <CheckCircle2 className="h-4 w-4" /> Mark processed
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem onClick={() => singleAction(id, 'spam')}>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => singleAction(id, 'spam')}>
                                                     <ShieldAlert className="h-4 w-4" /> Mark spam
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem onClick={() => singleAction(id, 'archived')}>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => singleAction(id, 'archived')}>
                                                     <Archive className="h-4 w-4" /> Archive
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuSeparator />
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem
                                                     onClick={() => singleDelete(id)}
                                                     className="text-[var(--st-danger)]"
                                                 >
                                                     <Trash2 className="h-4 w-4" /> Delete
-                                                </ZoruDropdownMenuItem>
-                                            </ZoruDropdownMenuContent>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             );
                         })}
                         {paddingBottom > 0 && (
                             <tr><td style={{ height: `${paddingBottom}px` }} /></tr>
                         )}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
                 </div>
                 <div className="p-2 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]">

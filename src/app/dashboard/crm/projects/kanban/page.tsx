@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -89,7 +78,7 @@ const DEFAULT_COLUMNS: Column[] = [
 ];
 
 export default function KanbanPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [columns, setColumns] = useState<Column[]>([]);
@@ -256,29 +245,29 @@ export default function KanbanPage() {
         <>
           <div className="w-[220px]">
             <Select value={projectFilter} onValueChange={setProjectFilter}>
-              <ZoruSelectTrigger className="h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                <ZoruSelectValue placeholder="All projects" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All projects</ZoruSelectItem>
+              <SelectTrigger className="h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                <SelectValue placeholder="All projects" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All projects</SelectItem>
                 {projects.map((p) => (
-                  <ZoruSelectItem key={p._id} value={p._id}>
+                  <SelectItem key={p._id} value={p._id}>
                     {p.name || p.projectName}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="w-[180px]">
             <Select value={swimlaneBy} onValueChange={(val) => setSwimlaneBy(val as any)}>
-              <ZoruSelectTrigger className="h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                <ZoruSelectValue placeholder="Swimlanes" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="none">No Swimlanes</ZoruSelectItem>
-                <ZoruSelectItem value="assignee">By Assignee</ZoruSelectItem>
-                <ZoruSelectItem value="project">By Project</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                <SelectValue placeholder="Swimlanes" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Swimlanes</SelectItem>
+                <SelectItem value="assignee">By Assignee</SelectItem>
+                <SelectItem value="project">By Project</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <Link href="/dashboard/crm/projects/taskboard-columns">

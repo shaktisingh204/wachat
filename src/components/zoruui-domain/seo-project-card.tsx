@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Badge,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import React from 'react';
@@ -72,15 +61,15 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
             {/* Gradient Accent Line */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)]" />
 
-            <ZoruCardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-5">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-5">
                 <div className="flex-1 min-w-0 flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20 flex items-center justify-center flex-shrink-0">
                         <BarChart className="h-5 w-5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
                     </div>
                     <div>
-                        <ZoruCardTitle className="font-bold text-lg truncate group-hover:text-[var(--st-text)] transition-colors">
+                        <CardTitle className="font-bold text-lg truncate group-hover:text-[var(--st-text)] transition-colors">
                             {displayName}
-                        </ZoruCardTitle>
+                        </CardTitle>
                         <p className="text-xs text-[var(--st-text-secondary)] font-mono mt-0.5">
                             SEO Monitoring
                         </p>
@@ -112,14 +101,14 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
                         <span className="sr-only">Toggle Favorite</span>
                     </Button>
                     <DropdownMenu>
-                        <ZoruDropdownMenuTrigger asChild>
+                        <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] rounded-full">
                                 <MoreVertical className="h-4 w-4" />
                                 <span className="sr-only">Open menu</span>
                             </Button>
-                        </ZoruDropdownMenuTrigger>
-                        <ZoruDropdownMenuContent align="end">
-                            <ZoruDropdownMenuItem
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem
                                 className="text-[var(--st-text)] focus:text-[var(--st-text)]"
                                 onSelect={async (e) => {
                                     e.preventDefault();
@@ -138,13 +127,13 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
                                 }}
                             >
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete Project
-                            </ZoruDropdownMenuItem>
-                        </ZoruDropdownMenuContent>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-            </ZoruCardHeader>
+            </CardHeader>
 
-            <ZoruCardContent className="space-y-4 pb-4">
+            <CardBody className="space-y-4 pb-4">
                 <div className="grid grid-cols-2 gap-4 my-2">
                     <div className="flex flex-col gap-1.5 p-2 rounded-lg bg-[var(--st-bg-muted)]/30 border border-[var(--st-border)]/20">
                         <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-bold">Health Score</span>
@@ -196,7 +185,7 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
                         </Button>
                     </Link>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 });

@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -80,41 +64,41 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
 
   if (state.oauth_url) {
     return (
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Complete Onboarding</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Complete Onboarding</DialogTitle>
+          <DialogDescription>
             Your payment configuration has been created. Please complete the setup with your payment provider.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <Alert>
           <AlertTitle>Action Required</AlertTitle>
           <AlertDescription>
             Click the button below to go to the provider's site and authorize the connection.
           </AlertDescription>
         </Alert>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button asChild>
             <a href={state.oauth_url} target="_blank" rel="noopener noreferrer" onClick={() => handleOpenChange(false)}>
               Complete Onboarding
             </a>
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     )
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <ZoruDialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={typeof window !== 'undefined' ? localStorage.getItem('activeProjectId') || '' : ''} />
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Create Payment Configuration</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Create Payment Configuration</DialogTitle>
+            <DialogDescription>
               This information should match the details in your Meta Commerce Manager account.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           {state.error && (
             <Alert variant="destructive" className="mx-6">
               <AlertCircle className="h-4 w-4" />
@@ -130,13 +114,13 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
               <div className="space-y-2">
                 <Label htmlFor="provider_name">Provider</Label>
                 <Select name="provider_name" onValueChange={setProviderType} defaultValue="gateway" required>
-                  <ZoruSelectTrigger><ZoruSelectValue placeholder="Select provider type..." /></ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="razorpay">Razorpay</ZoruSelectItem>
-                    <ZoruSelectItem value="payu">PayU</ZoruSelectItem>
-                    <ZoruSelectItem value="zaakpay">Zaakpay</ZoruSelectItem>
-                    <ZoruSelectItem value="upi_vpa">UPI VPA</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger><SelectValue placeholder="Select provider type..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="razorpay">Razorpay</SelectItem>
+                    <SelectItem value="payu">PayU</SelectItem>
+                    <SelectItem value="zaakpay">Zaakpay</SelectItem>
+                    <SelectItem value="upi_vpa">UPI VPA</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               {providerType !== 'upi_vpa' ? (
@@ -164,12 +148,12 @@ export function CreatePaymentConfigDialog({ isOpen, onOpenChange, onSuccess }: C
               </div>
             </div>
           </ScrollArea>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

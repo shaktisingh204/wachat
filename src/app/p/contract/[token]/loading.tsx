@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function Loading() {
   return (
@@ -14,17 +14,17 @@ export default function Loading() {
         </div>
         
         <Card>
-          <ZoruCardHeader className="border-b border-[var(--st-border)] py-3 bg-[var(--st-bg-muted)]/50">
+          <CardHeader className="border-b border-[var(--st-border)] py-3 bg-[var(--st-bg-muted)]/50">
             <div className="flex items-center gap-2">
               <Skeleton className="h-4 w-4 rounded-full" />
               <Skeleton className="h-4 w-32 rounded" />
             </div>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-4 flex flex-col gap-3">
+          </CardHeader>
+          <CardBody className="p-4 flex flex-col gap-3">
             <Skeleton className="h-6 w-full rounded" />
             <Skeleton className="h-6 w-full rounded" />
             <Skeleton className="h-6 w-full rounded" />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         
         <div className="flex flex-col gap-2">
@@ -48,7 +48,7 @@ export default function Loading() {
           </div>
           
           <Card className="shadow-md border-foreground/10">
-            <ZoruCardContent className="flex flex-col gap-4 p-5">
+            <CardBody className="flex flex-col gap-4 p-5">
               <div className="flex items-center justify-between">
                 <Skeleton className="h-4 w-32 rounded" />
                 <Skeleton className="h-4 w-24 rounded" />
@@ -62,7 +62,7 @@ export default function Loading() {
                 <Skeleton className="h-9 w-20 rounded" />
                 <Skeleton className="h-9 w-32 rounded" />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

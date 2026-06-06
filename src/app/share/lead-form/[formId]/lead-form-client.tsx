@@ -12,20 +12,7 @@
  */
 
 import * as React from 'react';
-import {
-  Alert,
-  ZoruAlertDescription,
-  Button,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   submitPublicLead,
   type LeadFormField,
@@ -116,7 +103,7 @@ export function LeadFormClient({
     <form onSubmit={handleSubmit} className="space-y-4">
       {banner ? (
         <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
-          <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
+          <AlertDescription>{banner.message}</AlertDescription>
         </Alert>
       ) : null}
 
@@ -190,16 +177,16 @@ function FieldRow({ field, value, onChange }: FieldRowProps) {
             value={typeof value === 'string' ? value : ''}
             onValueChange={(v) => onChange(v)}
           >
-            <ZoruSelectTrigger id={id}>
-              <ZoruSelectValue placeholder={field.placeholder || 'Select…'} />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger id={id}>
+              <SelectValue placeholder={field.placeholder || 'Select…'} />
+            </SelectTrigger>
+            <SelectContent>
               {(field.options || []).map((opt) => (
-                <ZoruSelectItem key={opt} value={opt}>
+                <SelectItem key={opt} value={opt}>
                   {opt}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
       );

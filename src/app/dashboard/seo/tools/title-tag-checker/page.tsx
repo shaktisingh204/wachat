@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect, useMemo } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
@@ -150,7 +150,7 @@ export default function TitleTagCheckerPage() {
       
       {error && (
         <Card className="border-[var(--st-border)] mt-4">
-          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent>
+          <CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody>
         </Card>
       )}
       
@@ -158,7 +158,7 @@ export default function TitleTagCheckerPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div className="space-y-4">
             <Card>
-              <ZoruCardContent className="p-4 space-y-4">
+              <CardBody className="p-4 space-y-4">
                 <div>
                   <div className="text-sm font-semibold mb-2">Title Tag</div>
                   <Input 
@@ -209,13 +209,13 @@ export default function TitleTagCheckerPage() {
                     </div>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
           
           <div className="space-y-4">
             <Card>
-              <ZoruCardContent className="p-4 space-y-4">
+              <CardBody className="p-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-semibold">AI Title Suggestions</div>
                   <Button 
@@ -250,7 +250,7 @@ export default function TitleTagCheckerPage() {
                     Click generate to get AI-optimized title suggestions based on your page's H1 and current title.
                   </div>
                 )}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </div>

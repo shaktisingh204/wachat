@@ -1,15 +1,5 @@
 import { Suspense } from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   Gavel,
   Plus } from 'lucide-react';
@@ -172,27 +162,27 @@ async function DisciplinaryPageContainer() {
         </div>
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Case no.</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Severity</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Raised by</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Decision</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">Case no.</Th>
+                <Th className="text-[var(--st-text-secondary)]">Employee</Th>
+                <Th className="text-[var(--st-text-secondary)]">Severity</Th>
+                <Th className="text-[var(--st-text-secondary)]">Type</Th>
+                <Th className="text-[var(--st-text-secondary)]">Raised by</Th>
+                <Th className="text-[var(--st-text-secondary)]">Decision</Th>
+                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {loadError ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={7}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     Could not load disciplinary cases. Please try again.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : cases.length > 0 ? (
                 cases.map((c, idx) => {
                   const idStr =
@@ -213,45 +203,45 @@ async function DisciplinaryPageContainer() {
                       : (c.raisedById as any)?.toString?.()) ||
                     '—';
                   return (
-                    <ZoruTableRow key={idStr} className="border-[var(--st-border)]">
-                      <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                    <Tr key={idStr} className="border-[var(--st-border)]">
+                      <Td className="font-mono text-[12px] text-[var(--st-text)]">
                         <Link
                           href={`/dashboard/hrm/hr/disciplinary/${idStr}`}
                           className="hover:underline"
                         >
                           {caseNo}
                         </Link>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">{employee}</ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td className="text-[var(--st-text)]">{employee}</Td>
+                      <Td>
                         <Badge variant={getStatusVariant(c.severity)}>
                           {c.severity || 'minor'}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">{c.type || '—'}</ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">{raisedBy}</ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">{c.type || '—'}</Td>
+                      <Td className="text-[var(--st-text)]">{raisedBy}</Td>
+                      <Td className="text-[var(--st-text)]">
                         {c.decision || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant={getStatusVariant(c.status)}>
                           {c.status || 'open'}
                         </Badge>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               ) : (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={7}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No disciplinary cases yet. Log an incident to start a confidential trail.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

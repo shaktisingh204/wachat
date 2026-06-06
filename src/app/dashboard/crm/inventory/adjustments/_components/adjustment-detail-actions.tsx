@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Popover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Popover, PopoverContent, PopoverTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Archive,
@@ -33,7 +33,7 @@ export function AdjustmentDetailActions({
     status,
 }: AdjustmentDetailActionsProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
 
     const [approveNotes, setApproveNotes] = React.useState('');
@@ -100,7 +100,7 @@ export function AdjustmentDetailActions({
         <>
             {status !== 'approved' ? (
                 <Popover open={approveOpen} onOpenChange={setApproveOpen}>
-                    <ZoruPopoverTrigger asChild>
+                    <PopoverTrigger asChild>
                         <Button
                             variant="outline"
                             size="sm"
@@ -109,8 +109,8 @@ export function AdjustmentDetailActions({
                             <BadgeCheck className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Approve
                         </Button>
-                    </ZoruPopoverTrigger>
-                    <ZoruPopoverContent align="end" className="w-72 space-y-2">
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="w-72 space-y-2">
                         <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                             Approval notes (optional)
                         </Label>
@@ -131,13 +131,13 @@ export function AdjustmentDetailActions({
                                 Confirm
                             </Button>
                         </div>
-                    </ZoruPopoverContent>
+                    </PopoverContent>
                 </Popover>
             ) : null}
 
             {status !== 'rejected' ? (
                 <Popover open={rejectOpen} onOpenChange={setRejectOpen}>
-                    <ZoruPopoverTrigger asChild>
+                    <PopoverTrigger asChild>
                         <Button
                             variant="outline"
                             size="sm"
@@ -146,8 +146,8 @@ export function AdjustmentDetailActions({
                             <CircleX className="h-3.5 w-3.5" strokeWidth={1.75} />
                             Reject
                         </Button>
-                    </ZoruPopoverTrigger>
-                    <ZoruPopoverContent align="end" className="w-72 space-y-2">
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="w-72 space-y-2">
                         <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                             Rejection reason
                         </Label>
@@ -168,7 +168,7 @@ export function AdjustmentDetailActions({
                                 Confirm
                             </Button>
                         </div>
-                    </ZoruPopoverContent>
+                    </PopoverContent>
                 </Popover>
             ) : null}
 

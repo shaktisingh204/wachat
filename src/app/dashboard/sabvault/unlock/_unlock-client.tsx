@@ -3,13 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-    Button,
-    Input,
-    Label,
-    ZoruCard,
-    ZoruAlert,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Card, Alert } from '@/components/sabcrm/20ui/compat';
 import {
     base64ToBytes,
     bytesToBase64,
@@ -112,7 +106,7 @@ export function UnlockClient({ keyRecord }: { keyRecord: SabvaultUserKeyRecord |
 
     return (
         <div className="zoruui mx-auto flex max-w-md flex-col gap-4 p-6">
-            <ZoruCard className="p-5">
+            <Card className="p-5">
                 <h1 className="mb-1 text-lg font-semibold">
                     {isSetup ? 'Set up your SabVault' : 'Unlock SabVault'}
                 </h1>
@@ -149,13 +143,13 @@ export function UnlockClient({ keyRecord }: { keyRecord: SabvaultUserKeyRecord |
                         </div>
                     ) : null}
                     {error ? (
-                        <ZoruAlert variant="destructive">{error}</ZoruAlert>
+                        <Alert variant="destructive">{error}</Alert>
                     ) : null}
                     <Button type="submit" disabled={busy}>
                         {busy ? 'Working…' : isSetup ? 'Create vault' : 'Unlock'}
                     </Button>
                 </form>
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

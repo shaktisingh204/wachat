@@ -4,18 +4,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Table,
-  TableBody,
-  TableHeader,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui/compat';
 import {
   getDatasetAction,
   previewDatasetAction,
@@ -121,7 +110,7 @@ export default async function DatasetDetailPage({
             <p className="text-sm text-[var(--st-text-secondary)]">No preview rows available.</p>
           ) : (
             <Table>
-              <TableHeader>
+              <THead>
                 <tr>
                   {columns.map((c) => (
                     <th key={c} className="text-left">
@@ -129,8 +118,8 @@ export default async function DatasetDetailPage({
                     </th>
                   ))}
                 </tr>
-              </TableHeader>
-              <TableBody>
+              </THead>
+              <TBody>
                 {preview.rows.map((row, i) => (
                   <tr key={i} className="border-t border-[var(--st-border)]">
                     {columns.map((c) => (
@@ -140,7 +129,7 @@ export default async function DatasetDetailPage({
                     ))}
                   </tr>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
           )}
         </CardContent>

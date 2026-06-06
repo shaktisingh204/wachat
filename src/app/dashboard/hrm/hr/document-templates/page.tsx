@@ -1,24 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   LoaderCircle,
@@ -68,7 +51,7 @@ export default function DocumentTemplatesListPage() {
     const [pendingDelete, setPendingDelete] =
         React.useState<CrmDocumentTemplateDoc | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -141,60 +124,60 @@ export default function DocumentTemplatesListPage() {
                 >
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Category</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Variables</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Updated</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Category</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Variables</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Updated</Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell colSpan={6} className="h-24 text-center">
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td colSpan={6} className="h-24 text-center">
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : templates.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={6}
                                             className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No templates match this filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     templates.map((t) => {
                                         const status = t.status ?? 'draft';
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         const varCount = t.variables?.length ?? 0;
                                         return (
-                                            <ZoruTableRow key={t._id} className="border-[var(--st-border)]">
-                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                            <Tr key={t._id} className="border-[var(--st-border)]">
+                                                <Td className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${t._id}`}
                                                         className="hover:underline"
                                                     >
                                                         {t.name}
                                                     </Link>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="capitalize text-[var(--st-text)]">
                                                     {(t.category ?? '—').replace(/_/g, ' ')}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {varCount}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill label={statusLabel(status)} tone={tone} />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {fmtDate(t.updatedAt)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <Button variant="ghost" size="icon" asChild>
                                                         <Link href={`${BASE}/${t._id}/edit`}>
                                                             <Edit className="h-4 w-4" />
@@ -207,36 +190,36 @@ export default function DocumentTemplatesListPage() {
                                                     >
                                                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Archive template?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Archive template?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Archiving &ldquo;{pendingDelete?.name}&rdquo; hides it from the
                             active list and stops it being used for new documents.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete} disabled={deletePending}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={deletePending}>
                             {deletePending ? 'Archiving…' : 'Archive'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

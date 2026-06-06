@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Switch,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, PageDescription, PageHeader, PageHeading, PageTitle, Switch, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -95,7 +79,7 @@ const NOTIF_DEFS: NotifDef[] = [
 
 export default function NotificationPreferencesPage() {
   const { activeProjectId } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProjectId;
   const [prefs, setPrefs] = useState<Record<string, boolean>>({});
   const [dirty, setDirty] = useState(false);
@@ -162,25 +146,25 @@ export default function NotificationPreferencesPage() {
   return (
     <div className="flex min-h-full flex-col gap-6">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Notification preferences</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Notification preferences</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>Notification preferences</ZoruPageTitle>
-            <ZoruPageDescription>
+          <PageHeading>
+            <PageTitle>Notification preferences</PageTitle>
+            <PageDescription>
               Control which notifications you receive from Wachat.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
         <Button size="sm" onClick={handleSave} disabled={!dirty || isSaving}>
           {isSaving ? 'Saving…' : dirty ? 'Save changes' : 'All saved'}

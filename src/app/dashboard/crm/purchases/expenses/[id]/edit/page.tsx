@@ -11,7 +11,7 @@ import { notFound, redirect } from 'next/navigation';
 import * as React from 'react';
 import Link from 'next/link';
 import { Receipt } from 'lucide-react';
-import { PageHeader, ZoruWaterLoader } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, WaterLoader } from '@/components/sabcrm/20ui/compat';
 
 import { getSession } from '@/app/actions/user.actions';
 import { getBill } from '@/app/actions/crm/bills.actions';
@@ -76,7 +76,7 @@ export default async function EditBillPage({
         <React.Suspense
           fallback={
             <div className="flex justify-center p-12">
-              <ZoruWaterLoader />
+              <WaterLoader />
             </div>
           }
         >

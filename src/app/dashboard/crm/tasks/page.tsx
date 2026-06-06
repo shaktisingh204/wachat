@@ -1,26 +1,6 @@
 'use client';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Checkbox,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Skeleton,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
     AlertCircle,
     CalendarClock,
@@ -116,7 +96,7 @@ function TasksPageSkeleton() {
 }
 
 export default function TasksPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const { t } = useT();
 
     /* ─── List state ────────────────────────────────────────── */
@@ -285,16 +265,16 @@ export default function TasksPage() {
                             setPage(1);
                         }}
                     >
-                        <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                            <ZoruSelectValue placeholder="Status" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger className="h-9 w-[160px] text-[13px]">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {STATUS_OPTIONS.map((s) => (
-                                <ZoruSelectItem key={s} value={s}>
+                                <SelectItem key={s} value={s}>
                                     {s === 'all' ? 'All statuses' : s}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
 
                     <Select
@@ -304,16 +284,16 @@ export default function TasksPage() {
                             setPage(1);
                         }}
                     >
-                        <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-                            <ZoruSelectValue placeholder="Priority" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger className="h-9 w-[140px] text-[13px]">
+                            <SelectValue placeholder="Priority" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {PRIORITY_OPTIONS.map((p) => (
-                                <ZoruSelectItem key={p} value={p}>
+                                <SelectItem key={p} value={p}>
                                     {p === 'all' ? 'All priorities' : p}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
 
                     <Input
@@ -440,9 +420,9 @@ export default function TasksPage() {
                 <Card className="p-0">
                     <div className="overflow-x-auto">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="w-8">
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="w-8">
                                         <Checkbox
                                             checked={headChecked}
                                             onCheckedChange={(c) =>
@@ -450,50 +430,50 @@ export default function TasksPage() {
                                             }
                                             aria-label="Select all tasks"
                                         />
-                                    </ZoruTableHead>
-                                    <ZoruTableHead>Title</ZoruTableHead>
-                                    <ZoruTableHead>Status</ZoruTableHead>
-                                    <ZoruTableHead>Priority</ZoruTableHead>
-                                    <ZoruTableHead>Due date</ZoruTableHead>
-                                    <ZoruTableHead>Type</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">
+                                    </Th>
+                                    <Th>Title</Th>
+                                    <Th>Status</Th>
+                                    <Th>Priority</Th>
+                                    <Th>Due date</Th>
+                                    <Th>Type</Th>
+                                    <Th className="text-right">
                                         Actions
-                                    </ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
                                     [...Array(5)].map((_, i) => (
-                                        <ZoruTableRow
+                                        <Tr
                                             key={i}
                                             className="border-[var(--st-border)]"
                                         >
-                                            <ZoruTableCell colSpan={7}>
+                                            <Td colSpan={7}>
                                                 <Skeleton className="h-10 w-full" />
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ))
                                 ) : visibleTasks.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={7}
                                             className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                         >
                                             {hasActiveFilters
                                                 ? 'No tasks match these filters.'
                                                 : 'No tasks yet. Create one to start tracking work.'}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     visibleTasks.map((task) => {
                                         const id = task._id.toString();
                                         const overdue = isOverdue(task);
                                         return (
-                                            <ZoruTableRow
+                                            <Tr
                                                 key={id}
                                                 className="border-[var(--st-border)]"
                                             >
-                                                <ZoruTableCell>
+                                                <Td>
                                                     <Checkbox
                                                         checked={selected.has(
                                                             id,
@@ -503,8 +483,8 @@ export default function TasksPage() {
                                                         }
                                                         aria-label={`Select ${task.title}`}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <EntityRowLink
                                                         href={`/dashboard/crm/sales-crm/tasks/${id}`}
                                                         label={task.title}
@@ -517,8 +497,8 @@ export default function TasksPage() {
                                                                 : undefined
                                                         }
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <Badge
                                                         variant={
                                                             task.status ===
@@ -532,8 +512,8 @@ export default function TasksPage() {
                                                     >
                                                         {task.status ?? 'To-Do'}
                                                     </Badge>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     {task.priority ? (
                                                         <Badge
                                                             variant={priorityVariant(
@@ -547,8 +527,8 @@ export default function TasksPage() {
                                                             —
                                                         </span>
                                                     )}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell
+                                                </Td>
+                                                <Td
                                                     className={
                                                         overdue
                                                             ? 'text-[13px] font-medium text-[var(--st-danger)]'
@@ -563,11 +543,11 @@ export default function TasksPage() {
                                                             overdue
                                                         </span>
                                                     ) : null}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                     {task.type || '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <Button
                                                         size="sm"
                                                         variant="ghost"
@@ -579,12 +559,12 @@ export default function TasksPage() {
                                                             <Pencil className="h-3.5 w-3.5" />
                                                         </Link>
                                                     </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </Card>

@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  toast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, toast } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -55,18 +44,18 @@ export function CreateSeoProjectDialog() {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button className="gap-2">
                     <Plus className="h-4 w-4" /> Add Project
                 </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="sm:max-w-[425px]">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Add SEO Project</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Add SEO Project</DialogTitle>
+                    <DialogDescription>
                         Start tracking a website's SEO performance.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
@@ -101,12 +90,12 @@ export function CreateSeoProjectDialog() {
                                 </FormItem>
                             )}
                         />
-                        <ZoruDialogFooter>
+                        <DialogFooter>
                             <Button type="submit">Create Project</Button>
-                        </ZoruDialogFooter>
+                        </DialogFooter>
                     </form>
                 </Form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

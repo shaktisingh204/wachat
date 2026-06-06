@@ -1,25 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   Trash2,
@@ -222,16 +203,16 @@ export function RuleEditorDrawer({
     }
 
     return (
-        <ZoruDrawer open={open} onOpenChange={onOpenChange}>
-            <ZoruDrawerContent className="max-h-[92vh]">
-                <ZoruDrawerHeader>
-                    <ZoruDrawerTitle>
+        <Drawer open={open} onOpenChange={onOpenChange}>
+            <DrawerContent className="max-h-[92vh]">
+                <DrawerHeader>
+                    <DrawerTitle>
                         {existing ? 'Edit auto-reply rule' : 'New auto-reply rule'}
-                    </ZoruDrawerTitle>
-                    <ZoruDrawerDescription>
+                    </DrawerTitle>
+                    <DrawerDescription>
                         Rules are evaluated in priority order; lower priority numbers run first.
-                    </ZoruDrawerDescription>
-                </ZoruDrawerHeader>
+                    </DrawerDescription>
+                </DrawerHeader>
 
                 <div className="overflow-y-auto px-6 pb-4">
                     <div className="grid gap-6">
@@ -250,17 +231,17 @@ export function RuleEditorDrawer({
                                         value={form.botId || 'all'}
                                         onValueChange={(v) => patch('botId', v === 'all' ? '' : v)}
                                     >
-                                        <ZoruSelectTrigger>
-                                            <ZoruSelectValue placeholder="All bots" />
-                                        </ZoruSelectTrigger>
-                                        <ZoruSelectContent>
-                                            <ZoruSelectItem value="all">All bots in project</ZoruSelectItem>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="All bots" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All bots in project</SelectItem>
                                             {bots.map((b) => (
-                                                <ZoruSelectItem key={b.id} value={b.id}>
+                                                <SelectItem key={b.id} value={b.id}>
                                                     {b.label}
-                                                </ZoruSelectItem>
+                                                </SelectItem>
                                             ))}
-                                        </ZoruSelectContent>
+                                        </SelectContent>
                                     </Select>
                                 </Field>
                                 <Field label="Priority (lower runs first)">
@@ -310,16 +291,16 @@ export function RuleEditorDrawer({
                                             });
                                         }}
                                     >
-                                        <ZoruSelectTrigger>
-                                            <ZoruSelectValue />
-                                        </ZoruSelectTrigger>
-                                        <ZoruSelectContent>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
                                             {TRIGGER_KINDS.map((t) => (
-                                                <ZoruSelectItem key={t.value} value={t.value}>
+                                                <SelectItem key={t.value} value={t.value}>
                                                     {t.label}
-                                                </ZoruSelectItem>
+                                                </SelectItem>
                                             ))}
-                                        </ZoruSelectContent>
+                                        </SelectContent>
                                     </Select>
                                 </Field>
                                 <Field label="Case sensitive">
@@ -372,19 +353,19 @@ export function RuleEditorDrawer({
                                                     })
                                                 }
                                             >
-                                                <ZoruSelectTrigger>
-                                                    <ZoruSelectValue />
-                                                </ZoruSelectTrigger>
-                                                <ZoruSelectContent>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
                                                     {CONDITION_KINDS.map((opt) => (
-                                                        <ZoruSelectItem
+                                                        <SelectItem
                                                             key={opt.value}
                                                             value={opt.value}
                                                         >
                                                             {opt.label}
-                                                        </ZoruSelectItem>
+                                                        </SelectItem>
                                                     ))}
-                                                </ZoruSelectContent>
+                                                </SelectContent>
                                             </Select>
                                         </div>
                                         <div className="flex-1">
@@ -421,7 +402,7 @@ export function RuleEditorDrawer({
                                 )}
                                 {form.actions.map((a, i) => (
                                     <Card key={i}>
-                                        <ZoruCardContent className="space-y-3 p-3">
+                                        <CardBody className="space-y-3 p-3">
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <Badge variant="ghost">#{i + 1}</Badge>
                                                 <div className="flex-1 min-w-[180px]">
@@ -433,19 +414,19 @@ export function RuleEditorDrawer({
                                                             })
                                                         }
                                                     >
-                                                        <ZoruSelectTrigger>
-                                                            <ZoruSelectValue />
-                                                        </ZoruSelectTrigger>
-                                                        <ZoruSelectContent>
+                                                        <SelectTrigger>
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
                                                             {ACTION_KINDS.map((opt) => (
-                                                                <ZoruSelectItem
+                                                                <SelectItem
                                                                     key={opt.value}
                                                                     value={opt.value}
                                                                 >
                                                                     {opt.label}
-                                                                </ZoruSelectItem>
+                                                                </SelectItem>
                                                             ))}
-                                                        </ZoruSelectContent>
+                                                        </SelectContent>
                                                     </Select>
                                                 </div>
                                                 <Button
@@ -479,7 +460,7 @@ export function RuleEditorDrawer({
                                                 action={a}
                                                 onChange={(k, v) => setActionPayload(i, k, v)}
                                             />
-                                        </ZoruCardContent>
+                                        </CardBody>
                                     </Card>
                                 ))}
                                 <Button variant="outline" size="sm" onClick={addAction}>
@@ -562,8 +543,8 @@ export function RuleEditorDrawer({
                         {existing ? 'Save rule' : 'Create rule'}
                     </Button>
                 </div>
-            </ZoruDrawerContent>
-        </ZoruDrawer>
+            </DrawerContent>
+        </Drawer>
     );
 }
 
@@ -793,14 +774,14 @@ function ActionPayloadEditor({
                             value={p.parseMode ?? 'plain'}
                             onValueChange={(v) => onChange('parseMode', v)}
                         >
-                            <ZoruSelectTrigger className="w-[140px]">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="plain">Plain</ZoruSelectItem>
-                                <ZoruSelectItem value="markdown">Markdown</ZoruSelectItem>
-                                <ZoruSelectItem value="html">HTML</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="w-[140px]">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="plain">Plain</SelectItem>
+                                <SelectItem value="markdown">Markdown</SelectItem>
+                                <SelectItem value="html">HTML</SelectItem>
+                            </SelectContent>
                         </Select>
                     </Field>
                 </div>
@@ -904,16 +885,16 @@ function ActionPayloadEditor({
                                 value={p.method ?? 'POST'}
                                 onValueChange={(v) => onChange('method', v)}
                             >
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].map((m) => (
-                                        <ZoruSelectItem key={m} value={m}>
+                                        <SelectItem key={m} value={m}>
                                             {m}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </Field>
                         <Field label="URL">

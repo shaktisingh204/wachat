@@ -1,22 +1,6 @@
 'use client';
 
-import {
-    Alert,
-    ZoruAlertDescription,
-    ZoruAlertTitle,
-    Badge,
-    Button,
-    Card,
-    DatePicker,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Skeleton,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, DatePicker, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { format } from 'date-fns';
 import { AlertCircle } from 'lucide-react';
@@ -145,7 +129,7 @@ const PIE_COLORS = [
 export default function LeadsSummaryPage() {
     const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
 
@@ -237,10 +221,10 @@ export default function LeadsSummaryPage() {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <ZoruAlertTitle>Error</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>
                     Could not load summary data. Please ensure deals have been added to the CRM.
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
         );
     }
@@ -301,16 +285,16 @@ export default function LeadsSummaryPage() {
                             value={filters.pipelineId}
                             onValueChange={(v) => handleFilterChange('pipelineId', v)}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Sales Pipeline" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Sales Pipeline" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {(filtersData.pipelines || []).map((p) => (
-                                    <ZoruSelectItem key={p.id} value={p.id}>
+                                    <SelectItem key={p.id} value={p.id}>
                                         {p.name}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1">
@@ -319,16 +303,16 @@ export default function LeadsSummaryPage() {
                             value={filters.leadSource}
                             onValueChange={(v) => handleFilterChange('leadSource', v)}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Select…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select…" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {(filtersData.leadSources || []).map((s) => (
-                                    <ZoruSelectItem key={s} value={s}>
+                                    <SelectItem key={s} value={s}>
                                         {s}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1">
@@ -337,16 +321,16 @@ export default function LeadsSummaryPage() {
                             value={filters.assigneeId}
                             onValueChange={(v) => handleFilterChange('assigneeId', v)}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Select…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select…" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {(filtersData.assignees || []).map((a) => (
-                                    <ZoruSelectItem key={a._id} value={a._id}>
+                                    <SelectItem key={a._id} value={a._id}>
                                         {a.name}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1">
@@ -355,16 +339,16 @@ export default function LeadsSummaryPage() {
                             value={filters.currentStage}
                             onValueChange={(v) => handleFilterChange('currentStage', v)}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Select…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select…" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {stageOptions.map((s) => (
-                                    <ZoruSelectItem key={s.id} value={s.name}>
+                                    <SelectItem key={s.id} value={s.name}>
                                         {s.name}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1">

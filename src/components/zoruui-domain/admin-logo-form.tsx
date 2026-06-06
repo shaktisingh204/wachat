@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardFooter,
-  Button,
-  Input,
-  Label,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter, Button, Input, Label, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useRef,
@@ -46,14 +35,14 @@ export function AppLogoForm() {
     return (
         <form action={formAction}>
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
                         <ImageIcon className="h-5 w-5"/>
                         Application Logo
-                    </ZoruCardTitle>
-                    <ZoruCardDescription>Set a custom logo for the application. You can either upload a file or provide a public URL. Leave both blank to reset to default.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                    </CardTitle>
+                    <CardDescription>Set a custom logo for the application. You can either upload a file or provide a public URL. Leave both blank to reset to default.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="logoFile">Upload Logo File</Label>
                         <Input id="logoFile" name="logoFile" type="file" accept="image/png, image/jpeg, image/svg+xml, image/webp" />
@@ -78,13 +67,13 @@ export function AppLogoForm() {
                             disabled={isPending}
                         />
                     </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <Button type="submit" disabled={isPending}>
                         {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Logo
                     </Button>
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </form>
     );

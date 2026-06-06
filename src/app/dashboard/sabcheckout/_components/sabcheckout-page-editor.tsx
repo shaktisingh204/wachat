@@ -18,25 +18,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import {
@@ -110,7 +92,7 @@ export function SabcheckoutPageEditor({
   plans,
 }: SabcheckoutPageEditorProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [form, setForm] = React.useState<FormState>(() => makeInitial(initial));
   const [busy, setBusy] = React.useState(false);
   const isNew = !initial;
@@ -249,11 +231,11 @@ export function SabcheckoutPageEditor({
 
       {/* Basics */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Basics</ZoruCardTitle>
-          <ZoruCardDescription>Slug, display name, and copy.</ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="grid gap-4 sm:grid-cols-2">
+        <CardHeader>
+          <CardTitle>Basics</CardTitle>
+          <CardDescription>Slug, display name, and copy.</CardDescription>
+        </CardHeader>
+        <CardBody className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="slug">Slug</Label>
             <Input
@@ -305,14 +287,14 @@ export function SabcheckoutPageEditor({
               value={form.mode}
               onValueChange={(v) => update('mode', v as SabcheckoutPageMode)}
             >
-              <ZoruSelectTrigger id="mode">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="one_off">One-off</ZoruSelectItem>
-                <ZoruSelectItem value="recurring">Recurring</ZoruSelectItem>
-                <ZoruSelectItem value="both">Both</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger id="mode">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="one_off">One-off</SelectItem>
+                <SelectItem value="recurring">Recurring</SelectItem>
+                <SelectItem value="both">Both</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
@@ -321,28 +303,28 @@ export function SabcheckoutPageEditor({
               value={form.status}
               onValueChange={(v) => update('status', v as SabcheckoutPageStatus)}
             >
-              <ZoruSelectTrigger id="status">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                <ZoruSelectItem value="live">Live</ZoruSelectItem>
-                <ZoruSelectItem value="paused">Paused</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger id="status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="live">Live</SelectItem>
+                <SelectItem value="paused">Paused</SelectItem>
+              </SelectContent>
             </Select>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Theme */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Theme</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Theme</CardTitle>
+          <CardDescription>
             Logo (from your SabFiles library) and accent colour.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="grid gap-4 sm:grid-cols-2">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label>Logo</Label>
             <SabFilePickerButton
@@ -366,18 +348,18 @@ export function SabcheckoutPageEditor({
               onChange={(e) => update('accent', e.target.value)}
             />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Items */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Items</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Items</CardTitle>
+          <CardDescription>
             One-off amounts and recurring plans this page offers.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-3">
           {form.items.map((it, i) => (
             <div
               key={i}
@@ -412,16 +394,16 @@ export function SabcheckoutPageEditor({
                     value={it.planId ?? ''}
                     onValueChange={(v) => updateItem(i, { planId: v })}
                   >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue placeholder="Pick a plan" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pick a plan" />
+                    </SelectTrigger>
+                    <SelectContent>
                       {plans.map((p) => (
-                        <ZoruSelectItem key={p._id} value={p._id}>
+                        <SelectItem key={p._id} value={p._id}>
                           {p.name}
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
                 </div>
               )}
@@ -457,18 +439,18 @@ export function SabcheckoutPageEditor({
               Add plan
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Required fields */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Required customer fields</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Required customer fields</CardTitle>
+          <CardDescription>
             What we ask the payer on the public form.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-3">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-3">
           {form.requireFields.map((f, i) => (
             <div
               key={i}
@@ -510,19 +492,19 @@ export function SabcheckoutPageEditor({
             <Plus className="mr-1 size-4" />
             Add custom field
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Redirects */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Redirects</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Redirects</CardTitle>
+          <CardDescription>
             Where to send the payer after success or cancel. Leave blank to
             use the built-in `/pay/[slug]/success` and `/cancel` routes.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="grid gap-4 sm:grid-cols-2">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="successUrl">Success URL</Label>
             <Input
@@ -541,7 +523,7 @@ export function SabcheckoutPageEditor({
               placeholder="https://example.com/checkout"
             />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

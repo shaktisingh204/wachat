@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/sabcrm/20ui/compat';
 import {
   cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -21,8 +21,8 @@ export const FacebookChatMessage = React.memo(function FacebookChatMessage({ mes
         <div className={cn("flex items-end gap-2 group/message", isOutgoing ? "justify-end" : "justify-start")}>
             {!isOutgoing && (
                  <Avatar className="h-8 w-8 self-end">
-                    <ZoruAvatarImage src={`https://graph.facebook.com/${participant.id}/picture`} alt={participant.name}/>
-                    <ZoruAvatarFallback>{participant.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
+                    <AvatarImage src={`https://graph.facebook.com/${participant.id}/picture`} alt={participant.name}/>
+                    <AvatarFallback>{participant.name.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
             )}
             <div

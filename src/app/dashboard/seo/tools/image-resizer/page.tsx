@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Switch,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  cn
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState, useRef } from 'react';
 import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -183,7 +170,7 @@ export default function ImageResizerPage() {
   return (
     <ToolShell title="Image Resizer" description="Resize images client-side to exact dimensions.">
       <Card>
-        <ZoruCardContent className="p-4 space-y-4">
+        <CardBody className="p-4 space-y-4">
           <div>
             <Label>Image file</Label>
             <Input type="file" accept="image/*" onChange={handleFileChange} />
@@ -265,17 +252,17 @@ export default function ImageResizerPage() {
             Resize
           </Button>
           {err && <div className="text-sm text-[var(--st-text)]">{err}</div>}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       {outUrl && (
         <Card>
-          <ZoruCardContent className="p-4 space-y-3">
+          <CardBody className="p-4 space-y-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={outUrl} alt="Resized preview" className="max-w-full rounded border bg-[var(--st-bg-muted)]/20" />
             <a href={outUrl} download="resized.png" className="underline text-sm text-[var(--st-text)]">
               Download resized image
             </a>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Button,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, Button, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -71,13 +62,13 @@ export function InstagramViewCommentsDialog({ isOpen, onOpenChange, media, proje
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-lg h-[80vh] flex flex-col">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Comments</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-lg h-[80vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>Comments</DialogTitle>
+          <DialogDescription>
             Viewing comments for post by @{media.username}
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <ScrollArea className="flex-1 -mx-6 px-6">
             <div className="space-y-4 py-4">
                 {isLoading ? (
@@ -94,13 +85,13 @@ export function InstagramViewCommentsDialog({ isOpen, onOpenChange, media, proje
                 ))}
             </div>
         </ScrollArea>
-        <ZoruDialogFooter className="mt-auto border-t pt-4">
+        <DialogFooter className="mt-auto border-t pt-4">
            <form className="w-full flex items-center gap-2">
                 <Textarea name="message" placeholder="Write a comment..." className="flex-1" required disabled/>
                 <Button type="submit" disabled><Send className="h-4 w-4" /></Button>
            </form>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

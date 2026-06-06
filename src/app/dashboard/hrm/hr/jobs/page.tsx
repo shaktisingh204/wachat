@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   LoaderCircle,
@@ -35,7 +12,7 @@ import {
  *
  * Canonical §1B contract: `EntityListShell` +
  * `ZoruTable` with a search box, status / employment-type / department
- * filters, and inline delete via `ZoruAlertDialog`.
+ * filters, and inline delete via `AlertDialog`.
  */
 
 import * as React from 'react';
@@ -104,7 +81,7 @@ export default function JobsListPage() {
     const [pendingDelete, setPendingDelete] =
         React.useState<CrmJobDoc | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -175,16 +152,16 @@ export default function JobsListPage() {
                                     setStatusFilter(v as CrmJobStatus | 'all')
                                 }
                             >
-                                <ZoruSelectTrigger className="h-9 w-[160px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger className="h-9 w-[160px]">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
+                                        <SelectItem key={o.value} value={o.value}>
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             <Select
                                 value={typeFilter}
@@ -194,16 +171,16 @@ export default function JobsListPage() {
                                     )
                                 }
                             >
-                                <ZoruSelectTrigger className="h-9 w-[160px]">
-                                    <ZoruSelectValue placeholder="Type" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger className="h-9 w-[160px]">
+                                    <SelectValue placeholder="Type" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {TYPE_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
+                                        <SelectItem key={o.value} value={o.value}>
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             <Input
                                 value={departmentFilter}
@@ -219,32 +196,32 @@ export default function JobsListPage() {
                 >
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Openings</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">Title</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Department</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Type</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Openings</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell colSpan={6} className="h-24 text-center">
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td colSpan={6} className="h-24 text-center">
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : jobs.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={6}
                                             className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No jobs match this filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     jobs.map((j) => {
                                         const status = (j.status ?? 'draft') as CrmJobStatus;
@@ -252,28 +229,28 @@ export default function JobsListPage() {
                                         const openings = j.openings ?? 0;
                                         const filled = j.filled ?? 0;
                                         return (
-                                            <ZoruTableRow key={j._id} className="border-[var(--st-border)]">
-                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                            <Tr key={j._id} className="border-[var(--st-border)]">
+                                                <Td className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${j._id}`}
                                                         className="hover:underline"
                                                     >
                                                         {j.title}
                                                     </Link>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {j.departmentName || j.departmentId || '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="capitalize text-[var(--st-text)]">
                                                     {pretty(j.employmentType as string)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {filled}/{openings}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill label={pretty(status)} tone={tone} />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <Button variant="ghost" size="icon" asChild>
                                                         <Link href={`${BASE}/${j._id}/edit`}>
                                                             <Edit className="h-4 w-4" />
@@ -286,40 +263,40 @@ export default function JobsListPage() {
                                                     >
                                                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete job?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete job?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Deleting &ldquo;{pendingDelete?.title}&rdquo; will close the
                             requisition. Candidates already linked to this job remain
                             in the candidate pipeline.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deletePending}
                         >
                             {deletePending ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

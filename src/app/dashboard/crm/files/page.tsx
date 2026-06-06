@@ -2,20 +2,7 @@
 
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -121,7 +108,7 @@ function TreeNode({
 }
 
 export default function CrmFilesPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [tree, setTree] = useState<WsFolderTreeNode[]>([]);
   const [selected, setSelected] = useState<string | null>(null); // null = all
   const [files, setFiles] = useState<WsFileStorage[]>([]);
@@ -349,56 +336,56 @@ export default function CrmFilesPage() {
 
           <div className="overflow-x-auto rounded-lg border border-[var(--st-border)] flex-1">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                  <ZoruTableHead className="w-10">
+              <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                  <Th className="w-10">
                     <input 
                       type="checkbox" 
                       className="rounded border-[var(--st-border)]"
                       checked={filteredFiles.length > 0 && selectedFiles.size === filteredFiles.length}
                       onChange={(e) => toggleAll(e.target.checked)}
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Size</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Attached to</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)] w-[180px]">Actions</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Size</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Type</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Attached to</Th>
+                  <Th className="text-[var(--st-text-secondary)] w-[180px]">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {isLoading && filteredFiles.length === 0 ? (
                   [...Array(4)].map((_, i) => (
-                    <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                      <ZoruTableCell colSpan={6}>
+                    <Tr key={i} className="border-[var(--st-border)]">
+                      <Td colSpan={6}>
                         <Skeleton className="h-10 w-full" />
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 ) : filteredFiles.length === 0 ? (
-                  <ZoruTableRow className="border-[var(--st-border)]">
-                    <ZoruTableCell
+                  <Tr className="border-[var(--st-border)]">
+                    <Td
                       colSpan={6}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No files match your criteria.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filteredFiles.map((file) => (
-                    <ZoruTableRow
+                    <Tr
                       key={String(file._id)}
                       className="border-[var(--st-border)]"
                     >
-                      <ZoruTableCell>
+                      <Td>
                         <input 
                           type="checkbox" 
                           className="rounded border-[var(--st-border)]"
                           checked={selectedFiles.has(String(file._id))}
                           onChange={(e) => toggleFile(String(file._id), e.target.checked)}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 shrink-0 overflow-hidden rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] flex items-center justify-center">
                             {file.mime_type?.startsWith('image/') || file.extension?.match(/^(jpg|jpeg|png|gif|webp)$/i) ? (
@@ -420,14 +407,14 @@ export default function CrmFilesPage() {
                             </span>
                           </div>
                         </div>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text)] whitespace-nowrap">
+                      </Td>
+                      <Td className="text-[12.5px] text-[var(--st-text)] whitespace-nowrap">
                         {formatFileSize(file.size_bytes)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text)] uppercase">
+                      </Td>
+                      <Td className="text-[12.5px] text-[var(--st-text)] uppercase">
                         {file.extension || file.mime_type?.split('/')[1] || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         {file.attached_to_type ? (
                           <Badge variant="danger">
                             {file.attached_to_type}
@@ -437,8 +424,8 @@ export default function CrmFilesPage() {
                             —
                           </span>
                         )}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <div className="flex items-center gap-3">
                           {file.url ? (
                             <>
@@ -470,11 +457,11 @@ export default function CrmFilesPage() {
                             Delete
                           </button>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         </Card>

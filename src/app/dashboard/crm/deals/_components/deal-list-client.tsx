@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Input,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams,
@@ -87,7 +67,7 @@ interface Props {
 }
 
 export function DealListClient({ deals: initialDeals, page, limit, total, hasMore, initialQuery, error, stages = [] }: Props) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -247,55 +227,55 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
       {view === 'list' ? (
         <>
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Title</ZoruTableHead>
-                <ZoruTableHead>Counter-party</ZoruTableHead>
-                <ZoruTableHead>Owner</ZoruTableHead>
-                <ZoruTableHead>Stage</ZoruTableHead>
-                <ZoruTableHead>Amount</ZoruTableHead>
-                <ZoruTableHead>Expected close</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Title</Th>
+                <Th>Counter-party</Th>
+                <Th>Owner</Th>
+                <Th>Stage</Th>
+                <Th>Amount</Th>
+                <Th>Expected close</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {deals.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
+                <Tr>
+                  <Td colSpan={7} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                     {initialQuery ? 'No deals match this search.' : 'No deals yet — click "New deal" to add one.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 deals.map((deal) => {
                   const id = String(deal._id);
                   const partyEntity = deal.party?.kind === 'lead' ? 'lead' : 'client';
                   return (
-                    <ZoruTableRow key={id}>
-                      <ZoruTableCell>
+                    <Tr key={id}>
+                      <Td>
                         <Link href={`/dashboard/crm/deals/${id}`} className="font-medium text-[var(--st-text)] hover:underline">
                           {deal.title}
                         </Link>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         {deal.party?.id ? (
                           <EntityPickerChip entity={partyEntity} id={deal.party.id} />
                         ) : (
                           <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>
                         )}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         {deal.ownerId ? <EntityPickerChip entity="user" id={deal.ownerId} /> : '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant="outline">{deal.stageId || 'Unknown'}</Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="tabular-nums text-[12.5px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="tabular-nums text-[12.5px] text-[var(--st-text)]">
                         {fmtMoney(deal.amount, deal.currency)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                         {fmtDate(deal.expectedClose)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button size="sm" variant="ghost" asChild>
                             <Link href={`/dashboard/crm/deals/${id}/edit`}>
@@ -311,12 +291,12 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
 
           <PaginationBar page={page} limit={limit} hasMore={hasMore} total={total} />
@@ -381,18 +361,18 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
         </div>
       )}
 
-      <ZoruAlertDialog open={pendingDelete !== null} onOpenChange={(o) => !o && setPendingDelete(null)}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete deal?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={pendingDelete !== null} onOpenChange={(o) => !o && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete deal?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes <strong>{pendingDelete?.title}</strong> from the database. The
               action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={deleting}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 confirmDelete();
@@ -402,10 +382,10 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
             >
               {deleting ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

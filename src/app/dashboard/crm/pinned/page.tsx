@@ -2,18 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   PinOff,
   FolderKanban,
@@ -202,7 +191,7 @@ function downloadXlsx(filename: string, rows: Row[]) {
  * export, and pagination.
  */
 export default function PinnedItemsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [items, setItems] = React.useState<Row[]>([]);
   const [kpis, setKpis] = React.useState<WsPinnedKpis>(EMPTY_KPIS);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -436,16 +425,16 @@ export default function PinnedItemsPage() {
                 setPage(1);
               }}
             >
-              <ZoruSelectTrigger className="w-44">
-                <ZoruSelectValue placeholder="Type" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger className="w-44">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
                 {TYPE_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
+                  <SelectItem key={o.value} value={o.value}>
                     {o.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Select
               value={periodFilter}
@@ -454,16 +443,16 @@ export default function PinnedItemsPage() {
                 setPage(1);
               }}
             >
-              <ZoruSelectTrigger className="w-44">
-                <ZoruSelectValue placeholder="Pinned period" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger className="w-44">
+                <SelectValue placeholder="Pinned period" />
+              </SelectTrigger>
+              <SelectContent>
                 {PERIOD_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
+                  <SelectItem key={o.value} value={o.value}>
                     {o.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             {hasActiveFilters ? (
               <Button variant="ghost" size="sm" onClick={clearFilters}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Factory,
   Plus } from 'lucide-react';
@@ -89,7 +89,7 @@ export function PoListClient({ initialOrders, initialKpis }: PoListClientProps) 
     const router = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // Use a state for orders to allow real-time updates
     const [orders, setOrders] = React.useState<CrmProductionOrderDoc[]>(initialOrders);

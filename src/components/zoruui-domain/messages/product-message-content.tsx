@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button } from '@/components/sabcrm/20ui/compat';
 import { ShoppingBag } from 'lucide-react';
 
 interface ProductMessageContentProps {
@@ -15,13 +15,13 @@ export function ProductMessageContent({ catalogId, productRetailerId, isReply = 
   return (
     <div className={isReply ? "w-full" : "w-64"}>
       <Card className="shadow-none border-0 bg-transparent">
-        <ZoruCardHeader className="p-2">
+        <CardHeader className="p-2">
             <div className="flex items-center gap-2">
                  <ShoppingBag className="h-5 w-5 text-[var(--st-text)]"/>
-                <ZoruCardTitle className="text-base">Product Inquiry</ZoruCardTitle>
+                <CardTitle className="text-base">Product Inquiry</CardTitle>
             </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-2 space-y-1 text-xs">
+        </CardHeader>
+        <CardBody className="p-2 space-y-1 text-xs">
           <p><span className="font-semibold">Product SKU:</span></p>
           <p className="font-mono text-[var(--st-text-secondary)] bg-[var(--st-bg-secondary)] rounded p-1">{productRetailerId}</p>
           {!isReply && (
@@ -30,11 +30,11 @@ export function ProductMessageContent({ catalogId, productRetailerId, isReply = 
               <p className="font-mono text-[var(--st-text-secondary)] bg-[var(--st-bg-secondary)] rounded p-1">{catalogId}</p>
             </>
           )}
-        </ZoruCardContent>
+        </CardBody>
         {!isReply && (
-            <ZoruCardFooter className="p-2">
+            <CardFooter className="p-2">
                 <Button variant="outline" size="sm" className="w-full">View Product Details</Button>
-            </ZoruCardFooter>
+            </CardFooter>
         )}
       </Card>
     </div>

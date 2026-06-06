@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-  Badge,
-  Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Input, Badge, Switch } from '@/components/sabcrm/20ui/compat';
 import {
   planFeatureMap,
   planFeaturesDefaults } from '@/lib/plans';
@@ -159,18 +149,18 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
 
     return (
         <Card className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
-            <ZoruCardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
+            <CardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
                 <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-xl bg-[var(--st-text)]/15 border border-primary/30 flex items-center justify-center">
                         <Sparkles className="h-5 w-5 text-[var(--st-text)]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <ZoruCardTitle className="text-lg">Plan Features</ZoruCardTitle>
-                        <ZoruCardDescription>
+                        <CardTitle className="text-lg">Plan Features</CardTitle>
+                        <CardDescription>
                             Toggle which features appear on the billing page and sidebar for users
                             on this plan. These are the headline capabilities shown in marketing
                             copy.
-                        </ZoruCardDescription>
+                        </CardDescription>
                     </div>
                     <Badge
                         variant="outline"
@@ -179,9 +169,9 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                         {enabledCount}/{totalKeys}
                     </Badge>
                 </div>
-            </ZoruCardHeader>
+            </CardHeader>
 
-            <ZoruCardContent className="pt-6 space-y-4">
+            <CardBody className="pt-6 space-y-4">
                 {/* Hidden marker so savePlan knows this tab was submitted */}
                 <input type="hidden" name="__featuresSubmitted" value="1" />
                 {/* Emit a hidden input per key so FormData has the full snapshot */}
@@ -348,7 +338,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                         </div>
                     )}
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ListChecks,
   CheckCircle2,
@@ -65,7 +65,7 @@ const CATEGORY_OPTIONS = [
 ];
 
 export function OnboardingView({ initial }: { initial: Onboarding[] }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Onboarding[]>(initial);
   const [search, setSearch] = React.useState('');
   const [activeKpi, setActiveKpi] = React.useState<string | undefined>();

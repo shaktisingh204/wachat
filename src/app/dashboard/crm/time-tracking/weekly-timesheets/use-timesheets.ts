@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import {
   getWeeklyTimesheetsPaginated,
   deleteWeeklyTimesheet,
@@ -17,7 +17,7 @@ import { useDebouncedCallback } from 'use-debounce';
 export type Row = WsWeeklyTimesheet & { _id: string };
 
 export function useTimesheets() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>([]);
   const [loading, startLoading] = React.useTransition();
   const [initialLoading, setInitialLoading] = React.useState(true);

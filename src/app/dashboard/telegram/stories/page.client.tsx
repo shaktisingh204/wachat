@@ -1,44 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Checkbox,
-  DatePicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Skeleton,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, DatePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   BookOpen,
@@ -207,7 +169,7 @@ export default function TelegramStoriesPage() {
 function TelegramStoriesContent() {
     const { activeProject } = useProject();
     const projectId = activeProject?._id?.toString() ?? '';
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // -- Data --
     const [data, setData] = React.useState<{
@@ -808,17 +770,17 @@ function TelegramStoriesContent() {
                             value={botFilter}
                             onValueChange={setBotFilter}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="All bots" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All bots</ZoruSelectItem>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All bots" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All bots</SelectItem>
                                 {bots.map((b) => (
-                                    <ZoruSelectItem key={b._id} value={b._id}>
+                                    <SelectItem key={b._id} value={b._id}>
                                         {b.username || b.name || b._id}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="min-w-[150px]">
@@ -828,19 +790,19 @@ function TelegramStoriesContent() {
                                 setStatusFilter(v as StoryStatus | 'all')
                             }
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem
+                                    <SelectItem
                                         key={o.value}
                                         value={o.value}
                                     >
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="min-w-[170px]">
@@ -850,19 +812,19 @@ function TelegramStoriesContent() {
                                 setTypeFilter(v as StoryType | 'all')
                             }
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem
+                                    <SelectItem
                                         key={o.value}
                                         value={o.value}
                                     >
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="min-w-[150px] flex items-center gap-1 border border-[var(--st-border)] rounded-md px-2 h-9 bg-[var(--st-bg-secondary)]">
@@ -989,11 +951,11 @@ function TelegramStoriesContent() {
             />
 
             {/* Detail drawer */}
-            <ZoruDrawer
+            <Drawer
                 open={!!detailRow}
                 onOpenChange={(v) => !v && setDetailRow(null)}
             >
-                <ZoruDrawerContent className="max-h-[92vh] overflow-y-auto">
+                <DrawerContent className="max-h-[92vh] overflow-y-auto">
                     {detailRow ? (
                         <StoryDetail
                             row={detailRow}
@@ -1008,21 +970,21 @@ function TelegramStoriesContent() {
                             onDeleteOnTelegram={() => setTgDeleteRow(detailRow)}
                         />
                     ) : null}
-                </ZoruDrawerContent>
-            </ZoruDrawer>
+                </DrawerContent>
+            </Drawer>
 
             {/* Business connections side panel */}
-            <ZoruDrawer open={bcOpen} onOpenChange={setBcOpen}>
-                <ZoruDrawerContent className="max-h-[92vh] overflow-y-auto">
-                    <ZoruDrawerHeader>
-                        <ZoruDrawerTitle>Business connections</ZoruDrawerTitle>
-                        <ZoruDrawerDescription>
+            <Drawer open={bcOpen} onOpenChange={setBcOpen}>
+                <DrawerContent className="max-h-[92vh] overflow-y-auto">
+                    <DrawerHeader>
+                        <DrawerTitle>Business connections</DrawerTitle>
+                        <DrawerDescription>
                             Telegram delivers a <code>business_connection_id</code>
                             via webhook when a Premium user authorises your bot.
                             Register it here so you can post stories on their
                             behalf.
-                        </ZoruDrawerDescription>
-                    </ZoruDrawerHeader>
+                        </DrawerDescription>
+                    </DrawerHeader>
                     <div className="px-6 pb-6">
                         <div className="mb-3 flex justify-end">
                             <Button
@@ -1091,38 +1053,38 @@ function TelegramStoriesContent() {
                             </ul>
                         )}
                     </div>
-                </ZoruDrawerContent>
-            </ZoruDrawer>
+                </DrawerContent>
+            </Drawer>
 
             {/* Add business connection dialog */}
             <Dialog open={bcAddOpen} onOpenChange={setBcAddOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Add business connection</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add business connection</DialogTitle>
+                        <DialogDescription>
                             Paste the <code>business_connection_id</code> from
                             the webhook update.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="grid gap-3">
                         <Field label="Bot">
                             <Select
                                 value={bcAddBot}
                                 onValueChange={setBcAddBot}
                             >
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue placeholder="Pick a bot" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pick a bot" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {bots.map((b) => (
-                                        <ZoruSelectItem
+                                        <SelectItem
                                             key={b._id}
                                             value={b._id}
                                         >
                                             {b.username || b.name}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </Field>
                         <Field label="Connection id">
@@ -1135,7 +1097,7 @@ function TelegramStoriesContent() {
                             />
                         </Field>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button
                             variant="outline"
                             size="sm"
@@ -1157,8 +1119,8 @@ function TelegramStoriesContent() {
                             ) : null}
                             Save
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Confirm: post now */}
@@ -1166,10 +1128,10 @@ function TelegramStoriesContent() {
                 open={!!postRow}
                 onOpenChange={(v) => !v && setPostRow(null)}
             >
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Post story to Telegram?</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Post story to Telegram?</DialogTitle>
+                        <DialogDescription>
                             This calls <code>postStory</code> immediately. The
                             story will be visible for{' '}
                             {postRow
@@ -1178,9 +1140,9 @@ function TelegramStoriesContent() {
                                   )
                                 : ''}{' '}
                             hours.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button
                             variant="outline"
                             size="sm"
@@ -1197,8 +1159,8 @@ function TelegramStoriesContent() {
                             <Send className="h-3.5 w-3.5" />
                             Post now
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Confirm: delete local */}
@@ -1206,15 +1168,15 @@ function TelegramStoriesContent() {
                 open={!!deleteRow}
                 onOpenChange={(v) => !v && setDeleteRow(null)}
             >
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Delete local record?</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete local record?</DialogTitle>
+                        <DialogDescription>
                             The Telegram story (if any) stays where it is —
                             this only removes the SabNode record.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button
                             variant="outline"
                             size="sm"
@@ -1226,8 +1188,8 @@ function TelegramStoriesContent() {
                             <Trash2 className="h-3.5 w-3.5" />
                             Delete record
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Confirm: delete on Telegram */}
@@ -1235,15 +1197,15 @@ function TelegramStoriesContent() {
                 open={!!tgDeleteRow}
                 onOpenChange={(v) => !v && setTgDeleteRow(null)}
             >
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Remove story from Telegram?</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Remove story from Telegram?</DialogTitle>
+                        <DialogDescription>
                             This calls <code>deleteStory</code>. Cannot be
                             undone — viewers will no longer see the story.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button
                             variant="outline"
                             size="sm"
@@ -1258,8 +1220,8 @@ function TelegramStoriesContent() {
                             <XCircle className="h-3.5 w-3.5" />
                             Delete on Telegram
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );
@@ -1323,7 +1285,7 @@ function KpiCard({
 }) {
     return (
         <Card>
-            <ZoruCardContent className="flex flex-col gap-1 pt-5">
+            <CardBody className="flex flex-col gap-1 pt-5">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     {label}
                 </p>
@@ -1334,7 +1296,7 @@ function KpiCard({
                         {value}
                     </p>
                 )}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

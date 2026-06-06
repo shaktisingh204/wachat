@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 
 import React, { useEffect, useState } from 'react';
@@ -76,10 +76,10 @@ export const MapBlockRenderer: React.FC<MapBlockRendererProps> = ({ settings }) 
         return (
             <Alert variant="destructive" style={{ height: 'auto', minHeight: '200px' }} className="flex flex-col items-center justify-center text-center">
                 <MapPin className="h-6 w-6" />
-                <ZoruAlertTitle>Google Maps API Key Missing</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Google Maps API Key Missing</AlertTitle>
+                <AlertDescription>
                     Please configure `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in your environment variables.
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
         );
     }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button, Input, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { saveAttendanceRecord, deleteAttendanceRecord, bulkDeleteAttendanceRecords } from '@/app/actions/hrm-advanced/geofenced-attendance';
 import { AttendanceRecord } from '@/lib/hrm-advanced-types';
 import { AttendanceTable } from './attendance-table';
@@ -16,7 +16,7 @@ export function GeofencedAttendanceClient({ initialData }: { initialData: Attend
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<AttendanceRecord> | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   // Mock WebSocket for real-time collaborative updates
   useEffect(() => {

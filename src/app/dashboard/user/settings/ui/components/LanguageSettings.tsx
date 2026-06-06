@@ -1,10 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import {
-    Label,
-    Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Input } from '@/components/sabcrm/20ui/compat';
 import { Search, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/sabcrm/20ui/compat';
 

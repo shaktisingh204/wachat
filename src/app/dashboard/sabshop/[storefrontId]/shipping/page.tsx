@@ -3,12 +3,7 @@
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
-import {
-    Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardFooter,
-    Input, Label, Badge, useZoruToast, Switch,
-    Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue,
-    Separator, Breadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Input, Label, Badge, useToast, Switch, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Globe, Truck, MapPin, Search, PlusCircle, ArrowLeft, MoreHorizontal } from 'lucide-react';
 
 import {
@@ -27,7 +22,7 @@ interface Zone {
 export default function ShippingPage(): React.JSX.Element {
     const params = useParams<{ storefrontId: string }>();
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const id = params.storefrontId;
     
     const [zones, setZones] = React.useState<Zone[]>([]);
@@ -82,19 +77,19 @@ export default function ShippingPage(): React.JSX.Element {
         <div className="zoruui flex flex-col gap-6 p-8 max-w-6xl mx-auto w-full h-full">
             <div className="flex flex-col gap-2">
                 <Breadcrumb>
-                    <ZoruBreadcrumbList>
-                        <ZoruBreadcrumbItem>
-                            <ZoruBreadcrumbLink href={`/dashboard/sabshop/${id}`}>Store</ZoruBreadcrumbLink>
-                        </ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbSeparator />
-                        <ZoruBreadcrumbItem>
-                            <ZoruBreadcrumbLink href={`/dashboard/sabshop/${id}/settings`}>Settings</ZoruBreadcrumbLink>
-                        </ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbSeparator />
-                        <ZoruBreadcrumbItem>
-                            <ZoruBreadcrumbPage>Shipping</ZoruBreadcrumbPage>
-                        </ZoruBreadcrumbItem>
-                    </ZoruBreadcrumbList>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/dashboard/sabshop/${id}`}>Store</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/dashboard/sabshop/${id}/settings`}>Settings</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Shipping</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
                 </Breadcrumb>
                 
                 <div className="flex items-center justify-between">
@@ -118,11 +113,11 @@ export default function ShippingPage(): React.JSX.Element {
                         </Button>
                         
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Zone Details</ZoruCardTitle>
-                                <ZoruCardDescription>Customers in these regions will see this zone's shipping rates at checkout.</ZoruCardDescription>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="space-y-6">
+                            <CardHeader>
+                                <CardTitle>Zone Details</CardTitle>
+                                <CardDescription>Customers in these regions will see this zone's shipping rates at checkout.</CardDescription>
+                            </CardHeader>
+                            <CardBody className="space-y-6">
                                 <div className="space-y-2">
                                     <Label>Zone Name</Label>
                                     <Input 
@@ -169,14 +164,14 @@ export default function ShippingPage(): React.JSX.Element {
                                         </div>
                                     )}
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         <Card>
-                            <ZoruCardHeader className="flex flex-row items-center justify-between">
+                            <CardHeader className="flex flex-row items-center justify-between">
                                 <div>
-                                    <ZoruCardTitle>Shipping Rates</ZoruCardTitle>
-                                    <ZoruCardDescription>Set up the rates for customers in this zone.</ZoruCardDescription>
+                                    <CardTitle>Shipping Rates</CardTitle>
+                                    <CardDescription>Set up the rates for customers in this zone.</CardDescription>
                                 </div>
                                 <Button 
                                     variant="outline" 
@@ -186,8 +181,8 @@ export default function ShippingPage(): React.JSX.Element {
                                 >
                                     <PlusCircle className="h-4 w-4" /> Add rate
                                 </Button>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="space-y-4">
+                            </CardHeader>
+                            <CardBody className="space-y-4">
                                 {draft.rates.length === 0 ? (
                                     <div className="text-center py-8 text-sm text-[var(--st-text-secondary)] border border-dashed border-[var(--st-border)] rounded-lg">
                                         No rates defined. Add a rate to allow checkout.
@@ -230,12 +225,12 @@ export default function ShippingPage(): React.JSX.Element {
                                                                 setDraft({ ...draft, rates: next });
                                                             }}
                                                         >
-                                                            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                                            <ZoruSelectContent>
-                                                                <ZoruSelectItem value="flat">Flat Rate</ZoruSelectItem>
-                                                                <ZoruSelectItem value="per_kg">Weight Based (Per kg)</ZoruSelectItem>
-                                                                <ZoruSelectItem value="free">Free Shipping</ZoruSelectItem>
-                                                            </ZoruSelectContent>
+                                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="flat">Flat Rate</SelectItem>
+                                                                <SelectItem value="per_kg">Weight Based (Per kg)</SelectItem>
+                                                                <SelectItem value="free">Free Shipping</SelectItem>
+                                                            </SelectContent>
                                                         </Select>
                                                     </div>
                                                 </div>
@@ -283,7 +278,7 @@ export default function ShippingPage(): React.JSX.Element {
                                         ))}
                                     </div>
                                 )}
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                         
                         <div className="flex justify-end gap-3 pb-8">
@@ -295,10 +290,10 @@ export default function ShippingPage(): React.JSX.Element {
                     {/* Sidebar / Status for Draft */}
                     <div className="space-y-6">
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Status</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            <CardHeader>
+                                <CardTitle>Status</CardTitle>
+                            </CardHeader>
+                            <CardBody>
                                 <div className="flex items-center justify-between">
                                     <Label className="cursor-pointer" htmlFor="zone-active">Active</Label>
                                     <Switch 
@@ -310,7 +305,7 @@ export default function ShippingPage(): React.JSX.Element {
                                 <p className="text-xs text-[var(--st-text-secondary)] mt-2">
                                     {draft.active ? 'This zone is currently active and rates will apply at checkout.' : 'This zone is disabled. Rates will not appear.'}
                                 </p>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     </div>
                 </div>

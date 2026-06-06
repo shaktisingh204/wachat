@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button } from '@/components/sabcrm/20ui/compat';
 
 export default function ErrorBoundary({
     error,
@@ -18,17 +18,17 @@ export default function ErrorBoundary({
     return (
         <div className="min-h-screen bg-[var(--st-bg-muted)] flex items-center justify-center p-8 font-sans">
             <Card className="max-w-md w-full">
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="text-[var(--st-text)]">Something went wrong</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle className="text-[var(--st-text)]">Something went wrong</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <p className="text-[var(--st-text)] mb-6">
                         We encountered an error while trying to load the SEO status report.
                     </p>
                     <Button onClick={() => reset()}>
                         Try again
                     </Button>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

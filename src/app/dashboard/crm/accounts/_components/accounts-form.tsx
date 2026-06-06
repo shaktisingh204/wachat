@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { LoaderCircle,
@@ -79,7 +68,7 @@ type ActionState = {
 
 export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const formRef = React.useRef<HTMLFormElement>(null);
     const [pending, startTransition] = React.useTransition();
     const [dirty, setDirty] = React.useState(false);
@@ -232,14 +221,14 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
 
                 {/* ─── Profile ─────────────────────────────────── */}
                 <Card className="p-0">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Profile</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>Profile</CardTitle>
+                        <CardDescription>
                             Identity, industry, and how to reach the company.
                             Required fields marked with *.
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2 md:col-span-2">
                             <Label htmlFor="name">Company name *</Label>
                             <Input
@@ -322,18 +311,18 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                                 pickerTitle="Choose account logo"
                             />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* ─── Address ─────────────────────────────────── */}
                 <Card className="p-0">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Address</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>Address</CardTitle>
+                        <CardDescription>
                             Registered, billing, and shipping locations.
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="grid gap-4 md:grid-cols-3">
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody className="grid gap-4 md:grid-cols-3">
                         <div className="space-y-2">
                             <Label>Country</Label>
                             <EntityFormField
@@ -440,18 +429,18 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                                 placeholder="If different from registered."
                             />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* ─── Commercial ──────────────────────────────── */}
                 <Card className="p-0">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Commercial</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>Commercial</CardTitle>
+                        <CardDescription>
                             Currency, terms, and rough firmographics.
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label>Currency</Label>
                             <EntityFormField
@@ -513,18 +502,18 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                                 placeholder="0"
                             />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* ─── Identifiers ─────────────────────────────── */}
                 <Card className="p-0">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Identifiers</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>Identifiers</CardTitle>
+                        <CardDescription>
                             Tax IDs and registration codes used on documents.
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="gstin">GSTIN</Label>
                             <Input
@@ -553,7 +542,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                                 className="font-mono"
                             />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* Sticky action bar */}

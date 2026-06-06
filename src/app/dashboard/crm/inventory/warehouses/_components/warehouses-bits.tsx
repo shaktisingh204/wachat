@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   Archive,
   Download,
@@ -190,19 +180,19 @@ export function WarehousesFiltersRow({
                         })
                     }
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger>
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
                         {WAREHOUSE_TYPE_OPTIONS.map((o) => (
-                            <ZoruSelectItem
+                            <SelectItem
                                 key={o.value || '__any'}
                                 value={o.value || '__any'}
                             >
                                 {o.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
 
@@ -221,19 +211,19 @@ export function WarehousesFiltersRow({
                         })
                     }
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger>
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
                         {WAREHOUSE_STATUS_OPTIONS.map((o) => (
-                            <ZoruSelectItem
+                            <SelectItem
                                 key={o.value || '__any'}
                                 value={o.value || '__any'}
                             >
                                 {o.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
 
@@ -320,14 +310,14 @@ export function WarehousesFiltersRow({
                             })
                         }
                     >
-                        <ZoruSelectTrigger className="w-[110px]">
-                            <ZoruSelectValue placeholder="Default" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="__any">Default: any</ZoruSelectItem>
-                            <ZoruSelectItem value="yes">Default only</ZoruSelectItem>
-                            <ZoruSelectItem value="no">Non-default</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger className="w-[110px]">
+                            <SelectValue placeholder="Default" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__any">Default: any</SelectItem>
+                            <SelectItem value="yes">Default only</SelectItem>
+                            <SelectItem value="no">Non-default</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
             </div>

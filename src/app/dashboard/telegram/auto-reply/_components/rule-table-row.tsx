@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Switch, ZoruTableCell, ZoruTableRow, cn } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Switch, Td, Tr, cn } from '@/components/sabcrm/20ui/compat';
 import {
   useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -62,13 +62,13 @@ export function RuleTableRow({
     };
 
     return (
-        <ZoruTableRow
+        <Tr
             ref={setNodeRef}
             style={style}
             className={cn(isDragging && 'bg-[var(--st-bg-muted)]/40')}
             data-rule-id={rule._id}
         >
-            <ZoruTableCell className="w-8 pr-0">
+            <Td className="w-8 pr-0">
                 <button
                     type="button"
                     {...attributes}
@@ -78,8 +78,8 @@ export function RuleTableRow({
                 >
                     <GripVertical className="h-4 w-4" />
                 </button>
-            </ZoruTableCell>
-            <ZoruTableCell>
+            </Td>
+            <Td>
                 <button
                     type="button"
                     onClick={() => onOpenDetail(rule)}
@@ -90,13 +90,13 @@ export function RuleTableRow({
                 <div className="text-xs text-[var(--st-text-secondary)]">
                     priority {rule.priority}
                 </div>
-            </ZoruTableCell>
-            <ZoruTableCell className="max-w-[260px] truncate">
+            </Td>
+            <Td className="max-w-[260px] truncate">
                 <span className="text-sm text-[var(--st-text)]">
                     {triggerSummary(rule.trigger)}
                 </span>
-            </ZoruTableCell>
-            <ZoruTableCell>
+            </Td>
+            <Td>
                 <div className="flex flex-wrap gap-1">
                     {rule.actions.length === 0 && (
                         <span className="text-xs text-[var(--st-text-secondary)]">
@@ -114,26 +114,26 @@ export function RuleTableRow({
                         </Badge>
                     )}
                 </div>
-            </ZoruTableCell>
-            <ZoruTableCell className="text-sm">
+            </Td>
+            <Td className="text-sm">
                 {botName ?? <span className="text-[var(--st-text-secondary)]">All bots</span>}
-            </ZoruTableCell>
-            <ZoruTableCell>
+            </Td>
+            <Td>
                 <Switch
                     checked={rule.status === 'enabled'}
                     onCheckedChange={(v) => onToggle(rule, v)}
                     aria-label={`Toggle ${rule.name}`}
                 />
-            </ZoruTableCell>
-            <ZoruTableCell className="text-sm tabular-nums">
+            </Td>
+            <Td className="text-sm tabular-nums">
                 {rule.fired7d.toLocaleString()}
-            </ZoruTableCell>
-            <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
+            </Td>
+            <Td className="text-sm text-[var(--st-text-secondary)]">
                 {rule.lastRunAt
                     ? new Date(rule.lastRunAt).toLocaleString()
                     : 'Never'}
-            </ZoruTableCell>
-            <ZoruTableCell className="text-right">
+            </Td>
+            <Td className="text-right">
                 <div className="flex justify-end gap-1">
                     <Button
                         variant="ghost"
@@ -168,7 +168,7 @@ export function RuleTableRow({
                         <Trash2 className="h-4 w-4" />
                     </Button>
                 </div>
-            </ZoruTableCell>
-        </ZoruTableRow>
+            </Td>
+        </Tr>
     );
 }

@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Checkbox,
-  Input,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   Plus,

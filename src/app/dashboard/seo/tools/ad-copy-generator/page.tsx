@@ -1,12 +1,12 @@
 'use client';
 
-import { Card, ZoruCardContent, Input, Label, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Input, Label, Button } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { Copy, Check, Wand2, Loader2, Download, AlertCircle } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 import { generateAdCopyAction } from './actions';
-import { Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
 
 function CopyText({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -139,8 +139,8 @@ export default function AdCopyGeneratorPage() {
       {error && (
         <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4" />
-            <ZoruAlertTitle>Notice</ZoruAlertTitle>
-            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+            <AlertTitle>Notice</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
@@ -155,7 +155,7 @@ export default function AdCopyGeneratorPage() {
 
       {(results.headlines.length > 0 || results.descriptions.length > 0) && (
         <Card className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <ZoruCardContent className="p-4 space-y-4">
+          <CardBody className="p-4 space-y-4">
             <div className="flex justify-end gap-2 mb-2">
                 <Button variant="outline" size="sm" onClick={copyAll}><Copy className="w-4 h-4 mr-2" /> Copy All</Button>
                 <Button variant="outline" size="sm" onClick={exportCSV}><Download className="w-4 h-4 mr-2" /> Export CSV</Button>
@@ -182,7 +182,7 @@ export default function AdCopyGeneratorPage() {
                 </div>
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   use,
   useCallback,
@@ -100,7 +92,7 @@ export default function ProposalDetailPage(props: {
 }) {
   const { proposalId } = use(props.params);
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [data, setData] = useState<Loaded | null>(null);
   const [isLoading, startLoading] = useTransition();

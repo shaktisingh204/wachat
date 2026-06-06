@@ -1,12 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import type { CrmShiftDoc, CrmShiftStatus } from '@/lib/rust-client/crm-shifts';
 import { ShiftForm } from '../../_components/shift-form';
 
@@ -23,10 +18,10 @@ export function ShiftEditForm({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-[560px]">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Edit shift details</ZoruDialogTitle>
-        </ZoruDialogHeader>
+      <DialogContent className="sm:max-w-[560px]">
+        <DialogHeader>
+          <DialogTitle>Edit shift details</DialogTitle>
+        </DialogHeader>
         <ShiftForm
           initial={initial}
           onSaved={() => onOpenChange(false)}
@@ -49,7 +44,7 @@ export function ShiftEditForm({
             }
           }}
         />
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

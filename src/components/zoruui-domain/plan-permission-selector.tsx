@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { ShieldCheck } from 'lucide-react';
@@ -50,24 +50,24 @@ export function PlanPermissionSelector({
 
     return (
         <Card className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
-            <ZoruCardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
+            <CardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
                 <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-xl bg-[var(--st-text)]/15 border border-primary/30 flex items-center justify-center">
                         <ShieldCheck className="h-5 w-5 text-[var(--st-text)]" />
                     </div>
                     <div>
-                        <ZoruCardTitle className="text-lg">Master Permission Control</ZoruCardTitle>
-                        <ZoruCardDescription>
+                        <CardTitle className="text-lg">Master Permission Control</CardTitle>
+                        <CardDescription>
                             Define the absolute ceiling of what users on this plan can do. Anything
                             unchecked here is blocked application-wide, even for paying users.
-                        </ZoruCardDescription>
+                        </CardDescription>
                     </div>
                 </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="pt-6">
+            </CardHeader>
+            <CardBody className="pt-6">
                 <input type="hidden" name={name} value={JSON.stringify(permissions)} />
                 <PlanPermissionsMatrix value={permissions} onChange={setPermissions} />
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

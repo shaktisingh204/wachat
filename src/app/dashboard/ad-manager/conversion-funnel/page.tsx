@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   Filter,
   RefreshCw,
@@ -123,22 +123,22 @@ export default function ConversionFunnelPage() {
                     {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-14" />)}
                 </div>
             ) : !funnel ? (
-                <Card><ZoruCardContent className="p-8 text-center text-[var(--st-text-secondary)]">No funnel data available.</ZoruCardContent></Card>
+                <Card><CardBody className="p-8 text-center text-[var(--st-text-secondary)]">No funnel data available.</CardBody></Card>
             ) : (
                 <>
                     <Card>
-                        <ZoruCardContent className="p-4 flex items-center gap-3">
+                        <CardBody className="p-4 flex items-center gap-3">
                             <DollarSign className="h-5 w-5 text-[var(--st-text-secondary)]" />
                             <div>
                                 <div className="text-sm text-[var(--st-text-secondary)]">Total spend (30d)</div>
                                 <div className="text-2xl font-bold tabular-nums">${funnel.spend.toFixed(2)}</div>
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     <Card>
-                        <ZoruCardHeader><ZoruCardTitle className="text-base">Funnel steps</ZoruCardTitle></ZoruCardHeader>
-                        <ZoruCardContent className="space-y-4">
+                        <CardHeader><CardTitle className="text-base">Funnel steps</CardTitle></CardHeader>
+                        <CardBody className="space-y-4">
                             {STEPS.map((step, idx) => {
                                 const count = funnel[step.key];
                                 const prevCount = idx > 0 ? funnel[STEPS[idx - 1].key] : count;
@@ -169,12 +169,12 @@ export default function ConversionFunnelPage() {
                                     </div>
                                 );
                             })}
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     <Card>
-                        <ZoruCardHeader><ZoruCardTitle className="text-base">Cost per step</ZoruCardTitle></ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader><CardTitle className="text-base">Cost per step</CardTitle></CardHeader>
+                        <CardBody>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                                 {STEPS.map((step) => {
                                     const count = funnel[step.key];
@@ -187,7 +187,7 @@ export default function ConversionFunnelPage() {
                                     );
                                 })}
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </>
             )}

@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * <ContractRelatedRail> — server-rendered right rail. Status card, party
  * chips, and a "Related" stub listing renewal/amendment counts. The
@@ -57,10 +57,10 @@ export function ContractRelatedRail({
   return (
     <>
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Status</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Status</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="space-y-3 text-[12.5px]">
             <div className="flex items-center justify-between">
               <span className="text-[var(--st-text-secondary)]">Status</span>
@@ -87,14 +87,14 @@ export function ContractRelatedRail({
               <span className="font-mono tabular-nums">{fmtMoney}</span>
             </div>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Parties</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Parties</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="space-y-3 text-[12.5px]">
             <div>
               <div className="text-[11px] uppercase text-[var(--st-text-secondary)]">
@@ -109,14 +109,14 @@ export function ContractRelatedRail({
               <div className="mt-0.5 text-[var(--st-text)]">{clientName || '—'}</div>
             </div>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Related</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Related</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="flex flex-col gap-2 text-[12.5px]">
             <Link
               href={`/dashboard/crm/contracts/renewals?contractId=${contractId}`}
@@ -135,15 +135,15 @@ export function ContractRelatedRail({
               Linked invoices →
             </Link>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {startDate ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Term</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Term</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="space-y-1.5 text-[12.5px]">
               <div className="flex justify-between">
                 <span className="text-[var(--st-text-secondary)]">Start</span>
@@ -158,7 +158,7 @@ export function ContractRelatedRail({
                 </span>
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </>

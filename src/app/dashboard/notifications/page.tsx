@@ -1,31 +1,7 @@
 "use client";
 import { fmtDate } from "@/lib/utils";
 
-import {
-  cn,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { cn, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -96,7 +72,7 @@ export default function NotificationsPage() {
   const [filter, setFilter] = useState("");
   const [appFilter, setAppFilter] = useState("ALL");
   const [readFilter, setReadFilter] = useState("ALL");
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const { activeProjectId } = useProject();
 
@@ -205,25 +181,25 @@ export default function NotificationsPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Notifications</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Notifications</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>All Notifications</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>All Notifications</PageTitle>
+          <PageDescription>
             A complete history of automated events and alerts.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Select
             defaultValue="ALL"
             onValueChange={(v) => {
@@ -231,34 +207,34 @@ export default function NotificationsPage() {
               setCurrentPage(1);
             }}
           >
-            <ZoruSelectTrigger className="w-[160px]">
+            <SelectTrigger className="w-[160px]">
               <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" />
-              <ZoruSelectValue placeholder="App source" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="ALL">All Apps</ZoruSelectItem>
-              <ZoruSelectItem value="wachat">WaChat</ZoruSelectItem>
-              <ZoruSelectItem value="facebook">Meta Suite</ZoruSelectItem>
-              <ZoruSelectItem value="ad-manager">Ad Manager</ZoruSelectItem>
-              <ZoruSelectItem value="crm">CRM</ZoruSelectItem>
-              <ZoruSelectItem value="sabchat">SabChat</ZoruSelectItem>
-              <ZoruSelectItem value="system">System</ZoruSelectItem>
-            </ZoruSelectContent>
+              <SelectValue placeholder="App source" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Apps</SelectItem>
+              <SelectItem value="wachat">WaChat</SelectItem>
+              <SelectItem value="facebook">Meta Suite</SelectItem>
+              <SelectItem value="ad-manager">Ad Manager</SelectItem>
+              <SelectItem value="crm">CRM</SelectItem>
+              <SelectItem value="sabchat">SabChat</SelectItem>
+              <SelectItem value="system">System</SelectItem>
+            </SelectContent>
           </Select>
 
           <Select defaultValue="ALL" onValueChange={handleEventFilterChange}>
-            <ZoruSelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[150px]">
               <Filter className="h-4 w-4 text-[var(--st-text-secondary)]" />
-              <ZoruSelectValue placeholder="Event type" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="ALL">All events</ZoruSelectItem>
+              <SelectValue placeholder="Event type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All events</SelectItem>
               {eventTypes.map((et) => (
-                <ZoruSelectItem key={et.value} value={et.value}>
+                <SelectItem key={et.value} value={et.value}>
                   {et.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
 
           <Select
@@ -268,15 +244,15 @@ export default function NotificationsPage() {
               setCurrentPage(1);
             }}
           >
-            <ZoruSelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[140px]">
               <Bell className="h-4 w-4 text-[var(--st-text-secondary)]" />
-              <ZoruSelectValue placeholder="Read status" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="ALL">All status</ZoruSelectItem>
-              <ZoruSelectItem value="unread">Unread</ZoruSelectItem>
-              <ZoruSelectItem value="read">Read</ZoruSelectItem>
-            </ZoruSelectContent>
+              <SelectValue placeholder="Read status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All status</SelectItem>
+              <SelectItem value="unread">Unread</SelectItem>
+              <SelectItem value="read">Read</SelectItem>
+            </SelectContent>
           </Select>
 
           <Button
@@ -313,7 +289,7 @@ export default function NotificationsPage() {
             />
             Refresh
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <Card className="overflow-hidden p-0">

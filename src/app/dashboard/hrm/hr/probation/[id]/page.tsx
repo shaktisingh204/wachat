@@ -1,15 +1,5 @@
 import { fmtDate } from '@/lib/utils';
-import {
-  Badge,
-  Button,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   notFound,
   redirect } from 'next/navigation';
@@ -153,26 +143,26 @@ export default async function ProbationDetailPage({
                 ) : (
                     <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Criterion</ZoruTableHead>
-                                    <ZoruTableHead>Target</ZoruTableHead>
-                                    <ZoruTableHead>Achieved</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Score</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Criterion</Th>
+                                    <Th>Target</Th>
+                                    <Th>Achieved</Th>
+                                    <Th className="text-right">Score</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {criteria.map((c, i) => (
-                                    <ZoruTableRow key={i}>
-                                        <ZoruTableCell className="text-[var(--st-text)]">{c.name}</ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">{c.target || '—'}</ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">{c.achieved || '—'}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
+                                    <Tr key={i}>
+                                        <Td className="text-[var(--st-text)]">{c.name}</Td>
+                                        <Td className="text-[var(--st-text)]">{c.target || '—'}</Td>
+                                        <Td className="text-[var(--st-text)]">{c.achieved || '—'}</Td>
+                                        <Td className="text-right font-mono text-[12px] text-[var(--st-text)]">
                                             {c.score != null ? c.score : '—'}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 )}

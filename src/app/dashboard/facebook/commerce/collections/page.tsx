@@ -1,25 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DataTable,
-  EmptyState,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DataTable, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -87,7 +68,7 @@ function CollectionsSkeleton() {
 
 export default function CommerceCollectionsPage() {
   const { activeProject, activeProjectId, isLoadingProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [catalogs, setCatalogs] = useState<CatalogOption[]>([]);
   const [collections, setCollections] = useState<CollectionRow[]>([]);
@@ -209,16 +190,16 @@ export default function CommerceCollectionsPage() {
                   value={createCatalogId}
                   onValueChange={setCreateCatalogId}
                 >
-                  <ZoruSelectTrigger className="h-9 w-44">
-                    <ZoruSelectValue placeholder="Pick a catalog" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger className="h-9 w-44">
+                    <SelectValue placeholder="Pick a catalog" />
+                  </SelectTrigger>
+                  <SelectContent>
                     {catalogs.map((c) => (
-                      <ZoruSelectItem key={c.id} value={c.id}>
+                      <SelectItem key={c.id} value={c.id}>
                         {c.name}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               ) : null}
               <Button
@@ -258,43 +239,43 @@ export default function CommerceCollectionsPage() {
       {!activeProjectId ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>No project selected</AlertTitle>
+          <AlertDescription>
             Pick a Facebook Page project to manage its product collections.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       ) : !isFacebookProject ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Invalid project type</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Invalid project type</AlertTitle>
+          <AlertDescription>
             Collections live under Facebook Page projects. Switch to a
             Facebook project to continue.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       ) : !hasCatalogAccess ? (
         <Card className="mt-8">
-          <ZoruCardHeader>
-            <ZoruCardTitle>Catalog management locked</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Catalog management locked</CardTitle>
+            <CardDescription>
               This project was set up without catalog management permissions.
               Re-authorize to grant <code>catalog_management</code> and{" "}
               <code>business_management</code>.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <Button asChild>
               <Link href="/dashboard/facebook/all-projects">
                 Re-authorize project
               </Link>
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : error ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Could not fetch collections</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not fetch collections</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : isLoading && collections.length === 0 ? (
         <CollectionsSkeleton />

@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   usePathname } from 'next/navigation';
@@ -237,17 +225,17 @@ export function ActivityFeedClient({
                                 }))
                             }
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="All entities" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All entities</ZoruSelectItem>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All entities" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All entities</SelectItem>
                                 {ENTITY_KIND_OPTIONS.map((opt) => (
-                                    <ZoruSelectItem key={opt.value} value={opt.value}>
+                                    <SelectItem key={opt.value} value={opt.value}>
                                         {opt.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="w-64">

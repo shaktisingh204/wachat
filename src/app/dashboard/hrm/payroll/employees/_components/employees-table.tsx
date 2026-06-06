@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   MoreHorizontal,
   UserCircle2,
@@ -240,7 +233,7 @@ export function EmployeesTable({
         return (
           <div className="flex justify-end">
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button
                   size="sm"
                   variant="ghost"
@@ -248,29 +241,29 @@ export function EmployeesTable({
                 >
                   <MoreHorizontal className="h-3.5 w-3.5" />
                 </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent>
-                <ZoruDropdownMenuItem asChild>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem asChild>
                   <Link href={`/dashboard/hrm/payroll/employees/${id}`}>
                     View
                   </Link>
-                </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuItem asChild>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link
                     href={`/dashboard/hrm/payroll/employees/${id}/edit`}
                   >
                     Edit
                   </Link>
-                </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuSeparator />
-                <ZoruDropdownMenuItem asChild>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
                   <Link
                     href={`/dashboard/hrm/payroll/employees/${id}/activity`}
                   >
                     Activity
                   </Link>
-                </ZoruDropdownMenuItem>
-              </ZoruDropdownMenuContent>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
             </DropdownMenu>
           </div>
         );

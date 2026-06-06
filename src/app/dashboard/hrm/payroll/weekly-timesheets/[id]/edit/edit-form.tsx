@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { useState, useTransition, useEffect, useOptimistic } from 'react';
 import { useRouter } from 'next/navigation';
 import { LoaderCircle, Download, Users, Filter, CheckSquare } from 'lucide-react';
@@ -39,7 +35,7 @@ export default function EditWeeklyTimesheetForm({
   employees: EmployeeLite[];
 }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isSaving, startSave] = useTransition();
 
   const s = initialData as Record<string, unknown>;

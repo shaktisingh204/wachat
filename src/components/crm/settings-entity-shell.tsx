@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   Trash2,
@@ -148,7 +136,7 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
         hiddenInputs,
         csvFilename,
     } = props;
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [allRows, setAllRows] = useState<T[]>([]);
     const [isLoading, startLoading] = useTransition();
@@ -490,27 +478,27 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
             />
 
             {/* Confirm delete */}
-            <ZoruAlertDialog
+            <AlertDialog
                 open={deletingId !== null}
                 onOpenChange={(o) => !o && setDeletingId(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             Delete {singular.toLowerCase()}?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             This action cannot be undone.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete}>
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

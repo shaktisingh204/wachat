@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input } from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect, useMemo } from 'react';
 import { History, ArrowRight, Plus, Loader2 } from 'lucide-react';
 import { fetchSnapshot } from '../actions';
@@ -146,10 +146,10 @@ export function TimeTravelClient({ projectId }: { projectId: string }) {
 
             <div className="grid gap-6 md:grid-cols-3">
                 <Card className="col-span-1 flex flex-col max-h-[800px]">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Tracked Competitors</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="flex-1 flex flex-col gap-4 overflow-hidden">
+                    <CardHeader>
+                        <CardTitle>Tracked Competitors</CardTitle>
+                    </CardHeader>
+                    <CardBody className="flex-1 flex flex-col gap-4 overflow-hidden">
                         <form onSubmit={handleAddCompetitor} className="flex gap-2">
                             <Input 
                                 placeholder="https://example.com" 
@@ -176,16 +176,16 @@ export function TimeTravelClient({ projectId }: { projectId: string }) {
                                 </div>
                             ))}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card className="col-span-2">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>
+                    <CardHeader>
+                        <CardTitle>
                             {selectedCompetitor ? `Visual Diff: ${selectedCompetitor.url.replace(/^https?:\/\//, '')}` : 'Select a competitor'}
-                        </ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="h-[700px] flex flex-col gap-4">
+                        </CardTitle>
+                    </CardHeader>
+                    <CardBody className="h-[700px] flex flex-col gap-4">
                         {loading ? (
                             <div className="flex-1 flex items-center justify-center">
                                 <Loader2 className="w-8 h-8 animate-spin text-[var(--st-accent)]" />
@@ -226,7 +226,7 @@ export function TimeTravelClient({ projectId }: { projectId: string }) {
                                 <p>Select a competitor to view diffs</p>
                             </div>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

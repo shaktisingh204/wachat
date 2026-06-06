@@ -3,7 +3,7 @@
 import Split from "react-split";
 import { useCallback, useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Button } from "@/components/sabcrm/20ui/compat";
+import { Button } from '@/components/sabcrm/20ui/compat';
 import { Plus, Layers } from "lucide-react";
 import { MetaFlowNavigator } from "./meta-flow-navigator";
 import { MetaFlowProperties } from "./meta-flow-properties";

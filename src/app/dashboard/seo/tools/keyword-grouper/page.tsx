@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Textarea,
-  Card,
-  ZoruCardContent,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Label } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -229,7 +218,7 @@ export default function KeywordGrouperPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(groups).map(([key, items]) => (
             <Card key={key}>
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <div className="font-semibold capitalize mb-2 border-b pb-2">
                   {key} <span className="text-xs text-[var(--st-text-secondary)] ml-1">({items.length})</span>
                 </div>
@@ -240,7 +229,7 @@ export default function KeywordGrouperPage() {
                     </li>
                   ))}
                 </ul>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ))}
         </div>

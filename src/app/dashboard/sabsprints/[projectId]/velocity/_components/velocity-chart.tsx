@@ -4,14 +4,7 @@
  * Velocity bar chart — planned vs completed points per completed sprint.
  * Uses the ZoruChart wrapper (Recharts) and the neutral Zoru palette.
  */
-import {
-  Card,
-  EmptyState,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  ZORU_CHART_PALETTE,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, EmptyState, ZoruChart, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 import type { AgileVelocityDoc } from '@/lib/rust-client/agile-velocity';
 
 const {
@@ -53,17 +46,17 @@ export function VelocityChart({ items }: Props) {
           Avg completed: <span className="font-medium text-[var(--st-text)]">{avg.toFixed(1)}</span> pts
         </p>
       </div>
-      <ZoruChartContainer height={320}>
+      <ChartContainer height={320}>
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
           <XAxis dataKey="name" stroke="var(--st-text-secondary)" />
           <YAxis stroke="var(--st-text-secondary)" />
-          <Tooltip content={<ZoruChartTooltip />} />
+          <Tooltip content={<ChartTooltip />} />
           <Legend />
           <Bar dataKey="planned" name="Planned" fill={ZORU_CHART_PALETTE[2]} />
           <Bar dataKey="completed" name="Completed" fill={ZORU_CHART_PALETTE[0]} />
         </BarChart>
-      </ZoruChartContainer>
+      </ChartContainer>
     </Card>
   );
 }

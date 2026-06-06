@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useRef,
@@ -119,13 +110,13 @@ export function ViewCommentsDialog({ isOpen, onOpenChange, post, projectId, onAc
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-lg h-[80vh] flex flex-col">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Comments</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-lg h-[80vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>Comments</DialogTitle>
+          <DialogDescription>
             Viewing comments for post: "{post.message?.substring(0, 30)}..."
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <ScrollArea className="flex-1 -mx-6 px-6">
             <div className="space-y-4 py-4">
                 {(post.comments?.data || []).length > 0 ? (
@@ -137,7 +128,7 @@ export function ViewCommentsDialog({ isOpen, onOpenChange, post, projectId, onAc
                 )}
             </div>
         </ScrollArea>
-        <ZoruDialogFooter className="mt-auto border-t pt-4">
+        <DialogFooter className="mt-auto border-t pt-4">
            <form action={action} ref={formRef} className="w-full flex items-center gap-2">
                 <input type="hidden" name="projectId" value={projectId} />
                 <input type="hidden" name="objectId" value={post.id} />
@@ -147,8 +138,8 @@ export function ViewCommentsDialog({ isOpen, onOpenChange, post, projectId, onAc
                     Comment
                 </Button>
            </form>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

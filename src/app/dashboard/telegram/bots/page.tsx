@@ -1,39 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  ZoruAlertDialog,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  Checkbox,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel, Checkbox } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   AlertTriangle,
@@ -173,13 +140,13 @@ function BotAvatar({ bot }: { bot: BotRow }) {
 
 function RowSkeleton() {
     return (
-        <ZoruTableRow>
+        <Tr>
             {Array.from({ length: 8 }).map((_, i) => (
-                <ZoruTableCell key={i}>
+                <Td key={i}>
                     <Skeleton className="h-4 w-full" />
-                </ZoruTableCell>
+                </Td>
             ))}
-        </ZoruTableRow>
+        </Tr>
     );
 }
 
@@ -505,16 +472,16 @@ export default function TelegramBotsPage() {
                         value={status}
                         onValueChange={(v) => setStatus(v as StatusFilter)}
                     >
-                        <ZoruSelectTrigger className="w-[160px]">
-                            <ZoruSelectValue placeholder="Status" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger className="w-[160px]">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {STATUS_OPTIONS.map((o) => (
-                                <ZoruSelectItem key={o.value} value={o.value}>
+                                <SelectItem key={o.value} value={o.value}>
                                     {o.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
                 {someSelected ? (
@@ -543,25 +510,25 @@ export default function TelegramBotsPage() {
             {/* Table */}
             <Card className="overflow-hidden p-0">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow>
-                            <ZoruTableHead className="w-10">
+                    <THead>
+                        <Tr>
+                            <Th className="w-10">
                                 <Checkbox
                                     checked={allSelectedOnPage}
                                     onCheckedChange={toggleSelectAll}
                                     aria-label="Select all on page"
                                 />
-                            </ZoruTableHead>
-                            <ZoruTableHead>Bot</ZoruTableHead>
-                            <ZoruTableHead>Username</ZoruTableHead>
-                            <ZoruTableHead>Status</ZoruTableHead>
-                            <ZoruTableHead>Webhook</ZoruTableHead>
-                            <ZoruTableHead>Last seen</ZoruTableHead>
-                            <ZoruTableHead className="text-right">Latency</ZoruTableHead>
-                            <ZoruTableHead className="w-10" />
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                            </Th>
+                            <Th>Bot</Th>
+                            <Th>Username</Th>
+                            <Th>Status</Th>
+                            <Th>Webhook</Th>
+                            <Th>Last seen</Th>
+                            <Th className="text-right">Latency</Th>
+                            <Th className="w-10" />
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {loading ? (
                             <>
                                 <RowSkeleton />
@@ -569,8 +536,8 @@ export default function TelegramBotsPage() {
                                 <RowSkeleton />
                             </>
                         ) : rows.length === 0 ? (
-                            <ZoruTableRow>
-                                <ZoruTableCell colSpan={8} className="p-0">
+                            <Tr>
+                                <Td colSpan={8} className="p-0">
                                     <EmptyState
                                         icon={<Bot className="h-5 w-5" aria-hidden />}
                                         title={
@@ -599,21 +566,21 @@ export default function TelegramBotsPage() {
                                         }
                                         className="m-6 border-0"
                                     />
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : (
                             rows.map((bot) => {
                                 const busy = !!rowBusy[bot._id];
                                 return (
-                                    <ZoruTableRow key={bot._id}>
-                                        <ZoruTableCell>
+                                    <Tr key={bot._id}>
+                                        <Td>
                                             <Checkbox
                                                 checked={selected.has(bot._id)}
                                                 onCheckedChange={() => toggleSelectRow(bot._id)}
                                                 aria-label={`Select ${bot.name || bot.username}`}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <button
                                                 type="button"
                                                 onClick={() => setDetailBotId(bot._id)}
@@ -629,8 +596,8 @@ export default function TelegramBotsPage() {
                                                     </span>
                                                 </div>
                                             </button>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {bot.username ? (
                                                 <a
                                                     href={`https://t.me/${bot.username}`}
@@ -646,11 +613,11 @@ export default function TelegramBotsPage() {
                                                     —
                                                 </span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <StatusBadge status={bot.status} />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {bot.webhookUrl ? (
                                                 <CopyableText value={bot.webhookUrl} />
                                             ) : (
@@ -658,18 +625,18 @@ export default function TelegramBotsPage() {
                                                     Not registered
                                                 </span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                             {formatRelative(bot.lastSeenAt)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
                                             {typeof bot.latencyMs === 'number'
                                                 ? `${bot.latencyMs} ms`
                                                 : '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <DropdownMenu>
-                                                <ZoruDropdownMenuTrigger asChild>
+                                                <DropdownMenuTrigger asChild>
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
@@ -688,9 +655,9 @@ export default function TelegramBotsPage() {
                                                             />
                                                         )}
                                                     </Button>
-                                                </ZoruDropdownMenuTrigger>
-                                                <ZoruDropdownMenuContent align="end">
-                                                    <ZoruDropdownMenuItem
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem
                                                         onSelect={() => setDetailBotId(bot._id)}
                                                     >
                                                         <ExternalLink
@@ -698,41 +665,41 @@ export default function TelegramBotsPage() {
                                                             aria-hidden
                                                         />
                                                         Open detail
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
                                                         onSelect={() => handleHealth(bot)}
                                                     >
                                                         <Heart className="h-3 w-3" aria-hidden />
                                                         Health check
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
                                                         onSelect={() => handleRefreshWebhook(bot)}
                                                     >
                                                         <RefreshCw className="h-3 w-3" aria-hidden />
                                                         Refresh webhook
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
                                                         onSelect={() => handleRotate(bot)}
                                                     >
                                                         <RotateCw className="h-3 w-3" aria-hidden />
                                                         Rotate secret
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuSeparator />
-                                                    <ZoruDropdownMenuItem
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem
                                                         onSelect={() => handleDisconnect(bot)}
                                                         className="text-[var(--st-danger)] focus:bg-[var(--st-danger-soft)]"
                                                     >
                                                         <Trash2 className="h-3 w-3" aria-hidden />
                                                         Disconnect
-                                                    </ZoruDropdownMenuItem>
-                                                </ZoruDropdownMenuContent>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
                                             </DropdownMenu>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 );
                             })
                         )}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
                 {totalPages > 1 ? (
                     <div className="flex items-center justify-between border-t border-[var(--st-border)] px-4 py-3 text-[12.5px] text-[var(--st-text-secondary)]">
@@ -762,23 +729,23 @@ export default function TelegramBotsPage() {
             </Card>
 
             {/* Bulk-disconnect confirm */}
-            <ZoruAlertDialog open={bulkOpen} onOpenChange={setBulkOpen}>
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+            <AlertDialog open={bulkOpen} onOpenChange={setBulkOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             Disconnect {selected.size} bot{selected.size === 1 ? '' : 's'}?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             This removes each bot from SabNode and deletes its webhook on
                             Telegram. The Bot Tokens themselves stay valid — you can
                             re-connect at any time.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel disabled={bulkBusy}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={bulkBusy}>
                             Cancel
-                        </ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleBulkDisconnect}
                             disabled={bulkBusy}
                         >
@@ -786,10 +753,10 @@ export default function TelegramBotsPage() {
                                 <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
                             ) : null}
                             Disconnect
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {/* Detail drawer */}
             <BotDetailDrawer

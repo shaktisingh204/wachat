@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -95,7 +82,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export function TimeLogForm({ initialData }: TimeLogFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveTimeLog, initialState);
@@ -217,16 +204,16 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                     <div className="space-y-1.5">
                         <Label htmlFor="entityKind-trigger">Entity kind</Label>
                         <Select value={entityKind} onValueChange={setEntityKind}>
-                            <ZoruSelectTrigger id="entityKind-trigger">
-                                <ZoruSelectValue placeholder="Kind" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="entityKind-trigger">
+                                <SelectValue placeholder="Kind" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {ENTITY_KIND_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1.5">
@@ -272,16 +259,16 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                             value={status}
                             onValueChange={(v) => setStatus(v as CrmTimeLogStatus)}
                         >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="status-trigger">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>

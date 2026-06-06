@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -137,7 +125,7 @@ function deriveInitialTrigger(doc?: CrmAutomationDoc | null): {
 
 export function AutomationForm({ initialData }: AutomationFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     // We can poll or fetch runs for debugging
@@ -274,16 +262,16 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                             value={status}
                             onValueChange={(v) => setStatus(v as CrmAutomationStatus)}
                         >
-                            <ZoruSelectTrigger id="status-trigger">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="status-trigger">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>
@@ -305,16 +293,16 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                     <div className="space-y-1.5">
                         <Label htmlFor="trigger-trigger">Trigger</Label>
                         <Select value={trigger} onValueChange={setTrigger}>
-                            <ZoruSelectTrigger id="trigger-trigger">
-                                <ZoruSelectValue placeholder="Trigger" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="trigger-trigger">
+                                <SelectValue placeholder="Trigger" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {TRIGGER_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1.5">

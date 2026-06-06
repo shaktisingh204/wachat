@@ -2,14 +2,7 @@
 
 import * as React from 'react';
 
-import {
-  Button,
-  Card,
-  CardContent,
-  Input,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   saveSabpublishProfileFields,
   syncSabpublishLocation,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, DropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   ListChecks,
@@ -80,21 +80,21 @@ export function ItemsBulkBar({
           <RefreshCw className="h-3.5 w-3.5" /> Sync price
         </Button>
         <DropdownMenu>
-          <ZoruDropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild>
             <Button size="sm" variant="outline">
               <Pencil className="h-3.5 w-3.5" /> Bulk edit
             </Button>
-          </ZoruDropdownMenuTrigger>
-          <ZoruDropdownMenuContent>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
             {BULK_EDIT_OPTIONS.map((o) => (
-              <ZoruDropdownMenuItem
+              <DropdownMenuItem
                 key={o.value}
                 onSelect={() => onBulkEdit(o.value)}
               >
                 {o.label}
-              </ZoruDropdownMenuItem>
+              </DropdownMenuItem>
             ))}
-          </ZoruDropdownMenuContent>
+          </DropdownMenuContent>
         </DropdownMenu>
         <Button size="sm" variant="destructive" onClick={onDelete}>
           <Trash2 className="h-3.5 w-3.5" /> Delete

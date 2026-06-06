@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import useSWR from 'swr';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, useToast } from '@/components/sabcrm/20ui/compat';
 import { createCustomObject, deleteCustomObject, getCustomObjects } from '@/app/actions/platform/custom-object-builder.actions';
 import type { CustomObjectDefinition } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Database } from 'lucide-react';
@@ -12,7 +12,7 @@ export function CustomObjectClient({ initialData }: { initialData: CustomObjectD
   const [dialogOpen, setDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { data: objects = initialData, mutate } = useSWR<CustomObjectDefinition[]>('custom-objects', getCustomObjects, {
     fallbackData: initialData,
   });
@@ -91,10 +91,10 @@ export function CustomObjectClient({ initialData }: { initialData: CustomObjectD
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New Custom Object</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Custom Object</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
@@ -115,13 +115,13 @@ export function CustomObjectClient({ initialData }: { initialData: CustomObjectD
               <Input value={form.fields} onChange={e => setForm({ ...form, fields: e.target.value })} placeholder="Address, Price, Status" disabled={isPending} />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={isPending}>Cancel</Button>
             <Button onClick={handleCreate} disabled={isPending}>
               {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} Create
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

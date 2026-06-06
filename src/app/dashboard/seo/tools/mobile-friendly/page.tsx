@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 
 import { Check, X, Info } from 'lucide-react';
@@ -170,13 +170,13 @@ export default function MobileFriendlyPage() {
 
       {error && (
         <Card className="border-[var(--st-border)]">
-          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent>
+          <CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody>
         </Card>
       )}
 
       {method === 'pagespeed' && score !== null && (
         <Card>
-          <ZoruCardContent className="p-4 flex items-center gap-4">
+          <CardBody className="p-4 flex items-center gap-4">
             <div
               className={`text-4xl font-bold ${
                 score >= 90 ? 'text-[var(--st-text)]' : score >= 50 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'
@@ -188,7 +188,7 @@ export default function MobileFriendlyPage() {
               <div className="font-semibold text-lg">Mobile SEO Score</div>
               <div className="text-sm text-[var(--st-text-secondary)]">Powered by Google PageSpeed Insights</div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
@@ -201,7 +201,7 @@ export default function MobileFriendlyPage() {
 
       {checks.length > 0 && (
         <Card>
-          <ZoruCardContent className="p-4 space-y-2">
+          <CardBody className="p-4 space-y-2">
             <div className="text-sm font-semibold">
               Passed: {passed} / {checks.length}
             </div>
@@ -218,7 +218,7 @@ export default function MobileFriendlyPage() {
                 {c.details && <span className="text-xs text-[var(--st-text-secondary)]">{c.details}</span>}
               </div>
             ))}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

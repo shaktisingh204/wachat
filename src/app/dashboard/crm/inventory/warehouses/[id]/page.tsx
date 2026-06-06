@@ -1,4 +1,4 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Table, THead, TBody, Tr, Th, Td, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { Suspense } from 'react';
 import {
   notFound } from 'next/navigation';
@@ -131,10 +131,10 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
             rightRail={
                 <>
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Related</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="space-y-2 text-[13px]">
+                        <CardHeader>
+                            <CardTitle>Related</CardTitle>
+                        </CardHeader>
+                        <CardBody className="space-y-2 text-[13px]">
                             <Link
                                 href={`/dashboard/crm/inventory/adjustments?warehouseId=${id}`}
                                 className="block rounded-md border border-[var(--st-border)] p-2.5 hover:bg-[var(--st-bg-muted)]"
@@ -153,17 +153,17 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                             >
                                 Items with stock here
                             </Link>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </>
             }
             audit={<EntityAuditTimeline entityKind="warehouse" entityId={id} />}
         >
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Basic</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Basic</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                         <div>
                             <dt className="text-xs text-[var(--st-text)]">Code</dt>
@@ -197,14 +197,14 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                             </div>
                         ) : null}
                     </dl>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Address</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Address</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                         <div className="sm:col-span-2">
                             <dt className="text-xs text-[var(--st-text)]">Address</dt>
@@ -237,14 +237,14 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                     </dl>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Contact</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Contact</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                         <div>
                             <dt className="text-xs text-[var(--st-text)]">Manager</dt>
@@ -259,14 +259,14 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                     </dl>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Capacity</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Capacity</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                         <div>
                             <dt className="text-xs text-[var(--st-text)]">Units</dt>
@@ -302,13 +302,13 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                     </dl>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Suspense fallback={
                 <Card>
-                    <ZoruCardHeader><ZoruCardTitle>Inventory summary</ZoruCardTitle></ZoruCardHeader>
-                    <ZoruCardContent><Skeleton className="h-16 w-full" /></ZoruCardContent>
+                    <CardHeader><CardTitle>Inventory summary</CardTitle></CardHeader>
+                    <CardBody><Skeleton className="h-16 w-full" /></CardBody>
                 </Card>
             }>
                 <InventorySummaryCard id={id} />
@@ -316,8 +316,8 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
 
             <Suspense fallback={
                 <Card>
-                    <ZoruCardHeader><ZoruCardTitle>Stock by item</ZoruCardTitle></ZoruCardHeader>
-                    <ZoruCardContent><Skeleton className="h-[300px] w-full" /></ZoruCardContent>
+                    <CardHeader><CardTitle>Stock by item</CardTitle></CardHeader>
+                    <CardBody><Skeleton className="h-[300px] w-full" /></CardBody>
                 </Card>
             }>
                 <StockByItemCard id={id} />
@@ -330,10 +330,10 @@ async function InventorySummaryCard({ id }: { id: string }) {
     const summary = await getCrmWarehouseInventorySummary(id);
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle>Inventory summary</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+                <CardTitle>Inventory summary</CardTitle>
+            </CardHeader>
+            <CardBody>
                 <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                     <div>
                         <dt className="text-xs text-[var(--st-text)]">Items</dt>
@@ -358,7 +358,7 @@ async function InventorySummaryCard({ id }: { id: string }) {
                         </dd>
                     </div>
                 </dl>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -367,12 +367,12 @@ async function StockByItemCard({ id }: { id: string }) {
     const stockRows = await getCrmWarehouseStockByItem(id, 50);
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle>
+            <CardHeader>
+                <CardTitle>
                     Stock by item ({stockRows.length})
-                </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="p-0">
+                </CardTitle>
+            </CardHeader>
+            <CardBody className="p-0">
                 {stockRows.length === 0 ? (
                     <p className="p-4 text-sm text-[var(--st-text)]">
                         No items stocked in this warehouse yet.
@@ -380,51 +380,51 @@ async function StockByItemCard({ id }: { id: string }) {
                 ) : (
                     <div className="overflow-x-auto">
                         <Table className="w-full text-[12.5px]">
-                            <TableHeader className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                                <TableRow>
-                                    <TableHead className="px-3 py-2 text-left font-medium">
+                            <THead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+                                <Tr>
+                                    <Th className="px-3 py-2 text-left font-medium">
                                         Item
-                                    </TableHead>
-                                    <TableHead className="px-3 py-2 text-left font-medium">
+                                    </Th>
+                                    <Th className="px-3 py-2 text-left font-medium">
                                         SKU
-                                    </TableHead>
-                                    <TableHead className="px-3 py-2 text-right font-medium">
+                                    </Th>
+                                    <Th className="px-3 py-2 text-right font-medium">
                                         Stock
-                                    </TableHead>
-                                    <TableHead className="px-3 py-2 text-right font-medium">
+                                    </Th>
+                                    <Th className="px-3 py-2 text-right font-medium">
                                         Reorder pt
-                                    </TableHead>
-                                    <TableHead className="px-3 py-2 text-right font-medium">
+                                    </Th>
+                                    <Th className="px-3 py-2 text-right font-medium">
                                         Cost / unit
-                                    </TableHead>
-                                    <TableHead className="px-3 py-2 text-right font-medium">
+                                    </Th>
+                                    <Th className="px-3 py-2 text-right font-medium">
                                         Value
-                                    </TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {stockRows.map((r) => {
                                     const low =
                                         typeof r.reorderPoint === 'number' &&
                                         r.reorderPoint > 0 &&
                                         r.stock <= r.reorderPoint;
                                     return (
-                                        <TableRow
+                                        <Tr
                                             key={r.productId}
                                             className="border-t border-[var(--st-border)]"
                                         >
-                                            <TableCell className="px-3 py-2">
+                                            <Td className="px-3 py-2">
                                                 <Link
                                                     href={`/dashboard/crm/inventory/items/${r.productId}`}
                                                     className="text-[var(--st-text)] hover:underline"
                                                 >
                                                     {r.name}
                                                 </Link>
-                                            </TableCell>
-                                            <TableCell className="px-3 py-2 font-mono text-[var(--st-text-secondary)]">
+                                            </Td>
+                                            <Td className="px-3 py-2 font-mono text-[var(--st-text-secondary)]">
                                                 {r.sku || '—'}
-                                            </TableCell>
-                                            <TableCell
+                                            </Td>
+                                            <Td
                                                 className={[
                                                     'px-3 py-2 text-right font-mono',
                                                     r.stock <= 0
@@ -436,14 +436,14 @@ async function StockByItemCard({ id }: { id: string }) {
                                                 suppressHydrationWarning
                                             >
                                                 {r.stock.toLocaleString()}
-                                            </TableCell>
-                                            <TableCell className="px-3 py-2 text-right font-mono text-[var(--st-text-secondary)]" suppressHydrationWarning>
+                                            </Td>
+                                            <Td className="px-3 py-2 text-right font-mono text-[var(--st-text-secondary)]" suppressHydrationWarning>
                                                 {typeof r.reorderPoint ===
                                                 'number'
                                                     ? r.reorderPoint
                                                     : '—'}
-                                            </TableCell>
-                                            <TableCell className="px-3 py-2 text-right font-mono text-[var(--st-text-secondary)]" suppressHydrationWarning>
+                                            </Td>
+                                            <Td className="px-3 py-2 text-right font-mono text-[var(--st-text-secondary)]" suppressHydrationWarning>
                                                 {r.costPrice
                                                     ? r.costPrice.toLocaleString(
                                                           'en-IN',
@@ -452,8 +452,8 @@ async function StockByItemCard({ id }: { id: string }) {
                                                           },
                                                       )
                                                     : '—'}
-                                            </TableCell>
-                                            <TableCell className="px-3 py-2 text-right font-mono" suppressHydrationWarning>
+                                            </Td>
+                                            <Td className="px-3 py-2 text-right font-mono" suppressHydrationWarning>
                                                 {r.value.toLocaleString(
                                                     'en-IN',
                                                     {
@@ -462,15 +462,15 @@ async function StockByItemCard({ id }: { id: string }) {
                                                         maximumFractionDigits: 0,
                                                     },
                                                 )}
-                                            </TableCell>
-                                        </TableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     </div>
                 )}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

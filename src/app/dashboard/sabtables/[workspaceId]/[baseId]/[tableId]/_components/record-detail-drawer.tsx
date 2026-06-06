@@ -8,16 +8,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 
-import {
-  Button,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Input,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Sheet, SheetContent, SheetHeader, SheetTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   createSabtablesComment,
@@ -77,10 +68,10 @@ export function RecordDetailDrawer({
 
   return (
     <Sheet open={open} onOpenChange={(o) => (!o ? onClose() : null)}>
-      <ZoruSheetContent side="right" className="w-[480px] sm:w-[560px] overflow-y-auto">
-        <ZoruSheetHeader>
-          <ZoruSheetTitle>Record details</ZoruSheetTitle>
-        </ZoruSheetHeader>
+      <SheetContent side="right" className="w-[480px] sm:w-[560px] overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>Record details</SheetTitle>
+        </SheetHeader>
 
         <div className="space-y-4 py-4">
           {table.fields.map((f) => (
@@ -119,7 +110,7 @@ export function RecordDetailDrawer({
             Comment
           </Button>
         </div>
-      </ZoruSheetContent>
+      </SheetContent>
     </Sheet>
   );
 }

@@ -4,34 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    Dialog,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogFooter,
-    Input,
-    Label,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    ZoruPageActions,
-    Progress,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    EmptyState,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, Progress, Table, TBody, Td, Th, THead, Tr, EmptyState, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
     deleteFormAnalytics,
@@ -49,7 +22,7 @@ interface Props {
 
 export function FormsClient({ site, forms }: Props) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isOpen, setIsOpen] = useState(false);
     const [selector, setSelector] = useState('');
     const [pending, startTransition] = useTransition();
@@ -94,15 +67,15 @@ export function FormsClient({ site, forms }: Props) {
     return (
         <div className="zoruui p-8 space-y-6">
             <PageHeader>
-                <ZoruPageTitle>{site.name} — Form analytics</ZoruPageTitle>
-                <ZoruPageDescription>
+                <PageTitle>{site.name} — Form analytics</PageTitle>
+                <PageDescription>
                     Per-form completion rate and per-field dropoff.
-                </ZoruPageDescription>
-                <ZoruPageActions>
+                </PageDescription>
+                <PageActions>
                     <Button onClick={() => setIsOpen(true)}>
                         <Plus className="mr-2 h-4 w-4" /> Track a form
                     </Button>
-                </ZoruPageActions>
+                </PageActions>
             </PageHeader>
 
             <PagesenseSiteNav siteId={site._id} />
@@ -121,14 +94,14 @@ export function FormsClient({ site, forms }: Props) {
                 <div className="space-y-4">
                     {forms.map((f) => (
                         <Card key={f._id}>
-                            <ZoruCardHeader>
+                            <CardHeader>
                                 <div className="flex items-start justify-between">
                                     <div>
-                                        <ZoruCardTitle>{f.formSelector}</ZoruCardTitle>
-                                        <ZoruCardDescription>
+                                        <CardTitle>{f.formSelector}</CardTitle>
+                                        <CardDescription>
                                             Completion rate:{' '}
                                             {Math.round((f.completionRate || 0) * 100)}%
-                                        </ZoruCardDescription>
+                                        </CardDescription>
                                     </div>
                                     <Button
                                         size="sm"
@@ -138,8 +111,8 @@ export function FormsClient({ site, forms }: Props) {
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </div>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            </CardHeader>
+                            <CardBody>
                                 <Progress value={Math.round((f.completionRate || 0) * 100)} />
                                 <div className="mt-4">
                                     {f.perFieldDropoff.length === 0 ? (
@@ -149,36 +122,36 @@ export function FormsClient({ site, forms }: Props) {
                                         </p>
                                     ) : (
                                         <Table>
-                                            <ZoruTableHeader>
-                                                <ZoruTableRow>
-                                                    <ZoruTableHead>Field</ZoruTableHead>
-                                                    <ZoruTableHead>Dropoff count</ZoruTableHead>
-                                                </ZoruTableRow>
-                                            </ZoruTableHeader>
-                                            <ZoruTableBody>
+                                            <THead>
+                                                <Tr>
+                                                    <Th>Field</Th>
+                                                    <Th>Dropoff count</Th>
+                                                </Tr>
+                                            </THead>
+                                            <TBody>
                                                 {f.perFieldDropoff.map((fd) => (
-                                                    <ZoruTableRow key={fd.field}>
-                                                        <ZoruTableCell>{fd.field}</ZoruTableCell>
-                                                        <ZoruTableCell>
+                                                    <Tr key={fd.field}>
+                                                        <Td>{fd.field}</Td>
+                                                        <Td>
                                                             {fd.dropoffCount}
-                                                        </ZoruTableCell>
-                                                    </ZoruTableRow>
+                                                        </Td>
+                                                    </Tr>
                                                 ))}
-                                            </ZoruTableBody>
+                                            </TBody>
                                         </Table>
                                     )}
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     ))}
                 </div>
             )}
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Track a form</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Track a form</DialogTitle>
+                    </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="space-y-2">
                             <Label htmlFor="f-selector">CSS selector</Label>
@@ -190,15 +163,15 @@ export function FormsClient({ site, forms }: Props) {
                             />
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="ghost" onClick={() => setIsOpen(false)}>
                             Cancel
                         </Button>
                         <Button onClick={handleCreate} disabled={pending}>
                             Save
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

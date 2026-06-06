@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { ZoruButton, ZoruCard, ZoruBreadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function ApiDocsError({
@@ -17,19 +17,19 @@ export default function ApiDocsError({
 
   return (
     <div className="flex min-h-full flex-col gap-6">
-      <ZoruBreadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>API Documentation</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </ZoruBreadcrumb>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/api">Developer platform</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>API Documentation</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
-      <ZoruCard className="mt-5 p-10 flex flex-col items-center justify-center text-center">
+      <Card className="mt-5 p-10 flex flex-col items-center justify-center text-center">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20 mb-4">
           <AlertCircle className="h-6 w-6 text-[var(--st-text)] dark:text-[var(--st-text)]" strokeWidth={2} />
         </div>
@@ -42,11 +42,11 @@ export default function ApiDocsError({
             </span>
           )}
         </p>
-        <ZoruButton onClick={() => reset()}>
+        <Button onClick={() => reset()}>
           <RefreshCw className="mr-2 h-4 w-4" />
           Try again
-        </ZoruButton>
-      </ZoruCard>
+        </Button>
+      </Card>
     </div>
   );
 }

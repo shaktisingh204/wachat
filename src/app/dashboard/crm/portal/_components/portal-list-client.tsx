@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   ListChecks,
   Search,
@@ -35,7 +18,7 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { bulkRevokePortalUsers } from '@/app/actions/crm-portal.actions';
 import { useRouter } from 'next/navigation';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   PortalKpiStrip,
@@ -70,7 +53,7 @@ export function PortalListClient({ users }: PortalListClientProps) {
   const [kpiKey, setKpiKey] = React.useState<PortalKpiKey>('all');
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isRevoking, setIsRevoking] = React.useState(false);
 
   const runBulkRevoke = async () => {
@@ -223,46 +206,46 @@ export function PortalListClient({ users }: PortalListClientProps) {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-            <ZoruSelectValue placeholder="Status" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
             {statusOptions.map((s) => (
-              <ZoruSelectItem key={s} value={s}>
+              <SelectItem key={s} value={s}>
                 {s}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-            <ZoruSelectValue placeholder="Portal type" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All types</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[140px] text-[13px]">
+            <SelectValue placeholder="Portal type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All types</SelectItem>
             {typeOptions.map((t) => (
-              <ZoruSelectItem key={t} value={t}>
+              <SelectItem key={t} value={t}>
                 {t}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select
           value={capabilityFilter}
           onValueChange={setCapabilityFilter}
         >
-          <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-            <ZoruSelectValue placeholder="Capability" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All capabilities</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[160px] text-[13px]">
+            <SelectValue placeholder="Capability" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All capabilities</SelectItem>
             {capabilityOptions.map((c) => (
-              <ZoruSelectItem key={c} value={c}>
+              <SelectItem key={c} value={c}>
                 {c}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         {hasActiveFilters ? (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -299,93 +282,93 @@ export function PortalListClient({ users }: PortalListClientProps) {
       <Card className="p-0">
         <div className="overflow-x-auto">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-8">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-8">
                   <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Name</ZoruTableHead>
-                <ZoruTableHead>Email</ZoruTableHead>
-                <ZoruTableHead>Type</ZoruTableHead>
-                <ZoruTableHead>Capabilities</ZoruTableHead>
-                <ZoruTableHead>Linked entity</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Last Active</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Name</Th>
+                <Th>Email</Th>
+                <Th>Type</Th>
+                <Th>Capabilities</Th>
+                <Th>Linked entity</Th>
+                <Th>Status</Th>
+                <Th>Last Active</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={9}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {users.length === 0
                       ? 'No portal users yet. Invite customers, vendors or employees to your self-service portal.'
                       : 'No users match these filters.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((u) => {
                   const caps = u.capabilities ?? [];
                   return (
-                    <ZoruTableRow key={u._id}>
-                      <ZoruTableCell>
+                    <Tr key={u._id}>
+                      <Td>
                         <Checkbox
                           checked={selected.has(u._id)}
                           onCheckedChange={() => toggleOne(u._id)}
                           aria-label="Select"
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <EntityRowLink
                           href={`/dashboard/crm/portal/${u._id}`}
                           label={u.name || 'Unnamed user'}
                           subtitle={u.email || undefined}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell>{u.email || '—'}</ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>{u.email || '—'}</Td>
+                      <Td>
                         {u.portalType ? (
                           <Badge variant="outline">{u.portalType}</Badge>
                         ) : (
                           <span className="text-[var(--st-text-secondary)]">—</span>
                         )}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {caps.length > 0 ? caps.join(', ') : '—'}
                         </span>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         {u.linkedEntityLabel || u.linkedEntityId || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <StatusPill
                           label={u.status || 'pending'}
                           tone={statusToTone(u.status)}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {fmtDateTime(u.lastLoginAt)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <Button size="sm" variant="ghost" asChild>
                           <Link href={`/dashboard/crm/portal/${u._id}/edit`}>
                             Edit
                           </Link>
                         </Button>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

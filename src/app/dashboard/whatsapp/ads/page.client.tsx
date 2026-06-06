@@ -1,37 +1,7 @@
 'use client';
 
 import { fmtINR } from "@/lib/utils";
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  cn,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, cn, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import {
   ArrowUpRight,
@@ -335,16 +305,16 @@ export default function WhatsAppAdsPage(): React.ReactElement {
 
   const breadcrumbs = (
     <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
 
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbPage>WhatsApp Ads</ZoruBreadcrumbPage>
-        </ZoruBreadcrumbItem>
-      </ZoruBreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbPage>WhatsApp Ads</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
     </Breadcrumb>
   );
 
@@ -408,13 +378,13 @@ export default function WhatsAppAdsPage(): React.ReactElement {
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>WhatsApp Ads</ZoruPageTitle>
-            <ZoruPageDescription>
+          <PageHeading>
+            <PageTitle>WhatsApp Ads</PageTitle>
+            <PageDescription>
               Click-to-WhatsApp campaigns across Facebook & Instagram
               {activeProject?.name ? ` · ${activeProject.name}` : ''}
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -422,17 +392,17 @@ export default function WhatsAppAdsPage(): React.ReactElement {
             value={selectedAccountId ?? undefined}
             onValueChange={(v) => setSelectedAccountId(v)}
           >
-            <ZoruSelectTrigger className="w-[240px]">
-              <ZoruSelectValue placeholder="Pick an ad account" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="w-[240px]">
+              <SelectValue placeholder="Pick an ad account" />
+            </SelectTrigger>
+            <SelectContent>
               {accounts.map((a) => (
-                <ZoruSelectItem key={a.id} value={a.id}>
+                <SelectItem key={a.id} value={a.id}>
                   {a.name || `Ad Account ${a.account_id ?? a.id}`}
                   {a.currency ? ` · ${a.currency}` : ''}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <Button variant="outline" size="sm" onClick={loadData} disabled={dataLoading}>
             <RefreshCw className={cn('h-3.5 w-3.5', dataLoading && 'animate-spin')} />
@@ -497,40 +467,40 @@ export default function WhatsAppAdsPage(): React.ReactElement {
             </p>
           </div>
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 More
                 <ChevronDown className="h-3 w-3 opacity-60" />
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuLabel>Manage</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Manage</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
                 onSelect={() => router.push('/dashboard/ad-manager/campaigns')}
               >
                 All campaigns
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem
+              </DropdownMenuItem>
+              <DropdownMenuItem
                 onSelect={() => router.push('/dashboard/ad-manager/insights')}
               >
                 Open Insights
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem
+              </DropdownMenuItem>
+              <DropdownMenuItem
                 onSelect={() => router.push('/dashboard/ad-manager/audiences')}
               >
                 Audiences
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem
+              </DropdownMenuItem>
+              <DropdownMenuItem
                 onSelect={() => router.push('/dashboard/ad-manager/creative-library')}
               >
                 Creative library
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem onSelect={() => router.push('/wachat/whatsapp-ads/roadmap')}>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => router.push('/wachat/whatsapp-ads/roadmap')}>
                 Roadmap
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         </div>
 

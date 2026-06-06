@@ -7,20 +7,7 @@
 
 import * as React from 'react';
 import { Plus } from 'lucide-react';
-import {
-  Button,
-  Input,
-  Label,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetTrigger,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { createPermissionGroup } from '@/app/actions/hrm-permission-groups.actions';
 import { GroupForm } from './group-form';
 import type { ModulePermission } from '@/app/actions/hrm-permission-groups.actions.types';
@@ -30,7 +17,7 @@ interface NewGroupSheetProps {
 }
 
 export function NewGroupSheet({ onCreated }: NewGroupSheetProps): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [name, setName] = React.useState('');
   const [description, setDescription] = React.useState('');
@@ -80,24 +67,24 @@ export function NewGroupSheet({ onCreated }: NewGroupSheetProps): React.JSX.Elem
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <ZoruSheetTrigger asChild>
+      <SheetTrigger asChild>
         <Button>
           <Plus className="h-4 w-4" />
           New Group
         </Button>
-      </ZoruSheetTrigger>
+      </SheetTrigger>
 
-      <ZoruSheetContent
+      <SheetContent
         side="right"
         className="flex w-full flex-col sm:max-w-2xl"
       >
-        <ZoruSheetHeader>
-          <ZoruSheetTitle>New Permission Group</ZoruSheetTitle>
-          <ZoruSheetDescription>
+        <SheetHeader>
+          <SheetTitle>New Permission Group</SheetTitle>
+          <SheetDescription>
             Define a named set of module permissions. Assign this group to
             employees from the &ldquo;Manage Assignments&rdquo; panel.
-          </ZoruSheetDescription>
-        </ZoruSheetHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto py-4">
           {/* Name */}
@@ -111,7 +98,7 @@ export function NewGroupSheet({ onCreated }: NewGroupSheetProps): React.JSX.Elem
           />
         </div>
 
-        <ZoruSheetFooter className="gap-2 pt-4">
+        <SheetFooter className="gap-2 pt-4">
           <Button
             variant="ghost"
             onClick={() => handleOpenChange(false)}
@@ -122,8 +109,8 @@ export function NewGroupSheet({ onCreated }: NewGroupSheetProps): React.JSX.Elem
           <Button onClick={handleSave} disabled={saving || !name.trim()}>
             {saving ? 'Creating…' : 'Create Group'}
           </Button>
-        </ZoruSheetFooter>
-      </ZoruSheetContent>
+        </SheetFooter>
+      </SheetContent>
     </Sheet>
   );
 }

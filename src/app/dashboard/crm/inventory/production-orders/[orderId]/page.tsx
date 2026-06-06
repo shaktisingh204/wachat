@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Progress, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Progress, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
@@ -88,10 +88,10 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
       rightRail={
         <div className="flex flex-col gap-4">
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>BOM reference</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="text-[13px]">
+            <CardHeader>
+              <CardTitle>BOM reference</CardTitle>
+            </CardHeader>
+            <CardBody className="text-[13px]">
               {order.bomRef || order.bomId ? (
                 <>
                   <div className="font-mono text-[var(--st-text)]">
@@ -109,14 +109,14 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
               ) : (
                 <span className="text-[var(--st-text-secondary)]">No BOM linked.</span>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Cost rollup</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Cost rollup</CardTitle>
+            </CardHeader>
+            <CardBody>
               <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-[12.5px]">
                 <dt className="text-[var(--st-text-secondary)]">Material</dt>
                 <dd className="text-right font-mono text-[var(--st-text)]">
@@ -131,7 +131,7 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
                   {fmtINR(total)}
                 </dd>
               </dl>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       }
@@ -142,10 +142,10 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
       }
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Order header</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Order header</CardTitle>
+        </CardHeader>
+        <CardBody>
           <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-xs text-[var(--st-text)]">PO #</dt>
@@ -214,14 +214,14 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
               </div>
             ) : null}
           </dl>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Yield & scrap</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex flex-col gap-4">
+        <CardHeader>
+          <CardTitle>Yield & scrap</CardTitle>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
           <div>
             <div className="mb-1 flex items-center justify-between text-[12.5px]">
               <span className="text-[var(--st-text-secondary)]">Yield</span>
@@ -240,14 +240,14 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
             </div>
             <Progress value={scrapPct} />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Component consumption ({components.length})</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Component consumption ({components.length})</CardTitle>
+        </CardHeader>
+        <CardBody>
           {components.length === 0 ? (
             <p className="text-sm text-[var(--st-text)]">
               No component snapshot for this order — pick a BOM during creation to
@@ -256,33 +256,33 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
           ) : (
             <div className="overflow-x-auto rounded border border-[var(--st-border)] dark:border-[var(--st-border)]">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Item</TableHead>
-                    <TableHead className="text-right">Planned</TableHead>
-                    <TableHead>Unit</TableHead>
-                    <TableHead className="text-right">Cost / unit</TableHead>
-                    <TableHead className="text-right">Subtotal</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead>
+                  <Tr>
+                    <Th>Item</Th>
+                    <Th className="text-right">Planned</Th>
+                    <Th>Unit</Th>
+                    <Th className="text-right">Cost / unit</Th>
+                    <Th className="text-right">Subtotal</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {components.map((c: any, idx: number) => {
                     const sub = (c.qty || 0) * (c.costPerUnit ?? 0);
                     return (
-                      <TableRow key={`${c.itemName}-${idx}`}>
-                        <TableCell>{c.itemName || '—'}</TableCell>
-                        <TableCell className="text-right">{c.qty}</TableCell>
-                        <TableCell>{c.unit || '—'}</TableCell>
-                        <TableCell className="text-right">{fmtINR(c.costPerUnit)}</TableCell>
-                        <TableCell className="text-right">{fmtINR(sub)}</TableCell>
-                      </TableRow>
+                      <Tr key={`${c.itemName}-${idx}`}>
+                        <Td>{c.itemName || '—'}</Td>
+                        <Td className="text-right">{c.qty}</Td>
+                        <Td>{c.unit || '—'}</Td>
+                        <Td className="text-right">{fmtINR(c.costPerUnit)}</Td>
+                        <Td className="text-right">{fmtINR(sub)}</Td>
+                      </Tr>
                     );
                   })}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </EntityDetailShell>
   );

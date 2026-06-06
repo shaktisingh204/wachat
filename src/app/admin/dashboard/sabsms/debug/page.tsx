@@ -1,17 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import { getAdminSession } from '@/lib/admin-session';
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 import { SabsmsDebugSendForm } from './debug-form';
 import { sabsmsEngine } from '@/lib/sabsms/engine-client';
 
@@ -36,25 +26,25 @@ export default async function SabsmsAdminDebugPage() {
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>SabSMS · Debug send</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>SabSMS · Debug send</PageTitle>
+          <PageDescription>
             Push a real SMS through the Rust engine to verify the pipeline.
             Uses the Twilio credentials configured on the engine
             (<code className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 text-xs">SABSMS_TWILIO_*</code>).
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>One-off send</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>One-off send</CardTitle>
+          <CardDescription>
             Polls the engine for delivery status until the message reaches a
             terminal state.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           {!engineHealthy && (
             <div className="mb-4 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
               <strong className="font-semibold">Engine Unavailable: </strong>
@@ -62,7 +52,7 @@ export default async function SabsmsAdminDebugPage() {
             </div>
           )}
           <SabsmsDebugSendForm engineHealthy={engineHealthy} />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

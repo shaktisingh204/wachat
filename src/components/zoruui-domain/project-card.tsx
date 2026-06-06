@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  Button,
-  Badge,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, Button, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import React,
@@ -115,7 +105,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                 isWhatsAppProject ? "from-[var(--st-text)] to-[var(--st-text)]" : "from-[var(--st-text)] to-[var(--st-text)]"
             )} />
 
-            <ZoruCardHeader className="pb-2 pt-5">
+            <CardHeader className="pb-2 pt-5">
                 <div className="flex justify-between items-start gap-2">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -154,13 +144,13 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
 
                         {/* Actions Menu */}
                         <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
                                     <MoreVertical className="h-4 w-4" />
                                     <span className="sr-only">Open menu</span>
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
                                 {/* We wrap the delete button logic here or just render the component slightly differently if it accepts custom trigger */}
                                 {/* For now, keeping the DeleteProjectButton but we might need to adjust it to fit in a menu item, 
                                     OR we just put the delete button triggering logic here. 
@@ -178,16 +168,16 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                                     Wait, DeleteProjectButton encapsulates the Dialog logic.
                                     Let's just position the DeleteProjectButton nicely.
                                 */}
-                            </ZoruDropdownMenuContent>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                         <div className="flex items-center">
                             <DeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
                         </div>
                     </div>
                 </div>
-            </ZoruCardHeader>
+            </CardHeader>
 
-            <ZoruCardContent className="space-y-4 pb-4">
+            <CardBody className="space-y-4 pb-4">
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="flex flex-col gap-1 p-2 rounded-md bg-[var(--st-bg-muted)]/40 group-hover:bg-[var(--st-bg-muted)]/60 transition-colors">
@@ -242,7 +232,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                         </>
                     )}
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 });

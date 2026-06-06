@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useTransition } from 'react';
 import { Languages,
@@ -42,7 +42,7 @@ function SetDefaultButton({
     onAfter: () => void;
 }) {
     const [pending, start] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     if (isDefault) {
         return <Badge variant="success">Default</Badge>;
     }

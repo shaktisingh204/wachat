@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useTransition } from 'react';
@@ -63,44 +48,44 @@ export function AdminAssignUserPlanDialog({ userId, userName, currentPlanId, all
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Edit className="mr-2 h-4 w-4" />
           Plan
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Assign Plan to {userName}</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Assign Plan to {userName}</DialogTitle>
+            <DialogDescription>
               Select a new subscription plan for this user.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="py-6">
             <Label htmlFor="plan-select">Subscription Plan</Label>
             <Select name="planId" value={selectedPlan} onValueChange={setSelectedPlan}>
-              <ZoruSelectTrigger id="plan-select">
-                <ZoruSelectValue placeholder="Select a plan..." />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="plan-select">
+                <SelectValue placeholder="Select a plan..." />
+              </SelectTrigger>
+              <SelectContent>
                 {allPlans.map((plan) => (
-                  <ZoruSelectItem key={plan._id.toString()} value={plan._id.toString()}>
+                  <SelectItem key={plan._id.toString()} value={plan._id.toString()}>
                     {plan.name} ({plan.price} {plan.currency}/month)
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
              <Button type="submit" disabled={isPending}>
               {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Assign Plan
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

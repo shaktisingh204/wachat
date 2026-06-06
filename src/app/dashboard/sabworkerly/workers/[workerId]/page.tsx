@@ -1,21 +1,7 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardContent,
-    PageHeader,
-    ZoruPageTitle,
-    Badge,
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardContent, PageHeader, PageTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
 import {
     getSabworkerlyWorkerById,
     getSabworkerlyPlacements,
@@ -52,7 +38,7 @@ export default async function WorkerDetailPage({
     return (
         <div className="zoruui flex flex-col gap-5">
             <PageHeader>
-                <ZoruPageTitle>{worker.name}</ZoruPageTitle>
+                <PageTitle>{worker.name}</PageTitle>
             </PageHeader>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -132,32 +118,32 @@ export default async function WorkerDetailPage({
                         </p>
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Job</TableHead>
-                                    <TableHead>Start</TableHead>
-                                    <TableHead>End</TableHead>
-                                    <TableHead>Charge rate</TableHead>
-                                    <TableHead>Pay rate</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Job</Th>
+                                    <Th>Start</Th>
+                                    <Th>End</Th>
+                                    <Th>Charge rate</Th>
+                                    <Th>Pay rate</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {placements.map((p) => (
-                                    <TableRow key={p._id}>
-                                        <TableCell className="font-mono text-xs">{p.jobId}</TableCell>
-                                        <TableCell>{new Date(p.startDate).toLocaleDateString()}</TableCell>
-                                        <TableCell>
+                                    <Tr key={p._id}>
+                                        <Td className="font-mono text-xs">{p.jobId}</Td>
+                                        <Td>{new Date(p.startDate).toLocaleDateString()}</Td>
+                                        <Td>
                                             {p.endDate ? new Date(p.endDate).toLocaleDateString() : '—'}
-                                        </TableCell>
-                                        <TableCell>{money(p.hourlyChargeRateMinor)}</TableCell>
-                                        <TableCell>{money(p.hourlyPayRateMinor)}</TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>{money(p.hourlyChargeRateMinor)}</Td>
+                                        <Td>{money(p.hourlyPayRateMinor)}</Td>
+                                        <Td>
                                             <Badge variant="secondary">{p.status}</Badge>
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>

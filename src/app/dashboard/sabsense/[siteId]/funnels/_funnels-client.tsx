@@ -4,34 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, Play } from 'lucide-react';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    Dialog,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogFooter,
-    Input,
-    Label,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    ZoruPageActions,
-    Progress,
-    Badge,
-    EmptyState,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, Progress, Badge, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
     createFunnel,
@@ -52,7 +25,7 @@ interface Props {
 
 export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isOpen, setIsOpen] = useState(false);
     const [name, setName] = useState('');
     const [steps, setSteps] = useState<FunnelStep[]>([
@@ -121,15 +94,15 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
     return (
         <div className="zoruui p-8 space-y-6">
             <PageHeader>
-                <ZoruPageTitle>{site.name} — Funnels</ZoruPageTitle>
-                <ZoruPageDescription>
+                <PageTitle>{site.name} — Funnels</PageTitle>
+                <PageDescription>
                     Define ordered steps and inspect dropoff across each transition.
-                </ZoruPageDescription>
-                <ZoruPageActions>
+                </PageDescription>
+                <PageActions>
                     <Button onClick={() => setIsOpen(true)}>
                         <Plus className="mr-2 h-4 w-4" /> New funnel
                     </Button>
-                </ZoruPageActions>
+                </PageActions>
             </PageHeader>
 
             <PagesenseSiteNav siteId={site._id} />
@@ -151,13 +124,13 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                         const latest = runs[0];
                         return (
                             <Card key={f._id}>
-                                <ZoruCardHeader>
+                                <CardHeader>
                                     <div className="flex items-start justify-between">
                                         <div>
-                                            <ZoruCardTitle>{f.name}</ZoruCardTitle>
-                                            <ZoruCardDescription>
+                                            <CardTitle>{f.name}</CardTitle>
+                                            <CardDescription>
                                                 {f.steps.length} step(s) · {runs.length} run(s)
-                                            </ZoruCardDescription>
+                                            </CardDescription>
                                         </div>
                                         <div className="flex gap-2">
                                             <Button
@@ -178,8 +151,8 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                                             </Button>
                                         </div>
                                     </div>
-                                </ZoruCardHeader>
-                                <ZoruCardContent>
+                                </CardHeader>
+                                <CardBody>
                                     <div className="space-y-3">
                                         {latest
                                             ? latest.steps.map((step, i) => {
@@ -225,7 +198,7 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                                             </p>
                                         )}
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         );
                     })}
@@ -233,10 +206,10 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
             )}
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>New funnel</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>New funnel</DialogTitle>
+                    </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="space-y-2">
                             <Label htmlFor="f-name">Name</Label>
@@ -262,13 +235,13 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                                             updateStep(i, { matchType: v as StepMatchType })
                                         }
                                     >
-                                        <ZoruSelectTrigger>
-                                            <ZoruSelectValue />
-                                        </ZoruSelectTrigger>
-                                        <ZoruSelectContent>
-                                            <ZoruSelectItem value="url">URL</ZoruSelectItem>
-                                            <ZoruSelectItem value="event">Event</ZoruSelectItem>
-                                        </ZoruSelectContent>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="url">URL</SelectItem>
+                                            <SelectItem value="event">Event</SelectItem>
+                                        </SelectContent>
                                     </Select>
                                     <Input
                                         placeholder="Pattern"
@@ -291,15 +264,15 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                             </Button>
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="ghost" onClick={() => setIsOpen(false)}>
                             Cancel
                         </Button>
                         <Button onClick={handleCreate} disabled={pending}>
                             Create
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

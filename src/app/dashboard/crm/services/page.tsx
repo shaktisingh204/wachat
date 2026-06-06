@@ -1,39 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -63,7 +30,7 @@ import {
  *   - Search + status filter + billable-by filter
  *   - Inline Dialog for create/edit
  *   - SabFiles picker for the service image (no free-text URLs)
- *   - ZoruAlertDialog soft-delete confirm
+ *   - AlertDialog soft-delete confirm
  *   - Per-tenant unique code guard enforced server-side
  */
 
@@ -138,7 +105,7 @@ function ServiceDialog({
 }) {
     const isEditing = !!initialData?._id;
     const [state, formAction] = useActionState(saveCrmService, initialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [status, setStatus] = React.useState<CrmServiceStatus>(
         (initialData?.status as CrmServiceStatus) || 'active',
     );
@@ -174,7 +141,7 @@ function ServiceDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-2xl">
+            <DialogContent className="sm:max-w-2xl">
                 <form action={formAction}>
                     {isEditing ? (
                         <input
@@ -186,11 +153,11 @@ function ServiceDialog({
                     <input type="hidden" name="status" value={status} />
                     <input type="hidden" name="billableBy" value={billableBy} />
 
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                    <DialogHeader>
+                        <DialogTitle>
                             {isEditing ? 'Edit' : 'Create new'} service
-                        </ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                        </DialogTitle>
+                    </DialogHeader>
 
                     <div className="space-y-4 py-4">
                         <div className="grid gap-3 sm:grid-cols-2">
@@ -249,20 +216,20 @@ function ServiceDialog({
                                         setBillableBy(v as CrmServiceBillableBy)
                                     }
                                 >
-                                    <ZoruSelectTrigger id="billableBy-trigger">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="hour">
+                                    <SelectTrigger id="billableBy-trigger">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="hour">
                                             Per hour
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="fixed">
+                                        </SelectItem>
+                                        <SelectItem value="fixed">
                                             Fixed price
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="project">
+                                        </SelectItem>
+                                        <SelectItem value="project">
                                             Per project
-                                        </ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                        </SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         </div>
@@ -332,17 +299,17 @@ function ServiceDialog({
                                         setStatus(v as CrmServiceStatus)
                                     }
                                 >
-                                    <ZoruSelectTrigger id="status-trigger">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="active">
+                                    <SelectTrigger id="status-trigger">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="active">
                                             Active
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="archived">
+                                        </SelectItem>
+                                        <SelectItem value="archived">
                                             Archived
-                                        </ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                        </SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         </div>
@@ -375,7 +342,7 @@ function ServiceDialog({
                         </div>
                     </div>
 
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button
                             type="button"
                             variant="ghost"
@@ -384,9 +351,9 @@ function ServiceDialog({
                             Cancel
                         </Button>
                         <SubmitButton isEditing={isEditing} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -402,7 +369,7 @@ const EMPTY_SERVICE_KPIS: CrmServiceKpis = {
 };
 
 export default function ServicesPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [rows, setRows] = React.useState<CrmServiceDoc[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
     const [kpis, setKpis] = React.useState<CrmServiceKpis>(EMPTY_SERVICE_KPIS);
@@ -646,16 +613,16 @@ export default function ServicesPage() {
                                     setStatusFilter(v as CrmServiceStatus | 'all')
                                 }
                             >
-                                <ZoruSelectTrigger className="h-9 w-[160px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger className="h-9 w-[160px]">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
+                                        <SelectItem key={o.value} value={o.value}>
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             <Select
                                 value={billableFilter}
@@ -665,16 +632,16 @@ export default function ServicesPage() {
                                     )
                                 }
                             >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Billing" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger className="h-9 w-[180px]">
+                                    <SelectValue placeholder="Billing" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {BILLABLE_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
+                                        <SelectItem key={o.value} value={o.value}>
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             <Select
                                 value={categoryFilter || 'all'}
@@ -682,19 +649,19 @@ export default function ServicesPage() {
                                     setCategoryFilter(v === 'all' ? '' : v)
                                 }
                             >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Category" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="all">
+                                <SelectTrigger className="h-9 w-[180px]">
+                                    <SelectValue placeholder="Category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">
                                         All categories
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                     {categoryOptions.map((c) => (
-                                        <ZoruSelectItem key={c} value={c}>
+                                        <SelectItem key={c} value={c}>
                                             {c}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                             {hasActiveFilters ? (
                                 <Button
@@ -812,9 +779,9 @@ export default function ServicesPage() {
 
                         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                        <ZoruTableHead className="w-10">
+                                <THead>
+                                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                        <Th className="w-10">
                                             <input
                                                 type="checkbox"
                                                 aria-label="Select all visible services"
@@ -828,39 +795,39 @@ export default function ServicesPage() {
                                                     toggleAll(e.target.checked)
                                                 }
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead>Name</ZoruTableHead>
-                                        <ZoruTableHead>Code</ZoruTableHead>
-                                        <ZoruTableHead>Category</ZoruTableHead>
-                                        <ZoruTableHead>Billing</ZoruTableHead>
-                                        <ZoruTableHead className="text-right">
+                                        </Th>
+                                        <Th>Name</Th>
+                                        <Th>Code</Th>
+                                        <Th>Category</Th>
+                                        <Th>Billing</Th>
+                                        <Th className="text-right">
                                             Default price
-                                        </ZoruTableHead>
-                                        <ZoruTableHead>Status</ZoruTableHead>
-                                        <ZoruTableHead className="text-right">
+                                        </Th>
+                                        <Th>Status</Th>
+                                        <Th className="text-right">
                                             Actions
-                                        </ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {isLoading ? (
-                                        <ZoruTableRow className="border-[var(--st-border)]">
-                                            <ZoruTableCell
+                                        <Tr className="border-[var(--st-border)]">
+                                            <Td
                                                 colSpan={8}
                                                 className="h-20 text-center"
                                             >
                                                 <LoaderCircle className="mx-auto h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ) : paged.length === 0 ? (
-                                        <ZoruTableRow className="border-[var(--st-border)]">
-                                            <ZoruTableCell
+                                        <Tr className="border-[var(--st-border)]">
+                                            <Td
                                                 colSpan={8}
                                                 className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                             >
                                                 No services match this filter.
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ) : (
                                         paged.map((r) => {
                                             const id = String(r._id);
@@ -871,11 +838,11 @@ export default function ServicesPage() {
                                             const billable = (r.billableBy ??
                                                 'hour') as CrmServiceBillableBy;
                                             return (
-                                                <ZoruTableRow
+                                                <Tr
                                                     key={id}
                                                     className="border-[var(--st-border)]"
                                                 >
-                                                    <ZoruTableCell>
+                                                    <Td>
                                                         <input
                                                             type="checkbox"
                                                             aria-label={`Select ${r.name}`}
@@ -886,8 +853,8 @@ export default function ServicesPage() {
                                                                 toggleOne(id)
                                                             }
                                                         />
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="font-medium text-[var(--st-text)]">
                                                         <div className="flex items-center gap-2">
                                                             {r.imageUrl ? (
                                                                 // eslint-disable-next-line @next/next/no-img-element
@@ -908,28 +875,28 @@ export default function ServicesPage() {
                                                             )}
                                                             <span>{r.name}</span>
                                                         </div>
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                                                    </Td>
+                                                    <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                                                         {r.code || '—'}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="text-[12.5px] text-[var(--st-text)]">
                                                         {r.category || '—'}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="text-[12.5px] text-[var(--st-text)]">
                                                         {BILLABLE_LABELS[billable]}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="text-right font-mono text-[var(--st-text)]">
                                                         {r.defaultPrice != null
                                                             ? fmtINR(r.defaultPrice, r.currency ?? 'INR')
                                                             : '—'}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell>
+                                                    </Td>
+                                                    <Td>
                                                         <StatusPill
                                                             label={status}
                                                             tone={tone}
                                                         />
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-right">
+                                                    </Td>
+                                                    <Td className="text-right">
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
@@ -950,42 +917,42 @@ export default function ServicesPage() {
                                                         >
                                                             <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                         </Button>
-                                                    </ZoruTableCell>
-                                                </ZoruTableRow>
+                                                    </Td>
+                                                </Tr>
                                             );
                                         })
                                     )}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Archive service?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Archive service?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Archiving &ldquo;{pendingDelete?.name}&rdquo; flips it to
                             archived. Existing line items keep the service name, but
                             you won&rsquo;t be able to add it to new quotes or
                             invoices.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deletePending}
                         >
                             {deletePending ? 'Archiving…' : 'Archive'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             <ConfirmDialog
                 open={bulkArchiveOpen}

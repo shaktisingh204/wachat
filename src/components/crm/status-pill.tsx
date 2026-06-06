@@ -1,4 +1,4 @@
-import { Badge, type ZoruBadgeProps } from '@/components/sabcrm/20ui/compat';
+import { Badge, type BadgeProps } from '@/components/sabcrm/20ui/compat';
 /**
  * <StatusPill /> — thin convenience wrapper over <Badge> for the
  * recurring `{ label, tone }` shape used across CRM / HRM tables.
@@ -18,12 +18,12 @@ import { Badge, type ZoruBadgeProps } from '@/components/sabcrm/20ui/compat';
 
 export type StatusTone = 'green' | 'amber' | 'red' | 'blue' | 'neutral';
 
-const TONE_TO_VARIANT: Record<StatusTone, ZoruBadgeProps['variant']> = {
-    green: 'success' as ZoruBadgeProps['variant'],
-    amber: 'warning' as ZoruBadgeProps['variant'],
-    red: 'danger' as ZoruBadgeProps['variant'],
-    blue: 'info' as ZoruBadgeProps['variant'],
-    neutral: 'secondary' as ZoruBadgeProps['variant'],
+const TONE_TO_VARIANT: Record<StatusTone, BadgeProps['variant']> = {
+    green: 'success' as BadgeProps['variant'],
+    amber: 'warning' as BadgeProps['variant'],
+    red: 'danger' as BadgeProps['variant'],
+    blue: 'info' as BadgeProps['variant'],
+    neutral: 'secondary' as BadgeProps['variant'],
 };
 
 export interface StatusPillProps {

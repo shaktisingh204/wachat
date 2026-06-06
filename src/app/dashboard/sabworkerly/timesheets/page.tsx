@@ -1,20 +1,6 @@
 import React from 'react';
 
-import {
-    Card,
-    CardContent,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Badge,
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, PageHeader, PageTitle, PageDescription, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { ClockIcon } from 'lucide-react';
 import {
     getSabworkerlyTimesheets,
@@ -39,10 +25,10 @@ export default async function TimesheetsPage() {
     return (
         <div className="zoruui flex flex-col gap-5">
             <PageHeader>
-                <ZoruPageTitle>Timesheets</ZoruPageTitle>
-                <ZoruPageDescription>
+                <PageTitle>Timesheets</PageTitle>
+                <PageDescription>
                     Pending approvals · log new weekly hours · audit log.
-                </ZoruPageDescription>
+                </PageDescription>
             </PageHeader>
 
             <Card>
@@ -65,28 +51,28 @@ export default async function TimesheetsPage() {
                         <p className="text-sm text-[color:var(--st-text-secondary)]">All caught up.</p>
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Week</TableHead>
-                                    <TableHead>Hours</TableHead>
-                                    <TableHead>Breakdown</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Week</Th>
+                                    <Th>Hours</Th>
+                                    <Th>Breakdown</Th>
+                                    <Th>Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {pending.map((t) => (
-                                    <TableRow key={t._id}>
-                                        <TableCell>{new Date(t.weekStart).toLocaleDateString()}</TableCell>
-                                        <TableCell>{t.totalHours.toFixed(2)}</TableCell>
-                                        <TableCell className="font-mono text-xs">
+                                    <Tr key={t._id}>
+                                        <Td>{new Date(t.weekStart).toLocaleDateString()}</Td>
+                                        <Td>{t.totalHours.toFixed(2)}</Td>
+                                        <Td className="font-mono text-xs">
                                             {hoursLabel(t.dailyHoursJson as Record<string, number>)}
-                                        </TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>
                                             <TimesheetActions id={t._id} status={t.status} />
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>
@@ -103,26 +89,26 @@ export default async function TimesheetsPage() {
                         />
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Week</TableHead>
-                                    <TableHead>Hours</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Week</Th>
+                                    <Th>Hours</Th>
+                                    <Th>Status</Th>
+                                    <Th>Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {all.map((t) => (
-                                    <TableRow key={t._id}>
-                                        <TableCell>{new Date(t.weekStart).toLocaleDateString()}</TableCell>
-                                        <TableCell>{t.totalHours.toFixed(2)}</TableCell>
-                                        <TableCell><Badge variant="secondary">{t.status}</Badge></TableCell>
-                                        <TableCell>
+                                    <Tr key={t._id}>
+                                        <Td>{new Date(t.weekStart).toLocaleDateString()}</Td>
+                                        <Td>{t.totalHours.toFixed(2)}</Td>
+                                        <Td><Badge variant="secondary">{t.status}</Badge></Td>
+                                        <Td>
                                             <TimesheetActions id={t._id} status={t.status} />
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>

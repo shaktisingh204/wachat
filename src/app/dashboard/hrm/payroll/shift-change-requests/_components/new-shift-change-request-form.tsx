@@ -1,15 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  Label,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruDialogFooter,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, DialogFooter } from '@/components/sabcrm/20ui/compat';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import type { WsEmployeeShift } from '@/lib/worksuite/shifts-types';
 
@@ -69,16 +59,16 @@ export function NewShiftChangeRequestForm({
           Employee <span className="text-[var(--st-danger)]">*</span>
         </Label>
         <Select value={newUserId} onValueChange={setNewUserId}>
-          <ZoruSelectTrigger>
-            <ZoruSelectValue placeholder="Select employee" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger>
+            <SelectValue placeholder="Select employee" />
+          </SelectTrigger>
+          <SelectContent>
             {employees.map((e) => (
-              <ZoruSelectItem key={String(e._id)} value={String(e._id)}>
+              <SelectItem key={String(e._id)} value={String(e._id)}>
                 {e.firstName} {e.lastName}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
       </div>
 
@@ -100,16 +90,16 @@ export function NewShiftChangeRequestForm({
             Current Shift <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Select value={newCurrentShiftId} onValueChange={setNewCurrentShiftId}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Current" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue placeholder="Current" />
+            </SelectTrigger>
+            <SelectContent>
               {shifts.map((s) => (
-                <ZoruSelectItem key={String(s._id)} value={String(s._id)}>
+                <SelectItem key={String(s._id)} value={String(s._id)}>
                   {s.name}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
 
@@ -118,16 +108,16 @@ export function NewShiftChangeRequestForm({
             Requested Shift <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Select value={newRequestedShiftId} onValueChange={setNewRequestedShiftId}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Requested" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue placeholder="Requested" />
+            </SelectTrigger>
+            <SelectContent>
               {shifts.map((s) => (
-                <ZoruSelectItem key={String(s._id)} value={String(s._id)}>
+                <SelectItem key={String(s._id)} value={String(s._id)}>
                   {s.name}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
       </div>
@@ -149,14 +139,14 @@ export function NewShiftChangeRequestForm({
         </div>
       ) : null}
 
-      <ZoruDialogFooter>
+      <DialogFooter>
         <Button variant="outline" type="button" onClick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Saving…' : 'Submit Request'}
         </Button>
-      </ZoruDialogFooter>
+      </DialogFooter>
     </form>
   );
 }

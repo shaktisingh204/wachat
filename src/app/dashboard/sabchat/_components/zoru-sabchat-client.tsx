@@ -1,35 +1,6 @@
 "use client";
 
-import {
-  cn,
-  useZoruToast,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Button,
-  Card,
-  Input,
-  ScrollArea,
-  Skeleton,
-  Switch,
-  Label,
-  Checkbox,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruTooltip,
-  ZoruTooltipTrigger,
-  ZoruTooltipContent,
-  ZoruTooltipProvider,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { cn, useToast, Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, Input, ScrollArea, Skeleton, Switch, Label, Checkbox, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -165,23 +136,23 @@ function ZoruConversationListPane({
               {filteredConversations.length}
             </Badge>
           </h2>
-          <ZoruDropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon-sm">
                 <Filter className="h-4 w-4" />
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuLabel>Filter by status</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuItem onClick={() => setFilterTab('all')}>All conversations</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onClick={() => setFilterTab('mine')}>Assigned to me</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onClick={() => setFilterTab('unassigned')}>Unassigned</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem onClick={() => setIsBulkMode(!isBulkMode)}>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Filter by status</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setFilterTab('all')}>All conversations</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterTab('mine')}>Assigned to me</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterTab('unassigned')}>Unassigned</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setIsBulkMode(!isBulkMode)}>
                 {isBulkMode ? "Exit bulk mode" : "Bulk actions"}
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="relative">
@@ -241,9 +212,9 @@ function ZoruConversationListPane({
                     )}
                   >
                     <Avatar className="h-10 w-10 border border-[var(--st-border)] bg-[var(--st-bg)]">
-                      <ZoruAvatarFallback className={cn("text-sm font-medium", isUnread && !selected ? "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-white" : "")}>
+                      <AvatarFallback className={cn("text-sm font-medium", isUnread && !selected ? "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-white" : "")}>
                         {initial}
-                      </ZoruAvatarFallback>
+                      </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1 pt-0.5">
                       <div className="flex items-center justify-between gap-2">
@@ -301,7 +272,7 @@ function ChatMessageBubble({
     >
       {!isAgent && (
         <Avatar className="h-8 w-8 self-end mb-1 border border-[var(--st-border)] shadow-sm">
-          <ZoruAvatarFallback className="text-[10px]">V</ZoruAvatarFallback>
+          <AvatarFallback className="text-[10px]">V</AvatarFallback>
         </Avatar>
       )}
       
@@ -378,7 +349,7 @@ function ZoruSabChatWindow({
     sendInitialState,
   );
   const formRef = useRef<HTMLFormElement>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Advanced features state
@@ -431,23 +402,23 @@ function ZoruSabChatWindow({
           </div>
           
           <div className="flex items-center gap-1">
-            <ZoruTooltipProvider>
-              <ZoruTooltip>
-                <ZoruTooltipTrigger asChild>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon-sm" className="h-8 w-8"><Tag className="h-4 w-4" /></Button>
-                </ZoruTooltipTrigger>
-                <ZoruTooltipContent>Add labels</ZoruTooltipContent>
-              </ZoruTooltip>
-            </ZoruTooltipProvider>
+                </TooltipTrigger>
+                <TooltipContent>Add labels</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             
-            <ZoruTooltipProvider>
-              <ZoruTooltip>
-                <ZoruTooltipTrigger asChild>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon-sm" className="h-8 w-8"><Clock className="h-4 w-4" /></Button>
-                </ZoruTooltipTrigger>
-                <ZoruTooltipContent>Snooze conversation</ZoruTooltipContent>
-              </ZoruTooltip>
-            </ZoruTooltipProvider>
+                </TooltipTrigger>
+                <TooltipContent>Snooze conversation</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             
             <Button variant={session.status === 'open' ? "outline" : "secondary"} size="sm" className="ml-2">
               <CheckCircle2 className="h-4 w-4 mr-1.5" />
@@ -546,7 +517,7 @@ function ZoruSabChatWindow({
         <div className="w-[300px] shrink-0 bg-[var(--st-bg)] hidden lg:flex flex-col overflow-y-auto">
           <div className="p-6 border-b border-[var(--st-border)] text-center flex flex-col items-center">
             <Avatar className="h-20 w-20 mb-4 shadow-sm border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
-              <ZoruAvatarFallback className="text-2xl font-light text-[var(--st-text-secondary)]">{initial}</ZoruAvatarFallback>
+              <AvatarFallback className="text-2xl font-light text-[var(--st-text-secondary)]">{initial}</AvatarFallback>
             </Avatar>
             <h2 className="text-lg font-semibold text-[var(--st-text)]">{visitorEmail}</h2>
             <p className="text-sm text-[var(--st-text-secondary)]">Visitor</p>
@@ -675,10 +646,10 @@ export function ZoruSabChatClient() {
       <div className="flex h-full items-center justify-center p-4">
         <Alert variant="destructive" className="max-w-md">
           <AlertCircle />
-          <ZoruAlertTitle>Not logged in</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Not logged in</AlertTitle>
+          <AlertDescription>
             Please log in to use the live chat inbox.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       </div>
     );

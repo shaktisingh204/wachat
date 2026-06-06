@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Alert, AlertDescription, AlertTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';
@@ -146,7 +132,7 @@ export function LoginForm() {
     const searchParams = useSearchParams();
     const errorParam = searchParams.get('error');
     const nextParam = searchParams.get('next') || '/wachat';
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [error, setError] = React.useState<string | null>(errorParam);
     const [showPassword, setShowPassword] = React.useState(false);
@@ -281,22 +267,22 @@ export function LoginForm() {
     return (
         <Card className="w-full max-w-md shadow-2xl rounded-2xl border-[var(--st-border)]/40 backdrop-blur-sm">
             <form onSubmit={handleLogin} noValidate>
-                <ZoruCardHeader className="space-y-2">
-                    <ZoruCardTitle className="text-2xl font-bold font-headline">
+                <CardHeader className="space-y-2">
+                    <CardTitle className="text-2xl font-bold font-headline">
                         Welcome back
-                    </ZoruCardTitle>
-                    <ZoruCardDescription>
+                    </CardTitle>
+                    <CardDescription>
                         Sign in to manage your WhatsApp, CRM, SEO, and
                         automation workspaces.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
+                    </CardDescription>
+                </CardHeader>
 
-                <ZoruCardContent className="space-y-5">
+                <CardBody className="space-y-5">
                     {error && (
                         <Alert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
-                            <ZoruAlertTitle>Sign-in failed</ZoruAlertTitle>
-                            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                            <AlertTitle>Sign-in failed</AlertTitle>
+                            <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
 
@@ -386,9 +372,9 @@ export function LoginForm() {
                             Facebook
                         </Button>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
 
-                <ZoruCardFooter className="justify-center">
+                <CardFooter className="justify-center">
                     <p className="text-sm text-[var(--st-text-secondary)]">
                         New to SabNode?{' '}
                         <Link
@@ -398,7 +384,7 @@ export function LoginForm() {
                             Start your setup
                         </Link>
                     </p>
-                </ZoruCardFooter>
+                </CardFooter>
             </form>
         </Card>
     );
@@ -509,19 +495,19 @@ function TwoFaPanel(props: {
     return (
         <Card className="w-full max-w-md shadow-2xl rounded-2xl border-[var(--st-border)]/40 backdrop-blur-sm">
             <form onSubmit={handleSubmit} noValidate>
-                <ZoruCardHeader className="space-y-2">
-                    <ZoruCardTitle className="text-2xl font-bold font-headline">
+                <CardHeader className="space-y-2">
+                    <CardTitle className="text-2xl font-bold font-headline">
                         {title}
-                    </ZoruCardTitle>
-                    <ZoruCardDescription>{description}</ZoruCardDescription>
-                </ZoruCardHeader>
+                    </CardTitle>
+                    <CardDescription>{description}</CardDescription>
+                </CardHeader>
 
-                <ZoruCardContent className="space-y-5">
+                <CardBody className="space-y-5">
                     {error && (
                         <Alert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
-                            <ZoruAlertTitle>Verification failed</ZoruAlertTitle>
-                            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                            <AlertTitle>Verification failed</AlertTitle>
+                            <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
 
@@ -591,9 +577,9 @@ function TwoFaPanel(props: {
                             </button>
                         )}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
 
-                <ZoruCardFooter className="justify-center">
+                <CardFooter className="justify-center">
                     <button
                         type="button"
                         onClick={onCancel}
@@ -602,7 +588,7 @@ function TwoFaPanel(props: {
                     >
                         Cancel and return to sign in
                     </button>
-                </ZoruCardFooter>
+                </CardFooter>
             </form>
         </Card>
     );

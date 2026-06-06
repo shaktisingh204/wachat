@@ -1,25 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -176,34 +157,34 @@ export default function AllProjectsPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>All connections</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>All connections</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5" bordered={false}>
-        <ZoruPageHeading>
+        <PageHeading>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
             Project connections
           </p>
-          <ZoruPageTitle>All project connections</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>All project connections</PageTitle>
+          <PageDescription>
             Connect each project to Facebook to enable Click-to-WhatsApp ads,
             Messenger inbox and the rest of Meta Suite.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={fetchData}>
             <RefreshCw /> Refresh
@@ -216,11 +197,11 @@ export default function AllProjectsPage() {
         <div className="mt-5">
           <Alert variant="warning">
             <AlertCircle />
-            <ZoruAlertTitle>Facebook integration not configured</ZoruAlertTitle>
-            <ZoruAlertDescription>
+            <AlertTitle>Facebook integration not configured</AlertTitle>
+            <AlertDescription>
               An admin still needs to set the Facebook App ID and Config ID
               before projects can be connected.
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
         </div>
       ) : null}
@@ -229,8 +210,8 @@ export default function AllProjectsPage() {
         <div className="mt-5">
           <Alert variant="destructive">
             <AlertCircle />
-            <ZoruAlertTitle>Could not load projects</ZoruAlertTitle>
-            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+            <AlertTitle>Could not load projects</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
         </div>
       ) : null}

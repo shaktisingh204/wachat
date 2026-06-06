@@ -1,30 +1,6 @@
 'use client';
 
-import {
-  Label,
-  Button,
-  Input,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Badge,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Popover, PopoverContent, PopoverTrigger, Badge, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Switch } from '@/components/sabcrm/20ui/compat';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -59,9 +35,9 @@ export function FeaturedProductsBlockEditor({ settings, onUpdate, availableProdu
     return (
         <div className="space-y-4">
             <Accordion type="multiple" defaultValue={['content']} className="w-full">
-                <ZoruAccordionItem value="content">
-                    <ZoruAccordionTrigger>Content</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                <AccordionItem value="content">
+                    <AccordionTrigger>Content</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <Label htmlFor={`title-${settings.id}`}>Section Title</Label>
                             <Input id={`title-${settings.id}`} value={settings.title || 'Featured Products'} onChange={(e) => handleUpdate('title', e.target.value)} />
@@ -73,17 +49,17 @@ export function FeaturedProductsBlockEditor({ settings, onUpdate, availableProdu
                         <div className="space-y-2">
                             <Label>Number of Columns</Label>
                             <Select value={settings.columns || '3'} onValueChange={(val) => handleUpdate('columns', val)}>
-                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="3">3 Columns</ZoruSelectItem>
-                                    <ZoruSelectItem value="4">4 Columns</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="3">3 Columns</SelectItem>
+                                    <SelectItem value="4">4 Columns</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
                             <Label>Select Products</Label>
                             <Popover open={open} onOpenChange={setOpen}>
-                                <ZoruPopoverTrigger asChild>
+                                <PopoverTrigger asChild>
                                     <Button variant="outline" role="combobox" className="w-full justify-between h-auto">
                                         <div className="flex flex-wrap gap-1">
                                             {selectedProductIds.length > 0 ? (
@@ -96,38 +72,38 @@ export function FeaturedProductsBlockEditor({ settings, onUpdate, availableProdu
                                         </div>
                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
-                                </ZoruPopoverTrigger>
-                                <ZoruPopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                                    <ZoruCommand>
-                                        <ZoruCommandInput placeholder="Search products..." />
-                                        <ZoruCommandList>
-                                            <ZoruCommandEmpty>No products found.</ZoruCommandEmpty>
-                                            <ZoruCommandGroup>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                                    <Command>
+                                        <CommandInput placeholder="Search products..." />
+                                        <CommandList>
+                                            <CommandEmpty>No products found.</CommandEmpty>
+                                            <CommandGroup>
                                                 {availableProducts.map((product) => (
-                                                    <ZoruCommandItem
+                                                    <CommandItem
                                                         key={product._id.toString()}
                                                         value={product.name}
                                                         onSelect={() => handleSelectProduct(product._id.toString())}
                                                     >
                                                         <Check className={cn("mr-2 h-4 w-4", selectedProductIds.includes(product._id.toString()) ? "opacity-100" : "opacity-0")} />
                                                         {product.name}
-                                                    </ZoruCommandItem>
+                                                    </CommandItem>
                                                 ))}
-                                            </ZoruCommandGroup>
-                                        </ZoruCommandList>
-                                    </ZoruCommand>
-                                </ZoruPopoverContent>
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
                             </Popover>
                         </div>
                         <div className="flex items-center space-x-2 pt-4">
                             <Switch id="showViewAllButton" checked={settings.showViewAllButton} onCheckedChange={(val) => handleUpdate('showViewAllButton', val)} />
                             <Label htmlFor="showViewAllButton">Show "View All" Button</Label>
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
-                <ZoruAccordionItem value="layout">
-                    <ZoruAccordionTrigger>Sizing &amp; Layout</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="layout">
+                    <AccordionTrigger>Sizing &amp; Layout</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Width</Label>
@@ -151,16 +127,16 @@ export function FeaturedProductsBlockEditor({ settings, onUpdate, availableProdu
                         <div className="space-y-2">
                             <Label>Overflow</Label>
                             <Select value={settings.layout?.overflow || 'visible'} onValueChange={(val) => handleSubFieldUpdate('layout', 'overflow', val)}>
-                                <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="visible">Visible</ZoruSelectItem>
-                                    <ZoruSelectItem value="hidden">Hidden</ZoruSelectItem>
-                                    <ZoruSelectItem value="scroll">Scroll</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="visible">Visible</SelectItem>
+                                    <SelectItem value="hidden">Hidden</SelectItem>
+                                    <SelectItem value="scroll">Scroll</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
             </Accordion>
         </div>
     );

@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardFooter, CardHeader, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export function ProfilePageSkeleton() {
     return (
@@ -9,11 +9,11 @@ export function ProfilePageSkeleton() {
             </div>
             <div className="grid md:grid-cols-2 gap-8 items-start">
                 <Card>
-                    <ZoruCardHeader>
+                    <CardHeader>
                         <Skeleton className="h-6 w-40" />
                         <Skeleton className="h-4 w-64 mt-2" />
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="space-y-5">
+                    </CardHeader>
+                    <CardBody className="space-y-5">
                         <div className="space-y-2">
                             <Skeleton className="h-4 w-24" />
                             <Skeleton className="h-10 w-full" />
@@ -26,17 +26,17 @@ export function ProfilePageSkeleton() {
                             <Skeleton className="h-4 w-32" />
                             <Skeleton className="h-10 w-full" />
                         </div>
-                    </ZoruCardContent>
-                    <ZoruCardFooter>
+                    </CardBody>
+                    <CardFooter>
                         <Skeleton className="h-10 w-32" />
-                    </ZoruCardFooter>
+                    </CardFooter>
                 </Card>
                 <Card>
-                    <ZoruCardHeader>
+                    <CardHeader>
                         <Skeleton className="h-6 w-40" />
                         <Skeleton className="h-4 w-64 mt-2" />
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="space-y-5">
+                    </CardHeader>
+                    <CardBody className="space-y-5">
                         <div className="space-y-2">
                             <Skeleton className="h-4 w-32" />
                             <Skeleton className="h-10 w-full" />
@@ -49,18 +49,18 @@ export function ProfilePageSkeleton() {
                             <Skeleton className="h-4 w-40" />
                             <Skeleton className="h-10 w-full" />
                         </div>
-                    </ZoruCardContent>
-                    <ZoruCardFooter>
+                    </CardBody>
+                    <CardFooter>
                         <Skeleton className="h-10 w-36" />
-                    </ZoruCardFooter>
+                    </CardFooter>
                 </Card>
             </div>
             <Card>
-                <ZoruCardHeader>
+                <CardHeader>
                     <Skeleton className="h-6 w-40" />
                     <Skeleton className="h-4 w-64 mt-2" />
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-5">
+                </CardHeader>
+                <CardBody className="space-y-5">
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-28" />
                         <Skeleton className="h-10 w-full" />
@@ -73,10 +73,10 @@ export function ProfilePageSkeleton() {
                         <Skeleton className="h-4 w-20" />
                         <Skeleton className="h-10 w-full" />
                     </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <Skeleton className="h-10 w-48" />
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </div>
     );

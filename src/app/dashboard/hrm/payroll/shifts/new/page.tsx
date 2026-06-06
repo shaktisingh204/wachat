@@ -5,23 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Download, FileText, Plus, Trash2, Workflow } from 'lucide-react';
 import { Suspense, useMemo, useState, useEffect, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import {
-    Button,
-    useZoruToast,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    PageHeader,
-    ZoruPageActions,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    Input,
-    Checkbox
-} from '@/components/sabcrm/20ui/compat';
+import { Button, useToast, PageHeading, PageTitle, PageDescription, PageHeader, PageActions, Table, TBody, Td, Th, THead, Tr, Input, Checkbox } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ShiftForm } from '../_components/shift-form';
 import type { CrmShiftDoc } from '@/lib/rust-client/crm-shifts';
@@ -46,7 +30,7 @@ function FormClosedState({ onOpen }: { onOpen: () => void }) {
 
 export default function NewShiftBulkPage() {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     
     const [drafts, setDrafts] = useState<DraftShift[]>([]);
     const [isFormOpen, setIsFormOpen] = useState(true);
@@ -201,14 +185,14 @@ export default function NewShiftBulkPage() {
             <div className="flex h-full flex-col gap-6 p-6">
                 <PageHeader>
                     <div>
-                        <ZoruPageHeading>
-                            <ZoruPageTitle>Create New Shifts</ZoruPageTitle>
-                        </ZoruPageHeading>
-                        <ZoruPageDescription>
+                        <PageHeading>
+                            <PageTitle>Create New Shifts</PageTitle>
+                        </PageHeading>
+                        <PageDescription>
                             Create a single shift or build a queue of draft shifts for bulk import.
-                        </ZoruPageDescription>
+                        </PageDescription>
                     </div>
-                    <ZoruPageActions>
+                    <PageActions>
                         <Button variant="outline" onClick={() => router.push('/dashboard/hrm/payroll/shifts')}>
                             Back to List
                         </Button>
@@ -223,7 +207,7 @@ export default function NewShiftBulkPage() {
                         <Button onClick={() => setIsFormOpen(true)}>
                             <Plus className="mr-1.5 h-4 w-4" /> Add Draft
                         </Button>
-                    </ZoruPageActions>
+                    </PageActions>
                 </PageHeader>
 
                 <div className="grid gap-6 md:grid-cols-2">
@@ -296,28 +280,28 @@ export default function NewShiftBulkPage() {
                                 className="h-[500px] overflow-auto rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)]"
                             >
                                 <Table>
-                                    <ZoruTableHeader className="sticky top-0 z-10 bg-[var(--st-bg)] shadow-sm">
-                                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                            <ZoruTableHead className="w-[40px]">
+                                    <THead className="sticky top-0 z-10 bg-[var(--st-bg)] shadow-sm">
+                                        <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                            <Th className="w-[40px]">
                                                 <Checkbox 
                                                     role="checkbox"
                                                     checked={allSelected ? true : isIndeterminate ? "indeterminate" : false}
                                                     onCheckedChange={(v) => toggleAllSelection(Boolean(v))}
                                                     aria-label="Select all"
                                                 />
-                                            </ZoruTableHead>
-                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Code</ZoruTableHead>
-                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Window</ZoruTableHead>
-                                        </ZoruTableRow>
-                                    </ZoruTableHeader>
-                                    <ZoruTableBody>
+                                            </Th>
+                                            <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                                            <Th className="text-[var(--st-text-secondary)]">Code</Th>
+                                            <Th className="text-[var(--st-text-secondary)]">Window</Th>
+                                        </Tr>
+                                    </THead>
+                                    <TBody>
                                         {filteredDrafts.length === 0 ? (
-                                            <ZoruTableRow className="border-[var(--st-border)]">
-                                                <ZoruTableCell colSpan={4} className="h-24 text-center text-[var(--st-text-secondary)]">
+                                            <Tr className="border-[var(--st-border)]">
+                                                <Td colSpan={4} className="h-24 text-center text-[var(--st-text-secondary)]">
                                                     No drafts match this filter.
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         ) : (
                                             <>
                                                 {rowVirtualizer.getVirtualItems().length > 0 && (
@@ -329,30 +313,30 @@ export default function NewShiftBulkPage() {
                                                     const d = filteredDrafts[virtualRow.index];
                                                     const isSelected = selectedIds.has(d.id);
                                                     return (
-                                                        <ZoruTableRow 
+                                                        <Tr 
                                                             key={d.id} 
                                                             className="border-[var(--st-border)]"
                                                             data-state={isSelected ? 'selected' : undefined}
                                                         >
-                                                            <ZoruTableCell>
+                                                            <Td>
                                                                 <Checkbox 
                                                                     role="checkbox"
                                                                     checked={isSelected}
                                                                     onCheckedChange={(v) => toggleRowSelection(d.id, Boolean(v))}
                                                                     aria-label={`Select ${d.name}`}
                                                                 />
-                                                            </ZoruTableCell>
-                                                            <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                                            </Td>
+                                                            <Td className="font-medium text-[var(--st-text)]">
                                                                 {d.name}
-                                                            </ZoruTableCell>
-                                                            <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                                            </Td>
+                                                            <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                                                 {d.code || '—'}
-                                                            </ZoruTableCell>
-                                                            <ZoruTableCell className="text-[var(--st-text)]">
+                                                            </Td>
+                                                            <Td className="text-[var(--st-text)]">
                                                                 {/* Hydration safe client-rendered string formatting */}
                                                                 {String(d.startTime || '').padStart(5, '0')} – {String(d.endTime || '').padStart(5, '0')}
-                                                            </ZoruTableCell>
-                                                        </ZoruTableRow>
+                                                            </Td>
+                                                        </Tr>
                                                     );
                                                 })}
                                                 {rowVirtualizer.getVirtualItems().length > 0 && (
@@ -362,7 +346,7 @@ export default function NewShiftBulkPage() {
                                                 )}
                                             </>
                                         )}
-                                    </ZoruTableBody>
+                                    </TBody>
                                 </Table>
                             </div>
                         </EntityListShell>

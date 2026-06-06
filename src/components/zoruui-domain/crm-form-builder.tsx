@@ -1,35 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Switch,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ScrollArea,
-  Separator,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Card,
-  Tabs,
-  ZoruTabsContent as TabsContent,
-  ZoruTabsList as TabsList,
-  ZoruTabsTrigger as TabsTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Switch, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, ScrollArea, Separator, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, Card, Tabs, TabsContent, TabsList, TabsTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   DndContext,
   DragEndEvent,
@@ -66,20 +37,20 @@ const defaultFields: FormField[] = [
 function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
     return (
         <Dialog>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed Code</Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="sm:max-w-2xl overflow-hidden">
-                 <ZoruDialogHeader>
-                    <ZoruDialogTitle>Embed Form on Your Website</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-2xl overflow-hidden">
+                 <DialogHeader>
+                    <DialogTitle>Embed Form on Your Website</DialogTitle>
+                    <DialogDescription>
                         Copy and paste this code snippet where you want the form to appear on your website.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                  <div className="py-4">
                     <CodeBlock code={embedScript} language="html" />
                 </div>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -103,7 +74,7 @@ function SortableFieldItem({ field, isSelected, onClick }: { field: FormField; i
 
 export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> }) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isSaving, startSaving] = useTransition();
 
     const [formName, setFormName] = useState(initialForm?.name || 'New Form');
@@ -243,17 +214,17 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                             </TabsList>
                             <TabsContent value="general" className="mt-4">
                                 <Accordion type="multiple" className="w-full" defaultValue={['general_settings']}>
-                                    <ZoruAccordionItem value="general_settings">
-                                        <ZoruAccordionTrigger>General Settings</ZoruAccordionTrigger>
-                                        <ZoruAccordionContent className="space-y-4 pt-2">
+                                    <AccordionItem value="general_settings">
+                                        <AccordionTrigger>General Settings</AccordionTrigger>
+                                        <AccordionContent className="space-y-4 pt-2">
                                             <div className="space-y-2"><Label>Form Title</Label><Input value={settings.title || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} /></div>
                                             <div className="space-y-2"><Label>Form Description</Label><Textarea value={settings.description || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} /></div>
                                             <div className="space-y-2"><Label>Submit Button Text</Label><Input value={settings.submitButtonText || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></div>
                                             <div className="space-y-2"><Label>Success Message</Label><Textarea value={settings.successMessage || 'Thank you! Your submission has been received.'} onChange={(e) => setSettings({...settings, successMessage: e.target.value})} /></div>
                                             <div className="space-y-2"><Label>Logo URL</Label><Input value={settings.logoUrl || ''} onChange={(e) => setSettings({...settings, logoUrl: e.target.value})} /></div>
                                             <div className="space-y-2"><Label>Footer Text (HTML allowed)</Label><Textarea value={settings.footerText || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} /></div>
-                                        </ZoruAccordionContent>
-                                    </ZoruAccordionItem>
+                                        </AccordionContent>
+                                    </AccordionItem>
                                 </Accordion>
                             </TabsContent>
                             <TabsContent value="style" className="mt-4">

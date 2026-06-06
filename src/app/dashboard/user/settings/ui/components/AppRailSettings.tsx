@@ -1,10 +1,6 @@
 'use client';
 
-import {
-    Label,
-    RadioGroup,
-    ZoruRadioGroupItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, RadioGroup, ZoruRadioGroupItem } from '@/components/sabcrm/20ui/compat';
 
 interface AppRailSettingsProps {
     currentPosition?: 'left' | 'top';

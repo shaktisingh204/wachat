@@ -1,6 +1,6 @@
 'use client';
 
-import { ScrollArea, Button, Skeleton, Avatar, ZoruAvatarFallback, Input } from '@/components/sabcrm/20ui/compat';
+import { ScrollArea, Button, Skeleton, Avatar, AvatarFallback, Input } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useRef,
@@ -33,7 +33,7 @@ function ChatMessage({ message, isAgent }: { message: SabChatMessage, isAgent: b
         <div className={cn("flex items-end gap-2 group/message", isAgent ? "justify-end" : "justify-start")}>
             {!isAgent && (
                 <Avatar className="h-8 w-8 self-end">
-                    <ZoruAvatarFallback>{'V'}</ZoruAvatarFallback>
+                    <AvatarFallback>{'V'}</AvatarFallback>
                 </Avatar>
             )}
             <div
@@ -86,7 +86,7 @@ export function SabChatWindow({ session, isLoading, onMessageSent }: SabChatWind
             <div className="flex items-center justify-between gap-3 p-3 border-b bg-[var(--st-bg-secondary)] h-[73px] flex-shrink-0">
                 <div className="flex items-center gap-3">
                     <Avatar>
-                        <ZoruAvatarFallback>{session.visitorInfo?.email?.charAt(0).toUpperCase() || 'V'}</ZoruAvatarFallback>
+                        <AvatarFallback>{session.visitorInfo?.email?.charAt(0).toUpperCase() || 'V'}</AvatarFallback>
                     </Avatar>
                     <div>
                         <p className="font-semibold">{session.visitorInfo?.email || 'New Visitor'}</p>

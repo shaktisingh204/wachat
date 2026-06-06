@@ -1,22 +1,6 @@
 "use client";
 
-import {
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Button,
-  Card,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Separator,
-  Skeleton,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Card, Input, Label, RadioGroup, ZoruRadioGroupItem, Separator, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -111,7 +95,7 @@ function CommentAutomationForm({
     handleUpdateFacebookAutomationSettings,
     initialState,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [enabled, setEnabled] = useState<boolean>(settings?.enabled ?? false);
   const [replyMode, setReplyMode] = useState<"static" | "ai">(
     settings?.replyMode ?? "static",
@@ -172,13 +156,13 @@ function CommentAutomationForm({
         <Separator className="my-5" />
 
         <Accordion type="multiple" defaultValue={["replies"]}>
-          <ZoruAccordionItem value="replies">
-            <ZoruAccordionTrigger>
+          <AccordionItem value="replies">
+            <AccordionTrigger>
               <span className="flex items-center gap-2">
                 <Bot className="h-4 w-4" /> Replies
               </span>
-            </ZoruAccordionTrigger>
-            <ZoruAccordionContent>
+            </AccordionTrigger>
+            <AccordionContent>
               <div className="space-y-4 pt-2">
                 <RadioGroup
                   name="replyMode"
@@ -226,16 +210,16 @@ function CommentAutomationForm({
                   </div>
                 )}
               </div>
-            </ZoruAccordionContent>
-          </ZoruAccordionItem>
+            </AccordionContent>
+          </AccordionItem>
 
-          <ZoruAccordionItem value="moderation">
-            <ZoruAccordionTrigger>
+          <AccordionItem value="moderation">
+            <AccordionTrigger>
               <span className="flex items-center gap-2">
                 <ShieldX className="h-4 w-4" /> AI moderation
               </span>
-            </ZoruAccordionTrigger>
-            <ZoruAccordionContent>
+            </AccordionTrigger>
+            <AccordionContent>
               <div className="space-y-4 pt-2">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-0.5">
@@ -269,8 +253,8 @@ function CommentAutomationForm({
                   </p>
                 </div>
               </div>
-            </ZoruAccordionContent>
-          </ZoruAccordionItem>
+            </AccordionContent>
+          </AccordionItem>
         </Accordion>
 
         <div className="mt-5 flex justify-end">
@@ -294,7 +278,7 @@ function MessengerWelcomeForm({
     handleUpdateFacebookAutomationSettings,
     initialState,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [enabled, setEnabled] = useState<boolean>(settings?.enabled ?? false);
   const [quickReplies, setQuickReplies] = useState<
     { title: string; payload: string }[]

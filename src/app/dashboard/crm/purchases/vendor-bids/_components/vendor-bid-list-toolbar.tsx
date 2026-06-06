@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   Gavel,
@@ -151,14 +142,14 @@ export function VendorBidListToolbar({
 
       <div className="flex items-center gap-1.5">
         <Select value={density} onValueChange={(v) => onDensityChange(v as Density)}>
-          <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Row density">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="comfortable">Comfortable</ZoruSelectItem>
-            <ZoruSelectItem value="compact">Compact</ZoruSelectItem>
-            <ZoruSelectItem value="dense">Dense</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[140px]" aria-label="Row density">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="comfortable">Comfortable</SelectItem>
+            <SelectItem value="compact">Compact</SelectItem>
+            <SelectItem value="dense">Dense</SelectItem>
+          </SelectContent>
         </Select>
 
         <div className="flex items-center rounded border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">

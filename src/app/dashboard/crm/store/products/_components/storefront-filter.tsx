@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   usePathname } from 'next/navigation';
@@ -40,22 +40,22 @@ export function StorefrontFilterClient({
                         router.push(`${pathname}?storefrontId=${value}`);
                     }}
                 >
-                    <ZoruSelectTrigger
+                    <SelectTrigger
                         id="storefront-filter"
                         className="w-[260px]"
                     >
-                        <ZoruSelectValue placeholder="All storefronts" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value={ALL_VALUE}>
+                        <SelectValue placeholder="All storefronts" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value={ALL_VALUE}>
                             All storefronts
-                        </ZoruSelectItem>
+                        </SelectItem>
                         {storefronts.map((sf) => (
-                            <ZoruSelectItem key={sf.id} value={sf.id}>
+                            <SelectItem key={sf.id} value={sf.id}>
                                 {sf.name}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
         </div>

@@ -2,18 +2,7 @@
 
 import { useState, useTransition } from 'react';
 
-import {
-    Button,
-    Card,
-    CardContent,
-    Textarea,
-    Badge,
-    Select,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSelectContent,
-    ZoruSelectItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, Textarea, Badge, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { createSabConnectPost } from '@/app/actions/sabconnect.actions';
@@ -88,17 +77,17 @@ export function SabConnectComposer({ groups }: Props) {
                             Attach
                         </SabFilePickerButton>
                         <Select value={groupId} onValueChange={setGroupId}>
-                            <ZoruSelectTrigger className="w-[180px]" aria-label="Post audience">
-                                <ZoruSelectValue placeholder="Everyone" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">Everyone</ZoruSelectItem>
+                            <SelectTrigger className="w-[180px]" aria-label="Post audience">
+                                <SelectValue placeholder="Everyone" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Everyone</SelectItem>
                                 {groups.map((g) => (
-                                    <ZoruSelectItem key={g._id} value={g._id}>
+                                    <SelectItem key={g._id} value={g._id}>
                                         {g.name}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <Button onClick={onSubmit} disabled={pending}>

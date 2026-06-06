@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageHeader, ZoruPageTitle } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageTitle } from '@/components/sabcrm/20ui/compat';
 import { JobForm } from './_form';
 import { getSabworkerlyClients } from '@/app/actions/sabworkerly.actions';
 
@@ -13,7 +13,7 @@ export default async function NewJobPage({
     return (
         <div className="zoruui flex flex-col gap-5">
             <PageHeader>
-                <ZoruPageTitle>Post job</ZoruPageTitle>
+                <PageTitle>Post job</PageTitle>
             </PageHeader>
             <JobForm
                 clients={clients.map((c) => ({ id: c._id, name: c.name }))}

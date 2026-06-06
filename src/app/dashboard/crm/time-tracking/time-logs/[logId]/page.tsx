@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -63,7 +49,7 @@ export default function TimeLogDetailPage({
   params: Promise<{ logId: string }>;
 }) {
   const { logId } = use(params);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [log, setLog] = useState<WsProjectTimeLog | null>(null);
   const [breaks, setBreaks] = useState<WsProjectTimeLogBreak[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -267,45 +253,45 @@ export default function TimeLogDetailPage({
 
             <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Reason</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Start</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">End</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Duration</ZoruTableHead>
-                    <ZoruTableHead className="w-[100px] text-right text-[var(--st-text-secondary)]">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="text-[var(--st-text-secondary)]">Reason</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Start</Th>
+                    <Th className="text-[var(--st-text-secondary)]">End</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Duration</Th>
+                    <Th className="w-[100px] text-right text-[var(--st-text-secondary)]">
                       Actions
-                    </ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {breaks.length === 0 ? (
-                    <ZoruTableRow className="border-[var(--st-border)]">
-                      <ZoruTableCell
+                    <Tr className="border-[var(--st-border)]">
+                      <Td
                         colSpan={5}
                         className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         No breaks recorded.
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     breaks.map((br) => (
-                      <ZoruTableRow key={br._id} className="border-[var(--st-border)]">
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      <Tr key={br._id} className="border-[var(--st-border)]">
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {br.reason || '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text-secondary)]">
                           {fmt(br.start_time)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text-secondary)]">
                           {br.end_time ? fmt(br.end_time) : '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {br.end_time
                             ? wsFormatDuration(br.start_time, br.end_time)
                             : '— running'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <div className="flex justify-end gap-1.5">
                             {!br.end_time ? (
                               <Button
@@ -337,11 +323,11 @@ export default function TimeLogDetailPage({
                               </Button>
                             )}
                           </div>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>

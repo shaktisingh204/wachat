@@ -20,13 +20,7 @@ import {
   Search,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Input,
-  ScrollArea,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, ScrollArea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import { createSabnotebookNote } from '@/app/actions/sabnotebook.actions';
 import type {
   SabnotebookNote,

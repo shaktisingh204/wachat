@@ -1,4 +1,4 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import { History,
@@ -138,10 +138,10 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
             }
         >
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Header</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Header</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                         <div>
                             <dt className="text-xs text-[var(--st-text)]">Adjustment #</dt>
@@ -192,14 +192,14 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                     </dl>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Line items</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="p-0">
+                <CardHeader>
+                    <CardTitle>Line items</CardTitle>
+                </CardHeader>
+                <CardBody className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full text-[12.5px]">
                             <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
@@ -321,14 +321,14 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                             </tbody>
                         </table>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Approval workflow</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Approval workflow</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                         <div>
                             <dt className="text-xs text-[var(--st-text)]">Status</dt>
@@ -377,30 +377,30 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                             </div>
                         ) : null}
                     </dl>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {adj.notes ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Notes</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Notes</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <p className="whitespace-pre-wrap text-sm text-[var(--st-text)] dark:text-white">
                             {adj.notes}
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
 
             {adj.attachments && adj.attachments.length > 0 ? (
                 <Card className="print:hidden">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Attachments</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Attachments</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <AdjustmentAttachments attachments={adj.attachments} />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
         </EntityDetailShell>

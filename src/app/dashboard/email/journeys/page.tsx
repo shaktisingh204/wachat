@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Skeleton, PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, ZoruPageActions, Button, Card } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Card } from '@/components/sabcrm/20ui/compat';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import { JourneysClient } from '@/components/email/journeys/journeys-client';
 import { GitBranch, Plus } from 'lucide-react';
@@ -8,21 +8,21 @@ function JourneysSkeleton() {
   return (
     <div className="space-y-8">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <GitBranch className="h-6 w-6" /> Journeys
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Build behavioural &amp; lifecycle journeys with the visual canvas.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button disabled>
             <Plus className="h-4 w-4" /> New journey
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <section className="space-y-4">

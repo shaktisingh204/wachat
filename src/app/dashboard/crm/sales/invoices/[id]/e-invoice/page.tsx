@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 
@@ -43,29 +43,29 @@ export default async function InvoiceEInvoicePage(props: {
 
             {!block ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Not generated</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="flex flex-col gap-4">
+                    <CardHeader>
+                        <CardTitle>Not generated</CardTitle>
+                    </CardHeader>
+                    <CardBody className="flex flex-col gap-4">
                         <p className="text-[13px] text-[var(--st-text-secondary)]">
                             No IRN has been issued for this invoice yet. Click below
                             to generate one via your configured e-invoice provider.
                         </p>
                         <EInvoiceActions invoiceId={id} hasIrn={false} cancelled={false} />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : (
                 <>
                     <Card>
-                        <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
-                            <ZoruCardTitle>IRN</ZoruCardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between gap-3">
+                            <CardTitle>IRN</CardTitle>
                             {block.cancelled ? (
                                 <Badge variant="danger">Cancelled</Badge>
                             ) : (
                                 <Badge variant="success">{block.status}</Badge>
                             )}
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        </CardHeader>
+                        <CardBody>
                             <dl className="grid grid-cols-1 gap-3 text-[13px] sm:grid-cols-2">
                                 <Field label="IRN" value={block.irn} mono />
                                 <Field label="Ack No" value={block.ackNo} mono />
@@ -93,14 +93,14 @@ export default async function InvoiceEInvoicePage(props: {
                                     <Field label="Cancel reason" value={block.cancelReason} />
                                 ) : null}
                             </dl>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Signed QR</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="flex flex-col gap-3">
+                        <CardHeader>
+                            <CardTitle>Signed QR</CardTitle>
+                        </CardHeader>
+                        <CardBody className="flex flex-col gap-3">
                             <p className="text-[12px] text-[var(--st-text-secondary)]">
                                 The signed QR payload issued by the IRP.
                             </p>
@@ -136,20 +136,20 @@ export default async function InvoiceEInvoicePage(props: {
                                     {block.qrCodeData}
                                 </pre>
                             </details>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Actions</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Actions</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <EInvoiceActions
                                 invoiceId={id}
                                 hasIrn={true}
                                 cancelled={!!block.cancelled}
                             />
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </>
             )}

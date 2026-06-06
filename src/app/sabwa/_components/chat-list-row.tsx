@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
 import { Pin, UsersRound, VolumeX } from "lucide-react";
 
 /**
@@ -92,9 +92,9 @@ export function ChatListRow({
       <div className="relative shrink-0">
         <Avatar className="h-10 w-10">
           {chat.profilePicUrl ? (
-            <ZoruAvatarImage src={chat.profilePicUrl} alt={name} />
+            <AvatarImage src={chat.profilePicUrl} alt={name} />
           ) : null}
-          <ZoruAvatarFallback>{initialsFor(name)}</ZoruAvatarFallback>
+          <AvatarFallback>{initialsFor(name)}</AvatarFallback>
         </Avatar>
         {isGroup ? (
           <span

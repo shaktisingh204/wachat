@@ -8,17 +8,7 @@ const LeadsBarChart = dynamic(
   () => import('./leads-conversion-charts').then((mod) => mod.LeadsBarChart),
   { ssr: false }
 );
-import {
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Badge,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr, Badge, Button } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtNumber } from '../_components/report-toolbar';
@@ -253,35 +243,35 @@ export function LeadsConversionView({
           </div>
           <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+              <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                  <Th className="text-[var(--st-text-secondary)]">
                     Source
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">
                     Leads
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">
                     Converted
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">
                     Conv. rate
-                  </ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {bySource.map((s) => (
-                  <ZoruTableRow key={s.source} className="border-[var(--st-border)]">
-                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                  <Tr key={s.source} className="border-[var(--st-border)]">
+                    <Td className="font-medium text-[var(--st-text)]">
                       {s.source}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(s.total)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(s.converted)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
                       <Badge
                         variant={
                           s.conversionRate >= 20 ? 'default' : 'secondary'
@@ -289,10 +279,10 @@ export function LeadsConversionView({
                       >
                         {s.conversionRate.toFixed(1)}%
                       </Badge>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         </Card>
@@ -302,49 +292,49 @@ export function LeadsConversionView({
       <Card>
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">
                   Lead
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Company
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Status
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Source
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Created
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {leads.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={5}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No leads.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 leads.map((l) => (
-                  <ZoruTableRow key={l.id} className="border-[var(--st-border)]">
-                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                  <Tr key={l.id} className="border-[var(--st-border)]">
+                    <Td className="font-medium text-[var(--st-text)]">
                       <EntityRowLink
                         href={`/dashboard/crm/sales-crm/leads?leadId=${l.id}`}
                         label={l.title}
                         subtitle={l.contactName}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {l.company ?? '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge
                         variant={
                           l.status === 'Converted'
@@ -356,19 +346,19 @@ export function LeadsConversionView({
                       >
                         {l.status}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {l.source}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {l.createdAt
                         ? new Date(l.createdAt).toLocaleDateString()
                         : '—'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
           <PaginationBar
             page={page}

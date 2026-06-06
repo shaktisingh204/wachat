@@ -1,25 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -53,7 +34,7 @@ function formatDateTime(value?: Date | string) {
 type StatusFilter = 'all' | 'granted' | 'revoked';
 
 export default function ConsentLogsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [tab, setTab] = useState<'leads' | 'users'>('leads');
   const [leads, setLeads] = useState<LeadRow[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
@@ -187,14 +168,14 @@ export default function ConsentLogsPage() {
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as StatusFilter)}
             >
-              <ZoruSelectTrigger className="h-8 w-[140px] text-[12px]">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All states</ZoruSelectItem>
-                <ZoruSelectItem value="granted">Granted</ZoruSelectItem>
-                <ZoruSelectItem value="revoked">Revoked</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-8 w-[140px] text-[12px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All states</SelectItem>
+                <SelectItem value="granted">Granted</SelectItem>
+                <SelectItem value="revoked">Revoked</SelectItem>
+              </SelectContent>
             </Select>
             <Button variant="outline" size="sm" onClick={handleExportCsv}>
               <Download className="mr-1 h-3.5 w-3.5" />
@@ -206,113 +187,113 @@ export default function ConsentLogsPage() {
         {tab === 'leads' ? (
           <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Lead ID</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Purpose</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">State</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Timestamp</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">IP</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr className="hover:bg-transparent">
+                  <Th className="text-[var(--st-text-secondary)]">Lead ID</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Purpose</Th>
+                  <Th className="text-[var(--st-text-secondary)]">State</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Timestamp</Th>
+                  <Th className="text-[var(--st-text-secondary)]">IP</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {isLoading && leads.length === 0 ? (
                   [...Array(3)].map((_, i) => (
-                    <ZoruTableRow key={i}>
-                      <ZoruTableCell colSpan={5}>
+                    <Tr key={i}>
+                      <Td colSpan={5}>
                         <Skeleton className="h-8 w-full" />
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 ) : visibleLeads.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={5}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No lead consent entries match this filter.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   visibleLeads.map((row) => (
-                    <ZoruTableRow key={row._id}>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    <Tr key={row._id}>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         {row.lead_id || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         {purposeTitle(row.purpose_consent_id)}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant={row.granted ? 'success' : 'danger'}>
                           {row.granted ? 'Granted' : 'Revoked'}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text-secondary)]">
                         {formatDateTime(row.granted_at)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text-secondary)]">
                         {row.ip_address || '—'}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">User ID</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Purpose</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">State</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Timestamp</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">IP</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr className="hover:bg-transparent">
+                  <Th className="text-[var(--st-text-secondary)]">User ID</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Purpose</Th>
+                  <Th className="text-[var(--st-text-secondary)]">State</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Timestamp</Th>
+                  <Th className="text-[var(--st-text-secondary)]">IP</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {isLoading && users.length === 0 ? (
                   [...Array(3)].map((_, i) => (
-                    <ZoruTableRow key={i}>
-                      <ZoruTableCell colSpan={5}>
+                    <Tr key={i}>
+                      <Td colSpan={5}>
                         <Skeleton className="h-8 w-full" />
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 ) : visibleUsers.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={5}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No user consent entries match this filter.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   visibleUsers.map((row) => (
-                    <ZoruTableRow key={row._id}>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    <Tr key={row._id}>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         {row.target_user_id || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         {purposeTitle(row.purpose_consent_id)}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant={row.granted ? 'success' : 'danger'}>
                           {row.granted ? 'Granted' : 'Revoked'}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text-secondary)]">
                         {formatDateTime(row.granted_at)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text-secondary)]">
                         {row.ip_address || '—'}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         )}

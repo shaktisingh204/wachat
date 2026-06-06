@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   X } from 'lucide-react';
 
@@ -61,28 +61,28 @@ export function EventsFiltersRow({
                 value={eventType}
                 onValueChange={(v) => onEventTypeChange(v as EventsTypeFilter)}
             >
-                <ZoruSelectTrigger className="h-9 w-[150px]">
-                    <ZoruSelectValue placeholder="Event type" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">Any type</ZoruSelectItem>
-                    <ZoruSelectItem value="meeting">Meeting</ZoruSelectItem>
-                    <ZoruSelectItem value="webinar">Webinar</ZoruSelectItem>
-                    <ZoruSelectItem value="workshop">Workshop</ZoruSelectItem>
-                    <ZoruSelectItem value="social">Social</ZoruSelectItem>
-                    <ZoruSelectItem value="training">Training</ZoruSelectItem>
-                    <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-9 w-[150px]">
+                    <SelectValue placeholder="Event type" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">Any type</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
+                    <SelectItem value="webinar">Webinar</SelectItem>
+                    <SelectItem value="workshop">Workshop</SelectItem>
+                    <SelectItem value="social">Social</SelectItem>
+                    <SelectItem value="training">Training</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
             </Select>
             <Select value={repeat} onValueChange={(v) => onRepeatChange(v as EventsRepeatFilter)}>
-                <ZoruSelectTrigger className="h-9 w-[140px]">
-                    <ZoruSelectValue placeholder="Repeat" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">Any repeat</ZoruSelectItem>
-                    <ZoruSelectItem value="repeating">Repeating</ZoruSelectItem>
-                    <ZoruSelectItem value="one-off">One-off</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-9 w-[140px]">
+                    <SelectValue placeholder="Repeat" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">Any repeat</SelectItem>
+                    <SelectItem value="repeating">Repeating</SelectItem>
+                    <SelectItem value="one-off">One-off</SelectItem>
+                </SelectContent>
             </Select>
 
             <Input
@@ -100,16 +100,16 @@ export function EventsFiltersRow({
             />
 
             <Select value={rsvp} onValueChange={(v) => onRsvpChange(v as EventsRsvpFilter)}>
-                <ZoruSelectTrigger className="h-9 w-[140px]">
-                    <ZoruSelectValue placeholder="RSVP" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">Any RSVP</ZoruSelectItem>
-                    <ZoruSelectItem value="going">Going</ZoruSelectItem>
-                    <ZoruSelectItem value="maybe">Maybe</ZoruSelectItem>
-                    <ZoruSelectItem value="declined">Declined</ZoruSelectItem>
-                    <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-9 w-[140px]">
+                    <SelectValue placeholder="RSVP" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">Any RSVP</SelectItem>
+                    <SelectItem value="going">Going</SelectItem>
+                    <SelectItem value="maybe">Maybe</SelectItem>
+                    <SelectItem value="declined">Declined</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                </SelectContent>
             </Select>
 
             <Input

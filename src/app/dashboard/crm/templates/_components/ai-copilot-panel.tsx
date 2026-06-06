@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Sparkles, LoaderCircle, Check, Copy, RefreshCw, Send, ArrowRight } from 'lucide-react';
-import { Button, Textarea, Label, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/components/sabcrm/20ui/compat';
 
 interface AiCopilotPanelProps {
@@ -98,16 +98,16 @@ export function AiCopilotPanel({ templateType, onInsert, currentContent }: AiCop
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="ai-tone" className="text-xs font-medium">Tone of Voice</Label>
                     <Select value={tone} onValueChange={setTone}>
-                        <ZoruSelectTrigger id="ai-tone" className="h-8.5 text-xs bg-[var(--st-text)]/40 border-[var(--st-border)]">
-                            <ZoruSelectValue placeholder="Select tone" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent className="bg-[var(--st-text)] border-[var(--st-border)]">
-                            <ZoruSelectItem value="professional">💼 Professional / Corporate</ZoruSelectItem>
-                            <ZoruSelectItem value="friendly">👋 Friendly / Warm</ZoruSelectItem>
-                            <ZoruSelectItem value="empathy">❤️ Empathetic / Supportive</ZoruSelectItem>
-                            <ZoruSelectItem value="urgent">🚨 Urgent / Crucial</ZoruSelectItem>
-                            <ZoruSelectItem value="humorous">😄 Humorous / Playful</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger id="ai-tone" className="h-8.5 text-xs bg-[var(--st-text)]/40 border-[var(--st-border)]">
+                            <SelectValue placeholder="Select tone" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[var(--st-text)] border-[var(--st-border)]">
+                            <SelectItem value="professional">💼 Professional / Corporate</SelectItem>
+                            <SelectItem value="friendly">👋 Friendly / Warm</SelectItem>
+                            <SelectItem value="empathy">❤️ Empathetic / Supportive</SelectItem>
+                            <SelectItem value="urgent">🚨 Urgent / Crucial</SelectItem>
+                            <SelectItem value="humorous">😄 Humorous / Playful</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
 

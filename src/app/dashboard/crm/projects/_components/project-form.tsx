@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Switch, Textarea, useZoruToast, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Switch, Textarea, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { useActionState } from 'react';
@@ -51,7 +51,7 @@ export interface ProjectFormProps {
 
 export function ProjectForm({ initial }: ProjectFormProps = {}) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [state, formAction] = useActionState(
         async (
@@ -275,13 +275,13 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                             <div className="md:col-span-2">
                                 <Label>Project Visibility</Label>
                                 <Select name="visibilityType" defaultValue={initial?.visibilityType ?? 'assigned'}>
-                                    <ZoruSelectTrigger className="w-full">
-                                        <ZoruSelectValue placeholder="Select visibility" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">Visible to all employees</ZoruSelectItem>
-                                        <ZoruSelectItem value="assigned">Only assigned team members</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Select visibility" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Visible to all employees</SelectItem>
+                                        <SelectItem value="assigned">Only assigned team members</SelectItem>
+                                    </SelectContent>
                                 </Select>
                                 <p className="text-[11px] text-[var(--st-text-secondary)] mt-1">
                                     Admins will always see all projects. This setting controls visibility for regular employees.

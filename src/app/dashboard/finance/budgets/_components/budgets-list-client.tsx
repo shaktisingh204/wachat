@@ -2,27 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Button, 
-  Input, 
-  Label, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createBudget, updateBudget, deleteBudget, Budget } from '@/app/actions/finance/budgets.actions';
@@ -225,28 +205,28 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
 
       <div className="rounded-md border bg-white overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>DepartmentId</TableHead><TableHead>FiscalYear</TableHead><TableHead>BudgetedAmount</TableHead><TableHead>ActualSpent</TableHead><TableHead>Variance</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <THead>
+            <Tr>
+              <Th>DepartmentId</Th><Th>FiscalYear</Th><Th>BudgetedAmount</Th><Th>ActualSpent</Th><Th>Variance</Th>
+              <Th className="w-[80px]"></Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredItems.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+              <Tr>
+                <Td colSpan={6} className="h-24 text-center">
                   No results.
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ) : (
               filteredItems.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell>{String(item.departmentId ?? '')}</TableCell>
-                  <TableCell>{String(item.fiscalYear ?? '')}</TableCell>
-                  <TableCell>{fmtINR(Number(item.budgetedAmount || 0))}</TableCell>
-                  <TableCell>{fmtINR(Number(item.actualSpent || 0))}</TableCell>
-                  <TableCell>{fmtINR(Number(item.variance || 0))}</TableCell>
-                  <TableCell>
+                <Tr key={item._id}>
+                  <Td>{String(item.departmentId ?? '')}</Td>
+                  <Td>{String(item.fiscalYear ?? '')}</Td>
+                  <Td>{fmtINR(Number(item.budgetedAmount || 0))}</Td>
+                  <Td>{fmtINR(Number(item.actualSpent || 0))}</Td>
+                  <Td>{fmtINR(Number(item.variance || 0))}</Td>
+                  <Td>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -265,11 +245,11 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </TableBody>
+          </TBody>
         </Table>
       </div>
 

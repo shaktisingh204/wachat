@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   format } from 'date-fns';
 import {
@@ -101,38 +92,38 @@ export function PayrollRunsTable({
   return (
     <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow className="hover:bg-transparent">
-            <ZoruTableHead className="w-10">
+        <THead>
+          <Tr className="hover:bg-transparent">
+            <Th className="w-10">
               <Checkbox
                 aria-label="Select all rows on this page"
                 checked={allSelected}
                 onCheckedChange={(v) => onToggleAll(Boolean(v))}
               />
-            </ZoruTableHead>
-            <ZoruTableHead>Period</ZoruTableHead>
-            <ZoruTableHead>Pay date</ZoruTableHead>
-            <ZoruTableHead className="text-right">Employees</ZoruTableHead>
-            <ZoruTableHead className="text-right">Gross</ZoruTableHead>
-            <ZoruTableHead className="text-right">Net</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead className="text-right">Approvals</ZoruTableHead>
-            <ZoruTableHead>Disbursed at</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+            </Th>
+            <Th>Period</Th>
+            <Th>Pay date</Th>
+            <Th className="text-right">Employees</Th>
+            <Th className="text-right">Gross</Th>
+            <Th className="text-right">Net</Th>
+            <Th>Status</Th>
+            <Th className="text-right">Approvals</Th>
+            <Th>Disbursed at</Th>
+            <Th className="text-right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {rows.length === 0 ? (
-            <ZoruTableRow>
-              <ZoruTableCell
+            <Tr>
+              <Td
                 colSpan={10}
                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 {hasActiveFilters
                   ? 'No payroll runs match the current filters.'
                   : 'No payroll runs yet.'}
-              </ZoruTableCell>
-            </ZoruTableRow>
+              </Td>
+            </Tr>
           ) : (
             rows.map((r) => {
               const employeeCount =
@@ -140,41 +131,41 @@ export function PayrollRunsTable({
               const status = (r.status ?? 'draft') as CrmPayrollRunStatus;
               const approvals = r.approvals?.length ?? 0;
               return (
-                <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
-                  <ZoruTableCell>
+                <Tr key={r._id} className="border-[var(--st-border)]">
+                  <Td>
                     <Checkbox
                       aria-label={`Select run for ${periodLabel(r)}`}
                       checked={selected.has(r._id)}
                       onCheckedChange={() => onToggleOne(r._id)}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                  </Td>
+                  <Td className="text-[13px] text-[var(--st-text)]">
                     {periodLabel(r)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[13px] text-[var(--st-text-secondary)]">
                     {fmtDate(r.payDate)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[13px] tabular-nums text-[var(--st-text)]">
+                  </Td>
+                  <Td className="text-right text-[13px] tabular-nums text-[var(--st-text)]">
                     {employeeCount}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
+                  </Td>
+                  <Td className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                     {fmtMoney(r.totals?.gross ?? 0, 'INR')}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
+                  </Td>
+                  <Td className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                     {fmtMoney(r.totals?.net ?? 0, 'INR')}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <StatusPill label={status} tone={statusToTone(status)} />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[13px] tabular-nums text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-right text-[13px] tabular-nums text-[var(--st-text-secondary)]">
                     {approvals}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[13px] text-[var(--st-text-secondary)]">
                     {status === 'disbursed' || status === 'closed'
                       ? fmtDate(r.updatedAt)
                       : '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <div className="flex justify-end gap-1">
                       {(status === 'draft' || status === 'processing') && (
                         <Button
@@ -230,12 +221,12 @@ export function PayrollRunsTable({
                         <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                       </Button>
                     </div>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               );
             })
           )}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </div>
   );

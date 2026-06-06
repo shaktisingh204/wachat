@@ -1,6 +1,6 @@
 'use client';
 
-import { ScrollArea, Button, Skeleton, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/sabcrm/20ui/compat';
+import { ScrollArea, Button, Skeleton, Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
 import { ArrowLeft, Info, LoaderCircle, Phone, Video } from 'lucide-react';
 import { FacebookChatMessage } from './facebook-chat-message';
 import { FacebookMessageInput } from './facebook-message-input';
@@ -35,8 +35,8 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
                     <Avatar>
-                        <ZoruAvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} data-ai-hint="person avatar"/>
-                        <ZoruAvatarFallback>{participant?.name.charAt(0).toUpperCase() || 'U'}</ZoruAvatarFallback>
+                        <AvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} data-ai-hint="person avatar"/>
+                        <AvatarFallback>{participant?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                     </Avatar>
                     <div>
                         <p className="font-semibold">{participant?.name}</p>

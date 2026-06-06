@@ -19,13 +19,7 @@ import {
 
 import { PageHeader } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { ScrollArea } from '@/components/sabcrm/20ui/compat';
 import { cn } from "@/lib/utils";
 

@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 /**
  * Contract create/edit dialog — extracted out of the contracts list
  * page to keep page.tsx under 600 lines.
@@ -73,15 +57,15 @@ export function ContractFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-2xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="text-[var(--st-text)]">
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-[var(--st-text)]">
             {editing ? 'Edit Contract' : 'Add Contract'}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+          </DialogTitle>
+          <DialogDescription className="text-[var(--st-text-secondary)]">
             Fill in the details below.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <form action={action} className="space-y-4">
           {editing?._id ? (
@@ -121,16 +105,16 @@ export function ContractFormDialog({
                 name="status"
                 defaultValue={editing?.status || 'draft'}
               >
-                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                  <ZoruSelectItem value="sent">Sent</ZoruSelectItem>
-                  <ZoruSelectItem value="signed">Signed</ZoruSelectItem>
-                  <ZoruSelectItem value="expired">Expired</ZoruSelectItem>
-                  <ZoruSelectItem value="terminated">Terminated</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="sent">Sent</SelectItem>
+                  <SelectItem value="signed">Signed</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                  <SelectItem value="terminated">Terminated</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div>
@@ -139,15 +123,15 @@ export function ContractFormDialog({
                 name="esignProvider"
                 defaultValue={(editing as any)?.esignProvider || 'internal'}
               >
-                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="internal">Internal (SabNode)</ZoruSelectItem>
-                  <ZoruSelectItem value="docusign">DocuSign</ZoruSelectItem>
-                  <ZoruSelectItem value="hellosign">HelloSign</ZoruSelectItem>
-                  <ZoruSelectItem value="adobe_sign">Adobe Sign</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="internal">Internal (SabNode)</SelectItem>
+                  <SelectItem value="docusign">DocuSign</SelectItem>
+                  <SelectItem value="hellosign">HelloSign</SelectItem>
+                  <SelectItem value="adobe_sign">Adobe Sign</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div>
@@ -205,16 +189,16 @@ export function ContractFormDialog({
                 <Label className="text-[var(--st-text)]">Body</Label>
                 {templates.length > 0 && (
                   <Select onValueChange={handleTemplateChange}>
-                    <ZoruSelectTrigger className="h-8 w-[200px] text-[12px]">
-                      <ZoruSelectValue placeholder="Apply template..." />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger className="h-8 w-[200px] text-[12px]">
+                      <SelectValue placeholder="Apply template..." />
+                    </SelectTrigger>
+                    <SelectContent>
                       {templates.map((t) => (
-                        <ZoruSelectItem key={t._id} value={t._id}>
+                        <SelectItem key={t._id} value={t._id}>
                           {t.name}
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
                 )}
               </div>
@@ -228,7 +212,7 @@ export function ContractFormDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter className="gap-2">
+          <DialogFooter className="gap-2">
             <Button
               type="button"
               variant="outline"
@@ -239,9 +223,9 @@ export function ContractFormDialog({
             <Button type="submit" disabled={isSaving}>
               Save
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

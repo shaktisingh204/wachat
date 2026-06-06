@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { ChevronRight,
@@ -75,7 +55,7 @@ function CreateSabwaProjectDialog({
   onOpenChange: (next: boolean) => void;
   onCreated: (projectId: string) => void;
 }) {
-  const toast = useZoruToast();
+  const toast = useToast();
   const [name, setName] = React.useState('');
   const [pending, startTransition] = React.useTransition();
 
@@ -108,14 +88,14 @@ function CreateSabwaProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>New SabWa project</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>New SabWa project</DialogTitle>
+          <DialogDescription>
             A dedicated workspace for one or more WhatsApp accounts. Stays
             separate from your WaChat, Meta, and CRM projects.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <form onSubmit={submit} className="space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor="sabwa-new-project-name">Name</Label>
@@ -128,7 +108,7 @@ function CreateSabwaProjectDialog({
               onChange={(e) => setName(e.target.value)}
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
@@ -141,9 +121,9 @@ function CreateSabwaProjectDialog({
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus />}
               Create
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -214,15 +194,15 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
   return (
     <div className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-10 sm:px-6">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>SabWa</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>SabWa</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <div className="mt-5 flex flex-wrap items-end justify-between gap-3">

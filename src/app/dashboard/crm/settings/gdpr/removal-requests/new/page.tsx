@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -50,7 +50,7 @@ const SCOPES: { value: EraseScope; label: string; help: string }[] = [
 
 export default function NewGdprEraseRequestPage() {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [subjectKind, setSubjectKind] = React.useState<EraseSubjectKind>('contact');
     const [subjectId, setSubjectId] = React.useState<string | null>(null);
     const [subjectLabel, setSubjectLabel] = React.useState<string>('');

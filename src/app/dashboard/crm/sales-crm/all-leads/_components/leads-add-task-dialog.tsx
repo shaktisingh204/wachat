@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useFormStatus } from 'react-dom';
 import { LoaderCircle,
@@ -61,7 +49,7 @@ export function LeadsAddTaskDialog({
     onOpenChange,
     onCreated,
 }: LeadsAddTaskDialogProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const formRef = React.useRef<HTMLFormElement>(null);
     const [isPending, startTransition] = React.useTransition();
 
@@ -88,13 +76,13 @@ export function LeadsAddTaskDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-md">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Add task for this lead</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Add task for this lead</DialogTitle>
+                    <DialogDescription>
                         The task will be linked to this lead and surface on the right rail.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <form
                     ref={formRef}
                     action={submitForm}
@@ -151,7 +139,7 @@ export function LeadsAddTaskDialog({
                         />
                     </div>
 
-                    <ZoruDialogFooter className="pt-2">
+                    <DialogFooter className="pt-2">
                         <Button
                             type="button"
                             variant="ghost"
@@ -161,9 +149,9 @@ export function LeadsAddTaskDialog({
                             Cancel
                         </Button>
                         <SubmitButton />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

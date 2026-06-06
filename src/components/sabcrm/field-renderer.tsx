@@ -42,18 +42,7 @@ import {
   Star,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Input,
-  Switch,
-  Textarea,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Input, Switch, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, cn } from '@/components/sabcrm/20ui/compat';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import type {
   FieldMetadata,

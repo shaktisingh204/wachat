@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Checkbox, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Check,
@@ -50,7 +30,7 @@ import {
 
 export default function NewCrmApiTokenPage() {
     const router = useRouter();
-    const toast = useZoruToast();
+    const toast = useToast();
 
     const [name, setName] = React.useState('');
     const [selectedScopes, setSelectedScopes] = React.useState<Set<OAuthScope>>(
@@ -141,18 +121,18 @@ export default function NewCrmApiTokenPage() {
         return (
             <div className="flex min-h-full flex-col gap-6">
                 <PageHeader>
-                    <ZoruPageHeading>
+                    <PageHeading>
                         <KeyRound className="size-5" />
-                        <ZoruPageTitle>Token created</ZoruPageTitle>
-                    </ZoruPageHeading>
+                        <PageTitle>Token created</PageTitle>
+                    </PageHeading>
                 </PageHeader>
 
                 <Alert variant="destructive">
-                    <ZoruAlertTitle>Copy this token now</ZoruAlertTitle>
-                    <ZoruAlertDescription>
+                    <AlertTitle>Copy this token now</AlertTitle>
+                    <AlertDescription>
                         This is the only time the full token will be displayed. Once you
                         leave this page, it cannot be retrieved.
-                    </ZoruAlertDescription>
+                    </AlertDescription>
                 </Alert>
 
                 <Card className="p-4">
@@ -188,27 +168,27 @@ export default function NewCrmApiTokenPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/crm/settings/api-tokens">
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/crm/settings/api-tokens">
                             API Tokens
-                        </ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>New</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>New</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader>
-                <ZoruPageHeading>
+                <PageHeading>
                     <KeyRound className="size-5" />
-                    <ZoruPageTitle>New API Token</ZoruPageTitle>
-                </ZoruPageHeading>
-                <ZoruPageDescription>
+                    <PageTitle>New API Token</PageTitle>
+                </PageHeading>
+                <PageDescription>
                     Tokens grant programmatic access to the CRM public REST API.
-                </ZoruPageDescription>
+                </PageDescription>
             </PageHeader>
 
             <form className="space-y-6" onSubmit={handleSubmit}>

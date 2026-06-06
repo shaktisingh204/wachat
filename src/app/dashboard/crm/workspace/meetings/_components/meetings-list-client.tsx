@@ -15,20 +15,7 @@ import {
     Edit2,
     CalendarDays,
 } from 'lucide-react';
-import {
-    Button,
-    Card,
-    Input,
-    Label,
-    Textarea,
-    useZoruToast,
-    Table,
-    ZoruTableHeader,
-    ZoruTableBody,
-    ZoruTableRow,
-    ZoruTableCell,
-    ZoruTableHead,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast, Table, THead, TBody, Tr, Td, Th } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
@@ -54,7 +41,7 @@ const STATUS_TONES: Record<string, StatusTone> = {
 };
 
 export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [meetings, setMeetings] = React.useState<MeetingSchedulerType[]>(initialMeetings);
     const [isLoading, setIsLoading] = React.useState(false);
     const [isMutating, startMutate] = React.useTransition();
@@ -315,29 +302,29 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                 <Card className="p-0">
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Meeting Details</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Scheduled Time</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Attendees</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Video Link</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">Meeting Details</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Scheduled Time</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Attendees</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Video Link</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell colSpan={6} className="h-24 text-center">
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td colSpan={6} className="h-24 text-center">
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : filteredMeetings.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
                                             No meetings scheduled.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     filteredMeetings.map((m) => {
                                         const dt = (m as any).dateTime ? new Date((m as any).dateTime) : null;
@@ -346,8 +333,8 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                         const dur = (m as any).duration ?? 30;
 
                                         return (
-                                            <ZoruTableRow key={m._id} className="border-[var(--st-border)]">
-                                                <ZoruTableCell className="font-semibold text-[var(--st-text)]">
+                                            <Tr key={m._id} className="border-[var(--st-border)]">
+                                                <Td className="font-semibold text-[var(--st-text)]">
                                                     <div className="flex flex-col">
                                                         <span>{m.meetingTitle}</span>
                                                         {(m as any).notes && (
@@ -356,8 +343,8 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                                             </span>
                                                         )}
                                                     </div>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     <div className="flex flex-col">
                                                         <span className="flex items-center gap-1">
                                                             <Calendar className="h-3 w-3 text-[var(--st-text-secondary)]" /> {dateStr}
@@ -366,16 +353,16 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                                             <Clock className="h-3 w-3" /> {timeStr} ({dur}m)
                                                         </span>
                                                     </div>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     <div className="flex items-center gap-1">
                                                         <Users className="h-3 w-3 text-[var(--st-text-secondary)]" />
                                                         <span className="max-w-[200px] truncate" title={m.attendees}>
                                                             {m.attendees}
                                                         </span>
                                                     </div>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     {(m as any).videoLink ? (
                                                         <Button variant="outline" size="sm" asChild className="h-8">
                                                             <a href={(m as any).videoLink} target="_blank" rel="noopener noreferrer">
@@ -385,11 +372,11 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                                     ) : (
                                                         <span className="text-[12px] text-[var(--st-text-secondary)]">No video call</span>
                                                     )}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill label={m.status} tone={STATUS_TONES[m.status] ?? 'neutral'} />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <div className="flex justify-end gap-1.5">
                                                         {m.status === 'scheduled' && (
                                                             <>
@@ -408,12 +395,12 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                                             <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                         </Button>
                                                     </div>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </Card>

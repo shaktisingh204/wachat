@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useParams,
   useRouter } from 'next/navigation';
@@ -94,7 +94,7 @@ function linkedHref(kind: TaskLinkedKind | undefined, id: string | undefined): s
 export default function TaskDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const taskId = (params?.id as string) || '';
 
@@ -295,10 +295,10 @@ export default function TaskDetailPage() {
             >
                 {/* ─── Overview ─────────────────────────────────────────── */}
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Overview</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <CardHeader>
+                        <CardTitle>Overview</CardTitle>
+                    </CardHeader>
+                    <CardBody className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <Field label="Type" value={(task.type as string) || 'Follow-up'} />
                         <Field
                             label="Due date"
@@ -370,25 +370,25 @@ export default function TaskDetailPage() {
                                 </p>
                             </div>
                         ) : null}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* ─── Checklist ────────────────────────────────────────── */}
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Checklist</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Checklist</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <TaskChecklist taskId={taskId} items={checklist} />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* ─── Attachments ──────────────────────────────────────── */}
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Attachments</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Attachments</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         {/* TODO 1D.2: SabFile picker integration deferred — wire SabFilePickerButton with onPick → updateCrmTask. */}
                         {attachments.length === 0 ? (
                             <p className="text-sm text-[var(--st-text-secondary)]">
@@ -412,15 +412,15 @@ export default function TaskDetailPage() {
                                 ))}
                             </ul>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* ─── Reminders ────────────────────────────────────────── */}
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Reminders</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Reminders</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         {reminders.length === 0 ? (
                             <p className="text-sm text-[var(--st-text-secondary)]">
                                 No reminders set. Edit the task to schedule one.
@@ -442,15 +442,15 @@ export default function TaskDetailPage() {
                                 })}
                             </ul>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* ─── Notes ────────────────────────────────────────────── */}
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Notes</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Notes</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         {/* TODO 1D.2: full notes timeline + inline composer deferred —
                             crm-notes' record-kind enum does not include 'task' yet.
                             For now task.description carries the note content; edit the
@@ -465,7 +465,7 @@ export default function TaskDetailPage() {
                             </Link>{' '}
                             to update the description.
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </EntityDetailShell>
 

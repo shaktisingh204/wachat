@@ -1,16 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  PageHeader,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardHeader, CardTitle, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
 import { ArrowLeft } from 'lucide-react';
 import { getMeetRoom, getMeetRoomAnalytics } from '@/app/actions/sabmeet.actions';
 
@@ -39,16 +29,16 @@ export default async function AnalyticsPage({ params }: PageProps) {
     <div className="space-y-6 p-6">
       <PageHeader>
         <div>
-          <ZoruPageTitle>Analytics</ZoruPageTitle>
-          <ZoruPageDescription>{room.name}</ZoruPageDescription>
+          <PageTitle>Analytics</PageTitle>
+          <PageDescription>{room.name}</PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Button asChild variant="outline">
             <Link href="/dashboard/meetings">
               <ArrowLeft className="h-4 w-4 mr-2" /> Back
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">

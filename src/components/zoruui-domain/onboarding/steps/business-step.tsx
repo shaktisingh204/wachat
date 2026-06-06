@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Label,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Label, Alert, AlertDescription, AlertTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   LoaderCircle } from 'lucide-react';
@@ -155,8 +144,8 @@ export function BusinessStep({
             {error && (
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Tell us a bit more</ZoruAlertTitle>
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    <AlertTitle>Tell us a bit more</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 
@@ -168,16 +157,16 @@ export function BusinessStep({
                         onValueChange={setIndustry}
                         disabled={isPending}
                     >
-                        <ZoruSelectTrigger id="industry">
-                            <ZoruSelectValue placeholder="Pick one" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger id="industry">
+                            <SelectValue placeholder="Pick one" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {INDUSTRIES.map((i) => (
-                                <ZoruSelectItem key={i} value={i}>
+                                <SelectItem key={i} value={i}>
                                     {i}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
 
@@ -188,16 +177,16 @@ export function BusinessStep({
                         onValueChange={setTeamSize}
                         disabled={isPending}
                     >
-                        <ZoruSelectTrigger id="teamSize">
-                            <ZoruSelectValue placeholder="People on your team" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger id="teamSize">
+                            <SelectValue placeholder="People on your team" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {TEAM_SIZES.map((t) => (
-                                <ZoruSelectItem key={t} value={t}>
+                                <SelectItem key={t} value={t}>
                                     {t}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
 
@@ -208,16 +197,16 @@ export function BusinessStep({
                         onValueChange={setVolume}
                         disabled={isPending}
                     >
-                        <ZoruSelectTrigger id="volume">
-                            <ZoruSelectValue placeholder="Messages / month" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger id="volume">
+                            <SelectValue placeholder="Messages / month" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {VOLUMES.map((v) => (
-                                <ZoruSelectItem key={v.value} value={v.value}>
+                                <SelectItem key={v.value} value={v.value}>
                                     {v.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
             </div>

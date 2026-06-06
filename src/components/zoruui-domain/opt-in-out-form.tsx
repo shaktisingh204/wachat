@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Label,
-  Switch,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Label, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -60,16 +49,16 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
     <Card className="card-gradient card-gradient-orange">
       <form action={formAction} ref={formRef}>
         <input type="hidden" name="projectId" value={project._id.toString()} />
-        <ZoruCardHeader>
+        <CardHeader>
           <div className="flex items-center justify-between">
             <div className="space-y-1.5">
-                <ZoruCardTitle>Opt-in & Opt-out</ZoruCardTitle>
-                <ZoruCardDescription>Manage keywords for user subscription preferences.</ZoruCardDescription>
+                <CardTitle>Opt-in & Opt-out</CardTitle>
+                <CardDescription>Manage keywords for user subscription preferences.</CardDescription>
             </div>
             <Switch name="enabled" defaultChecked={settings?.enabled} />
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className="grid md:grid-cols-2 gap-6">
+        </CardHeader>
+        <CardBody className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
                 <h4 className="font-semibold text-[var(--st-text)]">Opt-in Settings</h4>
                 <div className="space-y-2">
@@ -92,10 +81,10 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
                     <Textarea id="optOutResponse" name="optOutResponse" defaultValue={settings?.optOutResponse} placeholder="You have been unsubscribed." />
                 </div>
             </div>
-        </ZoruCardContent>
-        <ZoruCardFooter>
+        </CardBody>
+        <CardFooter>
           <SubmitButton />
-        </ZoruCardFooter>
+        </CardFooter>
       </form>
     </Card>
   );

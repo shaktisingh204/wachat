@@ -1,13 +1,6 @@
 'use client';
 
-import {
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Badge,
-    Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { CardBody, CardDescription, CardHeader, CardTitle, Badge, Separator } from '@/components/sabcrm/20ui/compat';
 import { UserProfileFormProps } from './types';
 import { 
     CheckCircle2, 
@@ -36,16 +29,16 @@ export function OnboardingDetailsCard({ user }: UserProfileFormProps) {
 
     return (
         <>
-            <ZoruCardHeader>
-                <ZoruCardTitle className="flex items-center gap-2">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
                     <Layers className="h-5 w-5" />
                     Onboarding Details
-                </ZoruCardTitle>
-                <ZoruCardDescription>
+                </CardTitle>
+                <CardDescription>
                     Setup information collected during your onboarding.
-                </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-5">
+                </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-5">
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-[var(--st-text-secondary)]">Status</span>
                     <Badge variant={isComplete ? 'default' : 'secondary'}>
@@ -142,7 +135,7 @@ export function OnboardingDetailsCard({ user }: UserProfileFormProps) {
                         )}
                     </div>
                 )}
-            </ZoruCardContent>
+            </CardBody>
         </>
     );
 }

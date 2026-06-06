@@ -1,16 +1,6 @@
 import { fmtDate } from '@/lib/utils';
 import { Suspense } from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import Link from 'next/link';
@@ -164,25 +154,25 @@ async function AwardsPageContainer() {
         </div>
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Program name</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Period</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Total nominations</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Total winners</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">Program name</Th>
+                <Th className="text-[var(--st-text-secondary)]">Period</Th>
+                <Th className="text-[var(--st-text-secondary)]">Total nominations</Th>
+                <Th className="text-[var(--st-text-secondary)]">Total winners</Th>
+                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {loadError ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={5}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     Could not load award programs. Please try again.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : programs.length > 0 ? (
                 programs.map((program, idx) => {
                   const id = program._id ? String(program._id) : String(idx);
@@ -193,39 +183,39 @@ async function AwardsPageContainer() {
                     ? program.winners.length
                     : 0;
                   return (
-                    <ZoruTableRow key={id} className="border-[var(--st-border)]">
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                    <Tr key={id} className="border-[var(--st-border)]">
+                      <Td className="text-[var(--st-text)]">
                         <Link
                           href={`/dashboard/hrm/hr/awards/${id}`}
                           className="hover:underline"
                         >
                           {program.name || 'Untitled program'}
                         </Link>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {formatPeriod(program.periodStart, program.periodEnd)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">{nominations}</ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">{winners}</ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td className="text-[var(--st-text)]">{nominations}</Td>
+                      <Td className="text-[var(--st-text)]">{winners}</Td>
+                      <Td>
                         <Badge variant={getStatusVariant(program.status)}>
                           {program.status || 'draft'}
                         </Badge>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               ) : (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={5}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No award programs yet. Define a recognition cycle to start collecting nominations.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

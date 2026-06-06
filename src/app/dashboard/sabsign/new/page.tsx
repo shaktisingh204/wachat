@@ -15,18 +15,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, Send, ArrowLeft, Settings2 } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-  Switch
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Switch } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import type { SabFilePick } from '@/components/sabfiles';
 import {

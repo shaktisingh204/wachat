@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input, Popover, ZoruPopoverContent, ZoruPopoverTrigger, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Popover, PopoverContent, PopoverTrigger, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarClock,
   Loader2,
@@ -303,7 +303,7 @@ export function Composer({
 
       <div className="flex items-end gap-1">
         <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
-          <ZoruPopoverTrigger asChild>
+          <PopoverTrigger asChild>
             <Button
               type="button"
               variant="ghost"
@@ -313,8 +313,8 @@ export function Composer({
             >
               <Smile className="h-5 w-5" />
             </Button>
-          </ZoruPopoverTrigger>
-          <ZoruPopoverContent side="top" align="start" className="w-72 p-2">
+          </PopoverTrigger>
+          <PopoverContent side="top" align="start" className="w-72 p-2">
             <div className="grid grid-cols-8 gap-1">
               {QUICK_EMOJIS.map((emoji) => (
                 <button
@@ -330,7 +330,7 @@ export function Composer({
                 </button>
               ))}
             </div>
-          </ZoruPopoverContent>
+          </PopoverContent>
         </Popover>
 
         <SabFilePickerButton
@@ -354,7 +354,7 @@ export function Composer({
 
         {onSchedule ? (
           <Popover open={scheduleOpen} onOpenChange={setScheduleOpen}>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
               <Button
                 type="button"
                 variant="ghost"
@@ -364,8 +364,8 @@ export function Composer({
               >
                 <CalendarClock className="h-5 w-5" />
               </Button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent side="top" align="end" className="w-72 p-3">
+            </PopoverTrigger>
+            <PopoverContent side="top" align="end" className="w-72 p-3">
               <div className="space-y-2">
                 <label
                   htmlFor="composer-schedule-at"
@@ -388,7 +388,7 @@ export function Composer({
                   Schedule
                 </Button>
               </div>
-            </ZoruPopoverContent>
+            </PopoverContent>
           </Popover>
         ) : null}
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, ZoruAvatarFallback, Badge } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge } from '@/components/sabcrm/20ui/compat';
 import { User as UserIcon } from 'lucide-react';
 
 /**
@@ -176,9 +176,9 @@ export function ActivityRow({
     return (
         <li className="flex items-start gap-3 p-4">
             <Avatar className="h-8 w-8">
-                <ZoruAvatarFallback>
+                <AvatarFallback>
                     <UserIcon className="h-4 w-4" />
-                </ZoruAvatarFallback>
+                </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-[13px] text-[var(--st-text)]">

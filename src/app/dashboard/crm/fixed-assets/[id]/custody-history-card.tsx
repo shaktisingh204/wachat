@@ -1,4 +1,4 @@
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
@@ -27,22 +27,22 @@ export async function CustodyHistoryCard({ assetId }: { assetId: string }) {
   if (entries.length === 0) {
     return (
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Custody history</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Custody history</CardTitle>
+        </CardHeader>
+        <CardBody>
           <p className="text-[13px] text-[var(--st-text-secondary)]">No custody changes recorded yet.</p>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     );
   }
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>Custody history</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      <CardHeader>
+        <CardTitle>Custody history</CardTitle>
+      </CardHeader>
+      <CardBody>
         <ol className="relative space-y-4 border-l border-[var(--st-border)] pl-4 ml-2">
           {entries.map((entry) => {
             const assigneeId = entry.diff?.custodianEmployeeId?.after;
@@ -68,7 +68,7 @@ export async function CustodyHistoryCard({ assetId }: { assetId: string }) {
             );
           })}
         </ol>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

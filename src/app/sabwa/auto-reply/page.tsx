@@ -1,37 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Switch,
-  Textarea,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea, cn } from '@/components/sabcrm/20ui/compat';
 import {
   Beaker,
   Clock,
@@ -399,19 +368,19 @@ export default function Page() {
     return (
       <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Auto-reply</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Auto-reply</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
         <EmptyState
           icon={<Smartphone />}
@@ -431,19 +400,19 @@ export default function Page() {
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Auto-reply</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Auto-reply</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Header */}
@@ -468,10 +437,10 @@ export default function Page() {
       </div>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-[14px]">Rules</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-0">
+        <CardHeader>
+          <CardTitle className="text-[14px]">Rules</CardTitle>
+        </CardHeader>
+        <CardBody className="p-0">
           {loading && rules.length === 0 && (
             <p className="px-6 py-10 text-center text-[13px] text-[var(--st-text-secondary)]">
               Loading rules…
@@ -562,7 +531,7 @@ export default function Page() {
               </li>
             ))}
           </ul>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Test sandbox */}
@@ -612,16 +581,16 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="flex items-center gap-2 text-[14px]">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-[14px]">
           <Beaker className="h-4 w-4" /> Test sandbox
-        </ZoruCardTitle>
+        </CardTitle>
         <p className="text-[11.5px] text-[var(--st-text-secondary)]">
           Pure client-side simulation — no message is sent. Verify which rules
           would fire for a given inbound.
         </p>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-3">
+      </CardHeader>
+      <CardBody className="space-y-3">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="sb-sender">From (sender)</Label>
@@ -735,7 +704,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
             )}
           </div>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -819,16 +788,16 @@ function RuleEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-3xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>
             {initial ? 'Edit rule' : 'New auto-reply rule'}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             Compose triggers (left) and actions (right). All triggers must match
             for the rule to fire.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-3">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto]">
@@ -912,15 +881,15 @@ function RuleEditorDialog({
           </div>
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={() => void onSubmit()} disabled={!valid || saving}>
             {saving ? 'Saving…' : initial ? 'Save changes' : 'Create rule'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -948,16 +917,16 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
           value={trigger.kind}
           onValueChange={(v) => onChange({ kind: v as TriggerKind })}
         >
-          <ZoruSelectTrigger className="h-8 text-[13px]">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-8 text-[13px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
             {TRIGGER_OPTIONS.map((o) => (
-              <ZoruSelectItem key={o.value} value={o.value}>
+              <SelectItem key={o.value} value={o.value}>
                 {o.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Button
           size="icon-sm"
@@ -1030,16 +999,16 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
           value={action.kind}
           onValueChange={(v) => onChange({ kind: v as ActionKind })}
         >
-          <ZoruSelectTrigger className="h-8 text-[13px]">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-8 text-[13px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
             {ACTION_OPTIONS.map((o) => (
-              <ZoruSelectItem key={o.value} value={o.value}>
+              <SelectItem key={o.value} value={o.value}>
                 {o.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Button
           size="icon-sm"

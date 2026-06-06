@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Label, Skeleton, StatCard, Switch, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Label, Skeleton, StatCard, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,
@@ -50,7 +50,7 @@ function ToggleRow({
 }
 
 export default function TaskSettingsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [settings, setSettings] = useState<WsTaskSetting | null>(null);
   const [isLoading, startLoading] = useTransition();
   const [saveState, formAction, isSaving] = useActionState(

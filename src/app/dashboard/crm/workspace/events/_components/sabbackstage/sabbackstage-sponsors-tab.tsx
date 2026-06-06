@@ -7,13 +7,7 @@
  */
 
 import * as React from 'react';
-import {
-  Badge,
-  Button,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
 
 import { SabFilePickerButton } from '@/components/sabfiles';
@@ -48,7 +42,7 @@ export function SabbackstageSponsorsTab({
 }: {
   eventId: string;
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<SabbackstageSponsorDoc[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [form, setForm] = React.useState<NewSponsorForm>(EMPTY);

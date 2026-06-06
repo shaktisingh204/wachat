@@ -3,17 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-  Badge,
-  PageHeader,
-  Tabs,
-  ZoruPageDescription,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruTabsContent,
-  ZoruTabsList,
-  ZoruTabsTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, PageHeader, Tabs, PageDescription, PageHeading, PageTitle, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 import type { SabpublishProfileFieldDoc } from '@/lib/rust-client/sabpublish-profile-fields';
 import type { SabpublishProviderDoc } from '@/lib/rust-client/sabpublish-providers';
@@ -48,14 +38,14 @@ export function SabpublishLocationDetailClient({
   return (
     <div className="zoruui space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>{location.name}</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>{location.name}</PageTitle>
+          <PageDescription>
             {[location.addressLine1, location.city, location.region]
               .filter(Boolean)
               .join(', ') || 'No address yet'}
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <div className="flex items-center gap-2">
           <Badge variant="outline">{location.status ?? 'draft'}</Badge>
           <Link
@@ -68,45 +58,45 @@ export function SabpublishLocationDetailClient({
       </PageHeader>
 
       <Tabs defaultValue="profile">
-        <ZoruTabsList>
-          <ZoruTabsTrigger value="profile">Profile</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="providers">Providers</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="reviews">Reviews</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="posts">Posts</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="citations">Citations</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="history">Sync history</ZoruTabsTrigger>
-        </ZoruTabsList>
+        <TabsList>
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="providers">Providers</TabsTrigger>
+          <TabsTrigger value="reviews">Reviews</TabsTrigger>
+          <TabsTrigger value="posts">Posts</TabsTrigger>
+          <TabsTrigger value="citations">Citations</TabsTrigger>
+          <TabsTrigger value="history">Sync history</TabsTrigger>
+        </TabsList>
 
-        <ZoruTabsContent value="profile" className="pt-4">
+        <TabsContent value="profile" className="pt-4">
           <SabpublishProfileTab
             locationId={location._id}
             initial={data.profileFields}
           />
-        </ZoruTabsContent>
-        <ZoruTabsContent value="providers" className="pt-4">
+        </TabsContent>
+        <TabsContent value="providers" className="pt-4">
           <SabpublishProvidersTab
             locationId={location._id}
             initial={data.providers}
           />
-        </ZoruTabsContent>
-        <ZoruTabsContent value="reviews" className="pt-4">
+        </TabsContent>
+        <TabsContent value="reviews" className="pt-4">
           <SabpublishReviewsTab initial={data.reviews} />
-        </ZoruTabsContent>
-        <ZoruTabsContent value="posts" className="pt-4">
+        </TabsContent>
+        <TabsContent value="posts" className="pt-4">
           <SabpublishPostsTab
             locationId={location._id}
             initial={data.posts}
           />
-        </ZoruTabsContent>
-        <ZoruTabsContent value="citations" className="pt-4">
+        </TabsContent>
+        <TabsContent value="citations" className="pt-4">
           <SabpublishCitationsTab
             locationId={location._id}
             initial={data.citations}
           />
-        </ZoruTabsContent>
-        <ZoruTabsContent value="history" className="pt-4">
+        </TabsContent>
+        <TabsContent value="history" className="pt-4">
           <SabpublishSyncHistoryTab initial={data.syncJobs} />
-        </ZoruTabsContent>
+        </TabsContent>
       </Tabs>
     </div>
   );

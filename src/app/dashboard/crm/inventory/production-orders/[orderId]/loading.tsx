@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function ProductionOrderLoading() {
   return (
@@ -24,10 +24,10 @@ export default function ProductionOrderLoading() {
       <div className="flex flex-col gap-6 md:flex-row md:items-start">
         <main className="min-w-0 flex-1 space-y-6">
           <Card>
-            <ZoruCardHeader>
+            <CardHeader>
               <Skeleton className="h-5 w-32" />
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            </CardHeader>
+            <CardBody>
               <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="space-y-1">
@@ -36,54 +36,54 @@ export default function ProductionOrderLoading() {
                   </div>
                 ))}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
           
           <Card>
-            <ZoruCardHeader>
+            <CardHeader>
               <Skeleton className="h-5 w-40" />
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+            </CardHeader>
+            <CardBody className="space-y-4">
               <div className="space-y-2">
                 <Skeleton className="h-4 w-full" />
               </div>
               <div className="space-y-2">
                 <Skeleton className="h-4 w-full" />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
           
           <Card>
-            <ZoruCardHeader>
+            <CardHeader>
               <Skeleton className="h-5 w-48" />
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-3">
                 <Skeleton className="h-8 w-full" />
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </main>
         
         <aside className="w-full md:w-80 md:shrink-0">
           <div className="md:sticky md:top-4 space-y-4">
             <Card>
-              <ZoruCardHeader>
+              <CardHeader>
                 <Skeleton className="h-5 w-32" />
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-2">
+              </CardHeader>
+              <CardBody className="space-y-2">
                 <Skeleton className="h-4 w-40" />
                 <Skeleton className="h-3 w-24" />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardHeader>
+              <CardHeader>
                 <Skeleton className="h-5 w-32" />
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              </CardHeader>
+              <CardBody>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                   <Skeleton className="h-4 w-20" />
                   <Skeleton className="h-4 w-24 justify-self-end" />
@@ -94,7 +94,7 @@ export default function ProductionOrderLoading() {
                   <Skeleton className="h-5 w-24 pt-1" />
                   <Skeleton className="h-5 w-28 justify-self-end pt-1" />
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </aside>

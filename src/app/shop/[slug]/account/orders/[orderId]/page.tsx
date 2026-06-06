@@ -1,5 +1,5 @@
 import { fmtDate } from "@/lib/utils";
-import { Button, Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, Separator } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui/compat';
 import { getEcommOrderById, getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -30,13 +30,13 @@ export default async function OrderDetailsPage({ params }: { params: { slug: str
                 </Link>
             </Button>
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="text-2xl">Order Details</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle className="text-2xl">Order Details</CardTitle>
+                    <CardDescription>
                         Order #{order._id.toString()} - Placed on {fmtDate(order.createdAt)}
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-6">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                              <h3 className="font-semibold">Shipping Address</h3>
@@ -74,7 +74,7 @@ export default async function OrderDetailsPage({ params }: { params: { slug: str
                         <div className="flex justify-between"><span className="text-[var(--st-text-secondary)]">Shipping</span><span>{formatPrice(order.shipping, currency)}</span></div>
                         <div className="flex justify-between font-bold text-lg"><span className="text-[var(--st-text)]">Total</span><span>{formatPrice(order.total, currency)}</span></div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

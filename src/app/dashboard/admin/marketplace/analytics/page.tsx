@@ -21,7 +21,7 @@ import { redirect } from 'next/navigation';
 import { BarChart3, Download, Eye, Search, ShieldCheck, Store } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/sabcrm/20ui/compat';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import { getAdminSession } from '@/lib/admin-session';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -378,43 +378,43 @@ export default async function MarketplaceAnalyticsPage() {
               </div>
             ) : (
               <Table className="w-full text-sm">
-                <TableHeader>
-                  <TableRow className="border-b border-[var(--st-border)] hover:bg-transparent">
+                <THead>
+                  <Tr className="border-b border-[var(--st-border)] hover:bg-transparent">
                     {['Query', 'Results', 'Time'].map((h, i) => (
-                      <TableHead
+                      <Th
                         key={i}
                         className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--st-text)]"
                       >
                         {h}
-                      </TableHead>
+                      </Th>
                     ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody className="divide-y divide-[var(--st-border)]">
+                  </Tr>
+                </THead>
+                <TBody className="divide-y divide-[var(--st-border)]">
                   {data.recentSearches.map((s, i) => (
-                    <TableRow
+                    <Tr
                       key={i}
                       className="border-[var(--st-border)] transition-colors hover:bg-[var(--st-text)]/50"
                     >
-                      <TableCell className="px-5 py-3 text-white">
+                      <Td className="px-5 py-3 text-white">
                         {s.query || (
                           <span className="italic text-[var(--st-text)]">(empty)</span>
                         )}
-                      </TableCell>
-                      <TableCell className="px-5 py-3 tabular-nums text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="px-5 py-3 tabular-nums text-[var(--st-text-secondary)]">
                         {s.resultCount}
-                      </TableCell>
-                      <TableCell className="px-5 py-3 text-xs text-[var(--st-text)] tabular-nums">
+                      </Td>
+                      <Td className="px-5 py-3 text-xs text-[var(--st-text)] tabular-nums">
                         {s.ts
                           ? new Date(s.ts).toLocaleString('en-GB', {
                               dateStyle: 'short',
                               timeStyle: 'medium',
                             })
                           : '—'}
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </TableBody>
+                </TBody>
               </Table>
             )}
           </Card>

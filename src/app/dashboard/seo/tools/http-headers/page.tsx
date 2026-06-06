@@ -1,17 +1,6 @@
 'use client';
 
-import { 
-  Button, 
-  Input, 
-  Card, 
-  ZoruCardContent, 
-  cn,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import React, { useState } from 'react';
 import { ArrowRightIcon, AlertCircle } from 'lucide-react';
 
@@ -41,7 +30,7 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode, title?: 
     if (this.state.hasError) {
       return (
         <Card className="border-[var(--st-border)] mt-4">
-          <ZoruCardContent className="p-4 flex flex-col items-center justify-center space-y-4">
+          <CardBody className="p-4 flex flex-col items-center justify-center space-y-4">
             <AlertCircle className="w-8 h-8 text-[var(--st-text)]" />
             <div className="text-[var(--st-text)] font-semibold text-center">{this.props.title || 'Something went wrong rendering the results!'}</div>
             <p className="text-sm text-[var(--st-text)] text-center max-w-md break-all">{this.state.error?.message}</p>
@@ -49,7 +38,7 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode, title?: 
               this.setState({ hasError: false });
               this.props.onReset?.();
             }}>Try again</Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       );
     }
@@ -156,7 +145,7 @@ export default function HttpHeadersPage() {
             
             {data.redirectChain && data.redirectChain.length > 1 && (
               <Card>
-                <ZoruCardContent className="p-4">
+                <CardBody className="p-4">
                   <h3 className="font-semibold mb-3">Redirect Trace</h3>
                   <div className="flex flex-col gap-3">
                     {data.redirectChain.map((step: any, idx: number) => (
@@ -182,12 +171,12 @@ export default function HttpHeadersPage() {
                       </div>
                     ))}
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             )}
 
             <Card>
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="font-semibold">Final Status:</span> 
                   <span className={cn("px-2 py-0.5 rounded text-sm font-semibold", 
@@ -212,7 +201,7 @@ export default function HttpHeadersPage() {
                     </tbody>
                   </table>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             </div>
           )}

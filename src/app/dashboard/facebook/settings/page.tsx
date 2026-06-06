@@ -1,28 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Separator,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Separator, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -92,7 +70,7 @@ function ReadonlyField({
   copyable?: boolean;
   monospace?: boolean;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const safe = value || "—";
 
   const copy = () => {
@@ -170,21 +148,21 @@ export default function FacebookSettingsPage() {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard/facebook">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard/facebook">
                 Meta Suite
-              </ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Settings</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
         <div className="mt-6">
           <NoProjectState />
@@ -198,11 +176,11 @@ export default function FacebookSettingsPage() {
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>Project not found</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Project not found</AlertTitle>
+          <AlertDescription>
             The selected project could not be loaded. Try refreshing or pick
             another project.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       </div>
     );
@@ -213,34 +191,34 @@ export default function FacebookSettingsPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Settings</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5" bordered={false}>
-        <ZoruPageHeading>
+        <PageHeading>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
             Project · {project.name}
           </p>
-          <ZoruPageTitle>Facebook connection</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>Facebook connection</PageTitle>
+          <PageDescription>
             Review the connected Facebook Page and Ad Account for this project.
             All IDs were retrieved automatically via Embedded Signup.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={refresh}>
             <RefreshCw /> Refresh
@@ -283,11 +261,11 @@ export default function FacebookSettingsPage() {
             <div className="mt-5">
               <Alert variant="warning">
                 <AlertCircle />
-                <ZoruAlertTitle>No Facebook account connected</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>No Facebook account connected</AlertTitle>
+                <AlertDescription>
                   No Facebook Page or Ad Account is connected to this project.
                   Use the connect button above to authorize Meta.
-                </ZoruAlertDescription>
+                </AlertDescription>
               </Alert>
             </div>
           ) : (

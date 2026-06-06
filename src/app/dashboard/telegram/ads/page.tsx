@@ -1,35 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruChartContainer,
-  Checkbox,
-  ZoruDateRangePicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  EmptyState,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, ChartContainer, Checkbox, DateRangePicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, EmptyState, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ChevronLeft,
   ChevronRight,
@@ -158,7 +129,7 @@ function validateForm(f: FormState): string | null {
 export default function TelegramAdsPage() {
     const { activeProject } = useProject();
     const projectId = activeProject?._id?.toString() ?? '';
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [data, setData] = React.useState<ListResp | null>(null);
     const [analytics, setAnalytics] = React.useState<AnalyticsResp | null>(null);
@@ -544,7 +515,7 @@ export default function TelegramAdsPage() {
                 {analyticsLoading ? (
                     <Skeleton className="h-[280px] w-full" />
                 ) : analytics && analytics.byDay.length > 0 ? (
-                    <ZoruChartContainer height={280}>
+                    <ChartContainer height={280}>
                         <ComposedChart data={analytics.byDay} margin={{ top: 8, right: 12, bottom: 4, left: 0 }}>
                             <CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
                             <XAxis dataKey="date" tick={{ fontSize: 11 }} />
@@ -576,7 +547,7 @@ export default function TelegramAdsPage() {
                                 dot={false}
                             />
                         </ComposedChart>
-                    </ZoruChartContainer>
+                    </ChartContainer>
                 ) : (
                     <div className="flex h-[200px] items-center justify-center text-sm text-[var(--st-text-secondary)]">
                         No data in the selected range.
@@ -598,20 +569,20 @@ export default function TelegramAdsPage() {
                     </div>
                     <div className="min-w-[150px]">
                         <Select value={status} onValueChange={(v) => setStatus(v as StatusFilter)}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="min-w-[260px]">
-                        <ZoruDateRangePicker
+                        <DateRangePicker
                             value={range.from ? { from: range.from, to: range.to } : undefined}
                             onChange={(r) => setRange({ from: r?.from, to: r?.to })}
                         />
@@ -791,16 +762,16 @@ export default function TelegramAdsPage() {
             </Card>
 
             {/* Editor drawer */}
-            <ZoruDrawer open={editorOpen} onOpenChange={setEditorOpen}>
-                <ZoruDrawerContent>
-                    <ZoruDrawerHeader>
-                        <ZoruDrawerTitle>
+            <Drawer open={editorOpen} onOpenChange={setEditorOpen}>
+                <DrawerContent>
+                    <DrawerHeader>
+                        <DrawerTitle>
                             {editorForm.campaignId ? 'Edit campaign' : 'New campaign'}
-                        </ZoruDrawerTitle>
-                        <ZoruDrawerDescription>
+                        </DrawerTitle>
+                        <DrawerDescription>
                             Local tracking record for a Telegram Ads campaign.
-                        </ZoruDrawerDescription>
-                    </ZoruDrawerHeader>
+                        </DrawerDescription>
+                    </DrawerHeader>
                     <div className="grid gap-3 px-6 pb-4 sm:grid-cols-2">
                         <Field label="Name">
                             <Input
@@ -816,16 +787,16 @@ export default function TelegramAdsPage() {
                                 value={editorForm.status}
                                 onValueChange={(v) => setEditorForm((f) => ({ ...f, status: v }))}
                             >
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {STATUS_OPTIONS.filter((o) => o.value !== 'all').map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
+                                        <SelectItem key={o.value} value={o.value}>
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </Field>
                         <Field label="Platform ID">
@@ -904,22 +875,22 @@ export default function TelegramAdsPage() {
                             Save
                         </Button>
                     </div>
-                </ZoruDrawerContent>
-            </ZoruDrawer>
+                </DrawerContent>
+            </Drawer>
 
             {/* Import dialog */}
             <Dialog open={importOpen} onOpenChange={setImportOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Import campaigns from CSV</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Import campaigns from CSV</DialogTitle>
+                        <DialogDescription>
                             Headers must include <code>name</code> and may also use{' '}
                             <code>impressions</code>, <code>clicks</code>, <code>budget_cents</code>,{' '}
                             <code>status</code>, <code>platform_id</code>, <code>landing_url</code>.
                             Matched on <code>platform_id</code> if present, otherwise on{' '}
                             <code>name</code>.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="grid gap-3">
                         <div className="text-[12px] text-[var(--st-text-secondary)]">
                             Sample:
@@ -933,15 +904,15 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                                 value={importMode}
                                 onValueChange={(v) => setImportMode(v as 'append' | 'replace_stats')}
                             >
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="append">Append (add to counts)</ZoruSelectItem>
-                                    <ZoruSelectItem value="replace_stats">
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="append">Append (add to counts)</SelectItem>
+                                    <SelectItem value="replace_stats">
                                         Replace stats
-                                    </ZoruSelectItem>
-                                </ZoruSelectContent>
+                                    </SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         <Textarea
@@ -952,7 +923,7 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                             className="font-mono text-[12px]"
                         />
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setImportOpen(false)}>
                             Cancel
                         </Button>
@@ -960,19 +931,19 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                             {importing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                             Import
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* UTM dialog */}
             <Dialog open={utmOpen} onOpenChange={setUtmOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>UTM link</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>UTM link</DialogTitle>
+                        <DialogDescription>
                             {utmRow ? `For "${utmRow.name}"` : null}
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     {!utmRow?.landingUrl ? (
                         <p className="text-[13px] text-[var(--st-danger)]">
                             This campaign has no landing URL — add one to generate a UTM link.
@@ -994,7 +965,7 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                             ) : null}
                         </div>
                     ) : null}
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setUtmOpen(false)}>
                             Close
                         </Button>
@@ -1002,46 +973,46 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                             <Copy className="h-3.5 w-3.5" />
                             {utmCopy ? 'Copied' : 'Copy'}
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Single-row delete confirm */}
             <Dialog open={!!deleteRow} onOpenChange={(v) => !v && setDeleteRow(null)}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Delete campaign?</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete campaign?</DialogTitle>
+                        <DialogDescription>
                             {deleteRow ? `"${deleteRow.name}" will be permanently removed.` : ''}
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setDeleteRow(null)}>
                             Cancel
                         </Button>
                         <Button size="sm" onClick={confirmDelete}>
                             Delete
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Bulk delete confirm */}
             <Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Delete {selected.size} campaigns?</ZoruDialogTitle>
-                        <ZoruDialogDescription>This cannot be undone.</ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete {selected.size} campaigns?</DialogTitle>
+                        <DialogDescription>This cannot be undone.</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button variant="outline" size="sm" onClick={() => setBulkDeleteOpen(false)}>
                             Cancel
                         </Button>
                         <Button size="sm" onClick={confirmBulkDelete}>
                             Delete
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );
@@ -1058,7 +1029,7 @@ function KpiCard({
 }) {
     return (
         <Card>
-            <ZoruCardContent className="flex flex-col gap-1 pt-5">
+            <CardBody className="flex flex-col gap-1 pt-5">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     {label}
                 </p>
@@ -1067,7 +1038,7 @@ function KpiCard({
                 ) : (
                     <p className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">{value}</p>
                 )}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

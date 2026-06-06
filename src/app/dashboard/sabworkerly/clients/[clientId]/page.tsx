@@ -2,23 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
-import {
-    Button,
-    Card,
-    CardHeader,
-    CardTitle,
-    CardContent,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageActions,
-    Badge,
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardContent, PageHeader, PageTitle, PageActions, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
 import {
     getSabworkerlyClientById,
     getSabworkerlyJobs,
@@ -55,12 +39,12 @@ export default async function ClientDetailPage({
     return (
         <div className="zoruui flex flex-col gap-5">
             <PageHeader>
-                <ZoruPageTitle>{client.name}</ZoruPageTitle>
-                <ZoruPageActions>
+                <PageTitle>{client.name}</PageTitle>
+                <PageActions>
                     <Link href={`/dashboard/sabworkerly/jobs/new?clientId=${clientId}`}>
                         <Button>Post job for client</Button>
                     </Link>
-                </ZoruPageActions>
+                </PageActions>
             </PageHeader>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -94,30 +78,30 @@ export default async function ClientDetailPage({
                         <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">No jobs yet.</p>
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Charge rate</TableHead>
-                                    <TableHead>Pay rate</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Title</Th>
+                                    <Th>Charge rate</Th>
+                                    <Th>Pay rate</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {jobs.map((j) => (
-                                    <TableRow key={j._id}>
-                                        <TableCell>
+                                    <Tr key={j._id}>
+                                        <Td>
                                             <Link href={`/dashboard/sabworkerly/jobs/${j._id}`} className="hover:underline">
                                                 {j.title}
                                             </Link>
-                                        </TableCell>
-                                        <TableCell>{money(j.hourlyChargeRateMinor, j.currency)}/h</TableCell>
-                                        <TableCell>{money(j.hourlyPayRateMinor, j.currency)}/h</TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>{money(j.hourlyChargeRateMinor, j.currency)}/h</Td>
+                                        <Td>{money(j.hourlyPayRateMinor, j.currency)}/h</Td>
+                                        <Td>
                                             <Badge variant="secondary">{j.status}</Badge>
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>
@@ -130,24 +114,24 @@ export default async function ClientDetailPage({
                         <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">No active placements.</p>
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Worker</TableHead>
-                                    <TableHead>Start</TableHead>
-                                    <TableHead>End</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Worker</Th>
+                                    <Th>Start</Th>
+                                    <Th>End</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {placements.map((p) => (
-                                    <TableRow key={p._id}>
-                                        <TableCell className="font-mono text-xs">{p.workerId}</TableCell>
-                                        <TableCell>{new Date(p.startDate).toLocaleDateString()}</TableCell>
-                                        <TableCell>{p.endDate ? new Date(p.endDate).toLocaleDateString() : '—'}</TableCell>
-                                        <TableCell><Badge variant="secondary">{p.status}</Badge></TableCell>
-                                    </TableRow>
+                                    <Tr key={p._id}>
+                                        <Td className="font-mono text-xs">{p.workerId}</Td>
+                                        <Td>{new Date(p.startDate).toLocaleDateString()}</Td>
+                                        <Td>{p.endDate ? new Date(p.endDate).toLocaleDateString() : '—'}</Td>
+                                        <Td><Badge variant="secondary">{p.status}</Badge></Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>
@@ -160,27 +144,27 @@ export default async function ClientDetailPage({
                         <p className="p-6 text-sm text-[color:var(--st-text-secondary)]">No invoices yet.</p>
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Period</TableHead>
-                                    <TableHead>Lines</TableHead>
-                                    <TableHead>Total</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Period</Th>
+                                    <Th>Lines</Th>
+                                    <Th>Total</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {invoices.map((inv) => (
-                                    <TableRow key={inv._id}>
-                                        <TableCell>
+                                    <Tr key={inv._id}>
+                                        <Td>
                                             {new Date(inv.periodStart).toLocaleDateString()} —{' '}
                                             {new Date(inv.periodEnd).toLocaleDateString()}
-                                        </TableCell>
-                                        <TableCell>{inv.lineItems.length}</TableCell>
-                                        <TableCell>{money(inv.totalMinor, inv.currency)}</TableCell>
-                                        <TableCell><Badge variant="secondary">{inv.status}</Badge></TableCell>
-                                    </TableRow>
+                                        </Td>
+                                        <Td>{inv.lineItems.length}</Td>
+                                        <Td>{money(inv.totalMinor, inv.currency)}</Td>
+                                        <Td><Badge variant="secondary">{inv.status}</Badge></Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>

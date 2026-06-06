@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Textarea,
-  zoruSonnerToast,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea, zoruSonnerToast, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
 import {
   Banknote,
   CreditCard,
@@ -339,7 +326,7 @@ export function PosTerminalClient({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
             {/* Left 60% — item picker */}
             <Card className="md:col-span-3">
-                <ZoruCardContent className="flex flex-col gap-3 p-4">
+                <CardBody className="flex flex-col gap-3 p-4">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                         <Input
@@ -382,12 +369,12 @@ export function PosTerminalClient({
                             ))
                         )}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Right 40% — cart panel */}
             <Card className="md:col-span-2">
-                <ZoruCardContent className="flex flex-col gap-3 p-4">
+                <CardBody className="flex flex-col gap-3 p-4">
                     <div className="flex items-center justify-between">
                         <p className="text-sm font-medium text-[var(--st-text)]">
                             Cart {prefillHold ? '· recalled' : ''}
@@ -636,7 +623,7 @@ export function PosTerminalClient({
                                 : `Checkout · ${fmtMoney(totals.total)}`}
                         </Button>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Dialog
@@ -645,12 +632,12 @@ export function PosTerminalClient({
                     if (!open) setReceipt(null);
                 }}
             >
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
                             Receipt · {receipt?.transactionNumber}
-                        </ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                        </DialogTitle>
+                    </DialogHeader>
                     <div className="flex flex-col gap-2 font-mono text-[12px]">
                         {receipt?.lines.map((l, idx) => (
                             <div
@@ -676,7 +663,7 @@ export function PosTerminalClient({
                             <span className="capitalize">{receipt?.method}</span>
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button
                             variant="outline"
                             onClick={() => setReceipt(null)}
@@ -686,8 +673,8 @@ export function PosTerminalClient({
                         <Button onClick={() => window.print()}>
                             <Printer className="h-4 w-4" /> Print
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

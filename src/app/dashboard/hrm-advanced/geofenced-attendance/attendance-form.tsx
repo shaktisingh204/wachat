@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
 import { AttendanceRecord } from '@/lib/hrm-advanced-types';
 
 interface AttendanceFormProps {
@@ -25,10 +25,10 @@ export function AttendanceForm({ isOpen, onClose, onSave, initialData }: Attenda
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>{formData._id ? 'Edit' : 'Add'} Attendance Record</ZoruDialogTitle>
-        </ZoruDialogHeader>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{formData._id ? 'Edit' : 'Add'} Attendance Record</DialogTitle>
+        </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium">Employee ID</label>
@@ -86,12 +86,12 @@ export function AttendanceForm({ isOpen, onClose, onSave, initialData }: Attenda
               />
             </div>
           )}
-          <ZoruDialogFooter className="mt-4">
+          <DialogFooter className="mt-4">
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
             <Button type="submit">Save</Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

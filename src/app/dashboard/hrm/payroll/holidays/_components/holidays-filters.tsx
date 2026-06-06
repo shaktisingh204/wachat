@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   XCircle } from 'lucide-react';
@@ -77,17 +68,17 @@ export function HolidaysFiltersRow({
         />
 
         <Select value={yearFilter} onValueChange={onYearChange}>
-          <ZoruSelectTrigger className="h-9 w-[120px]" aria-label="Year">
-            <ZoruSelectValue placeholder="Year" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All years</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[120px]" aria-label="Year">
+            <SelectValue placeholder="Year" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All years</SelectItem>
             {yearOptions.map((y) => (
-              <ZoruSelectItem key={y} value={String(y)}>
+              <SelectItem key={y} value={String(y)}>
                 {y}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         <EnumFilterField

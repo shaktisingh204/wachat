@@ -1,22 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -54,7 +38,7 @@ export function SyncCustomProductsDialog({
   const [selectedCatalogId, setSelectedCatalogId] = useState<string>("");
   const [isLoading, startLoadingTransition] = useTransition();
   const [isSyncing, startSyncingTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const fetchAndSetCatalogs = (showToast = false) => {
     startLoadingTransition(async () => {
@@ -103,20 +87,20 @@ export function SyncCustomProductsDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="outline">
           <Facebook />
           Sync to Facebook catalog
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Sync products to Facebook</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Sync products to Facebook</DialogTitle>
+          <DialogDescription>
             Push your custom products to a Meta Catalog. This will create or
             update products based on their internal ID.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-2 py-2">
           <Label htmlFor="catalog-select">Target catalog</Label>
           <div className="flex items-center gap-2">
@@ -125,19 +109,19 @@ export function SyncCustomProductsDialog({
               onValueChange={setSelectedCatalogId}
               disabled={isLoading}
             >
-              <ZoruSelectTrigger id="catalog-select">
-                <ZoruSelectValue placeholder="Select a catalog…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="catalog-select">
+                <SelectValue placeholder="Select a catalog…" />
+              </SelectTrigger>
+              <SelectContent>
                 {catalogs.map((catalog) => (
-                  <ZoruSelectItem
+                  <SelectItem
                     key={catalog._id.toString()}
                     value={catalog.metaCatalogId}
                   >
                     {catalog.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Button
               variant="ghost"
@@ -154,7 +138,7 @@ export function SyncCustomProductsDialog({
             </Button>
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button
             type="button"
             variant="ghost"
@@ -170,8 +154,8 @@ export function SyncCustomProductsDialog({
             {isSyncing ? <LoaderCircle className="animate-spin" /> : null}
             Sync now
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

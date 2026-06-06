@@ -2,12 +2,7 @@
 
 import * as React from 'react';
 
-import {
-    ZoruTagPicker,
-    useZoruToast,
-    type ZoruTagPickerProps,
-    type ZoruTagPickerTag,
-} from '@/components/sabcrm/20ui/compat';
+import { TagPicker, useToast, type TagPickerProps, type ZoruTagPickerTag } from '@/components/sabcrm/20ui/compat';
 import {
     createUserTag,
     deleteUserTag,
@@ -15,19 +10,19 @@ import {
 } from '@/app/actions/user.actions';
 
 /**
- * User-level tag picker. Thin wrapper over `ZoruTagPicker` that wires the
+ * User-level tag picker. Thin wrapper over `TagPicker` that wires the
  * `user.tags` server actions so any caller in SabNode can drop this in
  * and get create/edit/delete for free.
  */
 export type UserTagPickerProps = Omit<
-    ZoruTagPickerProps,
+    TagPickerProps,
     'onCreate' | 'onUpdate' | 'onDelete' | 'onError'
 >;
 
 export type TagPickerTag = ZoruTagPickerTag;
 
 export function TagPicker(props: UserTagPickerProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const unwrap = async (
         fn: () => Promise<
             { ok: true; tags: ZoruTagPickerTag[] } | { ok: false; error: string }
@@ -39,7 +34,7 @@ export function TagPicker(props: UserTagPickerProps) {
     };
 
     return (
-        <ZoruTagPicker
+        <TagPicker
             {...props}
             onCreate={(input) => unwrap(() => createUserTag(input))}
             onUpdate={(id, patch) => unwrap(() => updateUserTag(id, patch))}

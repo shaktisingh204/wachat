@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -85,7 +73,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export function TdsForm({ initialData }: TdsFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [wsConnected, setWsConnected] = useState(false);
@@ -228,16 +216,16 @@ export function TdsForm({ initialData }: TdsFormProps) {
                     <div className="space-y-1.5">
                         <Label htmlFor="fy-trigger">Financial year</Label>
                         <Select value={financialYear} onValueChange={setFinancialYear}>
-                            <ZoruSelectTrigger id="fy-trigger">
-                                <ZoruSelectValue placeholder="FY" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="fy-trigger">
+                                <SelectValue placeholder="FY" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {memoizedFyOptions.map((fy) => (
-                                    <ZoruSelectItem key={fy} value={fy}>
+                                    <SelectItem key={fy} value={fy}>
                                         FY {fy}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1.5">

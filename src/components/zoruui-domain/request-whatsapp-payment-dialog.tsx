@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -62,15 +51,15 @@ export function RequestWhatsAppPaymentDialog({ isOpen, onOpenChange, contact }: 
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md">
                 <form action={formAction} ref={formRef}>
                     <input type="hidden" name="contactId" value={contact._id.toString()} />
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle className="flex items-center gap-2"><WaPayIcon className="h-5 w-5"/>Request WhatsApp Payment</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2"><WaPayIcon className="h-5 w-5"/>Request WhatsApp Payment</DialogTitle>
+                        <DialogDescription>
                             Send a UPI payment request to {contact.name}.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="amount">Amount (INR)</Label>
@@ -85,12 +74,12 @@ export function RequestWhatsAppPaymentDialog({ isOpen, onOpenChange, contact }: 
                             <Input id="externalReference" name="externalReference" placeholder="e.g., order_1234" />
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

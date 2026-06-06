@@ -2,28 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Skeleton,
-  useZoruToast,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Alert,
-  ZoruAlertDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Skeleton, useToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Alert, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowRight,
@@ -159,16 +138,16 @@ function CreateTelegramProjectDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="max-w-md">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>New Telegram project</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            <DialogContent className="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>New Telegram project</DialogTitle>
+                    <DialogDescription>
                         A Telegram project is a workspace for bots, chats,
                         and broadcasts. It's separate from your WhatsApp
                         (Wachat) projects — only data and rules created
                         inside this project apply to its bots.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
                 <div className="flex flex-col gap-3">
                     <label className="flex flex-col gap-1.5">
@@ -195,7 +174,7 @@ function CreateTelegramProjectDialog({
                     ) : null}
                 </div>
 
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button
                         variant="outline"
                         size="sm"
@@ -216,8 +195,8 @@ function CreateTelegramProjectDialog({
                         )}
                         Create project
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -259,7 +238,7 @@ export default function TelegramProjectPickerPage() {
         isLoadingProject,
         reloadProjects,
     } = useProject();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [createOpen, setCreateOpen] = React.useState(false);
 
@@ -472,7 +451,7 @@ export default function TelegramProjectPickerPage() {
                 <Alert variant="warning" className="py-3">
                     <AlertCircle className="h-4 w-4" />
                     <div className="flex items-center justify-between gap-4">
-                        <ZoruAlertDescription>{countsError}</ZoruAlertDescription>
+                        <AlertDescription>{countsError}</AlertDescription>
                         <Button 
                             variant="outline" 
                             size="sm" 

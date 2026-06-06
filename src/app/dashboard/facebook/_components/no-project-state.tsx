@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from "lucide-react";
 
 /**
@@ -15,10 +15,10 @@ export function NoProjectState() {
   return (
     <Alert variant="warning">
       <AlertCircle />
-      <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-      <ZoruAlertDescription>
+      <AlertTitle>No project selected</AlertTitle>
+      <AlertDescription>
         Pick a project from the main dashboard to use this Meta Suite tool.
-      </ZoruAlertDescription>
+      </AlertDescription>
     </Alert>
   );
 }
@@ -27,8 +27,8 @@ export function ErrorState({ message }: { message: string }) {
   return (
     <Alert variant="destructive">
       <AlertCircle />
-      <ZoruAlertTitle>Something went wrong</ZoruAlertTitle>
-      <ZoruAlertDescription>{message}</ZoruAlertDescription>
+      <AlertTitle>Something went wrong</AlertTitle>
+      <AlertDescription>{message}</AlertDescription>
     </Alert>
   );
 }

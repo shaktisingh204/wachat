@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Select, ZoruSelectTrigger, ZoruSelectValue, SelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 
 export function TimelineFilter() {
     const router = useRouter();
@@ -19,13 +19,13 @@ export function TimelineFilter() {
                     router.push(`?${params.toString()}`, { scroll: false });
                 }}
             >
-                <ZoruSelectTrigger className="w-[180px]">
-                    <ZoruSelectValue placeholder="Filter timeline" />
-                </ZoruSelectTrigger>
+                <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filter timeline" />
+                </SelectTrigger>
                 <SelectContent>
-                    <ZoruSelectItem value="all">All Activity</ZoruSelectItem>
-                    <ZoruSelectItem value="manual">Manual Edits</ZoruSelectItem>
-                    <ZoruSelectItem value="system">System Triggers</ZoruSelectItem>
+                    <SelectItem value="all">All Activity</SelectItem>
+                    <SelectItem value="manual">Manual Edits</SelectItem>
+                    <SelectItem value="system">System Triggers</SelectItem>
                 </SelectContent>
             </Select>
         </div>

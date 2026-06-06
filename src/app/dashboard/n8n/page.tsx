@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Input,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  cn,
-  useZoruToast,
-  Checkbox,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, PageDescription, PageHeader, PageHeading, PageTitle, cn, useToast, Checkbox } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -162,7 +139,7 @@ const TEMPLATES = [
 
 export default function N8NWorkflowListPage() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [workflows, setWorkflows] = useState<WorkflowItem[]>([]);
   const [isPending, startTransition] = useTransition();
   const [query, setQuery] = useState('');
@@ -330,12 +307,12 @@ export default function N8NWorkflowListPage() {
     <div className="flex min-h-full flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>n8n Workflows</ZoruPageTitle>
-            <ZoruPageDescription>
+          <PageHeading>
+            <PageTitle>n8n Workflows</PageTitle>
+            <PageDescription>
               Build and automate multi-step workflows with a node-based visual editor.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setShowTemplates(true)}>
@@ -537,31 +514,31 @@ export default function N8NWorkflowListPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
                           <Ellipsis className="h-4 w-4" />
                         </Button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent align="end" className="w-48">
-                        <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
-                        <ZoruDropdownMenuSeparator />
-                        <ZoruDropdownMenuItem
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
                           onClick={() => router.push(`/dashboard/n8n/${wf._id}`)}
                         >
                           <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onClick={() => handleToggleActive(wf)}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleToggleActive(wf)}>
                           <Play className="mr-2 h-3.5 w-3.5" />
                           {wf.active ? 'Deactivate' : 'Activate'}
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuSeparator />
-                        <ZoruDropdownMenuItem
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
                           className="text-[var(--st-danger)] focus:text-[var(--st-danger)]"
                           onClick={() => handleDelete(wf._id, wf.name)}
                         >
                           <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
                 </tr>
@@ -573,10 +550,10 @@ export default function N8NWorkflowListPage() {
 
       {/* Create dialog */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <ZoruDialogContent className="max-w-sm">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New Workflow</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>New Workflow</DialogTitle>
+          </DialogHeader>
           <div className="py-2">
             <Input
               placeholder="Workflow name…"
@@ -586,29 +563,29 @@ export default function N8NWorkflowListPage() {
               autoFocus
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreate(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={creating}>
               {creating ? 'Creating…' : 'Create'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Templates dialog */}
       <Dialog open={showTemplates} onOpenChange={setShowTemplates}>
-        <ZoruDialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col p-0">
-          <ZoruDialogHeader className="px-6 py-4 border-b border-[var(--st-border)] flex-shrink-0">
-            <ZoruDialogTitle className="flex items-center gap-2">
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b border-[var(--st-border)] flex-shrink-0">
+            <DialogTitle className="flex items-center gap-2">
               <LayoutTemplate className="h-5 w-5 text-[var(--st-text-secondary)]" />
               Template Library
-            </ZoruDialogTitle>
-            <ZoruPageDescription>
+            </DialogTitle>
+            <PageDescription>
               Start quickly by cloning a pre-built n8n workflow template.
-            </ZoruPageDescription>
-          </ZoruDialogHeader>
+            </PageDescription>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto p-6 bg-[var(--st-bg-muted)]/30">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {TEMPLATES.map(template => (
@@ -647,7 +624,7 @@ export default function N8NWorkflowListPage() {
               ))}
             </div>
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
     </div>

@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Checkbox,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   Archive,
   MoreHorizontal,
@@ -71,37 +58,37 @@ export function PoTable({
     return (
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                        <ZoruTableHead className="w-[36px]">
+                <THead>
+                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                        <Th className="w-[36px]">
                             <Checkbox
                                 aria-label="Select all orders on this page"
                                 checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                 onCheckedChange={(c) => onToggleAll(c === true)}
                             />
-                        </ZoruTableHead>
-                        <ZoruTableHead>PO #</ZoruTableHead>
-                        <ZoruTableHead>BOM ref</ZoruTableHead>
-                        <ZoruTableHead>Finished good</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Planned</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Actual yield</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Scrap</ZoruTableHead>
-                        <ZoruTableHead>Start</ZoruTableHead>
-                        <ZoruTableHead>End</ZoruTableHead>
-                        <ZoruTableHead>Status</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                        </Th>
+                        <Th>PO #</Th>
+                        <Th>BOM ref</Th>
+                        <Th>Finished good</Th>
+                        <Th className="text-right">Planned</Th>
+                        <Th className="text-right">Actual yield</Th>
+                        <Th className="text-right">Scrap</Th>
+                        <Th>Start</Th>
+                        <Th>End</Th>
+                        <Th>Status</Th>
+                        <Th className="text-right">Actions</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {orders.length === 0 ? (
-                        <ZoruTableRow className="border-[var(--st-border)]">
-                            <ZoruTableCell
+                        <Tr className="border-[var(--st-border)]">
+                            <Td
                                 colSpan={11}
                                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 No orders match the current filters.
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                        </Tr>
                     ) : (
                         orders.map((o) => {
                             const isSel = selectedIds.has(o._id);
@@ -110,7 +97,7 @@ export function PoTable({
                                     ? (o.finishedGoodId as any).toString?.()
                                     : (o.finishedGoodId as string | undefined);
                             return (
-                                <ZoruTableRow
+                                <Tr
                                     key={o._id}
                                     onContextMenu={(e) => {
                                         e.preventDefault();
@@ -122,24 +109,24 @@ export function PoTable({
                                         isSel ? 'bg-[var(--st-bg-muted)]/70' : '',
                                     ].join(' ')}
                                 >
-                                    <ZoruTableCell>
+                                    <Td>
                                         <Checkbox
                                             aria-label={`Select ${o.orderNo}`}
                                             checked={isSel}
                                             onCheckedChange={() => onToggleOne(o._id)}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <EntityRowLink
                                             href={`/dashboard/crm/inventory/production-orders/${o._id}`}
                                             label={<span className="font-mono">{o.orderNo || o._id.slice(-6)}</span>}
                                             subtitle={o.finishedGoodName || undefined}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {o.bomRef || o.bomId || '—'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {fgId ? (
                                             <EntityPickerChip
                                                 entity="item"
@@ -151,28 +138,28 @@ export function PoTable({
                                                 {o.finishedGoodName || '—'}
                                             </span>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                                         {fmtNum(o.plannedQty)} {o.unit || ''}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                                         {fmtNum(o.actualYield)} {o.unit || ''}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                                         {fmtNum(o.scrap)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {o.plannedStart ? new Date(o.plannedStart).toLocaleDateString('en-GB', { timeZone: 'UTC' }) : '—'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {o.plannedEnd ? new Date(o.plannedEnd).toLocaleDateString('en-GB', { timeZone: 'UTC' }) : '—'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <StatusPill label={o.status} tone={statusToTone(o.status)} />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <DropdownMenu>
-                                            <ZoruDropdownMenuTrigger asChild>
+                                            <DropdownMenuTrigger asChild>
                                                 <button
                                                     id={`po-actions-${o._id}`}
                                                     type="button"
@@ -181,59 +168,59 @@ export function PoTable({
                                                 >
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </button>
-                                            </ZoruDropdownMenuTrigger>
-                                            <ZoruDropdownMenuContent align="end">
-                                                <ZoruDropdownMenuItem asChild>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem asChild>
                                                     <Link
                                                         href={`/dashboard/crm/inventory/production-orders/${o._id}`}
                                                     >
                                                         View
                                                     </Link>
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem asChild>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
                                                     <Link
                                                         href={`/dashboard/crm/inventory/production-orders/${o._id}/update-yield`}
                                                     >
                                                         Update yield
                                                     </Link>
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     onClick={() => onRowStatus(o._id, 'released')}
                                                 >
                                                     Release
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     onClick={() => onRowStatus(o._id, 'in_progress')}
                                                 >
                                                     Start
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     onClick={() => onRowStatus(o._id, 'completed')}
                                                 >
                                                     Mark complete
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuSeparator />
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem
                                                     onClick={() => onRowStatus(o._id, 'cancelled')}
                                                 >
                                                     <Archive className="mr-1.5 h-3.5 w-3.5" />
                                                     Cancel
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     onClick={() => onDelete(o._id)}
                                                     className="text-[var(--st-danger)]"
                                                 >
                                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                                     Delete
-                                                </ZoruDropdownMenuItem>
-                                            </ZoruDropdownMenuContent>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             );
                         })
                     )}
-                </ZoruTableBody>
+                </TBody>
             </Table>
         </div>
     );

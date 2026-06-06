@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState } from 'react';
 
 import { FileText, Activity } from 'lucide-react';
@@ -57,19 +57,19 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
 
             <div className="grid gap-6 md:grid-cols-2">
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Upload Access Logs</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="p-0">
+                    <CardHeader>
+                        <CardTitle>Upload Access Logs</CardTitle>
+                    </CardHeader>
+                    <CardBody className="p-0">
                         <LogUploader projectId={projectId} />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Bot Traffic Distribution</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="h-[300px]">
+                    <CardHeader>
+                        <CardTitle>Bot Traffic Distribution</CardTitle>
+                    </CardHeader>
+                    <CardBody className="h-[300px]">
                         {loading ? (
                             <div className="flex h-full items-center justify-center text-[var(--st-text-secondary)]">Loading...</div>
                         ) : (
@@ -102,18 +102,18 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
                                 </div>
                             </>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
                         <Activity className="h-5 w-5 text-[var(--st-danger)]" />
                         Identify Crawl Waste
-                    </ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="space-y-4">
                         <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-4">
                             <div>
@@ -142,7 +142,7 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
                             </Button>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

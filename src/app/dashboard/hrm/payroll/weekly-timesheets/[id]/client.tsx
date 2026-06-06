@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { format, addDays } from 'date-fns';
 
-import { Badge, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import {
   submitWeeklyTimesheet,
@@ -43,7 +43,7 @@ export function TimesheetDetailClient({
   sheetId: string;
 }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [sheet, setSheet] = useState<WsWeeklyTimesheet>(initialSheet);
   const [entries, setEntries] = useState<WsWeeklyTimesheetEntry[]>(initialEntries);

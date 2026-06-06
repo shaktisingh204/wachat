@@ -1,6 +1,6 @@
 'use client';
 
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 
 /**
@@ -56,7 +56,7 @@ export function AccountDetailInteractions({
     contactEmails,
 }: AccountDetailInteractionsProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [composeOpen, setComposeOpen] = React.useState(false);
     const [archiveOpen, setArchiveOpen] = React.useState(false);
 

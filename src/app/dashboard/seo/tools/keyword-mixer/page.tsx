@@ -1,17 +1,6 @@
 'use client';
 
-import { 
-  Button, 
-  Textarea, 
-  Card, 
-  ZoruCardContent, 
-  cn,
-  Checkbox,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Input
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, cn, Checkbox, Alert, AlertTitle, AlertDescription, Input } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { AlertTriangle, Copy } from 'lucide-react';
@@ -199,16 +188,16 @@ export default function KeywordMixerPage() {
       {warning && (
         <Alert variant="destructive" className="mt-4">
           <AlertTriangle className="h-4 w-4" />
-          <ZoruAlertTitle>Notice</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Notice</AlertTitle>
+          <AlertDescription>
             {warning}
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       )}
 
       {results.length > 0 && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <div className="text-xs text-[var(--st-text-secondary)] mb-2 flex justify-between items-center">
               <span>Showing {results.length.toLocaleString()} of {totalGen.toLocaleString()} combinations</span>
               <Button 
@@ -226,7 +215,7 @@ export default function KeywordMixerPage() {
               className="min-h-[300px] font-mono text-sm leading-relaxed" 
               value={results.join('\n')} 
             />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

@@ -2,24 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Input,
-    Label,
-    Separator,
-    Textarea,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Separator, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
     createPortal,
     deletePortal,
@@ -251,16 +234,16 @@ export function KnowledgeClient({
                     value={selectedPortalId}
                     onValueChange={(v) => pushQuery({ portalId: v, selected: undefined })}
                 >
-                    <ZoruSelectTrigger className="w-64">
-                        <ZoruSelectValue placeholder="Select a portal" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger className="w-64">
+                        <SelectValue placeholder="Select a portal" />
+                    </SelectTrigger>
+                    <SelectContent>
                         {portals.map((p) => (
-                            <ZoruSelectItem key={p._id} value={p._id}>
+                            <SelectItem key={p._id} value={p._id}>
                                 {p.name} ({p.slug})
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
                 {selectedPortal ? (
                     <Badge variant={selectedPortal.active ? 'default' : 'secondary'}>
@@ -331,8 +314,8 @@ export function KnowledgeClient({
                 {/* Articles list + category mini-rail */}
                 <section className="col-span-4 flex flex-col gap-3">
                     <Card>
-                        <ZoruCardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-                            <ZoruCardTitle className="text-sm">Categories</ZoruCardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+                            <CardTitle className="text-sm">Categories</CardTitle>
                             <Button
                                 size="sm"
                                 variant="ghost"
@@ -341,8 +324,8 @@ export function KnowledgeClient({
                             >
                                 {showCategoryForm ? 'Cancel' : '+ New'}
                             </Button>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="space-y-2">
+                        </CardHeader>
+                        <CardBody className="space-y-2">
                             {showCategoryForm ? (
                                 <CategoryForm
                                     portalId={selectedPortalId}
@@ -380,16 +363,16 @@ export function KnowledgeClient({
                                     ))}
                                 </ul>
                             )}
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                     <Card>
-                        <ZoruCardHeader className="pb-2">
-                            <ZoruCardTitle className="text-sm">Articles</ZoruCardTitle>
-                            <ZoruCardDescription className="text-xs">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm">Articles</CardTitle>
+                            <CardDescription className="text-xs">
                                 {articles.length} result(s)
-                            </ZoruCardDescription>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                            </CardDescription>
+                        </CardHeader>
+                        <CardBody>
                             {articles.length === 0 ? (
                                 <div className="rounded border border-dashed p-4 text-center text-xs text-[var(--st-text-secondary)]">
                                     No articles yet. Use the editor to create one.
@@ -439,7 +422,7 @@ export function KnowledgeClient({
                                     ))}
                                 </ul>
                             )}
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </section>
 
@@ -478,13 +461,13 @@ function PortalForm({
 }) {
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle className="text-base">New knowledge portal</ZoruCardTitle>
-                <ZoruCardDescription>
+            <CardHeader>
+                <CardTitle className="text-base">New knowledge portal</CardTitle>
+                <CardDescription>
                     One portal per brand or product line — articles + categories live inside.
-                </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+                </CardDescription>
+            </CardHeader>
+            <CardBody>
                 <form
                     action={(fd) => onSubmit(fd)}
                     className="grid grid-cols-1 gap-3 md:grid-cols-2"
@@ -523,7 +506,7 @@ function PortalForm({
                         </Button>
                     </div>
                 </form>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -612,13 +595,13 @@ function ArticleEditor({
 
     return (
         <Card>
-            <ZoruCardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
                 <div>
-                    <ZoruCardTitle className="text-base">
+                    <CardTitle className="text-base">
                         {isEdit ? 'Edit article' : 'New article'}
-                    </ZoruCardTitle>
+                    </CardTitle>
                     {isEdit && article ? (
-                        <ZoruCardDescription className="flex flex-wrap items-center gap-2 text-xs">
+                        <CardDescription className="flex flex-wrap items-center gap-2 text-xs">
                             <Badge
                                 variant={STATUS_BADGE[article.status]}
                                 className="capitalize"
@@ -634,11 +617,11 @@ function ArticleEditor({
                                     {new Date(article.publishedAt).toLocaleDateString()}
                                 </span>
                             ) : null}
-                        </ZoruCardDescription>
+                        </CardDescription>
                     ) : (
-                        <ZoruCardDescription className="text-xs">
+                        <CardDescription className="text-xs">
                             Markdown supported. Saves as draft unless you change status.
-                        </ZoruCardDescription>
+                        </CardDescription>
                     )}
                 </div>
                 <div className="flex flex-wrap gap-1">
@@ -673,9 +656,9 @@ function ArticleEditor({
                         </>
                     ) : null}
                 </div>
-            </ZoruCardHeader>
+            </CardHeader>
             <Separator />
-            <ZoruCardContent>
+            <CardBody>
                 <form
                     action={(fd) => (isEdit ? onUpdate(fd) : onCreate(fd))}
                     className="grid grid-cols-1 gap-3 md:grid-cols-2"
@@ -774,7 +757,7 @@ function ArticleEditor({
                         ) : null}
                     </div>
                 </form>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

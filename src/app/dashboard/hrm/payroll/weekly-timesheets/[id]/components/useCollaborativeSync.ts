@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import type { WsWeeklyTimesheetEntry } from '@/lib/worksuite/time-types';
 
 export function useCollaborativeSync(
@@ -8,7 +8,7 @@ export function useCollaborativeSync(
   setEntries: React.Dispatch<React.SetStateAction<WsWeeklyTimesheetEntry[]>>,
   setTaskIds: React.Dispatch<React.SetStateAction<string[]>>
 ) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!isDraft) return;

@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { notFound } from 'next/navigation';
 import { withTimeout } from '../lib/timeout';
 import { fmtINR } from '@/lib/utils';
@@ -55,26 +55,26 @@ function RightRailSkeleton() {
   return (
     <div className="flex flex-col gap-4">
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Versions / variants</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-0">
+        <CardHeader>
+          <CardTitle>Versions / variants</CardTitle>
+        </CardHeader>
+        <CardBody className="p-0">
           <div className="space-y-3 px-4 py-3">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-full" />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Related production orders</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-0">
+        <CardHeader>
+          <CardTitle>Related production orders</CardTitle>
+        </CardHeader>
+        <CardBody className="p-0">
           <div className="space-y-3 px-4 py-3">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-full" />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );
@@ -137,10 +137,10 @@ export default async function BomDetailPage({ params }: PageProps) {
       audit={<EntityAuditTimeline entityKind="bom" entityId={id} />}
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Header</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Header</CardTitle>
+        </CardHeader>
+        <CardBody>
           <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-xs text-[var(--st-text)]">BOM code</dt>
@@ -186,50 +186,50 @@ export default async function BomDetailPage({ params }: PageProps) {
               </div>
             ) : null}
           </dl>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Components ({components.length})</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Components ({components.length})</CardTitle>
+        </CardHeader>
+        <CardBody>
           {components.length === 0 ? (
             <p className="text-sm text-[var(--st-text)]">No components yet.</p>
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Item</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Qty</ZoruTableHead>
-                  <ZoruTableHead>Unit</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Scrap %</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Cost / unit</ZoruTableHead>
-                  <ZoruTableHead>Optional</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Item</Th>
+                  <Th className="text-right">Qty</Th>
+                  <Th>Unit</Th>
+                  <Th className="text-right">Scrap %</Th>
+                  <Th className="text-right">Cost / unit</Th>
+                  <Th>Optional</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {components.map((c: CrmBomComponent, idx: number) => (
-                  <ZoruTableRow key={`${c.itemName}-${idx}`}>
-                    <ZoruTableCell>{c.itemName || '—'}</ZoruTableCell>
-                    <ZoruTableCell className="text-right">{c.qty}</ZoruTableCell>
-                    <ZoruTableCell>{c.unit || '—'}</ZoruTableCell>
-                    <ZoruTableCell className="text-right">{c.scrapPct ?? 0}</ZoruTableCell>
-                    <ZoruTableCell className="text-right">{fmtINR(c.costPerUnit)}</ZoruTableCell>
-                    <ZoruTableCell>{c.optional ? 'Yes' : 'No'}</ZoruTableCell>
-                  </ZoruTableRow>
+                  <Tr key={`${c.itemName}-${idx}`}>
+                    <Td>{c.itemName || '—'}</Td>
+                    <Td className="text-right">{c.qty}</Td>
+                    <Td>{c.unit || '—'}</Td>
+                    <Td className="text-right">{c.scrapPct ?? 0}</Td>
+                    <Td className="text-right">{fmtINR(c.costPerUnit)}</Td>
+                    <Td>{c.optional ? 'Yes' : 'No'}</Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Cost rollup</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Cost rollup</CardTitle>
+        </CardHeader>
+        <CardBody>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-4">
             <div>
               <dt className="text-xs text-[var(--st-text)]">Material cost</dt>
@@ -250,7 +250,7 @@ export default async function BomDetailPage({ params }: PageProps) {
               </dd>
             </div>
           </dl>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </EntityDetailShell>
   );

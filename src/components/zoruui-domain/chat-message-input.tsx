@@ -1,25 +1,6 @@
 'use client';
 
-import {
-  Input,
-  Button,
-  Popover,
-  ZoruPopoverAnchor,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  ScrollArea,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Button, Popover, PopoverAnchor, PopoverContent, PopoverTrigger, ScrollArea, Dialog, DialogContent, DialogHeader, DialogTitle, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -236,17 +217,17 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
             )}
 
             <Dialog open={isTemplateSelectorOpen} onOpenChange={setIsTemplateSelectorOpen}>
-                <ZoruDialogContent className="p-0">
-                    <ZoruDialogHeader className="px-4 pt-4 pb-2">
-                        <ZoruDialogTitle>Select a Template</ZoruDialogTitle>
-                    </ZoruDialogHeader>
-                    <ZoruCommand>
-                        <ZoruCommandInput placeholder="Search templates..." />
-                        <ZoruCommandList>
-                            <ZoruCommandEmpty>No templates found.</ZoruCommandEmpty>
-                            <ZoruCommandGroup>
+                <DialogContent className="p-0">
+                    <DialogHeader className="px-4 pt-4 pb-2">
+                        <DialogTitle>Select a Template</DialogTitle>
+                    </DialogHeader>
+                    <Command>
+                        <CommandInput placeholder="Search templates..." />
+                        <CommandList>
+                            <CommandEmpty>No templates found.</CommandEmpty>
+                            <CommandGroup>
                                 {templates.map((template) => (
-                                    <ZoruCommandItem
+                                    <CommandItem
                                         key={template._id.toString()}
                                         value={template.name}
                                         onSelect={() => {
@@ -256,12 +237,12 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                                     >
                                         <Check className={cn("mr-2 h-4 w-4 opacity-0")} />
                                         {template.name}
-                                    </ZoruCommandItem>
+                                    </CommandItem>
                                 ))}
-                            </ZoruCommandGroup>
-                        </ZoruCommandList>
-                    </ZoruCommand>
-                </ZoruDialogContent>
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                </DialogContent>
             </Dialog>
 
             <div className="flex w-full items-center gap-2 p-2 relative">
@@ -291,7 +272,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                 */}
 
                 <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
-                    <ZoruPopoverAnchor asChild>
+                    <PopoverAnchor asChild>
                         <div className="flex-1 bg-[var(--st-bg-muted)]/50 focus-within:bg-[var(--st-bg-muted)] rounded-2xl transition-colors border border-transparent focus-within:border-primary/20">
                             <Input
                                 name="messageText"
@@ -304,11 +285,11 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                                 disabled={disabled || isUploading}
                             />
                         </div>
-                    </ZoruPopoverAnchor>
+                    </PopoverAnchor>
                     {/* Hidden file input */}
                     <input type="file" id="media-file-input" className="hidden" onChange={handleFileChange} />
 
-                    <ZoruPopoverContent
+                    <PopoverContent
                         className="w-[--radix-popover-trigger-width] p-0"
                         onOpenAutoFocus={(e) => e.preventDefault()}
                         align="end" side="top"
@@ -337,7 +318,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                                 )}
                             </div>
                         </ScrollArea>
-                    </ZoruPopoverContent>
+                    </PopoverContent>
                 </Popover>
 
                 <div className="flex-shrink-0">

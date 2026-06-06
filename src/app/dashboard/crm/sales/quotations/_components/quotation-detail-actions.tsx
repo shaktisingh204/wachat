@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -81,7 +74,7 @@ export function QuotationDetailActions({
   quotationNo,
 }: QuotationDetailActionsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [currentStatus, setCurrentStatus] = React.useState(status);
   const [, startTransition] = React.useTransition();
   const [archiveOpen, setArchiveOpen] = React.useState(false);
@@ -124,7 +117,7 @@ export function QuotationDetailActions({
     <div className="flex flex-wrap items-center gap-2">
       {/* Status pill → status-change dropdown */}
       <DropdownMenu>
-        <ZoruDropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild>
           <button
             type="button"
             className="inline-flex items-center gap-1 rounded-full transition-opacity hover:opacity-80"
@@ -132,14 +125,14 @@ export function QuotationDetailActions({
           >
             <StatusPill label={currentStatus || 'draft'} tone={statusToTone(currentStatus)} />
           </button>
-        </ZoruDropdownMenuTrigger>
-        <ZoruDropdownMenuContent>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
           {STATUS_OPTIONS.map((s) => (
-            <ZoruDropdownMenuItem key={s} onSelect={() => moveTo(s)}>
+            <DropdownMenuItem key={s} onSelect={() => moveTo(s)}>
               {s}
-            </ZoruDropdownMenuItem>
+            </DropdownMenuItem>
           ))}
-        </ZoruDropdownMenuContent>
+        </DropdownMenuContent>
       </DropdownMenu>
 
       <Button size="sm" variant="outline" asChild>

@@ -1,35 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertTitle,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -66,7 +37,7 @@ import {
  *   - ViewTaggedMediaDialog      (getTaggedMediaForProduct)
  *   - BulkUploadProductsDialog   (bulkAddProductsToCatalog)
  *
- * Pure ZoruUI primitives, useZoruToast, lucide-react.
+ * Pure ZoruUI primitives, useToast, lucide-react.
  */
 
 import * as React from "react";
@@ -112,7 +83,7 @@ export function CreateProductDialog({
     createInitialState as any,
   );
   const formRef = useRef<HTMLFormElement>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
@@ -131,15 +102,15 @@ export function CreateProductDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <form action={formAction} ref={formRef} className="flex flex-col gap-5">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add new product</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Add new product</DialogTitle>
+            <DialogDescription>
               Push a product to your Meta catalog. Fields map directly to
               Commerce Manager.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="catalogId" value={catalogId} />
@@ -147,7 +118,7 @@ export function CreateProductDialog({
           {state?.error ? (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
+              <AlertDescription>{state.error}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -174,15 +145,15 @@ export function CreateProductDialog({
               <div className="grid gap-1.5">
                 <Label htmlFor="cp-currency">Currency</Label>
                 <Select name="currency" defaultValue="USD">
-                  <ZoruSelectTrigger id="cp-currency">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="USD">USD</ZoruSelectItem>
-                    <ZoruSelectItem value="EUR">EUR</ZoruSelectItem>
-                    <ZoruSelectItem value="INR">INR</ZoruSelectItem>
-                    <ZoruSelectItem value="GBP">GBP</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger id="cp-currency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="EUR">EUR</SelectItem>
+                    <SelectItem value="INR">INR</SelectItem>
+                    <SelectItem value="GBP">GBP</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </div>
@@ -202,7 +173,7 @@ export function CreateProductDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -211,9 +182,9 @@ export function CreateProductDialog({
               Cancel
             </Button>
             <CreateSubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -257,7 +228,7 @@ export function EditProductDialog({
     editInitialState as any,
   );
   const formRef = useRef<HTMLFormElement>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [imageUrl, setImageUrl] = useState<string>("");
 
   useEffect(() => {
@@ -286,14 +257,14 @@ export function EditProductDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <form action={formAction} ref={formRef} className="flex flex-col gap-5">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit product</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Edit product</DialogTitle>
+            <DialogDescription>
               Update the catalog entry. Changes sync to Meta on save.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="productId" value={product.id} />
@@ -301,7 +272,7 @@ export function EditProductDialog({
           {state?.error ? (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
+              <AlertDescription>{state.error}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -332,15 +303,15 @@ export function EditProductDialog({
                   name="currency"
                   defaultValue={product.currency ?? "USD"}
                 >
-                  <ZoruSelectTrigger id="ep-currency">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="USD">USD</ZoruSelectItem>
-                    <ZoruSelectItem value="EUR">EUR</ZoruSelectItem>
-                    <ZoruSelectItem value="INR">INR</ZoruSelectItem>
-                    <ZoruSelectItem value="GBP">GBP</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger id="ep-currency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="EUR">EUR</SelectItem>
+                    <SelectItem value="INR">INR</SelectItem>
+                    <SelectItem value="GBP">GBP</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </div>
@@ -365,7 +336,7 @@ export function EditProductDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -374,9 +345,9 @@ export function EditProductDialog({
               Cancel
             </Button>
             <EditSubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -401,7 +372,7 @@ export function DeleteProductConfirmDialog({
   onDeleted,
 }: DeleteProductConfirmDialogProps) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleDelete = () => {
     if (!product) return;
@@ -426,21 +397,21 @@ export function DeleteProductConfirmDialog({
   };
 
   return (
-    <ZoruAlertDialog open={open} onOpenChange={onOpenChange}>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Delete this product?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete this product?</AlertDialogTitle>
+          <AlertDialogDescription>
             {product?.name
               ? `This will permanently delete “${product.name}” from your Meta catalog. This action cannot be undone.`
               : "This will permanently delete the selected product from your Meta catalog. This action cannot be undone."}
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel disabled={isPending}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>
             Cancel
-          </ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
+          </AlertDialogCancel>
+          <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
               handleDelete();
@@ -451,10 +422,10 @@ export function DeleteProductConfirmDialog({
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
             Delete
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -496,15 +467,15 @@ export function ViewTaggedMediaDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-3xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
+      <DialogContent className="sm:max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>
             Tagged media{product?.name ? ` — ${product.name}` : ""}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             Posts and other media where this product has been tagged.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="-mx-2 max-h-[60vh] overflow-y-auto p-1">
           {isLoading ? (
             <div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-3 lg:grid-cols-4">
@@ -515,8 +486,8 @@ export function ViewTaggedMediaDialog({
           ) : error ? (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <ZoruAlertTitle>Could not load media</ZoruAlertTitle>
-              <ZoruAlertDescription>{error}</ZoruAlertDescription>
+              <AlertTitle>Could not load media</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           ) : media.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-3 lg:grid-cols-4">
@@ -559,7 +530,7 @@ export function ViewTaggedMediaDialog({
             </div>
           )}
         </div>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -583,7 +554,7 @@ export function BulkUploadProductsDialog({
   projectId,
   onUploaded,
 }: BulkUploadProductsDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -646,14 +617,14 @@ export function BulkUploadProductsDialog({
       if (!open) setFile(null);
       onOpenChange(open);
     }}>
-      <ZoruDialogContent className="sm:max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Bulk upload via CSV</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Bulk upload via CSV</DialogTitle>
+          <DialogDescription>
             Upload a CSV file to add multiple products to this catalog at once.
             Ensure headers match: <code>id</code>, <code>title</code>, <code>description</code>, <code>price</code>, <code>currency</code>, <code>image_link</code>, <code>link</code>.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-1.5">
@@ -670,7 +641,7 @@ export function BulkUploadProductsDialog({
           </div>
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button
             type="button"
             variant="ghost"
@@ -691,8 +662,8 @@ export function BulkUploadProductsDialog({
             )}
             {isPending ? "Uploading…" : "Upload"}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

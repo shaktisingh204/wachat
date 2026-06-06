@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -59,7 +52,7 @@ export function EditGiftCardForm({
 }) {
     const [state, formAction] = useActionState(updateGiftCard, initialState);
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (state.message) {

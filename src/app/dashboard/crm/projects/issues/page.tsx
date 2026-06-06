@@ -1,28 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Checkbox,
-  StatCard,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Input,
-  Badge,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, StatCard, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, Input, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useDebouncedCallback } from 'use-debounce';
 import {
@@ -109,7 +87,7 @@ function isResolved(s: string | undefined): boolean {
 }
 
 export default function ProjectIssuesPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>([]);
   const [loading, startLoading] = React.useTransition();
   const [search, setSearch] = React.useState('');
@@ -512,45 +490,45 @@ function IssuesTable({
   return (
     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
       <Table>
-        <TableHeader>
-          <TableRow className="border-[var(--st-border)] hover:bg-transparent">
-            <TableHead className="w-10">
+        <THead>
+          <Tr className="border-[var(--st-border)] hover:bg-transparent">
+            <Th className="w-10">
               <Checkbox
                 checked={allChecked || (someChecked ? 'indeterminate' : false)}
                 onCheckedChange={(v) => onToggleAll(!!v)}
                 aria-label="Select all"
               />
-            </TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Project</TableHead>
-            <TableHead>Priority</TableHead>
-            <TableHead>Reporter</TableHead>
-            <TableHead>Assignee</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+            </Th>
+            <Th>Title</Th>
+            <Th>Project</Th>
+            <Th>Priority</Th>
+            <Th>Reporter</Th>
+            <Th>Assignee</Th>
+            <Th>Status</Th>
+            <Th>Created</Th>
+            <Th className="text-right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {rows.map((r) => {
             const priorityLower = (r.priority ?? 'medium').toLowerCase();
             return (
-              <TableRow key={r._id} className="border-[var(--st-border)] transition-colors">
-                <TableCell>
+              <Tr key={r._id} className="border-[var(--st-border)] transition-colors">
+                <Td>
                   <Checkbox
                     checked={selection.has(r._id)}
                     onCheckedChange={() => onToggle(r._id)}
                     aria-label={`Select ${r.title}`}
                   />
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   <EntityRowLink
                     href={`/dashboard/crm/projects/issues/${r._id}`}
                     label={r.title}
                     subtitle={r.description || undefined}
                   />
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   {r.projectId ? (
                     <EntityPickerChip
                       entity="project"
@@ -560,14 +538,14 @@ function IssuesTable({
                   ) : (
                     <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                   )}
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   <StatusPill
                     label={r.priority || 'medium'}
                     tone={PRIORITY_TONE[priorityLower] ?? 'neutral'}
                   />
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   {r.reporterUserId ? (
                     <EntityPickerChip
                       entity="user"
@@ -579,8 +557,8 @@ function IssuesTable({
                       {r.reporterName || '—'}
                     </span>
                   )}
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   {r.assigneeUserId ? (
                     <EntityPickerChip
                       entity="user"
@@ -592,14 +570,14 @@ function IssuesTable({
                       {r.assigneeName || 'Unassigned'}
                     </span>
                   )}
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   <StatusPill label={r.status} tone={statusToTone(r.status)} />
-                </TableCell>
-                <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                </Td>
+                <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                   {fmtDate(r.createdAt)}
-                </TableCell>
-                <TableCell className="text-right">
+                </Td>
+                <Td className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
@@ -629,11 +607,11 @@ function IssuesTable({
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             );
           })}
-        </TableBody>
+        </TBody>
       </Table>
     </div>
   );

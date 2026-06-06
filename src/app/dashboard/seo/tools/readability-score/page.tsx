@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Textarea, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Textarea, cn } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import {
   BarChart,
@@ -152,34 +152,34 @@ export default function ReadabilityScorePage() {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card>
-              <ZoruCardContent className="p-4 flex flex-col items-center text-center justify-center">
+              <CardBody className="p-4 flex flex-col items-center text-center justify-center">
                 <div className="text-3xl font-bold">{ease.toFixed(1)}</div>
                 <div className="text-xs text-[var(--st-text-secondary)] mt-1">Flesch Ease</div>
                 <div className="text-[10px] text-[var(--st-text-secondary)] mt-1 font-medium bg-[var(--st-bg-muted)] px-2 py-0.5 rounded-full">{easeLabel(ease)}</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardContent className="p-4 flex flex-col items-center text-center justify-center">
+              <CardBody className="p-4 flex flex-col items-center text-center justify-center">
                 <div className="text-3xl font-bold">{grade.toFixed(1)}</div>
                 <div className="text-xs text-[var(--st-text-secondary)] mt-1">Flesch-Kincaid</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardContent className="p-4 flex flex-col items-center text-center justify-center">
+              <CardBody className="p-4 flex flex-col items-center text-center justify-center">
                 <div className="text-3xl font-bold">{gunningFog.toFixed(1)}</div>
                 <div className="text-xs text-[var(--st-text-secondary)] mt-1">Gunning Fog</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardContent className="p-4 flex flex-col items-center text-center justify-center">
+              <CardBody className="p-4 flex flex-col items-center text-center justify-center">
                 <div className="text-3xl font-bold">{smog.toFixed(1)}</div>
                 <div className="text-xs text-[var(--st-text-secondary)] mt-1">SMOG Index</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
 
           <Card>
-            <ZoruCardContent className="p-4">
+            <CardBody className="p-4">
               <div className="text-sm font-semibold mb-4">Sentence Length Distribution</div>
               <div className="h-[200px] w-full">
                 {distribution.length > 0 ? (
@@ -201,13 +201,13 @@ export default function ReadabilityScorePage() {
                   </div>
                 )}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
 
         <div className="flex flex-col gap-6">
           <Card className="flex-1 min-h-[500px] shadow-sm border-[var(--st-border)]">
-            <ZoruCardContent className="p-0 h-full flex flex-col">
+            <CardBody className="p-0 h-full flex flex-col">
               <div className="p-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-t-lg">
                 <div className="text-sm font-semibold text-[var(--st-text)]">Real-time Analysis Preview</div>
                 <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-[var(--st-text)]">
@@ -233,7 +233,7 @@ export default function ReadabilityScorePage() {
                   </div>
                 )}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

@@ -7,17 +7,7 @@ import {
     listSabpracticeEngagements,
     listSabpracticeTimeLogs,
 } from '@/app/actions/sabpractice.actions';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    PageHeader,
-    StatCard,
-    EmptyState,
-    Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, PageHeader, StatCard, EmptyState, Badge } from '@/components/sabcrm/20ui/compat';
 
 async function OverviewData() {
     const now = new Date();

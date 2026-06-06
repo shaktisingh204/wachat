@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Checkbox, ZoruColorPicker, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, ColorPicker, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -71,7 +71,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export function PipelineForm({ initialData }: PipelineFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(savePipeline, initialState);
@@ -182,7 +182,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                     <div className="space-y-1.5">
                         <Label>Accent color</Label>
                         <input type="hidden" name="color" value={accentColor} />
-                        <ZoruColorPicker value={accentColor} onChange={setAccentColor} />
+                        <ColorPicker value={accentColor} onChange={setAccentColor} />
                     </div>
                 </div>
 

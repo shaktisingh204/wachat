@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Badge } from '@/components/sabcrm/20ui/compat';
 import { useState, Component, ErrorInfo, ReactNode } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Download, Copy, AlertCircle } from 'lucide-react';
@@ -35,13 +35,13 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     if (this.state.hasError) {
       return (
         <Card className="border-[var(--st-border)]/50 mt-4">
-          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)] flex flex-col gap-2">
+          <CardBody className="p-4 text-sm text-[var(--st-text)] flex flex-col gap-2">
             <div className="flex items-center gap-2 font-semibold">
               <AlertCircle className="w-4 h-4" />
               Something went wrong rendering the results
             </div>
             <p>{this.state.error?.message}</p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       );
     }
@@ -126,17 +126,17 @@ export default function AnchorTextAnalyzerPage() {
 
       {error && (
         <Card className="border-[var(--st-border)]/50">
-          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)] flex items-center gap-2">
+          <CardBody className="p-4 text-sm text-[var(--st-text)] flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
             {error}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {rows && (
         <ErrorBoundary>
           <Card>
-            <ZoruCardContent className="p-4 space-y-3">
+            <CardBody className="p-4 space-y-3">
               <div className="flex items-center justify-between text-sm font-semibold">
                 <span>Top {rows.length} anchors</span>
                 <div className="flex items-center gap-2">
@@ -158,7 +158,7 @@ export default function AnchorTextAnalyzerPage() {
                   </div>
                 ))}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </ErrorBoundary>
       )}

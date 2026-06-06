@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Button,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Button, Avatar, AvatarFallback, AvatarImage, Switch } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   usePathname } from 'next/navigation';
@@ -50,30 +38,30 @@ export function FacebookProjectSwitcher({ projects, activeProject }: FacebookPro
 
     return (
         <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                        <ZoruAvatarImage src={`https://graph.facebook.com/${activeProject.facebookPageId}/picture?type=square`} alt={activeProject.name} />
-                        <ZoruAvatarFallback>{activeProject.name.charAt(0)}</ZoruAvatarFallback>
+                        <AvatarImage src={`https://graph.facebook.com/${activeProject.facebookPageId}/picture?type=square`} alt={activeProject.name} />
+                        <AvatarFallback>{activeProject.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <span className="hidden md:inline font-semibold">{activeProject.name}</span>
                     <ChevronsUpDown className="h-4 w-4 opacity-50" />
                 </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="start">
-                <ZoruDropdownMenuLabel>Switch Project</ZoruDropdownMenuLabel>
-                <ZoruDropdownMenuSeparator />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+                <DropdownMenuLabel>Switch Project</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 {projects.map(project => (
-                    <ZoruDropdownMenuItem key={project._id.toString()} onSelect={() => handleSelectProject(project)}>
+                    <DropdownMenuItem key={project._id.toString()} onSelect={() => handleSelectProject(project)}>
                         <Avatar className="h-6 w-6 mr-2">
-                            <ZoruAvatarImage src={`https://graph.facebook.com/${project.facebookPageId}/picture?type=square`} alt={project.name} />
-                            <ZoruAvatarFallback>{project.name.charAt(0)}</ZoruAvatarFallback>
+                            <AvatarImage src={`https://graph.facebook.com/${project.facebookPageId}/picture?type=square`} alt={project.name} />
+                            <AvatarFallback>{project.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <span>{project.name}</span>
                         {project._id.toString() === activeProject._id.toString() && <Check className="ml-auto h-4 w-4" />}
-                    </ZoruDropdownMenuItem>
+                    </DropdownMenuItem>
                 ))}
-            </ZoruDropdownMenuContent>
+            </DropdownMenuContent>
         </DropdownMenu>
     );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, Component, ErrorInfo, ReactNode } from 'react';
-import { Button, Card, ZoruCardContent, Input, Label, Switch } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Switch } from '@/components/sabcrm/20ui/compat';
 import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import JSZip from 'jszip';
@@ -326,7 +326,7 @@ function FaviconGeneratorContent() {
   return (
     <ToolShell title="Favicon Generator" description="Generate all standard favicon formats, including ICO and Apple Touch Icon.">
       <Card>
-        <ZoruCardContent className="p-4 space-y-4">
+        <CardBody className="p-4 space-y-4">
           <div>
             <Label>Source image</Label>
             <Input type="file" accept="image/*" onChange={onSelectFile} />
@@ -377,7 +377,7 @@ function FaviconGeneratorContent() {
           <Button onClick={generate} disabled={!imgSrc || !completedCrop || completedCrop.width === 0}>
             Generate Favicons
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       
       {outputs.length > 0 && (
@@ -392,7 +392,7 @@ function FaviconGeneratorContent() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {outputs.map((o) => (
               <Card key={o.id}>
-                <ZoruCardContent className="p-4 text-center space-y-3 flex flex-col items-center justify-between h-full">
+                <CardBody className="p-4 text-center space-y-3 flex flex-col items-center justify-between h-full">
                   <div className="text-sm font-medium text-[var(--st-text-secondary)]">
                     {o.desc}
                   </div>
@@ -418,7 +418,7 @@ function FaviconGeneratorContent() {
                   >
                     Download
                   </a>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             ))}
           </div>

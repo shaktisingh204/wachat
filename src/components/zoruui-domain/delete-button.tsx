@@ -1,19 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import {
-    Button,
-    ZoruAlertDialog as AlertDialog,
-    ZoruAlertDialogAction as AlertDialogAction,
-    ZoruAlertDialogCancel as AlertDialogCancel,
-    ZoruAlertDialogContent as AlertDialogContent,
-    ZoruAlertDialogDescription as AlertDialogDescription,
-    ZoruAlertDialogFooter as AlertDialogFooter,
-    ZoruAlertDialogHeader as AlertDialogHeader,
-    ZoruAlertDialogTitle as AlertDialogTitle,
-    ZoruAlertDialogTrigger as AlertDialogTrigger,
-    useZoruToast,
-} from "@/components/sabcrm/20ui/compat";
+import { Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { Loader2, Trash2 } from "lucide-react";
 
 interface DeleteButtonProps {
@@ -26,7 +14,7 @@ interface DeleteButtonProps {
 export function DeleteButton({ id, action, resourceName = "Item", disabled = false }: DeleteButtonProps) {
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const handleDelete = async () => {
         startTransition(async () => {

@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function LoadingSkeleton() {
   return (
@@ -8,13 +8,13 @@ export default function LoadingSkeleton() {
         <Skeleton className="h-4 w-[400px]" />
       </div>
       <Card>
-        <ZoruCardContent className="p-6">
+        <CardBody className="p-6">
           <div className="space-y-4">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-20 w-full" />
             <Skeleton className="h-10 w-[120px]" />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

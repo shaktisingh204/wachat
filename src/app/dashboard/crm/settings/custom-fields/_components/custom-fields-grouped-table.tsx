@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   Pencil,
@@ -100,9 +89,9 @@ export function CustomFieldsGroupedTable({
                         </div>
                         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow className="hover:bg-transparent">
-                                        <ZoruTableHead className="w-[40px]">
+                                <THead>
+                                    <Tr className="hover:bg-transparent">
+                                        <Th className="w-[40px]">
                                             <Checkbox
                                                 checked={
                                                     groupFields.length > 0 &&
@@ -130,43 +119,43 @@ export function CustomFieldsGroupedTable({
                                                 }}
                                                 aria-label="Select group"
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Label
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Slug
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Type
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Required
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             In Table
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="w-[180px] text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="w-[180px] text-right text-[var(--st-text-secondary)]">
                                             Actions
-                                        </ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {groupFields.length === 0 ? (
-                                        <ZoruTableRow>
-                                            <ZoruTableCell
+                                        <Tr>
+                                            <Td
                                                 colSpan={7}
                                                 className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                             >
                                                 {search || entityFilter !== 'all'
                                                     ? 'No fields match your filter.'
                                                     : 'No fields yet.'}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ) : (
                                         groupFields.map((field, idx) => (
-                                            <ZoruTableRow key={field._id}>
-                                                <ZoruTableCell>
+                                            <Tr key={field._id}>
+                                                <Td>
                                                     <Checkbox
                                                         checked={selected.has(field._id)}
                                                         onCheckedChange={() =>
@@ -180,19 +169,19 @@ export function CustomFieldsGroupedTable({
                                                         }
                                                         aria-label="Select row"
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[13px] text-[var(--st-text)]">
                                                     {field.label}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                                     {field.name}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <Badge variant="ghost">
                                                         {field.type}
                                                     </Badge>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <Badge
                                                         variant={
                                                             field.is_required
@@ -202,8 +191,8 @@ export function CustomFieldsGroupedTable({
                                                     >
                                                         {field.is_required ? 'Yes' : 'No'}
                                                     </Badge>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <Badge
                                                         variant={
                                                             field.display_in_table
@@ -215,8 +204,8 @@ export function CustomFieldsGroupedTable({
                                                             ? 'Yes'
                                                             : 'No'}
                                                     </Badge>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <div className="flex justify-end gap-1">
                                                         <Button
                                                             variant="ghost"
@@ -275,11 +264,11 @@ export function CustomFieldsGroupedTable({
                                                             <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                                                         </Button>
                                                     </div>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         ))
                                     )}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     </Card>

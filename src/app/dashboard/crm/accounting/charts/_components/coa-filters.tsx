@@ -1,6 +1,6 @@
 'use client';
 
-import { Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
@@ -55,45 +55,45 @@ export function CoaFilters({ value, onChange, groups, subNatures, currencies }: 
             />
 
             <Select value={value.subNature} onValueChange={(v) => onChange({ ...value, subNature: v })}>
-                <ZoruSelectTrigger className="h-9 w-[180px]">
-                    <ZoruSelectValue placeholder="Sub-nature" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All sub-natures</ZoruSelectItem>
+                <SelectTrigger className="h-9 w-[180px]">
+                    <SelectValue placeholder="Sub-nature" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All sub-natures</SelectItem>
                     {subNatures.map((s) => (
-                        <ZoruSelectItem key={s} value={s}>
+                        <SelectItem key={s} value={s}>
                             {s.replace(/_/g, ' ')}
-                        </ZoruSelectItem>
+                        </SelectItem>
                     ))}
-                </ZoruSelectContent>
+                </SelectContent>
             </Select>
 
             <Select value={value.groupId} onValueChange={(v) => onChange({ ...value, groupId: v })}>
-                <ZoruSelectTrigger className="h-9 w-[200px]">
-                    <ZoruSelectValue placeholder="Parent group" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All groups</ZoruSelectItem>
+                <SelectTrigger className="h-9 w-[200px]">
+                    <SelectValue placeholder="Parent group" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All groups</SelectItem>
                     {visibleGroups.map((g) => (
-                        <ZoruSelectItem key={g._id} value={g._id}>
+                        <SelectItem key={g._id} value={g._id}>
                             {g.name}
-                        </ZoruSelectItem>
+                        </SelectItem>
                     ))}
-                </ZoruSelectContent>
+                </SelectContent>
             </Select>
 
             <Select value={value.currency} onValueChange={(v) => onChange({ ...value, currency: v })}>
-                <ZoruSelectTrigger className="h-9 w-[130px]">
-                    <ZoruSelectValue placeholder="Currency" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All currencies</ZoruSelectItem>
+                <SelectTrigger className="h-9 w-[130px]">
+                    <SelectValue placeholder="Currency" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All currencies</SelectItem>
                     {currencies.map((c) => (
-                        <ZoruSelectItem key={c} value={c}>
+                        <SelectItem key={c} value={c}>
                             {c}
-                        </ZoruSelectItem>
+                        </SelectItem>
                     ))}
-                </ZoruSelectContent>
+                </SelectContent>
             </Select>
 
             <EnumFilterField
@@ -108,24 +108,24 @@ export function CoaFilters({ value, onChange, groups, subNatures, currencies }: 
                 {isMounted ? (
                     <>
                         <Select value={standard} onValueChange={(v: any) => setStandard(v)}>
-                            <ZoruSelectTrigger className="h-9 w-[100px] border-dashed">
-                                <ZoruSelectValue placeholder="Standard" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="GAAP">GAAP</ZoruSelectItem>
-                                <ZoruSelectItem value="IFRS">IFRS</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[100px] border-dashed">
+                                <SelectValue placeholder="Standard" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="GAAP">GAAP</SelectItem>
+                                <SelectItem value="IFRS">IFRS</SelectItem>
+                            </SelectContent>
                         </Select>
 
                         <Select value={fiscalYear} onValueChange={(v: any) => setFiscalYear(v)}>
-                            <ZoruSelectTrigger className="h-9 w-[130px] border-dashed">
-                                <ZoruSelectValue placeholder="Fiscal Year" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="current">Current FY</ZoruSelectItem>
-                                <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
-                                <ZoruSelectItem value="custom">Custom</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[130px] border-dashed">
+                                <SelectValue placeholder="Fiscal Year" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="current">Current FY</SelectItem>
+                                <SelectItem value="previous">Previous FY</SelectItem>
+                                <SelectItem value="custom">Custom</SelectItem>
+                            </SelectContent>
                         </Select>
                     </>
                 ) : (

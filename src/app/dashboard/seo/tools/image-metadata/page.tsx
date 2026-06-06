@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import EXIF from 'exif-js';
 import { fmtDate } from '@/lib/utils';
@@ -103,18 +103,18 @@ export default function ImageMetadataPage() {
         {data && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <ZoruCardContent className="p-4 space-y-2 text-sm">
+              <CardBody className="p-4 space-y-2 text-sm">
                 <h3 className="font-bold text-lg mb-4">Basic Information</h3>
                 <div className="flex justify-between border-b pb-1"><span className="font-semibold text-[var(--st-text-secondary)]">Name</span> <span className="font-medium truncate max-w-[200px]" title={data.name}>{data.name}</span></div>
                 <div className="flex justify-between border-b pb-1"><span className="font-semibold text-[var(--st-text-secondary)]">Type</span> <span className="font-medium">{data.type}</span></div>
                 <div className="flex justify-between border-b pb-1"><span className="font-semibold text-[var(--st-text-secondary)]">Size</span> <span className="font-medium">{(data.size / 1024).toFixed(1)} KB</span></div>
                 <div className="flex justify-between border-b pb-1"><span className="font-semibold text-[var(--st-text-secondary)]">Dimensions</span> <span className="font-medium">{data.width} × {data.height}</span></div>
                 <div className="flex justify-between border-b pb-1"><span className="font-semibold text-[var(--st-text-secondary)]">Last modified</span> <span className="font-medium">{data.lastModified}</span></div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardContent className="p-4 space-y-2 text-sm">
+              <CardBody className="p-4 space-y-2 text-sm">
                 <h3 className="font-bold text-lg mb-4">GPS Data (Local SEO)</h3>
                 {gpsData ? (
                   <>
@@ -131,12 +131,12 @@ export default function ImageMetadataPage() {
                 ) : (
                   <div className="text-[var(--st-text-secondary)] italic py-4">No GPS metadata found in this image.</div>
                 )}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             {exifData && (
               <Card className="md:col-span-2">
-                <ZoruCardContent className="p-4 text-sm">
+                <CardBody className="p-4 text-sm">
                   <h3 className="font-bold text-lg mb-4">Detailed EXIF Data</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
                     {Object.entries(exifData).map(([key, value]) => {
@@ -169,7 +169,7 @@ export default function ImageMetadataPage() {
                       );
                     })}
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             )}
           </div>

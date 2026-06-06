@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -86,7 +75,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export function Form16Form({ initialData }: Form16FormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveForm16, initialState);
@@ -179,16 +168,16 @@ export function Form16Form({ initialData }: Form16FormProps) {
                         <Label htmlFor="fy-trigger">Financial year</Label>
                         {/* TODO 1E.sweep: dynamic list — needs <EnumFieldYearRange> variant (rolling 6-FY window) */}
                         <Select value={financialYear} onValueChange={setFinancialYear}>
-                            <ZoruSelectTrigger id="fy-trigger">
-                                <ZoruSelectValue placeholder="Select FY" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="fy-trigger">
+                                <SelectValue placeholder="Select FY" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {fyOptions(6).map((fy) => (
-                                    <ZoruSelectItem key={fy} value={fy}>
+                                    <SelectItem key={fy} value={fy}>
                                         FY {fy}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1.5">

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useState, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Plus, Trash2, Search, Download, CheckSquare, Square, FileText } from 'lucide-react';
-import { Button, Input, Label, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import type { RoadmapPhase, RoadmapTask } from '@/app/actions/hrm-roadmaps.actions.types';
 export type PhaseDraft = { id: string; name: string; tasks: RoadmapTask[] };
 
@@ -103,7 +103,7 @@ export default function PhaseList({ phases, setPhases }: PhaseListProps) {
 
   return (
     <Card className="print:shadow-none print:border-none">
-      <ZoruCardContent className="flex flex-col gap-4 pt-5">
+      <CardBody className="flex flex-col gap-4 pt-5">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <Label className="text-lg">Phases</Label>
           <div className="flex items-center gap-2 print:hidden">
@@ -219,7 +219,7 @@ export default function PhaseList({ phases, setPhases }: PhaseListProps) {
             </div>
           </div>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

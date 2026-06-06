@@ -1,31 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  ScrollArea,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetDescription,
-  Skeleton,
-  useZoruToast,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, ScrollArea, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Skeleton, useToast, cn } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -182,13 +157,13 @@ const ConversationListPane = React.memo(function ConversationListPane({
         {sessionUser ? (
           <div className="flex min-w-0 items-center gap-3">
             <Avatar>
-              <ZoruAvatarImage
+              <AvatarImage
                 src={`https://i.pravatar.cc/150?u=${sessionUser.email}`}
                 alt={sessionUser.name}
               />
-              <ZoruAvatarFallback>
+              <AvatarFallback>
                 {sessionUser.name.charAt(0)}
-              </ZoruAvatarFallback>
+              </AvatarFallback>
             </Avatar>
             <p className="truncate text-[var(--st-text)]">{sessionUser.name}</p>
           </div>
@@ -274,13 +249,13 @@ const ConversationListPane = React.memo(function ConversationListPane({
                 )}
               >
                 <Avatar>
-                  <ZoruAvatarImage
+                  <AvatarImage
                     src={`https://graph.facebook.com/${participant?.id}/picture`}
                     alt={participant?.name || "User"}
                   />
-                  <ZoruAvatarFallback>
+                  <AvatarFallback>
                     {(participant?.name || "U").charAt(0).toUpperCase()}
-                  </ZoruAvatarFallback>
+                  </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1 pt-0.5">
                   <div className="flex items-start justify-between gap-2">
@@ -362,7 +337,7 @@ function MessageInput({
     sendInitialState,
   );
   const formRef = useRef<HTMLFormElement>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (state.error) {
@@ -425,13 +400,13 @@ const ChatMessageBubble = React.memo(function ChatMessageBubble({
     >
       {!isOutgoing && (
         <Avatar className="h-8 w-8 self-end">
-          <ZoruAvatarImage
+          <AvatarImage
             src={`https://graph.facebook.com/${participant.id}/picture`}
             alt={participant.name}
           />
-          <ZoruAvatarFallback>
+          <AvatarFallback>
             {participant.name.charAt(0).toUpperCase()}
-          </ZoruAvatarFallback>
+          </AvatarFallback>
         </Avatar>
       )}
       <div
@@ -500,13 +475,13 @@ function ChatThreadPane({
             <ArrowLeft />
           </Button>
           <Avatar>
-            <ZoruAvatarImage
+            <AvatarImage
               src={`https://graph.facebook.com/${participant?.id}/picture`}
               alt={participant?.name || "User"}
             />
-            <ZoruAvatarFallback>
+            <AvatarFallback>
               {(participant?.name || "U").charAt(0).toUpperCase()}
-            </ZoruAvatarFallback>
+            </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <p className="truncate text-[var(--st-text)]">{participant?.name}</p>
@@ -601,13 +576,13 @@ function ContactInfoPanelBody({
     <div className="flex h-full flex-col gap-5 p-5">
       <div className="flex flex-col items-center gap-2">
         <Avatar className="h-16 w-16">
-          <ZoruAvatarImage
+          <AvatarImage
             src={`https://graph.facebook.com/${participant?.id}/picture`}
             alt={participant?.name || "User"}
           />
-          <ZoruAvatarFallback>
+          <AvatarFallback>
             {(participant?.name || "U").charAt(0).toUpperCase()}
-          </ZoruAvatarFallback>
+          </AvatarFallback>
         </Avatar>
         <p className="text-[15px] text-[var(--st-text)]">
           {participant?.name || "Unknown user"}
@@ -804,11 +779,11 @@ export function ZoruFacebookChatClient() {
       <div className="flex h-full items-center justify-center p-4">
         <Alert variant="destructive" className="max-w-md">
           <AlertCircle />
-          <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>No project selected</AlertTitle>
+          <AlertDescription>
             Please select a project from the main dashboard to use the Facebook
             inbox.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       </div>
     );
@@ -818,19 +793,19 @@ export function ZoruFacebookChatClient() {
     <>
       {/* New-chat info dialog */}
       <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Start a conversation</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Start a conversation</DialogTitle>
+            <DialogDescription>
               On Facebook Messenger, you can only reply to users who have
               messaged your page first. Use the search bar to find an existing
               conversation.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
             <Button onClick={() => setShowInfoDialog(false)}>OK</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Permission error dialog */}
@@ -838,15 +813,15 @@ export function ZoruFacebookChatClient() {
         open={!!permissionError}
         onOpenChange={(o) => !o && setPermissionError(null)}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Permission error</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Permission error</DialogTitle>
+            <DialogDescription>
               {permissionError ||
                 "Your Facebook access token may have expired or is missing the required permissions."}
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setPermissionError(null)}
@@ -861,24 +836,24 @@ export function ZoruFacebookChatClient() {
             >
               Reconnect
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Mobile contact info sheet */}
       <Sheet open={showInfoSheet} onOpenChange={setShowInfoSheet}>
-        <ZoruSheetContent side="right" className="w-full sm:max-w-md p-0">
-          <ZoruSheetHeader className="border-b border-[var(--st-border)] p-5">
-            <ZoruSheetTitle>Contact info</ZoruSheetTitle>
-            <ZoruSheetDescription>
+        <SheetContent side="right" className="w-full sm:max-w-md p-0">
+          <SheetHeader className="border-b border-[var(--st-border)] p-5">
+            <SheetTitle>Contact info</SheetTitle>
+            <SheetDescription>
               Details for the selected conversation.
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </SheetDescription>
+          </SheetHeader>
           <ContactInfoPanelBody
             conversation={selectedConversation}
             pageId={project?.facebookPageId}
           />
-        </ZoruSheetContent>
+        </SheetContent>
       </Sheet>
 
       {/* Three-pane shell */}

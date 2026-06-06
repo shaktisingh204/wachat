@@ -1,31 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Button,
-  Card,
-  Input,
-  Label,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  ScrollArea,
-  Switch,
-  useZoruToast,
-  ZoruDialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, Card, Input, Label, Popover, PopoverContent, PopoverTrigger, ScrollArea, Switch, useToast, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import React, { useState, useEffect, useCallback, useTransition } from 'react';
 
 import {
@@ -104,12 +79,12 @@ function NodeComponent({ node, onSelect, isSelected }: { node: CrmAutomationNode
 function AddActionPopover({ onAddNode, sourceNodeId, sourceHandle }: { onAddNode: (type: NodeType, sourceNodeId: string, sourceHandle?: string) => void; sourceNodeId: string; sourceHandle?: string; }) {
     return (
         <Popover>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
                 <Button variant="outline" size="icon" className="rounded-full bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)] shadow-md">
                     <Plus className="h-5 w-5" />
                 </Button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent className="w-64 p-2">
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-2">
                 <div className="space-y-1">
                     {blockTypes.map(block => (
                          <Button key={block.type} variant="ghost" className="w-full justify-start" onClick={() => onAddNode(block.type as NodeType, sourceNodeId, sourceHandle)}>
@@ -118,13 +93,13 @@ function AddActionPopover({ onAddNode, sourceNodeId, sourceHandle }: { onAddNode
                         </Button>
                     ))}
                 </div>
-            </ZoruPopoverContent>
+            </PopoverContent>
         </Popover>
     )
 }
 
 export default function CrmAutomationsPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [flows, setFlows] = useState<WithId<CrmAutomation>[]>([]);
     const [currentFlow, setCurrentFlow] = useState<WithId<CrmAutomation> | null>(null);
     const [nodes, setNodes] = useState<CrmAutomationNode[]>([]);
@@ -390,18 +365,18 @@ export default function CrmAutomationsPage() {
                         <span className="text-xs text-[var(--st-text-secondary)]">Last run: N/A</span>
                         <div className="flex items-center gap-2"><Label htmlFor="enabled-switch" className="text-sm">Enabled</Label><Switch id="enabled-switch" /></div>
                         <Button variant="outline" size="sm" onClick={() => setIsWebhookTestOpen(true)}><Webhook className="mr-2 h-4 w-4"/>Test Trigger</Button>
-                        <ZoruAlertDialog>
-                            <ZoruAlertDialogTrigger asChild>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
                                 <Button variant="destructive" size="icon" className="h-8 w-8" disabled={!currentFlow}><Trash2 className="h-4 w-4"/></Button>
-                            </ZoruAlertDialogTrigger>
-                            <ZoruAlertDialogContent>
-                                <ZoruAlertDialogHeader><ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle><ZoruAlertDialogDescription>This action will permanently delete this automation.</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
-                                <ZoruAlertDialogFooter>
-                                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                    <ZoruAlertDialogAction onClick={handleDeleteFlow}>Delete</ZoruAlertDialogAction>
-                                </ZoruAlertDialogFooter>
-                            </ZoruAlertDialogContent>
-                        </ZoruAlertDialog>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This action will permanently delete this automation.</AlertDialogDescription></AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDeleteFlow}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                         <Button onClick={handleSaveFlow} disabled={isSaving}>
                             {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
                             Save
@@ -449,14 +424,14 @@ export default function CrmAutomationsPage() {
                 </Card>
             </div>
             
-            <ZoruDialog open={isTemplateGalleryOpen} onOpenChange={setIsTemplateGalleryOpen}>
-                <ZoruDialogContent className="sm:max-w-[700px]">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Choose a Template</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+            <Dialog open={isTemplateGalleryOpen} onOpenChange={setIsTemplateGalleryOpen}>
+                <DialogContent className="sm:max-w-[700px]">
+                    <DialogHeader>
+                        <DialogTitle>Choose a Template</DialogTitle>
+                        <DialogDescription>
                             Get started quickly with a pre-built automation template or start from scratch.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                         {templates.map(template => (
                             <Card 
@@ -483,18 +458,18 @@ export default function CrmAutomationsPage() {
                             </Card>
                         ))}
                     </div>
-                </ZoruDialogContent>
-            </ZoruDialog>
+                </DialogContent>
+            </Dialog>
 
             {/* Webhook Testing Dialog */}
-            <ZoruDialog open={isWebhookTestOpen} onOpenChange={setIsWebhookTestOpen}>
-                <ZoruDialogContent className="sm:max-w-[500px]">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Test Webhook Trigger</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+            <Dialog open={isWebhookTestOpen} onOpenChange={setIsWebhookTestOpen}>
+                <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                        <DialogTitle>Test Webhook Trigger</DialogTitle>
+                        <DialogDescription>
                             Simulate an incoming webhook to test this automation's trigger conditions.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="flex flex-col gap-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="webhook-payload">JSON Payload</Label>
@@ -523,8 +498,8 @@ export default function CrmAutomationsPage() {
                             <Play className="mr-2 h-4 w-4" /> Send Test Payload
                         </Button>
                     </div>
-                </ZoruDialogContent>
-            </ZoruDialog>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

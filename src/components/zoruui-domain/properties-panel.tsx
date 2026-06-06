@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Label,
-  Button,
-  Input,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ScrollArea,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, ScrollArea, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -76,11 +64,11 @@ function TextNodeEditor({ data, onChange }: { data: any; onChange: (d: any) => v
             </Field>
             <Field label="Preview URL" hint="If enabled, URLs in the message will show a link preview">
                 <Select value={data.previewUrl || 'true'} onValueChange={v => onChange({ previewUrl: v })}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="true">Enabled</ZoruSelectItem>
-                        <ZoruSelectItem value="false">Disabled</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="true">Enabled</SelectItem>
+                        <SelectItem value="false">Disabled</SelectItem>
+                    </SelectContent>
                 </Select>
             </Field>
         </>
@@ -213,11 +201,11 @@ function ConditionEditor({ data, onChange }: { data: any; onChange: (d: any) => 
         <>
             <Field label="Condition Type">
                 <Select value={data.conditionType || 'variable'} onValueChange={v => onChange({ conditionType: v })}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="variable">Check Variable</ZoruSelectItem>
-                        <ZoruSelectItem value="user_response">Wait for User Response</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="variable">Check Variable</SelectItem>
+                        <SelectItem value="user_response">Wait for User Response</SelectItem>
+                    </SelectContent>
                 </Select>
             </Field>
             {(data.conditionType === 'variable' || !data.conditionType) && (
@@ -228,22 +216,22 @@ function ConditionEditor({ data, onChange }: { data: any; onChange: (d: any) => 
             )}
             <Field label="Operator">
                 <Select value={data.operator || 'equals'} onValueChange={v => onChange({ operator: v })}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="equals">Equals</ZoruSelectItem>
-                        <ZoruSelectItem value="not_equals">Does not equal</ZoruSelectItem>
-                        <ZoruSelectItem value="contains">Contains</ZoruSelectItem>
-                        <ZoruSelectItem value="not_contains">Does not contain</ZoruSelectItem>
-                        <ZoruSelectItem value="starts_with">Starts with</ZoruSelectItem>
-                        <ZoruSelectItem value="ends_with">Ends with</ZoruSelectItem>
-                        <ZoruSelectItem value="is_one_of">Is one of (comma-sep)</ZoruSelectItem>
-                        <ZoruSelectItem value="is_not_one_of">Is not one of</ZoruSelectItem>
-                        <ZoruSelectItem value="greater_than">Greater than</ZoruSelectItem>
-                        <ZoruSelectItem value="less_than">Less than</ZoruSelectItem>
-                        <ZoruSelectItem value="is_empty">Is empty</ZoruSelectItem>
-                        <ZoruSelectItem value="is_not_empty">Is not empty</ZoruSelectItem>
-                        <ZoruSelectItem value="regex">Matches regex</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="equals">Equals</SelectItem>
+                        <SelectItem value="not_equals">Does not equal</SelectItem>
+                        <SelectItem value="contains">Contains</SelectItem>
+                        <SelectItem value="not_contains">Does not contain</SelectItem>
+                        <SelectItem value="starts_with">Starts with</SelectItem>
+                        <SelectItem value="ends_with">Ends with</SelectItem>
+                        <SelectItem value="is_one_of">Is one of (comma-sep)</SelectItem>
+                        <SelectItem value="is_not_one_of">Is not one of</SelectItem>
+                        <SelectItem value="greater_than">Greater than</SelectItem>
+                        <SelectItem value="less_than">Less than</SelectItem>
+                        <SelectItem value="is_empty">Is empty</SelectItem>
+                        <SelectItem value="is_not_empty">Is not empty</SelectItem>
+                        <SelectItem value="regex">Matches regex</SelectItem>
+                    </SelectContent>
                 </Select>
             </Field>
             <Field label="Value">
@@ -261,12 +249,12 @@ function DelayEditor({ data, onChange }: { data: any; onChange: (d: any) => void
             </Field>
             <Field label="Unit">
                 <Select value={data.unit || 'seconds'} onValueChange={v => onChange({ unit: v })}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="seconds">Seconds</ZoruSelectItem>
-                        <ZoruSelectItem value="minutes">Minutes</ZoruSelectItem>
-                        <ZoruSelectItem value="hours">Hours</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="seconds">Seconds</SelectItem>
+                        <SelectItem value="minutes">Minutes</SelectItem>
+                        <SelectItem value="hours">Hours</SelectItem>
+                    </SelectContent>
                 </Select>
             </Field>
         </>
@@ -285,14 +273,14 @@ function InputEditor({ data, onChange }: { data: any; onChange: (d: any) => void
             </Field>
             <Field label="Validation" hint="Optional validation for the expected input type">
                 <Select value={data.validation || 'none'} onValueChange={v => onChange({ validation: v })}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="none">None</ZoruSelectItem>
-                        <ZoruSelectItem value="email">Email</ZoruSelectItem>
-                        <ZoruSelectItem value="phone">Phone Number</ZoruSelectItem>
-                        <ZoruSelectItem value="number">Number</ZoruSelectItem>
-                        <ZoruSelectItem value="yes_no">Yes / No</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="email">Email</SelectItem>
+                        <SelectItem value="phone">Phone Number</SelectItem>
+                        <SelectItem value="number">Number</SelectItem>
+                        <SelectItem value="yes_no">Yes / No</SelectItem>
+                    </SelectContent>
                 </Select>
             </Field>
             <Field label="Timeout (seconds)" hint="Max wait time before continuing. 0 = forever">
@@ -321,14 +309,14 @@ function ApiEditor({ data, onChange }: { data: any; onChange: (d: any) => void }
         <>
             <Field label="Method">
                 <Select value={data.method || 'GET'} onValueChange={v => onChange({ method: v })}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="GET">GET</ZoruSelectItem>
-                        <ZoruSelectItem value="POST">POST</ZoruSelectItem>
-                        <ZoruSelectItem value="PUT">PUT</ZoruSelectItem>
-                        <ZoruSelectItem value="PATCH">PATCH</ZoruSelectItem>
-                        <ZoruSelectItem value="DELETE">DELETE</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="GET">GET</SelectItem>
+                        <SelectItem value="POST">POST</SelectItem>
+                        <SelectItem value="PUT">PUT</SelectItem>
+                        <SelectItem value="PATCH">PATCH</SelectItem>
+                        <SelectItem value="DELETE">DELETE</SelectItem>
+                    </SelectContent>
                 </Select>
             </Field>
             <Field label="URL">
@@ -413,24 +401,24 @@ function AgentEditor({ data, onChange }: { data: any; onChange: (d: any) => void
                     const agent = agents.find((a: any) => a.userId?.toString() === v);
                     onChange({ agentId: v, agentName: agent?.name || v });
                 }}>
-                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Select an agent..." /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger><SelectValue placeholder="Select an agent..." /></SelectTrigger>
+                    <SelectContent>
                         {agents.length === 0 ? (
-                            <ZoruSelectItem value="__placeholder__" disabled>No agents configured</ZoruSelectItem>
+                            <SelectItem value="__placeholder__" disabled>No agents configured</SelectItem>
                         ) : agents.map((a: any) => (
-                            <ZoruSelectItem key={a.userId?.toString()} value={a.userId?.toString()}>{a.name || a.email}</ZoruSelectItem>
+                            <SelectItem key={a.userId?.toString()} value={a.userId?.toString()}>{a.name || a.email}</SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </Field>
             <Field label="Status" hint="Set conversation status when assigning">
                 <Select value={data.status || 'open'} onValueChange={v => onChange({ status: v })}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="open">Open</ZoruSelectItem>
-                        <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
-                        <ZoruSelectItem value="vip">VIP</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="open">Open</SelectItem>
+                        <SelectItem value="closed">Closed</SelectItem>
+                        <SelectItem value="vip">VIP</SelectItem>
+                    </SelectContent>
                 </Select>
             </Field>
         </>
@@ -443,11 +431,11 @@ function TagEditor({ data, onChange }: { data: any; onChange: (d: any) => void }
             <Field label="Tag Name"><Input value={data.tagName || ''} onChange={e => onChange({ tagName: e.target.value })} placeholder="hot_lead" /></Field>
             <Field label="Action">
                 <Select value={data.tagAction || 'add'} onValueChange={v => onChange({ tagAction: v })}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="add">Add Tag</ZoruSelectItem>
-                        <ZoruSelectItem value="remove">Remove Tag</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="add">Add Tag</SelectItem>
+                        <SelectItem value="remove">Remove Tag</SelectItem>
+                    </SelectContent>
                 </Select>
             </Field>
         </>
@@ -460,20 +448,20 @@ function WebhookEditor({ data, onChange }: { data: any; onChange: (d: any) => vo
             <Field label="Webhook URL"><Input value={data.url || ''} onChange={e => onChange({ url: e.target.value })} placeholder="https://hooks.example.com/trigger" /></Field>
             <Field label="Method">
                 <Select value={data.method || 'POST'} onValueChange={v => onChange({ method: v })}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="POST">POST</ZoruSelectItem>
-                        <ZoruSelectItem value="GET">GET</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="POST">POST</SelectItem>
+                        <SelectItem value="GET">GET</SelectItem>
+                    </SelectContent>
                 </Select>
             </Field>
             <Field label="Include Contact Data" hint="Sends contact name, phone, variables">
                 <Select value={data.includeContact || 'true'} onValueChange={v => onChange({ includeContact: v })}>
-                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-                        <ZoruSelectItem value="false">No</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="true">Yes</SelectItem>
+                        <SelectItem value="false">No</SelectItem>
+                    </SelectContent>
                 </Select>
             </Field>
         </>

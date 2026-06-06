@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, StatCard, Switch, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, StatCard, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -42,7 +42,7 @@ const ITEMS: {
 ];
 
 export default function TimeTrackingSettingsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [settings, setSettings] = useState<WsLogTimeFor[]>([]);
   const [, startLoading] = useTransition();
   const [busy, setBusy] = useState<WsLogTimeModule | null>(null);

@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Badge,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Label,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Dialog, DialogContent, DialogHeader, DialogTitle, Label, cn } from '@/components/sabcrm/20ui/compat';
 import { useRef, useState } from 'react';
 import { FileDown, Upload, CheckCircle, AlertCircle, LoaderCircle } from 'lucide-react';
 
@@ -165,13 +156,13 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <ZoruDialogContent className="sm:max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="flex items-center gap-2">
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5 text-[var(--st-text)]" />
             Bulk Import QR Codes
-          </ZoruDialogTitle>
-        </ZoruDialogHeader>
+          </DialogTitle>
+        </DialogHeader>
 
         {step === 'upload' && (
           <div className="space-y-5 py-2">
@@ -305,7 +296,7 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
             </div>
           </div>
         )}
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

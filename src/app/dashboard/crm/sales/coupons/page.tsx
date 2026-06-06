@@ -18,30 +18,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import type { DateRange } from 'react-day-picker';
 import { CheckCircle2, Download, FileSpreadsheet, FileText, Plus, Tag, Timer, XCircle } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruDateRangePicker,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  StatCard,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -95,7 +72,7 @@ function getStatusVariant(
 }
 
 export default function SalesCouponsPage(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<AnyCoupon[]>([]);
   const [total, setTotal] = React.useState(0);
@@ -319,7 +296,7 @@ export default function SalesCouponsPage(): React.JSX.Element {
               </Select>
             </div>
             <div className="w-64">
-              <ZoruDateRangePicker
+              <DateRangePicker
                 value={dateRange}
                 onChange={(r) => {
                   setDateRange(r);
@@ -453,84 +430,84 @@ export default function SalesCouponsPage(): React.JSX.Element {
           <Card className="p-0">
             <div className="overflow-x-auto rounded-lg">
               <Table>
-                <TableHeader>
-                  <TableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <TableHead className="w-10">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10">
                       <input
                         type="checkbox"
                         aria-label="Select all"
                         checked={allSelected}
                         onChange={(e) => handleToggleAll(e.target.checked)}
                       />
-                    </TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Code</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Type</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Value</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Min cart</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Max uses</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Used</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Validity</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">Code</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Type</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Value</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Min cart</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Max uses</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Used</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Validity</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {rows.length === 0 ? (
-                    <TableRow className="border-[var(--st-border)]">
-                      <TableCell
+                    <Tr className="border-[var(--st-border)]">
+                      <Td
                         colSpan={9}
                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         {isPending ? 'Loading…' : 'No coupons match these filters.'}
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     rows.map((c, idx) => {
                       const id = getId(c, idx);
                       const checked = selected.has(id);
                       return (
-                        <TableRow key={id} className="border-[var(--st-border)]">
-                          <TableCell>
+                        <Tr key={id} className="border-[var(--st-border)]">
+                          <Td>
                             <input
                               type="checkbox"
                               aria-label={`Select ${c.code ?? id}`}
                               checked={checked}
                               onChange={() => handleToggleOne(id)}
                             />
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             <EntityRowLink
                               href={`/dashboard/crm/sales/coupons/${id}`}
                               label={c.code || 'Untitled coupon'}
                             />
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             {c.type || '—'}
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             {formatValue(c.type, c.value)}
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             {c.minCart?.toLocaleString() || '—'}
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             {c.maxUses?.toLocaleString() || '—'}
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             {c.usedCount?.toLocaleString() || '—'}
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             {formatValidity(c.validFrom, c.validTo)}
-                          </TableCell>
-                          <TableCell>
+                          </Td>
+                          <Td>
                             <Badge variant={getStatusVariant(c.status)}>
                               {c.status || 'draft'}
                             </Badge>
-                          </TableCell>
-                        </TableRow>
+                          </Td>
+                        </Tr>
                       );
                     })
                   )}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
           </Card>

@@ -11,13 +11,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Input,
-    Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
     decideRequest,
     updateRequest,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Textarea, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 /**
@@ -64,12 +64,12 @@ export function TextEditor({ component, updateField }: TextEditorProps) {
                             value={component['font-weight'] ?? 'normal'}
                             onValueChange={(val) => updateField('font-weight', val === 'normal' ? undefined : val)}
                         >
-                            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
                                 {BODY_FONT_WEIGHTS.map(w => (
-                                    <ZoruSelectItem key={w.value} value={w.value}>{w.label}</ZoruSelectItem>
+                                    <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
 

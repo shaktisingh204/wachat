@@ -46,26 +46,7 @@ import {
   XCircle,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Label,
-  Progress,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Separator,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   SabFileToFileButton,
   type SabFilePick,
@@ -241,7 +222,7 @@ interface UploadStepProps {
 }
 
 function UploadStep({ onParsed }: UploadStepProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [busy, setBusy] = React.useState(false);
   const [fileName, setFileName] = React.useState<string | null>(null);
 
@@ -751,7 +732,7 @@ export function ImportDialog({
   projectId,
   onImported,
 }: ImportDialogProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   // Wizard state
   const [step, setStep] = React.useState<WizardStep>('upload');

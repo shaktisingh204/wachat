@@ -6,17 +6,7 @@
  */
 
 import * as React from 'react';
-import {
-  Alert,
-  ZoruAlertDescription,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Button, Card, CardBody, CardHeader, CardTitle, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { SignaturePad } from '@/components/share/signature-pad';
 import { signContract } from '@/app/actions/public-contract.actions';
 
@@ -86,10 +76,10 @@ export function ContractSignPanel({ hash, signed, signatures }: Props) {
     <div className="space-y-6">
       {signatures.length > 0 && (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Signatures</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-6 text-sm">
+          <CardHeader>
+            <CardTitle>Signatures</CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-6 text-sm">
             {signatures.map((sig, i) => (
               <div key={i} className="space-y-2 border-b border-[var(--st-border)] pb-4 last:border-0 last:pb-0">
                 <p>
@@ -107,18 +97,18 @@ export function ContractSignPanel({ hash, signed, signatures }: Props) {
                 ) : null}
               </div>
             ))}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Sign this contract</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+        <CardHeader>
+          <CardTitle>Sign this contract</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-4">
           {banner ? (
             <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
-              <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
+              <AlertDescription>{banner.message}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -165,7 +155,7 @@ export function ContractSignPanel({ hash, signed, signatures }: Props) {
           <Button onClick={handleSign} disabled={pending}>
             {pending ? 'Signing…' : 'Sign contract'}
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

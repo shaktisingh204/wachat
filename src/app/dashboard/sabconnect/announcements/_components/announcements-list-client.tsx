@@ -28,20 +28,7 @@ import {
     PenTool,
 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Checkbox,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Card,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -83,7 +70,7 @@ export function AnnouncementsListClient({
     initialItems,
     initialKpis,
 }: ListClientProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [items, setItems] = React.useState<CrmAnnouncementDoc[]>(initialItems);
     const [kpis, setKpis] = React.useState<AnnouncementKpis>(initialKpis);
@@ -296,31 +283,31 @@ export function AnnouncementsListClient({
                                 setStatusFilter(v as CrmAnnouncementStatus | 'all')
                             }
                         >
-                            <ZoruSelectTrigger className="h-9 w-[150px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                                <ZoruSelectItem value="scheduled">Scheduled</ZoruSelectItem>
-                                <ZoruSelectItem value="published">Published</ZoruSelectItem>
-                                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[150px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All statuses</SelectItem>
+                                <SelectItem value="draft">Draft</SelectItem>
+                                <SelectItem value="scheduled">Scheduled</SelectItem>
+                                <SelectItem value="published">Published</SelectItem>
+                                <SelectItem value="archived">Archived</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Select
                             value={audienceFilter}
                             onValueChange={(v) => setAudienceFilter(v)}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[160px]">
-                                <ZoruSelectValue placeholder="Audience" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">Any audience</ZoruSelectItem>
-                                <ZoruSelectItem value="everyone">Everyone</ZoruSelectItem>
-                                <ZoruSelectItem value="department">Department</ZoruSelectItem>
-                                <ZoruSelectItem value="team">Team</ZoruSelectItem>
-                                <ZoruSelectItem value="role">Role</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[160px]">
+                                <SelectValue placeholder="Audience" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Any audience</SelectItem>
+                                <SelectItem value="everyone">Everyone</SelectItem>
+                                <SelectItem value="department">Department</SelectItem>
+                                <SelectItem value="team">Team</SelectItem>
+                                <SelectItem value="role">Role</SelectItem>
+                            </SelectContent>
                         </Select>
                         <label className="flex cursor-pointer items-center gap-1.5 text-[13px] text-[var(--st-text)]">
                             <Checkbox

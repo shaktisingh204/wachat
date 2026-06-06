@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Card,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams,
@@ -94,7 +82,7 @@ export function DeliveryListClient({
   kpis,
   error,
 }: DeliveryListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -547,21 +535,21 @@ export function DeliveryListClient({
     </EntityListShell>
 
     {/* Single delete */}
-    <ZoruAlertDialog
+    <AlertDialog
       open={pendingDelete !== null}
       onOpenChange={(o) => !o && setPendingDelete(null)}
     >
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Delete delivery challan?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete delivery challan?</AlertDialogTitle>
+          <AlertDialogDescription>
             This permanently removes <strong>{pendingDelete?.challanNumber ?? ''}</strong>{' '}
             from the database. The action cannot be undone.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
               confirmDelete();
@@ -571,27 +559,27 @@ export function DeliveryListClient({
           >
             {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
             Delete permanently
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
 
     {/* Bulk delete */}
-    <ZoruAlertDialog
+    <AlertDialog
       open={pendingBulkDelete}
       onOpenChange={(o) => !o && setPendingBulkDelete(false)}
     >
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Delete {bulky.selected.size} delivery challans?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete {bulky.selected.size} delivery challans?</AlertDialogTitle>
+          <AlertDialogDescription>
             This permanently removes the selected delivery challans. The
             action cannot be undone.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
               confirmBulkDelete();
@@ -601,10 +589,10 @@ export function DeliveryListClient({
           >
             {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
             Delete permanently
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
 
     {busy ? <span className="sr-only">Working…</span> : null}
     </>

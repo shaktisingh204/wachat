@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui/compat';
 import {
   LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
@@ -147,13 +147,13 @@ export function EntityFormShell({
             <div className="flex flex-col gap-4">
                 {sections.map((section) => (
                     <Card key={section.id} className="p-0">
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>{section.title}</ZoruCardTitle>
+                        <CardHeader>
+                            <CardTitle>{section.title}</CardTitle>
                             {section.description ? (
-                                <ZoruCardDescription>{section.description}</ZoruCardDescription>
+                                <CardDescription>{section.description}</CardDescription>
                             ) : null}
-                        </ZoruCardHeader>
-                        <ZoruCardContent>{section.children}</ZoruCardContent>
+                        </CardHeader>
+                        <CardBody>{section.children}</CardBody>
                     </Card>
                 ))}
             </div>

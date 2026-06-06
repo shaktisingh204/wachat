@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <RfqListClient> — canonical RFQs list view per
  * `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D (purchase-side mirror of
@@ -119,7 +119,7 @@ export function RfqListClient({
   currentUserId,
   error,
 }: RfqListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* View + filters */
   const [view, setView] = React.useState<ViewMode>('table');

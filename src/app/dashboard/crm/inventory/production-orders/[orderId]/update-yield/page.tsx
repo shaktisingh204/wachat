@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -27,7 +27,7 @@ export default function UpdateYieldPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const [state, formAction, isPending] = useActionState(updateProductionOrderYield, initialState);
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (state?.message) {

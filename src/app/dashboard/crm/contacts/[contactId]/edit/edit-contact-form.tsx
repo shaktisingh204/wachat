@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useOptimistic, startTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Save } from 'lucide-react';
@@ -83,7 +72,7 @@ export function EditContactForm({ initial }: Props) {
     ) => Promise<ActionResult>,
     initialState,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const router = useRouter();
 
@@ -187,17 +176,17 @@ export function EditContactForm({ initial }: Props) {
                   Status
                 </Label>
                 <Select name="status" defaultValue={optimisticState.status}>
-                  <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="new_lead">New lead</ZoruSelectItem>
-                    <ZoruSelectItem value="contacted">Contacted</ZoruSelectItem>
-                    <ZoruSelectItem value="qualified">Qualified</ZoruSelectItem>
-                    <ZoruSelectItem value="unqualified">Unqualified</ZoruSelectItem>
-                    <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
-                    <ZoruSelectItem value="imported">Imported</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new_lead">New lead</SelectItem>
+                    <SelectItem value="contacted">Contacted</SelectItem>
+                    <SelectItem value="qualified">Qualified</SelectItem>
+                    <SelectItem value="unqualified">Unqualified</SelectItem>
+                    <SelectItem value="customer">Customer</SelectItem>
+                    <SelectItem value="imported">Imported</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </div>
@@ -329,17 +318,17 @@ export function EditContactForm({ initial }: Props) {
                   name="lifecycleStage"
                   defaultValue={initial.lifecycleStage || 'lead'}
                 >
-                  <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="lead">Lead</ZoruSelectItem>
-                    <ZoruSelectItem value="mql">MQL</ZoruSelectItem>
-                    <ZoruSelectItem value="sql">SQL</ZoruSelectItem>
-                    <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
-                    <ZoruSelectItem value="evangelist">Evangelist</ZoruSelectItem>
-                    <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lead">Lead</SelectItem>
+                    <SelectItem value="mql">MQL</SelectItem>
+                    <SelectItem value="sql">SQL</SelectItem>
+                    <SelectItem value="customer">Customer</SelectItem>
+                    <SelectItem value="evangelist">Evangelist</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
@@ -353,18 +342,18 @@ export function EditContactForm({ initial }: Props) {
                   name="source"
                   defaultValue={initial.source || 'other'}
                 >
-                  <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="website">Website</ZoruSelectItem>
-                    <ZoruSelectItem value="referral">Referral</ZoruSelectItem>
-                    <ZoruSelectItem value="social">Social</ZoruSelectItem>
-                    <ZoruSelectItem value="event">Event</ZoruSelectItem>
-                    <ZoruSelectItem value="cold-outbound">Cold outbound</ZoruSelectItem>
-                    <ZoruSelectItem value="ad">Ad</ZoruSelectItem>
-                    <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="website">Website</SelectItem>
+                    <SelectItem value="referral">Referral</SelectItem>
+                    <SelectItem value="social">Social</SelectItem>
+                    <SelectItem value="event">Event</SelectItem>
+                    <SelectItem value="cold-outbound">Cold outbound</SelectItem>
+                    <SelectItem value="ad">Ad</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">

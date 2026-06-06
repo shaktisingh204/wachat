@@ -1,28 +1,17 @@
 'use client';
 
-import { 
-  Button, 
-  Textarea, 
-  Card, 
-  ZoruCardContent, 
-  Table, 
-  TableHeader, 
-  TableRow, 
-  TableHead, 
-  TableBody, 
-  TableCell 
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { Copy, Download, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 export default function DescriptionCheckerPage() {
   const [urlsInput, setUrlsInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<{ url: string; desc: string | null; error?: string }[]>([]);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const run = async () => {
     const urls = urlsInput.split('\n').map(u => u.trim()).filter(Boolean);
@@ -108,7 +97,7 @@ export default function DescriptionCheckerPage() {
 
         {results.length > 0 && (
           <Card>
-            <ZoruCardContent className="p-0">
+            <CardBody className="p-0">
               <div className="flex justify-end gap-2 p-4 border-b">
                 <Button variant="outline" size="sm" onClick={copyToClipboard}>
                   <Copy className="w-4 h-4 mr-2" /> Copy
@@ -118,15 +107,15 @@ export default function DescriptionCheckerPage() {
                 </Button>
               </div>
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>URL</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="w-[100px]">Length</TableHead>
-                    <TableHead className="w-[120px]">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead>
+                  <Tr>
+                    <Th>URL</Th>
+                    <Th>Description</Th>
+                    <Th className="w-[100px]">Length</Th>
+                    <Th className="w-[120px]">Status</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {results.map((r, i) => {
                     const len = r.desc?.length || 0;
                     const isOk = len >= 120 && len <= 160;
@@ -135,11 +124,11 @@ export default function DescriptionCheckerPage() {
                     const isTooLong = len > 160;
                     
                     return (
-                      <TableRow key={i}>
-                        <TableCell className="font-medium max-w-[200px] truncate" title={r.url}>
+                      <Tr key={i}>
+                        <Td className="font-medium max-w-[200px] truncate" title={r.url}>
                           {r.url}
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           {r.error ? (
                             <span className="text-[var(--st-text)] text-sm">{r.error}</span>
                           ) : r.desc ? (
@@ -147,11 +136,11 @@ export default function DescriptionCheckerPage() {
                           ) : (
                             <span className="text-[var(--st-text-secondary)] italic text-sm">No description found</span>
                           )}
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           {r.desc ? len : '-'}
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           {r.error ? (
                             <div className="flex items-center text-[var(--st-text)] text-xs gap-1">
                               <AlertTriangle className="w-3 h-3" /> Error
@@ -169,13 +158,13 @@ export default function DescriptionCheckerPage() {
                               <AlertTriangle className="w-3 h-3" /> {isTooShort ? 'Too short' : 'Too long'}
                             </div>
                           )}
-                        </TableCell>
-                      </TableRow>
+                        </Td>
+                      </Tr>
                     );
                   })}
-                </TableBody>
+                </TBody>
               </Table>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
       </div>

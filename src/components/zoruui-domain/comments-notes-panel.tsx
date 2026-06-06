@@ -1,15 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Textarea,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Badge } from '@/components/sabcrm/20ui/compat';
 import { Trash2, Paperclip, MessageSquare, StickyNote } from 'lucide-react';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
@@ -96,14 +88,14 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="flex items-center gap-2">
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4 text-[var(--st-text-secondary)]" />
             Notes &amp; Comments
             <span className="ml-1 text-[11px] text-[var(--st-text-secondary)] font-normal capitalize">{entityType}</span>
-          </ZoruDialogTitle>
-        </ZoruDialogHeader>
+          </DialogTitle>
+        </DialogHeader>
 
         <div className="flex gap-1 border-b border-[var(--st-border)]">
           {tabs.map((tab) => (
@@ -240,7 +232,7 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
             </div>
           ) : null}
         </div>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

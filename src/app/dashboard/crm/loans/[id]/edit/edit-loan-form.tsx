@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -55,7 +55,7 @@ function toInputDate(value: unknown): string {
 
 export function EditLoanForm({ loan, loanId }: Props) {
     const [state, formAction] = useActionState(updateLoan as any, initialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
     
     const [loanType, setLoanType] = useState<string>(loan?.type ?? 'customer_loan');

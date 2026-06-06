@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button } from '@/components/sabcrm/20ui/compat';
 import { User, Phone, Briefcase } from 'lucide-react';
 
 interface ContactMessageContentProps {
@@ -20,13 +20,13 @@ export function ContactMessageContent({ contacts }: ContactMessageContentProps) 
   return (
     <div className="w-64">
       <Card className="shadow-none border-0 bg-transparent">
-        <ZoruCardHeader className="p-2">
+        <CardHeader className="p-2">
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-[var(--st-text)]" />
-            <ZoruCardTitle className="text-base">Contact Card</ZoruCardTitle>
+            <CardTitle className="text-base">Contact Card</CardTitle>
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-2 space-y-2 text-sm">
+        </CardHeader>
+        <CardBody className="p-2 space-y-2 text-sm">
           <p className="font-semibold">{name}</p>
           <div className="text-[var(--st-text-secondary)] space-y-1">
             <p className="flex items-center gap-2"><Phone className="h-4 w-4" /> {phone}</p>
@@ -35,7 +35,7 @@ export function ContactMessageContent({ contacts }: ContactMessageContentProps) 
           <Button variant="outline" size="sm" className="w-full mt-2">
             View Contact
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

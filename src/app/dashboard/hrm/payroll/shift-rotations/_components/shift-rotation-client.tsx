@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Checkbox,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState, useTransition, useMemo, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Edit, Play, Trash2, Download, Search } from 'lucide-react';

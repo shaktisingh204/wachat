@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Card,
-  ZoruCardContent,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -123,7 +113,7 @@ export default function IndexedPagesPage() {
 
       {submitted && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-4 space-y-4">
+          <CardBody className="p-4 space-y-4">
             <h3 className="font-semibold text-lg text-[var(--st-text)] dark:text-white">Search Engine Links</h3>
             <div className="flex flex-col gap-2">
               <a className="inline-flex items-center gap-2 p-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] rounded-md hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/50 transition-colors" target="_blank" rel="noopener noreferrer" href={getGoogleUrl()}>
@@ -137,7 +127,7 @@ export default function IndexedPagesPage() {
                 <span className="opacity-90 break-all">site:{submitted} {submittedExactMatch ? `"${submittedExactMatch}"` : ''}</span>
               </a>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

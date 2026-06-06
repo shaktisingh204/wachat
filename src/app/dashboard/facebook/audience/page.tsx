@@ -1,40 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Progress,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Textarea,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -279,19 +245,19 @@ export default function FacebookAudiencePage(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">Meta Suite</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Audience</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">Meta Suite</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Audience</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
@@ -316,8 +282,8 @@ export default function FacebookAudiencePage(): React.JSX.Element {
       {error && (
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>Could not load audience data</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not load audience data</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
@@ -338,10 +304,10 @@ export default function FacebookAudiencePage(): React.JSX.Element {
       </section>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Saved segments</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Saved segments</CardTitle>
+        </CardHeader>
+        <CardBody>
           {loading && segments.length === 0 ? (
             <div className="flex flex-col gap-2">
               <Skeleton className="h-12 w-full" />
@@ -398,17 +364,17 @@ export default function FacebookAudiencePage(): React.JSX.Element {
               })}
             </ul>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New audience segment</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New audience segment</DialogTitle>
+            <DialogDescription>
               Define a reusable segment by gender, age, or freeform notes.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex flex-col gap-3 py-2">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="seg-name">Name</Label>
@@ -433,14 +399,14 @@ export default function FacebookAudiencePage(): React.JSX.Element {
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="seg-gender">Gender</Label>
                 <Select value={formGender} onValueChange={setFormGender}>
-                  <ZoruSelectTrigger id="seg-gender">
-                    <ZoruSelectValue placeholder="Any" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="any">Any</ZoruSelectItem>
-                    <ZoruSelectItem value="male">Male</ZoruSelectItem>
-                    <ZoruSelectItem value="female">Female</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger id="seg-gender">
+                    <SelectValue placeholder="Any" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="flex flex-col gap-1.5">
@@ -465,7 +431,7 @@ export default function FacebookAudiencePage(): React.JSX.Element {
               </div>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               variant="ghost"
               onClick={() => setDialogOpen(false)}
@@ -476,8 +442,8 @@ export default function FacebookAudiencePage(): React.JSX.Element {
             <Button onClick={handleSave} disabled={saving}>
               {saving ? 'Saving...' : 'Save segment'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

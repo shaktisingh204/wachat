@@ -11,18 +11,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-    Button,
-    Card,
-    Input,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
     createRequest,
@@ -143,15 +132,15 @@ export function NewRequestClient({ blueprints, preselectedId }: Props) {
                 <div className="flex flex-col gap-1">
                     <Label>Priority</Label>
                     <Select value={priority} onValueChange={setPriority}>
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                            <ZoruSelectItem value="normal">Normal</ZoruSelectItem>
-                            <ZoruSelectItem value="high">High</ZoruSelectItem>
-                            <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="normal">Normal</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="urgent">Urgent</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
             </div>
@@ -173,16 +162,16 @@ export function NewRequestClient({ blueprints, preselectedId }: Props) {
                                 value={String(values[f.key] ?? '')}
                                 onValueChange={(v) => set(f.key, v)}
                             >
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue placeholder="Choose…" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Choose…" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {(f.options ?? []).map((o) => (
-                                        <ZoruSelectItem key={o} value={o}>
+                                        <SelectItem key={o} value={o}>
                                             {o}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         ) : f.type === 'file' ? (
                             <SabFilePickerButton

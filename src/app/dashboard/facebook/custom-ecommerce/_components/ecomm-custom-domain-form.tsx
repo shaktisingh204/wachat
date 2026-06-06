@@ -1,19 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Separator,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Separator, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -70,7 +57,7 @@ function VerifyButton({
   onActionComplete: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const onVerify = () => {
     startTransition(async () => {
@@ -107,7 +94,7 @@ function DeleteButton({
   onActionComplete: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const onDelete = () => {
     startTransition(async () => {
@@ -138,7 +125,7 @@ function DeleteButton({
 }
 
 export function EcommCustomDomainForm() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const addFormRef = useRef<HTMLFormElement>(null);
   const [domains, setDomains] = useState<WithId<CustomDomain>[]>([]);
   const [isLoading, startLoadingTransition] = useTransition();
@@ -178,14 +165,14 @@ export function EcommCustomDomainForm() {
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>Custom domains</ZoruCardTitle>
-        <ZoruCardDescription>
+      <CardHeader>
+        <CardTitle>Custom domains</CardTitle>
+        <CardDescription>
           Use your own domain for branded shop URLs (e.g.,
           shop.mybrand.com).
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-6">
+        </CardDescription>
+      </CardHeader>
+      <CardBody className="space-y-6">
         <form action={addAction} ref={addFormRef} className="space-y-2">
           <Label htmlFor="hostname">Add new domain</Label>
           <div className="flex gap-2">
@@ -290,7 +277,7 @@ export function EcommCustomDomainForm() {
             </p>
           )}
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -6,14 +6,7 @@ import { PageHeader } from '@/components/sabcrm/20ui/compat';
 import { Card } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from '@/components/sabcrm/20ui/compat';
+import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 
 const MOCK_FORMS = [
   {
@@ -71,35 +64,35 @@ export default function SabCreatorFormsPage() {
 
       <Card className="p-0 overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Form Name</TableHead>
-              <TableHead>Target App</TableHead>
-              <TableHead>Database Table</TableHead>
-              <TableHead>Submissions</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <THead>
+            <Tr>
+              <Th>Form Name</Th>
+              <Th>Target App</Th>
+              <Th>Database Table</Th>
+              <Th>Submissions</Th>
+              <Th>Status</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {MOCK_FORMS.map((form) => (
-              <TableRow key={form.id}>
-                <TableCell>
+              <Tr key={form.id}>
+                <Td>
                   <span className="font-medium text-[var(--st-text)]">{form.name}</span>
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   <span className="text-sm text-[var(--st-text)]/80">{form.app}</span>
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   <div className="flex items-center text-sm text-[var(--st-text)]/80">
                     <Database className="w-4 h-4 mr-1.5 text-[var(--st-text)]/50" />
                     {form.table}
                   </div>
-                </TableCell>
-                <TableCell className="text-sm text-[var(--st-text)]/70">
+                </Td>
+                <Td className="text-sm text-[var(--st-text)]/70">
                   {form.submissions.toLocaleString()}
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   <Badge
                     variant={
                       form.status === 'published' ? 'default' : 'secondary'
@@ -107,8 +100,8 @@ export default function SabCreatorFormsPage() {
                   >
                     {form.status}
                   </Badge>
-                </TableCell>
-                <TableCell className="text-right">
+                </Td>
+                <Td className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="icon">
                       <Eye className="w-4 h-4 text-[var(--st-text)]/60" />
@@ -120,10 +113,10 @@ export default function SabCreatorFormsPage() {
                       <MoreHorizontal className="w-4 h-4 text-[var(--st-text)]/60" />
                     </Button>
                   </div>
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ))}
-          </TableBody>
+          </TBody>
         </Table>
       </Card>
     </div>

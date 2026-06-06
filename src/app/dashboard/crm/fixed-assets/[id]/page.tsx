@@ -1,4 +1,4 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
@@ -147,10 +147,10 @@ export default async function FixedAssetDetailPage({
         <>
           <QrCodeCard value={String(asset._id)} code={asset.code || String(asset._id)} />
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Net book value</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Net book value</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--st-text-secondary)]">NBV</span>
@@ -174,14 +174,14 @@ export default async function FixedAssetDetailPage({
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Custodian</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Custodian</CardTitle>
+            </CardHeader>
+            <CardBody>
               {asset.custodianEmployeeId ? (
                 <EntityPickerChip
                   entity="employee"
@@ -196,14 +196,14 @@ export default async function FixedAssetDetailPage({
                 <span className="text-[var(--st-text-secondary)]">Location: </span>
                 <span>{asset.location || '—'}</span>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Compliance</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Compliance</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex justify-between">
                   <span className="text-[var(--st-text-secondary)]">Warranty</span>
@@ -214,14 +214,14 @@ export default async function FixedAssetDetailPage({
                   <span>{fmtDate(asset.insuranceUntil)}</span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Related</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Related</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/fixed-assets/${id}/maintenance`}
@@ -240,16 +240,16 @@ export default async function FixedAssetDetailPage({
                   <span className="text-[var(--st-text-secondary)]">No AMC linked</span>
                 )}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </>
       }
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Asset code">{asset.code || '—'}</Field>
             <Field label="Asset name">{asset.name || '—'}</Field>
@@ -260,14 +260,14 @@ export default async function FixedAssetDetailPage({
             <Field label="Currency">{asset.currency || '—'}</Field>
             <Field label="Location">{asset.location || '—'}</Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Cost &amp; depreciation</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Cost &amp; depreciation</CardTitle>
+        </CardHeader>
+        <CardBody>
           <table className="w-full text-[13px]">
             <tbody>
               <tr className="border-b border-[var(--st-border)]/60">
@@ -318,16 +318,16 @@ export default async function FixedAssetDetailPage({
               </tr>
             </tbody>
           </table>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <DepreciationScheduleCard asset={asset} />
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Custodian &amp; vendor</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Custodian &amp; vendor</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Custodian">
               {asset.custodianEmployeeId ? (
@@ -347,14 +347,14 @@ export default async function FixedAssetDetailPage({
               )}
             </Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Insurance &amp; warranty</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Insurance &amp; warranty</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Warranty until">
               {fmtDate(asset.warrantyUntil)}
@@ -363,7 +363,7 @@ export default async function FixedAssetDetailPage({
               {fmtDate(asset.insuranceUntil)}
             </Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <CustodyHistoryCard assetId={id} />

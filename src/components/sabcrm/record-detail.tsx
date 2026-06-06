@@ -42,18 +42,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Separator,
-  Skeleton,
-  EmptyState,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardHeader, CardTitle, Separator, Skeleton, EmptyState, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   getRecordAction,
   updateRecordAction,
@@ -162,7 +151,7 @@ export function RecordDetail({
   refreshToken = 0,
   className,
 }: RecordDetailProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { fmt } = useSabcrmSettings();
 
   const [fetched, setFetched] = React.useState<CrmRecordWithLabel | null>(

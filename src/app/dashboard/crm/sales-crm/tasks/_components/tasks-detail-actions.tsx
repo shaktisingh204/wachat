@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   Archive,
@@ -82,7 +74,7 @@ export function TaskDetailActions({
                 Complete
             </Button>
             <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" disabled={snoozing}>
                         {snoozing ? (
                             <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
@@ -91,28 +83,28 @@ export function TaskDetailActions({
                         )}
                         Snooze <ChevronDown className="h-3 w-3" />
                     </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                    <ZoruDropdownMenuLabel>Push the due date forward</ZoruDropdownMenuLabel>
-                    <ZoruDropdownMenuItem onClick={() => onSnooze(1)}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Push the due date forward</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => onSnooze(1)}>
                         +1 hour
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem onClick={() => onSnooze(24)}>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onSnooze(24)}>
                         +1 day
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem onClick={() => onSnooze(24 * 3)}>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onSnooze(24 * 3)}>
                         +3 days
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem onClick={() => onSnooze(24 * 7)}>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onSnooze(24 * 7)}>
                         +1 week
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuSeparator />
-                    <ZoruDropdownMenuItem asChild>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
                         <Link href={`/dashboard/crm/sales-crm/tasks/${taskId}/edit`}>
                             Custom date in editor
                         </Link>
-                    </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
             </DropdownMenu>
             <Button variant="outline" size="sm" onClick={onReassign}>
                 <UserPlus className="h-3.5 w-3.5" /> Reassign

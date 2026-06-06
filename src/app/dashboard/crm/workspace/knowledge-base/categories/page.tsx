@@ -23,23 +23,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Checkbox,
-  Dialog,
-  ZoruDialogClose,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Checkbox, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { RowDrawer } from '@/components/crm/row-drawer';
@@ -66,7 +50,7 @@ interface FilterState {
 const INITIAL: FilterState = { search: '', populated: 'all' };
 
 export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>([]);
   const [articles, setArticles] = React.useState<
     (WsKnowledgeBase & { _id: string })[]
@@ -265,20 +249,20 @@ export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
               if (!o) setEditing(null);
             }}
           >
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4" /> New category
               </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-              <ZoruDialogHeader>
-                <ZoruDialogTitle>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
                   {editing ? 'Edit category' : 'New category'}
-                </ZoruDialogTitle>
-                <ZoruDialogDescription>
+                </DialogTitle>
+                <DialogDescription>
                   Group knowledge base articles by topic.
-                </ZoruDialogDescription>
-              </ZoruDialogHeader>
+                </DialogDescription>
+              </DialogHeader>
               <form action={handleSubmit} className="grid gap-3">
                 <div>
                   <Label htmlFor="name">Name *</Label>
@@ -290,18 +274,18 @@ export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
                     className="mt-1.5 h-10"
                   />
                 </div>
-                <ZoruDialogFooter>
-                  <ZoruDialogClose asChild>
+                <DialogFooter>
+                  <DialogClose asChild>
                     <Button variant="ghost" type="button">
                       Cancel
                     </Button>
-                  </ZoruDialogClose>
+                  </DialogClose>
                   <Button type="submit">
                     {editing ? 'Save changes' : 'Create'}
                   </Button>
-                </ZoruDialogFooter>
+                </DialogFooter>
               </form>
-            </ZoruDialogContent>
+            </DialogContent>
           </Dialog>
         }
         filters={

@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -29,7 +18,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <ZoruAlertDialogAction asChild>
+    <AlertDialogAction asChild>
       <Button type="submit" variant="destructive" disabled={pending}>
         {pending ? (
           <>
@@ -43,7 +32,7 @@ function SubmitButton() {
           </>
         )}
       </Button>
-    </ZoruAlertDialogAction>
+    </AlertDialogAction>
   );
 }
 
@@ -71,27 +60,27 @@ export function CleanDatabaseButton() {
   }, [state, toast]);
   
   return (
-    <ZoruAlertDialog>
-      <ZoruAlertDialogTrigger asChild>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
         <Button variant="destructive">
             <Trash2 className="mr-2 h-4 w-4" />
             Clean Database
         </Button>
-      </ZoruAlertDialogTrigger>
-      <ZoruAlertDialogContent>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
         <form action={formAction}>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Are you absolutely sure?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
               This action cannot be undone. This will permanently delete all projects, templates, broadcasts, notifications, and other data from the database.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter className="mt-4">
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <SubmitButton />
-          </ZoruAlertDialogFooter>
+          </AlertDialogFooter>
         </form>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

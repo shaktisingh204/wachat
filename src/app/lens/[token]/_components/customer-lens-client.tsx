@@ -2,15 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { joinSablensCustomerSession } from '@/app/actions/sablens.actions';
 import { MockTransport } from '@/lib/sablens/mock-transport';
 import type { LensAnnotation } from '@/lib/sablens/transport';
@@ -98,14 +90,14 @@ export function CustomerLensClient({ token, session }: Props) {
       {!isLive ? (
         <main className="flex flex-1 items-center justify-center p-6">
           <Card className="w-full max-w-md">
-            <ZoruCardHeader>
-              <ZoruCardTitle>Start your remote support session</ZoruCardTitle>
-              <ZoruCardDescription>
+            <CardHeader>
+              <CardTitle>Start your remote support session</CardTitle>
+              <CardDescription>
                 We'll ask for camera access so your technician can see what
                 you see and draw helpful marks on top.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex flex-col gap-3">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="flex flex-col gap-3">
               {permissionState === 'denied' && (
                 <p className="text-sm text-[var(--st-text)]">
                   Camera permission denied. Update your browser settings and
@@ -115,7 +107,7 @@ export function CustomerLensClient({ token, session }: Props) {
               <Button onClick={handleStart} disabled={permissionState === 'requesting'}>
                 {permissionState === 'requesting' ? 'Requesting camera…' : 'Start session'}
               </Button>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </main>
       ) : (

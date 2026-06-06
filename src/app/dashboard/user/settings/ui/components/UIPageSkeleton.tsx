@@ -1,19 +1,13 @@
-import {
-    Card,
-    ZoruCardHeader,
-    ZoruCardContent,
-    ZoruCardFooter,
-    Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardBody, CardFooter, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export function UIPageSkeleton() {
     return (
         <Card>
-            <ZoruCardHeader>
+            <CardHeader>
                 <Skeleton className="h-6 w-1/4 mb-2" />
                 <Skeleton className="h-4 w-1/2" />
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-6">
+            </CardHeader>
+            <CardBody className="space-y-6">
                 <div className="space-y-2">
                     <Skeleton className="h-5 w-32" />
                     <Skeleton className="h-4 w-64" />
@@ -38,10 +32,10 @@ export function UIPageSkeleton() {
                         ))}
                     </div>
                 </div>
-            </ZoruCardContent>
-            <ZoruCardFooter>
+            </CardBody>
+            <CardFooter>
                 <Skeleton className="h-10 w-36" />
-            </ZoruCardFooter>
+            </CardFooter>
         </Card>
     );
 }

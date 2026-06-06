@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Card,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -41,7 +25,7 @@ type TeamRow = WsEmployeeTeam & { _id: string };
 const EMPTY: Partial<TeamRow> = { team_name: '', leader_user_id: '' };
 
 export default function EmployeeTeamsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [teams, setTeams] = useState<TeamRow[]>([]);
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [isLoading, startLoad] = useTransition();
@@ -165,10 +149,10 @@ export default function EmployeeTeamsPage() {
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent className="sm:max-w-[440px]">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{form._id ? 'Edit Team' : 'Add Team'}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent className="sm:max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle>{form._id ? 'Edit Team' : 'Add Team'}</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-2">
             <div>
               <Label className="text-[12px] text-[var(--st-text-secondary)]">
@@ -187,27 +171,27 @@ export default function EmployeeTeamsPage() {
                 value={form.leader_user_id || undefined}
                 onValueChange={(v) => setForm((p) => ({ ...p, leader_user_id: v }))}
               >
-                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                  <ZoruSelectValue placeholder="Select employee" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                  <SelectValue placeholder="Select employee" />
+                </SelectTrigger>
+                <SelectContent>
                   {employees.map((e) => (
-                    <ZoruSelectItem key={e._id} value={e._id}>
+                    <SelectItem key={e._id} value={e._id}>
                       {[e.firstName, e.lastName].filter(Boolean).join(' ') || 'Unnamed'}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Save' : 'Create'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

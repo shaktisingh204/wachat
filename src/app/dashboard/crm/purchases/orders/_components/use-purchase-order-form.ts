@@ -1,6 +1,6 @@
 'use client';
 
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { useActionState,
@@ -71,7 +71,7 @@ export function usePurchaseOrderForm({
   redirectTo,
 }: UsePurchaseOrderFormArgs) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(
     savePurchaseOrderAction,

@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Card,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, Checkbox, Table, TBody, Td, Th, THead, Tr, useToast, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams,
@@ -109,7 +86,7 @@ export function GrnListClient({
     kpis,
     error,
 }: GrnListClientProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
     const pathname = usePathname();
     const sp = useSearchParams();
@@ -337,38 +314,38 @@ export function GrnListClient({
                 />
 
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow>
-                            <ZoruTableHead className="w-[36px]">
+                    <THead>
+                        <Tr>
+                            <Th className="w-[36px]">
                                 <Checkbox
                                     checked={allSelected}
                                     onCheckedChange={toggleAll}
                                     aria-label="Select all"
                                 />
-                            </ZoruTableHead>
-                            <ZoruTableHead>GRN #</ZoruTableHead>
-                            <ZoruTableHead>Vendor</ZoruTableHead>
-                            <ZoruTableHead>PO ref</ZoruTableHead>
-                            <ZoruTableHead>Date</ZoruTableHead>
-                            <ZoruTableHead>Vehicle</ZoruTableHead>
-                            <ZoruTableHead>Driver</ZoruTableHead>
-                            <ZoruTableHead>Status</ZoruTableHead>
-                            <ZoruTableHead>Linked Bill</ZoruTableHead>
-                            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                            </Th>
+                            <Th>GRN #</Th>
+                            <Th>Vendor</Th>
+                            <Th>PO ref</Th>
+                            <Th>Date</Th>
+                            <Th>Vehicle</Th>
+                            <Th>Driver</Th>
+                            <Th>Status</Th>
+                            <Th>Linked Bill</Th>
+                            <Th className="text-right">Actions</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {grns.length === 0 ? (
-                            <ZoruTableRow>
-                                <ZoruTableCell
+                            <Tr>
+                                <Td
                                     colSpan={10}
                                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                 >
                                     {initialQuery || hasActive
                                         ? 'No GRNs match these filters.'
                                         : 'No GRNs yet — click "New GRN" to add one.'}
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : (
                             grns.map((grn) => {
                                 const id = String(grn._id);
@@ -393,25 +370,25 @@ export function GrnListClient({
                                     };
                                 }).transportDetails;
                                 return (
-                                    <ZoruTableRow
+                                    <Tr
                                         key={id}
                                         data-state={isSelected ? 'selected' : undefined}
                                     >
-                                        <ZoruTableCell>
+                                        <Td>
                                             <Checkbox
                                                 checked={isSelected}
                                                 onCheckedChange={() => toggleOne(id)}
                                                 aria-label={`Select ${grn.grnNo}`}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <EntityRowLink
                                                 href={`/dashboard/crm/inventory/grn/${id}`}
                                                 label={grn.grnNo || id.slice(-6)}
                                                 subtitle={grn.poId ? `PO ${grn.poId.slice(-6)}` : undefined}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px]">
+                                        </Td>
+                                        <Td className="text-[12.5px]">
                                             {grn.vendorId ? (
                                                 <EntityPickerChip
                                                     entity="vendor"
@@ -420,8 +397,8 @@ export function GrnListClient({
                                             ) : (
                                                 <span className="text-[var(--st-text-secondary)]">—</span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                             {grn.poId ? (
                                                 <Link
                                                     href={`/dashboard/crm/purchases/orders/${grn.poId}`}
@@ -432,17 +409,17 @@ export function GrnListClient({
                                             ) : (
                                                 '—'
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                             {fmtDate(grn.date)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[12.5px] text-[var(--st-text)]">
                                             {tx?.vehicleNumber || '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[12.5px] text-[var(--st-text)]">
                                             {tx?.driverName || '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {statusLabel ? (
                                                 <StatusPill
                                                     label={statusLabel}
@@ -453,8 +430,8 @@ export function GrnListClient({
                                                     —
                                                 </span>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                             {linkedBillId ? (
                                                 <Link
                                                     href={`/dashboard/crm/purchases/expenses/${linkedBillId}`}
@@ -465,8 +442,8 @@ export function GrnListClient({
                                             ) : (
                                                 '—'
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
+                                        </Td>
+                                        <Td className="text-right">
                                             <div className="flex justify-end gap-1">
                                                 <Button
                                                     size="sm"
@@ -495,63 +472,63 @@ export function GrnListClient({
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5" />
                                                 </Button>
-                                                <ZoruDropdownMenu>
-                                                    <ZoruDropdownMenuTrigger asChild>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
                                                         <Button size="sm" variant="ghost">
                                                             <MoreVertical className="h-3.5 w-3.5" />
                                                         </Button>
-                                                    </ZoruDropdownMenuTrigger>
-                                                    <ZoruDropdownMenuContent align="end">
-                                                        <ZoruDropdownMenuItem asChild>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem asChild>
                                                             <Link href={`/dashboard/crm/inventory/grn/${id}`}>
                                                                 View Details
                                                             </Link>
-                                                        </ZoruDropdownMenuItem>
-                                                        <ZoruDropdownMenuItem asChild>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem asChild>
                                                             <Link href={`/dashboard/crm/inventory/grn/${id}/activity`}>
                                                                 <Activity className="mr-2 h-3.5 w-3.5" /> Activity
                                                             </Link>
-                                                        </ZoruDropdownMenuItem>
-                                                        <ZoruDropdownMenuItem disabled>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem disabled>
                                                             <Printer className="mr-2 h-3.5 w-3.5" /> Print
-                                                        </ZoruDropdownMenuItem>
-                                                        <ZoruDropdownMenuItem
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
                                                             onClick={() => setPendingDelete(grn)}
                                                             className="text-[var(--st-danger)]"
                                                         >
                                                             <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
-                                                        </ZoruDropdownMenuItem>
-                                                    </ZoruDropdownMenuContent>
-                                                </ZoruDropdownMenu>
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
                                             </div>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 );
                             })
                         )}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
 
                 <PaginationBar page={page} limit={limit} hasMore={hasMore} />
 
-                <ZoruAlertDialog
+                <AlertDialog
                     open={pendingDelete !== null}
                     onOpenChange={(o) => !o && setPendingDelete(null)}
                 >
-                    <ZoruAlertDialogContent>
-                        <ZoruAlertDialogHeader>
-                            <ZoruAlertDialogTitle>Delete GRN?</ZoruAlertDialogTitle>
-                            <ZoruAlertDialogDescription>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Delete GRN?</AlertDialogTitle>
+                            <AlertDialogDescription>
                                 This permanently removes{' '}
                                 <strong>{pendingDelete?.grnNo ?? ''}</strong> from the
                                 database. The action cannot be undone.
-                            </ZoruAlertDialogDescription>
-                        </ZoruAlertDialogHeader>
-                        <ZoruAlertDialogFooter>
-                            <ZoruAlertDialogCancel disabled={busy}>
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel disabled={busy}>
                                 Cancel
-                            </ZoruAlertDialogCancel>
-                            <ZoruAlertDialogAction
+                            </AlertDialogCancel>
+                            <AlertDialogAction
                                 onClick={(e) => {
                                     e.preventDefault();
                                     confirmDelete();
@@ -563,30 +540,30 @@ export function GrnListClient({
                                     <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
                                 ) : null}
                                 Delete permanently
-                            </ZoruAlertDialogAction>
-                        </ZoruAlertDialogFooter>
-                    </ZoruAlertDialogContent>
-                </ZoruAlertDialog>
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
 
-                <ZoruAlertDialog
+                <AlertDialog
                     open={pendingBulkDelete}
                     onOpenChange={(o) => !o && setPendingBulkDelete(false)}
                 >
-                    <ZoruAlertDialogContent>
-                        <ZoruAlertDialogHeader>
-                            <ZoruAlertDialogTitle>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
                                 Delete {selected.size} GRN{selected.size === 1 ? '' : 's'}?
-                            </ZoruAlertDialogTitle>
-                            <ZoruAlertDialogDescription>
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
                                 This permanently removes the selected GRNs. The
                                 action cannot be undone.
-                            </ZoruAlertDialogDescription>
-                        </ZoruAlertDialogHeader>
-                        <ZoruAlertDialogFooter>
-                            <ZoruAlertDialogCancel disabled={busy}>
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel disabled={busy}>
                                 Cancel
-                            </ZoruAlertDialogCancel>
-                            <ZoruAlertDialogAction
+                            </AlertDialogCancel>
+                            <AlertDialogAction
                                 onClick={(e) => {
                                     e.preventDefault();
                                     confirmBulkDelete();
@@ -598,10 +575,10 @@ export function GrnListClient({
                                     <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
                                 ) : null}
                                 Delete permanently
-                            </ZoruAlertDialogAction>
-                        </ZoruAlertDialogFooter>
-                    </ZoruAlertDialogContent>
-                </ZoruAlertDialog>
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </Card>
         </div>
     );

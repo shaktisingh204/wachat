@@ -1,18 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Table,
-  ZoruTableHeader,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableHead,
-  ZoruTableCell,
-  Button,
-  Input,
-  Card,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td, Button, Input, Card, Label } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Calculator, Info } from 'lucide-react';
 
 export interface CalculatorItem {
@@ -182,25 +171,25 @@ export function CrmStatutoryCalculator({
 
         <div className="overflow-x-auto">
           <Table className="min-w-full">
-            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/20 border-b border-[var(--st-border)]">
-              <ZoruTableRow>
-                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-left">Item Name / HSN</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-center w-[100px]">Qty</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-right w-[140px]">Rate (₹)</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-center w-[120px]">Discount (%)</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-center w-[120px]">GST Rate (%)</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-right w-[140px]">Amount (₹)</ZoruTableHead>
-                <ZoruTableHead className="w-10 px-3" />
-              </ZoruTableRow>
-            </ZoruTableHeader>
+            <THead className="bg-[var(--st-bg-muted)]/20 border-b border-[var(--st-border)]">
+              <Tr>
+                <Th className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-left">Item Name / HSN</Th>
+                <Th className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-center w-[100px]">Qty</Th>
+                <Th className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-right w-[140px]">Rate (₹)</Th>
+                <Th className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-center w-[120px]">Discount (%)</Th>
+                <Th className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-center w-[120px]">GST Rate (%)</Th>
+                <Th className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-right w-[140px]">Amount (₹)</Th>
+                <Th className="w-10 px-3" />
+              </Tr>
+            </THead>
 
-            <ZoruTableBody>
+            <TBody>
               {items.map((item, idx) => {
                 const amount = item.qty * item.rate * (1 - item.discountPercent / 100);
                 return (
-                  <ZoruTableRow key={item.itemId} className="border-b border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/10">
+                  <Tr key={item.itemId} className="border-b border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/10">
                     {/* Item details */}
-                    <ZoruTableCell className="py-2.5 px-3">
+                    <Td className="py-2.5 px-3">
                       <div className="flex flex-col gap-1">
                         <Input
                           placeholder="Search product..."
@@ -215,10 +204,10 @@ export function CrmStatutoryCalculator({
                           className="h-6 text-[10.5px] max-w-[120px] text-[var(--st-text-secondary)] bg-transparent border-dashed"
                         />
                       </div>
-                    </ZoruTableCell>
+                    </Td>
 
                     {/* Qty */}
-                    <ZoruTableCell className="py-2.5 px-3">
+                    <Td className="py-2.5 px-3">
                       <Input
                         type="number"
                         min="1"
@@ -226,10 +215,10 @@ export function CrmStatutoryCalculator({
                         onChange={(e) => handleUpdateRow(idx, 'qty', Math.max(1, Number(e.target.value)))}
                         className="h-8 text-[12.5px] text-center"
                       />
-                    </ZoruTableCell>
+                    </Td>
 
                     {/* Rate */}
-                    <ZoruTableCell className="py-2.5 px-3">
+                    <Td className="py-2.5 px-3">
                       <Input
                         type="number"
                         min="0"
@@ -237,10 +226,10 @@ export function CrmStatutoryCalculator({
                         onChange={(e) => handleUpdateRow(idx, 'rate', Math.max(0, Number(e.target.value)))}
                         className="h-8 text-[12.5px] text-right"
                       />
-                    </ZoruTableCell>
+                    </Td>
 
                     {/* Discount */}
-                    <ZoruTableCell className="py-2.5 px-3">
+                    <Td className="py-2.5 px-3">
                       <Input
                         type="number"
                         min="0"
@@ -249,10 +238,10 @@ export function CrmStatutoryCalculator({
                         onChange={(e) => handleUpdateRow(idx, 'discountPercent', Math.min(100, Math.max(0, Number(e.target.value))))}
                         className="h-8 text-[12.5px] text-center"
                       />
-                    </ZoruTableCell>
+                    </Td>
 
                     {/* GST Rate dropdown options */}
-                    <ZoruTableCell className="py-2.5 px-3">
+                    <Td className="py-2.5 px-3">
                       <select
                         className="flex h-8 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-[12.5px] text-[var(--st-text)] shadow-sm transition-colors focus-visible:outline-none"
                         value={item.taxRatePercent}
@@ -264,15 +253,15 @@ export function CrmStatutoryCalculator({
                         <option value="18">18% GST</option>
                         <option value="28">28% GST</option>
                       </select>
-                    </ZoruTableCell>
+                    </Td>
 
                     {/* Calculated row Amount */}
-                    <ZoruTableCell className="py-2.5 px-3 text-right text-[12.5px] font-medium text-[var(--st-text)]">
+                    <Td className="py-2.5 px-3 text-right text-[12.5px] font-medium text-[var(--st-text)]">
                       {amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
-                    </ZoruTableCell>
+                    </Td>
 
                     {/* Action */}
-                    <ZoruTableCell className="py-2.5 px-3 text-center">
+                    <Td className="py-2.5 px-3 text-center">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -282,11 +271,11 @@ export function CrmStatutoryCalculator({
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
 

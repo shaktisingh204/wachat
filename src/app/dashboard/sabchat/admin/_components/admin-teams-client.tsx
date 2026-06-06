@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { createAdminTeam, deleteAdminTeam } from '@/app/actions/sabchat-admin.actions';
 
 export function AdminTeamsClient({ initialData }: { initialData: any[] }) {
@@ -36,28 +36,28 @@ export function AdminTeamsClient({ initialData }: { initialData: any[] }) {
 
             <div className="rounded-md border">
                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>ID</TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                    <THead>
+                        <Tr>
+                            <Th>ID</Th>
+                            <Th>Name</Th>
+                            <Th className="text-right">Actions</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {initialData.length === 0 ? (
-                            <TableRow><TableCell colSpan={3} className="text-center">No teams found.</TableCell></TableRow>
+                            <Tr><Td colSpan={3} className="text-center">No teams found.</Td></Tr>
                         ) : (
                             initialData.map((item) => (
-                                <TableRow key={item._id}>
-                                    <TableCell className="font-mono text-xs">{item._id}</TableCell>
-                                    <TableCell>{item.name}</TableCell>
-                                    <TableCell className="text-right">
+                                <Tr key={item._id}>
+                                    <Td className="font-mono text-xs">{item._id}</Td>
+                                    <Td>{item.name}</Td>
+                                    <Td className="text-right">
                                         <Button variant="destructive" size="sm" onClick={() => handleDelete(item._id)}>Delete</Button>
-                                    </TableCell>
-                                </TableRow>
+                                    </Td>
+                                </Tr>
                             ))
                         )}
-                    </TableBody>
+                    </TBody>
                 </Table>
             </div>
         </div>

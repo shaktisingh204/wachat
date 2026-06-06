@@ -11,7 +11,7 @@ import React, { Suspense } from 'react';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getIssueById } from '@/app/actions/worksuite/meta.actions';
-import { Card, ZoruCardHeader, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardBody } from '@/components/sabcrm/20ui/compat';
 
 import { IssueForm } from '../../_components/issue-form';
 import { issueSchema } from '../../schema';
@@ -27,10 +27,10 @@ function IssueFormSkeleton() {
         <div className="flex w-full flex-col gap-5 animate-pulse">
             {/* Overview Card */}
             <Card className="p-0 bg-[var(--st-bg)]/50">
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="h-6 w-32 bg-[var(--st-border)]/50 rounded" />
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-4">
+                </CardHeader>
+                <CardBody className="flex flex-col gap-4">
                     <div className="space-y-2">
                         <div className="h-4 w-20 bg-[var(--st-border)]/50 rounded" />
                         <div className="h-10 w-full bg-[var(--st-border)]/50 rounded" />
@@ -49,15 +49,15 @@ function IssueFormSkeleton() {
                             <div className="h-10 w-full bg-[var(--st-border)]/50 rounded" />
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Classification Card */}
             <Card className="p-0 bg-[var(--st-bg)]/50">
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="h-6 w-36 bg-[var(--st-border)]/50 rounded" />
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-4">
+                </CardHeader>
+                <CardBody className="flex flex-col gap-4">
                     <div className="grid gap-4 md:grid-cols-2">
                         {[1, 2, 3, 4, 5, 6].map((i) => (
                             <div key={i} className="space-y-2">
@@ -70,29 +70,29 @@ function IssueFormSkeleton() {
                             <div className="h-10 w-full max-w-[200px] bg-[var(--st-border)]/50 rounded" />
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Subtasks Card */}
             <Card className="p-0 bg-[var(--st-bg)]/50">
-                <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
+                <CardHeader className="flex flex-row items-center justify-between gap-2">
                     <div className="h-6 w-24 bg-[var(--st-border)]/50 rounded" />
                     <div className="h-8 w-28 bg-[var(--st-border)]/50 rounded" />
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <div className="h-10 w-full bg-[var(--st-border)]/50 rounded" />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Attachments Card */}
             <Card className="p-0 bg-[var(--st-bg)]/50">
-                <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
+                <CardHeader className="flex flex-row items-center justify-between gap-2">
                     <div className="h-6 w-32 bg-[var(--st-border)]/50 rounded" />
                     <div className="h-8 w-24 bg-[var(--st-border)]/50 rounded" />
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <div className="h-10 w-full bg-[var(--st-border)]/50 rounded" />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Skeleton Footer */}

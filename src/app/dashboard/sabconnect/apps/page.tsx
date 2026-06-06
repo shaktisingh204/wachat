@@ -2,15 +2,7 @@
  * SabConnect — pinned custom apps grid.
  */
 
-import {
-    PageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Card,
-    CardContent,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardContent, EmptyState } from '@/components/sabcrm/20ui/compat';
 
 import { getSabConnectCustomApps } from '@/app/actions/sabconnect.actions';
 import { CreateCustomAppDialog } from './_components/create-custom-app-dialog';
@@ -23,12 +15,12 @@ export default async function SabConnectAppsPage() {
     return (
         <div className="flex w-full flex-col gap-6">
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Apps</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Apps</PageTitle>
+                    <PageDescription>
                         Pin internal dashboards, BI links and tools right inside Connect.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <CreateCustomAppDialog />
             </PageHeader>
 

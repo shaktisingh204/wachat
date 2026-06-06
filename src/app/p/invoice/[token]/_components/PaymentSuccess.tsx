@@ -1,9 +1,9 @@
-import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
 
 export function PaymentSuccess() {
   return (
     <Card className="border-success/20 bg-success/5">
-      <ZoruCardContent className="py-8 text-center flex flex-col items-center gap-3">
+      <CardBody className="py-8 text-center flex flex-col items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 text-success-ink border border-success/20 font-mono text-xs">
           200
         </div>
@@ -26,7 +26,7 @@ export function PaymentSuccess() {
           </div>
           <span className="text-[var(--st-text-secondary)]">{"}"}</span>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -108,7 +95,7 @@ export interface SurveyFormProps {
 export function SurveyForm({ initialData }: SurveyFormProps) {
     const isEditing = !!initialData?._id;
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [state, formAction] = useActionState(saveSurvey, initialState);
 
@@ -205,19 +192,19 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                                     setType(v as CrmSurveyType)
                                 }
                             >
-                                <ZoruSelectTrigger id="type-trigger">
-                                    <ZoruSelectValue placeholder="Type" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger id="type-trigger">
+                                    <SelectValue placeholder="Type" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {TYPE_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
+                                        <SelectItem
                                             key={o.value}
                                             value={o.value}
                                         >
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-1.5">
@@ -228,19 +215,19 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                                     setStatus(v as CrmSurveyStatus)
                                 }
                             >
-                                <ZoruSelectTrigger id="status-trigger">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger id="status-trigger">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
+                                        <SelectItem
                                             key={o.value}
                                             value={o.value}
                                         >
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>
@@ -263,19 +250,19 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                                 setAudience(v as CrmSurveyAudience)
                             }
                         >
-                            <ZoruSelectTrigger id="audience-trigger">
-                                <ZoruSelectValue placeholder="Audience" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="audience-trigger">
+                                <SelectValue placeholder="Audience" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {AUDIENCE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem
+                                    <SelectItem
                                         key={o.value}
                                         value={o.value}
                                     >
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     {audienceNeedsIds ? (

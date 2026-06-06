@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Plus, Trash2 } from 'lucide-react';
@@ -151,24 +151,24 @@ export default function UrlParserPage() {
 
       {error && (
         <Card className="border-[var(--st-border)]/50">
-          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)]">
+          <CardBody className="p-4 text-sm text-[var(--st-text)]">
             {error}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {rebuiltUrl && parts && (
         <Card className="bg-[var(--st-text)]/5">
-          <ZoruCardContent className="p-4 flex flex-col gap-2">
+          <CardBody className="p-4 flex flex-col gap-2">
             <span className="text-sm font-semibold">Rebuilt URL</span>
             <span className="font-mono text-sm break-all">{rebuiltUrl}</span>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {parts && (
         <Card>
-          <ZoruCardContent className="p-4 flex flex-col gap-6">
+          <CardBody className="p-4 flex flex-col gap-6">
             <div>
               <h3 className="text-lg font-semibold mb-4">URL Parts</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -251,7 +251,7 @@ export default function UrlParserPage() {
                 </div>
               )}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

@@ -1,15 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import {
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr, Badge } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -215,39 +206,39 @@ export default async function InvoiceAgingPage(props: {
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Invoice</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Client</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Invoice date</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Due date</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Days overdue</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Bucket</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Outstanding</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">Invoice</Th>
+                <Th className="text-[var(--st-text-secondary)]">Client</Th>
+                <Th className="text-[var(--st-text-secondary)]">Invoice date</Th>
+                <Th className="text-[var(--st-text-secondary)]">Due date</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Days overdue</Th>
+                <Th className="text-[var(--st-text-secondary)]">Bucket</Th>
+                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Outstanding</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={8}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No overdue invoices matching filters.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 <>
                   {pageRows.map((r: InvoiceAgingDetailRow) => (
-                    <ZoruTableRow key={r.id} className="border-[var(--st-border)]">
-                      <ZoruTableCell>
+                    <Tr key={r.id} className="border-[var(--st-border)]">
+                      <Td>
                         <EntityRowLink
                           href={`/dashboard/crm/sales/invoices/${r.id}`}
                           label={r.invoiceNumber}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         {r.accountId ? (
                           <EntityRowLink
                             href={`/dashboard/crm/sales-crm/accounts/${r.accountId}`}
@@ -256,47 +247,47 @@ export default async function InvoiceAgingPage(props: {
                         ) : (
                           <span className="text-[13px] text-[var(--st-text)]">{r.clientName}</span>
                         )}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">{r.invoiceDate}</ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">{r.dueDate}</ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">{r.daysOverdue}</ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text-secondary)]">{r.invoiceDate}</Td>
+                      <Td className="text-[13px] text-[var(--st-text-secondary)]">{r.dueDate}</Td>
+                      <Td className="text-right text-[13px] text-[var(--st-text)]">{r.daysOverdue}</Td>
+                      <Td>
                         <Badge variant={bucketVariant[r.bucket]}>{r.bucket}</Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         {r.isDisputed ? (
                           <Badge variant="destructive">Disputed</Badge>
                         ) : (
                           <Badge variant="secondary">Active</Badge>
                         )}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-danger)]">
+                      </Td>
+                      <Td className="text-right text-[13px] font-medium text-[var(--st-danger)]">
                         {fmtMoney(r.outstanding)}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))}
 
                   {/* Summary totals row */}
-                  <ZoruTableRow className="border-t-2 border-[var(--st-border)] bg-[var(--st-bg)] font-semibold">
-                    <ZoruTableCell colSpan={3} className="text-[13px] text-[var(--st-text)]">
+                  <Tr className="border-t-2 border-[var(--st-border)] bg-[var(--st-bg)] font-semibold">
+                    <Td colSpan={3} className="text-[13px] text-[var(--st-text)]">
                       Totals ({filtered.length} invoice{filtered.length === 1 ? '' : 's'})
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       0-30: {fmtMoney(totals.current)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       31-60: {fmtMoney(totals.d3160)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       61-90: {fmtMoney(totals.d6190)} · 90+: {fmtMoney(totals.over90)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-bold text-[var(--st-danger)]">
+                    </Td>
+                    <Td className="text-right text-[13px] font-bold text-[var(--st-danger)]">
                       {fmtMoney(totals.outstanding)}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 </>
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

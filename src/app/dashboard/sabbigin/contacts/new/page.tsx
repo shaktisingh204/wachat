@@ -15,13 +15,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
-import {
-    Button,
-    Card,
-    Input,
-    Label,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { addCrmContact } from '@/app/actions/crm.actions';
 
@@ -29,7 +23,7 @@ import { SabbiginNav } from '../../_components/sabbigin-shell';
 
 export default function SabbiginNewContactPage() {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [pending, startTransition] = React.useTransition();
 
     function handleSubmit(formData: FormData) {

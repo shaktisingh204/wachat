@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Label,
-  Button,
-  Input,
-  Textarea,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Avatar,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Textarea, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Avatar } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -58,9 +43,9 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
     return (
         <div className="space-y-4">
             <Accordion type="multiple" className="w-full" defaultValue={['content']}>
-                <ZoruAccordionItem value="content">
-                    <ZoruAccordionTrigger>Content</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                <AccordionItem value="content">
+                    <AccordionTrigger>Content</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <Label htmlFor={`title-${settings.id}`}>Section Title</Label>
                             <Input id={`title-${settings.id}`} value={settings.title || 'What Our Customers Say'} onChange={(e) => onUpdate({ ...settings, title: e.target.value })} />
@@ -89,11 +74,11 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
                             </div>
                         ))}
                         <Button type="button" variant="outline" onClick={addItem}><Plus className="mr-2 h-4 w-4" /> Add Testimonial</Button>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
-                 <ZoruAccordionItem value="layout">
-                    <ZoruAccordionTrigger>Sizing &amp; Layout</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                    </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="layout">
+                    <AccordionTrigger>Sizing &amp; Layout</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Width</Label>
@@ -117,16 +102,16 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
                         <div className="space-y-2">
                             <Label>Overflow</Label>
                             <Select value={settings.layout?.overflow || 'visible'} onValueChange={(val) => handleSubFieldUpdate('layout', 'overflow', val)}>
-                                <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="visible">Visible</ZoruSelectItem>
-                                    <ZoruSelectItem value="hidden">Hidden</ZoruSelectItem>
-                                    <ZoruSelectItem value="scroll">Scroll</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="visible">Visible</SelectItem>
+                                    <SelectItem value="hidden">Hidden</SelectItem>
+                                    <SelectItem value="scroll">Scroll</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
             </Accordion>
         </div>
     );

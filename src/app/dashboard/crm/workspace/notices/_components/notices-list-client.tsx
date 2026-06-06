@@ -29,19 +29,7 @@ import {
     X,
 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Checkbox,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -87,7 +75,7 @@ export function NoticesListClient({
     initialViews,
     initialKpis,
 }: NoticesListClientProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [notices, setNotices] = React.useState<(WsNotice & { _id: string })[]>(
         initialNotices,
@@ -354,28 +342,28 @@ export function NoticesListClient({
                             value={priorityFilter}
                             onValueChange={(v) => setPriorityFilter(v as PriorityFilter)}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[140px]">
-                                <ZoruSelectValue placeholder="Priority" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">Any priority</ZoruSelectItem>
-                                <ZoruSelectItem value="high">High</ZoruSelectItem>
-                                <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                                <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[140px]">
+                                <SelectValue placeholder="Priority" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Any priority</SelectItem>
+                                <SelectItem value="high">High</SelectItem>
+                                <SelectItem value="medium">Medium</SelectItem>
+                                <SelectItem value="low">Low</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Select
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[140px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                <ZoruSelectItem value="expired">Expired</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[140px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All statuses</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="expired">Expired</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Select
                             value={filters.audience}
@@ -383,15 +371,15 @@ export function NoticesListClient({
                                 updateFilter('audience', v as NoticesAudienceFilter)
                             }
                         >
-                            <ZoruSelectTrigger className="h-9 w-[150px]">
-                                <ZoruSelectValue placeholder="Audience" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">Any audience</ZoruSelectItem>
-                                <ZoruSelectItem value="everyone">Everyone</ZoruSelectItem>
-                                <ZoruSelectItem value="department">Department</ZoruSelectItem>
-                                <ZoruSelectItem value="employee">Employees</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[150px]">
+                                <SelectValue placeholder="Audience" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Any audience</SelectItem>
+                                <SelectItem value="everyone">Everyone</SelectItem>
+                                <SelectItem value="department">Department</SelectItem>
+                                <SelectItem value="employee">Employees</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Input
                             type="date"

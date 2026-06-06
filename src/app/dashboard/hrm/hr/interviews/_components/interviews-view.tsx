@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarDays,
   CalendarRange,
@@ -65,7 +65,7 @@ const MODE_OPTIONS = [
 ];
 
 export function InterviewsView({ initial }: { initial: Interview[] }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Interview[]>(initial);
   const [view, setView] = React.useState<'table' | 'calendar'>('table');
   const [search, setSearch] = React.useState('');

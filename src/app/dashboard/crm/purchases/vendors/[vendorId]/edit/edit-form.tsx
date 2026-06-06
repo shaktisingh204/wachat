@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -36,7 +36,7 @@ export function VendorEditForm({ vendor }: Props) {
 
     return (
         <Card>
-            <ZoruCardContent className="p-6">
+            <CardBody className="p-6">
                 <form action={action} className="grid gap-4 md:grid-cols-2">
                     <input type="hidden" name="vendorId" value={String(vendor._id ?? '')} />
                     <Field name="name" label="Name" defaultValue={vendor.name} required />
@@ -133,7 +133,7 @@ export function VendorEditForm({ vendor }: Props) {
                         <SubmitButton />
                     </div>
                 </form>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

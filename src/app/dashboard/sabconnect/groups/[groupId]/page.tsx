@@ -7,16 +7,7 @@
 
 import { notFound } from 'next/navigation';
 
-import {
-    PageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Card,
-    CardContent,
-    Badge,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardContent, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
 
 import {
     getSabConnectFeed,
@@ -45,18 +36,18 @@ export default async function SabConnectGroupPage({ params }: PageProps) {
     return (
         <div className="flex w-full flex-col gap-6">
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>{group.name}</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>{group.name}</PageTitle>
+                    <PageDescription>
                         {group.description ?? `${group.visibility} group`}
-                    </ZoruPageDescription>
+                    </PageDescription>
                     <div className="flex items-center gap-2 pt-1">
                         <Badge variant="outline">{group.visibility}</Badge>
                         <span className="text-xs text-[var(--st-bg-muted)]">
                             {group.memberCount ?? group.memberIds?.length ?? 0} members
                         </span>
                     </div>
-                </ZoruPageHeading>
+                </PageHeading>
                 <GroupMembershipButton groupId={group._id} memberIds={group.memberIds ?? []} />
             </PageHeader>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Badge, Button, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardBody, Badge, Button, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import { Server, AlertTriangle, AlertCircle, Info, CheckCircle2 } from 'lucide-react';
 
 export default function AlertsPage() {
@@ -23,10 +23,10 @@ export default function AlertsPage() {
         <div className="flex flex-col gap-6">
             <PageHeader>
                 <div className="flex w-full items-center justify-between">
-                    <ZoruPageHeading>
-                        <ZoruPageTitle>System Alerts</ZoruPageTitle>
-                        <ZoruPageDescription>Monitor and acknowledge automated system alerts and notifications.</ZoruPageDescription>
-                    </ZoruPageHeading>
+                    <PageHeading>
+                        <PageTitle>System Alerts</PageTitle>
+                        <PageDescription>Monitor and acknowledge automated system alerts and notifications.</PageDescription>
+                    </PageHeading>
                     <Button variant="outline">
                         Acknowledge All
                     </Button>
@@ -34,42 +34,42 @@ export default function AlertsPage() {
             </PageHeader>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Active Alerts</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Active Alerts</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Alert ID</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead>Severity</TableHead>
-                                <TableHead>Source</TableHead>
-                                <TableHead>Time</TableHead>
-                                <TableHead className="text-right">Action</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                        <THead>
+                            <Tr>
+                                <Th>Alert ID</Th>
+                                <Th>Description</Th>
+                                <Th>Severity</Th>
+                                <Th>Source</Th>
+                                <Th>Time</Th>
+                                <Th className="text-right">Action</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {alerts.map(alert => (
-                                <TableRow key={alert.id}>
-                                    <TableCell className="font-medium">{alert.id}</TableCell>
-                                    <TableCell>{alert.title}</TableCell>
-                                    <TableCell>
+                                <Tr key={alert.id}>
+                                    <Td className="font-medium">{alert.id}</Td>
+                                    <Td>{alert.title}</Td>
+                                    <Td>
                                         <div className="flex items-center gap-2">
                                             {getSeverityIcon(alert.severity)}
                                             {alert.severity}
                                         </div>
-                                    </TableCell>
-                                    <TableCell>{alert.source}</TableCell>
-                                    <TableCell className="text-sm text-[var(--st-text-secondary)]">{alert.time}</TableCell>
-                                    <TableCell className="text-right">
+                                    </Td>
+                                    <Td>{alert.source}</Td>
+                                    <Td className="text-sm text-[var(--st-text-secondary)]">{alert.time}</Td>
+                                    <Td className="text-right">
                                         <Button variant="secondary" size="sm">Resolve</Button>
-                                    </TableCell>
-                                </TableRow>
+                                    </Td>
+                                </Tr>
                             ))}
-                        </TableBody>
+                        </TBody>
                     </Table>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

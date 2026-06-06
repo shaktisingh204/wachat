@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -43,7 +30,7 @@ interface DealQuickEditsProps {
 
 export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQuickEditsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [currentStage, setCurrentStage] = React.useState(stage);
   const [currentOwner, setCurrentOwner] = React.useState<string | null>(ownerId);
   const [currentStatus, setCurrentStatus] = React.useState<string>(status ?? 'open');
@@ -126,7 +113,7 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
           <dt className="text-[var(--st-text-secondary)]">Stage</dt>
           <dd>
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <button
                   type="button"
                   className="rounded-full transition-opacity hover:opacity-80"
@@ -138,14 +125,14 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
                     '—'
                   )}
                 </button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
                 {stages.map((s) => (
-                  <ZoruDropdownMenuItem key={s} onSelect={() => changeStage(s)}>
+                  <DropdownMenuItem key={s} onSelect={() => changeStage(s)}>
                     {s}
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                 ))}
-              </ZoruDropdownMenuContent>
+              </DropdownMenuContent>
             </DropdownMenu>
           </dd>
         </div>
@@ -153,7 +140,7 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
           <dt className="text-[var(--st-text-secondary)]">Status</dt>
           <dd>
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <button
                   type="button"
                   className="rounded-full transition-opacity hover:opacity-80"
@@ -161,24 +148,24 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
                 >
                   <StatusPill label={currentStatus} tone={statusToTone(currentStatus)} />
                 </button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
                 {STATUS_OPTIONS.map((s) => (
-                  <ZoruDropdownMenuItem key={s} onSelect={() => changeStatus(s)}>
+                  <DropdownMenuItem key={s} onSelect={() => changeStatus(s)}>
                     {s}
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                 ))}
-              </ZoruDropdownMenuContent>
+              </DropdownMenuContent>
             </DropdownMenu>
           </dd>
         </div>
       </dl>
 
       <Dialog open={ownerDialogOpen} onOpenChange={setOwnerDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Change deal owner</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change deal owner</DialogTitle>
+          </DialogHeader>
           <div className="space-y-2 py-2">
             <Label>Owner</Label>
             <EntityFormField
@@ -188,13 +175,13 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
               onChange={(next) => setDraftOwner(next)}
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setOwnerDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={commitOwner}>Save</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );

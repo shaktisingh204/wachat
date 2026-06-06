@@ -5,15 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Copy, Pencil, Trash2, FilePlus } from 'lucide-react';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   deleteContractTemplate,
   saveContractTemplate,
@@ -31,7 +23,7 @@ export function TemplateDetailActions({
   body,
 }: TemplateDetailActionsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [, startTransition] = React.useTransition();
 
   const onUseTemplate = () => {
@@ -98,23 +90,23 @@ export function TemplateDetailActions({
         </Link>
       </Button>
       <DropdownMenu>
-        <ZoruDropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild>
           <Button size="sm" variant="outline">
             More
           </Button>
-        </ZoruDropdownMenuTrigger>
-        <ZoruDropdownMenuContent align="end">
-          <ZoruDropdownMenuItem onSelect={onDuplicate}>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={onDuplicate}>
             <Copy className="mr-2 h-4 w-4" /> Duplicate
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuSeparator />
-          <ZoruDropdownMenuItem
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
             onSelect={onDelete}
             className="text-[var(--st-text)] focus:text-[var(--st-text)]"
           >
             <Trash2 className="mr-2 h-4 w-4" /> Delete
-          </ZoruDropdownMenuItem>
-        </ZoruDropdownMenuContent>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
       </DropdownMenu>
     </>
   );

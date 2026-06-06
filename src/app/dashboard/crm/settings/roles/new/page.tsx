@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Checkbox, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -17,7 +17,7 @@ import { saveRole } from '@/app/actions/worksuite/rbac.actions';
  */
 export default function NewRolePage() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, formAction, isPending] = useActionState(saveRole, {
     message: '',
     error: '',

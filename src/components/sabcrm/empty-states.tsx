@@ -15,7 +15,7 @@
  */
 
 import * as React from 'react';
-import { EmptyState, type ZoruEmptyStateProps } from '@/components/sabcrm/20ui/compat';
+import { EmptyState, type EmptyStateProps } from '@/components/sabcrm/20ui/compat';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // No records / No results state
@@ -267,7 +267,7 @@ export function NoPickerResultsEmptyState({
  * @param icon Optional icon node.
  */
 export interface GenericEmptyStateProps
-  extends Omit<ZoruEmptyStateProps, 'children'> {
+  extends Omit<EmptyStateProps, 'children'> {
   title: React.ReactNode;
   description?: React.ReactNode;
   action?: React.ReactNode;

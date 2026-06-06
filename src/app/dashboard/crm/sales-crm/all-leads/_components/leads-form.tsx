@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DatePicker,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DatePicker, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -60,7 +48,7 @@ type ActionState = { message?: string; error?: string; leadId?: string };
 
 export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const formRef = React.useRef<HTMLFormElement>(null);
 
     const [pending, startTransition] = React.useTransition();
@@ -168,13 +156,13 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
 
             {/* ─── Contact ────────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Contact</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Contact</CardTitle>
+                    <CardDescription>
                         Who is the lead? Mark required (*) fields to save.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2 md:col-span-2">
                         <Label htmlFor="title">Lead Title *</Label>
                         <Input
@@ -233,18 +221,18 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                             placeholder="https://example.com"
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Workflow ───────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Workflow</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Workflow</CardTitle>
+                    <CardDescription>
                         Status, source, and pipeline placement.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                         <Label>Status</Label>
                         <EnumFormField
@@ -319,18 +307,18 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                             placeholder="0–100"
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Money ─────────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Money</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Money</CardTitle>
+                    <CardDescription>
                         Estimated deal value and close-date forecast.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                         <Label htmlFor="value">Estimated Value</Label>
                         <Input
@@ -385,18 +373,18 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                             placeholder="Pick follow-up date…"
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Address ───────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Address</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Address</CardTitle>
+                    <CardDescription>
                         Geography cascade: country → state → city.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid gap-4 md:grid-cols-3">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="grid gap-4 md:grid-cols-3">
                     <div className="space-y-2">
                         <Label htmlFor="country">Country</Label>
                         <EntityFormField
@@ -443,18 +431,18 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                             disabled={!country}
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Profile ───────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Profile</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Profile</CardTitle>
+                    <CardDescription>
                         Industry classification and free-form notes.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                         <Label htmlFor="industry">Industry</Label>
                         <EntityFormField
@@ -474,7 +462,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                             placeholder="Anything noteworthy about this lead…"
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Sticky action bar ─────────────────────────────────── */}

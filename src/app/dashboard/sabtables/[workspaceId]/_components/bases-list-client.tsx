@@ -5,23 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Database, Plus, ChevronLeft } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Input,
-  Label,
-  Textarea,
-  PageHeader,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Textarea, PageHeader, PageTitle, PageDescription, PageActions, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { createSabtablesBase } from '@/app/actions/sabtables.actions';
 import type { SabtablesBaseDoc } from '@/lib/rust-client/sabtables-bases';
 import type { SabtablesWorkspaceDoc } from '@/lib/rust-client/sabtables-workspaces';
@@ -70,16 +54,16 @@ export function BasesListClient({ workspace, initialItems }: Props) {
 
       <PageHeader>
         <div>
-          <ZoruPageTitle>{workspace.name}</ZoruPageTitle>
+          <PageTitle>{workspace.name}</PageTitle>
           {workspace.description ? (
-            <ZoruPageDescription>{workspace.description}</ZoruPageDescription>
+            <PageDescription>{workspace.description}</PageDescription>
           ) : null}
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Button onClick={() => setOpen(true)}>
             <Plus className="w-4 h-4 mr-2" /> New base
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {items.length === 0 ? (
@@ -121,10 +105,10 @@ export function BasesListClient({ workspace, initialItems }: Props) {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New base</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New base</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
               <Label htmlFor="base-name">Name</Label>
@@ -145,15 +129,15 @@ export function BasesListClient({ workspace, initialItems }: Props) {
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={pending || !name.trim()}>
               {pending ? 'Creating…' : 'Create'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

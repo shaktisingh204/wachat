@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useRef,
@@ -76,20 +65,20 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="outline">
           <RefreshCw className="mr-2 h-4 w-4" />
           Add WABA from Meta
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
         <form action={action} ref={formRef}>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add WhatsApp Business Account</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Add WhatsApp Business Account</DialogTitle>
+            <DialogDescription>
               Paste a single WhatsApp Business Account (WABA) ID, a permanent access token, and your App ID. We&rsquo;ll fetch the WABA from Meta and add it as a project.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="grid gap-4 py-4">
              <div className="space-y-2">
@@ -133,7 +122,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                 <p className="text-xs text-[var(--st-text-secondary)]">The added project will be placed into this new group.</p>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <Button type="submit" disabled={isPending}>
                 {isPending ? (
@@ -145,9 +134,9 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                     'Add WABA'
                 )}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Select } from '@/components/sabcrm/20ui/compat';
 import {
   WebsiteBlock,
   EcommProduct,
@@ -144,21 +135,21 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
 
     return (
         <Card className="h-full flex flex-col border-0 shadow-none bg-transparent">
-            <ZoruCardHeader className="pb-4 border-b">
-                <ZoruCardTitle className="text-lg">Block Properties</ZoruCardTitle>
-                <ZoruCardDescription>Editing: <span className="font-semibold text-[var(--st-text)] capitalize">{selectedBlock.type?.replace(/([A-Z])/g, ' $1').trim()}</span></ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex-1 overflow-y-auto pt-6 px-1">
+            <CardHeader className="pb-4 border-b">
+                <CardTitle className="text-lg">Block Properties</CardTitle>
+                <CardDescription>Editing: <span className="font-semibold text-[var(--st-text)] capitalize">{selectedBlock.type?.replace(/([A-Z])/g, ' $1').trim()}</span></CardDescription>
+            </CardHeader>
+            <CardBody className="flex-1 overflow-y-auto pt-6 px-1">
                 <BlockEditorErrorBoundary key={selectedBlock.id}>
                     {renderEditor()}
                 </BlockEditorErrorBoundary>
-            </ZoruCardContent>
-            <ZoruCardFooter className="border-t pt-4 mt-auto">
+            </CardBody>
+            <CardFooter className="border-t pt-4 mt-auto">
                 <Button variant="destructive" className="w-full shadow-sm hover:shadow-md transition-all" onClick={() => onRemove(selectedBlock.id)}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Block
                 </Button>
-            </ZoruCardFooter>
+            </CardFooter>
         </Card>
     );
 }

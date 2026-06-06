@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Skeleton, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Skeleton, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -56,7 +56,7 @@ const initialState = { message: '', error: '' } as {
 
 export default function CartPage() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [isLoading, startLoading] = useTransition();
   const [isSubmitting, startSubmitting] = useTransition();

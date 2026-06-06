@@ -1,23 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Table,
-  ZoruTableHeader,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableHead,
-  ZoruTableCell,
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuCheckboxItem,
-  Card,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td, Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem, Card, Input } from '@/components/sabcrm/20ui/compat';
 import { Settings2, ArrowUpDown, ChevronDown, Check, X, Edit2 } from 'lucide-react';
 
 export interface ColumnDef<T> {
@@ -113,29 +97,29 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
         <div className="flex items-center gap-2">
           {/* Column selector */}
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12.0px]">
                 <Settings2 className="h-3.5 w-3.5" />
                 Columns
                 <ChevronDown className="h-3 w-3 opacity-60" />
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end" className="w-[200px]">
-              <ZoruDropdownMenuLabel className="text-[11.5px] uppercase tracking-wider text-[var(--st-text-secondary)] px-2 py-1">
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px]">
+              <DropdownMenuLabel className="text-[11.5px] uppercase tracking-wider text-[var(--st-text-secondary)] px-2 py-1">
                 Toggle Columns
-              </ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuSeparator />
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
               {columns.map((c) => (
-                <ZoruDropdownMenuCheckboxItem
+                <DropdownMenuCheckboxItem
                   key={c.key}
                   checked={visibleColumns[c.key]}
                   onCheckedChange={() => toggleColumnVisibility(c.key)}
                   className="text-[12.5px] cursor-pointer"
                 >
                   {c.header}
-                </ZoruDropdownMenuCheckboxItem>
+                </DropdownMenuCheckboxItem>
               ))}
-            </ZoruDropdownMenuContent>
+            </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
@@ -143,9 +127,9 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
       {/* Grid Table */}
       <div className="w-full overflow-x-auto">
         <Table className="min-w-full">
-          <ZoruTableHeader className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/30">
-            <ZoruTableRow className="hover:bg-transparent">
-              <ZoruTableHead className="w-10 px-4 text-center">
+          <THead className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/30">
+            <Tr className="hover:bg-transparent">
+              <Th className="w-10 px-4 text-center">
                 <input
                   type="checkbox"
                   className="rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-primary h-3.5 w-3.5 cursor-pointer"
@@ -155,9 +139,9 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                   }
                   onChange={(e) => onSelectAll(e.target.checked)}
                 />
-              </ZoruTableHead>
+              </Th>
               {activeColumns.map((col) => (
-                <ZoruTableHead
+                <Th
                   key={col.key}
                   className="text-[var(--st-text-secondary)] font-semibold text-left select-none text-[12px] py-3 px-4"
                 >
@@ -172,20 +156,20 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                       <ArrowUpDown className="h-3 w-3 opacity-60" />
                     )}
                   </div>
-                </ZoruTableHead>
+                </Th>
               ))}
-              <ZoruTableHead className="w-16 px-4" />
-            </ZoruTableRow>
-          </ZoruTableHeader>
+              <Th className="w-16 px-4" />
+            </Tr>
+          </THead>
 
-          <ZoruTableBody>
+          <TBody>
             {isLoading ? (
               Array.from({ length: 5 }).map((_, idx) => (
-                <ZoruTableRow key={idx} className="animate-pulse border-b border-[var(--st-border)]">
-                  <ZoruTableCell colSpan={activeColumns.length + 2} className="py-4">
+                <Tr key={idx} className="animate-pulse border-b border-[var(--st-border)]">
+                  <Td colSpan={activeColumns.length + 2} className="py-4">
                     <div className="h-6 w-full rounded bg-[var(--st-bg-muted)]" />
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))
             ) : data.length > 0 ? (
               data.map((row) => {
@@ -193,14 +177,14 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                 const isEditing = inlineEditRowId === id;
 
                 return (
-                  <ZoruTableRow
+                  <Tr
                     key={id}
                     className={`border-b border-[var(--st-border)] transition-colors ${
                       isEditing ? 'bg-[var(--st-bg-muted)]/40' : 'hover:bg-[var(--st-bg-muted)]/10'
                     }`}
                   >
                     {/* Selection Checkbox */}
-                    <ZoruTableCell className="px-4 text-center">
+                    <Td className="px-4 text-center">
                       <input
                         type="checkbox"
                         className="rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-primary h-3.5 w-3.5 cursor-pointer"
@@ -208,7 +192,7 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                         onChange={() => onSelectOne(id)}
                         disabled={isEditing}
                       />
-                    </ZoruTableCell>
+                    </Td>
 
                     {/* Columns Render */}
                     {activeColumns.map((col) => {
@@ -216,7 +200,7 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                       const bufferValue = editBuffer ? editBuffer[col.key as keyof T] : undefined;
 
                       return (
-                        <ZoruTableCell
+                        <Td
                           key={col.key}
                           className={`${densityClasses[density]} font-normal`}
                         >
@@ -247,12 +231,12 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                           ) : (
                             <span className="text-[var(--st-text)]">{String(cellValue ?? '')}</span>
                           )}
-                        </ZoruTableCell>
+                        </Td>
                       );
                     })}
 
                     {/* Spreadsheet Inline Edit Trigger Buttons */}
-                    <ZoruTableCell className="px-4 text-right">
+                    <Td className="px-4 text-right">
                       {isEditing ? (
                         <div className="flex items-center justify-end gap-1.5">
                           <Button
@@ -287,21 +271,21 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                           </Button>
                         )
                       )}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })
             ) : (
-              <ZoruTableRow>
-                <ZoruTableCell
+              <Tr>
+                <Td
                   colSpan={activeColumns.length + 2}
                   className="py-12 text-center text-[13px] text-[var(--st-text-secondary)]"
                 >
                   No records found. Try modifying your search or filter settings.
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </div>
     </Card>

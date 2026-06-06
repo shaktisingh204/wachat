@@ -8,14 +8,7 @@ import * as React from 'react';
 import { Bookmark, X } from 'lucide-react';
 import { format } from 'date-fns';
 
-import {
-    Button,
-    Sheet,
-    ZoruSheetContent,
-    ZoruSheetHeader,
-    ZoruSheetTitle,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Sheet, SheetContent, SheetHeader, SheetTitle, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
     listMyBookmarks,
@@ -30,7 +23,7 @@ export interface BookmarksViewProps {
 }
 
 export function BookmarksView({ open, onClose, onJump }: BookmarksViewProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [items, setItems] = React.useState<BookmarkView[]>([]);
     const [loading, setLoading] = React.useState(false);
 
@@ -63,11 +56,11 @@ export function BookmarksView({ open, onClose, onJump }: BookmarksViewProps) {
 
     return (
         <Sheet open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-            <ZoruSheetContent side="left" className="flex w-[360px] flex-col p-0">
-                <ZoruSheetHeader className="flex flex-row items-center justify-between gap-2 border-b border-[var(--st-border)] px-4 py-3">
-                    <ZoruSheetTitle className="flex items-center gap-2 text-[13px]">
+            <SheetContent side="left" className="flex w-[360px] flex-col p-0">
+                <SheetHeader className="flex flex-row items-center justify-between gap-2 border-b border-[var(--st-border)] px-4 py-3">
+                    <SheetTitle className="flex items-center gap-2 text-[13px]">
                         <Bookmark className="h-3.5 w-3.5" /> Saved messages
-                    </ZoruSheetTitle>
+                    </SheetTitle>
                     <button
                         type="button"
                         onClick={onClose}
@@ -76,7 +69,7 @@ export function BookmarksView({ open, onClose, onJump }: BookmarksViewProps) {
                     >
                         <X className="h-4 w-4" />
                     </button>
-                </ZoruSheetHeader>
+                </SheetHeader>
 
                 <div className="flex-1 overflow-auto bg-[var(--st-bg-muted)]/40 px-3 py-3">
                     {loading ? (
@@ -122,7 +115,7 @@ export function BookmarksView({ open, onClose, onJump }: BookmarksViewProps) {
                         </ul>
                     )}
                 </div>
-            </ZoruSheetContent>
+            </SheetContent>
         </Sheet>
     );
 }

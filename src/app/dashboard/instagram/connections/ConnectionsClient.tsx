@@ -1,24 +1,7 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Input,
-  Checkbox,
-} from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle, Input, Checkbox } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { WithId, Project } from '@/lib/definitions';
@@ -84,7 +67,7 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const router = useRouter();
-  const { toast: zoruToast } = useZoruToast();
+  const { toast: zoruToast } = useToast();
   
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -164,17 +147,17 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
     <div className="flex flex-col gap-8 h-[calc(100vh-100px)] overflow-hidden">
       <PageHeader>
         <div className="flex items-start justify-between flex-wrap gap-4">
-          <ZoruPageHeading>
-            <ZoruPageTitle>
+          <PageHeading>
+            <PageTitle>
               <span className="inline-flex items-center gap-3">
                 <InstagramIcon className="h-7 w-7" />
                 Instagram Connections
               </span>
-            </ZoruPageTitle>
-            <ZoruPageDescription>
+            </PageTitle>
+            <PageDescription>
               Select an Instagram Business Account to manage or disconnect.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
 
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={() => exportToCSV(filteredProjects)} title="Export to CSV">
@@ -241,7 +224,7 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
                         
                         return (
                           <Card key={p._id.toString()} className={`flex flex-col p-0 transition-shadow ${isSelected ? 'ring-2 ring-primary' : ''}`}>
-                            <ZoruCardHeader className="flex-row items-center gap-4 pb-2">
+                            <CardHeader className="flex-row items-center gap-4 pb-2">
                               <div className="flex items-center gap-4 flex-1">
                                 <Checkbox 
                                   checked={isSelected}
@@ -249,21 +232,21 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
                                   aria-label="Select account"
                                 />
                                 <Avatar className="h-12 w-12">
-                                  <ZoruAvatarImage
+                                  <AvatarImage
                                     src={instagramProfile?.profile_picture_url}
                                     alt={instagramProfile?.username}
                                   />
-                                  <ZoruAvatarFallback>
+                                  <AvatarFallback>
                                     <InstagramIcon className="h-6 w-6" />
-                                  </ZoruAvatarFallback>
+                                  </AvatarFallback>
                                 </Avatar>
                                 <div className="overflow-hidden">
-                                  <ZoruCardTitle className="truncate">{instagramProfile?.username || p.name}</ZoruCardTitle>
-                                  <ZoruCardDescription className="truncate">IG User ID: {instagramProfile?.id}</ZoruCardDescription>
+                                  <CardTitle className="truncate">{instagramProfile?.username || p.name}</CardTitle>
+                                  <CardDescription className="truncate">IG User ID: {instagramProfile?.id}</CardDescription>
                                 </div>
                               </div>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="flex-grow pt-2">
+                            </CardHeader>
+                            <CardBody className="flex-grow pt-2">
                               <div className="grid grid-cols-2 gap-4 bg-[var(--st-bg-muted)]/30 p-3 rounded-md">
                                 <div>
                                   <p className="text-xs text-[var(--st-text-secondary)] mb-1">Followers</p>
@@ -278,12 +261,12 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
                                   </p>
                                 </div>
                               </div>
-                            </ZoruCardContent>
-                            <ZoruCardFooter>
+                            </CardBody>
+                            <CardFooter>
                               <Button onClick={() => handleSelectProject(p)} block className="w-full">
                                 Manage Account <ArrowRight className="ml-2 h-4 w-4" />
                               </Button>
-                            </ZoruCardFooter>
+                            </CardFooter>
                           </Card>
                         );
                       })}
@@ -302,7 +285,7 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
         </>
       ) : (
         <Card className="text-center py-12 p-6">
-          <ZoruCardContent className="space-y-4">
+          <CardBody className="space-y-4">
             <p className="text-lg text-[var(--st-text)]">No Instagram Accounts Found</p>
             <p className="text-[var(--st-text-secondary)] max-w-md mx-auto">
               We couldn&apos;t find any Instagram Business Accounts linked to your connected
@@ -315,7 +298,7 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
                 Go to Setup
               </Link>
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </div>

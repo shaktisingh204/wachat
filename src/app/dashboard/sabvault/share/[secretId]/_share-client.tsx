@@ -4,18 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import {
-    Button,
-    ZoruCard,
-    Input,
-    Label,
-    Select,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruBadge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge } from '@/components/sabcrm/20ui/compat';
 import {
     revokeSabvaultShare,
     shareSabvaultSecret,
@@ -78,7 +67,7 @@ export function ShareDialogClient({
             <Link href={`/dashboard/sabvault/${secret._id}`} className="text-sm text-[var(--st-text-secondary)]">
                 ← Back to secret
             </Link>
-            <ZoruCard className="p-5">
+            <Card className="p-5">
                 <h1 className="mb-1 text-lg font-semibold">Share {secret.name}</h1>
                 <p className="mb-4 text-sm text-[var(--st-text-secondary)]">
                     Grant a teammate or team access. The grantee unlocks with their own master key.
@@ -88,13 +77,13 @@ export function ShareDialogClient({
                         <div className="flex flex-col gap-1.5">
                             <Label>Grantee</Label>
                             <Select value={granteeType} onValueChange={(v) => setGranteeType(v as SabvaultGranteeType)}>
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue placeholder="Type" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="user">User</ZoruSelectItem>
-                                    <ZoruSelectItem value="team">Team</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="user">User</SelectItem>
+                                    <SelectItem value="team">Team</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="col-span-2 flex flex-col gap-1.5">
@@ -111,14 +100,14 @@ export function ShareDialogClient({
                     <div className="flex flex-col gap-1.5">
                         <Label>Permission</Label>
                         <Select value={permission} onValueChange={(v) => setPermission(v as SabvaultSharePermission)}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Permission" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="read">Read (reveal/copy)</ZoruSelectItem>
-                                <ZoruSelectItem value="use">Use (auto-fill only)</ZoruSelectItem>
-                                <ZoruSelectItem value="edit">Edit</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Permission" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="read">Read (reveal/copy)</SelectItem>
+                                <SelectItem value="use">Use (auto-fill only)</SelectItem>
+                                <SelectItem value="edit">Edit</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     {error ? <div className="text-sm text-[var(--st-danger)]">{error}</div> : null}
@@ -126,9 +115,9 @@ export function ShareDialogClient({
                         {busy ? 'Granting…' : 'Grant access'}
                     </Button>
                 </form>
-            </ZoruCard>
+            </Card>
 
-            <ZoruCard className="p-5">
+            <Card className="p-5">
                 <h2 className="mb-3 text-sm font-semibold">Active grants</h2>
                 {initialShares.length === 0 ? (
                     <div className="text-sm text-[var(--st-text-secondary)]">No active shares.</div>
@@ -145,7 +134,7 @@ export function ShareDialogClient({
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <ZoruBadge>{s.permission}</ZoruBadge>
+                                    <Badge>{s.permission}</Badge>
                                     <Button variant="outline" size="sm" onClick={() => onRevoke(s._id)}>
                                         Revoke
                                     </Button>
@@ -154,7 +143,7 @@ export function ShareDialogClient({
                         ))}
                     </ul>
                 )}
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

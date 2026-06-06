@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  ZoruAlert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSkeleton,
-  ZoruStatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import Link from 'next/link';
@@ -77,13 +60,13 @@ function PageSkeleton() {
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex items-center justify-between">
-        <ZoruSkeleton className="h-10 w-64" />
-        <ZoruSkeleton className="h-10 w-32" />
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-10 w-32" />
       </div>
-      <ZoruSkeleton className="h-4 w-96" />
+      <Skeleton className="h-4 w-96" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(3)].map((_, i) => (
-          <ZoruSkeleton key={i} className="h-80 w-full rounded-xl" />
+          <Skeleton key={i} className="h-80 w-full rounded-xl" />
         ))}
       </div>
     </div>
@@ -93,7 +76,7 @@ function PageSkeleton() {
 export default function CrmProductsPage() {
   const { t } = useT();
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [user, setUser] = React.useState<
     (Omit<User, 'password'> & { _id: string; plan?: WithId<Plan> | null }) | null
@@ -281,15 +264,15 @@ export default function CrmProductsPage() {
 
   if (!user) {
     return (
-      <ZoruAlert variant="destructive">
+      <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>
+        <AlertTitle>
           {t('crm.products.list.notLoggedIn.title')}
-        </ZoruAlertTitle>
-        <ZoruAlertDescription>
+        </AlertTitle>
+        <AlertDescription>
           {t('crm.products.list.notLoggedIn.description')}
-        </ZoruAlertDescription>
-      </ZoruAlert>
+        </AlertDescription>
+      </Alert>
     );
   }
 
@@ -298,11 +281,11 @@ export default function CrmProductsPage() {
   const filtersNode = (
     <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
       <div className="space-y-1">
-        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
+        <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           Search
-        </ZoruLabel>
+        </Label>
         <div className="relative">
-          <ZoruInput
+          <Input
             ref={searchInputRef}
             placeholder="Name, SKU, or scan barcode..."
             value={search}
@@ -316,93 +299,93 @@ export default function CrmProductsPage() {
         </div>
       </div>
       <div className="space-y-1">
-        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
+        <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           Stock
-        </ZoruLabel>
-        <ZoruSelect
+        </Label>
+        <Select
           value={stockFilter}
           onValueChange={(v) => {
             setStockFilter(v as StockFilter);
             setPage(1);
           }}
         >
-          <ZoruSelectTrigger>
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All</ZoruSelectItem>
-            <ZoruSelectItem value="in_stock">In stock</ZoruSelectItem>
-            <ZoruSelectItem value="out_of_stock">Out of stock</ZoruSelectItem>
-          </ZoruSelectContent>
-        </ZoruSelect>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="in_stock">In stock</SelectItem>
+            <SelectItem value="out_of_stock">Out of stock</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div className="space-y-1">
-        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
+        <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           Item type
-        </ZoruLabel>
-        <ZoruSelect
+        </Label>
+        <Select
           value={itemTypeFilter}
           onValueChange={(v) => {
             setItemTypeFilter(v as 'all' | 'goods' | 'service');
             setPage(1);
           }}
         >
-          <ZoruSelectTrigger>
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All types</ZoruSelectItem>
-            <ZoruSelectItem value="goods">Goods</ZoruSelectItem>
-            <ZoruSelectItem value="service">Service</ZoruSelectItem>
-          </ZoruSelectContent>
-        </ZoruSelect>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All types</SelectItem>
+            <SelectItem value="goods">Goods</SelectItem>
+            <SelectItem value="service">Service</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div className="space-y-1">
-        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
+        <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           Category
-        </ZoruLabel>
-        <ZoruSelect
+        </Label>
+        <Select
           value={categoryFilter || 'all'}
           onValueChange={(v) => {
             setCategoryFilter(v === 'all' ? '' : v);
             setPage(1);
           }}
         >
-          <ZoruSelectTrigger>
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All categories</ZoruSelectItem>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
             {categoryOptions.map((id) => (
-              <ZoruSelectItem key={id} value={id}>
+              <SelectItem key={id} value={id}>
                 {id.slice(-6)}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
-        </ZoruSelect>
+          </SelectContent>
+        </Select>
       </div>
       <div className="space-y-1">
-        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
+        <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           View
-        </ZoruLabel>
-        <ZoruSelect
+        </Label>
+        <Select
           value={view}
           onValueChange={(v) => setView(v as ViewMode)}
         >
-          <ZoruSelectTrigger>
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="grid">Card grid</ZoruSelectItem>
-            <ZoruSelectItem value="list">List</ZoruSelectItem>
-          </ZoruSelectContent>
-        </ZoruSelect>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="grid">Card grid</SelectItem>
+            <SelectItem value="list">List</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       {hasActiveFilters ? (
         <div className="lg:col-span-5">
-          <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
             <X className="h-3.5 w-3.5" /> Clear filters
-          </ZoruButton>
+          </Button>
         </div>
       ) : null}
     </div>
@@ -412,7 +395,7 @@ export default function CrmProductsPage() {
     selected.size > 0 ? (
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
-          <ZoruBadge variant="info">{selected.size} selected</ZoruBadge>
+          <Badge variant="info">{selected.size} selected</Badge>
           <button
             type="button"
             onClick={() => setSelected(new Set())}
@@ -422,19 +405,19 @@ export default function CrmProductsPage() {
           </button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <ZoruButton variant="outline" size="sm" onClick={exportCsv}>
+          <Button variant="outline" size="sm" onClick={exportCsv}>
             <Download className="h-3.5 w-3.5" /> Export CSV
-          </ZoruButton>
-          <ZoruButton variant="outline" size="sm" onClick={exportXlsx}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportXlsx}>
             <FileSpreadsheet className="h-3.5 w-3.5" /> Export XLSX
-          </ZoruButton>
-          <ZoruButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setBulkDeleteOpen(true)}
           >
             <Trash2 className="h-3.5 w-3.5" /> Delete
-          </ZoruButton>
+          </Button>
         </div>
       </div>
     ) : null;
@@ -453,15 +436,15 @@ export default function CrmProductsPage() {
               ref={fileInputRef}
               onChange={handleBulkImport}
             />
-            <ZoruButton variant="outline" onClick={() => fileInputRef.current?.click()}>
+            <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
               <Upload className="h-4 w-4" strokeWidth={1.75} />
               Import CSV
-            </ZoruButton>
+            </Button>
             <Link href="/dashboard/crm/products/new">
-              <ZoruButton>
+              <Button>
                 <PlusCircle className="h-4 w-4" strokeWidth={1.75} />
                 {t('crm.products.list.action.add')}
-              </ZoruButton>
+              </Button>
             </Link>
           </div>
         }
@@ -483,22 +466,22 @@ export default function CrmProductsPage() {
         <div className="flex flex-col gap-4">
           {/* KPI strip */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <ZoruStatCard
+            <StatCard
               label="Total products"
               value={kpis.total.toLocaleString()}
               icon={<Layers className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="In stock"
               value={kpis.inStock.toLocaleString()}
               icon={<CheckCircle2 className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Out of stock"
               value={kpis.outOfStock.toLocaleString()}
               icon={<XCircle className="h-4 w-4" />}
             />
-            <ZoruStatCard
+            <StatCard
               label="Avg margin"
               value={`${kpis.avgMargin.toFixed(1)}%`}
               icon={<Percent className="h-4 w-4" />}
@@ -506,13 +489,13 @@ export default function CrmProductsPage() {
           </div>
 
           {kpis.lowStock > 0 ? (
-            <ZoruAlert>
+            <Alert>
               <AlertTriangle className="h-4 w-4" />
-              <ZoruAlertTitle>{kpis.lowStock} low-stock items</ZoruAlertTitle>
-              <ZoruAlertDescription>
+              <AlertTitle>{kpis.lowStock} low-stock items</AlertTitle>
+              <AlertDescription>
                 These products are at or below their reorder point.
-              </ZoruAlertDescription>
-            </ZoruAlert>
+              </AlertDescription>
+            </Alert>
           ) : null}
 
           {products.length > 0 ? (
@@ -569,7 +552,7 @@ export default function CrmProductsPage() {
                   })}
                 </div>
               ) : (
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                   <div className="divide-y divide-[var(--st-border)]">
                     {products.map((product) => {
                       const id = product._id.toString();
@@ -605,23 +588,23 @@ export default function CrmProductsPage() {
                               Stock: {stock}
                             </div>
                           </div>
-                          <ZoruButton
+                          <Button
                             size="sm"
                             variant="ghost"
                             aria-label={`Delete ${product.name}`}
                             onClick={() => setDeleteTargetId(id)}
                           >
                             <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
-                          </ZoruButton>
+                          </Button>
                         </div>
                       );
                     })}
                   </div>
-                </ZoruCard>
+                </Card>
               )}
             </>
           ) : (
-            <ZoruCard className="border-dashed p-6">
+            <Card className="border-dashed p-6">
               <div className="flex flex-col items-center gap-3 py-12 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
                   <ShoppingBag
@@ -636,7 +619,7 @@ export default function CrmProductsPage() {
                   {t('crm.products.list.empty.subtitle')}
                 </p>
               </div>
-            </ZoruCard>
+            </Card>
           )}
         </div>
       </EntityListShell>

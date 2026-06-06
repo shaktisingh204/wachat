@@ -4,33 +4,19 @@ import React, { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Plus, Edit2, Trash2, Wand2, Loader2 } from 'lucide-react';
-import { 
-  Table, 
-  ZoruTableHeader, 
-  ZoruTableBody, 
-  ZoruTableRow, 
-  ZoruTableHead, 
-  ZoruTableCell 
-} from '@/components/sabcrm/20ui/compat';
-import { 
-  Dialog, 
-  ZoruDialogTrigger, 
-  ZoruDialogContent, 
-  ZoruDialogHeader, 
-  ZoruDialogFooter, 
-  ZoruDialogTitle 
-} from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import { Input } from '@/components/sabcrm/20ui/compat';
 import { Label } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { createSocialPost, updateSocialPost, deleteSocialPost, suggestOptimizations } from '@/app/actions/marketing/social-media-scheduler.actions';
 
 export function SocialPostClient({ initialData }: { initialData: any[] }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [search, setSearch] = useState('');
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   
   // Form State
@@ -148,16 +134,16 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
       search={{ value: search, onChange: setSearch, placeholder: 'Search...' }}
       primaryAction={
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <ZoruDialogTrigger asChild>
+          <DialogTrigger asChild>
             <Button onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" />
               Create New
             </Button>
-          </ZoruDialogTrigger>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</ZoruDialogTitle>
-            </ZoruDialogHeader>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
+            </DialogHeader>
             <div className="grid gap-4 py-4">
               
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -252,13 +238,13 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
                 </div>
               
             </div>
-            <ZoruDialogFooter>
+            <DialogFooter>
               <Button disabled={isPending} onClick={handleSave}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save
               </Button>
-            </ZoruDialogFooter>
-          </ZoruDialogContent>
+            </DialogFooter>
+          </DialogContent>
         </Dialog>
       }
     >
@@ -269,57 +255,57 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
       ) : (
         <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="capitalize">platform</ZoruTableHead>
-                <ZoruTableHead className="capitalize">content</ZoruTableHead>
-                <ZoruTableHead className="capitalize">status</ZoruTableHead>
-                <ZoruTableHead className="capitalize">time</ZoruTableHead>
-                <ZoruTableHead className="capitalize">tags</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th className="capitalize">platform</Th>
+                <Th className="capitalize">content</Th>
+                <Th className="capitalize">status</Th>
+                <Th className="capitalize">time</Th>
+                <Th className="capitalize">tags</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filteredData.map((item) => (
-                <ZoruTableRow key={item._id}>
+                <Tr key={item._id}>
                   
-                    <ZoruTableCell>
+                    <Td>
                       {String(item.platform || '')}
-                    </ZoruTableCell>
+                    </Td>
                   
                   
-                    <ZoruTableCell>
+                    <Td>
                       {String(item.content || '')}
-                    </ZoruTableCell>
+                    </Td>
                   
                   
-                    <ZoruTableCell>
+                    <Td>
                       {String(item.status || '')}
-                    </ZoruTableCell>
+                    </Td>
 
-                    <ZoruTableCell>
+                    <Td>
                       {String(item.scheduledTime || '')}
-                    </ZoruTableCell>
+                    </Td>
 
-                    <ZoruTableCell>
+                    <Td>
                       <div className="flex flex-wrap gap-1">
                         {item.tags?.map((tag: string, idx: number) => (
                           <Badge key={idx} variant="secondary" className="text-xs">{tag}</Badge>
                         ))}
                       </div>
-                    </ZoruTableCell>
+                    </Td>
                   
-                  <ZoruTableCell className="text-right space-x-2">
+                  <Td className="text-right space-x-2">
                     <Button variant="ghost" size="icon" disabled={isPending} onClick={() => openEdit(item)}>
                       <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
                     </Button>
                     <Button variant="ghost" size="icon" disabled={isPending} onClick={() => handleDelete(item._id)}>
                       <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                     </Button>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       )}

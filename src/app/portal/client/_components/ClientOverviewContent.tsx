@@ -37,21 +37,10 @@ import {
     type ClientPortalKpis,
     type ClientActivityItem
 } from '@/app/actions/client-portal.actions';
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
 
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui/compat';
 
 function formatRelative(iso: string): string {
     const d = new Date(iso);
@@ -302,13 +291,13 @@ function KpisWidget({ kpis }: { kpis: ClientPortalKpis }) {
                 return (
                     <Link key={tile.label} href={tile.href}>
                         <Card className="transition-colors hover:bg-[var(--st-bg-muted)] h-full">
-                            <ZoruCardContent className="flex items-center justify-between p-4 h-full">
+                            <CardBody className="flex items-center justify-between p-4 h-full">
                                 <div>
                                     <div className="text-xs text-[var(--st-text-secondary)]">{tile.label}</div>
                                     <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{tile.value}</div>
                                 </div>
                                 <Icon className="h-5 w-5 text-[var(--st-text-secondary)]" />
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     </Link>
                 );
@@ -320,10 +309,10 @@ function KpisWidget({ kpis }: { kpis: ClientPortalKpis }) {
 function ActivityWidget({ activity }: { activity: ClientActivityItem[] }) {
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle>Recent Activity</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+            </CardHeader>
+            <CardBody>
                 {activity.length === 0 ? (
                     <div className="py-6 text-center text-sm text-[var(--st-text-secondary)]">
                         No recent activity yet.
@@ -351,7 +340,7 @@ function ActivityWidget({ activity }: { activity: ClientActivityItem[] }) {
                         ))}
                     </ul>
                 )}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -365,10 +354,10 @@ function QuickLinksWidget() {
 
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle>Quick Links</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+                <CardTitle>Quick Links</CardTitle>
+            </CardHeader>
+            <CardBody>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {quickLinks.map((q) => {
                         const Icon = q.icon;
@@ -384,7 +373,7 @@ function QuickLinksWidget() {
                         );
                     })}
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

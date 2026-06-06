@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  ZoruDialogFooter,
-  ScrollArea,
-  Badge,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, ScrollArea, Badge, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect } from 'react';
@@ -100,16 +88,16 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
                     <ShoppingBag className="mr-2 h-4 w-4" />
                     Select Products {selectedIds.length > 0 && `(${selectedIds.length})`}
                 </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Select Products</ZoruDialogTitle>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+                <DialogHeader>
+                    <DialogTitle>Select Products</DialogTitle>
+                </DialogHeader>
 
                 <div className="flex gap-2 my-2">
                     <div className="relative flex-1">
@@ -178,7 +166,7 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
                     )}
                 </div>
 
-                <ZoruDialogFooter className="flex justify-between sm:justify-between items-center w-full">
+                <DialogFooter className="flex justify-between sm:justify-between items-center w-full">
                     <div className="text-sm text-[var(--st-text-secondary)]">
                         {localSelected.size} selected
                     </div>
@@ -186,8 +174,8 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
                         <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                         <Button onClick={handleConfirm}>Confirm Selection</Button>
                     </div>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

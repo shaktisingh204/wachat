@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Progress,
-  Skeleton,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Progress, Skeleton, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useRef,
@@ -24,26 +12,26 @@ import dynamic from 'next/dynamic';
 import { getBacklinks, getSiteMetrics } from '@/app/actions/seo.actions';
 import type { Backlink, SiteMetrics } from '@/lib/definitions';
 
-const ChartContainer = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ZoruChartContainer), {
+const ChartContainer = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ChartContainer), {
     ssr: false,
     loading: () => <Skeleton className="h-64 w-full" />,
 }) as any;
-const ChartTooltip = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ZoruChartTooltip), { ssr: false }) as any;
+const ChartTooltip = dynamic(() => import('@/components/sabcrm/20ui/zoru').then((mod) => mod.ChartTooltip), { ssr: false }) as any;
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Legend, PieChart, Pie, Cell } from 'recharts';
 
 const chartConfigBacklinks = { count: { label: 'Backlinks', color: 'hsl(var(--chart-1))' } };
 
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) => (
     <Card>
-        <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
-            <ZoruCardTitle className="text-sm">{title}</ZoruCardTitle>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm">{title}</CardTitle>
             <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
             <div className="text-2xl text-[var(--st-text)]">
                 {typeof value === 'number' ? value.toLocaleString() : value}
             </div>
-        </ZoruCardContent>
+        </CardBody>
     </Card>
 );
 
@@ -227,10 +215,10 @@ export default function SiteExplorerPage() {
             </div>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Backlink Growth</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Backlink Growth</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <ChartContainer config={chartConfigBacklinks} className="h-64 w-full">
                         <AreaChart data={backlinkHistory}>
                             <CartesianGrid vertical={false} />
@@ -246,16 +234,16 @@ export default function SiteExplorerPage() {
                             <Area type="monotone" dataKey="count" stroke="var(--color-count)" fill="url(#fillBacklinks)" />
                         </AreaChart>
                     </ChartContainer>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             
             <div className="grid gap-8 md:grid-cols-2">
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Anchor Text Distribution</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Anchor Text Distribution</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="space-y-4">
                             {anchorTextData.map((item, index) => (
                                 <div key={`${item.text}-${index}`} className="space-y-1">
@@ -267,13 +255,13 @@ export default function SiteExplorerPage() {
                                 </div>
                             ))}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Link Type Breakdown</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="flex justify-center items-center h-full min-h-[250px]">
+                    <CardHeader>
+                        <CardTitle>Link Type Breakdown</CardTitle>
+                    </CardHeader>
+                    <CardBody className="flex justify-center items-center h-full min-h-[250px]">
                         <ChartContainer config={{ dofollow: { label: 'Dofollow', color: 'hsl(var(--chart-1))' }, nofollow: { label: 'Nofollow', color: 'hsl(var(--chart-2))' } }} className="w-full h-full max-h-[300px]">
                             <PieChart>
                                 <Pie
@@ -293,19 +281,19 @@ export default function SiteExplorerPage() {
                                 <Legend verticalAlign="bottom" height={36} />
                             </PieChart>
                         </ChartContainer>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 
             <Card>
-                <ZoruCardHeader className="flex flex-row items-center justify-between">
-                    <ZoruCardTitle>Top Linking Domains</ZoruCardTitle>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle>Top Linking Domains</CardTitle>
                     <Button variant="outline" size="sm" onClick={exportToCSV} disabled={!backlinks.length}>
                         <Download className="mr-2 h-4 w-4" />
                         Export CSV
                     </Button>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <div ref={parentRef} className="h-[400px] overflow-auto border border-[var(--st-border)] rounded-[var(--st-radius)] bg-transparent">
                         <div className="w-full text-sm">
                             <div className="flex border-b border-[var(--st-border)] sticky top-0 bg-[var(--st-bg)] z-10 font-medium">
@@ -348,7 +336,7 @@ export default function SiteExplorerPage() {
                             </div>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
         </div>

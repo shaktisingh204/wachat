@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  ZoruCardFooter,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -87,17 +80,17 @@ export default function UiPreferencesPage() {
             {/* Pass user's name so it doesn't get erased on save */}
             <input type="hidden" name="name" value={user.name || ''} />
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>UI Preferences</ZoruCardTitle>
-                    <ZoruCardDescription>Customize the look and feel of your dashboard.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-6">
+                <CardHeader>
+                    <CardTitle>UI Preferences</CardTitle>
+                    <CardDescription>Customize the look and feel of your dashboard.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-6">
                     <AppRailSettings currentPosition={user.appRailPosition} />
                     <LanguageSettings currentLanguage={user.language} />
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <SubmitButton />
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </form>
     );

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { ExternalLink } from 'lucide-react';
 
 /**
@@ -47,10 +47,10 @@ export function TaskDetailRail({
     return (
         <>
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Owner</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-3 text-sm">
+                <CardHeader>
+                    <CardTitle>Owner</CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-3 text-sm">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-[var(--st-text-secondary)]">Assignee</span>
                         {task.assignedTo ? (
@@ -110,15 +110,15 @@ export function TaskDetailRail({
                             ))}
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {linkedKey && linkedId ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Linked {linkedKindLabel}</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="space-y-2 text-sm">
+                    <CardHeader>
+                        <CardTitle>Linked {linkedKindLabel}</CardTitle>
+                    </CardHeader>
+                    <CardBody className="space-y-2 text-sm">
                         <EntityPickerChip
                             entity={linkedKey}
                             id={linkedId}
@@ -133,15 +133,15 @@ export function TaskDetailRail({
                                 <ExternalLink className="h-3 w-3" />
                             </Link>
                         ) : null}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Related tasks</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-2 text-sm">
+                <CardHeader>
+                    <CardTitle>Related tasks</CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-2 text-sm">
                     {related.length === 0 ? (
                         <p className="text-[var(--st-text-secondary)]">
                             No other tasks on this entity yet.
@@ -164,7 +164,7 @@ export function TaskDetailRail({
                             ))}
                         </ul>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </>
     );

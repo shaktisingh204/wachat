@@ -13,25 +13,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { Download, GitMerge, Loader2, X } from 'lucide-react';
 
 import {
@@ -101,7 +83,7 @@ export function DuplicatesClient({
   groups,
   lastScanAt,
 }: DuplicatesClientProps): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [confidenceFilter, setConfidenceFilter] = React.useState<string>('all');
   /** Set of group keys the user has chosen to ignore (hidden client-side). */
@@ -221,17 +203,17 @@ export function DuplicatesClient({
         <div className="flex items-center gap-2">
           <Label className="text-[11px]">Confidence</Label>
           <Select value={confidenceFilter} onValueChange={setConfidenceFilter}>
-            <ZoruSelectTrigger className="w-36">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All</ZoruSelectItem>
+            <SelectTrigger className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
               {CONFIDENCE_ORDER.map((c) => (
-                <ZoruSelectItem key={c} value={c}>
+                <SelectItem key={c} value={c}>
                   {c}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
         <Button variant="outline" size="sm" onClick={exportCsv}>
@@ -293,17 +275,17 @@ export function DuplicatesClient({
           </div>
           <div className="overflow-x-auto">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead>PO #</ZoruTableHead>
-                  <ZoruTableHead>Matching fields</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Total</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead>PO date</ZoruTableHead>
-                  <ZoruTableHead />
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr className="hover:bg-transparent">
+                  <Th>PO #</Th>
+                  <Th>Matching fields</Th>
+                  <Th className="text-right">Total</Th>
+                  <Th>Status</Th>
+                  <Th>PO date</Th>
+                  <Th />
+                </Tr>
+              </THead>
+              <TBody>
                 {group.members.map((m, idx) => {
                   const matchFields: string[] = [];
                   if (m.vendorId) matchFields.push('vendor');
@@ -312,8 +294,8 @@ export function DuplicatesClient({
                   const refMax = Math.max(Math.abs(refAmt), 1);
                   if (Math.abs(m.total - refAmt) / refMax <= 0.01) matchFields.push('amount');
                   return (
-                    <ZoruTableRow key={m._id} className={idx === 0 ? 'bg-[var(--st-bg-muted)]/50' : ''}>
-                      <ZoruTableCell className="font-medium">
+                    <Tr key={m._id} className={idx === 0 ? 'bg-[var(--st-bg-muted)]/50' : ''}>
+                      <Td className="font-medium">
                         <Link
                           href={`/dashboard/crm/purchases/orders/${m._id}`}
                           className="text-[var(--st-text)] hover:underline"
@@ -325,8 +307,8 @@ export function DuplicatesClient({
                             Keep
                           </Badge>
                         )}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <div className="flex flex-wrap gap-1">
                           {matchFields.map((f) => (
                             <Badge key={f} variant="outline" className="text-[11px]">
@@ -334,27 +316,27 @@ export function DuplicatesClient({
                             </Badge>
                           ))}
                         </div>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right font-mono tabular-nums">
+                      </Td>
+                      <Td className="text-right font-mono tabular-nums">
                         {fmtMoney(m.total, m.currency ?? 'INR')}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[var(--st-text-secondary)]">
                         {m.status ?? '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[var(--st-text-secondary)]">
                         {fmtDate(m.date)}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Button size="sm" variant="outline" asChild>
                           <Link href={`/dashboard/crm/purchases/orders/${m._id}`}>
                             Open
                           </Link>
                         </Button>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         </Card>

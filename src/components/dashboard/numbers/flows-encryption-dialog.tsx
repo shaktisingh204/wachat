@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Badge,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Badge, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useTransition } from 'react';
@@ -73,21 +60,21 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 {trigger || (
                     <Button variant="outline" size="sm" className="w-full">
                         <Lock className="mr-2 h-4 w-4" />
                         Flows Encryption
                     </Button>
                 )}
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="sm:max-w-md">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>WhatsApp Flows Encryption</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>WhatsApp Flows Encryption</DialogTitle>
+                    <DialogDescription>
                         To send Flows, you must sign payloads with a private key and upload the corresponding public key to Meta.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
                 <div className="flex flex-col gap-4 py-4">
                     <div className="flex items-center justify-between p-4 border rounded-lg bg-[var(--st-bg-muted)]/50">
@@ -140,20 +127,20 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
                     {isUploaded && (
                         <Alert className="bg-[var(--st-bg-muted)] border-[var(--st-border)]">
                             <ShieldCheck className="h-4 w-4 text-[var(--st-text)]" />
-                            <ZoruAlertTitle className="text-[var(--st-text)]">Fully Configured</ZoruAlertTitle>
-                            <ZoruAlertDescription className="text-[var(--st-text)]">
+                            <AlertTitle className="text-[var(--st-text)]">Fully Configured</AlertTitle>
+                            <AlertDescription className="text-[var(--st-text)]">
                                 This phone number is ready to send and receive encrypted WhatsApp Flows.
-                            </ZoruAlertDescription>
+                            </AlertDescription>
                         </Alert>
                     )}
 
                     {!hasKeys && (
                         <Alert>
                             <AlertTriangle className="h-4 w-4" />
-                            <ZoruAlertTitle>Action Required</ZoruAlertTitle>
-                            <ZoruAlertDescription>
+                            <AlertTitle>Action Required</AlertTitle>
+                            <AlertDescription>
                                 Generate keys first, then upload the public key to Meta to resolve encryption errors.
-                            </ZoruAlertDescription>
+                            </AlertDescription>
                         </Alert>
                     )}
                     {hasKeys && config?.privateKey && (
@@ -190,10 +177,10 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
                     )}
                 </div>
 
-                <ZoruDialogFooter className="sm:justify-start">
-                    {/* ZoruDialogFooter left empty intentionally if no other actions needed */}
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                <DialogFooter className="sm:justify-start">
+                    {/* DialogFooter left empty intentionally if no other actions needed */}
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

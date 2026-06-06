@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { ArrowDownAZ, ArrowUpAZ, Download } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 
@@ -102,14 +88,14 @@ export function LoansRepaymentSchedule({ schedule }: LoansRepaymentScheduleProps
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Select value={statusFilter} onValueChange={(val: any) => setStatusFilter(val)}>
-            <ZoruSelectTrigger className="h-8 w-[120px] text-[13px]">
-              <ZoruSelectValue placeholder="Status" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-              <ZoruSelectItem value="paid">Paid</ZoruSelectItem>
-              <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger className="h-8 w-[120px] text-[13px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+            </SelectContent>
           </Select>
 
           <Button
@@ -130,38 +116,38 @@ export function LoansRepaymentSchedule({ schedule }: LoansRepaymentScheduleProps
 
       <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow className="bg-[var(--st-bg-secondary)]/50">
-              <ZoruTableHead className="w-16">#</ZoruTableHead>
-              <ZoruTableHead>Due date</ZoruTableHead>
-              <ZoruTableHead className="text-right">Amount</ZoruTableHead>
-              <ZoruTableHead className="text-right">Status</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr className="bg-[var(--st-bg-secondary)]/50">
+              <Th className="w-16">#</Th>
+              <Th>Due date</Th>
+              <Th className="text-right">Amount</Th>
+              <Th className="text-right">Status</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredAndSorted.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={4} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
+              <Tr>
+                <Td colSpan={4} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                   No schedule rows match the selected filter.
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : (
               filteredAndSorted.map((row) => (
-                <ZoruTableRow key={row.no}>
-                  <ZoruTableCell className="text-[var(--st-text-secondary)]">{row.no}</ZoruTableCell>
-                  <ZoruTableCell>{fmtDate(row.dueDate)}</ZoruTableCell>
-                  <ZoruTableCell className="text-right font-mono tabular-nums">
+                <Tr key={row.no}>
+                  <Td className="text-[var(--st-text-secondary)]">{row.no}</Td>
+                  <Td>{fmtDate(row.dueDate)}</Td>
+                  <Td className="text-right font-mono tabular-nums">
                     {fmtMoney(row.amount)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     <Badge variant={row.paid ? 'success' : 'outline'}>
                       {row.paid ? 'Paid' : 'Pending'}
                     </Badge>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </div>
     </div>

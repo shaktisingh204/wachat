@@ -6,20 +6,7 @@
  */
 import { Users, Search, Filter, Mail, Phone, ExternalLink, Download } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Input,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, Input, Badge } from '@/components/sabcrm/20ui/compat';
 
 import { listSabcheckoutCustomers } from '@/app/actions/sabcheckout.actions';
 
@@ -32,12 +19,12 @@ export default async function SabcheckoutCustomersPage() {
     <div className="flex w-full flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>Customers</ZoruPageTitle>
-            <ZoruPageDescription>
+          <PageHeading>
+            <PageTitle>Customers</PageTitle>
+            <PageDescription>
               Recurring customers indexed across all your payment pages.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
         <div className="flex items-center gap-2">
           <Button variant="outline">
@@ -49,10 +36,10 @@ export default async function SabcheckoutCustomersPage() {
 
       {!res.ok ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Couldn't load customers</ZoruCardTitle>
-            <ZoruCardDescription>{res.error}</ZoruCardDescription>
-          </ZoruCardHeader>
+          <CardHeader>
+            <CardTitle>Couldn't load customers</CardTitle>
+            <CardDescription>{res.error}</CardDescription>
+          </CardHeader>
         </Card>
       ) : (
         <Card className="flex flex-col overflow-hidden">
@@ -75,16 +62,16 @@ export default async function SabcheckoutCustomersPage() {
             </div>
           </div>
           
-          <ZoruCardContent className="p-0">
+          <CardBody className="p-0">
             {res.data.items.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-12 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] mb-4">
                   <Users className="h-6 w-6" />
                 </div>
-                <ZoruCardTitle className="text-lg">No recurring customers yet</ZoruCardTitle>
-                <ZoruCardDescription className="max-w-sm mt-2">
+                <CardTitle className="text-lg">No recurring customers yet</CardTitle>
+                <CardDescription className="max-w-sm mt-2">
                   When users subscribe via your payment pages, they will appear here.
-                </ZoruCardDescription>
+                </CardDescription>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -153,7 +140,7 @@ export default async function SabcheckoutCustomersPage() {
                 </table>
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </div>

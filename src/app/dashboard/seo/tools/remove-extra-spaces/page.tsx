@@ -3,7 +3,7 @@
 import { Button, Textarea } from '@/components/sabcrm/20ui/compat';
 import { Switch } from '@/components/sabcrm/20ui/compat';
 import { Label } from '@/components/sabcrm/20ui/compat';
-import { RadioGroup, ZoruRadioCard } from '@/components/sabcrm/20ui/compat';
+import { RadioGroup, RadioCard } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -78,17 +78,17 @@ export default function RemoveExtraSpacesPage() {
               onValueChange={(val) => setBlankLineAction(val as any)}
               className="grid grid-cols-1 gap-2"
             >
-              <ZoruRadioCard
+              <RadioCard
                 value="collapse"
                 label="Collapse blank lines"
                 description="Reduces multiple blank lines to a single one"
               />
-              <ZoruRadioCard
+              <RadioCard
                 value="remove"
                 label="Remove all blank lines"
                 description="Eliminates all empty lines entirely"
               />
-              <ZoruRadioCard
+              <RadioCard
                 value="keep"
                 label="Keep blank lines"
                 description="Leaves empty lines untouched"

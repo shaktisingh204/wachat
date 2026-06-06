@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  Button,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Badge,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Progress,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Button, Table, TBody, Td, Th, THead, Tr, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Avatar, AvatarFallback, AvatarImage, Progress } from '@/components/sabcrm/20ui/compat';
 import {
   useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -68,85 +48,85 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
 
     return (
         <Card className="h-full border-none shadow-none">
-            <ZoruCardContent className="p-0">
+            <CardBody className="p-0">
                 <div className="border rounded-md">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow>
-                                <ZoruTableHead className="w-40">Status</ZoruTableHead>
-                                <ZoruTableHead>Task</ZoruTableHead>
-                                <ZoruTableHead>Assigned To</ZoruTableHead>
-                                <ZoruTableHead>Due Date</ZoruTableHead>
-                                <ZoruTableHead>Priority</ZoruTableHead>
-                                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr>
+                                <Th className="w-40">Status</Th>
+                                <Th>Task</Th>
+                                <Th>Assigned To</Th>
+                                <Th>Due Date</Th>
+                                <Th>Priority</Th>
+                                <Th className="text-right">Actions</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {tasks.length > 0 ? (
                                 tasks.map(task => {
                                     const { color, label } = priorityConfig[task.priority] || priorityConfig.Medium;
                                     const isOverdue = task.dueDate && isPast(new Date(task.dueDate)) && task.status !== 'Completed';
 
                                     return (
-                                        <ZoruTableRow key={task._id.toString()} className={cn(isUpdating && 'opacity-50')}>
-                                            <ZoruTableCell>
+                                        <Tr key={task._id.toString()} className={cn(isUpdating && 'opacity-50')}>
+                                            <Td>
                                                 <Select value={task.status} onValueChange={(val) => handleStatusChange(task._id.toString(), val as any)}>
-                                                    <ZoruSelectTrigger className={cn(
+                                                    <SelectTrigger className={cn(
                                                         'h-8 text-xs w-32',
                                                         task.status === 'Completed' && 'border-[var(--st-border)] text-[var(--st-text)]',
                                                         task.status === 'In Progress' && 'border-[var(--st-border)] text-[var(--st-text)]'
                                                     )}>
-                                                        <ZoruSelectValue />
-                                                    </ZoruSelectTrigger>
-                                                    <ZoruSelectContent>
-                                                        <ZoruSelectItem value="To-Do">To-Do</ZoruSelectItem>
-                                                        <ZoruSelectItem value="In Progress">In Progress</ZoruSelectItem>
-                                                        <ZoruSelectItem value="Completed">Completed</ZoruSelectItem>
-                                                    </ZoruSelectContent>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="To-Do">To-Do</SelectItem>
+                                                        <SelectItem value="In Progress">In Progress</SelectItem>
+                                                        <SelectItem value="Completed">Completed</SelectItem>
+                                                    </SelectContent>
                                                 </Select>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <p className={cn("font-medium", task.status === 'Completed' && 'line-through text-[var(--st-text-secondary)]')}>
                                                     {task.title}
                                                 </p>
                                                 <p className="text-xs text-[var(--st-text-secondary)] line-clamp-1">{task.description}</p>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 {task.assignedTo ? (
                                                     <div className="flex items-center gap-2">
                                                         <Avatar className="h-6 w-6">
-                                                            <ZoruAvatarImage src={task.assigneeAvatar || ''} />
-                                                            <ZoruAvatarFallback>{task.assigneeName?.charAt(0) || 'U'}</ZoruAvatarFallback>
+                                                            <AvatarImage src={task.assigneeAvatar || ''} />
+                                                            <AvatarFallback>{task.assigneeName?.charAt(0) || 'U'}</AvatarFallback>
                                                         </Avatar>
                                                         <span className="text-sm text-[var(--st-text-secondary)]">{task.assigneeName || 'Unknown'}</span>
                                                     </div>
                                                 ) : <span className="text-xs text-[var(--st-text-secondary)]">Unassigned</span>}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <span className={cn('text-sm', isOverdue && 'text-[var(--st-text)] font-semibold')}>
                                                     {task.dueDate ? format(new Date(task.dueDate), 'PPP') : 'No due date'}
                                                 </span>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <Badge className={`${color} text-white border-0`}>{label}</Badge>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleDelete(task._id.toString())} disabled={isUpdating}>
                                                     <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                 </Button>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     )
                                 })
                             ) : (
-                                <ZoruTableRow>
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">No tasks in this category.</ZoruTableCell>
-                                </ZoruTableRow>
+                                <Tr>
+                                    <Td colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">No tasks in this category.</Td>
+                                </Tr>
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

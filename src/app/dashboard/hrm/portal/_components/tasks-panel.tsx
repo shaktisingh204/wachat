@@ -1,18 +1,8 @@
 'use client';
 
 import { useTransition, useState, useMemo, useEffect, useOptimistic, useRef } from 'react';
-import {
-    Button,
-    Badge,
-    EmptyState,
-    Input,
-    Select,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSelectContent,
-    ZoruSelectItem,
-} from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, EmptyState, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { markTaskComplete } from '@/app/actions/hrm-portal.actions';
 import { CheckCircle2, ClipboardList, Download, FileText, Search, CheckSquare } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -103,7 +93,7 @@ interface MyTasksTableProps {
 }
 
 export function MyTasksTable({ tasks, onRefresh }: MyTasksTableProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
 
     const [optimisticTasks, addOptimisticTask] = useOptimistic(
@@ -204,15 +194,15 @@ export function MyTasksTable({ tasks, onRefresh }: MyTasksTableProps) {
                         />
                     </div>
                     <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                        <ZoruSelectTrigger className="w-[130px]">
-                            <ZoruSelectValue placeholder="Priority" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="All">All Priorities</ZoruSelectItem>
-                            <ZoruSelectItem value="High">High</ZoruSelectItem>
-                            <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
-                            <ZoruSelectItem value="Low">Low</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger className="w-[130px]">
+                            <SelectValue placeholder="Priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="All">All Priorities</SelectItem>
+                            <SelectItem value="High">High</SelectItem>
+                            <SelectItem value="Medium">Medium</SelectItem>
+                            <SelectItem value="Low">Low</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="flex gap-2">
@@ -384,15 +374,15 @@ export function MyCreatedTasksTable({ tasks }: MyCreatedTasksTableProps) {
                         />
                     </div>
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <ZoruSelectTrigger className="w-[130px]">
-                            <ZoruSelectValue placeholder="Status" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="All">All Statuses</ZoruSelectItem>
-                            <ZoruSelectItem value="Pending">Pending</ZoruSelectItem>
-                            <ZoruSelectItem value="In Progress">In Progress</ZoruSelectItem>
-                            <ZoruSelectItem value="Completed">Completed</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger className="w-[130px]">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="All">All Statuses</SelectItem>
+                            <SelectItem value="Pending">Pending</SelectItem>
+                            <SelectItem value="In Progress">In Progress</SelectItem>
+                            <SelectItem value="Completed">Completed</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="flex gap-2">

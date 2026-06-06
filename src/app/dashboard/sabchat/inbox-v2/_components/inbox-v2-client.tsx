@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import { Button, Input, Badge, ZoruDropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
 import { CommandPalette } from './command-palette';
 import { Contact360 } from './contact-360';
 import { ChevronDown, X } from 'lucide-react';
@@ -254,7 +254,7 @@ export function InboxV2Client({
                                 </Badge>
                             </div>
                             <div className="flex gap-1 items-center">
-                                <ZoruDropdownMenu>
+                                <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button size="sm" variant="outline">
                                             Actions <ChevronDown className="w-4 h-4 ml-1" />
@@ -277,7 +277,7 @@ export function InboxV2Client({
                                             Auto-assign
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
-                                </ZoruDropdownMenu>
+                                </DropdownMenu>
 
                                 <Button size="sm" variant="ghost" onClick={onSnooze} disabled={isPending}>
                                     Snooze

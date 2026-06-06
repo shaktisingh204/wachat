@@ -14,24 +14,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { Archive, CalendarRange, Download, FileSignature, Plus, Trash2, X } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -158,7 +141,7 @@ export function ContractListClient({
   kpi,
   error,
 }: ContractListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -657,87 +640,87 @@ export function ContractListClient({
 
           <Card className="overflow-hidden p-0">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[36px]">
+              <THead>
+                <Tr>
+                  <Th className="w-[36px]">
                     <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
                     />
-                  </TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Counter-party</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Effective</TableHead>
-                  <TableHead>Expiry</TableHead>
-                  <TableHead className="text-right">Value</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+                  </Th>
+                  <Th>Title</Th>
+                  <Th>Counter-party</Th>
+                  <Th>Type</Th>
+                  <Th>Status</Th>
+                  <Th>Effective</Th>
+                  <Th>Expiry</Th>
+                  <Th className="text-right">Value</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filtered.length === 0 ? (
-                  <TableRow>
-                    <TableCell
+                  <Tr>
+                    <Td
                       colSpan={8}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive || query
                         ? 'No contracts match these filters.'
                         : 'No contracts yet — click "New contract" to add one.'}
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filtered.map((c) => {
                     const id = String(c._id);
                     const isSelected = selected.has(id);
                     return (
-                      <TableRow
+                      <Tr
                         key={id}
                         data-state={isSelected ? 'selected' : undefined}
                       >
-                        <TableCell>
+                        <Td>
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${c.title}`}
                           />
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           <EntityRowLink
                             href={`/dashboard/crm/sales/contracts/${id}`}
                             label={c.title || 'Untitled contract'}
                             subtitle={c.contractNo || undefined}
                           />
-                        </TableCell>
-                        <TableCell className="text-[12.5px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text)]">
                           {c.partyName || '—'}
-                        </TableCell>
-                        <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {c.type
                             ? c.type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
                             : '—'}
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           <StatusPill
                             label={c.status.replace(/_/g, ' ')}
                             tone={statusToTone(c.status)}
                           />
-                        </TableCell>
-                        <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(c.effectiveDate)}
-                        </TableCell>
-                        <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(c.expiryDate)}
-                        </TableCell>
-                        <TableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                           {fmtMoney(c.value, c.currency)}
-                        </TableCell>
-                      </TableRow>
+                        </Td>
+                      </Tr>
                     );
                   })
                 )}
-              </TableBody>
+              </TBody>
             </Table>
           </Card>
         </div>

@@ -10,9 +10,7 @@
  * the workspaceId and the initial workspace (from the server page).
  */
 
-import {
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,

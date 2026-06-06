@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Badge } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
-import { ZoruTableCell, ZoruTableRow } from '@/components/sabcrm/20ui/compat';
+import { Td, Tr } from '@/components/sabcrm/20ui/compat';
 import { getEstimateItems, requestEstimateRevision, type EstimateItem } from './actions';
 import { Loader2, MessageSquare, ChevronDown, ChevronRight, Check } from 'lucide-react';
 import type { ClientEstimate } from '@/lib/client-portal/types';
@@ -76,17 +76,17 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
 
     return (
         <>
-            <ZoruTableRow className="cursor-pointer hover:bg-[var(--st-bg-muted)]" onClick={toggleExpand}>
-                <ZoruTableCell className="w-10">
+            <Tr className="cursor-pointer hover:bg-[var(--st-bg-muted)]" onClick={toggleExpand}>
+                <Td className="w-10">
                     {expanded ? <ChevronDown className="h-4 w-4 text-[var(--st-text-secondary)]" /> : <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)]" />}
-                </ZoruTableCell>
-                <ZoruTableCell className="font-medium text-[var(--st-text)]">{est.number}</ZoruTableCell>
-                <ZoruTableCell>{fmtDate(est.validTill)}</ZoruTableCell>
-                <ZoruTableCell>{fmtCurrency(est.total, est.currency)}</ZoruTableCell>
-                <ZoruTableCell>
+                </Td>
+                <Td className="font-medium text-[var(--st-text)]">{est.number}</Td>
+                <Td>{fmtDate(est.validTill)}</Td>
+                <Td>{fmtCurrency(est.total, est.currency)}</Td>
+                <Td>
                     <Badge variant="outline" className={getStatusColor(est.status)}>{est.status}</Badge>
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right" onClick={e => e.stopPropagation()}>
+                </Td>
+                <Td className="text-right" onClick={e => e.stopPropagation()}>
                     {waiting && est.publicHash ? (
                         <div className="flex justify-end gap-2">
                             <Button asChild size="sm">
@@ -96,11 +96,11 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
                     ) : (
                         <span className="text-xs text-[var(--st-text-secondary)]">—</span>
                     )}
-                </ZoruTableCell>
-            </ZoruTableRow>
+                </Td>
+            </Tr>
             {expanded && (
-                <ZoruTableRow>
-                    <ZoruTableCell colSpan={6} className="bg-[var(--st-bg-muted)] p-0 border-b">
+                <Tr>
+                    <Td colSpan={6} className="bg-[var(--st-bg-muted)] p-0 border-b">
                         <div className="p-6">
                             <h3 className="font-semibold text-lg mb-4">Line Items</h3>
                             {loading ? (
@@ -178,8 +178,8 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
                                 <div className="text-sm text-[var(--st-text)] italic">No line items found.</div>
                             )}
                         </div>
-                    </ZoruTableCell>
-                </ZoruTableRow>
+                    </Td>
+                </Tr>
             )}
         </>
     );

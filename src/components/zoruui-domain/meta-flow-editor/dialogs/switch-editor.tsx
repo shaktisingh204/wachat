@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import { GitBranch } from 'lucide-react';
 
 /**
@@ -89,11 +89,11 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
 
             <Alert>
                 <GitBranch className="h-4 w-4" />
-                <ZoruAlertTitle>Edit branch children in JSON</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Edit branch children in JSON</AlertTitle>
+                <AlertDescription>
                     Components inside each case branch are edited in the Raw JSON tab.
                     This panel only configures the switch value and case keys.
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
         </div>
     );

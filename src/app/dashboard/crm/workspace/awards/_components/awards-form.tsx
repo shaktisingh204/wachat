@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
@@ -116,7 +111,7 @@ function buildAwardsFormSections(award?: AwardsFormProps['award']) {
 
 export function AwardsForm({ mode, award }: AwardsFormProps): React.JSX.Element {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = useActionState(saveAward, {
         message: '',
         error: '',

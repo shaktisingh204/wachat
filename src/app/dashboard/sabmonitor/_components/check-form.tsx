@@ -4,14 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 
-import {
-    Button,
-    Card,
-    CardContent,
-    Input,
-    Label,
-    Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 
 import {
     createSabmonitorCheck,

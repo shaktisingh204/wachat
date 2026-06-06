@@ -17,15 +17,8 @@ import {
 import { ClientInvoice } from '@/lib/client-portal/types';
 import { Badge } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
-import {
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 
 function fmtDate(iso: string | null): string {
@@ -134,10 +127,10 @@ export function ClientInvoicesView({ invoices }: ClientInvoicesViewProps) {
         <div className="flex flex-col gap-6">
             {invoices.length > 0 && chartData.length > 0 && (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Spending Overview</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Spending Overview</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="h-[300px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -160,7 +153,7 @@ export function ClientInvoicesView({ invoices }: ClientInvoicesViewProps) {
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
 
@@ -209,38 +202,38 @@ export function ClientInvoicesView({ invoices }: ClientInvoicesViewProps) {
                 />
             ) : (
                 <Card>
-                    <ZoruCardContent className="p-0">
+                    <CardBody className="p-0">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Number</ZoruTableHead>
-                                    <ZoruTableHead>Issue Date</ZoruTableHead>
-                                    <ZoruTableHead>Due Date</ZoruTableHead>
-                                    <ZoruTableHead>Total</ZoruTableHead>
-                                    <ZoruTableHead>Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Action</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Number</Th>
+                                    <Th>Issue Date</Th>
+                                    <Th>Due Date</Th>
+                                    <Th>Total</Th>
+                                    <Th>Status</Th>
+                                    <Th className="text-right">Action</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {filteredInvoices.map((inv) => {
                                     const isUnpaid = ['Sent', 'Overdue', 'Partially Paid'].includes(inv.status);
                                     return (
-                                        <ZoruTableRow key={inv._id}>
-                                            <ZoruTableCell>
+                                        <Tr key={inv._id}>
+                                            <Td>
                                                 <Link
                                                     href={`/portal/client/invoices/${inv._id}`}
                                                     className="font-medium text-[var(--st-text)] hover:underline"
                                                 >
                                                     {inv.invoiceNumber}
                                                 </Link>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>{fmtDate(inv.invoiceDate)}</ZoruTableCell>
-                                            <ZoruTableCell>{fmtDate(inv.dueDate)}</ZoruTableCell>
-                                            <ZoruTableCell>{fmtCurrency(inv.total, inv.currency)}</ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>{fmtDate(inv.invoiceDate)}</Td>
+                                            <Td>{fmtDate(inv.dueDate)}</Td>
+                                            <Td>{fmtCurrency(inv.total, inv.currency)}</Td>
+                                            <Td>
                                                 <Badge variant={statusVariant(inv.status)}>{inv.status}</Badge>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 {isUnpaid && inv.publicHash ? (
                                                     <Button asChild size="sm">
                                                         <a href={`/share/invoice/${inv.publicHash}`}>Pay Now</a>
@@ -250,13 +243,13 @@ export function ClientInvoicesView({ invoices }: ClientInvoicesViewProps) {
                                                         <Link href={`/portal/client/invoices/${inv._id}`}>View</Link>
                                                     </Button>
                                                 )}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

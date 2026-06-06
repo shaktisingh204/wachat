@@ -1,4 +1,4 @@
-import { ZoruCardHeader, ZoruCardTitle, ScrollArea } from '@/components/sabcrm/20ui/compat';
+import { CardHeader, CardTitle, ScrollArea } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import { useDroppable } from '@dnd-kit/core';
 import { ReactNode } from 'react';
@@ -18,12 +18,12 @@ export function KanbanColumn({ title, children, columnId, count = 0 }: KanbanCol
             ref={setNodeRef}
             className={cn("w-80 flex-shrink-0 h-full flex flex-col rounded-lg bg-[var(--st-bg-muted)]/50 transition-colors", isOver && 'bg-[var(--st-text)]/10')}
         >
-            <ZoruCardHeader className="flex-shrink-0">
-                <ZoruCardTitle className="flex items-center gap-2 capitalize">
+            <CardHeader className="flex-shrink-0">
+                <CardTitle className="flex items-center gap-2 capitalize">
                     <span>{title.replace(/_/g, ' ')}</span>
                     <span className="text-sm font-normal bg-[var(--st-text)]/10 text-[var(--st-text)] px-2 py-0.5 rounded-full">{count}</span>
-                </ZoruCardTitle>
-            </ZoruCardHeader>
+                </CardTitle>
+            </CardHeader>
             <ScrollArea className="flex-1 p-2">
                 <div className="space-y-3">
                     {children}

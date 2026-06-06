@@ -16,23 +16,7 @@ import {
 } from 'recharts';
 import { AlertCircle, LoaderCircle, Percent, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 
-import {
-    Alert,
-    ZoruAlertDescription,
-    ZoruAlertTitle,
-    Button,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { generateIncomeStatementData } from '@/app/actions/crm-accounting.actions';
@@ -182,13 +166,13 @@ export default function IncomeStatementPage(): React.JSX.Element {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <ZoruAlertTitle>Business Profile Incomplete</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Business Profile Incomplete</AlertTitle>
+                <AlertDescription>
                     Please complete your business profile in the user settings to view accounting reports.
                     <Button asChild variant="link" className="ml-2 h-auto p-0">
                         <Link href="/dashboard/user/settings/profile">Go to Settings</Link>
                     </Button>
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
         );
     }
@@ -243,14 +227,14 @@ export default function IncomeStatementPage(): React.JSX.Element {
 
     const filters = (
         <Select value={fyChoice} onValueChange={handleFyChange}>
-            <ZoruSelectTrigger className="w-[180px]">
-                <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-                <ZoruSelectItem value="current">Current FY (Apr–Mar)</ZoruSelectItem>
-                <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
-                <ZoruSelectItem value="custom">Custom range</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger className="w-[180px]">
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="current">Current FY (Apr–Mar)</SelectItem>
+                <SelectItem value="previous">Previous FY</SelectItem>
+                <SelectItem value="custom">Custom range</SelectItem>
+            </SelectContent>
         </Select>
     );
 
@@ -320,36 +304,36 @@ export default function IncomeStatementPage(): React.JSX.Element {
                     ? 'border-[var(--st-border)] font-semibold'
                     : 'border-[var(--st-border)]';
         return (
-            <ZoruTableRow key={`${r.label}-${idx}`} className={cls}>
-                <ZoruTableCell className="text-[var(--st-text)]" style={{ paddingLeft: indent }}>
+            <Tr key={`${r.label}-${idx}`} className={cls}>
+                <Td className="text-[var(--st-text)]" style={{ paddingLeft: indent }}>
                     {r.label}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                </Td>
+                <Td className="text-right font-mono text-[var(--st-text)]">
                     {r.value !== undefined ? fmtMoney(r.value) : ''}
-                </ZoruTableCell>
-            </ZoruTableRow>
+                </Td>
+            </Tr>
         );
     };
 
     const table = (
         <Table>
-            <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Account</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Balance</ZoruTableHead>
-                </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="text-[var(--st-text-secondary)]">Account</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Balance</Th>
+                </Tr>
+            </THead>
+            <TBody>
                 {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-[var(--st-border)]">
-                        <ZoruTableCell colSpan={2} className="h-24 text-center text-[var(--st-text-secondary)]">
+                    <Tr className="border-[var(--st-border)]">
+                        <Td colSpan={2} className="h-24 text-center text-[var(--st-text-secondary)]">
                             No accounts in this range.
-                        </ZoruTableCell>
-                    </ZoruTableRow>
+                        </Td>
+                    </Tr>
                 ) : (
                     pageRows.map((r, i) => <Fragment key={i}>{renderRow(r, i)}</Fragment>)
                 )}
-            </ZoruTableBody>
+            </TBody>
         </Table>
     );
 

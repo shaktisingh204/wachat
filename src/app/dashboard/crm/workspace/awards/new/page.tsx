@@ -1,7 +1,7 @@
 'use client';
 
 import { AwardsForm } from '../_components/awards-form';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, StatCard } from '@/components/sabcrm/20ui/compat';
 import { Trophy, Users, Star, Lightbulb } from 'lucide-react';
 
 export default function NewAwardPage() {
@@ -40,14 +40,14 @@ export default function NewAwardPage() {
                 {/* Quick Action Shortcuts / Tips */}
                 <div className="flex flex-col gap-4">
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle className="flex items-center gap-2">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
                                 <Lightbulb className="h-4 w-4 text-[var(--st-accent)]" />
                                 Quick Tips
-                            </ZoruCardTitle>
-                            <ZoruCardDescription>Best practices for awards</ZoruCardDescription>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                            </CardTitle>
+                            <CardDescription>Best practices for awards</CardDescription>
+                        </CardHeader>
+                        <CardBody>
                             <ul className="flex flex-col gap-3 text-sm text-[var(--st-text-secondary)]">
                                 <li>
                                     <strong className="text-[var(--st-text)] font-medium">Be specific:</strong> Define clear criteria to avoid ambiguity in nominations.
@@ -59,7 +59,7 @@ export default function NewAwardPage() {
                                     <strong className="text-[var(--st-text)] font-medium">Right frequency:</strong> Balance between making it achievable and maintaining exclusivity.
                                 </li>
                             </ul>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </div>
             </div>

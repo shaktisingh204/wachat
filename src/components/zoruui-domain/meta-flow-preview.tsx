@@ -5,17 +5,7 @@ import {
     MoreVertical, Wifi, Battery, Signal, ChevronLeft, X,
     Camera, FileUp, ExternalLink, ChevronRight, Check,
 } from "lucide-react";
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-    Button,
-    Input,
-    Textarea,
-    Label,
-    ScrollArea,
-    cn,
-} from "@/components/sabcrm/20ui/compat";
+import { Avatar, AvatarFallback, AvatarImage, Button, Input, Textarea, Label, ScrollArea, cn } from '@/components/sabcrm/20ui/compat';
 
 /**
  * WhatsApp Flow phone preview — renders every v7.3 component the

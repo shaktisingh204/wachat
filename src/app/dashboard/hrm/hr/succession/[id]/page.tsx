@@ -1,14 +1,4 @@
-import {
-  Badge,
-  Button,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -161,26 +151,26 @@ export default async function SuccessionDetailPage({ params }: PageProps) {
                 ) : (
                     <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Employee</ZoruTableHead>
-                                    <ZoruTableHead>Readiness</ZoruTableHead>
-                                    <ZoruTableHead>Notes</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Employee</Th>
+                                    <Th>Readiness</Th>
+                                    <Th>Notes</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {successors.map((c, idx) => (
-                                    <ZoruTableRow key={idx}>
-                                        <ZoruTableCell>
+                                    <Tr key={idx}>
+                                        <Td>
                                             {fmtText(c.employeeName || c.employeeId)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <Badge variant="ghost">{c.readiness || '—'}</Badge>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>{fmtText(c.notes)}</ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                        <Td>{fmtText(c.notes)}</Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 )}

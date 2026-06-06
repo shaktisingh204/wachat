@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import {
   ResponsiveContainer,
@@ -63,7 +63,7 @@ export default function KeywordTrendsPage() {
       {error && <div className="text-[var(--st-text)] mb-4">{error}</div>}
       {submitted && data.length > 0 && !isLoading && !error && (
         <Card>
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <div className="text-lg font-semibold mb-6">Trend for "{submitted}"</div>
             <div className="w-full h-72">
               <ResponsiveContainer width="100%" height="100%">
@@ -85,7 +85,7 @@ export default function KeywordTrendsPage() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

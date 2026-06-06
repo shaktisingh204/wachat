@@ -1,18 +1,18 @@
 'use client';
 
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export function DepreciationScheduleCard({ asset }: { asset: any }) {
   if (!asset.cost || !asset.purchaseDate || !asset.usefulLifeMonths) {
     return (
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Depreciation schedule</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Depreciation schedule</CardTitle>
+        </CardHeader>
+        <CardBody>
           <p className="text-[13px] text-[var(--st-text-secondary)]">Incomplete data to calculate schedule. Ensure cost, purchase date, and useful life are set.</p>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     );
   }
@@ -53,10 +53,10 @@ export function DepreciationScheduleCard({ asset }: { asset: any }) {
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>Depreciation schedule</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      <CardHeader>
+        <CardTitle>Depreciation schedule</CardTitle>
+      </CardHeader>
+      <CardBody>
         <div className="h-[200px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
@@ -79,7 +79,7 @@ export function DepreciationScheduleCard({ asset }: { asset: any }) {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { Pencil, Trash2, CheckCircle2, XCircle } from 'lucide-react';
 
 /**
@@ -77,7 +72,7 @@ export function ReceiptListClient({
   onToggleAll,
   onDelete,
 }: ReceiptListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [busyId, setBusyId] = React.useState<string | null>(null);
   const [density, setDensity] = React.useState<'comfortable' | 'compact' | 'dense'>('comfortable');
 

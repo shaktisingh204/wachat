@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 /**
  * <QuotationFilters> — collapsible filter row for the quotations list.
  *
@@ -88,16 +88,16 @@ export function QuotationFilters(props: QuotationFiltersProps) {
           <Label>Status</Label>
           {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
           <Select value={statusFilter} onValueChange={onStatusChange}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {STATUS_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
 

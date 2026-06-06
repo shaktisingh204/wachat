@@ -21,21 +21,7 @@ import {
   ShieldCheck,
   Trash2,
 } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 import {
   deletePermissionGroup,
@@ -108,7 +94,7 @@ export default function PermissionGroupsClient({
   initialEmployees: Employee[];
   initialAssignments: Assignment[];
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const { groups, setGroups } = usePermissionGroupWebsocket(initialGroups);
   const [kpis, setKpis] = React.useState<Kpi[]>(initialKpis);
@@ -435,24 +421,24 @@ export default function PermissionGroupsClient({
           className="overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] max-h-[600px]"
         >
           <Table className="relative">
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="w-10">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-10">
                   <Checkbox
                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                     onCheckedChange={(v) => toggleAll(v === true)}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Name</ZoruTableHead>
-                <ZoruTableHead>Description</ZoruTableHead>
-                <ZoruTableHead className="text-center">Modules</ZoruTableHead>
-                <ZoruTableHead className="text-center">Employees</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
+                </Th>
+                <Th>Name</Th>
+                <Th>Description</Th>
+                <Th className="text-center">Modules</Th>
+                <Th className="text-center">Employees</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
 
-            <ZoruTableBody 
+            <TBody 
               style={{
                 height: `${rowVirtualizer.getTotalSize()}px`,
                 position: 'relative',
@@ -460,16 +446,16 @@ export default function PermissionGroupsClient({
             >
               {filtered.length === 0
                   ? (
-                    <ZoruTableRow>
-                      <ZoruTableCell
+                    <Tr>
+                      <Td
                         colSpan={6}
                         className="h-28 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         {search || minModules !== ''
                           ? 'No groups match your search.'
                           : 'No permission groups yet. Create one to get started.'}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   )
                   : rowVirtualizer.getVirtualItems().map((virtualItem) => {
                     const g = filtered[virtualItem.index];
@@ -477,7 +463,7 @@ export default function PermissionGroupsClient({
                       (a) => a.groupId === g._id,
                     ).length;
                     return (
-                      <ZoruTableRow 
+                      <Tr 
                         key={g._id} 
                         className="border-[var(--st-border)] absolute top-0 left-0 w-full"
                         style={{
@@ -485,37 +471,37 @@ export default function PermissionGroupsClient({
                           transform: `translateY(${virtualItem.start}px)`,
                         }}
                       >
-                        <ZoruTableCell>
+                        <Td>
                           <Checkbox
                             checked={selected.has(g._id)}
                             onCheckedChange={() => toggleOne(g._id)}
                             aria-label={`Select ${g.name}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                        </Td>
+                        <Td className="font-medium text-[var(--st-text)]">
                           <Link
                             href={`/dashboard/hrm/permission-groups/${g._id}`}
                             className="hover:underline"
                           >
                             {g.name}
                           </Link>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text-secondary)]">
                           {g.description ?? '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-center text-[13px]">
+                        </Td>
+                        <Td className="text-center text-[13px]">
                           <Badge variant="secondary">
                             {moduleCount(g)}
                           </Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-center text-[13px]">
+                        </Td>
+                        <Td className="text-center text-[13px]">
                           {empCount > 0 ? (
                             <Badge variant="default">{empCount}</Badge>
                           ) : (
                             <span className="text-[var(--st-text-secondary)]">0</span>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <div className="flex justify-end gap-1">
                             <Button variant="ghost" size="sm" asChild>
                               <Link
@@ -534,11 +520,11 @@ export default function PermissionGroupsClient({
                               <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           </div>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

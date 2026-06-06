@@ -1,40 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Textarea,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, cn } from '@/components/sabcrm/20ui/compat';
 import {
   BookCopy,
   Edit3,
@@ -222,19 +188,19 @@ export default function Page() {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Templates</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Templates</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
         <EmptyState
           icon={<Smartphone />}
@@ -254,19 +220,19 @@ export default function Page() {
     <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Templates</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Templates</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Header */}
@@ -299,11 +265,11 @@ export default function Page() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[220px_1fr]">
         {/* Folder sidebar */}
         <Card className="h-fit">
-          <ZoruCardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <ZoruCardTitle className="text-sm">Folders</ZoruCardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm">Folders</CardTitle>
             <NewFolderButton onCreate={addFolder} />
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-2">
+          </CardHeader>
+          <CardBody className="p-2">
             <ul className="flex flex-col gap-0.5">
               {folders.map((f) => (
                 <li key={f.id}>
@@ -327,7 +293,7 @@ export default function Page() {
                 </li>
               ))}
             </ul>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* Right pane: search + grid */}
@@ -409,12 +375,12 @@ function NewFolderButton({ onCreate }: { onCreate: (name: string) => void }) {
   const [name, setName] = React.useState('');
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <ZoruPopoverTrigger asChild>
+      <PopoverTrigger asChild>
         <Button size="icon" variant="ghost" aria-label="New folder">
           <FolderPlus className="h-4 w-4" />
         </Button>
-      </ZoruPopoverTrigger>
-      <ZoruPopoverContent className="w-56" align="end">
+      </PopoverTrigger>
+      <PopoverContent className="w-56" align="end">
         <div className="space-y-2">
           <Label htmlFor="folder-name" className="text-xs">
             Folder name
@@ -440,7 +406,7 @@ function NewFolderButton({ onCreate }: { onCreate: (name: string) => void }) {
             Create
           </Button>
         </div>
-      </ZoruPopoverContent>
+      </PopoverContent>
     </Popover>
   );
 }
@@ -465,14 +431,14 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
   const [actionsOpen, setActionsOpen] = React.useState(false);
   return (
     <Card className="flex h-full flex-col">
-      <ZoruCardHeader className="space-y-1 pb-2">
+      <CardHeader className="space-y-1 pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <ZoruCardTitle className="truncate text-base">
+            <CardTitle className="truncate text-base">
               {template.name}
-            </ZoruCardTitle>
+            </CardTitle>
             {(template.category || template.approvalStatus) && (
-              <ZoruCardDescription className="flex items-center gap-1.5 flex-wrap mt-1">
+              <CardDescription className="flex items-center gap-1.5 flex-wrap mt-1">
                 {template.category && (
                   <Badge variant="outline" className="text-[10px]">
                     {template.category}
@@ -483,16 +449,16 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
                     {template.approvalStatus}
                   </Badge>
                 )}
-              </ZoruCardDescription>
+              </CardDescription>
             )}
           </div>
           <Popover>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
               <Button size="icon" variant="ghost" aria-label="More actions">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent align="end" className="w-44 p-1">
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-44 p-1">
               <button
                 type="button"
                 onClick={onEdit}
@@ -507,11 +473,11 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
               </button>
-            </ZoruPopoverContent>
+            </PopoverContent>
           </Popover>
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent className="flex flex-1 flex-col gap-3 pb-3">
+      </CardHeader>
+      <CardBody className="flex flex-1 flex-col gap-3 pb-3">
         <p className="line-clamp-3 whitespace-pre-wrap text-sm text-[var(--st-text-secondary)]">
           {template.body}
         </p>
@@ -527,12 +493,12 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
         <div className="mt-auto flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
           <span>Used {template.usageCount}×</span>
           <Popover open={actionsOpen} onOpenChange={setActionsOpen}>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
               <Button size="sm" variant="outline">
                 Use template
               </Button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent className="w-52 p-1" align="end">
+            </PopoverTrigger>
+            <PopoverContent className="w-52 p-1" align="end">
               <button
                 type="button"
                 className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
@@ -554,10 +520,10 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
               >
                 <CalendarClock className="h-3.5 w-3.5" /> Schedule
               </button>
-            </ZoruPopoverContent>
+            </PopoverContent>
           </Popover>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -635,17 +601,17 @@ function TemplateEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-2xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>{initial ? 'Edit template' : 'New template'}</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{initial ? 'Edit template' : 'New template'}</DialogTitle>
+          <DialogDescription>
             Compose a reusable message. Use{' '}
             <code className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 text-xs text-[var(--st-text)]">
               {'{{variable}}'}
             </code>{' '}
             for dynamic fields.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
@@ -660,19 +626,19 @@ function TemplateEditorDialog({
           <div className="space-y-1.5">
             <Label htmlFor="tpl-folder">Folder</Label>
             <Select value={category} onValueChange={setCategory}>
-              <ZoruSelectTrigger id="tpl-folder">
-                <ZoruSelectValue placeholder="Uncategorised" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="Uncategorised">Uncategorised</ZoruSelectItem>
+              <SelectTrigger id="tpl-folder">
+                <SelectValue placeholder="Uncategorised" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Uncategorised">Uncategorised</SelectItem>
                 {folders
                   .filter((f) => f !== 'Uncategorised')
                   .map((f) => (
-                    <ZoruSelectItem key={f} value={f}>
+                    <SelectItem key={f} value={f}>
                       {f}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
         </div>
@@ -739,7 +705,7 @@ function TemplateEditorDialog({
           )}
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -749,8 +715,8 @@ function TemplateEditorDialog({
           >
             {saving ? 'Saving…' : initial ? 'Save changes' : 'Create template'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

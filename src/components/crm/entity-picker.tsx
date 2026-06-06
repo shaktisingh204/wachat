@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Popover, PopoverContent, PopoverTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Avatar, AvatarFallback, AvatarImage, Select } from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   ChevronDown,
@@ -261,11 +247,11 @@ function ChipRow({
     <div className="flex min-w-0 items-center gap-2">
       <Avatar className="h-6 w-6 shrink-0">
         {avatarUrl ? (
-          <ZoruAvatarImage src={avatarUrl} alt={primary} />
+          <AvatarImage src={avatarUrl} alt={primary} />
         ) : null}
-        <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[10px] text-[var(--st-text-secondary)]">
+        <AvatarFallback className="bg-[var(--st-bg-muted)] text-[10px] text-[var(--st-text-secondary)]">
           {initials(primary) || '·'}
-        </ZoruAvatarFallback>
+        </AvatarFallback>
       </Avatar>
       <div className="flex min-w-0 flex-col leading-tight">
         <span className="truncate text-sm text-[var(--st-text)]">{primary}</span>
@@ -712,7 +698,7 @@ export function EntityPicker({
       ) : null}
 
       <Popover open={open} onOpenChange={(o) => !disabled && setOpen(o)}>
-        <ZoruPopoverTrigger asChild>
+        <PopoverTrigger asChild>
           <button
             ref={triggerRef}
             type="button"
@@ -722,7 +708,7 @@ export function EntityPicker({
             aria-expanded={open}
             // Defensive: belt-and-braces guard so a wrapping <form>'s
             // submit handler never fires when the user is just opening
-            // the picker. Radix's ZoruPopoverTrigger handles its own click,
+            // the picker. Radix's PopoverTrigger handles its own click,
             // we only stop bubbling so ancestor handlers don't react.
             onClick={(e) => e.stopPropagation()}
             className={cn(
@@ -780,21 +766,21 @@ export function EntityPicker({
             </div>
             <ChevronDown className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
           </button>
-        </ZoruPopoverTrigger>
-        <ZoruPopoverContent
+        </PopoverTrigger>
+        <PopoverContent
           align="start"
           className="z-[100] p-0"
           style={popoverStyle}
         >
-          <ZoruCommand shouldFilter={false}>
-            <ZoruCommandInput
+          <Command shouldFilter={false}>
+            <CommandInput
               placeholder={`Search ${ENTITY_LABEL[entity]}s…`}
               value={search}
               onValueChange={setSearch}
               onKeyDown={handleSearchKeyDown}
             />
-            <ZoruCommandList ref={listRef} onScroll={handleScroll}>
-              <ZoruCommandEmpty>
+            <CommandList ref={listRef} onScroll={handleScroll}>
+              <CommandEmpty>
                 {loading ? (
                   <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
                     <Loader2 className="h-3 w-3 animate-spin" />
@@ -805,7 +791,7 @@ export function EntityPicker({
                     No {ENTITY_LABEL[entity]}s found.
                   </span>
                 )}
-              </ZoruCommandEmpty>
+              </CommandEmpty>
 
               {(() => {
                 const isReference = isReferenceEntity(entity);
@@ -846,8 +832,8 @@ export function EntityPicker({
                 };
 
                 return (
-                  <ZoruCommandGroup>
-                    <ZoruCommandItem
+                  <CommandGroup>
+                    <CommandItem
                       key="__create__"
                       value="__create__"
                       onSelect={() => {
@@ -882,17 +868,17 @@ export function EntityPicker({
                           “{typed}”
                         </span>
                       ) : null}
-                    </ZoruCommandItem>
-                  </ZoruCommandGroup>
+                    </CommandItem>
+                  </CommandGroup>
                 );
               })()}
 
               {showRecent ? (
-                <ZoruCommandGroup heading="Recent">
+                <CommandGroup heading="Recent">
                   {recentItems.map((item) => {
                     const selected = valueAsArray.includes(item.id);
                     return (
-                      <ZoruCommandItem
+                      <CommandItem
                         key={`recent-${item.id}`}
                         value={`recent-${item.id}`}
                         onSelect={() => commitSelection(item)}
@@ -901,13 +887,13 @@ export function EntityPicker({
                         {selected ? (
                           <Check className="ml-auto h-4 w-4 text-[var(--st-text)]" />
                         ) : null}
-                      </ZoruCommandItem>
+                      </CommandItem>
                     );
                   })}
-                </ZoruCommandGroup>
+                </CommandGroup>
               ) : null}
 
-              <ZoruCommandGroup
+              <CommandGroup
                 heading={
                   showRecent ? 'All results' : undefined
                 }
@@ -915,7 +901,7 @@ export function EntityPicker({
                 {results.map((item) => {
                   const selected = valueAsArray.includes(item.id);
                   return (
-                    <ZoruCommandItem
+                    <CommandItem
                       key={item.id}
                       value={item.id}
                       onSelect={() => commitSelection(item)}
@@ -924,7 +910,7 @@ export function EntityPicker({
                       {selected ? (
                         <Check className="ml-auto h-4 w-4 text-[var(--st-text)]" />
                       ) : null}
-                    </ZoruCommandItem>
+                    </CommandItem>
                   );
                 })}
                 {loading && results.length > 0 ? (
@@ -933,10 +919,10 @@ export function EntityPicker({
                     Loading…
                   </div>
                 ) : null}
-              </ZoruCommandGroup>
-            </ZoruCommandList>
-          </ZoruCommand>
-        </ZoruPopoverContent>
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
       </Popover>
 
       <QuickCreateDialog

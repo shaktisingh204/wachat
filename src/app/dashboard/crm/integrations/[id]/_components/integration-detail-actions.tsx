@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useTransition } from 'react';
@@ -46,7 +35,7 @@ export function IntegrationConnectButton({
 }) {
   const [pending, start] = useTransition();
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   return (
     <Button
@@ -90,7 +79,7 @@ export function IntegrationDeleteButton({
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   return (
     <>
@@ -98,21 +87,21 @@ export function IntegrationDeleteButton({
         <Trash2 className="mr-2 h-4 w-4 text-[var(--st-danger)]" />
         Delete
       </Button>
-      <ZoruAlertDialog open={open} onOpenChange={setOpen}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete integration?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete integration?</AlertDialogTitle>
+            <AlertDialogDescription>
               Deleting &ldquo;{name}&rdquo; will permanently remove its
               configuration and encrypted credentials. This cannot be
               undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={pending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={pending}>
               Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogCancel>
+            <AlertDialogAction
               disabled={pending}
               onClick={() =>
                 start(async () => {
@@ -131,10 +120,10 @@ export function IntegrationDeleteButton({
               }
             >
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
@@ -149,7 +138,7 @@ export function IntegrationSyncButton({
 }) {
   const [pending, start] = useTransition();
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   return (
     <Button

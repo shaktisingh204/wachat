@@ -2,20 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Badge,
-  EmptyState,
-  PageHeader,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, EmptyState, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { ArrowLeft, Video as VideoIcon, FileText } from 'lucide-react';
 import type { MeetRoom, MeetRecording } from '@/app/actions/sabmeet.actions.types';
@@ -61,10 +48,10 @@ export function RecordingsClient({ room, initialRecordings }: RecordingsClientPr
     <div className="space-y-6 p-6">
       <PageHeader>
         <div>
-          <ZoruPageTitle>Recordings</ZoruPageTitle>
-          <ZoruPageDescription>{room.name}</ZoruPageDescription>
+          <PageTitle>Recordings</PageTitle>
+          <PageDescription>{room.name}</PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Button asChild variant="outline">
             <Link href="/dashboard/meetings">
               <ArrowLeft className="h-4 w-4 mr-2" /> Back
@@ -77,7 +64,7 @@ export function RecordingsClient({ room, initialRecordings }: RecordingsClientPr
           >
             {busy ? 'Attaching…' : 'Attach recording from SabFiles'}
           </SabFilePickerButton>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {recordings.length === 0 ? (

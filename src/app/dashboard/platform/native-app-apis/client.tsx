@@ -4,7 +4,7 @@ import { fmtDate } from "@/lib/utils";
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast } from '@/components/sabcrm/20ui/compat';
 import { createNativeAppAPIKey, deleteNativeAppAPIKey } from '@/app/actions/platform/native-app-apis.actions';
 import type { NativeAppAPIKey } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, KeyRound } from 'lucide-react';
@@ -14,7 +14,7 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
   const [dialogOpen, setDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [newKey, setNewKey] = useState<string | null>(null);
 
   const [form, setForm] = useState({ name: '', scopes: '' });
@@ -61,47 +61,47 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
     >
       <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>Name</ZoruTableHead>
-              <ZoruTableHead>Key Prefix</ZoruTableHead>
-              <ZoruTableHead>Scopes</ZoruTableHead>
-              <ZoruTableHead>Created</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Key Prefix</Th>
+              <Th>Scopes</Th>
+              <Th>Created</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredData.map(item => (
-              <ZoruTableRow key={item.id}>
-                <ZoruTableCell className="font-medium flex items-center"><KeyRound className="w-4 h-4 mr-2 text-[var(--st-text-tertiary)]" />{item.name}</ZoruTableCell>
-                <ZoruTableCell className="font-mono text-sm">{item.keyPrefix}...</ZoruTableCell>
-                <ZoruTableCell>
+              <Tr key={item.id}>
+                <Td className="font-medium flex items-center"><KeyRound className="w-4 h-4 mr-2 text-[var(--st-text-tertiary)]" />{item.name}</Td>
+                <Td className="font-mono text-sm">{item.keyPrefix}...</Td>
+                <Td>
                   <div className="flex gap-1 flex-wrap">
                     {item.scopes.map(s => <span key={s} className="bg-[var(--st-hover)] px-2 py-0.5 rounded text-xs">{s}</span>)}
                   </div>
-                </ZoruTableCell>
-                <ZoruTableCell className="text-sm text-[var(--st-text-tertiary)]">{fmtDate(item.createdAt)}</ZoruTableCell>
-                <ZoruTableCell className="text-right">
+                </Td>
+                <Td className="text-sm text-[var(--st-text-tertiary)]">{fmtDate(item.createdAt)}</Td>
+                <Td className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} disabled={isPending}>
                     <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
                   </Button>
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))}
             {filteredData.length === 0 && (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No API keys found.</ZoruTableCell>
-              </ZoruTableRow>
+              <Tr>
+                <Td colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No API keys found.</Td>
+              </Tr>
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{newKey ? 'Save Your Key' : 'Generate API Key'}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{newKey ? 'Save Your Key' : 'Generate API Key'}</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             {newKey ? (
               <div className="bg-[var(--st-bg-muted)] p-4 rounded-lg border border-[var(--st-border)]">
@@ -123,7 +123,7 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
               </>
             )}
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             {newKey ? (
               <Button onClick={() => setDialogOpen(false)}>Done</Button>
             ) : (
@@ -134,8 +134,8 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
                 </Button>
               </>
             )}
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

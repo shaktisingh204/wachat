@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, Button, ZoruDrawerDescription, ZoruDrawerHeader, ZoruDrawerTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/sabcrm/20ui/compat';
 import { ImageIcon, Pencil, Send, Trash2, VideoIcon, X, XCircle } from 'lucide-react';
 import type { StoryRow, StoryStatus } from '@/lib/rust-client/telegram-stories';
 
@@ -79,9 +79,9 @@ export function StoryDetail({
 
     return (
         <>
-            <ZoruDrawerHeader>
-                <ZoruDrawerTitle>Story · {row.type}</ZoruDrawerTitle>
-                <ZoruDrawerDescription>
+            <DrawerHeader>
+                <DrawerTitle>Story · {row.type}</DrawerTitle>
+                <DrawerDescription>
                     <Badge variant={STATUS_VARIANT[row.status] ?? 'secondary'}>
                         {row.status}
                     </Badge>{' '}
@@ -100,8 +100,8 @@ export function StoryDetail({
                             <>created {fmtRelativeClient(row.createdAt)}.</>
                         )
                     ) : null}
-                </ZoruDrawerDescription>
-            </ZoruDrawerHeader>
+                </DrawerDescription>
+            </DrawerHeader>
             <div className="grid gap-4 px-6 pb-6">
                 <div className="flex h-56 w-full items-center justify-center rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                     {row.content.mediaKind === 'photo' ? (

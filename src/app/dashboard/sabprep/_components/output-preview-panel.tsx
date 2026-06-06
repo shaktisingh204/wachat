@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Badge } from '@/components/sabcrm/20ui/compat';
 import type { Row, StepRunSummary } from '@/lib/rust-client/sabprep-steps';
 
 const ROW_LIMIT = 50;
@@ -25,15 +25,15 @@ export function OutputPreviewPanel({
 
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle className="flex items-center justify-between gap-2 text-sm">
+            <CardHeader>
+                <CardTitle className="flex items-center justify-between gap-2 text-sm">
                     <span>Output preview · {rows.length} rows</span>
                     {totalErrors > 0 ? (
                         <Badge variant="destructive">{totalErrors} error(s)</Badge>
                     ) : null}
-                </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
                 {cols.length === 0 ? (
                     <p className="text-xs opacity-60">
                         Add a source dataset and at least one step to see output.
@@ -85,7 +85,7 @@ export function OutputPreviewPanel({
                         </ul>
                     </details>
                 ) : null}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

@@ -2,12 +2,7 @@ import * as React from 'react';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
 import { getPublicLeadForm } from '@/app/actions/public-lead-form.actions';
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { LeadFormClient } from './lead-form-client';
 
 export const dynamic = 'force-dynamic';
@@ -26,13 +21,13 @@ async function PublicLeadFormContainer({ formId }: { formId: string }) {
         <Script src="https://www.google.com/recaptcha/api.js" strategy="lazyOnload" />
       )}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>{form.title}</ZoruCardTitle>
+        <CardHeader>
+          <CardTitle>{form.title}</CardTitle>
           {form.description ? (
             <p className="text-sm text-[var(--st-text)]">{form.description}</p>
           ) : null}
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           <LeadFormClient
             formId={form._id}
             fields={form.fields}
@@ -41,7 +36,7 @@ async function PublicLeadFormContainer({ formId }: { formId: string }) {
             consentText={form.consentText}
             recaptchaSiteKey={recaptchaSiteKey}
           />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </>
   );

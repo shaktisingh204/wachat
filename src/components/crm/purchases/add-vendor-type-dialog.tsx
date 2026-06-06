@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { useState, useRef, useEffect, useActionState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { saveCrmVendorType } from '@/app/actions/crm-vendors.actions';
@@ -51,13 +51,13 @@ export function AddVendorTypeDialog({ open, onOpenChange, onTypeAdded, defaultNa
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-[425px]">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle className="text-[var(--st-text)]">Add Vendor Type</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle className="text-[var(--st-text)]">Add Vendor Type</DialogTitle>
+                    <DialogDescription className="text-[var(--st-text-secondary)]">
                         Create a new vendor type for your suppliers.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
                         <Label htmlFor="name" className="text-[var(--st-text)]">Name</Label>
@@ -67,12 +67,12 @@ export function AddVendorTypeDialog({ open, onOpenChange, onTypeAdded, defaultNa
                         <Label htmlFor="description" className="text-[var(--st-text)]">Description (Optional)</Label>
                         <Textarea id="description" name="description" />
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

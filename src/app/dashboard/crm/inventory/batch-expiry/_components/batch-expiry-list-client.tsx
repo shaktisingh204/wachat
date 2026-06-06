@@ -18,31 +18,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   Archive,
   Download,
@@ -207,7 +183,7 @@ export function BatchExpiryListClient({
   const now = serverNow ?? Date.now();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [bulkPending, startBulkTransition] = React.useTransition();
 
   /* Filters */
@@ -534,16 +510,16 @@ export function BatchExpiryListClient({
                 Status
               </Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <ZoruSelectTrigger className="h-8 w-[150px]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger className="h-8 w-[150px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {STATUS_OPTIONS.map((o) => (
-                    <ZoruSelectItem key={o.value} value={o.value}>
+                    <SelectItem key={o.value} value={o.value}>
                       {o.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
 
@@ -552,16 +528,16 @@ export function BatchExpiryListClient({
                 Expiry
               </Label>
               <Select value={expiryFilter} onValueChange={setExpiryFilter}>
-                <ZoruSelectTrigger className="h-8 w-[180px]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger className="h-8 w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {EXPIRY_OPTIONS.map((o) => (
-                    <ZoruSelectItem key={o.value} value={o.value}>
+                    <SelectItem key={o.value} value={o.value}>
                       {o.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
 
@@ -574,17 +550,17 @@ export function BatchExpiryListClient({
                   value={locationFilter || 'all'}
                   onValueChange={(v) => setLocationFilter(v === 'all' ? '' : v)}
                 >
-                  <ZoruSelectTrigger className="h-8 w-[180px]">
-                    <ZoruSelectValue placeholder="All warehouses" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All warehouses</ZoruSelectItem>
+                  <SelectTrigger className="h-8 w-[180px]">
+                    <SelectValue placeholder="All warehouses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All warehouses</SelectItem>
                     {locationOptions.map((id) => (
-                      <ZoruSelectItem key={id} value={id}>
+                      <SelectItem key={id} value={id}>
                         {id}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
             ) : null}
@@ -649,44 +625,44 @@ export function BatchExpiryListClient({
           {/* Table */}
           <div className="overflow-x-auto">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                  <ZoruTableHead className="w-10 pl-3">
+              <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                  <Th className="w-10 pl-3">
                     <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all visible batches"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Item</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Batch no.</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Manufacture</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Expiry</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Qty</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">Item</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Batch no.</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Manufacture</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Expiry</Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">Qty</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">
                     Actions
-                  </ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filtered.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={8}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive
                         ? 'No batches match the current filters.'
                         : 'No batches yet. Add one to start tracking expiry.'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filtered.map((b) => {
                     const flag = expiryFlag(b.expiryDate, now);
                     const danger = flag.expired || flag.soon;
                     return (
-                      <ZoruTableRow
+                      <Tr
                         key={b._id}
                         className={
                           flag.expired
@@ -696,14 +672,14 @@ export function BatchExpiryListClient({
                               : 'border-[var(--st-border)]'
                         }
                       >
-                        <ZoruTableCell className="pl-3">
+                        <Td className="pl-3">
                           <Checkbox
                             checked={selected.has(b._id)}
                             onCheckedChange={() => toggleRow(b._id)}
                             aria-label={`Select ${b.batchNumber}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <EntityRowLink
                             href={`/dashboard/crm/inventory/batch-expiry/${b._id}`}
                             label={b.itemName}
@@ -713,14 +689,14 @@ export function BatchExpiryListClient({
                                 : undefined
                             }
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="font-mono text-[12px] text-[var(--st-text)]">
                           {b.batchNumber}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text-secondary)]">
                           {fmtDate(b.manufactureDate)}
-                        </ZoruTableCell>
-                        <ZoruTableCell
+                        </Td>
+                        <Td
                           className={
                             danger
                               ? 'text-[13px] font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
@@ -728,18 +704,18 @@ export function BatchExpiryListClient({
                           }
                         >
                           {fmtDate(b.expiryDate)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right font-mono text-[13px] text-[var(--st-text)]">
                           {b.quantity}
                           {b.unit ? ` ${b.unit}` : ''}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <StatusPill
                             label={statusLabelFor(b, flag)}
                             tone={statusToneFor(b, flag)}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon" aria-label={`Actions for ${b.batchNumber}`}>
@@ -761,12 +737,12 @@ export function BatchExpiryListClient({
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
 

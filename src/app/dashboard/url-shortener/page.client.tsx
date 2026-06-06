@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -100,7 +85,7 @@ function downloadCsv(filename: string, rows: string[][]) {
 }
 
 export default function UrlShortenerPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { copy } = useCopyToClipboard();
 
   const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string; tags?: Tag[] }) | null>(null);
@@ -268,15 +253,15 @@ export default function UrlShortenerPage() {
 
   const breadcrumbs = (
     <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">Home</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbPage>URL Shortener</ZoruBreadcrumbPage>
-        </ZoruBreadcrumbItem>
-      </ZoruBreadcrumbList>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>URL Shortener</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
     </Breadcrumb>
   );
 
@@ -319,17 +304,17 @@ export default function UrlShortenerPage() {
 
         <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader>
-            <ZoruPageHeading>
-              <ZoruPageTitle>
+            <PageHeading>
+              <PageTitle>
                 <span className="inline-flex items-center gap-3">
                   <LinkIcon className="h-7 w-7" />
                   URL Shortener
                 </span>
-              </ZoruPageTitle>
-              <ZoruPageDescription>
+              </PageTitle>
+              <PageDescription>
                 Create short, trackable links for your campaigns.
-              </ZoruPageDescription>
-            </ZoruPageHeading>
+              </PageDescription>
+            </PageHeading>
           </PageHeader>
           <div className="flex flex-wrap items-center gap-2">
             <Button

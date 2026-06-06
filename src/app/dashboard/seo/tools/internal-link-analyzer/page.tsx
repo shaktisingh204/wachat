@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -132,13 +132,13 @@ export default function InternalLinkAnalyzerPage() {
 
       {error && (
         <Card className="border-[var(--st-border)]/50">
-          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)]">{error}</ZoruCardContent>
+          <CardBody className="p-4 text-sm text-[var(--st-text)]">{error}</CardBody>
         </Card>
       )}
 
       {links && (
         <Card>
-          <ZoruCardContent className="p-4 space-y-3">
+          <CardBody className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="text-sm font-semibold">{links.length} internal links</div>
               <Button size="sm" variant="outline" onClick={exportCsv}>
@@ -171,7 +171,7 @@ export default function InternalLinkAnalyzerPage() {
                 </div>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

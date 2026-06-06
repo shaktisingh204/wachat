@@ -10,31 +10,7 @@
 import * as React from 'react';
 import { Sparkles } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { adjustRewardsMember } from '@/app/actions/rewards.actions';
 import type { RewardsMemberDoc } from '@/lib/rust-client/rewards-members';
@@ -51,7 +27,7 @@ export function MembersClient({
   initialMembers: RewardsMemberDoc[];
   programs: ProgramOption[];
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [members, setMembers] = React.useState<RewardsMemberDoc[]>(initialMembers);
   const [programFilter, setProgramFilter] = React.useState<string>('all');
@@ -126,17 +102,17 @@ export function MembersClient({
         </div>
         <div className="w-48">
           <Select value={programFilter} onValueChange={setProgramFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="All programs" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All programs</ZoruSelectItem>
+            <SelectTrigger>
+              <SelectValue placeholder="All programs" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All programs</SelectItem>
               {programs.map((p) => (
-                <ZoruSelectItem key={p.id} value={p.id}>
+                <SelectItem key={p.id} value={p.id}>
                   {p.name}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
       </div>
@@ -144,68 +120,68 @@ export function MembersClient({
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)]">
-                <ZoruTableHead>Customer</ZoruTableHead>
-                <ZoruTableHead>Program</ZoruTableHead>
-                <ZoruTableHead>Tier</ZoruTableHead>
-                <ZoruTableHead>Current points</ZoruTableHead>
-                <ZoruTableHead>Lifetime points</ZoruTableHead>
-                <ZoruTableHead>Joined</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)]">
+                <Th>Customer</Th>
+                <Th>Program</Th>
+                <Th>Tier</Th>
+                <Th>Current points</Th>
+                <Th>Lifetime points</Th>
+                <Th>Joined</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell colSpan={7} className="p-0">
+                <Tr>
+                  <Td colSpan={7} className="p-0">
                     <EmptyState
                       title="No members"
                       description="Once customers join a program they will appear here."
                     />
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((m) => (
-                  <ZoruTableRow key={m._id} className="border-[var(--st-border)]">
-                    <ZoruTableCell className="text-[var(--st-text)]">
+                  <Tr key={m._id} className="border-[var(--st-border)]">
+                    <Td className="text-[var(--st-text)]">
                       Customer {m.customerId.slice(-6)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[var(--st-text)]">
                       {programNameById.get(m.programId) ?? '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant={m.currentTier ? 'success' : 'ghost'}>
                         {m.currentTier ?? 'Base'}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[var(--st-text)]">
                       {(m.currentPoints ?? 0).toLocaleString()}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[var(--st-text)]">
                       {(m.lifetimePoints ?? 0).toLocaleString()}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[var(--st-text)]">
                       {m.joinedAt ? new Date(m.joinedAt).toLocaleDateString() : '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <Button variant="outline" size="sm" onClick={() => openAdjust(m)}>
                         <Sparkles className="h-4 w-4" /> Adjust
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>
 
       <Dialog open={adjustOpen} onOpenChange={setAdjustOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Adjust points</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adjust points</DialogTitle>
+          </DialogHeader>
           <div className="flex flex-col gap-3 py-2">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="adjust-delta">Delta (use negative to debit)</Label>
@@ -229,15 +205,15 @@ export function MembersClient({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setAdjustOpen(false)} disabled={saving}>
               Cancel
             </Button>
             <Button onClick={handleApply} disabled={saving}>
               {saving ? 'Applying…' : 'Apply'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

@@ -10,26 +10,7 @@ import {
   type WebhookSubscription,
   type WebhookDelivery,
 } from '@/app/actions/developer-platform.actions';
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Button,
-  Input,
-  Textarea,
-  Alert,
-  ZoruAlertDescription,
-  Table,
-  ZoruTableHeader,
-  ZoruTableHead,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableCell,
-  Badge,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Input, Textarea, Alert, AlertDescription, Table, THead, Th, TBody, Tr, Td, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, TriangleAlert, Copy, Webhook, RefreshCw } from 'lucide-react';
 
 interface Props {
@@ -132,11 +113,11 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
         <h2 className="text-base font-semibold text-[var(--st-text)]">Subscriptions</h2>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Create subscription</ZoruCardTitle>
-            <ZoruCardDescription>Enter your endpoint URL and the events you want to receive.</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-3">
+          <CardHeader>
+            <CardTitle>Create subscription</CardTitle>
+            <CardDescription>Enter your endpoint URL and the events you want to receive.</CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-3">
             <Input
               value={url}
               onChange={(e) => setUrl(e.target.value)}
@@ -156,13 +137,13 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                 {busy ? 'Working…' : 'Create'}
               </Button>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {error ? (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
         ) : null}
 
@@ -179,7 +160,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                 key={s._id}
                 className={selectedSubId === s._id ? 'border-[var(--st-border-strong)] ring-1 ring-[var(--st-border-strong)]' : ''}
               >
-                <ZoruCardContent className="pt-4">
+                <CardBody className="pt-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-sm font-mono text-[var(--st-text)] truncate">{s.url}</p>
@@ -225,7 +206,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                       </Button>
                     </div>
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             ))}
           </div>
@@ -242,28 +223,28 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
 
         <Card>
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Event</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Attempts</ZoruTableHead>
-                <ZoruTableHead>HTTP</ZoruTableHead>
-                <ZoruTableHead>When</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Event</Th>
+                <Th>Status</Th>
+                <Th>Attempts</Th>
+                <Th>HTTP</Th>
+                <Th>When</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {deliveries.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell colSpan={6} className="text-center text-[var(--st-text-secondary)] py-6 text-xs">
+                <Tr>
+                  <Td colSpan={6} className="text-center text-[var(--st-text-secondary)] py-6 text-xs">
                     No deliveries yet. Click <em>Test</em> on a subscription to fire a synthetic event.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : null}
               {deliveries.map((d) => (
-                <ZoruTableRow key={d._id}>
-                  <ZoruTableCell className="font-mono text-[var(--st-text)] text-xs">{d.event}</ZoruTableCell>
-                  <ZoruTableCell>
+                <Tr key={d._id}>
+                  <Td className="font-mono text-[var(--st-text)] text-xs">{d.event}</Td>
+                  <Td>
                     <span
                       className={
                         d.status === 'success'
@@ -275,13 +256,13 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                     >
                       {d.status}
                     </span>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">{d.attempts}</ZoruTableCell>
-                  <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">{d.responseStatus ?? '—'}</ZoruTableCell>
-                  <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-xs text-[var(--st-text-secondary)]">{d.attempts}</Td>
+                  <Td className="text-xs text-[var(--st-text-secondary)]">{d.responseStatus ?? '—'}</Td>
+                  <Td className="text-xs text-[var(--st-text-secondary)]">
                     {mounted ? new Date(d.createdAt).toLocaleString() : '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     {d.status === 'failed' ? (
                       <Button
                         variant="ghost"
@@ -292,10 +273,10 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                         Retry
                       </Button>
                     ) : null}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       </section>

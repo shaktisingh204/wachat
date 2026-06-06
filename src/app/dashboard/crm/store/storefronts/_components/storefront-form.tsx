@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -67,7 +55,7 @@ export interface StorefrontFormProps {
 
 export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = useActionState(saveStorefront, initialState);
 
     const initialBlocks = (() => {
@@ -169,16 +157,16 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="currency-select">Currency</Label>
                         <Select value={currency} onValueChange={setCurrency}>
-                            <ZoruSelectTrigger id="currency-select">
-                                <ZoruSelectValue placeholder="Currency" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="currency-select">
+                                <SelectValue placeholder="Currency" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {CURRENCIES.map((c) => (
-                                    <ZoruSelectItem key={c} value={c}>
+                                    <SelectItem key={c} value={c}>
                                         {c}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>
@@ -221,19 +209,19 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="status-select">Status</Label>
                     <Select value={status} onValueChange={setStatus}>
-                        <ZoruSelectTrigger
+                        <SelectTrigger
                             id="status-select"
                             className="max-w-xs"
                         >
-                            <ZoruSelectValue placeholder="Status" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {STATUSES.map((s) => (
-                                <ZoruSelectItem key={s.value} value={s.value}>
+                                <SelectItem key={s.value} value={s.value}>
                                     {s.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
 

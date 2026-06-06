@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -75,7 +62,7 @@ const STATUS_LABEL: Record<string, string> = {
 export default function TelegramConnectionsPage() {
     const { activeProject } = useProject();
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const projectId = activeProject?._id?.toString() ?? '';
 
@@ -721,14 +708,14 @@ export default function TelegramConnectionsPage() {
 
             {/* Add credentials dialog — inline shortcut from the connections page. */}
             <Dialog open={addOpen} onOpenChange={setAddOpen}>
-                <ZoruDialogContent className="max-w-lg">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Add MTProto credentials</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Add MTProto credentials</DialogTitle>
+                        <DialogDescription>
                             Saved values are encrypted at the database layer; the raw
                             api_hash is never returned by the API.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
 
                     <div className="flex flex-col gap-4">
                         <label className="flex flex-col gap-1.5">
@@ -794,7 +781,7 @@ export default function TelegramConnectionsPage() {
                         ) : null}
                     </div>
 
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button
                             variant="outline"
                             size="sm"
@@ -811,8 +798,8 @@ export default function TelegramConnectionsPage() {
                             {addBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                             Save & open
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

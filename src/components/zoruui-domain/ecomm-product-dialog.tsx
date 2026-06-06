@@ -1,28 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-  Label,
-  Textarea,
-  ScrollArea,
-  Separator,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Input, Label, Textarea, ScrollArea, Separator, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -103,22 +81,22 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
 
     return (
         <Dialog open={isOpen} onOpenChange={onDialogChange}>
-            <ZoruDialogContent className="sm:max-w-3xl">
+            <DialogContent className="sm:max-w-3xl">
                 <form action={formAction} ref={formRef}>
                     <input type="hidden" name="shopId" value={shop._id.toString()} />
                     {isEditing && <input type="hidden" name="productId" value={product._id.toString()} />}
                     <input type="hidden" name="variants" value={JSON.stringify(variants)} />
                     <input type="hidden" name="sale_price_effective_date" value={salePriceEffectiveDate?.toISOString()} />
                     
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>{isEditing ? 'Edit Product' : 'Add New Product'}</ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                    <DialogHeader>
+                        <DialogTitle>{isEditing ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+                    </DialogHeader>
                      <ScrollArea className="max-h-[70vh] -mx-6 my-4 px-6">
                         <div className="space-y-4">
                             <Accordion type="multiple" defaultValue={['basic', 'pricing', 'identifiers']} className="w-full">
-                                <ZoruAccordionItem value="basic">
-                                    <ZoruAccordionTrigger>Basic Information</ZoruAccordionTrigger>
-                                    <ZoruAccordionContent className="pt-4 space-y-4">
+                                <AccordionItem value="basic">
+                                    <AccordionTrigger>Basic Information</AccordionTrigger>
+                                    <AccordionContent className="pt-4 space-y-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="title">Product Name (Title) *</Label>
                                             <Input id="title" name="title" defaultValue={product?.name} required />
@@ -131,12 +109,12 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                                             <Label htmlFor="link">Product Link *</Label>
                                             <Input id="link" name="link" type="url" defaultValue={p?.link} placeholder="https://your-store.com/product/item" required />
                                         </div>
-                                    </ZoruAccordionContent>
-                                </ZoruAccordionItem>
+                                    </AccordionContent>
+                                </AccordionItem>
 
-                                <ZoruAccordionItem value="images">
-                                    <ZoruAccordionTrigger>Images</ZoruAccordionTrigger>
-                                    <ZoruAccordionContent className="pt-4 space-y-4">
+                                <AccordionItem value="images">
+                                    <AccordionTrigger>Images</AccordionTrigger>
+                                    <AccordionContent className="pt-4 space-y-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="image_link">Main Image URL *</Label>
                                             <Input id="image_link" name="image_link" type="url" defaultValue={product?.imageUrl} required />
@@ -145,29 +123,29 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                                             <Label htmlFor="additional_image_link">Additional Image URLs (one per line)</Label>
                                             <Textarea id="additional_image_link" name="additional_image_link" defaultValue={p?.additional_image_link?.join('\n')}/>
                                         </div>
-                                    </ZoruAccordionContent>
-                                </ZoruAccordionItem>
+                                    </AccordionContent>
+                                </AccordionItem>
 
-                                <ZoruAccordionItem value="pricing">
-                                    <ZoruAccordionTrigger>Pricing & Availability</ZoruAccordionTrigger>
-                                    <ZoruAccordionContent className="pt-4 space-y-4">
+                                <AccordionItem value="pricing">
+                                    <AccordionTrigger>Pricing & Availability</AccordionTrigger>
+                                    <AccordionContent className="pt-4 space-y-4">
                                          <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2"><Label htmlFor="price">Price *</Label><Input id="price" name="price" placeholder={`e.g. 999 ${shop.currency}`} defaultValue={`${product?.price || ''} ${shop.currency}`} required /></div>
-                                            <div className="space-y-2"><Label htmlFor="availability">Availability *</Label><Select name="availability" defaultValue={p?.availability || 'in stock'}><ZoruSelectTrigger id="availability"><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="in stock">In Stock</ZoruSelectItem><ZoruSelectItem value="out of stock">Out of Stock</ZoruSelectItem><ZoruSelectItem value="preorder">Preorder</ZoruSelectItem></ZoruSelectContent></Select></div>
+                                            <div className="space-y-2"><Label htmlFor="availability">Availability *</Label><Select name="availability" defaultValue={p?.availability || 'in stock'}><SelectTrigger id="availability"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="in stock">In Stock</SelectItem><SelectItem value="out of stock">Out of Stock</SelectItem><SelectItem value="preorder">Preorder</SelectItem></SelectContent></Select></div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2"><Label htmlFor="sale_price">Sale Price</Label><Input id="sale_price" name="sale_price" defaultValue={p?.sale_price} /></div>
                                             <div className="space-y-2"><Label>Sale Dates</Label><DatePicker date={salePriceEffectiveDate} setDate={setSalePriceEffectiveDate} /></div>
                                         </div>
-                                    </ZoruAccordionContent>
-                                </ZoruAccordionItem>
+                                    </AccordionContent>
+                                </AccordionItem>
 
-                                <ZoruAccordionItem value="identifiers">
-                                    <ZoruAccordionTrigger>Identifiers & Categories</ZoruAccordionTrigger>
-                                    <ZoruAccordionContent className="pt-4 space-y-4">
+                                <AccordionItem value="identifiers">
+                                    <AccordionTrigger>Identifiers & Categories</AccordionTrigger>
+                                    <AccordionContent className="pt-4 space-y-4">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2"><Label htmlFor="retailer_id">SKU / retailer_id *</Label><Input id="retailer_id" name="retailer_id" defaultValue={p?.retailer_id} required /></div>
-                                            <div className="space-y-2"><Label htmlFor="condition">Condition *</Label><Select name="condition" defaultValue={p?.condition || 'new'}><ZoruSelectTrigger id="condition"><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="new">New</ZoruSelectItem><ZoruSelectItem value="used">Used</ZoruSelectItem><ZoruSelectItem value="refurbished">Refurbished</ZoruSelectItem></ZoruSelectContent></Select></div>
+                                            <div className="space-y-2"><Label htmlFor="condition">Condition *</Label><Select name="condition" defaultValue={p?.condition || 'new'}><SelectTrigger id="condition"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="new">New</SelectItem><SelectItem value="used">Used</SelectItem><SelectItem value="refurbished">Refurbished</SelectItem></SelectContent></Select></div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2"><Label htmlFor="brand">Brand</Label><Input id="brand" name="brand" defaultValue={p?.brand}/></div>
@@ -180,12 +158,12 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2"><Label htmlFor="mpn">MPN</Label><Input id="mpn" name="mpn" defaultValue={p?.mpn}/></div>
                                         </div>
-                                    </ZoruAccordionContent>
-                                </ZoruAccordionItem>
+                                    </AccordionContent>
+                                </AccordionItem>
                                 
-                                <ZoruAccordionItem value="variants">
-                                    <ZoruAccordionTrigger>Variants (e.g. Size, Color)</ZoruAccordionTrigger>
-                                    <ZoruAccordionContent className="pt-4 space-y-4">
+                                <AccordionItem value="variants">
+                                    <AccordionTrigger>Variants (e.g. Size, Color)</AccordionTrigger>
+                                    <AccordionContent className="pt-4 space-y-4">
                                         <div className="space-y-2"><Label htmlFor="item_group_id">Item Group ID</Label><Input id="item_group_id" name="item_group_id" defaultValue={p?.item_group_id} /><p className="text-xs text-[var(--st-text-secondary)]">All variants of the same product must have the same group ID.</p></div>
                                         <Separator />
                                         <div className="space-y-2"><Label>Variant Attributes</Label>
@@ -196,15 +174,15 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                                         </div>
                                          <Separator />
                                         <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2"><Label htmlFor="gender">Gender</Label><Select name="gender" defaultValue={p?.gender}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="male">Male</ZoruSelectItem><ZoruSelectItem value="female">Female</ZoruSelectItem><ZoruSelectItem value="unisex">Unisex</ZoruSelectItem></ZoruSelectContent></Select></div>
-                                            <div className="space-y-2"><Label htmlFor="age_group">Age Group</Label><Select name="age_group" defaultValue={p?.age_group}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="adult">Adult</ZoruSelectItem><ZoruSelectItem value="kids">Kids</ZoruSelectItem></ZoruSelectContent></Select></div>
+                                            <div className="space-y-2"><Label htmlFor="gender">Gender</Label><Select name="gender" defaultValue={p?.gender}><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem><SelectItem value="unisex">Unisex</SelectItem></SelectContent></Select></div>
+                                            <div className="space-y-2"><Label htmlFor="age_group">Age Group</Label><Select name="age_group" defaultValue={p?.age_group}><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="adult">Adult</SelectItem><SelectItem value="kids">Kids</SelectItem></SelectContent></Select></div>
                                         </div>
-                                    </ZoruAccordionContent>
-                                </ZoruAccordionItem>
+                                    </AccordionContent>
+                                </AccordionItem>
 
-                                <ZoruAccordionItem value="stock">
-                                    <ZoruAccordionTrigger>Stock & Shipping</ZoruAccordionTrigger>
-                                    <ZoruAccordionContent className="pt-4 space-y-4">
+                                <AccordionItem value="stock">
+                                    <AccordionTrigger>Stock & Shipping</AccordionTrigger>
+                                    <AccordionContent className="pt-4 space-y-4">
                                         <div className="space-y-2"><Label htmlFor="inventory">Stock Quantity (quantity_to_sell_on_facebook)</Label><Input id="inventory" name="inventory" type="number" defaultValue={p?.inventory as any}/></div>
                                         <div className="space-y-2"><Label htmlFor="shipping_weight">Shipping Weight (e.g. 2.5 kg)</Label><Input id="shipping_weight" name="shipping_weight" defaultValue={p?.shipping_weight}/></div>
                                         <div className="grid grid-cols-3 gap-4">
@@ -212,17 +190,17 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                                             <div className="space-y-2"><Label>Width (cm)</Label><Input name="shipping_width" type="number" step="0.01" defaultValue={(p?.dimensions as any)?.width} /></div>
                                             <div className="space-y-2"><Label>Height (cm)</Label><Input name="shipping_height" type="number" step="0.01" defaultValue={(p?.dimensions as any)?.height} /></div>
                                         </div>
-                                    </ZoruAccordionContent>
-                                </ZoruAccordionItem>
+                                    </AccordionContent>
+                                </AccordionItem>
                             </Accordion>
                         </div>
                     </ScrollArea>
-                    <ZoruDialogFooter className="pt-6">
+                    <DialogFooter className="pt-6">
                         <Button type="button" variant="ghost" onClick={() => onDialogChange(false)}>Cancel</Button>
                         <SubmitButton isEditing={isEditing} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

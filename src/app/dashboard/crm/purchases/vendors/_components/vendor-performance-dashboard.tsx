@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, ChartContainer, ChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 
 export function VendorPerformanceDashboard({ vendors }: { vendors: any[] }) {
   // Aggregate mock performance metrics based on vendors
@@ -15,11 +15,11 @@ export function VendorPerformanceDashboard({ vendors }: { vendors: any[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Orders Volume (YTD)</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
-          <ZoruChartContainer height={200}>
+        <CardHeader>
+          <CardTitle>Orders Volume (YTD)</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <ChartContainer height={200}>
             <ZoruChart.BarChart data={monthlyData}>
               <ZoruChart.XAxis 
                 dataKey="name" 
@@ -32,19 +32,19 @@ export function VendorPerformanceDashboard({ vendors }: { vendors: any[] }) {
                 axisLine={false}
                 tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }}
               />
-              <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+              <ZoruChart.Tooltip content={<ChartTooltip />} />
               <ZoruChart.Bar dataKey="orders" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
             </ZoruChart.BarChart>
-          </ZoruChartContainer>
-        </ZoruCardContent>
+          </ChartContainer>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Purchase Value (YTD)</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
-          <ZoruChartContainer height={200}>
+        <CardHeader>
+          <CardTitle>Purchase Value (YTD)</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <ChartContainer height={200}>
             <ZoruChart.LineChart data={monthlyData}>
               <ZoruChart.XAxis 
                 dataKey="name" 
@@ -57,11 +57,11 @@ export function VendorPerformanceDashboard({ vendors }: { vendors: any[] }) {
                 axisLine={false}
                 tick={{ fill: "var(--st-text-secondary)", fontSize: 12 }}
               />
-              <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+              <ZoruChart.Tooltip content={<ChartTooltip />} />
               <ZoruChart.Line type="monotone" dataKey="value" stroke={ZORU_CHART_PALETTE[0]} strokeWidth={2} dot={false} />
             </ZoruChart.LineChart>
-          </ZoruChartContainer>
-        </ZoruCardContent>
+          </ChartContainer>
+        </CardBody>
       </Card>
     </div>
   );

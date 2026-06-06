@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Progress,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Progress, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState, use } from 'react';
 
 import { AlertCircle, Play, RefreshCw, Loader2, Download, Printer, Calendar, ArrowRight } from 'lucide-react';
@@ -24,7 +14,7 @@ type ClientSeoAudit = Omit<SeoAudit, '_id' | 'projectId'> & { _id: string; proje
 type ClientSeoPageAudit = Omit<SeoPageAudit, 'crawledAt'> & { crawledAt: string | Date };
 
 export function AuditPageClient({ projectId, initialHistory }: { projectId: string, initialHistory: ClientSeoAudit[] }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [audit, setAudit] = useState<ClientSeoAudit | null>(initialHistory.length > 0 ? initialHistory[0] : null);
     const [pages, setPages] = useState<ClientSeoPageAudit[]>(initialHistory.length > 0 ? (initialHistory[0].pages as unknown as ClientSeoPageAudit[]) || [] : []);
@@ -210,7 +200,7 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
 
             {status === 'running' && (
                 <Card className="bg-[var(--st-text-secondary)]/10 border-[var(--st-text-secondary)]/40 no-print">
-                    <ZoruCardContent className="p-6 flex items-center gap-4">
+                    <CardBody className="p-6 flex items-center gap-4">
                         <Loader2 className="h-8 w-8 text-[var(--st-text-secondary)] animate-spin" />
                         <div className="flex-1">
                             <div className="flex justify-between mb-2">
@@ -219,7 +209,7 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
                             </div>
                             <Progress value={30} className="h-2" />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
 
@@ -246,10 +236,10 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
                     
                     <div className="grid gap-6 md:grid-cols-3">
                         <Card>
-                            <ZoruCardHeader className="pb-2">
-                                <ZoruCardTitle className="text-sm">Overall Health</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm">Overall Health</CardTitle>
+                            </CardHeader>
+                            <CardBody>
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-4xl text-[var(--st-text)]">{audit.totalScore || 0}</span>
                                     <span className="text-[var(--st-text-secondary)]">/ 100</span>
@@ -267,14 +257,14 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
                                         )}
                                     </div>
                                 )}
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         <Card>
-                            <ZoruCardHeader className="pb-2">
-                                <ZoruCardTitle className="text-sm">Critical Errors</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="flex items-center gap-4">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm">Critical Errors</CardTitle>
+                            </CardHeader>
+                            <CardBody className="flex items-center gap-4">
                                 <div className="p-3 rounded-full bg-[var(--st-danger)]/10 text-[var(--st-danger)]">
                                     <AlertCircle className="h-6 w-6" />
                                 </div>
@@ -285,14 +275,14 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
                                         <p className="text-xs text-[var(--st-text-secondary)] mt-2">Previous: {pastAudits[0].summary?.criticalIssues || 0}</p>
                                     )}
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         <Card>
-                            <ZoruCardHeader className="pb-2">
-                                <ZoruCardTitle className="text-sm">Warnings</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="flex items-center gap-4">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm">Warnings</CardTitle>
+                            </CardHeader>
+                            <CardBody className="flex items-center gap-4">
                                 <div className="p-3 rounded-full bg-[var(--st-warn)]/10 text-[var(--st-warn)]">
                                     <AlertCircle className="h-6 w-6" />
                                 </div>
@@ -303,18 +293,18 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
                                         <p className="text-xs text-[var(--st-text-secondary)] mt-2">Previous: {pastAudits[0].summary?.warningIssues || 0}</p>
                                     )}
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     </div>
 
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Crawled Pages</ZoruCardTitle>
-                            <ZoruCardDescription>Results from the latest crawl.</ZoruCardDescription>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Crawled Pages</CardTitle>
+                            <CardDescription>Results from the latest crawl.</CardDescription>
+                        </CardHeader>
+                        <CardBody>
                             <AuditTable pages={pages} />
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </>
             )}

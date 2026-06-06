@@ -25,24 +25,7 @@ import {
   Type,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  PageHeader,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui/compat';
 import { updateSabcreatorForm } from '@/app/actions/sabcreator.actions';
 import type { SabcreatorAppDoc } from '@/lib/rust-client/sabcreator-apps';
 import type {
@@ -172,8 +155,8 @@ export function FormDesignerClient({ app, form }: Props) {
     <div className="min-h-screen flex flex-col">
       <PageHeader>
         <div>
-          <ZoruPageTitle>{form.name}</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>{form.name}</PageTitle>
+          <PageDescription>
             Form designer · {app.name} ·{' '}
             <Link
               href={`/dashboard/sabcreator/${app._id}/builder`}
@@ -181,14 +164,14 @@ export function FormDesignerClient({ app, form }: Props) {
             >
               back to builder
             </Link>
-          </ZoruPageDescription>
+          </PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Badge variant="outline">{form.status}</Badge>
           <Button onClick={save} disabled={pending}>
             <Save className="size-4" /> {pending ? 'Saving…' : 'Save'}
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="flex-1 grid grid-cols-[200px_1fr_320px] gap-4 px-6 pb-10">
@@ -358,20 +341,20 @@ export function FormDesignerClient({ app, form }: Props) {
                     setSubmitAction(v as SabcreatorFormSubmitAction)
                   }
                 >
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="createRecord">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="createRecord">
                       Create record
-                    </ZoruSelectItem>
-                    <ZoruSelectItem value="updateRecord">
+                    </SelectItem>
+                    <SelectItem value="updateRecord">
                       Update record
-                    </ZoruSelectItem>
-                    <ZoruSelectItem value="callWorkflow">
+                    </SelectItem>
+                    <SelectItem value="callWorkflow">
                       Call workflow
-                    </ZoruSelectItem>
-                  </ZoruSelectContent>
+                    </SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               {submitAction === 'callWorkflow' ? (

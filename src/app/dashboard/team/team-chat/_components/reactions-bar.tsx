@@ -6,12 +6,7 @@
 import * as React from 'react';
 import { SmilePlus } from 'lucide-react';
 
-import {
-    Button,
-    Popover,
-    ZoruPopoverContent,
-    ZoruPopoverTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui/compat';
 
 const QUICK_EMOJIS = ['👍', '❤️', '🎉', '🙏', '😂', '🔥'];
 const PICKER_EMOJIS = [
@@ -58,7 +53,7 @@ export function ReactionsBar({
                 );
             })}
             <Popover>
-                <ZoruPopoverTrigger asChild>
+                <PopoverTrigger asChild>
                     <Button
                         type="button"
                         variant="outline"
@@ -68,8 +63,8 @@ export function ReactionsBar({
                     >
                         <SmilePlus className="h-3 w-3" />
                     </Button>
-                </ZoruPopoverTrigger>
-                <ZoruPopoverContent
+                </PopoverTrigger>
+                <PopoverContent
                     align="start"
                     className="w-[224px] p-2"
                 >
@@ -99,7 +94,7 @@ export function ReactionsBar({
                             </button>
                         ))}
                     </div>
-                </ZoruPopoverContent>
+                </PopoverContent>
             </Popover>
         </div>
     );

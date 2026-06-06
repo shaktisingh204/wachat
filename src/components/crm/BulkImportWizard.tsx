@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowLeft,
   ArrowRight,
@@ -147,7 +134,7 @@ export function BulkImportWizard({
     onCompleted,
     className,
 }: BulkImportWizardProps): React.ReactElement {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [step, setStep] = React.useState<WizardStep>('upload');
     const [schema, setSchema] = React.useState<BulkImportWizardField[] | null>(
@@ -453,23 +440,23 @@ export function BulkImportWizard({
                                         });
                                     }}
                                 >
-                                    <ZoruSelectTrigger className="w-48 text-[12.5px]">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="__skip__">
+                                    <SelectTrigger className="w-48 text-[12.5px]">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__skip__">
                                             (skip column)
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                         {schema.map((f) => (
-                                            <ZoruSelectItem
+                                            <SelectItem
                                                 key={f.field}
                                                 value={f.field}
                                             >
                                                 {f.label}
                                                 {f.required ? ' *' : ''}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         ))}
@@ -495,19 +482,19 @@ export function BulkImportWizard({
                             value={dedupField}
                             onValueChange={setDedupField}
                         >
-                            <ZoruSelectTrigger id="dedup-field" className="w-64">
-                                <ZoruSelectValue placeholder="Pick a field" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="dedup-field" className="w-64">
+                                <SelectValue placeholder="Pick a field" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {schema.map((f) => (
-                                    <ZoruSelectItem
+                                    <SelectItem
                                         key={f.field}
                                         value={f.field}
                                     >
                                         {f.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <label className="flex items-center gap-2 text-sm text-[var(--st-text)]">

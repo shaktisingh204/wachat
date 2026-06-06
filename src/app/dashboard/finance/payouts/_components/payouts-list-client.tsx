@@ -2,27 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Button, 
-  Input, 
-  Label, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui/compat';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -294,24 +274,24 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
 
       <div className="rounded-md border bg-white overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>RecipientId</TableHead><TableHead>RecipientType</TableHead><TableHead>Amount</TableHead><TableHead>PaymentMethod</TableHead><TableHead>ExecutionDate</TableHead><TableHead>Status</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <THead>
+            <Tr>
+              <Th>RecipientId</Th><Th>RecipientType</Th><Th>Amount</Th><Th>PaymentMethod</Th><Th>ExecutionDate</Th><Th>Status</Th>
+              <Th className="w-[80px]"></Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredItems.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+              <Tr>
+                <Td colSpan={7} className="h-24 text-center">
                   No results.
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ) : (
               filteredItems.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell>{String(item.recipientId ?? '')}</TableCell><TableCell>{String(item.recipientType ?? '')}</TableCell><TableCell>{fmtINR(item.amount)}</TableCell><TableCell>{String(item.paymentMethod ?? '')}</TableCell><TableCell>{item.executionDate ? fmtDate(item.executionDate.toString()) : ''}</TableCell><TableCell>{String(item.status ?? '')}</TableCell>
-                  <TableCell>
+                <Tr key={item._id}>
+                  <Td>{String(item.recipientId ?? '')}</Td><Td>{String(item.recipientType ?? '')}</Td><Td>{fmtINR(item.amount)}</Td><Td>{String(item.paymentMethod ?? '')}</Td><Td>{item.executionDate ? fmtDate(item.executionDate.toString()) : ''}</Td><Td>{String(item.status ?? '')}</Td>
+                  <Td>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -327,11 +307,11 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </TableBody>
+          </TBody>
         </Table>
       </div>
 

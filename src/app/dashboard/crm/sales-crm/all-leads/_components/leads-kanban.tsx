@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { Building, GripVertical, Mail } from 'lucide-react';
 
 /**
@@ -84,7 +84,7 @@ function buildGroups(leads: WithId<CrmLead>[]): KanbanGroup[] {
 
 export function LeadsKanban({ onAfterMove }: LeadsKanbanProps) {
     const { leads, updateLeadOptimistically } = useLeadsContext();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [busyId, setBusyId] = React.useState<string | null>(null);
     const [dragOverKey, setDragOverKey] = React.useState<string | null>(null);
     const [isPending, startTransition] = React.useTransition();

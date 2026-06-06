@@ -13,20 +13,7 @@ import {
     Users
 } from 'lucide-react';
 
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Button,
-    Badge,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button, Badge, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import { getStorefront } from '@/app/actions/sabshop.actions';
 
@@ -72,65 +59,65 @@ export default function StorefrontOverviewPage(): React.JSX.Element {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
-                    <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
-                        <ZoruCardTitle className="text-sm font-medium">Total Revenue</ZoruCardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
                         <DollarSign className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    </CardHeader>
+                    <CardBody>
                         <div className="text-2xl font-bold">₹45,231.89</div>
                         <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-green-600">
                             <ArrowUpRight className="h-3 w-3" />
                             +20.1% from last month
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
-                        <ZoruCardTitle className="text-sm font-medium">Orders</ZoruCardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">Orders</CardTitle>
                         <CreditCard className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    </CardHeader>
+                    <CardBody>
                         <div className="text-2xl font-bold">+2350</div>
                         <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-green-600">
                             <ArrowUpRight className="h-3 w-3" />
                             +180.1% from last month
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
-                        <ZoruCardTitle className="text-sm font-medium">Sales</ZoruCardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">Sales</CardTitle>
                         <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    </CardHeader>
+                    <CardBody>
                         <div className="text-2xl font-bold">+12,234</div>
                         <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-green-600">
                             <ArrowUpRight className="h-3 w-3" />
                             +19% from last month
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
-                        <ZoruCardTitle className="text-sm font-medium">Active Now</ZoruCardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">Active Now</CardTitle>
                         <Users className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    </CardHeader>
+                    <CardBody>
                         <div className="text-2xl font-bold">+573</div>
                         <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-red-500">
                             <ArrowDownRight className="h-3 w-3" />
                             -12% since last hour
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 <Card className="col-span-4">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Sales Overview</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="pl-2">
+                    <CardHeader>
+                        <CardTitle>Sales Overview</CardTitle>
+                    </CardHeader>
+                    <CardBody className="pl-2">
                         <div className="h-[300px] w-full flex items-end gap-2 px-4">
                             {/* Fake bar chart using divs */}
                             {[40, 25, 60, 80, 50, 90, 75, 45, 65, 85, 55, 70].map((h, i) => (
@@ -141,14 +128,14 @@ export default function StorefrontOverviewPage(): React.JSX.Element {
                             <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
                             <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 
                 <Card className="col-span-3">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Recent Orders</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Recent Orders</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="space-y-6">
                             {[
                                 { id: '#1024', customer: 'Olivia Martin', email: 'olivia.m@email.com', amount: '₹1,999.00', status: 'Paid' },
@@ -169,7 +156,7 @@ export default function StorefrontOverviewPage(): React.JSX.Element {
                                 </div>
                             ))}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

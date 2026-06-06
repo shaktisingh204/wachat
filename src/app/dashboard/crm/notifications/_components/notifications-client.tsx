@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, StatCard, cn, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, StatCard, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   AlertTriangle,
   AtSign,
@@ -114,7 +114,7 @@ export function NotificationsClient({
     initialItems,
     initialKpis,
 }: NotificationsClientProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [rows, setRows] = React.useState<CrmNotificationRow[]>(initialItems);
     const [kpis, setKpis] = React.useState<CrmNotificationKpis>(initialKpis);
     const [kindFilter, setKindFilter] = React.useState<KindFilter>('all');

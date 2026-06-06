@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Input, Label, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Input, Label, Button } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { Copy, Check, Download } from 'lucide-react';
 import { fmtINR } from '@/lib/utils';
@@ -98,22 +98,22 @@ Estimated CPA,${cpa.toFixed(2)}`;
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
         <Card>
-          <ZoruCardContent className="p-6">
+          <CardBody className="p-6">
             <div className="text-3xl font-semibold text-[var(--st-text)]">{clicks.toFixed(0)}</div>
             <div className="text-sm text-[var(--st-text-secondary)] mt-1">Estimated Clicks</div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardContent className="p-6">
+          <CardBody className="p-6">
             <div className="text-3xl font-semibold text-[var(--st-text)]">{conversions.toFixed(1)}</div>
             <div className="text-sm text-[var(--st-text-secondary)] mt-1">Estimated Conversions</div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardContent className="p-6">
+          <CardBody className="p-6">
             <div className="text-3xl font-semibold text-[var(--st-text)]">{fmtINR(cpa)}</div>
             <div className="text-sm text-[var(--st-text-secondary)] mt-1">Cost per acquisition (CPA)</div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 

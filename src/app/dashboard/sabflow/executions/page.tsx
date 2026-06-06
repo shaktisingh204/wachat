@@ -1,26 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Input } from '@/components/sabcrm/20ui/compat';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { 
   MoreHorizontal, 
@@ -253,49 +239,49 @@ export default function ExecutionsPage() {
         </CardHeader>
         <CardContent className="p-0">
           <Table>
-            <TableHeader>
-              <TableRow className="bg-[var(--st-bg-muted)]/40 hover:bg-[var(--st-bg-muted)]/40">
-                <TableHead className="w-[120px]">Execution ID</TableHead>
-                <TableHead>Flow</TableHead>
-                <TableHead className="w-[150px]">Status</TableHead>
-                <TableHead className="w-[150px]">Trigger</TableHead>
-                <TableHead className="w-[100px]">Duration</TableHead>
-                <TableHead className="w-[180px]">Started At</TableHead>
-                <TableHead className="w-[70px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr className="bg-[var(--st-bg-muted)]/40 hover:bg-[var(--st-bg-muted)]/40">
+                <Th className="w-[120px]">Execution ID</Th>
+                <Th>Flow</Th>
+                <Th className="w-[150px]">Status</Th>
+                <Th className="w-[150px]">Trigger</Th>
+                <Th className="w-[100px]">Duration</Th>
+                <Th className="w-[180px]">Started At</Th>
+                <Th className="w-[70px]"></Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filteredData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-48 text-center text-[var(--st-text-secondary)]">
+                <Tr>
+                  <Td colSpan={7} className="h-48 text-center text-[var(--st-text-secondary)]">
                     No executions found matching your filters.
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filteredData.map((exe) => (
-                  <TableRow key={exe.id} className="group">
-                    <TableCell className="font-mono text-xs text-[var(--st-text-secondary)]">
+                  <Tr key={exe.id} className="group">
+                    <Td className="font-mono text-xs text-[var(--st-text-secondary)]">
                       {exe.id}
-                    </TableCell>
-                    <TableCell className="font-medium">
+                    </Td>
+                    <Td className="font-medium">
                       {exe.flowName}
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       {getStatusBadge(exe.status)}
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <div className="flex items-center gap-2 capitalize text-sm text-[var(--st-text-secondary)]">
                         {getTriggerIcon(exe.trigger)}
                         {exe.trigger}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-sm font-mono text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-sm font-mono text-[var(--st-text-secondary)]">
                       {exe.duration}
-                    </TableCell>
-                    <TableCell className="text-sm text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-sm text-[var(--st-text-secondary)]">
                       {exe.startedAt}
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -326,11 +312,11 @@ export default function ExecutionsPage() {
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
       </Card>

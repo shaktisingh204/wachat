@@ -22,21 +22,7 @@ import {
 } from 'recharts';
 import { Download, FileJson, FileSpreadsheet } from 'lucide-react';
 
-import {
-    Button,
-    Card,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import {
@@ -84,7 +70,7 @@ export function Gstr1Client({
     limit,
     chart,
 }: Gstr1ClientProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isExportingJson, startTransition] = React.useTransition();
 
     const exportHeaders = [
@@ -158,7 +144,7 @@ export function Gstr1Client({
                     {isSyncing ? 'Syncing...' : 'Sync Portal'}
                 </Button>
                 <DropdownMenu>
-                    <ZoruDropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
                         <Button
                             variant="outline"
                             size="sm"
@@ -166,21 +152,21 @@ export function Gstr1Client({
                         >
                             <Download className="mr-1.5 h-3.5 w-3.5" /> Export
                         </Button>
-                    </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem onClick={handleCsv}>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={handleCsv}>
                             <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onClick={handleXlsx}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleXlsx}>
                             <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                             onClick={handleJson}
                             disabled={isExportingJson}
                         >
                             <FileJson className="mr-2 h-4 w-4" /> GSTN JSON
-                        </ZoruDropdownMenuItem>
-                    </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
                 </DropdownMenu>
             </div>
 
@@ -237,69 +223,69 @@ export function Gstr1Client({
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Date
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Invoice
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Customer
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-right text-[var(--st-text-secondary)]">
                                     Taxable Value
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-right text-[var(--st-text-secondary)]">
                                     Total
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Status
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {rows.length === 0 ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td
                                         colSpan={6}
                                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         No invoices found.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 rows.map((r) => (
-                                    <ZoruTableRow
+                                    <Tr
                                         key={r.id}
                                         className="border-[var(--st-border)]"
                                     >
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                        <Td className="text-[13px] text-[var(--st-text)]">
                                             {format(new Date(r.invoiceDate), 'PP')}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="font-medium text-[var(--st-text)]">
                                             <EntityRowLink
                                                 href={`/dashboard/crm/sales/invoices/${r.id}`}
                                                 label={r.invoiceNumber}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[13px] text-[var(--st-text)]">
                                             {r.clientName}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right text-[13px] text-[var(--st-text)]">
                                             {r.currency} {r.subtotal.toFixed(2)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right text-[13px] text-[var(--st-text)]">
                                             {r.currency} {r.total.toFixed(2)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[13px] text-[var(--st-text)]">
                                             {r.status}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
                 <PaginationBar

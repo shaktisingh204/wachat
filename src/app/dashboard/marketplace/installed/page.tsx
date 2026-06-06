@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useMemo
 } from 'react';
@@ -50,7 +40,7 @@ export default function InstalledMarketplaceAppsPage(): React.JSX.Element {
 
 function InstalledMarketplaceAppsContent(): React.JSX.Element {
     const { activeProject } = useProject();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const projectId = activeProject?._id?.toString();
     const qc = useQueryClient();
 
@@ -93,19 +83,19 @@ function InstalledMarketplaceAppsContent(): React.JSX.Element {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard">Dashboard</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/marketplace">Marketplace</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Installed Apps</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/marketplace">Marketplace</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Installed Apps</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <header className="flex items-start justify-between gap-4">
@@ -150,7 +140,7 @@ function InstalledMarketplaceAppsContent(): React.JSX.Element {
 
 function StarRating({ rating: initialRating, count: initialCount, installId }: { rating: number; count: number, installId: string }): React.JSX.Element {
     const [hoveredRating, setHoveredRating] = React.useState<number | null>(null);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const qc = useQueryClient();
 
     const mutation = useMutation({

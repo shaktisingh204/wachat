@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, ZoruTableHeader, ZoruTableRow, ZoruTableHead, ZoruTableBody, ZoruTableCell } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import { Database, FileText } from 'lucide-react';
 
 export default function LoadingEstimate() {
@@ -16,37 +16,37 @@ export default function LoadingEstimate() {
         </div>
 
         <Card>
-          <ZoruCardHeader className="border-b border-[var(--st-border)] py-3 bg-[var(--st-bg-muted)]/50">
+          <CardHeader className="border-b border-[var(--st-border)] py-3 bg-[var(--st-bg-muted)]/50">
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-[var(--st-text-secondary)]" />
-              <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-[var(--st-text-secondary)]">
+              <CardTitle className="text-[12px] font-mono uppercase tracking-wider text-[var(--st-text-secondary)]">
                 Request Parameters
-              </ZoruCardTitle>
+              </CardTitle>
             </div>
-          </ZoruCardHeader>
-          <ZoruCardContent className="p-0">
+          </CardHeader>
+          <CardBody className="p-0">
             <Table>
-              <ZoruTableHeader className="bg-[var(--st-bg-muted)]/20">
-                <ZoruTableRow>
-                  <ZoruTableHead>Parameter</ZoruTableHead>
-                  <ZoruTableHead>Type</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Value</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
-                <ZoruTableRow>
-                  <ZoruTableCell><div className="h-4 w-20 bg-[var(--st-bg-muted)] rounded" /></ZoruTableCell>
-                  <ZoruTableCell><div className="h-4 w-12 bg-[var(--st-bg-muted)] rounded" /></ZoruTableCell>
-                  <ZoruTableCell><div className="h-4 w-24 bg-[var(--st-bg-muted)] rounded ml-auto" /></ZoruTableCell>
-                </ZoruTableRow>
-                <ZoruTableRow>
-                  <ZoruTableCell><div className="h-4 w-24 bg-[var(--st-bg-muted)] rounded" /></ZoruTableCell>
-                  <ZoruTableCell><div className="h-4 w-16 bg-[var(--st-bg-muted)] rounded" /></ZoruTableCell>
-                  <ZoruTableCell><div className="h-5 w-20 bg-[var(--st-bg-muted)] rounded ml-auto" /></ZoruTableCell>
-                </ZoruTableRow>
-              </ZoruTableBody>
+              <THead className="bg-[var(--st-bg-muted)]/20">
+                <Tr>
+                  <Th>Parameter</Th>
+                  <Th>Type</Th>
+                  <Th className="text-right">Value</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                <Tr>
+                  <Td><div className="h-4 w-20 bg-[var(--st-bg-muted)] rounded" /></Td>
+                  <Td><div className="h-4 w-12 bg-[var(--st-bg-muted)] rounded" /></Td>
+                  <Td><div className="h-4 w-24 bg-[var(--st-bg-muted)] rounded ml-auto" /></Td>
+                </Tr>
+                <Tr>
+                  <Td><div className="h-4 w-24 bg-[var(--st-bg-muted)] rounded" /></Td>
+                  <Td><div className="h-4 w-16 bg-[var(--st-bg-muted)] rounded" /></Td>
+                  <Td><div className="h-5 w-20 bg-[var(--st-bg-muted)] rounded ml-auto" /></Td>
+                </Tr>
+              </TBody>
             </Table>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <div className="flex flex-col gap-2">

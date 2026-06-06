@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useRef,
@@ -69,16 +59,16 @@ export function UpdatePostDialog({ isOpen, onOpenChange, post, projectId, onPost
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <form action={action} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="postId" value={post.id} />
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Update Post</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Update Post</DialogTitle>
+            <DialogDescription>
               Edit the text content of your Facebook post. Media cannot be changed after posting.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
@@ -91,15 +81,15 @@ export function UpdatePostDialog({ isOpen, onOpenChange, post, projectId, onPost
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button type="submit" disabled={isPending}>
                 {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                 Save Changes
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

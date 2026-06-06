@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { useRealtimeBudget } from './use-realtime-budget';
 import { BudgetProgressBar } from './budget-progress-bar';
 
@@ -42,10 +42,10 @@ export function BudgetLiveStats({ budgetId, planAmount, initialActual, alertAt }
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>Variance (Live)</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+      <CardHeader>
+        <CardTitle>Variance (Live)</CardTitle>
+      </CardHeader>
+      <CardBody>
         <div className="space-y-2 text-[12.5px]">
           <div className="flex items-center justify-between">
             <span className="text-[var(--st-text-secondary)]">% of plan used</span>
@@ -69,7 +69,7 @@ export function BudgetLiveStats({ budgetId, planAmount, initialActual, alertAt }
           </div>
           <BudgetProgressBar utilisation={utilisation} />
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

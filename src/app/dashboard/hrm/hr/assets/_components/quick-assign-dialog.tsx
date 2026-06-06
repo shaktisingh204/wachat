@@ -2,17 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import {
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogFooter,
-    Button,
-    Label,
-    Input,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Button, Label, Input, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { saveAssetAssignment } from '@/app/actions/crm-asset-assignments.actions';
@@ -31,7 +21,7 @@ export function QuickAssignDialog({
 }) {
     const [employees, setEmployees] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(false);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
 
     React.useEffect(() => {
@@ -72,11 +62,11 @@ export function QuickAssignDialog({
     };
 
     return (
-        <ZoruDialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Quick Assign: {asset?.name}</ZoruDialogTitle>
-                </ZoruDialogHeader>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Quick Assign: {asset?.name}</DialogTitle>
+                </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
                     <div className="space-y-2">
                         <Label>Employee</Label>
@@ -101,16 +91,16 @@ export function QuickAssignDialog({
                         <Label>Date of Assignment</Label>
                         <Input type="date" name="assigned_at" defaultValue={new Date().toISOString().split('T')[0]} required />
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
                         <Button type="submit" disabled={loading}>
                             {loading ? 'Assigning...' : 'Assign'}
                         </Button>
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
-        </ZoruDialog>
+            </DialogContent>
+        </Dialog>
     );
 }

@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Input, Label, Table, TBody, Td, Th, THead, Tr, cn } from '@/components/sabcrm/20ui/compat';
 import {
   cn as _zoruCn,
   useMemo,
@@ -67,7 +55,7 @@ export default function UtmDecoderPage() {
       description="Paste a URL to extract and inspect its UTM tracking parameters."
     >
       <Card>
-        <ZoruCardContent className="p-4 space-y-3">
+        <CardBody className="p-4 space-y-3">
           <Label htmlFor="utm-url">URL</Label>
           <Input
             id="utm-url"
@@ -75,7 +63,7 @@ export default function UtmDecoderPage() {
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/?utm_source=..."
           />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {!parsed.valid ? (
@@ -83,41 +71,41 @@ export default function UtmDecoderPage() {
       ) : (
         <div className="space-y-4">
           <Card>
-            <ZoruCardContent className="p-4">
+            <CardBody className="p-4">
               <div className="text-xs text-[var(--st-text-secondary)]">Base URL</div>
               <div className="font-mono text-sm break-all">{parsed.base}</div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <div className="space-y-2">
             <Label>UTM parameters ({parsed.utm.length})</Label>
             <Card>
-              <ZoruCardContent className="p-0">
+              <CardBody className="p-0">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow>
-                      <ZoruTableHead>Parameter</ZoruTableHead>
-                      <ZoruTableHead>Value</ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                  <THead>
+                    <Tr>
+                      <Th>Parameter</Th>
+                      <Th>Value</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {parsed.utm.length === 0 ? (
-                      <ZoruTableRow>
-                        <ZoruTableCell colSpan={2} className="text-sm text-[var(--st-text-secondary)]">
+                      <Tr>
+                        <Td colSpan={2} className="text-sm text-[var(--st-text-secondary)]">
                           No UTM parameters found.
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ) : (
                       parsed.utm.map((p) => (
-                        <ZoruTableRow key={p.key}>
-                          <ZoruTableCell className="font-mono text-xs">{p.key}</ZoruTableCell>
-                          <ZoruTableCell className="font-mono text-xs">{p.value}</ZoruTableCell>
-                        </ZoruTableRow>
+                        <Tr key={p.key}>
+                          <Td className="font-mono text-xs">{p.key}</Td>
+                          <Td className="font-mono text-xs">{p.value}</Td>
+                        </Tr>
                       ))
                     )}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
 
@@ -125,24 +113,24 @@ export default function UtmDecoderPage() {
             <div className="space-y-2">
               <Label>Other query parameters ({parsed.other.length})</Label>
               <Card>
-                <ZoruCardContent className="p-0">
+                <CardBody className="p-0">
                   <Table>
-                    <ZoruTableHeader>
-                      <ZoruTableRow>
-                        <ZoruTableHead>Parameter</ZoruTableHead>
-                        <ZoruTableHead>Value</ZoruTableHead>
-                      </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                    <THead>
+                      <Tr>
+                        <Th>Parameter</Th>
+                        <Th>Value</Th>
+                      </Tr>
+                    </THead>
+                    <TBody>
                       {parsed.other.map((p) => (
-                        <ZoruTableRow key={p.key}>
-                          <ZoruTableCell className="font-mono text-xs">{p.key}</ZoruTableCell>
-                          <ZoruTableCell className="font-mono text-xs">{p.value}</ZoruTableCell>
-                        </ZoruTableRow>
+                        <Tr key={p.key}>
+                          <Td className="font-mono text-xs">{p.key}</Td>
+                          <Td className="font-mono text-xs">{p.value}</Td>
+                        </Tr>
                       ))}
-                    </ZoruTableBody>
+                    </TBody>
                   </Table>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             </div>
           )}

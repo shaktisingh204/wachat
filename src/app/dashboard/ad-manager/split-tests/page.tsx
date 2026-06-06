@@ -1,30 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   FlaskConical,
   Plus,
@@ -144,11 +120,11 @@ export default function SplitTestsPage() {
 
             <Alert>
                 <Sparkles className="h-4 w-4" />
-                <ZoruAlertTitle>Beyond Meta Ads Manager</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Beyond Meta Ads Manager</AlertTitle>
+                <AlertDescription>
                     SabNode supports multi-variable tests (2-5 variants simultaneously) with
                     automatic budget reallocation to the winning variant once 95% confidence is reached.
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
 
             <div>
@@ -156,12 +132,12 @@ export default function SplitTestsPage() {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {VARIABLES.map((v) => (
                         <Card key={v.id} className="cursor-pointer hover:border-[var(--st-border)]/50 transition-colors" onClick={() => setSelectedVar(v.id)}>
-                            <ZoruCardHeader className="pb-2">
-                                <ZoruCardTitle className="text-base">{v.label}</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-base">{v.label}</CardTitle>
+                            </CardHeader>
+                            <CardBody>
                                 <p className="text-xs text-[var(--st-text-secondary)]">{v.desc}</p>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     ))}
                 </div>
@@ -174,55 +150,55 @@ export default function SplitTestsPage() {
                         <Clock className="h-4 w-4" /> Past tests
                     </h2>
                     <Card>
-                        <ZoruCardContent className="p-0">
+                        <CardBody className="p-0">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow>
-                                        <ZoruTableHead>Name</ZoruTableHead>
-                                        <ZoruTableHead>Variable</ZoruTableHead>
-                                        <ZoruTableHead>Variant A</ZoruTableHead>
-                                        <ZoruTableHead>Variant B</ZoruTableHead>
-                                        <ZoruTableHead>Budget</ZoruTableHead>
-                                        <ZoruTableHead>Created</ZoruTableHead>
-                                        <ZoruTableHead>Status</ZoruTableHead>
-                                        <ZoruTableHead className="w-12" />
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                <THead>
+                                    <Tr>
+                                        <Th>Name</Th>
+                                        <Th>Variable</Th>
+                                        <Th>Variant A</Th>
+                                        <Th>Variant B</Th>
+                                        <Th>Budget</Th>
+                                        <Th>Created</Th>
+                                        <Th>Status</Th>
+                                        <Th className="w-12" />
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {pastTests.map((t) => (
-                                        <ZoruTableRow key={t.id}>
-                                            <ZoruTableCell className="font-medium">{t.name}</ZoruTableCell>
-                                            <ZoruTableCell><Badge variant="outline">{t.variable}</Badge></ZoruTableCell>
-                                            <ZoruTableCell className="text-sm text-[var(--st-text-secondary)] max-w-[120px] truncate">{t.variantA}</ZoruTableCell>
-                                            <ZoruTableCell className="text-sm text-[var(--st-text-secondary)] max-w-[120px] truncate">{t.variantB}</ZoruTableCell>
-                                            <ZoruTableCell className="tabular-nums">${t.budget}/day</ZoruTableCell>
-                                            <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
+                                        <Tr key={t.id}>
+                                            <Td className="font-medium">{t.name}</Td>
+                                            <Td><Badge variant="outline">{t.variable}</Badge></Td>
+                                            <Td className="text-sm text-[var(--st-text-secondary)] max-w-[120px] truncate">{t.variantA}</Td>
+                                            <Td className="text-sm text-[var(--st-text-secondary)] max-w-[120px] truncate">{t.variantB}</Td>
+                                            <Td className="tabular-nums">${t.budget}/day</Td>
+                                            <Td className="text-xs text-[var(--st-text-secondary)]">
                                                 {new Date(t.createdAt).toLocaleDateString()}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <Badge variant={t.status === 'running' ? 'default' : 'secondary'}>{t.status}</Badge>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)]" onClick={() => handleDelete(t.id)}>
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ))}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </div>
             )}
 
             {/* Create dialog */}
             <Dialog open={!!selectedVar} onOpenChange={(open) => { if (!open) { setSelectedVar(null); resetForm(); } }}>
-                <ZoruDialogContent className="max-w-lg">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Create Split Test: {VARIABLES.find(v => v.id === selectedVar)?.label}</ZoruDialogTitle>
-                        <ZoruDialogDescription>Set up your A/B test variants. Winner is auto-selected at 95% confidence.</ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Create Split Test: {VARIABLES.find(v => v.id === selectedVar)?.label}</DialogTitle>
+                        <DialogDescription>Set up your A/B test variants. Winner is auto-selected at 95% confidence.</DialogDescription>
+                    </DialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label>Test Name *</Label>
@@ -241,13 +217,13 @@ export default function SplitTestsPage() {
                             <Input type="number" placeholder="500" value={budget} onChange={e => setBudget(e.target.value)} />
                         </div>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" onClick={() => { setSelectedVar(null); resetForm(); }}>Cancel</Button>
                         <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={handleLaunch}>
                             Launch Test
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

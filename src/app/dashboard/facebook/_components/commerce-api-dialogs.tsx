@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useTransition } from "react";
 import { Loader2,
@@ -40,7 +30,7 @@ export function RotateApiKeyConfirmDialog({
   onRotate,
 }: RotateApiKeyConfirmDialogProps) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleRotate = () => {
     startTransition(async () => {
@@ -69,21 +59,21 @@ export function RotateApiKeyConfirmDialog({
   };
 
   return (
-    <ZoruAlertDialog open={open} onOpenChange={onOpenChange}>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Rotate Commerce API key?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Rotate Commerce API key?</AlertDialogTitle>
+          <AlertDialogDescription>
             Rotating will issue a new key and start a 24-hour grace period
             during which both keys are accepted. After 24 hours the old key
             stops working and any integration still using it will fail.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel disabled={isPending}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>
             Cancel
-          </ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
+          </AlertDialogCancel>
+          <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
               handleRotate();
@@ -96,9 +86,9 @@ export function RotateApiKeyConfirmDialog({
               <RotateCw className="mr-1 h-4 w-4" />
             )}
             Rotate key
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

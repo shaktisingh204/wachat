@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { Card, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
+import { Card, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { getConversionsAnalytics } from './analytics-actions';
 import { FunnelChart } from './funnel-chart';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -31,14 +31,14 @@ export function AnalyticsDashboard() {
                 <div className="flex items-center gap-2">
                     <span className="text-sm text-[var(--st-text-secondary)]">Date Range:</span>
                     <Select value={dateRange} onValueChange={setDateRange}>
-                        <ZoruSelectTrigger className="w-[140px] h-8 text-xs bg-[var(--st-bg-secondary)]">
-                            <ZoruSelectValue placeholder="Select Range" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="7d">Last 7 Days</ZoruSelectItem>
-                            <ZoruSelectItem value="30d">Last 30 Days</ZoruSelectItem>
-                            <ZoruSelectItem value="90d">Last 90 Days</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger className="w-[140px] h-8 text-xs bg-[var(--st-bg-secondary)]">
+                            <SelectValue placeholder="Select Range" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="7d">Last 7 Days</SelectItem>
+                            <SelectItem value="30d">Last 30 Days</SelectItem>
+                            <SelectItem value="90d">Last 90 Days</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
             </div>

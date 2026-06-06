@@ -5,18 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, Play, Trash2, Sparkles } from 'lucide-react';
 
-import {
-    Button,
-    Card,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    ZoruCardContent,
-    ZoruCardFooter,
-    EmptyState,
-    Input,
-    Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, EmptyState, Input, Badge } from '@/components/sabcrm/20ui/compat';
 import {
     createRecipe,
     deleteRecipe,
@@ -99,22 +88,22 @@ export function RecipeListClient({ initial }: Props) {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {filtered.map((r) => (
                         <Card key={r._id} className="flex flex-col">
-                            <ZoruCardHeader>
-                                <ZoruCardTitle className="flex items-center justify-between gap-2">
+                            <CardHeader>
+                                <CardTitle className="flex items-center justify-between gap-2">
                                     <span className="truncate">{r.name}</span>
                                     {r.scheduleCron ? (
                                         <Badge variant="secondary">scheduled</Badge>
                                     ) : null}
-                                </ZoruCardTitle>
-                                <ZoruCardDescription>
+                                </CardTitle>
+                                <CardDescription>
                                     {r.description ?? `${(r.steps ?? []).length} step(s)`}
-                                </ZoruCardDescription>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="flex-1 text-xs opacity-70">
+                                </CardDescription>
+                            </CardHeader>
+                            <CardBody className="flex-1 text-xs opacity-70">
                                 <p>Updated: {r.updatedAt ?? r.createdAt}</p>
                                 {r.lastRunId ? <p>Last run: {r.lastRunId}</p> : null}
-                            </ZoruCardContent>
-                            <ZoruCardFooter className="flex items-center justify-between">
+                            </CardBody>
+                            <CardFooter className="flex items-center justify-between">
                                 <Button asChild size="sm" variant="outline">
                                     <Link href={`/dashboard/dataprep/recipes/${r._id}`}>
                                         <Play className="h-3.5 w-3.5" /> Open
@@ -128,7 +117,7 @@ export function RecipeListClient({ initial }: Props) {
                                 >
                                     <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
-                            </ZoruCardFooter>
+                            </CardFooter>
                         </Card>
                     ))}
                 </div>

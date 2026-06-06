@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Input, Label, RadioGroup, ZoruRadioGroupItem, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -97,13 +84,13 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
             <input type="hidden" name="menuItems" value={JSON.stringify(menuItems)} />
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2"><List className="h-5 w-5"/>Persistent Menu</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/>Persistent Menu</CardTitle>
+                    <CardDescription>
                         Set up a static menu that's always available to users in your Messenger chat window. You can have up to 3 top-level items. Note: This menu is set at the Page level and will be overwritten by the last shop saved.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                     {menuItems.map((item, index) => (
                         <div key={index} className="p-4 border rounded-lg space-y-3 relative">
                             <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem(index)}>
@@ -137,10 +124,10 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                             <Plus className="mr-2 h-4 w-4" /> Add Menu Item
                         </Button>
                     )}
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <SubmitButton />
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </form>
     )

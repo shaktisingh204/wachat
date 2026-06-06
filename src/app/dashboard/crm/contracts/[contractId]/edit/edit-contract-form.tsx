@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useMemo, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
@@ -102,7 +89,7 @@ export function EditContractForm({ initial }: Props) {
     ) => Promise<ActionResult>,
     initialState,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [status, setStatus] = useState<ContractStatus>((initial.status as ContractStatus) || 'draft');
   const [endDate, setEndDate] = useState(initial.endDate);
@@ -243,21 +230,21 @@ export function EditContractForm({ initial }: Props) {
                   Status
                 </Label>
                 <Select name="status" value={status} onValueChange={(val) => setStatus(val as ContractStatus)}>
-                  <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                    <ZoruSelectItem value="sent">Sent</ZoruSelectItem>
-                    <ZoruSelectItem value="partially_signed">
+                  <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="sent">Sent</SelectItem>
+                    <SelectItem value="partially_signed">
                       Partially signed
-                    </ZoruSelectItem>
-                    <ZoruSelectItem value="signed">Signed</ZoruSelectItem>
-                    <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
-                    <ZoruSelectItem value="expired">Expired</ZoruSelectItem>
-                    <ZoruSelectItem value="terminated">Terminated</ZoruSelectItem>
-                    <ZoruSelectItem value="voided">Voided</ZoruSelectItem>
-                  </ZoruSelectContent>
+                    </SelectItem>
+                    <SelectItem value="signed">Signed</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                    <SelectItem value="terminated">Terminated</SelectItem>
+                    <SelectItem value="voided">Voided</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
@@ -420,16 +407,16 @@ export function EditContractForm({ initial }: Props) {
                   name="esignProvider"
                   defaultValue={initial.esignProvider || 'internal'}
                 >
-                  <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="internal">Internal</ZoruSelectItem>
-                    <ZoruSelectItem value="digio">Digio</ZoruSelectItem>
-                    <ZoruSelectItem value="docusign">DocuSign</ZoruSelectItem>
-                    <ZoruSelectItem value="aadhaar">Aadhaar</ZoruSelectItem>
-                    <ZoruSelectItem value="none">None</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="internal">Internal</SelectItem>
+                    <SelectItem value="digio">Digio</SelectItem>
+                    <SelectItem value="docusign">DocuSign</SelectItem>
+                    <SelectItem value="aadhaar">Aadhaar</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2 md:col-span-2">
@@ -442,16 +429,16 @@ export function EditContractForm({ initial }: Props) {
                   </Label>
                   {templates.length > 0 && (
                     <Select onValueChange={handleTemplateChange}>
-                      <ZoruSelectTrigger className="h-8 w-[200px] text-[12px]">
-                        <ZoruSelectValue placeholder="Apply template..." />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
+                      <SelectTrigger className="h-8 w-[200px] text-[12px]">
+                        <SelectValue placeholder="Apply template..." />
+                      </SelectTrigger>
+                      <SelectContent>
                         {templates.map((t) => (
-                          <ZoruSelectItem key={t._id} value={t._id}>
+                          <SelectItem key={t._id} value={t._id}>
                             {t.name}
-                          </ZoruSelectItem>
+                          </SelectItem>
                         ))}
-                      </ZoruSelectContent>
+                      </SelectContent>
                     </Select>
                   )}
                 </div>

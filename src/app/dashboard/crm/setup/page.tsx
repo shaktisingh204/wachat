@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Progress,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -99,7 +84,7 @@ const STEPS = [
 
 export default function CrmSetupPage(): React.JSX.Element {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [step, setStep] = React.useState(0);
   const [isPending, startTransition] = React.useTransition();
   const [state, setState] = React.useState<WizardState>({
@@ -439,16 +424,16 @@ function StepTax({
           value={state.currency}
           onValueChange={(v) => update('currency', v)}
         >
-          <ZoruSelectTrigger>
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
             {CURRENCIES.map((c) => (
-              <ZoruSelectItem key={c} value={c}>
+              <SelectItem key={c} value={c}>
                 {c}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
       </div>
     </div>

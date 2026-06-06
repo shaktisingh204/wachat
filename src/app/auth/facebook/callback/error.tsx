@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, Button } from '@/components/sabcrm/20ui/compat'
-import { AlertTriangle } from 'lucide-react'
+import { Card, CardHeader, CardTitle, CardDescription, Button } from '@/components/sabcrm/20ui/compat';import { AlertTriangle } from 'lucide-react'
 
 export default function ErrorBoundary({
   error,
@@ -19,15 +18,15 @@ export default function ErrorBoundary({
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-[var(--st-bg-secondary)]">
       <Card className="max-w-sm text-center">
-        <ZoruCardHeader>
+        <CardHeader>
           <div className="flex justify-center mb-4">
             <AlertTriangle className="h-10 w-10 text-[var(--st-text)]" />
           </div>
-          <ZoruCardTitle>Something went wrong!</ZoruCardTitle>
-          <ZoruCardDescription>
+          <CardTitle>Something went wrong!</CardTitle>
+          <CardDescription>
             An unexpected error occurred while processing the Facebook callback.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
+          </CardDescription>
+        </CardHeader>
         <div className="p-6 pt-0 flex flex-col gap-2">
           <Button variant="outline" className="w-full" onClick={() => reset()}>
             Try again

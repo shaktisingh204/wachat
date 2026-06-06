@@ -1,17 +1,4 @@
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { notFound } from 'next/navigation';
 import { Banknote, Receipt, RefreshCcw, Store } from 'lucide-react';
 import { Suspense, type ReactNode } from 'react';
@@ -286,7 +273,7 @@ async function PosSessionDetailsContainer({
                         {/* Mini KPI strip */}
                         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                             <Card>
-                                <ZoruCardContent className="flex items-start justify-between p-3.5">
+                                <CardBody className="flex items-start justify-between p-3.5">
                                     <div>
                                         <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                             Cash
@@ -296,10 +283,10 @@ async function PosSessionDetailsContainer({
                                         </p>
                                     </div>
                                     <Banknote className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                             <Card>
-                                <ZoruCardContent className="flex items-start justify-between p-3.5">
+                                <CardBody className="flex items-start justify-between p-3.5">
                                     <div>
                                         <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                             Card
@@ -309,10 +296,10 @@ async function PosSessionDetailsContainer({
                                         </p>
                                     </div>
                                     <Receipt className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                             <Card>
-                                <ZoruCardContent className="flex items-start justify-between p-3.5">
+                                <CardBody className="flex items-start justify-between p-3.5">
                                     <div>
                                         <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                             UPI
@@ -322,10 +309,10 @@ async function PosSessionDetailsContainer({
                                         </p>
                                     </div>
                                     <Receipt className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                             <Card>
-                                <ZoruCardContent className="flex items-start justify-between p-3.5">
+                                <CardBody className="flex items-start justify-between p-3.5">
                                     <div>
                                         <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                             Refunds
@@ -335,15 +322,15 @@ async function PosSessionDetailsContainer({
                                         </p>
                                     </div>
                                     <RefreshCcw className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         </div>
 
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Session details</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                            <CardHeader>
+                                <CardTitle>Session details</CardTitle>
+                            </CardHeader>
+                            <CardBody className="grid grid-cols-2 gap-4 md:grid-cols-3">
                                 <Field label="Terminal" value={session.terminalId} />
                                 <Field
                                     label="Opened at"
@@ -398,7 +385,7 @@ async function PosSessionDetailsContainer({
                                         <Field label="Notes" value={session.notes} />
                                     </div>
                                 ) : null}
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     </>
                 ) : null}
@@ -406,66 +393,66 @@ async function PosSessionDetailsContainer({
                 {/* TRANSACTIONS TAB */}
                 {tab === 'transactions' ? (
                     <Card className="p-0">
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>
+                        <CardHeader>
+                            <CardTitle>
                                 Transactions ({transactions.length})
-                            </ZoruCardTitle>
-                        </ZoruCardHeader>
+                            </CardTitle>
+                        </CardHeader>
                         <div className="overflow-x-auto">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                        <ZoruTableHead>Number</ZoruTableHead>
-                                        <ZoruTableHead>Customer</ZoruTableHead>
-                                        <ZoruTableHead>Method</ZoruTableHead>
-                                        <ZoruTableHead className="text-right">
+                                <THead>
+                                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                        <Th>Number</Th>
+                                        <Th>Customer</Th>
+                                        <Th>Method</Th>
+                                        <Th className="text-right">
                                             Total
-                                        </ZoruTableHead>
-                                        <ZoruTableHead>Status</ZoruTableHead>
-                                        <ZoruTableHead>Created</ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                        <Th>Status</Th>
+                                        <Th>Created</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {transactions.length === 0 ? (
-                                        <ZoruTableRow>
-                                            <ZoruTableCell
+                                        <Tr>
+                                            <Td
                                                 colSpan={6}
                                                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                             >
                                                 No transactions in this session yet.
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ) : (
                                         transactions.map((t) => (
-                                            <ZoruTableRow key={t._id}>
-                                                <ZoruTableCell className="font-mono text-[12px]">
+                                            <Tr key={t._id}>
+                                                <Td className="font-mono text-[12px]">
                                                     <span className="inline-flex items-center gap-1">
                                                         <Receipt className="h-3 w-3 text-[var(--st-text-secondary)]" />
                                                         {t.transactionNumber}
                                                     </span>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     {t.customerName || '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize">
+                                                </Td>
+                                                <Td className="capitalize">
                                                     {t.paymentMethod}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right tabular-nums">
+                                                </Td>
+                                                <Td className="text-right tabular-nums">
                                                     {fmtINR(t.total)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill
                                                         label={t.status}
                                                         tone={txnTone(t.status)}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     {fmtDateTime(t.createdAt)}
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         ))
                                     )}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     </Card>
@@ -475,10 +462,10 @@ async function PosSessionDetailsContainer({
                 {tab === 'reconciliation' ? (
                     <div className="flex flex-col gap-3">
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Cash reconciliation</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                            <CardHeader>
+                                <CardTitle>Cash reconciliation</CardTitle>
+                            </CardHeader>
+                            <CardBody className="grid grid-cols-2 gap-4 md:grid-cols-3">
                                 <Field
                                     label="Opening cash"
                                     value={fmtINR(session.openingCash)}
@@ -526,65 +513,65 @@ async function PosSessionDetailsContainer({
                                     label="Refunds (₹)"
                                     value={fmtINR(refundTotal)}
                                 />
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         <Card className="p-0">
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Refunds this session</ZoruCardTitle>
-                            </ZoruCardHeader>
+                            <CardHeader>
+                                <CardTitle>Refunds this session</CardTitle>
+                            </CardHeader>
                             <div className="overflow-x-auto">
                                 <Table>
-                                    <ZoruTableHeader>
-                                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                            <ZoruTableHead>Original txn</ZoruTableHead>
-                                            <ZoruTableHead>Reason</ZoruTableHead>
-                                            <ZoruTableHead>Method</ZoruTableHead>
-                                            <ZoruTableHead className="text-right">
+                                    <THead>
+                                        <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                            <Th>Original txn</Th>
+                                            <Th>Reason</Th>
+                                            <Th>Method</Th>
+                                            <Th className="text-right">
                                                 Amount
-                                            </ZoruTableHead>
-                                            <ZoruTableHead>Status</ZoruTableHead>
-                                            <ZoruTableHead>Processed</ZoruTableHead>
-                                        </ZoruTableRow>
-                                    </ZoruTableHeader>
-                                    <ZoruTableBody>
+                                            </Th>
+                                            <Th>Status</Th>
+                                            <Th>Processed</Th>
+                                        </Tr>
+                                    </THead>
+                                    <TBody>
                                         {sessionRefunds.length === 0 ? (
-                                            <ZoruTableRow>
-                                                <ZoruTableCell
+                                            <Tr>
+                                                <Td
                                                     colSpan={6}
                                                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                                 >
                                                     No refunds for this session.
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         ) : (
                                             sessionRefunds.map((r) => (
-                                                <ZoruTableRow key={r._id}>
-                                                    <ZoruTableCell className="font-mono text-[12px]">
+                                                <Tr key={r._id}>
+                                                    <Td className="font-mono text-[12px]">
                                                         {r.originalTransactionNumber ||
                                                             r.originalTransactionId.slice(-8)}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="max-w-[260px] truncate">
+                                                    </Td>
+                                                    <Td className="max-w-[260px] truncate">
                                                         {r.reason}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="capitalize">
+                                                    </Td>
+                                                    <Td className="capitalize">
                                                         {r.refundMethod}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-right tabular-nums">
+                                                    </Td>
+                                                    <Td className="text-right tabular-nums">
                                                         {fmtINR(r.refundTotal)}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell>
+                                                    </Td>
+                                                    <Td>
                                                         <Badge variant="default">
                                                             {r.status}
                                                         </Badge>
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell>
+                                                    </Td>
+                                                    <Td>
                                                         {fmtDateTime(r.processedAt)}
-                                                    </ZoruTableCell>
-                                                </ZoruTableRow>
+                                                    </Td>
+                                                </Tr>
                                             ))
                                         )}
-                                    </ZoruTableBody>
+                                    </TBody>
                                 </Table>
                             </div>
                         </Card>
@@ -607,16 +594,16 @@ async function PosSessionDetailsContainer({
                 {/* ACTIVITY TAB */}
                 {tab === 'activity' ? (
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Activity</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Activity</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <EntityAuditTimeline
                                 entityKind="pos_session"
                                 entityId={session._id}
                                 limit={100}
                             />
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 ) : null}
             </div>
@@ -625,10 +612,10 @@ async function PosSessionDetailsContainer({
             <aside className="w-full md:w-80 md:shrink-0">
                 <div className="md:sticky md:top-4 space-y-4">
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Totals</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="flex flex-col gap-3">
+                        <CardHeader>
+                            <CardTitle>Totals</CardTitle>
+                        </CardHeader>
+                        <CardBody className="flex flex-col gap-3">
                             <Field
                                 label="Revenue"
                                 value={
@@ -650,13 +637,13 @@ async function PosSessionDetailsContainer({
                                 label="Duration"
                                 value={fmtDuration(sessionDuration)}
                             />
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Terminal</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="flex flex-col gap-3">
+                        <CardHeader>
+                            <CardTitle>Terminal</CardTitle>
+                        </CardHeader>
+                        <CardBody className="flex flex-col gap-3">
                             <Field
                                 label="Terminal"
                                 value={
@@ -685,7 +672,7 @@ async function PosSessionDetailsContainer({
                                     Open terminal
                                 </Link>
                             </Button>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </div>
             </aside>

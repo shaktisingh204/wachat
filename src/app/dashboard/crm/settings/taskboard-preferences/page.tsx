@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   KanbanSquare,
   Save,
@@ -66,7 +43,7 @@ const GROUPS: WsTaskboardGroupBy[] = ['none', 'assignee', 'priority', 'label'];
 const SORTS: WsTaskboardSortBy[] = ['due_date', 'priority', 'created'];
 
 export default function TaskboardPreferencesPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [rows, setRows] = React.useState<Row[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
     const [saving, setSaving] = React.useState(false);
@@ -240,16 +217,16 @@ export default function TaskboardPreferencesPage() {
                                         }))
                                     }
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {GROUPS.map((g) => (
-                                            <ZoruSelectItem key={g} value={g}>
+                                            <SelectItem key={g} value={g}>
                                                 {g}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="grid gap-1.5">
@@ -263,16 +240,16 @@ export default function TaskboardPreferencesPage() {
                                         }))
                                     }
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {SORTS.map((s) => (
-                                            <ZoruSelectItem key={s} value={s}>
+                                            <SelectItem key={s} value={s}>
                                                 {s}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         </div>
@@ -393,26 +370,26 @@ export default function TaskboardPreferencesPage() {
                 </Card>
             </div>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={deletingId !== null}
                 onOpenChange={(o) => !o && setDeletingId(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete preset?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete preset?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             This removes the stored taskboard preferences for that
                             scope.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete}>
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </EntityListShell>
     );
 }

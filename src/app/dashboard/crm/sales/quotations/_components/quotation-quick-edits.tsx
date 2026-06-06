@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -56,7 +43,7 @@ export function QuotationQuickEdits({
   status,
 }: QuotationQuickEditsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [currentStatus, setCurrentStatus] = React.useState(status);
   const [currentAgent, setCurrentAgent] = React.useState<string | null>(salesAgentId);
   const [agentDialogOpen, setAgentDialogOpen] = React.useState(false);
@@ -129,7 +116,7 @@ export function QuotationQuickEdits({
           <dt className="text-[var(--st-text-secondary)]">Status</dt>
           <dd>
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <button
                   type="button"
                   className="rounded-full transition-opacity hover:opacity-80"
@@ -137,24 +124,24 @@ export function QuotationQuickEdits({
                 >
                   <StatusPill label={currentStatus} tone={statusToTone(currentStatus)} />
                 </button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
                 {STATUS_OPTIONS.map((s) => (
-                  <ZoruDropdownMenuItem key={s} onSelect={() => changeStatus(s)}>
+                  <DropdownMenuItem key={s} onSelect={() => changeStatus(s)}>
                     {s}
-                  </ZoruDropdownMenuItem>
+                  </DropdownMenuItem>
                 ))}
-              </ZoruDropdownMenuContent>
+              </DropdownMenuContent>
             </DropdownMenu>
           </dd>
         </div>
       </dl>
 
       <Dialog open={agentDialogOpen} onOpenChange={setAgentDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Change sales agent</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change sales agent</DialogTitle>
+          </DialogHeader>
           <div className="space-y-2 py-2">
             <Label>Sales agent</Label>
             <EntityFormField
@@ -164,13 +151,13 @@ export function QuotationQuickEdits({
               onChange={(next) => setDraftAgent(next)}
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setAgentDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={() => void commitAgent()}>Save</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );

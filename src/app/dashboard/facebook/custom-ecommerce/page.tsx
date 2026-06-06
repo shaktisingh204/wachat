@@ -1,37 +1,6 @@
 "use client";
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -159,7 +128,7 @@ function CreateShopDialog({
   onSuccess,
 }: CreateShopDialogProps) {
   const [state, formAction] = useActionState(createEcommShop, initialFormState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [currency, setCurrency] = useState<string>("USD");
 
@@ -186,32 +155,32 @@ function CreateShopDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
+      <DialogContent>
         <form action={formAction} className="flex flex-col gap-4">
           <input type="hidden" name="projectId" value={selectedProjectId} />
           <input type="hidden" name="currency" value={currency} />
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Create new shop</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Create new shop</DialogTitle>
+            <DialogDescription>
               Pick a Facebook page, name your storefront, and choose a currency.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="ecomm-shop-project">Facebook page</Label>
             <Select
               value={selectedProjectId}
               onValueChange={setSelectedProjectId}
             >
-              <ZoruSelectTrigger id="ecomm-shop-project">
-                <ZoruSelectValue placeholder="Select a Facebook page" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="ecomm-shop-project">
+                <SelectValue placeholder="Select a Facebook page" />
+              </SelectTrigger>
+              <SelectContent>
                 {projects.map((p) => (
-                  <ZoruSelectItem key={p._id.toString()} value={p._id.toString()}>
+                  <SelectItem key={p._id.toString()} value={p._id.toString()}>
                     {p.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex flex-col gap-1.5">
@@ -227,18 +196,18 @@ function CreateShopDialog({
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="ecomm-shop-currency">Currency</Label>
             <Select value={currency} onValueChange={setCurrency}>
-              <ZoruSelectTrigger id="ecomm-shop-currency">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="USD">USD — US Dollar</ZoruSelectItem>
-                <ZoruSelectItem value="EUR">EUR — Euro</ZoruSelectItem>
-                <ZoruSelectItem value="INR">INR — Indian Rupee</ZoruSelectItem>
-                <ZoruSelectItem value="GBP">GBP — British Pound</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger id="ecomm-shop-currency">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="USD">USD — US Dollar</SelectItem>
+                <SelectItem value="EUR">EUR — Euro</SelectItem>
+                <SelectItem value="INR">INR — Indian Rupee</SelectItem>
+                <SelectItem value="GBP">GBP — British Pound</SelectItem>
+              </SelectContent>
             </Select>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
@@ -247,9 +216,9 @@ function CreateShopDialog({
               Cancel
             </Button>
             <CreateShopSubmit />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -290,21 +259,21 @@ export default function CustomEcommerceShopListPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Custom Shops</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Custom Shops</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <div className="relative mt-5">
@@ -314,22 +283,22 @@ export default function CustomEcommerceShopListPage() {
         />
         <FeatureLock isAllowed={isAllowed}>
           <PageHeader>
-            <ZoruPageHeading>
-              <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
-              <ZoruPageTitle>Custom Shops</ZoruPageTitle>
-              <ZoruPageDescription>
+            <PageHeading>
+              <PageEyebrow>Meta Suite</PageEyebrow>
+              <PageTitle>Custom Shops</PageTitle>
+              <PageDescription>
                 Select a Facebook page to manage its e-commerce storefront,
                 products, and automation.
-              </ZoruPageDescription>
-            </ZoruPageHeading>
-            <ZoruPageActions>
+              </PageDescription>
+            </PageHeading>
+            <PageActions>
               <Button
                 onClick={() => setCreateOpen(true)}
                 disabled={projects.length === 0}
               >
                 <Plus /> Create new shop
               </Button>
-            </ZoruPageActions>
+            </PageActions>
           </PageHeader>
 
           <div className="mt-6">

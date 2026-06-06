@@ -1,26 +1,5 @@
 import * as React from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetDescription,
-  StatCard,
-  EmptyState,
-  Skeleton,
-  useZoruToast,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, StatCard, EmptyState, Skeleton, useToast, cn } from '@/components/sabcrm/20ui/compat';
 import {
   Sticker as StickerIcon,
   Plus,
@@ -79,7 +58,7 @@ export function SetDetailDrawer({
     botUsername: string;
     onMutate: () => void;
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [set, setSet] = React.useState<SetRow | null>(null);
     const [loading, setLoading] = React.useState(false);
     const [busy, setBusy] = React.useState<string | null>(null);
@@ -110,23 +89,23 @@ export function SetDetailDrawer({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <ZoruSheetContent
+            <SheetContent
                 side="right"
                 className="flex w-full max-w-3xl flex-col gap-4 overflow-y-auto"
             >
-                <ZoruSheetHeader>
-                    <ZoruSheetTitle className="flex items-center gap-2">
+                <SheetHeader>
+                    <SheetTitle className="flex items-center gap-2">
                         <StickerIcon className="h-5 w-5" /> {set?.title ?? setName}
-                    </ZoruSheetTitle>
-                    <ZoruSheetDescription>
+                    </SheetTitle>
+                    <SheetDescription>
                         <code className="font-mono text-[12px]">{setName}</code>
                         {set?.archived && (
                             <Badge variant="ghost" className="ml-2 text-[var(--st-text)]">
                                 Archived
                             </Badge>
                         )}
-                    </ZoruSheetDescription>
-                </ZoruSheetHeader>
+                    </SheetDescription>
+                </SheetHeader>
 
                 {loading || !set ? (
                     <Skeleton className="h-[420px] w-full" />
@@ -145,7 +124,7 @@ export function SetDetailDrawer({
                         botId={botId}
                     />
                 )}
-            </ZoruSheetContent>
+            </SheetContent>
         </Sheet>
     );
 }
@@ -169,7 +148,7 @@ function DetailBody({
     projectId: string;
     botId: string;
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [editTitleOpen, setEditTitleOpen] = React.useState(false);
     const [newTitle, setNewTitle] = React.useState(set.title);
@@ -691,15 +670,15 @@ function StickerRowEditor({
                     <div className="flex flex-col gap-1">
                         <Label className="text-[11px]">Anchor</Label>
                         <Select value={maskPoint} onValueChange={(v) => setMaskPoint(v)}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="forehead" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="forehead">forehead</ZoruSelectItem>
-                                <ZoruSelectItem value="eyes">eyes</ZoruSelectItem>
-                                <ZoruSelectItem value="mouth">mouth</ZoruSelectItem>
-                                <ZoruSelectItem value="chin">chin</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="forehead" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="forehead">forehead</SelectItem>
+                                <SelectItem value="eyes">eyes</SelectItem>
+                                <SelectItem value="mouth">mouth</SelectItem>
+                                <SelectItem value="chin">chin</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     <NumberField label="x shift" value={maskX} onChange={setMaskX} step={0.1} />

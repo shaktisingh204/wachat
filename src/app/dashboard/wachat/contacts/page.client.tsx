@@ -1,32 +1,6 @@
 'use client';
 
-import {
-  useZoruToast,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-  Button,
-  Card,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  Input,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  cn,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { useToast, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Button, Card, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Input, Popover, PopoverContent, PopoverTrigger, cn, EmptyState } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -95,18 +69,18 @@ function TagsFilter({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <ZoruPopoverTrigger asChild>
+      <PopoverTrigger asChild>
         <Button variant="outline" size="sm">
           <TagIcon className="mr-2 h-4 w-4" /> {label}
           <ChevronDown className="ml-2 h-4 w-4 opacity-60" />
         </Button>
-      </ZoruPopoverTrigger>
-      <ZoruPopoverContent className="w-[240px] p-0" align="end">
-        <ZoruCommand>
-          <ZoruCommandInput placeholder="Search tags…" />
-          <ZoruCommandList>
-            <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
-            <ZoruCommandGroup>
+      </PopoverTrigger>
+      <PopoverContent className="w-[240px] p-0" align="end">
+        <Command>
+          <CommandInput placeholder="Search tags…" />
+          <CommandList>
+            <CommandEmpty>No tags found.</CommandEmpty>
+            <CommandGroup>
               {tags.length === 0 ? (
                 <div className="px-2 py-6 text-center text-[12px] text-[var(--st-text-secondary)]">
                   No tags defined on this project yet.
@@ -115,7 +89,7 @@ function TagsFilter({
                 tags.map((tag) => {
                   const isSelected = selectedTags.includes(tag._id);
                   return (
-                    <ZoruCommandItem
+                    <CommandItem
                       key={tag._id}
                       onSelect={() => toggle(tag._id)}
                       className="flex items-center gap-2"
@@ -133,14 +107,14 @@ function TagsFilter({
                       <span className="flex-1 truncate text-[13px] text-[var(--st-text)]">
                         {tag.name}
                       </span>
-                    </ZoruCommandItem>
+                    </CommandItem>
                   );
                 })
               )}
-            </ZoruCommandGroup>
-          </ZoruCommandList>
-        </ZoruCommand>
-      </ZoruPopoverContent>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
     </Popover>
   );
 }
@@ -153,7 +127,7 @@ function DeleteContactButton({
   onDeleted: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -172,8 +146,8 @@ function DeleteContactButton({
   };
 
   return (
-    <ZoruAlertDialog>
-      <ZoruAlertDialogTrigger asChild>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
         <Button
           variant="ghost"
           size="icon-sm"
@@ -182,23 +156,23 @@ function DeleteContactButton({
         >
           <Trash2 className="h-4 w-4" />
         </Button>
-      </ZoruAlertDialogTrigger>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Delete contact?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete contact?</AlertDialogTitle>
+          <AlertDialogDescription>
             Are you sure you want to delete {contact.name}? This action cannot be undone.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction destructive onClick={handleDelete} disabled={isPending}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction destructive onClick={handleDelete} disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Delete
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -217,7 +191,7 @@ export default function ContactsPage() {
 
   const [totalContacts, setTotalContacts] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchData = useCallback(() => {

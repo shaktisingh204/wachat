@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Input, Badge, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Input, Badge, cn } from '@/components/sabcrm/20ui/compat';
 import {
   cn as _zoruCn,
   useMemo,
@@ -190,7 +190,7 @@ export default function SeoToolsHubPage() {
                 >
                   <Star className="w-4 h-4" fill={isFav ? "currentColor" : "none"} />
                 </button>
-                <ZoruCardContent className="p-4 flex flex-col gap-2 h-full">
+                <CardBody className="p-4 flex flex-col gap-2 h-full">
                   <div className="flex items-start justify-between gap-2 pr-8">
                     <h3 className="font-semibold text-sm leading-tight">{tool.name}</h3>
                     {tool.status === 'soon' && (
@@ -204,7 +204,7 @@ export default function SeoToolsHubPage() {
                     {Icon && <Icon className="w-3.5 h-3.5" />}
                     {SEO_TOOL_CATEGORIES.find((c) => c.id === tool.category)?.label}
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             </Wrapper>
           );
@@ -213,9 +213,9 @@ export default function SeoToolsHubPage() {
 
       {filtered.length === 0 && (
         <Card className="border-dashed">
-          <ZoruCardContent className="p-12 text-center text-[var(--st-text-secondary)]">
+          <CardBody className="p-12 text-center text-[var(--st-text-secondary)]">
             No tools match your search.
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import { ArrowLeft,
@@ -303,10 +303,10 @@ export default async function QuotationDetailPage({
         <>
           {/* Status flow visualizer */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Status flow</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Status flow</CardTitle>
+            </CardHeader>
+            <CardBody>
               <ol className="space-y-1.5">
                 {STATUS_FLOW.map((s) => (
                   <StatusStep key={s} status={s} current={status} />
@@ -315,7 +315,7 @@ export default async function QuotationDetailPage({
                   <StatusStep status={status} current={status} />
                 ) : null}
               </ol>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Lineage rail */}
@@ -338,10 +338,10 @@ export default async function QuotationDetailPage({
 
           {/* At a glance + quick edits */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>At a glance</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>At a glance</CardTitle>
+            </CardHeader>
+            <CardBody>
               <QuotationQuickEdits
                 quotationId={quotationId}
                 salesAgentId={salesAgentId}
@@ -371,15 +371,15 @@ export default async function QuotationDetailPage({
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Related entities */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Related</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-1">
+            <CardHeader>
+              <CardTitle>Related</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-1">
               <Link
                 href={`/dashboard/crm/sales/orders?quotationId=${quotationId}`}
                 className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
@@ -402,7 +402,7 @@ export default async function QuotationDetailPage({
                   {relatedCounts.invoices}
                 </Badge>
               </Link>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Button size="sm" variant="ghost" asChild className="w-full">
@@ -428,10 +428,10 @@ export default async function QuotationDetailPage({
 
       {/* Overview */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <DetailField label="Quotation #">
               {quotation.quotationNo}
@@ -454,15 +454,15 @@ export default async function QuotationDetailPage({
               {quotation.referenceNo || '—'}
             </DetailField>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Customer */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Customer</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Customer</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <DetailField label="Customer">
               {quotation.clientId ? (
@@ -486,15 +486,15 @@ export default async function QuotationDetailPage({
               )}
             </DetailField>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Line items */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Line items</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Line items</CardTitle>
+        </CardHeader>
+        <CardBody>
           {items.length === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">No line items.</p>
           ) : (
@@ -560,15 +560,15 @@ export default async function QuotationDetailPage({
               </table>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Money summary */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Money summary</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Money summary</CardTitle>
+        </CardHeader>
+        <CardBody>
           <dl className="grid gap-2 md:grid-cols-2 text-[13px]">
             <div className="flex justify-between md:col-start-2">
               <span className="text-[var(--st-text-secondary)]">Subtotal</span>
@@ -654,29 +654,29 @@ export default async function QuotationDetailPage({
               </span>
             </div>
           </dl>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Terms */}
       {quotation.termsAndConditions ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Terms &amp; conditions</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Terms &amp; conditions</CardTitle>
+          </CardHeader>
+          <CardBody>
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {quotation.termsAndConditions}
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       {/* Notes */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Notes</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Notes</CardTitle>
+        </CardHeader>
+        <CardBody>
           {quotation.customerNotes ? (
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {quotation.customerNotes}
@@ -686,16 +686,16 @@ export default async function QuotationDetailPage({
               No notes yet — add them via the Edit form.
             </p>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Attachments — surfaced from customFields stash when present */}
       {Array.isArray((cfValues._attachments as unknown) as string[]) ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Attachments</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Attachments</CardTitle>
+          </CardHeader>
+          <CardBody>
             <ul className="list-disc space-y-1 pl-5 text-[13px] text-[var(--st-text)]">
               {(cfValues._attachments as string[]).map((u) => (
                 <li key={u}>
@@ -710,17 +710,17 @@ export default async function QuotationDetailPage({
                 </li>
               ))}
             </ul>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       {/* Tags */}
       {Array.isArray((cfValues._tags as unknown) as string[]) ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Tags</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Tags</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="flex flex-wrap gap-2">
               {(cfValues._tags as string[]).map((t) => (
                 <Badge key={t} variant="outline">
@@ -728,17 +728,17 @@ export default async function QuotationDetailPage({
                 </Badge>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       {/* Custom fields */}
       {customFields.length > 0 ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Custom fields</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Custom fields</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="grid gap-4 md:grid-cols-2">
               {customFields.map((f) => (
                 <DetailField
@@ -756,7 +756,7 @@ export default async function QuotationDetailPage({
                 </DetailField>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 

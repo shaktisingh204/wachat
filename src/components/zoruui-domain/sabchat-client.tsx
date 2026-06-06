@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton, Alert, ZoruAlertDescription, ZoruAlertTitle, Card, Select } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, Alert, AlertDescription, AlertTitle, Card, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -77,8 +77,8 @@ export function SabChatClient() {
             <div className="h-full flex items-center justify-center p-4">
                 <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Not Logged In</ZoruAlertTitle>
-                    <ZoruAlertDescription>Please log in to use the live chat inbox.</ZoruAlertDescription>
+                    <AlertTitle>Not Logged In</AlertTitle>
+                    <AlertDescription>Please log in to use the live chat inbox.</AlertDescription>
                 </Alert>
             </div>
         );

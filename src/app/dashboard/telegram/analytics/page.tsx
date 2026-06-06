@@ -1,36 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruDateRangePicker,
-  EmptyState,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DateRangePicker, EmptyState, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Bar,
   BarChart,
@@ -187,7 +157,7 @@ function downloadCsv(filename: string, body: string) {
 
 export default function Page() {
     const { activeProject } = useProject();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const projectId = activeProject?._id?.toString();
 
     // --- filter state ---
@@ -357,39 +327,39 @@ export default function Page() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/telegram">
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/telegram">
                             Telegram
-                        </ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Analytics</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <div className="flex flex-wrap items-start justify-between gap-4">
                 <PageHeader>
-                    <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
-                    <ZoruPageHeading>
+                    <PageEyebrow>Telegram</PageEyebrow>
+                    <PageHeading>
                         <span
                             className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)]"
                             style={{ backgroundColor: ACCENT_SOFT, color: ACCENT }}
                         >
                             <BarChart3 className="h-4.5 w-4.5" aria-hidden />
                         </span>
-                        <ZoruPageTitle>Telegram Analytics</ZoruPageTitle>
-                    </ZoruPageHeading>
-                    <ZoruPageDescription>
+                        <PageTitle>Telegram Analytics</PageTitle>
+                    </PageHeading>
+                    <PageDescription>
                         Read-only KPIs and leaderboards aggregated across every bot in
                         this workspace.
-                    </ZoruPageDescription>
+                    </PageDescription>
                 </PageHeader>
                 <div className="flex flex-wrap items-center gap-2">
                     <Button
@@ -412,7 +382,7 @@ export default function Page() {
             <Card className="flex flex-wrap items-end gap-3 p-4">
                 <div className="flex flex-col gap-1">
                     <label className="text-xs text-[var(--st-text-secondary)]">Date range</label>
-                    <ZoruDateRangePicker
+                    <DateRangePicker
                         value={{ from: range.from, to: range.to }}
                         onChange={(r) => {
                             if (r?.from && r?.to) setRange({ from: r.from, to: r.to });
@@ -446,17 +416,17 @@ export default function Page() {
                         value={botId || '__all__'}
                         onValueChange={(v) => setBotId(v === '__all__' ? '' : v)}
                     >
-                        <ZoruSelectTrigger className="min-w-[180px]">
-                            <ZoruSelectValue placeholder="All bots" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="__all__">All bots</ZoruSelectItem>
+                        <SelectTrigger className="min-w-[180px]">
+                            <SelectValue placeholder="All bots" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all__">All bots</SelectItem>
                             {bots.map((b) => (
-                                <ZoruSelectItem key={b._id} value={b._id}>
+                                <SelectItem key={b._id} value={b._id}>
                                     {b.name || b.username || b._id}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="ml-auto flex flex-wrap items-center gap-1.5">
@@ -807,26 +777,26 @@ function MessagesView({
                     </p>
                 ) : (
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow>
-                                <ZoruTableHead>Contact</ZoruTableHead>
-                                <ZoruTableHead>Chat ID</ZoruTableHead>
-                                <ZoruTableHead className="text-right">Messages</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr>
+                                <Th>Contact</Th>
+                                <Th>Chat ID</Th>
+                                <Th className="text-right">Messages</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {topContacts.map((c) => (
-                                <ZoruTableRow key={c.chatId}>
-                                    <ZoruTableCell className="font-medium">{c.title}</ZoruTableCell>
-                                    <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                                <Tr key={c.chatId}>
+                                    <Td className="font-medium">{c.title}</Td>
+                                    <Td className="text-[var(--st-text-secondary)]">
                                         {c.chatId}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right tabular-nums">
+                                    </Td>
+                                    <Td className="text-right tabular-nums">
                                         {fmtNumber(c.messages)}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ))}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 )}
             </Card>
@@ -949,26 +919,26 @@ function CommandsView({
                     </p>
                 ) : (
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow>
-                                <ZoruTableHead>Command</ZoruTableHead>
-                                <ZoruTableHead>Description</ZoruTableHead>
-                                <ZoruTableHead className="text-right">Bots</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr>
+                                <Th>Command</Th>
+                                <Th>Description</Th>
+                                <Th className="text-right">Bots</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {commands.map((c) => (
-                                <ZoruTableRow key={c.key}>
-                                    <ZoruTableCell className="font-medium">/{c.key}</ZoruTableCell>
-                                    <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                                <Tr key={c.key}>
+                                    <Td className="font-medium">/{c.key}</Td>
+                                    <Td className="text-[var(--st-text-secondary)]">
                                         {c.label}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right tabular-nums">
+                                    </Td>
+                                    <Td className="text-right tabular-nums">
                                         {fmtNumber(c.count)}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ))}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 )}
             </Card>

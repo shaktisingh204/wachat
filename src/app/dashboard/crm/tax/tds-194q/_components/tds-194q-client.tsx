@@ -15,17 +15,7 @@
 import * as React from 'react';
 import { Download, Loader2, X, Mail } from 'lucide-react';
 
-import {
-    Button,
-    Checkbox,
-    Input,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Input, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
@@ -370,87 +360,87 @@ export function Tds194qClient({ rows, fy, applicable }: Props) {
             {/* Table */}
             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                            <ZoruTableHead className="w-8">
+                    <THead>
+                        <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                            <Th className="w-8">
                                 <Checkbox
                                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                     onCheckedChange={toggleAll}
                                     aria-label="Select all vendors"
                                     disabled={rows.length === 0}
                                 />
-                            </ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Vendor</ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">GSTIN</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">YTD purchases</ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Threshold</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Deductible</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">TDS to deduct</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">TDS deducted</ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Action</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                            </Th>
+                            <Th className="text-[var(--st-text-secondary)]">Vendor</Th>
+                            <Th className="text-[var(--st-text-secondary)]">GSTIN</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">YTD purchases</Th>
+                            <Th className="text-[var(--st-text-secondary)]">Threshold</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">Deductible</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">TDS to deduct</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">TDS deducted</Th>
+                            <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                            <Th className="text-[var(--st-text-secondary)]">Action</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {rows.length === 0 ? (
-                            <ZoruTableRow className="border-[var(--st-border)]">
-                                <ZoruTableCell colSpan={10} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
+                            <Tr className="border-[var(--st-border)]">
+                                <Td colSpan={10} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                                     No vendor purchases recorded for this FY.
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : (
                             rows.map((row) => {
                                 const remaining = Math.max(0, row.tdsToDeduct - row.tdsDeducted);
                                 return (
-                                    <ZoruTableRow
+                                    <Tr
                                         key={row.vendorId}
                                         className={`border-[var(--st-border)] ${selected.has(row.vendorId) ? 'bg-[var(--st-bg-muted)]/30' : ''}`}
                                     >
-                                        <ZoruTableCell>
+                                        <Td>
                                             <Checkbox
                                                 checked={selected.has(row.vendorId)}
                                                 onCheckedChange={() => toggleRow(row.vendorId)}
                                                 aria-label={`Select ${row.vendorName}`}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[13px] font-medium text-[var(--st-text)]">
                                             <EntityRowLink
                                                 href={`/dashboard/crm/purchases/vendors/${row.vendorId}`}
                                                 label={row.vendorName}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                             {row.gstin ?? '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right text-[13px] text-[var(--st-text)]">
                                             {fmtMoney(row.totalPurchases)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <ThresholdBar value={row.totalPurchases} max={5_000_000} />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right text-[13px] text-[var(--st-text)]">
                                             {fmtMoney(row.deductibleAmount)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right text-[13px] text-[var(--st-text)]">
                                             {fmtMoney(row.tdsToDeduct)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right text-[13px] text-[var(--st-text)]">
                                             {fmtMoney(row.tdsDeducted)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <StatusPill status={row.status} />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <RecordDeductionButton
                                                 suggestedAmount={remaining}
                                                 vendorName={row.vendorName}
                                             />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 );
                             })
                         )}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             </div>
 

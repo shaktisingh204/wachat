@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -46,7 +35,7 @@ interface BulkBroadcastFormProps {
 
 export function BulkBroadcastForm({ targetProjects }: BulkBroadcastFormProps) {
   const [state, formAction] = useFormState(handleBulkBroadcast as any, initialState as any);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [file, setFile] = useState<File | null>(null);
 
@@ -73,15 +62,15 @@ export function BulkBroadcastForm({ targetProjects }: BulkBroadcastFormProps) {
           name="projectIds"
           value={targetProjects.map((p) => p._id.toString()).join(',')}
         />
-        <ZoruCardHeader>
-          <ZoruCardTitle>Bulk Broadcast from File</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Bulk Broadcast from File</CardTitle>
+          <CardDescription>
             Upload a single contact file. The contacts will be evenly distributed and sent from
             all {targetProjects.length} selected project
             {targetProjects.length === 1 ? '' : 's'}.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="templateName">Template name</Label>
             <Input
@@ -118,10 +107,10 @@ export function BulkBroadcastForm({ targetProjects }: BulkBroadcastFormProps) {
               A CSV or XLSX file. The first column must be the phone number.
             </p>
           </div>
-        </ZoruCardContent>
-        <ZoruCardFooter>
+        </CardBody>
+        <CardFooter>
           <SubmitButton disabled={!file} />
-        </ZoruCardFooter>
+        </CardFooter>
       </form>
     </Card>
   );

@@ -2,27 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Button, 
-  Input, 
-  Label, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createBankRecon, updateBankRecon, deleteBankRecon, BankRecon } from '@/app/actions/finance/bank-reconciliation.actions';
@@ -224,28 +204,28 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
 
       <div className="rounded-md border bg-white overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>AccountId</TableHead><TableHead>StatementDate</TableHead><TableHead>StatementBalance</TableHead><TableHead>BookBalance</TableHead><TableHead>Status</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <THead>
+            <Tr>
+              <Th>AccountId</Th><Th>StatementDate</Th><Th>StatementBalance</Th><Th>BookBalance</Th><Th>Status</Th>
+              <Th className="w-[80px]"></Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredItems.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+              <Tr>
+                <Td colSpan={6} className="h-24 text-center">
                   No results.
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ) : (
               filteredItems.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell>{String(item.accountId ?? '')}</TableCell>
-                  <TableCell>{item.statementDate ? fmtDate(new Date(item.statementDate)) : ''}</TableCell>
-                  <TableCell>{fmtINR(Number(item.statementBalance || 0))}</TableCell>
-                  <TableCell>{fmtINR(Number(item.bookBalance || 0))}</TableCell>
-                  <TableCell>{String(item.status ?? '')}</TableCell>
-                  <TableCell>
+                <Tr key={item._id}>
+                  <Td>{String(item.accountId ?? '')}</Td>
+                  <Td>{item.statementDate ? fmtDate(new Date(item.statementDate)) : ''}</Td>
+                  <Td>{fmtINR(Number(item.statementBalance || 0))}</Td>
+                  <Td>{fmtINR(Number(item.bookBalance || 0))}</Td>
+                  <Td>{String(item.status ?? '')}</Td>
+                  <Td>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -261,11 +241,11 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </TableBody>
+          </TBody>
         </Table>
       </div>
 

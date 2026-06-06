@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { Button, Input, Textarea, Label, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Label, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { FileText, File as FileIcon, Copy, Loader2, UploadCloud, X } from 'lucide-react';
 import md5 from 'md5';
@@ -170,7 +170,7 @@ export default function HashGeneratorPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card>
-            <ZoruCardContent className="p-6 space-y-4">
+            <CardBody className="p-6 space-y-4">
               <div className="flex items-center gap-4 border-b pb-4">
                 <Button 
                   variant={inputMode === 'text' ? 'default' : 'outline'}
@@ -240,7 +240,7 @@ export default function HashGeneratorPage() {
                   )}
                 </div>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {error && (
@@ -251,7 +251,7 @@ export default function HashGeneratorPage() {
 
           {hashResult && (
             <Card className="border-primary/50 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <ZoruCardContent className="p-6">
+              <CardBody className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <Label className="text-lg font-semibold text-[var(--st-text)]">Result ({algo}{opMode === 'hmac' ? ' HMAC' : ''})</Label>
                   <Button variant="secondary" size="sm" onClick={copyToClipboard}>
@@ -262,14 +262,14 @@ export default function HashGeneratorPage() {
                 <div className="bg-[var(--st-bg-muted)] p-4 rounded-md break-all font-mono text-sm border">
                   {hashResult}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
         </div>
 
         <div className="space-y-6">
           <Card>
-            <ZoruCardContent className="p-6 space-y-6">
+            <CardBody className="p-6 space-y-6">
               <div className="space-y-2">
                 <Label>Operation Mode</Label>
                 <div className="flex gap-2">
@@ -337,7 +337,7 @@ export default function HashGeneratorPage() {
                   )}
                 </Button>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

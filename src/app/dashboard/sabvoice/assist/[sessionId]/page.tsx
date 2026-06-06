@@ -3,15 +3,7 @@
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  Button,
-  Card,
-  Badge,
-  Input,
-  Label,
-  Alert,
-  ZoruAlertDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Badge, Input, Label, Alert, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ScreenShare,
@@ -204,7 +196,7 @@ export default function SabassistTechnicianConsolePage() {
 
       {error && (
         <Alert variant="destructive" className="mb-4">
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 

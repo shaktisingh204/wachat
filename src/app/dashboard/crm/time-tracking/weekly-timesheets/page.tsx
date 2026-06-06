@@ -1,43 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, Textarea, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState } from 'react';
 import {
   CalendarRange,
@@ -110,41 +73,41 @@ function TableSkeleton() {
   return (
     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-            <ZoruTableHead className="w-10"><div className="h-4 w-4 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableHead>
-            <ZoruTableHead>Employee</ZoruTableHead>
-            <ZoruTableHead>Week of</ZoruTableHead>
-            <ZoruTableHead>Week end</ZoruTableHead>
-            <ZoruTableHead className="text-right">Total</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead>Submitted at</ZoruTableHead>
-            <ZoruTableHead>Approver</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+        <THead>
+          <Tr className="border-[var(--st-border)] hover:bg-transparent">
+            <Th className="w-10"><div className="h-4 w-4 rounded bg-[var(--st-bg-muted)] animate-pulse" /></Th>
+            <Th>Employee</Th>
+            <Th>Week of</Th>
+            <Th>Week end</Th>
+            <Th className="text-right">Total</Th>
+            <Th>Status</Th>
+            <Th>Submitted at</Th>
+            <Th>Approver</Th>
+            <Th className="text-right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {[1, 2, 3, 4, 5].map((i) => (
-            <ZoruTableRow key={i} className="border-[var(--st-border)]">
-              <ZoruTableCell><div className="h-4 w-4 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-6 w-24 rounded-full bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-4 w-20 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-4 w-20 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell className="text-right"><div className="ml-auto h-4 w-12 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-5 w-16 rounded-full bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-4 w-24 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-6 w-24 rounded-full bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell className="text-right"><div className="ml-auto h-8 w-8 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
-            </ZoruTableRow>
+            <Tr key={i} className="border-[var(--st-border)]">
+              <Td><div className="h-4 w-4 rounded bg-[var(--st-bg-muted)] animate-pulse" /></Td>
+              <Td><div className="h-6 w-24 rounded-full bg-[var(--st-bg-muted)] animate-pulse" /></Td>
+              <Td><div className="h-4 w-20 rounded bg-[var(--st-bg-muted)] animate-pulse" /></Td>
+              <Td><div className="h-4 w-20 rounded bg-[var(--st-bg-muted)] animate-pulse" /></Td>
+              <Td className="text-right"><div className="ml-auto h-4 w-12 rounded bg-[var(--st-bg-muted)] animate-pulse" /></Td>
+              <Td><div className="h-5 w-16 rounded-full bg-[var(--st-bg-muted)] animate-pulse" /></Td>
+              <Td><div className="h-4 w-24 rounded bg-[var(--st-bg-muted)] animate-pulse" /></Td>
+              <Td><div className="h-6 w-24 rounded-full bg-[var(--st-bg-muted)] animate-pulse" /></Td>
+              <Td className="text-right"><div className="ml-auto h-8 w-8 rounded bg-[var(--st-bg-muted)] animate-pulse" /></Td>
+            </Tr>
           ))}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </div>
   );
 }
 
 export default function WeeklyTimesheetsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   const {
     rows, loading, initialLoading, searchRaw, handleSearch,
@@ -215,16 +178,16 @@ export default function WeeklyTimesheetsPage() {
         filters={
           <>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <ZoruSelectTrigger className="h-9 w-[130px] text-[13px]">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                <ZoruSelectItem value="submitted">Submitted</ZoruSelectItem>
-                <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
-                <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[130px] text-[13px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="submitted">Submitted</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
             </Select>
             <Input
               value={employeeFilter}
@@ -309,26 +272,26 @@ export default function WeeklyTimesheetsPage() {
               <Button variant="outline" size="sm" disabled={bulkPending} onClick={handleBulkReject}>
                 <XCircle className="mr-1.5 h-3.5 w-3.5" /> Reject
               </Button>
-              <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+              <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
                 <Button variant="destructive" size="sm" disabled={bulkPending} onClick={() => setBulkDeleteOpen(true)}>
                   <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete selected
                 </Button>
-                <ZoruAlertDialogContent>
-                  <ZoruAlertDialogHeader>
-                    <ZoruAlertDialogTitle>Delete {selectedIds.length} timesheet(s)?</ZoruAlertDialogTitle>
-                    <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete {selectedIds.length} timesheet(s)?</AlertDialogTitle>
+                    <AlertDialogDescription>
                       This permanently removes the selected timesheets. This action cannot be undone.
-                    </ZoruAlertDialogDescription>
-                  </ZoruAlertDialogHeader>
-                  <ZoruAlertDialogFooter>
-                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                    <ZoruAlertDialogAction onClick={handleBulkDelete} disabled={bulkPending}>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleBulkDelete} disabled={bulkPending}>
                       {bulkPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
                       Delete
-                    </ZoruAlertDialogAction>
-                  </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-              </ZoruAlertDialog>
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
                 Clear selection
               </Button>
@@ -341,9 +304,9 @@ export default function WeeklyTimesheetsPage() {
             <div className="flex flex-col gap-3">
               <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                      <ZoruTableHead className="w-10">
+                  <THead>
+                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                      <Th className="w-10">
                         <Checkbox
                           checked={allChecked}
                           aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
@@ -351,28 +314,28 @@ export default function WeeklyTimesheetsPage() {
                           aria-label="Select all"
                           disabled={rows.length === 0}
                         />
-                      </ZoruTableHead>
-                      <ZoruTableHead>Employee</ZoruTableHead>
-                      <ZoruTableHead>Week of</ZoruTableHead>
-                      <ZoruTableHead>Week end</ZoruTableHead>
-                      <ZoruTableHead className="text-right">Total</ZoruTableHead>
-                      <ZoruTableHead>Status</ZoruTableHead>
-                      <ZoruTableHead>Submitted at</ZoruTableHead>
-                      <ZoruTableHead>Approver</ZoruTableHead>
-                      <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                      </Th>
+                      <Th>Employee</Th>
+                      <Th>Week of</Th>
+                      <Th>Week end</Th>
+                      <Th className="text-right">Total</Th>
+                      <Th>Status</Th>
+                      <Th>Submitted at</Th>
+                      <Th>Approver</Th>
+                      <Th className="text-right">Actions</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {rows.map((r) => (
-                      <ZoruTableRow key={r._id} className="border-[var(--st-border)] transition-colors">
-                        <ZoruTableCell>
+                      <Tr key={r._id} className="border-[var(--st-border)] transition-colors">
+                        <Td>
                           <Checkbox
                             checked={selected.has(r._id)}
                             onCheckedChange={() => toggleOne(r._id)}
                             aria-label={`Select timesheet for ${r.user_id}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           {r.user_id ? (
                             <EntityRowLink
                               href={`/dashboard/crm/time-tracking/weekly-timesheets/${r._id}`}
@@ -381,61 +344,61 @@ export default function WeeklyTimesheetsPage() {
                           ) : (
                             <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">{fmtDate(r.week_start_date)}</ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">{fmtDate(r.week_end_date)}</ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">{fmtHours(r)}</ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">{fmtDate(r.week_start_date)}</Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">{fmtDate(r.week_end_date)}</Td>
+                        <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">{fmtHours(r)}</Td>
+                        <Td>
                           <StatusPill label={r.status} tone={statusToTone(r.status)} />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">{fmtDateTime(r.submitted_at)}</ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">{fmtDateTime(r.submitted_at)}</Td>
+                        <Td>
                           {r.approved_by ? (
                             <EntityPickerChip entity="user" id={String(r.approved_by)} fallback="—" />
                           ) : (
                             <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                               <button type="button" aria-label="Actions" className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]">
                                 <MoreHorizontal className="h-4 w-4" />
                               </button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                              <ZoruDropdownMenuItem asChild>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem asChild>
                                 <Link href={`/dashboard/crm/time-tracking/weekly-timesheets/${r._id}`}>
                                   <Eye className="mr-1.5 h-3.5 w-3.5" /> View
                                 </Link>
-                              </ZoruDropdownMenuItem>
-                              <ZoruDropdownMenuItem onClick={() => setEditTarget(r)}>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setEditTarget(r)}>
                                 <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
-                              </ZoruDropdownMenuItem>
+                              </DropdownMenuItem>
                               {r.status === 'draft' ? (
-                                <ZoruDropdownMenuItem onClick={() => handleSubmit(r._id)}>
+                                <DropdownMenuItem onClick={() => handleSubmit(r._id)}>
                                   <Send className="mr-1.5 h-3.5 w-3.5" /> Submit
-                                </ZoruDropdownMenuItem>
+                                </DropdownMenuItem>
                               ) : null}
                               {r.status === 'submitted' ? (
                                 <>
-                                  <ZoruDropdownMenuItem onClick={() => handleApprove(r._id)}>
+                                  <DropdownMenuItem onClick={() => handleApprove(r._id)}>
                                     <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Approve
-                                  </ZoruDropdownMenuItem>
-                                  <ZoruDropdownMenuItem onClick={() => handleReject(r._id)}>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleReject(r._id)}>
                                     <XCircle className="mr-1.5 h-3.5 w-3.5" /> Reject
-                                  </ZoruDropdownMenuItem>
+                                  </DropdownMenuItem>
                                 </>
                               ) : null}
-                              <ZoruDropdownMenuItem onClick={() => setDeleteId(r._id)} className="text-[var(--st-danger)]">
+                              <DropdownMenuItem onClick={() => setDeleteId(r._id)} className="text-[var(--st-danger)]">
                                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
-                              </ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
                           </DropdownMenu>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
               </div>
               
@@ -489,7 +452,7 @@ interface TimesheetDialogProps {
 }
 
 function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, action] = useActionState(
     async (
       _prev: { message?: string; error?: string; id?: string } | null,
@@ -513,16 +476,16 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
             {initial?._id ? 'Edit timesheet' : 'New timesheet'}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             Pick an employee and the week start/end. Hours are aggregated from
             the daily entries.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <form action={action} className="space-y-3">
           {initial?._id ? (
             <input type="hidden" name="_id" defaultValue={initial._id} />
@@ -588,15 +551,15 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
           <div>
             <Label htmlFor="status">Status</Label>
             <Select name="status" defaultValue={initial?.status ?? 'draft'}>
-              <ZoruSelectTrigger id="status">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                <ZoruSelectItem value="submitted">Submitted</ZoruSelectItem>
-                <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
-                <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger id="status">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="submitted">Submitted</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div>
@@ -611,7 +574,7 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
           {state?.error ? (
             <p className="text-sm text-[var(--st-danger)]">{state.error}</p>
           ) : null}
-          <ZoruDialogFooter className="gap-2">
+          <DialogFooter className="gap-2">
             <Button
               type="button"
               variant="outline"
@@ -622,9 +585,9 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
             <Button type="submit">
               {initial?._id ? 'Save changes' : 'Create timesheet'}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

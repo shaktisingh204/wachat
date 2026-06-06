@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -69,7 +63,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 }
 
 function useCollaborativeEditing(isEditing: boolean, docId?: string) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     useEffect(() => {
         if (!isEditing || !docId) return;
         const interval = setInterval(() => {
@@ -90,7 +84,7 @@ interface SalaryStructureFormProps {
 
 export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     // Collab editing mock

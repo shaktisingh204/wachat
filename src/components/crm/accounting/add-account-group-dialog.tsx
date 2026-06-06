@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { useState, useRef, useEffect, useActionState } from 'react';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { useToast } from "@/hooks/use-toast";
@@ -66,13 +66,13 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-[425px]">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle className="text-[var(--st-text)]">Add Account Group</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle className="text-[var(--st-text)]">Add Account Group</DialogTitle>
+                    <DialogDescription className="text-[var(--st-text-secondary)]">
                         Create a new group for your Chart of Accounts.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
                         <Label htmlFor="name" className="text-[var(--st-text)]">Group Name</Label>
@@ -91,20 +91,20 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
                     <div className="grid gap-2">
                         <Label htmlFor="category" className="text-[var(--st-text)]">Category</Label>
                         <Select name="category" required>
-                            <ZoruSelectTrigger><ZoruSelectValue placeholder="Select Category" /></ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
+                            <SelectContent>
                                 {categoriesByType[selectedType]?.map(cat => (
-                                    <ZoruSelectItem key={cat} value={cat}>{cat.replace(/_/g, ' ')}</ZoruSelectItem>
+                                    <SelectItem key={cat} value={cat}>{cat.replace(/_/g, ' ')}</SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

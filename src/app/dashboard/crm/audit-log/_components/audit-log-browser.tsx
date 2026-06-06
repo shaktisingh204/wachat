@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, StatCard, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';
@@ -435,40 +412,40 @@ export function AuditLogBrowser({
           <Card className="overflow-hidden p-0">
             <div className="overflow-x-auto">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">When</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Actor</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Action</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Entity</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Entity id</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Reason</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Diff</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">IP</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="text-[var(--st-text-secondary)]">When</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Actor</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Action</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Entity</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Entity id</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Reason</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Diff</Th>
+                    <Th className="text-[var(--st-text-secondary)]">IP</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {entries.map((row) => {
                     const tone = ACTION_TONE[String(row.action)] ?? 'neutral';
                     const href = entityHref(row.entityKind, row.entityId);
                     return (
-                      <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
-                        <ZoruTableCell
+                      <Tr key={row._id} className="border-[var(--st-border)]">
+                        <Td
                           className="whitespace-nowrap text-[13px] text-[var(--st-text)]"
                           title={mounted ? formatAbsolute(row.createdAt) : undefined}
                         >
                           {mounted ? formatRelative(row.createdAt) : '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {row.actorName || row.actorId || '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <StatusPill label={String(row.action || '—')} tone={tone} />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <Badge variant="secondary">{row.entityKind || '—'}</Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="font-mono text-[12px] text-[var(--st-text)]">
                           {href ? (
                             <Link href={href} className="hover:underline">
                               {row.entityId}
@@ -476,11 +453,11 @@ export function AuditLogBrowser({
                           ) : (
                             row.entityId || '—'
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="max-w-[260px] truncate text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="max-w-[260px] truncate text-[12.5px] text-[var(--st-text-secondary)]">
                           {row.reason || '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           {row.diff ? (
                             <Button
                               size="sm"
@@ -493,14 +470,14 @@ export function AuditLogBrowser({
                           ) : (
                             <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                           {row.ip || '—'}
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>
@@ -554,20 +531,20 @@ export function AuditLogBrowser({
       </EntityListShell>
 
       <Sheet open={!!drawerRow} onOpenChange={(o) => !o && setDrawerRow(null)}>
-        <ZoruSheetContent className="w-full max-w-2xl overflow-y-auto">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>Audit diff</ZoruSheetTitle>
-            <ZoruSheetDescription>
+        <SheetContent className="w-full max-w-2xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Audit diff</SheetTitle>
+            <SheetDescription>
               {drawerRow ? (
                 <>
                   {drawerRow.action} on {drawerRow.entityKind} ·{' '}
                   {mounted ? formatAbsolute(drawerRow.createdAt) : '—'}
                 </>
               ) : null}
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </SheetDescription>
+          </SheetHeader>
           {drawerRow?.diff ? <DiffView diff={drawerRow.diff} /> : null}
-        </ZoruSheetContent>
+        </SheetContent>
       </Sheet>
     </>
   );
@@ -632,33 +609,33 @@ function AuditFilters({
       <div className="w-44">
         <Label className="text-[11px]">Entity kind</Label>
         <Select value={entityKindFilter} onValueChange={onEntityKindChange}>
-          <ZoruSelectTrigger>
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All entities</ZoruSelectItem>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All entities</SelectItem>
             {ENTITY_KEYS.map((k: EntityKey) => (
-              <ZoruSelectItem key={k} value={k}>
+              <SelectItem key={k} value={k}>
                 {k}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
       </div>
       <div className="w-40">
         <Label className="text-[11px]">Action</Label>
         <Select value={actionFilter} onValueChange={onActionChange}>
-          <ZoruSelectTrigger>
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All actions</ZoruSelectItem>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All actions</SelectItem>
             {ACTION_OPTIONS.map((a) => (
-              <ZoruSelectItem key={a} value={a}>
+              <SelectItem key={a} value={a}>
                 {a}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
       </div>
       <div className="w-36">

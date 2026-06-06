@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   ListChecks,
@@ -106,7 +89,7 @@ function toExportRow(c: ServiceContractRow): ExportRow {
 export function ServiceContractsListClient({
   contracts,
 }: ServiceContractsListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* Filters */
   const [search, setSearch] = React.useState('');
@@ -431,29 +414,29 @@ export function ServiceContractsListClient({
       <Card className="p-0">
         <div className="overflow-x-auto">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-8">
+            <THead>
+              <Tr>
+                <Th className="w-8">
                   <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Contract no.</ZoruTableHead>
-                <ZoruTableHead>Customer</ZoruTableHead>
-                <ZoruTableHead>Coverage</ZoruTableHead>
-                <ZoruTableHead>Start</ZoruTableHead>
-                <ZoruTableHead>End</ZoruTableHead>
-                <ZoruTableHead>Technician</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Contract no.</Th>
+                <Th>Customer</Th>
+                <Th>Coverage</Th>
+                <Th>Start</Th>
+                <Th>End</Th>
+                <Th>Technician</Th>
+                <Th>Status</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={9}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
@@ -465,49 +448,49 @@ export function ServiceContractsListClient({
                     ) : (
                       'No contracts match these filters.'
                     )}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((c) => {
                   const checked = selected.has(c._id);
                   return (
-                    <ZoruTableRow key={c._id}>
-                      <ZoruTableCell>
+                    <Tr key={c._id}>
+                      <Td>
                         <Checkbox
                           checked={checked}
                           onCheckedChange={() => toggleOne(c._id)}
                           aria-label={`Select ${c.contractNo ?? c._id}`}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         <EntityRowLink
                           href={`/dashboard/crm/service-contracts/${c._id}`}
                           label={c.contractNo || '—'}
                           subtitle={c.customerName || undefined}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {c.customerName || c.customerId || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {c.coverage || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {formatDate(c.periodStart)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {formatDate(c.periodEnd)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {c.technicianName || c.technicianId || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <StatusPill
                           label={c.status || 'draft'}
                           tone={statusToTone(c.status)}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <Button size="sm" variant="ghost" asChild>
                           <Link
                             href={`/dashboard/crm/service-contracts/${c._id}/edit`}
@@ -515,12 +498,12 @@ export function ServiceContractsListClient({
                             Edit
                           </Link>
                         </Button>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>
@@ -572,16 +555,16 @@ function FilterSelect({
 }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-        <ZoruSelectValue placeholder={placeholder} />
-      </ZoruSelectTrigger>
-      <ZoruSelectContent>
+      <SelectTrigger className="h-9 w-[160px] text-[13px]">
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
         {options.map((opt) => (
-          <ZoruSelectItem key={opt.value} value={opt.value}>
+          <SelectItem key={opt.value} value={opt.value}>
             {opt.label}
-          </ZoruSelectItem>
+          </SelectItem>
         ))}
-      </ZoruSelectContent>
+      </SelectContent>
     </Select>
   );
 }

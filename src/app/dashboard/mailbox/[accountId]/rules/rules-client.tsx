@@ -26,26 +26,7 @@ import type {
     MailRuleDoc,
 } from '@/lib/rust-client/mail-rules';
 import type { MailFolderDoc } from '@/lib/rust-client/mail-folders';
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    EmptyState,
-    Input,
-    Label,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    Separator,
-    Switch,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 
 const FIELDS: { id: MailRuleConditionField; label: string }[] = [
     { id: 'from', label: 'From' },
@@ -91,7 +72,7 @@ export function RulesClient({
     folders,
 }: RulesClientProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [name, setName] = React.useState('');
     const [matchMode, setMatchMode] = React.useState<'all' | 'any'>('all');
@@ -172,16 +153,16 @@ export function RulesClient({
     return (
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4">
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
                         <Filter className="h-4 w-4" />
                         New rule
-                    </ZoruCardTitle>
-                    <ZoruCardDescription>
+                    </CardTitle>
+                    <CardDescription>
                         When conditions match, run the listed actions on incoming mail.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-4">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="flex flex-col gap-4">
                     <div className="grid gap-3 sm:grid-cols-2">
                         <div className="flex flex-col gap-1.5">
                             <Label htmlFor="rule-name">Name</Label>
@@ -408,7 +389,7 @@ export function RulesClient({
                             {submitting ? 'Saving…' : 'Save rule'}
                         </Button>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {initialRules.length === 0 ? (
@@ -424,7 +405,7 @@ export function RulesClient({
                         const busy = busyId === id;
                         return (
                             <Card key={id}>
-                                <ZoruCardContent className="flex flex-col gap-2 p-4">
+                                <CardBody className="flex flex-col gap-2 p-4">
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <div className="min-w-0">
                                             <div className="flex items-center gap-2">
@@ -466,7 +447,7 @@ export function RulesClient({
                                             </Button>
                                         </div>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         );
                     })}

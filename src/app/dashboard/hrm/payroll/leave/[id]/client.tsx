@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Badge, Button, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, Badge, Button, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   use,
   useEffect,
@@ -16,17 +16,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/sabcrm/20ui/compat';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -63,7 +53,7 @@ export default function LeaveDetailClient({
   initialEmployees: EmployeeLite[];
   initialFiles: WsLeaveFile[];
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [leave, setLeave] = useState<WsLeave | null>(initialLeave);
   const [type, setType] = useState<WsLeaveType | null>(
     initialLeave ? initialTypes.find((x) => String(x._id) === String(initialLeave.leave_type_id)) || null : null
@@ -288,43 +278,43 @@ export default function LeaveDetailClient({
 
             {leave.status === 'pending' ? (
               <div className="mt-6 flex flex-wrap gap-3 border-t border-[var(--st-border)] pt-4">
-                <ZoruAlertDialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
-                  <ZoruAlertDialogTrigger asChild>
+                <AlertDialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
+                  <AlertDialogTrigger asChild>
                     <Button type="button" disabled={isActing}>
                       <Check className="mr-2 h-4 w-4" />
                       Approve
                     </Button>
-                  </ZoruAlertDialogTrigger>
-                  <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                      <ZoruAlertDialogTitle>Approve Leave Request</ZoruAlertDialogTitle>
-                      <ZoruAlertDialogDescription>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Approve Leave Request</AlertDialogTitle>
+                      <AlertDialogDescription>
                         Are you sure you want to approve this leave request? This will deduct from the employee's balance and notify them.
-                      </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                      <ZoruAlertDialogCancel disabled={isActing}>Cancel</ZoruAlertDialogCancel>
-                      <ZoruAlertDialogAction onClick={handleApprove} disabled={isActing}>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={isActing}>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleApprove} disabled={isActing}>
                         Yes, Approve
-                      </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                  </ZoruAlertDialogContent>
-                </ZoruAlertDialog>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
 
-                <ZoruAlertDialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
-                  <ZoruAlertDialogTrigger asChild>
+                <AlertDialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+                  <AlertDialogTrigger asChild>
                     <Button type="button" variant="outline" disabled={isActing}>
                       <X className="mr-2 h-4 w-4" />
                       Reject
                     </Button>
-                  </ZoruAlertDialogTrigger>
-                  <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                      <ZoruAlertDialogTitle>Reject Leave Request</ZoruAlertDialogTitle>
-                      <ZoruAlertDialogDescription>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Reject Leave Request</AlertDialogTitle>
+                      <AlertDialogDescription>
                         Please provide a reason for rejecting this leave application.
-                      </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
                     <div className="my-4">
                       <Label htmlFor="rejectReason" className="text-[var(--st-text)]">Rejection Reason</Label>
                       <Textarea
@@ -336,14 +326,14 @@ export default function LeaveDetailClient({
                         placeholder="Why is this being rejected?"
                       />
                     </div>
-                    <ZoruAlertDialogFooter>
-                      <ZoruAlertDialogCancel disabled={isActing}>Cancel</ZoruAlertDialogCancel>
-                      <ZoruAlertDialogAction destructive onClick={handleReject} disabled={isActing || !rejectReason.trim()}>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={isActing}>Cancel</AlertDialogCancel>
+                      <AlertDialogAction destructive onClick={handleReject} disabled={isActing || !rejectReason.trim()}>
                         Reject Leave
-                      </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                  </ZoruAlertDialogContent>
-                </ZoruAlertDialog>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             ) : null}
           </Card>
@@ -368,8 +358,8 @@ export default function LeaveDetailClient({
                       <Paperclip className="h-4 w-4 text-[var(--st-text-secondary)]" />
                       {f.filename}
                     </a>
-                    <ZoruAlertDialog>
-                      <ZoruAlertDialogTrigger asChild>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
                         <Button
                           variant="outline"
                           onClick={() => setFileToDelete(String(f._id))}
@@ -378,22 +368,22 @@ export default function LeaveDetailClient({
                           <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                           Delete
                         </Button>
-                      </ZoruAlertDialogTrigger>
-                      <ZoruAlertDialogContent>
-                        <ZoruAlertDialogHeader>
-                          <ZoruAlertDialogTitle>Delete Attachment</ZoruAlertDialogTitle>
-                          <ZoruAlertDialogDescription>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Attachment</AlertDialogTitle>
+                          <AlertDialogDescription>
                             Are you sure you want to delete this attachment? This action cannot be undone.
-                          </ZoruAlertDialogDescription>
-                        </ZoruAlertDialogHeader>
-                        <ZoruAlertDialogFooter>
-                          <ZoruAlertDialogCancel onClick={() => setFileToDelete(null)}>Cancel</ZoruAlertDialogCancel>
-                          <ZoruAlertDialogAction destructive onClick={confirmDeleteFile} disabled={isActing}>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel onClick={() => setFileToDelete(null)}>Cancel</AlertDialogCancel>
+                          <AlertDialogAction destructive onClick={confirmDeleteFile} disabled={isActing}>
                             Delete
-                          </ZoruAlertDialogAction>
-                        </ZoruAlertDialogFooter>
-                      </ZoruAlertDialogContent>
-                    </ZoruAlertDialog>
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </li>
                 ))}
               </ul>

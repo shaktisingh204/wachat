@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Label,
-  Button,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Input,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Separator,
-  ScrollArea,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Input, RadioGroup, ZoruRadioGroupItem, Separator, ScrollArea } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState } from 'react';
 import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions';
 import { Plus, Trash2 } from 'lucide-react';
@@ -54,12 +37,12 @@ const DelayEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => v
          <div className="space-y-2">
             <Label>Unit</Label>
             <Select value={data.delayUnit || 'days'} onValueChange={(val) => onUpdate({ ...data, delayUnit: val })}>
-                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="minutes">Minutes</ZoruSelectItem>
-                    <ZoruSelectItem value="hours">Hours</ZoruSelectItem>
-                    <ZoruSelectItem value="days">Days</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="minutes">Minutes</SelectItem>
+                    <SelectItem value="hours">Hours</SelectItem>
+                    <SelectItem value="days">Days</SelectItem>
+                </SelectContent>
             </Select>
         </div>
     </div>
@@ -76,12 +59,12 @@ const SendEmailEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) 
         <div className="space-y-2">
             <Label>Email Template</Label>
             <Select value={data.templateId || ''} onValueChange={(val) => onUpdate({ ...data, templateId: val })}>
-                <ZoruSelectTrigger><ZoruSelectValue placeholder="Select an email template..." /></ZoruSelectTrigger>
-                <ZoruSelectContent {...({ searchable: true } as any)}>
+                <SelectTrigger><SelectValue placeholder="Select an email template..." /></SelectTrigger>
+                <SelectContent {...({ searchable: true } as any)}>
                     {templates.map(template => (
-                        <ZoruSelectItem key={template._id.toString()} value={template._id.toString()}>{template.name}</ZoruSelectItem>
+                        <SelectItem key={template._id.toString()} value={template._id.toString()}>{template.name}</SelectItem>
                     ))}
-                </ZoruSelectContent>
+                </SelectContent>
             </Select>
         </div>
     )
@@ -141,12 +124,12 @@ const ConditionEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) 
                             <Trash2 className="h-4 w-4 text-[var(--st-text)]"/>
                         </Button>
                         <Select value={rule.field} onValueChange={(val) => handleRuleChange(index, 'field', val)}>
-                            <ZoruSelectTrigger><ZoruSelectValue placeholder="Select a field..."/></ZoruSelectTrigger>
-                            <ZoruSelectContent><ZoruSelectItem value="contact.status">Contact Status</ZoruSelectItem><ZoruSelectItem value="contact.tag">Contact Tag</ZoruSelectItem></ZoruSelectContent>
+                            <SelectTrigger><SelectValue placeholder="Select a field..."/></SelectTrigger>
+                            <SelectContent><SelectItem value="contact.status">Contact Status</SelectItem><SelectItem value="contact.tag">Contact Tag</SelectItem></SelectContent>
                         </Select>
                         <Select value={rule.operator} onValueChange={(val) => handleRuleChange(index, 'operator', val)}>
-                            <ZoruSelectTrigger><ZoruSelectValue placeholder="Select operator..."/></ZoruSelectTrigger>
-                            <ZoruSelectContent><ZoruSelectItem value="equals">Equals</ZoruSelectItem><ZoruSelectItem value="not_equals">Does not equal</ZoruSelectItem><ZoruSelectItem value="contains">Contains</ZoruSelectItem></ZoruSelectContent>
+                            <SelectTrigger><SelectValue placeholder="Select operator..."/></SelectTrigger>
+                            <SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Does not equal</SelectItem><SelectItem value="contains">Contains</SelectItem></SelectContent>
                         </Select>
                         <Input placeholder="Value" value={rule.value} onChange={(e) => handleRuleChange(index, 'value', e.target.value)} />
                     </div>

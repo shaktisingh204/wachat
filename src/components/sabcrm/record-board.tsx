@@ -52,16 +52,7 @@
 import * as React from 'react';
 import { GripVertical, LayoutGrid, Plus, RefreshCw } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  ScrollArea,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, ScrollArea, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   groupRecordsAction,
   updateRecordAction,
@@ -174,7 +165,7 @@ export function RecordBoard({
   refreshToken = 0,
   className,
 }: RecordBoardProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const toastRef = React.useRef(toast);
   React.useEffect(() => {
     toastRef.current = toast;

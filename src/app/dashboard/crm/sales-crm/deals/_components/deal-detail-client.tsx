@@ -2,11 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Badge,
-  Button,
-  Card,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card } from '@/components/sabcrm/20ui/compat';
 import {
   Handshake,
   ListChecks,

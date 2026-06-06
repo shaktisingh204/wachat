@@ -1,37 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Switch,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Card,
-  Slider,
-  Tabs,
-  ZoruTabsList as TabsList,
-  ZoruTabsTrigger as TabsTrigger,
-  ZoruTabsContent as TabsContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Switch, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Card, Slider, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
 import {
   DndContext,
   DragEndEvent,
@@ -106,20 +75,20 @@ const defaultFields: FormField[] = [
 function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
     return (
         <Dialog>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed</Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="sm:max-w-2xl overflow-hidden">
-                 <ZoruDialogHeader>
-                    <ZoruDialogTitle>Embed Form on Your Website</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-2xl overflow-hidden">
+                 <DialogHeader>
+                    <DialogTitle>Embed Form on Your Website</DialogTitle>
+                    <DialogDescription>
                         Copy and paste this code snippet where you want the form to appear on your website.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                  <div className="py-4">
                     <CodeBlock code={embedScript} language="html" />
                 </div>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -488,18 +457,18 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                         <h2 className="text-sm font-semibold text-[var(--st-text)]">Fields on this page</h2>
                         <p className="text-xs text-[var(--st-text-secondary)]">Drag to reorder. Use the chevron to push a field to the next page.</p>
                          <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm" className="w-full">
                                     <Plus className="mr-2 h-4 w-4"/>Add Field
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
                                 {availableFieldTypes.map(field => (
-                                     <ZoruDropdownMenuItem key={field.type} onSelect={() => addField(field.type)}>
+                                     <DropdownMenuItem key={field.type} onSelect={() => addField(field.type)}>
                                         {field.label}
-                                     </ZoruDropdownMenuItem>
+                                     </DropdownMenuItem>
                                 ))}
-                            </ZoruDropdownMenuContent>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
                             <SortableContext items={fields.map(f => f.id)} strategy={verticalListSortingStrategy}>
@@ -561,15 +530,15 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                             </TabsList>
                             <TabsContent value="general" className="mt-4">
                                 <Accordion type="multiple" className="w-full" defaultValue={['general_settings']}>
-                                    <ZoruAccordionItem value="general_settings">
-                                        <ZoruAccordionTrigger>General Settings</ZoruAccordionTrigger>
-                                        <ZoruAccordionContent className="space-y-4 pt-2">
+                                    <AccordionItem value="general_settings">
+                                        <AccordionTrigger>General Settings</AccordionTrigger>
+                                        <AccordionContent className="space-y-4 pt-2">
                                             <div className="space-y-2"><Label>Form Title</Label><Input value={(settings.title as string) || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} /></div>
                                             <div className="space-y-2"><Label>Form Description</Label><Textarea value={(settings.description as string) || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} /></div>
                                             <div className="space-y-2"><Label>Submit Button Text</Label><Input value={(settings.submitButtonText as string) || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></div>
                                             <div className="space-y-2"><Label>Footer Text (HTML allowed)</Label><Textarea value={(settings.footerText as string) || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} /></div>
-                                        </ZoruAccordionContent>
-                                    </ZoruAccordionItem>
+                                        </AccordionContent>
+                                    </AccordionItem>
                                 </Accordion>
                             </TabsContent>
                             <TabsContent value="style" className="mt-4">
@@ -600,13 +569,13 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                             value={theme.fontFamily || 'system'}
                                             onValueChange={(v) => setTheme({ fontFamily: v as ThemeSettings['fontFamily'] })}
                                         >
-                                            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                            <ZoruSelectContent>
-                                                <ZoruSelectItem value="system">System</ZoruSelectItem>
-                                                <ZoruSelectItem value="inter">Inter</ZoruSelectItem>
-                                                <ZoruSelectItem value="roboto">Roboto</ZoruSelectItem>
-                                                <ZoruSelectItem value="serif">Serif</ZoruSelectItem>
-                                            </ZoruSelectContent>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="system">System</SelectItem>
+                                                <SelectItem value="inter">Inter</SelectItem>
+                                                <SelectItem value="roboto">Roboto</SelectItem>
+                                                <SelectItem value="serif">Serif</SelectItem>
+                                            </SelectContent>
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
@@ -670,9 +639,9 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                     </div>
 
                                     <Accordion type="multiple">
-                                        <ZoruAccordionItem value="email">
-                                            <ZoruAccordionTrigger>Email notifications</ZoruAccordionTrigger>
-                                            <ZoruAccordionContent className="space-y-3 pt-2">
+                                        <AccordionItem value="email">
+                                            <AccordionTrigger>Email notifications</AccordionTrigger>
+                                            <AccordionContent className="space-y-3 pt-2">
                                                 <div className="flex items-center gap-2">
                                                     <Switch
                                                         checked={emailNotifications.enabled}
@@ -702,11 +671,11 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                                         placeholder="Use {{fieldId}} for placeholders, e.g. New lead from {{name}} ({{email}})"
                                                     />
                                                 </div>
-                                            </ZoruAccordionContent>
-                                        </ZoruAccordionItem>
-                                        <ZoruAccordionItem value="webhook">
-                                            <ZoruAccordionTrigger>Webhook</ZoruAccordionTrigger>
-                                            <ZoruAccordionContent className="space-y-3 pt-2">
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                        <AccordionItem value="webhook">
+                                            <AccordionTrigger>Webhook</AccordionTrigger>
+                                            <AccordionContent className="space-y-3 pt-2">
                                                 <div className="flex items-center gap-2">
                                                     <Switch
                                                         checked={webhook.enabled}
@@ -730,11 +699,11 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                                         placeholder="Used for HMAC-SHA256 in X-Form-Webhook-Signature"
                                                     />
                                                 </div>
-                                            </ZoruAccordionContent>
-                                        </ZoruAccordionItem>
-                                        <ZoruAccordionItem value="auto">
-                                            <ZoruAccordionTrigger>Auto-create in CRM</ZoruAccordionTrigger>
-                                            <ZoruAccordionContent className="space-y-3 pt-2">
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                        <AccordionItem value="auto">
+                                            <AccordionTrigger>Auto-create in CRM</AccordionTrigger>
+                                            <AccordionContent className="space-y-3 pt-2">
                                                 <div className="flex items-center gap-2">
                                                     <Switch
                                                         checked={autoCreate.lead}
@@ -763,19 +732,19 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                                                     },
                                                                 })}
                                                             >
-                                                                <ZoruSelectTrigger className="h-8"><ZoruSelectValue placeholder="Auto"/></ZoruSelectTrigger>
-                                                                <ZoruSelectContent>
-                                                                    <ZoruSelectItem value="__auto__">Auto (use same name)</ZoruSelectItem>
+                                                                <SelectTrigger className="h-8"><SelectValue placeholder="Auto"/></SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="__auto__">Auto (use same name)</SelectItem>
                                                                     {flatFields.map(f => (
-                                                                        <ZoruSelectItem key={f.id} value={f.fieldId || f.id}>{f.label}</ZoruSelectItem>
+                                                                        <SelectItem key={f.id} value={f.fieldId || f.id}>{f.label}</SelectItem>
                                                                     ))}
-                                                                </ZoruSelectContent>
+                                                                </SelectContent>
                                                             </Select>
                                                         </div>
                                                     ))}
                                                 </div>
-                                            </ZoruAccordionContent>
-                                        </ZoruAccordionItem>
+                                            </AccordionContent>
+                                        </AccordionItem>
                                     </Accordion>
                                 </div>
                             </TabsContent>

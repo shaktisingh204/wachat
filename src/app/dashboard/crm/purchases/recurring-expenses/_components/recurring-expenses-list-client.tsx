@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import {
   Download,
@@ -118,7 +112,7 @@ export function RecurringExpensesListClient({
   initialQuery = '',
 }: ListClientProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [pending, startTransition] = React.useTransition();
 
   const [query, setQuery] = React.useState(initialQuery);

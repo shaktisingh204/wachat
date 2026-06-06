@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Textarea, Alert, ZoruAlertTitle, ZoruAlertDescription, Label } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Alert, AlertTitle, AlertDescription, Label } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState, useRef } from 'react';
 import Papa from 'papaparse';
 import { Info, Upload, Download } from 'lucide-react';
@@ -97,11 +97,11 @@ export default function SitemapGeneratorPage() {
     <ToolShell title="XML Sitemap Generator" description="Generate a sitemap.xml with image and video support.">
       <Alert variant="info" className="mb-6">
         <Info className="w-4 h-4" />
-        <ZoruAlertTitle>Manual Builder</ZoruAlertTitle>
-        <ZoruAlertDescription>
+        <AlertTitle>Manual Builder</AlertTitle>
+        <AlertDescription>
           This tool does not crawl your website. You must provide the URLs manually or import them via a CSV file.
           <br/>You can paste a simple list of URLs (one per line) or a CSV with headers: <code className="bg-[var(--st-bg-secondary)] px-1.5 py-0.5 rounded-md border text-xs">loc, changefreq, priority, image, video</code>.
-        </ZoruAlertDescription>
+        </AlertDescription>
       </Alert>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

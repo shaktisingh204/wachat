@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Progress,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   Check,
@@ -199,7 +186,7 @@ export function SabFilePicker({
     // dropped here AND files added in another tab both appear.
     const [refreshTick, setRefreshTick] = React.useState(0);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     // Keep toast in a ref so the library effect doesn't re-fire on every
     // render just because the hook returned a new function reference.
     const toastRef = React.useRef(toast);
@@ -422,17 +409,17 @@ export function SabFilePicker({
                 SabCRM create dialog at z-index 1000). A file picker must always
                 sit on top of whatever invoked it, so we raise its content +
                 backdrop above app-level modal overlays. */}
-            <ZoruDialogContent
+            <DialogContent
                 className="z-[1300] flex max-h-[85vh] max-w-4xl flex-col gap-0 overflow-hidden p-0"
                 overlayClassName="z-[1290]"
             >
                 <div className="flex flex-col gap-3 border-b border-[var(--st-border)] p-5">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>{title}</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                    <DialogHeader>
+                        <DialogTitle>{title}</DialogTitle>
+                        <DialogDescription>
                             Pick a file from your SabFiles library or upload a new one.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
 
                     <div className="inline-flex w-fit items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
                         <ModeButton
@@ -721,7 +708,7 @@ export function SabFilePicker({
                     )}
                 </div>
 
-                <ZoruDialogFooter className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 px-5 py-3">
+                <DialogFooter className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 px-5 py-3">
                     <div className="mr-auto flex items-center text-xs text-[var(--st-text-secondary)]">
                         {selectedId
                             ? `1 file selected`
@@ -737,8 +724,8 @@ export function SabFilePicker({
                     <Button onClick={onConfirmPick} disabled={!selectedId}>
                         Use this file
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

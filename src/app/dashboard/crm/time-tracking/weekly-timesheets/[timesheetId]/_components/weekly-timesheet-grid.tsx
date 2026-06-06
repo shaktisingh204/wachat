@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useMemo,
@@ -92,7 +78,7 @@ interface WeeklyTimesheetGridProps {
 
 export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimesheetGridProps) {
   const [initialTs, initialEntries] = use(dataPromise);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   const [ts, setTs] = useState<WsWeeklyTimesheet | null>(initialTs);
   const [entries, setEntries] = useState<WsWeeklyTimesheetEntry[]>(initialEntries);
@@ -473,13 +459,13 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
           }
         }}
       >
-        <ZoruDialogContent className="max-w-md">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-[var(--st-text)]">Reject timesheet</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-[var(--st-text)]">Reject timesheet</DialogTitle>
+            <DialogDescription className="text-[var(--st-text-secondary)]">
               Give a reason so the employee can revise and resubmit.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Textarea
             rows={4}
             value={rejectReason}
@@ -487,7 +473,7 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
             placeholder="Reason…"
             className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
           />
-          <ZoruDialogFooter className="gap-2">
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               onClick={() => {
@@ -498,8 +484,8 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
               Cancel
             </Button>
             <Button onClick={handleReject}>Reject</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityDetailShell>
   );

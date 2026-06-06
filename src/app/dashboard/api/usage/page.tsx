@@ -3,26 +3,7 @@ import {
   getUsageTop,
   getUsageByKey,
 } from '@/app/actions/developer-platform.actions';
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Breadcrumb,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbSeparator,
-  ZoruBreadcrumbPage,
-  Card,
-  StatCard,
-  Table,
-  ZoruTableHeader,
-  ZoruTableHead,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableCell,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage, Card, StatCard, Table, THead, Th, TBody, Tr, Td } from '@/components/sabcrm/20ui/compat';
 import Link from 'next/link';
 import { format } from 'date-fns';
 
@@ -53,27 +34,27 @@ export default async function UsagePage(): Promise<JSX.Element> {
   return (
     <div className="flex min-h-full flex-col gap-6">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Usage analytics</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/api">Developer platform</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Usage analytics</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Usage analytics</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Usage analytics</PageTitle>
+          <PageDescription>
             Aggregated over the last 24 hours. Raw entries live in{' '}
             <Link href="/dashboard/api/logs" className="underline underline-offset-2">
               /dashboard/api/logs
             </Link>.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -90,36 +71,36 @@ export default async function UsagePage(): Promise<JSX.Element> {
         <h2 className="text-base font-semibold text-[var(--st-text)]">Top endpoints</h2>
         <Card>
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Endpoint</ZoruTableHead>
-                <ZoruTableHead>Requests</ZoruTableHead>
-                <ZoruTableHead>Errors</ZoruTableHead>
-                <ZoruTableHead>Avg latency</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Endpoint</Th>
+                <Th>Requests</Th>
+                <Th>Errors</Th>
+                <Th>Avg latency</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {topRes.rows.length > 0 ? (
                 topRes.rows.map((r, i) => (
-                  <ZoruTableRow key={i}>
-                    <ZoruTableCell className="font-mono text-xs text-[var(--st-text)]">
+                  <Tr key={i}>
+                    <Td className="font-mono text-xs text-[var(--st-text)]">
                       {r.method} {r.path}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text)]">{r.count.toLocaleString('en-US')}</ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">
+                    </Td>
+                    <Td className="text-[var(--st-text)]">{r.count.toLocaleString('en-US')}</Td>
+                    <Td className="text-[var(--st-text-secondary)] text-xs">
                       {r.errorCount} ({pct(r.errorCount, r.count)})
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">{Math.round(r.avgLatencyMs)} ms</ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                    <Td className="text-[var(--st-text-secondary)] text-xs">{Math.round(r.avgLatencyMs)} ms</Td>
+                  </Tr>
                 ))
               ) : (
-                <ZoruTableRow>
-                  <ZoruTableCell colSpan={4} className="text-center text-[var(--st-text-secondary)] py-6 text-sm">
+                <Tr>
+                  <Td colSpan={4} className="text-center text-[var(--st-text-secondary)] py-6 text-sm">
                     No data yet for the selected window.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       </section>
@@ -128,38 +109,38 @@ export default async function UsagePage(): Promise<JSX.Element> {
         <h2 className="text-base font-semibold text-[var(--st-text)]">By key</h2>
         <Card>
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Key id</ZoruTableHead>
-                <ZoruTableHead>Type</ZoruTableHead>
-                <ZoruTableHead>Env</ZoruTableHead>
-                <ZoruTableHead>Requests</ZoruTableHead>
-                <ZoruTableHead>Errors</ZoruTableHead>
-                <ZoruTableHead>Last used</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Key id</Th>
+                <Th>Type</Th>
+                <Th>Env</Th>
+                <Th>Requests</Th>
+                <Th>Errors</Th>
+                <Th>Last used</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {keysRes.rows.length > 0 ? (
                 keysRes.rows.map((r) => (
-                  <ZoruTableRow key={r.keyId}>
-                    <ZoruTableCell className="font-mono text-xs text-[var(--st-text)]">{r.keyId}</ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">{r.kind}</ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">{r.env}</ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text)]">{r.count.toLocaleString('en-US')}</ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text-secondary)]">{r.errorCount}</ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
+                  <Tr key={r.keyId}>
+                    <Td className="font-mono text-xs text-[var(--st-text)]">{r.keyId}</Td>
+                    <Td className="text-xs text-[var(--st-text-secondary)]">{r.kind}</Td>
+                    <Td className="text-xs text-[var(--st-text-secondary)]">{r.env}</Td>
+                    <Td className="text-[var(--st-text)]">{r.count.toLocaleString('en-US')}</Td>
+                    <Td className="text-[var(--st-text-secondary)]">{r.errorCount}</Td>
+                    <Td className="text-xs text-[var(--st-text-secondary)]">
                       {r.lastUsedAt ? format(new Date(r.lastUsedAt), 'MMM d, yyyy HH:mm') : '—'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               ) : (
-                <ZoruTableRow>
-                  <ZoruTableCell colSpan={6} className="text-center text-[var(--st-text-secondary)] py-6 text-sm">
+                <Tr>
+                  <Td colSpan={6} className="text-center text-[var(--st-text-secondary)] py-6 text-sm">
                     No data yet.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       </section>

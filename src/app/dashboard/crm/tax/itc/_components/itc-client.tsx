@@ -14,16 +14,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Download, Loader2, X } from 'lucide-react';
 
-import {
-    Button,
-    Checkbox,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
 import { bulkReconcileMismatched } from '@/app/actions/crm-india-itc.actions';
@@ -116,23 +107,23 @@ function MatchedTable({ rows, period }: { rows: ItcReconciliationMatched[]; peri
             </div>
             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Supplier</ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Invoice #</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Book ITC</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">2B ITC</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Delta</ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Match</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                    <THead>
+                        <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                            <Th className="text-[var(--st-text-secondary)]">Supplier</Th>
+                            <Th className="text-[var(--st-text-secondary)]">Invoice #</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">Book ITC</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">2B ITC</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">Delta</Th>
+                            <Th className="text-[var(--st-text-secondary)]">Match</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {rows.length === 0 ? (
-                            <ZoruTableRow className="border-[var(--st-border)]">
-                                <ZoruTableCell colSpan={6} className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]">
+                            <Tr className="border-[var(--st-border)]">
+                                <Td colSpan={6} className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]">
                                     No matches yet.
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : (
                             rows.map((m) => {
                                 const delta = m.bookItc - m.gstr2bItc;
@@ -142,11 +133,11 @@ function MatchedTable({ rows, period }: { rows: ItcReconciliationMatched[]; peri
                                         : 'text-[var(--st-text)]';
                                 const href = vendorHref(m.supplierGstin);
                                 return (
-                                    <ZoruTableRow
+                                    <Tr
                                         key={`${m.supplierGstin}-${m.invoiceNumber}`}
                                         className="border-[var(--st-border)]"
                                     >
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                        <Td className="text-[13px] text-[var(--st-text)]">
                                             {href ? (
                                                 <EntityRowLink
                                                     href={href}
@@ -159,27 +150,27 @@ function MatchedTable({ rows, period }: { rows: ItcReconciliationMatched[]; peri
                                                     <div className="text-[11px] text-[var(--st-text-secondary)]">{m.supplierGstin}</div>
                                                 </div>
                                             )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[13px] text-[var(--st-text)]">
                                             {m.invoiceNumber}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right text-[13px] text-[var(--st-text)]">
                                             {fmtMoney(m.bookItc)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right text-[13px] text-[var(--st-text)]">
                                             {fmtMoney(m.gstr2bItc)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className={`text-right text-[13px] ${deltaClass}`}>
+                                        </Td>
+                                        <Td className={`text-right text-[13px] ${deltaClass}`}>
                                             {fmtMoney(delta)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12px] uppercase tracking-wide text-[var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td className="text-[12px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                             {m.matchType}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 );
                             })
                         )}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             </div>
         </div>
@@ -333,50 +324,50 @@ function MismatchedTable({
 
             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                            <ZoruTableHead className="w-8">
+                    <THead>
+                        <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                            <Th className="w-8">
                                 <Checkbox
                                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                     onCheckedChange={toggleAll}
                                     aria-label="Select all only-in-books rows"
                                     disabled={allBooks === 0}
                                 />
-                            </ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Side</ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Supplier</ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Invoice #</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Amount</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">ITC</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                            </Th>
+                            <Th className="text-[var(--st-text-secondary)]">Side</Th>
+                            <Th className="text-[var(--st-text-secondary)]">Supplier</Th>
+                            <Th className="text-[var(--st-text-secondary)]">Invoice #</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">Amount</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">ITC</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {!hasRows ? (
-                            <ZoruTableRow className="border-[var(--st-border)]">
-                                <ZoruTableCell colSpan={6} className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]">
+                            <Tr className="border-[var(--st-border)]">
+                                <Td colSpan={6} className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]">
                                     Nothing to chase — books and 2B agree.
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : (
                             <>
                                 {onlyInBooks.map((r, i) => {
                                     const href = vendorHref(r.supplierGstin);
                                     return (
-                                        <ZoruTableRow
+                                        <Tr
                                             key={`books-${i}`}
                                             className={`border-[var(--st-border)] ${selected.has(i) ? 'bg-[var(--st-bg-muted)]/30' : ''}`}
                                         >
-                                            <ZoruTableCell>
+                                            <Td>
                                                 <Checkbox
                                                     checked={selected.has(i)}
                                                     onCheckedChange={() => toggleRow(i)}
                                                     aria-label={`Select ${r.invoiceNumber}`}
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12px] font-medium text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[12px] font-medium text-[var(--st-text)]">
                                                 Only in books
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[13px] text-[var(--st-text)]">
                                                 {href ? (
                                                     <EntityRowLink
                                                         href={href}
@@ -389,31 +380,31 @@ function MismatchedTable({
                                                         <div className="text-[11px] text-[var(--st-text-secondary)]">{r.supplierGstin ?? '—'}</div>
                                                     </div>
                                                 )}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[13px] text-[var(--st-text)]">
                                                 {r.invoiceNumber || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right text-[13px] text-[var(--st-text)]">
                                                 {fmtMoney(r.amount)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right text-[13px] text-[var(--st-text)]">
                                                 {fmtMoney(r.itc)}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
                                 {onlyInGstr2b.map((r, i) => {
                                     const href = vendorHref(r.supplierGstin);
                                     return (
-                                        <ZoruTableRow key={`gstr2b-${i}`} className="border-[var(--st-border)]">
-                                            <ZoruTableCell>
+                                        <Tr key={`gstr2b-${i}`} className="border-[var(--st-border)]">
+                                            <Td>
                                                 {/* GSTR-2B rows are not selectable — cannot reconcile from portal side */}
                                                 <span className="inline-block h-4 w-4" />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12px] font-medium text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[12px] font-medium text-[var(--st-text)]">
                                                 Only in 2B
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[13px] text-[var(--st-text)]">
                                                 {href ? (
                                                     <EntityRowLink
                                                         href={href}
@@ -426,22 +417,22 @@ function MismatchedTable({
                                                         <div className="text-[11px] text-[var(--st-text-secondary)]">{r.supplierGstin ?? '—'}</div>
                                                     </div>
                                                 )}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[13px] text-[var(--st-text)]">
                                                 {r.invoiceNumber || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right text-[13px] text-[var(--st-text)]">
                                                 {fmtMoney(r.amount)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-right text-[13px] text-[var(--st-text)]">
                                                 {fmtMoney(r.itc)}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
                             </>
                         )}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             </div>
         </div>
@@ -510,23 +501,23 @@ function BookItcTable({ rows, period }: { rows: BookItcResult['bySupplier']; per
             </div>
             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Supplier</ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">GSTIN</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">IGST</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">CGST</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">SGST</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Cess</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]"># Bills</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                    <THead>
+                        <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                            <Th className="text-[var(--st-text-secondary)]">Supplier</Th>
+                            <Th className="text-[var(--st-text-secondary)]">GSTIN</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">IGST</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">CGST</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">SGST</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]">Cess</Th>
+                            <Th className="text-right text-[var(--st-text-secondary)]"># Bills</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {rows.map((r, i) => {
                             const href = vendorHref(r.gstin);
                             return (
-                                <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                <Tr key={i} className="border-[var(--st-border)]">
+                                    <Td className="text-[13px] text-[var(--st-text)]">
                                         {href ? (
                                             <EntityRowLink
                                                 href={href}
@@ -535,29 +526,29 @@ function BookItcTable({ rows, period }: { rows: BookItcResult['bySupplier']; per
                                         ) : (
                                             r.supplierName
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text)]">
                                         {r.gstin ?? '—'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                                         {fmtMoney(r.igst)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                                         {fmtMoney(r.cgst)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                                         {fmtMoney(r.sgst)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                                         {fmtMoney(r.cess)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                                         {r.invoiceCount}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             );
                         })}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             </div>
         </div>

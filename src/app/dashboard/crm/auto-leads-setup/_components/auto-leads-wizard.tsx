@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Progress,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -105,7 +90,7 @@ export interface AutoLeadsWizardProps {
 
 export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.JSX.Element {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [step, setStep] = React.useState(0);
   const [rules, setRules] = React.useState<RuleRow[]>(initialRules);
   const [isPending, startTransition] = React.useTransition();
@@ -534,16 +519,16 @@ function StepTest({
         <div>
           <Label>Source</Label>
           <Select value={state.source} onValueChange={(v) => update('source', v)}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {SOURCES.map((s) => (
-                <ZoruSelectItem key={s.value} value={s.value}>
+                <SelectItem key={s.value} value={s.value}>
                   {s.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
         <div>

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Pin, PinOff } from 'lucide-react';
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/components/sabcrm/20ui/compat';
 import {
   togglePin,
@@ -41,7 +41,7 @@ export function PinButton({
   initialPinned,
   onChange,
 }: PinButtonProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [pinned, setPinned] = React.useState<boolean>(initialPinned ?? false);
   const [resolving, setResolving] = React.useState<boolean>(
     initialPinned === undefined,

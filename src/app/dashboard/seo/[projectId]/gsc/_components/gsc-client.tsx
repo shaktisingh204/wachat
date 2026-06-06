@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, ZoruDateRangePicker, ZoruDateRangePickerProps, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, DateRangePicker, DateRangePickerProps, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import { use, useEffect, useState, useCallback } from 'react';
 import { LineChart, Loader2, CheckCircle, Search, Filter } from 'lucide-react';
 import { startGscAuth, getGscIntegration } from '@/app/actions/seo-gsc.actions';
@@ -150,11 +150,11 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
             </div>
 
             <Card>
-                <ZoruCardContent className="pt-6">
+                <CardBody className="pt-6">
                     <div className="flex flex-wrap items-end gap-4">
                         <div className="flex-1 min-w-[200px]">
                             <label className="text-sm font-medium mb-1.5 block">Date Range</label>
-                            <ZoruDateRangePicker 
+                            <DateRangePicker 
                                 value={dateRange} 
                                 onChange={setDateRange} 
                                 className="w-full"
@@ -207,7 +207,7 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
                             Apply
                         </Button>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -218,10 +218,10 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
             </div>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Performance</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="h-[300px]">
+                <CardHeader>
+                    <CardTitle>Performance</CardTitle>
+                </CardHeader>
+                <CardBody className="h-[300px]">
                     {loading && chartData.length === 0 ? (
                         <div className="h-full flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" /></div>
                     ) : chartData.length > 0 ? (
@@ -259,12 +259,12 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
                     ) : (
                         <div className="h-full flex items-center justify-center text-[var(--st-text-secondary)]">No data for selected range</div>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
                 <div className="flex items-center justify-between p-6 pb-0">
-                    <ZoruCardTitle>Detailed Breakdown</ZoruCardTitle>
+                    <CardTitle>Detailed Breakdown</CardTitle>
                     <div className="w-[180px]">
                         <Select value={activeDimension} onValueChange={(val) => { setActiveDimension(val); }}>
                             <SelectTrigger>
@@ -279,46 +279,46 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
                         </Select>
                     </div>
                 </div>
-                <ZoruCardContent className="pt-6">
+                <CardBody className="pt-6">
                     {tableLoading && tableData.length === 0 ? (
                         <div className="py-12 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" /></div>
                     ) : (
                         <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
                             <Table>
-                                <TableHeader className="bg-[var(--st-bg-muted)]/50">
-                                    <TableRow>
-                                        <TableHead className="font-semibold">{activeDimension.charAt(0).toUpperCase() + activeDimension.slice(1)}</TableHead>
-                                        <TableHead className="text-right font-semibold">Clicks</TableHead>
-                                        <TableHead className="text-right font-semibold">Impressions</TableHead>
-                                        <TableHead className="text-right font-semibold">CTR</TableHead>
-                                        <TableHead className="text-right font-semibold">Position</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
+                                <THead className="bg-[var(--st-bg-muted)]/50">
+                                    <Tr>
+                                        <Th className="font-semibold">{activeDimension.charAt(0).toUpperCase() + activeDimension.slice(1)}</Th>
+                                        <Th className="text-right font-semibold">Clicks</Th>
+                                        <Th className="text-right font-semibold">Impressions</Th>
+                                        <Th className="text-right font-semibold">CTR</Th>
+                                        <Th className="text-right font-semibold">Position</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {tableData.length > 0 ? (
                                         tableData.map((row, i) => (
-                                            <TableRow key={i}>
-                                                <TableCell className="font-medium max-w-[300px] truncate" title={row.keys?.[0]}>
+                                            <Tr key={i}>
+                                                <Td className="font-medium max-w-[300px] truncate" title={row.keys?.[0]}>
                                                     {row.keys?.[0] || 'Unknown'}
-                                                </TableCell>
-                                                <TableCell className="text-right">{row.clicks?.toLocaleString()}</TableCell>
-                                                <TableCell className="text-right">{row.impressions?.toLocaleString()}</TableCell>
-                                                <TableCell className="text-right">{(row.ctr * 100).toFixed(2)}%</TableCell>
-                                                <TableCell className="text-right">{row.position?.toFixed(1)}</TableCell>
-                                            </TableRow>
+                                                </Td>
+                                                <Td className="text-right">{row.clicks?.toLocaleString()}</Td>
+                                                <Td className="text-right">{row.impressions?.toLocaleString()}</Td>
+                                                <Td className="text-right">{(row.ctr * 100).toFixed(2)}%</Td>
+                                                <Td className="text-right">{row.position?.toFixed(1)}</Td>
+                                            </Tr>
                                         ))
                                     ) : (
-                                        <TableRow>
-                                            <TableCell colSpan={5} className="text-center py-8 text-[var(--st-text-secondary)]">
+                                        <Tr>
+                                            <Td colSpan={5} className="text-center py-8 text-[var(--st-text-secondary)]">
                                                 No results found
-                                            </TableCell>
-                                        </TableRow>
+                                            </Td>
+                                        </Tr>
                                     )}
-                                </TableBody>
+                                </TBody>
                             </Table>
                         </div>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );
@@ -327,12 +327,12 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
 function MetricCard({ title, value }: { title: string; value: string | number }) {
     return (
         <Card>
-            <ZoruCardHeader className="pb-2">
-                <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)]">{title}</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-[var(--st-text-secondary)]">{title}</CardTitle>
+            </CardHeader>
+            <CardBody>
                 <div className="text-2xl font-semibold text-[var(--st-text)]">{value}</div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

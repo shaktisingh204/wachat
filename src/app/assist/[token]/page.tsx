@@ -2,16 +2,7 @@
 
 import * as React from 'react';
 import { useParams } from 'next/navigation';
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Alert, AlertTitle, AlertDescription, Badge } from '@/components/sabcrm/20ui/compat';
 import { ScreenShare, ShieldCheck, KeyRound } from 'lucide-react';
 import { redeemSabassistAccessToken } from '@/app/actions/sabassist.actions';
 import { createAssistTransport, type IAssistTransport } from '@/lib/sabassist/transport';
@@ -91,11 +82,11 @@ export default function SabassistCustomerLandingPage() {
         {phase === 'collect' && (
           <>
             <Alert>
-              <ZoruAlertTitle>A technician wants to view your screen</ZoruAlertTitle>
-              <ZoruAlertDescription>
+              <AlertTitle>A technician wants to view your screen</AlertTitle>
+              <AlertDescription>
                 Only allow this if you recognise the support agent who sent
                 you this link. You can stop sharing at any time.
-              </ZoruAlertDescription>
+              </AlertDescription>
             </Alert>
             <div>
               <Label htmlFor="pin">One-time PIN (if you were given one)</Label>
@@ -126,11 +117,11 @@ export default function SabassistCustomerLandingPage() {
         {phase === 'connected' && (
           <>
             <Alert>
-              <ZoruAlertTitle>Connected</ZoruAlertTitle>
-              <ZoruAlertDescription>
+              <AlertTitle>Connected</AlertTitle>
+              <AlertDescription>
                 You are connected as a {mode ?? 'remote'} session. Click below
                 to begin sharing your screen with the technician.
-              </ZoruAlertDescription>
+              </AlertDescription>
             </Alert>
             <Button className="w-full" onClick={handleStartShare}>
               <ScreenShare className="h-4 w-4 mr-1" /> Start screen share
@@ -141,12 +132,12 @@ export default function SabassistCustomerLandingPage() {
         {phase === 'sharing' && (
           <>
             <Alert>
-              <ZoruAlertTitle>Your screen is being shared</ZoruAlertTitle>
-              <ZoruAlertDescription className="flex items-center gap-2">
+              <AlertTitle>Your screen is being shared</AlertTitle>
+              <AlertDescription className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4" />
                 The technician can see this browser tab. Stop sharing whenever
                 you like.
-              </ZoruAlertDescription>
+              </AlertDescription>
             </Alert>
             <Button variant="destructive" className="w-full" onClick={handleStopShare}>
               Stop sharing & disconnect
@@ -157,8 +148,8 @@ export default function SabassistCustomerLandingPage() {
         {phase === 'error' && (
           <>
             <Alert variant="destructive">
-              <ZoruAlertTitle>Couldn&rsquo;t start the session</ZoruAlertTitle>
-              <ZoruAlertDescription>{error}</ZoruAlertDescription>
+              <AlertTitle>Couldn&rsquo;t start the session</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
             <Button
               variant="outline"

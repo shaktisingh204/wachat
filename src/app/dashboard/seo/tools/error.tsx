@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Button } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -18,7 +18,7 @@ export default function SeoToolsError({
   return (
     <div className="flex h-[50vh] items-center justify-center p-4">
       <Card className="max-w-md w-full border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 dark:border-[var(--st-border)]/30 dark:bg-[var(--st-text)]/20">
-        <ZoruCardContent className="flex flex-col items-center gap-4 p-8 text-center">
+        <CardBody className="flex flex-col items-center gap-4 p-8 text-center">
           <div className="rounded-full bg-[var(--st-bg-muted)] p-3 dark:bg-[var(--st-text)]/50">
             <AlertCircle className="h-6 w-6 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
           </div>
@@ -38,7 +38,7 @@ export default function SeoToolsError({
             <RefreshCw className="mr-2 h-4 w-4" />
             Try again
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

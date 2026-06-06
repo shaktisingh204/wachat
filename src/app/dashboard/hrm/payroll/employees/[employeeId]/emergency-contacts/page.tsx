@@ -1,28 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useParams } from 'next/navigation';
 import {
@@ -82,7 +60,7 @@ export default function EmployeeEmergencyContactsSubPage() {
     const employeeId = params.employeeId;
     const BASE = `/dashboard/hrm/payroll/employees/${employeeId}`;
 
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [rows, setRows] = React.useState<CrmEmergencyContactDoc[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
     const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -349,14 +327,14 @@ export default function EmployeeEmergencyContactsSubPage() {
 
             {/* Add / Edit dialog */}
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <ZoruDialogContent className="max-w-lg">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>
                             {form.contactId
                                 ? 'Edit emergency contact'
                                 : 'Add emergency contact'}
-                        </ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                        </DialogTitle>
+                    </DialogHeader>
                     <div className="grid gap-4 py-2">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-1.5">
@@ -472,7 +450,7 @@ export default function EmployeeEmergencyContactsSubPage() {
                             </Label>
                         </div>
                     </div>
-                    <ZoruDialogFooter className="gap-2">
+                    <DialogFooter className="gap-2">
                         <Button
                             variant="outline"
                             onClick={() => setDialogOpen(false)}
@@ -485,35 +463,35 @@ export default function EmployeeEmergencyContactsSubPage() {
                             ) : null}
                             {form.contactId ? 'Save changes' : 'Add contact'}
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             Delete emergency contact?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             “{pendingDelete?.name}” will be removed from this
                             employee’s emergency contacts.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deleting}
                         >
                             {deleting ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

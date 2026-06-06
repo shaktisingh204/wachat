@@ -2,18 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Play, Search } from 'lucide-react';
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import type { WsShiftRotation } from '@/lib/worksuite/shifts-types';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -81,16 +70,16 @@ export default function AutomateForm({ rotations, employees, onRun, pending }: A
           <div className="flex flex-col gap-1.5">
             <Label className="text-[12px] text-[var(--st-text-secondary)]">Rotation</Label>
             <Select value={rotationId} onValueChange={setRotationId}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Choose rotation" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose rotation" />
+              </SelectTrigger>
+              <SelectContent>
                 {rotations.map((r) => (
-                  <ZoruSelectItem key={String(r._id)} value={String(r._id)}>
+                  <SelectItem key={String(r._id)} value={String(r._id)}>
                     {r.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex flex-col gap-1.5">

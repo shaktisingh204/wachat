@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkbox, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Checkbox, useToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <TaskChecklist> — interactive checklist for the task detail page.
  *
@@ -24,7 +24,7 @@ interface TaskChecklistProps {
 }
 
 export function TaskChecklist({ taskId, items: initialItems }: TaskChecklistProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [items, setItems] = React.useState<ChecklistItem[]>(initialItems);
 
     const toggle = React.useCallback(

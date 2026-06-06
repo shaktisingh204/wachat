@@ -15,15 +15,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Pin } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, EmptyState } from '@/components/sabcrm/20ui/compat';
 
 import {
     EntityDetailShell,
@@ -157,10 +149,10 @@ export default async function NoticeDetailPage({
                 rightRail={
                     <>
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Key facts</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            <CardHeader>
+                                <CardTitle>Key facts</CardTitle>
+                            </CardHeader>
+                            <CardBody>
                                 <dl className="grid grid-cols-2 gap-y-1.5 text-[12.5px]">
                                     <dt className="text-[var(--st-text-secondary)]">Status</dt>
                                     <dd>
@@ -185,31 +177,31 @@ export default async function NoticeDetailPage({
                                         {fmtDate(n.updatedAt ?? n.createdAt)}
                                     </dd>
                                 </dl>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         {n.department_id ? (
                             <Card>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle>Department</ZoruCardTitle>
-                                </ZoruCardHeader>
-                                <ZoruCardContent>
+                                <CardHeader>
+                                    <CardTitle>Department</CardTitle>
+                                </CardHeader>
+                                <CardBody>
                                     <EntityPickerChip
                                         entity="department"
                                         id={n.department_id}
                                     />
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         ) : null}
 
                         {Array.isArray(n.employee_ids) && n.employee_ids.length > 0 ? (
                             <Card>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle>
+                                <CardHeader>
+                                    <CardTitle>
                                         Recipients ({n.employee_ids.length})
-                                    </ZoruCardTitle>
-                                </ZoruCardHeader>
-                                <ZoruCardContent>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardBody>
                                     <div className="flex flex-col gap-1.5">
                                         {n.employee_ids.slice(0, 8).map((eid) => (
                                             <EntityPickerChip
@@ -224,15 +216,15 @@ export default async function NoticeDetailPage({
                                             </span>
                                         ) : null}
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         ) : null}
 
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Quick actions</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            <CardHeader>
+                                <CardTitle>Quick actions</CardTitle>
+                            </CardHeader>
+                            <CardBody>
                                 <div className="flex flex-col gap-2 text-[12.5px]">
                                     <Button asChild variant="outline" size="sm">
                                         <Link
@@ -247,7 +239,7 @@ export default async function NoticeDetailPage({
                                         </Link>
                                     </Button>
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     </>
                 }
@@ -255,10 +247,10 @@ export default async function NoticeDetailPage({
                 <SectionNav active="overview" />
 
                 <Card id="section-overview">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Overview</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Overview</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="mb-4 flex flex-wrap items-center gap-2">
                             <Badge variant="ghost">
                                 Audience: {audience}
@@ -282,14 +274,14 @@ export default async function NoticeDetailPage({
                                 </span>
                             )}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card id="section-details">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Details</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Details</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="grid gap-4 md:grid-cols-2">
                             <Field label="Headline">{n.heading || '—'}</Field>
                             <Field label="Audience">{audience}</Field>
@@ -304,14 +296,14 @@ export default async function NoticeDetailPage({
                                 {fmtDateTime(n.updatedAt ?? n.createdAt)}
                             </Field>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card id="section-files">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Attachments</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Attachments</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         {fileAttached ? (
                             <EmptyState
                                 title="Attachments listing pending"
@@ -323,27 +315,27 @@ export default async function NoticeDetailPage({
                                 description="Files attached during notice creation will appear here."
                             />
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card id="section-comments">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Acknowledgements</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Acknowledgements</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Per-user reads are tracked via markNoticeViewed; a
                             per-notice roster surfaces here once
                             getNoticeAcknowledgements() lands (TODO 1D.2).
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card id="section-related">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Related</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Related</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <div className="flex flex-col gap-2 text-[12.5px]">
                             <Link
                                 href="/dashboard/crm/workspace/notices"
@@ -366,7 +358,7 @@ export default async function NoticeDetailPage({
                                 </Link>
                             ) : null}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <p className="text-[11px] text-[var(--st-text-secondary)]">

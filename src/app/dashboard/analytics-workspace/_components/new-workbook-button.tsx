@@ -4,18 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
 import { createWorkbookAction } from '@/app/actions/analytics-bi.actions';
-import {
-  Button,
-  Dialog,
-  Input,
-  Label,
-  Textarea,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, Input, Label, Textarea, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
 
 export function NewWorkbookButton() {
   const router = useRouter();
@@ -48,13 +37,13 @@ export function NewWorkbookButton() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Button onClick={() => setOpen(true)}>New workbook</Button>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Create workbook</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create workbook</DialogTitle>
+          <DialogDescription>
             Workbooks group datasets and charts. You can add both inside the editor.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="grid gap-3 py-2">
           <div className="grid gap-1.5">
             <Label htmlFor="wb-name">Name</Label>
@@ -78,15 +67,15 @@ export function NewWorkbookButton() {
           </div>
           {error && <p className="text-sm text-[var(--st-danger)]">{error}</p>}
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => setOpen(false)} disabled={pending}>
             Cancel
           </Button>
           <Button onClick={submit} disabled={pending}>
             {pending ? 'Creating…' : 'Create'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

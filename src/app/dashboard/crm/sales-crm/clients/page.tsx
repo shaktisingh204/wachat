@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useDebouncedCallback } from 'use-debounce';
 import { Building2,
@@ -63,7 +63,7 @@ const ACCOUNTS_PER_PAGE = 20;
 type ViewMode = 'table';
 
 export default function CrmAccountsPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const { t } = useT();
 
     /* ─── List state ──────────────────────────────────────────────── */

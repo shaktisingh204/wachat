@@ -10,12 +10,7 @@ import { notFound } from 'next/navigation';
 
 import { getClientTicketById } from '@/app/actions/client-portal.actions';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { TicketReplyForm } from '@/components/client-portal/ticket-reply-form';
 import { cn } from '@/components/sabcrm/20ui/compat';
 
@@ -42,9 +37,9 @@ async function ClientTicketDetailPageContent({
             </Link>
 
             <Card>
-                <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
+                <CardHeader className="flex flex-row items-start justify-between gap-3">
                     <div>
-                        <ZoruCardTitle>{ticket.subject}</ZoruCardTitle>
+                        <CardTitle>{ticket.subject}</CardTitle>
                         <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                             #{ticket.number ?? ticket._id.slice(-6).toUpperCase()} · Opened {fmtDateTime(ticket.createdAt)}
                         </p>
@@ -53,19 +48,19 @@ async function ClientTicketDetailPageContent({
                         <Badge variant="outline">{ticket.priority}</Badge>
                         <Badge>{ticket.status}</Badge>
                     </div>
-                </ZoruCardHeader>
+                </CardHeader>
                 {ticket.description ? (
-                    <ZoruCardContent>
+                    <CardBody>
                         <p className="whitespace-pre-wrap text-sm text-[var(--st-text)]">{ticket.description}</p>
-                    </ZoruCardContent>
+                    </CardBody>
                 ) : null}
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Conversation</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-3">
+                <CardHeader>
+                    <CardTitle>Conversation</CardTitle>
+                </CardHeader>
+                <CardBody className="flex flex-col gap-3">
                     {replies.length === 0 ? (
                         <p className="text-sm text-[var(--st-text-secondary)]">No replies yet.</p>
                     ) : (
@@ -87,23 +82,23 @@ async function ClientTicketDetailPageContent({
                             </div>
                         ))
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {!closed ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Add a reply</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Add a reply</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <TicketReplyForm ticketId={ticket._id} />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : (
                 <Card>
-                    <ZoruCardContent className="text-sm text-[var(--st-text-secondary)]">
+                    <CardBody className="text-sm text-[var(--st-text-secondary)]">
                         This ticket is closed. Open a new ticket if you need further help.
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

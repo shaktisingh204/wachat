@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Tabs, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger, ZoruTabsContent as TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
 

@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { retryFailedMessages, cancelQueuedMessages } from './actions';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui/compat';
 
 export function QueueActions() {
   const [loadingRetry, setLoadingRetry] = useState(false);
   const [loadingCancel, setLoadingCancel] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   async function onRetry() {
     try {
@@ -37,20 +37,20 @@ export function QueueActions() {
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>Queue Management</ZoruCardTitle>
-        <ZoruCardDescription>
+      <CardHeader>
+        <CardTitle>Queue Management</CardTitle>
+        <CardDescription>
           Manually intervene in stuck queues or bulk retry failed sends.
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="flex flex-wrap gap-3">
+        </CardDescription>
+      </CardHeader>
+      <CardBody className="flex flex-wrap gap-3">
         <Button variant="outline" onClick={onRetry} disabled={loadingRetry || loadingCancel}>
           {loadingRetry ? 'Retrying...' : 'Retry All Failed'}
         </Button>
         <Button variant="destructive" onClick={onCancel} disabled={loadingCancel || loadingRetry}>
           {loadingCancel ? 'Cancelling...' : 'Cancel All Queued'}
         </Button>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

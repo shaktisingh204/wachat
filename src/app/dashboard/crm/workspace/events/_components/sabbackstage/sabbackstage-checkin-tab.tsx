@@ -12,13 +12,7 @@
  */
 
 import * as React from 'react';
-import {
-  Badge,
-  Button,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import { Camera, Loader2, ScanLine } from 'lucide-react';
 
 import {
@@ -38,7 +32,7 @@ export function SabbackstageCheckInTab({
 }: {
   eventId: string;
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [code, setCode] = React.useState('');
   const [busy, setBusy] = React.useState(false);
   const [recent, setRecent] = React.useState<LogEntry[]>([]);

@@ -1,46 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  EmptyState,
-  Input,
-  Label,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  ScrollArea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Switch,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, EmptyState, Input, Label, Popover, PopoverContent, PopoverTrigger, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Bot,
   Check,
@@ -157,7 +117,7 @@ function quotaLabel(q: number | "unlimited" | "custom"): string {
 }
 
 export default function SabWaAIPage() {
-  const toast = useZoruToast();
+  const toast = useToast();
   const { sessionUser } = useProject();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? '';
@@ -493,19 +453,19 @@ export default function SabWaAIPage() {
     <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>AI assistant</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>AI assistant</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Header + credits counter */}
@@ -528,7 +488,7 @@ export default function SabWaAIPage() {
           </p>
         </div>
         <Card className="ml-auto w-full sm:w-auto">
-          <ZoruCardContent className="flex items-center gap-3 p-3">
+          <CardBody className="flex items-center gap-3 p-3">
             <Wand2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
             <div className="text-right">
               <div className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
@@ -538,22 +498,22 @@ export default function SabWaAIPage() {
                 {quotaLabel(limits.aiReplies.monthlyQuota)}
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* ── Per-chat AI tools panel ──────────────────────────────── */}
         <Card className="lg:col-span-2">
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-[14px]">
+          <CardHeader>
+            <CardTitle className="text-[14px]">
               Per-chat AI tools
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Pick a chat and route its context through one of four tools.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-4">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-4">
             {/* Chat picker */}
             <div className="space-y-2">
               <Label className="text-[11.5px] font-medium">Chat</Label>
@@ -561,7 +521,7 @@ export default function SabWaAIPage() {
                 open={chatPickerOpen}
                 onOpenChange={setChatPickerOpen}
               >
-                <ZoruPopoverTrigger asChild>
+                <PopoverTrigger asChild>
                   <Button
                     type="button"
                     variant="outline"
@@ -576,25 +536,25 @@ export default function SabWaAIPage() {
                     </span>
                     <MessageCirclePlus className="ml-2 h-4 w-4 shrink-0 opacity-60" />
                   </Button>
-                </ZoruPopoverTrigger>
-                <ZoruPopoverContent className="w-[min(420px,90vw)] p-0">
-                  <ZoruCommand>
-                    <ZoruCommandInput placeholder="Search chats..." />
-                    <ZoruCommandList>
+                </PopoverTrigger>
+                <PopoverContent className="w-[min(420px,90vw)] p-0">
+                  <Command>
+                    <CommandInput placeholder="Search chats..." />
+                    <CommandList>
                       {chatsLoading && (
                         <div className="p-3">
                           <Skeleton className="h-8 w-full" />
                           <Skeleton className="mt-2 h-8 w-full" />
                         </div>
                       )}
-                      <ZoruCommandEmpty>
+                      <CommandEmpty>
                         {chatsLoading ? "Loading..." : "No chats found."}
-                      </ZoruCommandEmpty>
-                      <ZoruCommandGroup>
+                      </CommandEmpty>
+                      <CommandGroup>
                         {(chats ?? []).map((c) => {
                           const label = resolveJid(c.jid);
                           return (
-                          <ZoruCommandItem
+                          <CommandItem
                             key={c.jid}
                             value={`${label} ${c.jid}`}
                             onSelect={() => {
@@ -615,13 +575,13 @@ export default function SabWaAIPage() {
                                 </Badge>
                               )}
                             </div>
-                          </ZoruCommandItem>
+                          </CommandItem>
                           );
                         })}
-                      </ZoruCommandGroup>
-                    </ZoruCommandList>
-                  </ZoruCommand>
-                </ZoruPopoverContent>
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
               </Popover>
             </div>
 
@@ -680,7 +640,7 @@ export default function SabWaAIPage() {
                     {suggestions.map((s, i) => (
                       <li key={i}>
                         <Card>
-                          <ZoruCardContent className="flex items-start gap-3 p-3">
+                          <CardBody className="flex items-start gap-3 p-3">
                             <span className="text-[13px] text-[var(--st-text)]">
                               {s}
                             </span>
@@ -705,7 +665,7 @@ export default function SabWaAIPage() {
                                 Use
                               </Button>
                             </div>
-                          </ZoruCardContent>
+                          </CardBody>
                         </Card>
                       </li>
                     ))}
@@ -728,14 +688,14 @@ export default function SabWaAIPage() {
                         setSummaryWindow(v as "24h" | "7d" | "all")
                       }
                     >
-                      <ZoruSelectTrigger className="w-[160px]">
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        <ZoruSelectItem value="24h">Last 24h</ZoruSelectItem>
-                        <ZoruSelectItem value="7d">Last 7 days</ZoruSelectItem>
-                        <ZoruSelectItem value="all">All time</ZoruSelectItem>
-                      </ZoruSelectContent>
+                      <SelectTrigger className="w-[160px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="24h">Last 24h</SelectItem>
+                        <SelectItem value="7d">Last 7 days</SelectItem>
+                        <SelectItem value="all">All time</SelectItem>
+                      </SelectContent>
                     </Select>
                   </div>
                   <Button
@@ -756,11 +716,11 @@ export default function SabWaAIPage() {
 
                 {summary && (
                   <Card>
-                    <ZoruCardContent className="space-y-2 p-3">
+                    <CardBody className="space-y-2 p-3">
                       <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--st-text)]">
                         {summary}
                       </p>
-                    </ZoruCardContent>
+                    </CardBody>
                   </Card>
                 )}
               </div>
@@ -789,16 +749,16 @@ export default function SabWaAIPage() {
                       value={translateTarget}
                       onValueChange={setTranslateTarget}
                     >
-                      <ZoruSelectTrigger className="w-[180px]">
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
                         {LANGUAGES.map((l) => (
-                          <ZoruSelectItem key={l.code} value={l.code}>
+                          <SelectItem key={l.code} value={l.code}>
                             {l.label}
-                          </ZoruSelectItem>
+                          </SelectItem>
                         ))}
-                      </ZoruSelectContent>
+                      </SelectContent>
                     </Select>
                   </div>
                   <Button
@@ -819,14 +779,14 @@ export default function SabWaAIPage() {
 
                 {translation && (
                   <Card>
-                    <ZoruCardContent className="space-y-2 p-3">
+                    <CardBody className="space-y-2 p-3">
                       {detectedLang && (
                         <Badge variant="secondary" className="text-[10px]">
                           Detected: {detectedLang}
                         </Badge>
                       )}
                       <p className="text-[13px] text-[var(--st-text)]">{translation}</p>
-                    </ZoruCardContent>
+                    </CardBody>
                   </Card>
                 )}
               </div>
@@ -852,16 +812,16 @@ export default function SabWaAIPage() {
                       Tone
                     </Label>
                     <Select value={tone} onValueChange={setTone}>
-                      <ZoruSelectTrigger className="w-[180px]">
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
                         {TONES.map((t) => (
-                          <ZoruSelectItem key={t.id} value={t.id}>
+                          <SelectItem key={t.id} value={t.id}>
                             {t.label}
-                          </ZoruSelectItem>
+                          </SelectItem>
                         ))}
-                      </ZoruSelectContent>
+                      </SelectContent>
                     </Select>
                   </div>
                   <Button
@@ -882,7 +842,7 @@ export default function SabWaAIPage() {
 
                 {toneOutput && (
                   <Card>
-                    <ZoruCardContent className="space-y-2 p-3">
+                    <CardBody className="space-y-2 p-3">
                       <p className="text-[13px] text-[var(--st-text)]">{toneOutput}</p>
                       <Button
                         type="button"
@@ -895,25 +855,25 @@ export default function SabWaAIPage() {
                       >
                         <Copy className="mr-1 h-3.5 w-3.5" /> Copy
                       </Button>
-                    </ZoruCardContent>
+                    </CardBody>
                   </Card>
                 )}
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* ── Auto-pilot panel ─────────────────────────────────────── */}
         <Card>
-          <ZoruCardHeader>
+          <CardHeader>
             <div className="flex items-center justify-between gap-2">
               <div>
-                <ZoruCardTitle className="text-[14px]">
+                <CardTitle className="text-[14px]">
                   Auto-pilot mode
-                </ZoruCardTitle>
-                <ZoruCardDescription>
+                </CardTitle>
+                <CardDescription>
                   AI replies autonomously to whitelisted contacts.
-                </ZoruCardDescription>
+                </CardDescription>
               </div>
               <Switch
                 checked={autopilot}
@@ -921,15 +881,15 @@ export default function SabWaAIPage() {
                 aria-label="Toggle auto-pilot"
               />
             </div>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-4">
+          </CardHeader>
+          <CardBody className="space-y-4">
             <Alert>
               <Bot className="h-4 w-4" />
-              <ZoruAlertTitle>Credits warning</ZoruAlertTitle>
-              <ZoruAlertDescription>
+              <AlertTitle>Credits warning</AlertTitle>
+              <AlertDescription>
                 Each AI reply spends one credit. Monthly cap:{" "}
                 {quotaLabel(limits.aiReplies.monthlyQuota)}.
-              </ZoruAlertDescription>
+              </AlertDescription>
             </Alert>
 
             <div className="space-y-2">
@@ -1011,7 +971,7 @@ export default function SabWaAIPage() {
                 )}
               </ScrollArea>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </div>

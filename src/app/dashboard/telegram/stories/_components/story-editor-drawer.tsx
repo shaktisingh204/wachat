@@ -1,25 +1,5 @@
 import React from 'react';
-import {
-  Button,
-  DatePicker,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Switch,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DatePicker, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
 import { ImageIcon, Loader2, Plus, VideoIcon } from 'lucide-react';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { AreaEditor, AreaDraft } from './area-editor';
@@ -181,17 +161,17 @@ export function StoryEditorDrawer({
     onCancel: () => void;
 }) {
     return (
-        <ZoruDrawer open={open} onOpenChange={onOpenChange}>
-            <ZoruDrawerContent className="max-h-[92vh] overflow-y-auto">
-                <ZoruDrawerHeader>
-                    <ZoruDrawerTitle>
+        <Drawer open={open} onOpenChange={onOpenChange}>
+            <DrawerContent className="max-h-[92vh] overflow-y-auto">
+                <DrawerHeader>
+                    <DrawerTitle>
                         {editorForm.storyId ? 'Edit story' : 'New story'}
-                    </ZoruDrawerTitle>
-                    <ZoruDrawerDescription>
+                    </DrawerTitle>
+                    <DrawerDescription>
                         Stories last 6–48 hours on Telegram. Use 24h unless
                         you have a reason to do otherwise.
-                    </ZoruDrawerDescription>
-                </ZoruDrawerHeader>
+                    </DrawerDescription>
+                </DrawerHeader>
                 <div className="grid gap-6 px-6 pb-2">
                     {/* 1. Basics */}
                     <Section
@@ -210,19 +190,19 @@ export function StoryEditorDrawer({
                                     }
                                     disabled={!!editorForm.storyId}
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="Choose a bot" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Choose a bot" />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {bots.map((b) => (
-                                            <ZoruSelectItem
+                                            <SelectItem
                                                 key={b._id}
                                                 value={b._id}
                                             >
                                                 {b.username || b.name}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </Field>
                             <Field label="Story type">
@@ -236,17 +216,17 @@ export function StoryEditorDrawer({
                                     }
                                     disabled={!!editorForm.storyId}
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="channel">
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="channel">
                                             Channel
-                                        </ZoruSelectItem>
-                                        <ZoruSelectItem value="business">
+                                        </SelectItem>
+                                        <SelectItem value="business">
                                             Business account
-                                        </ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                        </SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </Field>
                             {editorForm.type === 'channel' ? (
@@ -262,10 +242,10 @@ export function StoryEditorDrawer({
                                             }
                                             disabled={!!editorForm.storyId}
                                         >
-                                            <ZoruSelectTrigger>
-                                                <ZoruSelectValue placeholder="Pick a channel" />
-                                            </ZoruSelectTrigger>
-                                            <ZoruSelectContent>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Pick a channel" />
+                                            </SelectTrigger>
+                                            <SelectContent>
                                                 {channels.length === 0 ? (
                                                     <div className="px-3 py-2 text-[12px] text-[var(--st-text-secondary)]">
                                                         No channels —
@@ -282,15 +262,15 @@ export function StoryEditorDrawer({
                                                                     editorForm.botId,
                                                         )
                                                         .map((c) => (
-                                                            <ZoruSelectItem
+                                                            <SelectItem
                                                                 key={c._id}
                                                                 value={c._id}
                                                             >
                                                                 {c.title} ({c.chatId})
-                                                            </ZoruSelectItem>
+                                                            </SelectItem>
                                                         ))
                                                 )}
-                                            </ZoruSelectContent>
+                                            </SelectContent>
                                         </Select>
                                     </Field>
                                 </div>
@@ -309,10 +289,10 @@ export function StoryEditorDrawer({
                                             }
                                             disabled={!!editorForm.storyId}
                                         >
-                                            <ZoruSelectTrigger>
-                                                <ZoruSelectValue placeholder="Pick a connection" />
-                                            </ZoruSelectTrigger>
-                                            <ZoruSelectContent>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Pick a connection" />
+                                            </SelectTrigger>
+                                            <SelectContent>
                                                 {businessConnections
                                                     .filter(
                                                         (c) =>
@@ -321,7 +301,7 @@ export function StoryEditorDrawer({
                                                                 editorForm.botId,
                                                     )
                                                     .map((c) => (
-                                                        <ZoruSelectItem
+                                                        <SelectItem
                                                             key={c._id}
                                                             value={
                                                                 c.connectionId
@@ -331,9 +311,9 @@ export function StoryEditorDrawer({
                                                             {c.userId
                                                                 ? ` (user ${c.userId})`
                                                                 : ''}
-                                                        </ZoruSelectItem>
+                                                        </SelectItem>
                                                     ))}
-                                            </ZoruSelectContent>
+                                            </SelectContent>
                                         </Select>
                                     </Field>
                                 </div>
@@ -431,23 +411,23 @@ export function StoryEditorDrawer({
                                             }))
                                         }
                                     >
-                                        <ZoruSelectTrigger>
-                                            <ZoruSelectValue />
-                                        </ZoruSelectTrigger>
-                                        <ZoruSelectContent>
-                                            <ZoruSelectItem value="none">
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">
                                                 None
-                                            </ZoruSelectItem>
-                                            <ZoruSelectItem value="HTML">
+                                            </SelectItem>
+                                            <SelectItem value="HTML">
                                                 HTML
-                                            </ZoruSelectItem>
-                                            <ZoruSelectItem value="MarkdownV2">
+                                            </SelectItem>
+                                            <SelectItem value="MarkdownV2">
                                                 MarkdownV2
-                                            </ZoruSelectItem>
-                                            <ZoruSelectItem value="Markdown">
+                                            </SelectItem>
+                                            <SelectItem value="Markdown">
                                                 Markdown (legacy)
-                                            </ZoruSelectItem>
-                                        </ZoruSelectContent>
+                                            </SelectItem>
+                                        </SelectContent>
                                     </Select>
                                 </Field>
                             </div>
@@ -548,19 +528,19 @@ export function StoryEditorDrawer({
                                         }))
                                     }
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {PRIVACY_OPTIONS.map((o) => (
-                                            <ZoruSelectItem
+                                            <SelectItem
                                                 key={o.value}
                                                 value={o.value}
                                             >
                                                 {o.label}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </Field>
                             {editorForm.privacyKind === 'selected' ? (
@@ -743,7 +723,7 @@ export function StoryEditorDrawer({
                         {editorForm.storyId ? 'Save changes' : 'Create'}
                     </Button>
                 </div>
-            </ZoruDrawerContent>
-        </ZoruDrawer>
+            </DrawerContent>
+        </Drawer>
     );
 }

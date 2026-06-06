@@ -1,30 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Button,
-  Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Label,
-  Input,
-  Skeleton,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Input, Skeleton, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -91,7 +67,7 @@ const EMPTY_KPIS: CrmContactKpis = {
 };
 
 export default function CrmContactsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { t, locale } = useT();
   const router = useRouter();
 
@@ -413,10 +389,10 @@ export default function CrmContactsPage() {
       render: (row) => (
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9 border border-[var(--st-border)]">
-            <ZoruAvatarImage src={row.avatarUrl || ''} />
-            <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
+            <AvatarImage src={row.avatarUrl || ''} />
+            <AvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
               {row.name?.charAt(0) ?? '?'}
-            </ZoruAvatarFallback>
+            </AvatarFallback>
           </Avatar>
           <EntityRowLink
             href={`/dashboard/crm/contacts/${row._id.toString()}`}
@@ -960,31 +936,31 @@ export default function CrmContactsPage() {
       />
 
       {/* Delete Confirmation Alert */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={deleteContactId !== null}
         onOpenChange={(open) => !open && setDeleteContactId(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               {t('crm.contacts.list.delete.title')}
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               {t('crm.contacts.list.delete.description')}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={isDeleting}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
               {t('crm.contacts.list.delete.cancel')}
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
               {isDeleting
                 ? t('crm.contacts.list.delete.confirmInProgress')
                 : t('crm.contacts.list.delete.confirm')}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Deal creation overlay */}
       {dealForContact ? (

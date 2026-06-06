@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button } from '@/components/sabcrm/20ui/compat';
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
 
 export default function SettingsError({
@@ -18,16 +18,16 @@ export default function SettingsError({
     return (
         <div className="flex h-[50vh] items-center justify-center">
             <Card className="max-w-md w-full border-destructive/50">
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="flex items-center gap-2 text-[var(--st-text)] mb-2">
                         <AlertTriangle className="h-5 w-5" />
-                        <ZoruCardTitle>Something went wrong!</ZoruCardTitle>
+                        <CardTitle>Something went wrong!</CardTitle>
                     </div>
-                    <ZoruCardDescription>
+                    <CardDescription>
                         An error occurred while loading your settings.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                     <div className="p-3 bg-[var(--st-bg-muted)] rounded-md text-sm font-mono text-[var(--st-text-secondary)] break-all">
                         {error.message || 'Unknown error'}
                     </div>
@@ -35,7 +35,7 @@ export default function SettingsError({
                         <RefreshCcw className="mr-2 h-4 w-4" />
                         Try again
                     </Button>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -170,14 +152,14 @@ export default function TimeTrackingReportsPage() {
               Group by
             </Label>
             <Select value={group} onValueChange={(v) => setGroup(v as Group)}>
-              <ZoruSelectTrigger className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="employee">Employee</ZoruSelectItem>
-                <ZoruSelectItem value="project">Project</ZoruSelectItem>
-                <ZoruSelectItem value="date">Date</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="employee">Employee</SelectItem>
+                <SelectItem value="project">Project</SelectItem>
+                <SelectItem value="date">Date</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="min-w-[140px] flex-1">
@@ -224,51 +206,51 @@ export default function TimeTrackingReportsPage() {
       <Card className="p-6">
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">{groupLabel}</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Entries</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Hours</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">{groupLabel}</Th>
+                <Th className="text-[var(--st-text-secondary)]">Entries</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Hours</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {isLoading && rows.length === 0 ? (
                 [0, 1, 2].map((i) => (
-                  <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                    <ZoruTableCell colSpan={3}>
+                  <Tr key={i} className="border-[var(--st-border)]">
+                    <Td colSpan={3}>
                       <Skeleton className="h-8 w-full" />
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               ) : rows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={3}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No logged time for the selected range.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 rows.map((r) => (
-                  <ZoruTableRow key={r.key} className="border-[var(--st-border)]">
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                  <Tr key={r.key} className="border-[var(--st-border)]">
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {r.label === 'unknown' ? (
                         <span className="text-[var(--st-text-secondary)]">(unassigned)</span>
                       ) : (
                         <span className="font-mono text-[12.5px]">{r.label}</span>
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.entries}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right font-mono tabular-nums text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right font-mono tabular-nums text-[13px] text-[var(--st-text)]">
                       {r.totalHours}h {String(r.totalMinutes).padStart(2, '0')}m
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
           {rows.length > 0 ? (
             <div className="flex items-center justify-between border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[13px]">

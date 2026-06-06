@@ -19,18 +19,7 @@ import {
   usePathname,
 } from 'next/navigation';
 import { Download, PauseCircle, RefreshCw, Plus, XCircle } from 'lucide-react';
-import {
-  Button,
-  Card,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -143,7 +132,7 @@ export function RecurringInvoiceListClient({
   initialStatus,
   error,
 }: RecurringInvoiceListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -467,86 +456,86 @@ export function RecurringInvoiceListClient({
             </div>
 
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead className="w-[36px]">
+              <THead>
+                <Tr>
+                  <Th className="w-[36px]">
                     <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead>Title / template</ZoruTableHead>
-                  <ZoruTableHead>Customer</ZoruTableHead>
-                  <ZoruTableHead>Frequency</ZoruTableHead>
-                  <ZoruTableHead>Next run</ZoruTableHead>
-                  <ZoruTableHead>Last run</ZoruTableHead>
-                  <ZoruTableHead>Runs</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                  <Th>Title / template</Th>
+                  <Th>Customer</Th>
+                  <Th>Frequency</Th>
+                  <Th>Next run</Th>
+                  <Th>Last run</Th>
+                  <Th>Runs</Th>
+                  <Th>Status</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filtered.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={8}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive || query
                         ? 'No recurring invoices match these filters.'
                         : 'No recurring invoices yet — click "New recurring" to add one.'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filtered.map((inv) => {
                     const id = inv._id;
                     const isSelected = selected.has(id);
                     return (
-                      <ZoruTableRow key={id} data-state={isSelected ? 'selected' : undefined}>
-                        <ZoruTableCell>
+                      <Tr key={id} data-state={isSelected ? 'selected' : undefined}>
+                        <Td>
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${inv.title || id}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <EntityRowLink
                             href={`/dashboard/crm/sales/recurring-invoices/${id}`}
                             label={inv.title || `Schedule ${id.slice(-6)}`}
                             subtitle={frequencyLabel(inv.frequency)}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px]">
+                        </Td>
+                        <Td className="text-[12.5px]">
                           {inv.customerId ? (
                             <EntityPickerChip entity="client" id={inv.customerId} />
                           ) : (
                             <span className="text-[var(--st-text-secondary)]">—</span>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {frequencyLabel(inv.frequency)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(inv.nextRunAt)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(inv.lastRunAt)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] tabular-nums text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] tabular-nums text-[var(--st-text-secondary)]">
                           {typeof inv.totalRuns === 'number' ? inv.totalRuns : '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <StatusPill
                             label={inv.status}
                             tone={statusToTone(inv.status)}
                           />
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </Card>
         </div>

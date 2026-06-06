@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, useToast } from '@/components/sabcrm/20ui/compat';
 import { createCustomReport, deleteCustomReport } from '@/app/actions/platform/custom-report-builder.actions';
 import type { CustomReport } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
@@ -18,7 +18,7 @@ export function CustomReportBuilderClient({ initialData }: CustomReportBuilderCl
   const [dialogOpen, setDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [form, setForm] = useState({ name: '', description: '', dataSource: '', columns: '' });
 
@@ -85,10 +85,10 @@ export function CustomReportBuilderClient({ initialData }: CustomReportBuilderCl
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New Custom Report</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Custom Report</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>Report Name</Label>
@@ -107,13 +107,13 @@ export function CustomReportBuilderClient({ initialData }: CustomReportBuilderCl
               <Input value={form.columns} onChange={e => setForm({ ...form, columns: e.target.value })} placeholder="Revenue, Date, Rep" />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleCreate} disabled={isPending}>
               {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} Create
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

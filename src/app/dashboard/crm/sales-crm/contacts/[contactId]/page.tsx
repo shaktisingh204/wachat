@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useParams,
   useRouter } from 'next/navigation';
@@ -74,7 +74,7 @@ function statusBadgeTone(
 export default function ContactDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const contactId = (params?.contactId as string) || '';
 
@@ -226,10 +226,10 @@ export default function ContactDetailPage() {
                     <>
                         {/* Linked & owner */}
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Links</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="space-y-3 text-sm">
+                            <CardHeader>
+                                <CardTitle>Links</CardTitle>
+                            </CardHeader>
+                            <CardBody className="space-y-3 text-sm">
                                 <div className="flex items-center justify-between gap-2">
                                     <span className="text-[var(--st-text-secondary)]">Account</span>
                                     {contact.accountId ? (
@@ -287,15 +287,15 @@ export default function ContactDetailPage() {
                                         ))}
                                     </div>
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         {/* Lifetime stats */}
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Activity stats</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="space-y-2 text-sm">
+                            <CardHeader>
+                                <CardTitle>Activity stats</CardTitle>
+                            </CardHeader>
+                            <CardBody className="space-y-2 text-sm">
                                 <Stat
                                     label="Lifecycle"
                                     value={contact.lifecycleStage ?? '—'}
@@ -337,15 +337,15 @@ export default function ContactDetailPage() {
                                     label="Lead score"
                                     value={contact.leadScore ?? '—'}
                                 />
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         {/* Related entities */}
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Related</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="space-y-2 text-sm">
+                            <CardHeader>
+                                <CardTitle>Related</CardTitle>
+                            </CardHeader>
+                            <CardBody className="space-y-2 text-sm">
                                 <RelatedLink
                                     label="Deals"
                                     href={`/dashboard/crm/sales-crm/deals?contactId=${contactId}`}
@@ -363,7 +363,7 @@ export default function ContactDetailPage() {
                                     href={`/dashboard/crm/sales/invoices?contactId=${contactId}`}
                                 />
                                 {/* TODO 1D.2: live counts on related entities deferred — no aggregator endpoint yet. */}
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     </>
                 }

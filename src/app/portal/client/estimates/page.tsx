@@ -10,17 +10,8 @@ import { fmtINR } from "@/lib/utils";
 export const dynamic = 'force-dynamic';
 
 import { getClientEstimates } from '@/app/actions/client-portal.actions';
-import {
-    Card,
-    ZoruCardContent,
-} from '@/components/sabcrm/20ui/compat';
-import {
-    Table,
-    ZoruTableBody,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { EstimateRow } from './EstimateRow';
 import { Info } from 'lucide-react';
@@ -70,25 +61,25 @@ async function ClientEstimatesPageContent() {
                 />
             ) : (
                 <Card>
-                    <ZoruCardContent className="p-0">
+                    <CardBody className="p-0">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead className="w-10"></ZoruTableHead>
-                                    <ZoruTableHead>Number</ZoruTableHead>
-                                    <ZoruTableHead>Valid Till</ZoruTableHead>
-                                    <ZoruTableHead>Total</ZoruTableHead>
-                                    <ZoruTableHead>Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Action</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th className="w-10"></Th>
+                                    <Th>Number</Th>
+                                    <Th>Valid Till</Th>
+                                    <Th>Total</Th>
+                                    <Th>Status</Th>
+                                    <Th className="text-right">Action</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {estimates.map((est) => (
                                     <EstimateRow key={est._id} est={est} />
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

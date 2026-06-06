@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { Clock, Trophy } from 'lucide-react';
 
@@ -38,7 +38,7 @@ function fmtMoney(value?: number | null, currency = 'INR'): string {
 
 export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const flipStateRef = React.useRef<Flip.FlipState | null>(null);

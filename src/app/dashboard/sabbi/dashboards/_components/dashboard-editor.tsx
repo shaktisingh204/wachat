@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { ArrowDown, ArrowUp, LoaderCircle, Plus, Save, Trash2, GripHorizontal } from 'lucide-react';
 import * as React from 'react';
@@ -147,16 +135,16 @@ function SortableWidgetCard({ w, patchWidget, patchDataSource, move, removeWidge
                         value={w.kind}
                         onValueChange={(v) => patchWidget(w.id, { kind: v as WidgetKind })}
                     >
-                        <ZoruSelectTrigger className="h-8">
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger className="h-8">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
                             {KIND_OPTIONS.map((k) => (
-                                <ZoruSelectItem key={k.value} value={k.value}>
+                                <SelectItem key={k.value} value={k.value}>
                                     {k.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div>
@@ -167,16 +155,16 @@ function SortableWidgetCard({ w, patchWidget, patchDataSource, move, removeWidge
                             patchDataSource(w.id, { type: v as WidgetDataSourceType })
                         }
                     >
-                        <ZoruSelectTrigger className="h-8">
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger className="h-8">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
                             {DS_OPTIONS.map((d) => (
-                                <ZoruSelectItem key={d.value} value={d.value}>
+                                <SelectItem key={d.value} value={d.value}>
                                     {d.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="col-span-2">
@@ -245,7 +233,7 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
     const [isAddOpen, setIsAddOpen] = React.useState(false);
     const [isSaving, startSaveTransition] = React.useTransition();
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const containerRef = React.useRef<HTMLDivElement>(null);
 
     const sensors = useSensors(
@@ -360,7 +348,7 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
 
             {widgets.length === 0 ? (
                 <Card>
-                    <ZoruCardContent className="flex flex-col items-center justify-center gap-2 p-10 text-center">
+                    <CardBody className="flex flex-col items-center justify-center gap-2 p-10 text-center">
                         <p className="text-[14px] text-[var(--st-text)]">No widgets yet.</p>
                         <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Add your first widget — a metric, chart, or table — to start building this board.
@@ -369,7 +357,7 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
                             <Plus className="h-4 w-4" />
                             Add widget
                         </Button>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : (
                 <DndContext 

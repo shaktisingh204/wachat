@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, EmptyState, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   LoaderCircle,
@@ -83,7 +68,7 @@ function fmtDateTime(value: unknown): string {
 }
 
 export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [pendingDelete, setPendingDelete] =
         React.useState<CrmIntegrationDoc | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
@@ -226,21 +211,21 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                 })}
             </div>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete integration?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete integration?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Removing &ldquo;{pendingDelete?.name}&rdquo; will revoke its
                             connection. Any stored credentials will be deleted permanently.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deletePending}
                         >
@@ -252,10 +237,10 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                             ) : (
                                 'Delete'
                             )}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

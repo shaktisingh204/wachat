@@ -1,44 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -130,7 +92,7 @@ function relativeTime(iso?: string): string {
 export default function TelegramFlowsPage() {
   const router = useRouter();
   const { activeProjectId } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [flows, setFlows] = useState<FlowRow[]>([]);
   const [total, setTotal] = useState(0);
@@ -228,23 +190,23 @@ export default function TelegramFlowsPage() {
     <div className="flex flex-col gap-6 p-6">
         <TelegramProjectGate />
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
-          <ZoruPageTitle style={{ color: ACCENT }} className="flex items-center gap-2">
+        <PageHeading>
+          <PageEyebrow>Telegram</PageEyebrow>
+          <PageTitle style={{ color: ACCENT }} className="flex items-center gap-2">
             <Workflow className="h-6 w-6" /> Telegram Flows
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Visual flows triggered by Telegram messages, commands, callbacks, and schedules.
             Drafts are private; publishing rolls a new version that the bot runs against
             real updates.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button onClick={handleCreate} disabled={isMutating || !activeProjectId}>
             {isMutating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             New flow
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {/* KPIs */}
@@ -279,15 +241,15 @@ export default function TelegramFlowsPage() {
           value={statusFilter || 'all'}
           onValueChange={(v) => setStatusFilter(v === 'all' ? '' : (v as FlowStatus))}
         >
-          <ZoruSelectTrigger className="w-full md:w-56">
-            <ZoruSelectValue placeholder="All statuses" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-            <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-            <ZoruSelectItem value="published">Published</ZoruSelectItem>
-            <ZoruSelectItem value="disabled">Disabled</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="w-full md:w-56">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="published">Published</SelectItem>
+            <SelectItem value="disabled">Disabled</SelectItem>
+          </SelectContent>
         </Select>
       </Card>
 
@@ -310,22 +272,22 @@ export default function TelegramFlowsPage() {
           />
         ) : (
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Name</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Version</ZoruTableHead>
-                <ZoruTableHead>Trigger</ZoruTableHead>
-                <ZoruTableHead className="text-right">Runs (7d)</ZoruTableHead>
-                <ZoruTableHead className="text-right">Errors (7d)</ZoruTableHead>
-                <ZoruTableHead>Last run</ZoruTableHead>
-                <ZoruTableHead aria-label="Actions" />
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Status</Th>
+                <Th>Version</Th>
+                <Th>Trigger</Th>
+                <Th className="text-right">Runs (7d)</Th>
+                <Th className="text-right">Errors (7d)</Th>
+                <Th>Last run</Th>
+                <Th aria-label="Actions" />
+              </Tr>
+            </THead>
+            <TBody>
               {flows.map((f) => (
-                <ZoruTableRow key={f._id}>
-                  <ZoruTableCell>
+                <Tr key={f._id}>
+                  <Td>
                     <button
                       type="button"
                       onClick={() => router.push(`/dashboard/telegram/flows/${f._id}`)}
@@ -336,38 +298,38 @@ export default function TelegramFlowsPage() {
                     {f.description ? (
                       <div className="text-xs text-[var(--st-text-secondary)]">{f.description}</div>
                     ) : null}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Badge variant={statusVariant(f.status)}>{f.status}</Badge>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     v{f.version}
                     {f.latestPublishedVersion > 0 ? (
                       <span className="ml-1 text-xs text-[var(--st-text-secondary)]">
                         (pub v{f.latestPublishedVersion})
                       </span>
                     ) : null}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-sm">{describeTrigger(f.trigger)}</ZoruTableCell>
-                  <ZoruTableCell className="text-right tabular-nums">{f.runCount}</ZoruTableCell>
-                  <ZoruTableCell className="text-right tabular-nums">{f.errorCount}</ZoruTableCell>
-                  <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-sm">{describeTrigger(f.trigger)}</Td>
+                  <Td className="text-right tabular-nums">{f.runCount}</Td>
+                  <Td className="text-right tabular-nums">{f.errorCount}</Td>
+                  <Td className="text-sm text-[var(--st-text-secondary)]">
                     {relativeTime(f.lastRunAt)}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" aria-label="Actions">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
                           onClick={() => router.push(`/dashboard/telegram/flows/${f._id}`)}
                         >
                           Open editor
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                           onClick={() =>
                             mutate(
                               () => duplicateTelegramFlow(f._id, activeProjectId!),
@@ -377,9 +339,9 @@ export default function TelegramFlowsPage() {
                           disabled={!activeProjectId}
                         >
                           <Copy className="mr-2 h-4 w-4" /> Duplicate
-                        </ZoruDropdownMenuItem>
+                        </DropdownMenuItem>
                         {f.status === 'published' ? (
-                          <ZoruDropdownMenuItem
+                          <DropdownMenuItem
                             onClick={() =>
                               mutate(
                                 () => disableTelegramFlow(f._id, activeProjectId!),
@@ -389,9 +351,9 @@ export default function TelegramFlowsPage() {
                             disabled={!activeProjectId}
                           >
                             <Pause className="mr-2 h-4 w-4" /> Disable
-                          </ZoruDropdownMenuItem>
+                          </DropdownMenuItem>
                         ) : f.status === 'disabled' ? (
-                          <ZoruDropdownMenuItem
+                          <DropdownMenuItem
                             onClick={() =>
                               mutate(
                                 () => enableTelegramFlow(f._id, activeProjectId!),
@@ -401,9 +363,9 @@ export default function TelegramFlowsPage() {
                             disabled={!activeProjectId}
                           >
                             <Play className="mr-2 h-4 w-4" /> Enable
-                          </ZoruDropdownMenuItem>
+                          </DropdownMenuItem>
                         ) : (
-                          <ZoruDropdownMenuItem
+                          <DropdownMenuItem
                             onClick={() =>
                               mutate(
                                 () => publishTelegramFlow(f._id, activeProjectId!),
@@ -413,40 +375,40 @@ export default function TelegramFlowsPage() {
                             disabled={!activeProjectId}
                           >
                             <Play className="mr-2 h-4 w-4" /> Publish
-                          </ZoruDropdownMenuItem>
+                          </DropdownMenuItem>
                         )}
-                        <ZoruDropdownMenuSeparator />
-                        <ZoruDropdownMenuItem
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
                           className="text-[var(--st-text)] focus:text-[var(--st-text)]"
                           onClick={() => setConfirmDeleteId(f._id)}
                         >
                           <Trash2 className="mr-2 h-4 w-4" /> Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
                     </DropdownMenu>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         )}
       </Card>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={confirmDeleteId !== null}
         onOpenChange={(open) => !open && setConfirmDeleteId(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete this flow?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this flow?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes the flow, its versions, and its run history.
               This action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={() => {
                 if (!confirmDeleteId || !activeProjectId) return;
                 const id = confirmDeleteId;
@@ -455,10 +417,10 @@ export default function TelegramFlowsPage() {
               }}
             >
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -7,19 +7,7 @@ import type { WithId } from 'mongodb';
 import { useDebouncedCallback } from 'use-debounce';
 import { Building2, Plus, Trash2 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Checkbox,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
@@ -75,7 +63,7 @@ const EMPTY_KPIS: CrmVendorKpis = {
 };
 
 export default function VendorsPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     /* ─── Data state ─────────────────────────────────────────────── */
     const [allVendors, setAllVendors] = React.useState<WithId<CrmVendor>[]>([]);
@@ -516,9 +504,9 @@ export default function VendorsPage() {
                         </h2>
                         <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--st-border)]">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                        <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
+                                <THead>
+                                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                        <Th className="w-10 text-[var(--st-text-secondary)]">
                                             <Checkbox
                                                 aria-label="Select all on page"
                                                 checked={
@@ -528,43 +516,43 @@ export default function VendorsPage() {
                                                     handleToggleAll(c === true)
                                                 }
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Vendor Name
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Email
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Phone
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Type
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">
                                             Actions
-                                        </ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {pageRows.length > 0 ? (
                                         pageRows.map((vendor) => {
                                             const id = String(vendor._id);
                                             const isSel = selected.has(id);
                                             return (
-                                                <ZoruTableRow
+                                                <Tr
                                                     key={id}
                                                     className="border-[var(--st-border)]"
                                                     data-state={isSel ? 'selected' : undefined}
                                                 >
-                                                    <ZoruTableCell>
+                                                    <Td>
                                                         <Checkbox
                                                             aria-label={`Select ${vendor.name}`}
                                                             checked={isSel}
                                                             onCheckedChange={() => handleToggleOne(id)}
                                                         />
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="font-medium text-[var(--st-text)]">
                                                         <EntityRowLink
                                                             href={`/dashboard/crm/purchases/vendors/${id}`}
                                                             label={vendor.name}
@@ -575,19 +563,19 @@ export default function VendorsPage() {
                                                                     : undefined
                                                             }
                                                         />
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="text-[var(--st-text)]">
                                                         {vendor.email || 'N/A'}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[var(--st-text)]">
+                                                    </Td>
+                                                    <Td className="text-[var(--st-text)]">
                                                         {vendor.phone || 'N/A'}
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell>
+                                                    </Td>
+                                                    <Td>
                                                         <Badge variant="ghost" className="capitalize">
                                                             {vendor.vendorType ?? '—'}
                                                         </Badge>
-                                                    </ZoruTableCell>
-                                                    <ZoruTableCell className="text-right">
+                                                    </Td>
+                                                    <Td className="text-right">
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
@@ -596,23 +584,23 @@ export default function VendorsPage() {
                                                         >
                                                             <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                         </Button>
-                                                    </ZoruTableCell>
-                                                </ZoruTableRow>
+                                                    </Td>
+                                                </Tr>
                                             );
                                         })
                                     ) : (
-                                        <ZoruTableRow className="border-[var(--st-border)]">
-                                            <ZoruTableCell
+                                        <Tr className="border-[var(--st-border)]">
+                                            <Td
                                                 colSpan={6}
                                                 className="h-24 text-center text-[var(--st-text-secondary)]"
                                             >
                                                 {hasActiveFilters || search
                                                     ? 'No vendors match your filters.'
                                                     : 'No vendors have been added yet.'}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     )}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     </Card>

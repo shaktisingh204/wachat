@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { useState, useRef, useEffect } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -150,7 +150,7 @@ export default function ImageToBase64Page() {
 
       {mode === 'i2b' && (
         <Card>
-          <ZoruCardContent className="p-4 space-y-4">
+          <CardBody className="p-4 space-y-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Image file</Label>
@@ -193,13 +193,13 @@ export default function ImageToBase64Page() {
                 )}
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {mode === 'b2i' && (
         <Card>
-          <ZoruCardContent className="p-4 space-y-4">
+          <CardBody className="p-4 space-y-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Base64 String</Label>
@@ -261,7 +261,7 @@ export default function ImageToBase64Page() {
                 </Button>
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

@@ -1,36 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  Label,
-  Skeleton,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, Skeleton, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -208,25 +178,25 @@ export default function CommerceShopPage(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">Meta Suite</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook/commerce/orders">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">Meta Suite</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook/commerce/orders">
               Commerce
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Shop</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Shop</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
@@ -246,8 +216,8 @@ export default function CommerceShopPage(): React.JSX.Element {
       {error && (
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>Could not load shop data</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not load shop data</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
@@ -358,7 +328,7 @@ export default function CommerceShopPage(): React.JSX.Element {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <DropdownMenu>
-                          <ZoruDropdownMenuTrigger asChild>
+                          <DropdownMenuTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon-sm"
@@ -366,21 +336,21 @@ export default function CommerceShopPage(): React.JSX.Element {
                             >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
-                          </ZoruDropdownMenuTrigger>
-                          <ZoruDropdownMenuContent align="end">
-                            <ZoruDropdownMenuItem onSelect={() => openAction('fulfill', o)}>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={() => openAction('fulfill', o)}>
                               <CheckCircle2 className="mr-2 h-4 w-4" /> Fulfill
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem onSelect={() => openAction('refund', o)}>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => openAction('refund', o)}>
                               <Undo2 className="mr-2 h-4 w-4" /> Refund
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
                               onSelect={() => openAction('cancel', o)}
                               className="text-[var(--st-danger)]"
                             >
                               <XCircle className="mr-2 h-4 w-4" /> Cancel
-                            </ZoruDropdownMenuItem>
-                          </ZoruDropdownMenuContent>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
                     </tr>
@@ -393,25 +363,25 @@ export default function CommerceShopPage(): React.JSX.Element {
       </section>
 
       {/* ── Per-action confirm dialog ── */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!pendingAction}
         onOpenChange={(open) => !open && closeAction()}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               {pendingAction?.type === 'fulfill'
                 ? 'Fulfill this order?'
                 : pendingAction?.type === 'cancel'
                 ? 'Cancel this order?'
                 : 'Refund this order?'}
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               Order{' '}
               <span className="font-mono">{pendingAction?.order.id}</span> for{' '}
               {pendingAction?.order.buyer_details?.name ?? 'the buyer'}.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
           {pendingAction?.type === 'fulfill' ? (
             <div className="space-y-3">
@@ -450,9 +420,9 @@ export default function CommerceShopPage(): React.JSX.Element {
             </div>
           )}
 
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={submitting}>Back</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={confirmAction} disabled={submitting}>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={submitting}>Back</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmAction} disabled={submitting}>
               {submitting
                 ? 'Working…'
                 : pendingAction?.type === 'fulfill'
@@ -460,10 +430,10 @@ export default function CommerceShopPage(): React.JSX.Element {
                 : pendingAction?.type === 'cancel'
                 ? 'Cancel order'
                 : 'Issue refund'}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

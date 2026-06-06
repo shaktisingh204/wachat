@@ -15,23 +15,7 @@ import {
   Type,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, useToast } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import {
@@ -102,7 +86,7 @@ export function TechnicianConsole({
   initialChat,
   initialActionLog,
 }: TechnicianConsoleProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   const [tool, setTool] = useState<LensAnnotationKind | null>('arrow');
@@ -344,7 +328,7 @@ export function TechnicianConsole({
         <div className="flex min-h-0 flex-col gap-3">
           {/* Toolbar */}
           <Card>
-            <ZoruCardContent className="flex flex-wrap items-center gap-2 p-3">
+            <CardBody className="flex flex-wrap items-center gap-2 p-3">
               {TOOL_BUTTONS.map(({ kind, label, Icon }) => (
                 <Button
                   key={kind}
@@ -379,16 +363,16 @@ export function TechnicianConsole({
                   value={String(strokeWidth)}
                   onValueChange={(v) => setStrokeWidth(Number(v))}
                 >
-                  <ZoruSelectTrigger className="h-8 w-20">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger className="h-8 w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
                     {[2, 3, 4, 6, 8, 12].map((w) => (
-                      <ZoruSelectItem key={w} value={String(w)}>
+                      <SelectItem key={w} value={String(w)}>
                         {w} px
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
               <Button
@@ -400,7 +384,7 @@ export function TechnicianConsole({
               >
                 <Eraser className="size-4" /> Clear
               </Button>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Camera viewport with SVG annotation overlay */}
@@ -431,7 +415,7 @@ export function TechnicianConsole({
 
           {/* Customer link */}
           <Card>
-            <ZoruCardContent className="flex flex-wrap items-center gap-3 p-3 text-sm">
+            <CardBody className="flex flex-wrap items-center gap-3 p-3 text-sm">
               <span className="text-[var(--st-text-secondary)]">Customer link:</span>
               <code className="rounded bg-[var(--st-bg-muted)] px-2 py-1 text-xs">{customerUrl}</code>
               <Button
@@ -459,16 +443,16 @@ export function TechnicianConsole({
               >
                 Upload snapshot
               </SabFilePickerButton>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
 
         {/* Right panel — chat + log */}
         <Card className="flex min-h-0 flex-col">
-          <ZoruCardHeader className="p-3">
-            <ZoruCardTitle className="text-sm">Activity</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="flex min-h-0 flex-1 flex-col gap-3 p-3 pt-0">
+          <CardHeader className="p-3">
+            <CardTitle className="text-sm">Activity</CardTitle>
+          </CardHeader>
+          <CardBody className="flex min-h-0 flex-1 flex-col gap-3 p-3 pt-0">
             <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded border bg-[var(--st-bg-muted)]/30 p-2">
               {log.length === 0 ? (
                 <p className="text-xs text-[var(--st-text-secondary)]">No activity yet.</p>
@@ -526,7 +510,7 @@ export function TechnicianConsole({
                 Send
               </Button>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </div>

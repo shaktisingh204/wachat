@@ -28,20 +28,7 @@ import {
     recheckMailDomainDns,
 } from '@/app/actions/mailbox.actions';
 import type { MailDomainDoc } from '@/lib/rust-client/mail-domains';
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    EmptyState,
-    Input,
-    Label,
-    Separator,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Separator, useToast } from '@/components/sabcrm/20ui/compat';
 
 type Status = 'pending' | 'verified' | 'failed';
 
@@ -88,7 +75,7 @@ export interface DomainsClientProps {
 
 export function DomainsClient({ initialDomains }: DomainsClientProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [domainName, setDomainName] = React.useState('');
     const [submitting, setSubmitting] = React.useState(false);
     const [busyId, setBusyId] = React.useState<string | null>(null);
@@ -172,14 +159,14 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
     return (
         <div className="flex flex-col gap-6">
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Add a domain</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Add a domain</CardTitle>
+                    <CardDescription>
                         Enter the apex domain (e.g. <code>acme.com</code>). DNS records will
                         appear below once it&apos;s saved.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
                     <form onSubmit={handleCreate} className="flex flex-col gap-3 sm:flex-row sm:items-end">
                         <div className="flex-1">
                             <Label htmlFor="mail-domain-name">Domain</Label>
@@ -197,7 +184,7 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
                             {submitting ? 'Adding…' : 'Add domain'}
                         </Button>
                     </form>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {initialDomains.length === 0 ? (
@@ -212,18 +199,18 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
                         const busy = busyId === id;
                         return (
                             <Card key={id}>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle className="flex flex-wrap items-center gap-2">
+                                <CardHeader>
+                                    <CardTitle className="flex flex-wrap items-center gap-2">
                                         <span className="font-mono">{d.domain}</span>
-                                    </ZoruCardTitle>
-                                    <ZoruCardDescription className="flex flex-wrap gap-2 pt-2">
+                                    </CardTitle>
+                                    <CardDescription className="flex flex-wrap gap-2 pt-2">
                                         <StatusPill label="MX" status={d.mxStatus} />
                                         <StatusPill label="SPF" status={d.spfStatus} />
                                         <StatusPill label="DKIM" status={d.dkimStatus} />
                                         <StatusPill label="DMARC" status={d.dmarcStatus} />
-                                    </ZoruCardDescription>
-                                </ZoruCardHeader>
-                                <ZoruCardContent className="flex flex-col gap-3">
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardBody className="flex flex-col gap-3">
                                     <pre className="max-h-48 overflow-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-xs text-[var(--st-text-secondary)]">
                                         {dnsRecordsFor(d)}
                                     </pre>
@@ -260,7 +247,7 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
                                             Remove
                                         </Button>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         );
                     })}

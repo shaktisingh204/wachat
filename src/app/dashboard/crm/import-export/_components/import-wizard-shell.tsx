@@ -21,23 +21,7 @@ import {
     Trash2,
 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    EmptyState,
-    Sheet,
-    ZoruSheetContent,
-    ZoruSheetDescription,
-    ZoruSheetHeader,
-    ZoruSheetTitle,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
     deleteImportJob,
     listImportJobs,
@@ -175,20 +159,20 @@ export function ImportWizardShell({
                 ) : (
                     <div className="overflow-x-auto">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>File</ZoruTableHead>
-                                    <ZoruTableHead>Entity</ZoruTableHead>
-                                    <ZoruTableHead>Status</ZoruTableHead>
-                                    <ZoruTableHead>Progress</ZoruTableHead>
-                                    <ZoruTableHead>Started</ZoruTableHead>
-                                    <ZoruTableHead>Finished</ZoruTableHead>
-                                    <ZoruTableHead className="w-32 text-right">
+                            <THead>
+                                <Tr>
+                                    <Th>File</Th>
+                                    <Th>Entity</Th>
+                                    <Th>Status</Th>
+                                    <Th>Progress</Th>
+                                    <Th>Started</Th>
+                                    <Th>Finished</Th>
+                                    <Th className="w-32 text-right">
                                         Actions
-                                    </ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {jobs.slice((page - 1) * pageSize, page * pageSize).map((job) => {
                                     const schema = ENTITY_SCHEMAS[job.entityType];
                                     const total = job.totalRows || 0;
@@ -205,35 +189,35 @@ export function ImportWizardShell({
                                         job.status === 'completed' ||
                                         job.status === 'failed';
                                     return (
-                                        <ZoruTableRow key={job._id}>
-                                            <ZoruTableCell className="max-w-[220px] truncate text-[12.5px] text-[var(--st-text)]">
+                                        <Tr key={job._id}>
+                                            <Td className="max-w-[220px] truncate text-[12.5px] text-[var(--st-text)]">
                                                 {job.filename}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                            </Td>
+                                            <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {schema?.label ?? job.entityType}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <Badge
                                                     variant={statusVariant(job.status)}
                                                 >
                                                     {job.status}
                                                 </Badge>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                            </Td>
+                                            <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {job.processed}/{total} ({pct}%)
                                                 {job.failed > 0 && (
                                                     <span className="ml-1 text-[var(--st-danger)]">
                                                         · {job.failed} failed
                                                     </span>
                                                 )}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]" suppressHydrationWarning>
+                                            </Td>
+                                            <Td className="text-[12.5px] text-[var(--st-text-secondary)]" suppressHydrationWarning>
                                                 {formatDateTime(job.createdAt)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]" suppressHydrationWarning>
+                                            </Td>
+                                            <Td className="text-[12.5px] text-[var(--st-text-secondary)]" suppressHydrationWarning>
                                                 {formatDateTime(job.finishedAt)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 <div className="flex items-center justify-end gap-1">
                                                     {job.errors.length > 0 && (
                                                         <Button
@@ -262,11 +246,11 @@ export function ImportWizardShell({
                                                         </Button>
                                                     )}
                                                 </div>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 )}
@@ -304,14 +288,14 @@ export function ImportWizardShell({
                     else setIsOpen(true);
                 }}
             >
-                <ZoruSheetContent className="w-full max-w-2xl overflow-y-auto">
-                    <ZoruSheetHeader>
-                        <ZoruSheetTitle>Import wizard</ZoruSheetTitle>
-                        <ZoruSheetDescription>
+                <SheetContent className="w-full max-w-2xl overflow-y-auto">
+                    <SheetHeader>
+                        <SheetTitle>Import wizard</SheetTitle>
+                        <SheetDescription>
                             Upload a CSV or Excel file and map its columns to the
                             target entity.
-                        </ZoruSheetDescription>
-                    </ZoruSheetHeader>
+                        </SheetDescription>
+                    </SheetHeader>
                     <div className="mt-4">
                         <ImportWizard
                             key={wizardKey}
@@ -319,7 +303,7 @@ export function ImportWizardShell({
                             onJobCreated={refresh}
                         />
                     </div>
-                </ZoruSheetContent>
+                </SheetContent>
             </Sheet>
         </>
     );

@@ -4,16 +4,7 @@
 
 import Link from 'next/link';
 
-import {
-    PageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Card,
-    CardContent,
-    Badge,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardContent, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
 
 import { getSabConnectGroups } from '@/app/actions/sabconnect.actions';
 import { CreateGroupDialog } from './_components/create-group-dialog';
@@ -26,12 +17,12 @@ export default async function SabConnectGroupsPage() {
     return (
         <div className="flex w-full flex-col gap-6">
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Groups</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Groups</PageTitle>
+                    <PageDescription>
                         Spaces for teams, projects and interest groups.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <CreateGroupDialog />
             </PageHeader>
 

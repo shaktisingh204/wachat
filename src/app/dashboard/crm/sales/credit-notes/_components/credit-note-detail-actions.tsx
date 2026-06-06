@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Archive,
@@ -30,7 +30,7 @@ export function CreditNoteDetailActions({
     currentStatus,
 }: CreditNoteDetailActionsProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [pending, startTransition] = React.useTransition();
     const [busy, setBusy] = React.useState<'refunded' | 'archive' | null>(null);
 

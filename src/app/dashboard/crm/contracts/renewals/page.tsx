@@ -16,25 +16,7 @@
 
 import * as React from 'react';
 
-import {
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertTitle, AlertDescription, Badge, Button, Card, Checkbox, Input, Label, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   AlertTriangle,
@@ -118,7 +100,7 @@ function KpiCard({
 
 export default function ContractRenewalsPage() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<Row[]>([]);
   const [isLoading, startLoading] = React.useTransition();
@@ -427,20 +409,20 @@ export default function ContractRenewalsPage() {
         {kpi.expiredCount > 0 && (
           <Alert variant="destructive" className="mt-4">
             <AlertCircle className="h-4 w-4" />
-            <ZoruAlertTitle>Action Required: Overdue Renewals</ZoruAlertTitle>
-            <ZoruAlertDescription>
+            <AlertTitle>Action Required: Overdue Renewals</AlertTitle>
+            <AlertDescription>
               There {kpi.expiredCount === 1 ? 'is' : 'are'} {kpi.expiredCount} expired contract renewal{kpi.expiredCount === 1 ? '' : 's'} that require immediate attention.
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
         )}
         
         {kpi.due30 > 0 && (
           <Alert variant="warning" className="mt-4">
             <AlertTriangle className="h-4 w-4" />
-            <ZoruAlertTitle>Upcoming Renewals</ZoruAlertTitle>
-            <ZoruAlertDescription>
+            <AlertTitle>Upcoming Renewals</AlertTitle>
+            <AlertDescription>
               There {kpi.due30 === 1 ? 'is' : 'are'} {kpi.due30} contract renewal{kpi.due30 === 1 ? '' : 's'} due within the next 30 days.
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
         )}
 
@@ -454,72 +436,72 @@ export default function ContractRenewalsPage() {
         <Card className="overflow-hidden p-0">
           <div className="overflow-x-auto">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                  <ZoruTableHead className="w-10 pl-3">
+              <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                  <Th className="w-10 pl-3">
                     <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead>Contract</ZoruTableHead>
-                  <ZoruTableHead>From date</ZoruTableHead>
-                  <ZoruTableHead>To date</ZoruTableHead>
-                  <ZoruTableHead className="text-right">New value</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead className="w-[80px] text-right">Actions</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                  <Th>Contract</Th>
+                  <Th>From date</Th>
+                  <Th>To date</Th>
+                  <Th className="text-right">New value</Th>
+                  <Th>Status</Th>
+                  <Th className="w-[80px] text-right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {isLoading && rows.length === 0 ? (
                   [...Array(4)].map((_, i) => (
-                    <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                      <ZoruTableCell colSpan={7}>
+                    <Tr key={i} className="border-[var(--st-border)]">
+                      <Td colSpan={7}>
                         <Skeleton className="h-8 w-full" />
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 ) : filtered.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={7}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive
                         ? 'No renewals match the current filters.'
                         : 'No contract renewals recorded yet.'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filtered.map((r) => (
-                    <ZoruTableRow key={r._id} className="table-row-animate border-[var(--st-border)]">
-                      <ZoruTableCell className="pl-3">
+                    <Tr key={r._id} className="table-row-animate border-[var(--st-border)]">
+                      <Td className="pl-3">
                         <Checkbox
                           checked={selected.has(r._id)}
                           onCheckedChange={() => toggleRow(r._id)}
                           aria-label={`Select renewal ${r._id}`}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <EntityRowLink
                           href={`/dashboard/crm/contracts/${r.contract_id}`}
                           label={r.contract_id}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text-secondary)]">
                         {r.from_date ? new Date(r.from_date).toLocaleDateString() : '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text-secondary)]">
                         {r.to_date ? new Date(r.to_date).toLocaleDateString() : '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
                         {r.new_value != null ? r.new_value.toLocaleString() : '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <DaysRemaining toDate={r.to_date} />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button
                             variant="ghost"
@@ -545,11 +527,11 @@ export default function ContractRenewalsPage() {
                             <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                           </Button>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         </Card>

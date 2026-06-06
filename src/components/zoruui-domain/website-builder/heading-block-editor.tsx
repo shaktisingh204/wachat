@@ -1,26 +1,7 @@
 'use client';
 
-import {
-  Label,
-  Button,
-  Input,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Switch,
-  Separator,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-} from '@/components/sabcrm/20ui/compat';
-import { Tabs, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger, ZoruTabsContent as TabsContent } from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Switch, Separator, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, TrendingUp } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -68,9 +49,9 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
             
             <TabsContent value="content" className="pt-4">
                  <Accordion type="multiple" className="w-full" defaultValue={['content_general', 'content_structure']}>
-                     <ZoruAccordionItem value="content_general">
-                        <ZoruAccordionTrigger>General</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
+                     <AccordionItem value="content_general">
+                        <AccordionTrigger>General</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2">
                                 <Label htmlFor={`text-${settings.id}`}>Title</Label>
                                 <Textarea id={`text-${settings.id}`} value={settings.text || 'Heading Text'} onChange={(e) => handleUpdate('text', e.target.value)} />
@@ -79,11 +60,11 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
                                 <Label htmlFor={`link-${settings.id}`}>Link URL (Optional)</Label>
                                 <Input id={`link-${settings.id}`} type="url" value={settings.link || ''} onChange={(e) => handleUpdate('link', e.target.value)} placeholder="https://..." />
                             </div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
-                     <ZoruAccordionItem value="content_subheading">
-                        <ZoruAccordionTrigger>Subheading</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
+                        </AccordionContent>
+                    </AccordionItem>
+                     <AccordionItem value="content_subheading">
+                        <AccordionTrigger>Subheading</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
                             <div className="space-y-2">
                                 <Label>Subheading Text</Label>
                                 <Textarea value={settings.subheadingText || ''} onChange={(e) => handleUpdate('subheadingText', e.target.value)} />
@@ -91,38 +72,38 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
                             <div className="space-y-2">
                                 <Label>Subheading HTML Tag</Label>
                                  <Select value={settings.subheadingHtmlTag || 'p'} onValueChange={(val) => handleUpdate('subheadingHtmlTag', val)}>
-                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="h1">H1</ZoruSelectItem><ZoruSelectItem value="h2">H2</ZoruSelectItem><ZoruSelectItem value="h3">H3</ZoruSelectItem><ZoruSelectItem value="h4">H4</ZoruSelectItem><ZoruSelectItem value="h5">H5</ZoruSelectItem><ZoruSelectItem value="h6">H6</ZoruSelectItem><ZoruSelectItem value="div">div</ZoruSelectItem><ZoruSelectItem value="span">span</ZoruSelectItem><ZoruSelectItem value="p">p</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="h1">H1</SelectItem><SelectItem value="h2">H2</SelectItem><SelectItem value="h3">H3</SelectItem><SelectItem value="h4">H4</SelectItem><SelectItem value="h5">H5</SelectItem><SelectItem value="h6">H6</SelectItem><SelectItem value="div">div</SelectItem><SelectItem value="span">span</SelectItem><SelectItem value="p">p</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
-                    <ZoruAccordionItem value="content_structure">
-                        <ZoruAccordionTrigger>Structure</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="content_structure">
+                        <AccordionTrigger>Structure</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2">
                                 <Label>HTML Tag</Label>
                                 <Select value={settings.htmlTag || 'h2'} onValueChange={(val) => handleUpdate('htmlTag', val)}>
-                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="h1">H1</ZoruSelectItem><ZoruSelectItem value="h2">H2</ZoruSelectItem><ZoruSelectItem value="h3">H3</ZoruSelectItem><ZoruSelectItem value="h4">H4</ZoruSelectItem><ZoruSelectItem value="h5">H5</ZoruSelectItem><ZoruSelectItem value="h6">H6</ZoruSelectItem><ZoruSelectItem value="div">div</ZoruSelectItem><ZoruSelectItem value="span">span</ZoruSelectItem><ZoruSelectItem value="p">p</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="h1">H1</SelectItem><SelectItem value="h2">H2</SelectItem><SelectItem value="h3">H3</SelectItem><SelectItem value="h4">H4</SelectItem><SelectItem value="h5">H5</SelectItem><SelectItem value="h6">H6</SelectItem><SelectItem value="div">div</SelectItem><SelectItem value="span">span</SelectItem><SelectItem value="p">p</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                              <div className="space-y-2">
                                 <Label>Visual Size Override</Label>
                                 <Select value={settings.size || 'default'} onValueChange={(val) => handleUpdate('size', val === 'default' ? undefined : val)}>
-                                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Default"/></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="default">Default</ZoruSelectItem>
-                                        <ZoruSelectItem value="text-sm">Small</ZoruSelectItem>
-                                        <ZoruSelectItem value="text-lg">Medium</ZoruSelectItem>
-                                        <ZoruSelectItem value="text-2xl">Large</ZoruSelectItem>
-                                        <ZoruSelectItem value="text-4xl">XL</ZoruSelectItem>
-                                        <ZoruSelectItem value="text-6xl">XXL</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger><SelectValue placeholder="Default"/></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="default">Default</SelectItem>
+                                        <SelectItem value="text-sm">Small</SelectItem>
+                                        <SelectItem value="text-lg">Medium</SelectItem>
+                                        <SelectItem value="text-2xl">Large</SelectItem>
+                                        <SelectItem value="text-4xl">XL</SelectItem>
+                                        <SelectItem value="text-6xl">XXL</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                              <div className="space-y-2">
@@ -134,70 +115,70 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
                                     <Button size="sm" variant={settings.textAlign === 'justify' ? 'secondary' : 'ghost'} onClick={() => handleUpdate('textAlign', 'justify')}>Justify</Button>
                                 </div>
                             </div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
+                        </AccordionContent>
+                    </AccordionItem>
                 </Accordion>
             </TabsContent>
 
             <TabsContent value="style" className="pt-4">
                  <Accordion type="multiple" className="w-full" defaultValue={['style_text', 'style_subheading']}>
-                    <ZoruAccordionItem value="style_text">
-                        <ZoruAccordionTrigger>Title Style</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
+                    <AccordionItem value="style_text">
+                        <AccordionTrigger>Title Style</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2"><Label>Text Color</Label><Input type="color" value={settings.color || '#000000'} onChange={(e) => handleUpdate('color', e.target.value)} /></div>
-                             <div className="space-y-2"><Label>Blend Mode</Label><Select value={settings.blendMode || 'normal'} onValueChange={(val) => handleUpdate('blendMode', val)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="normal">Normal</ZoruSelectItem><ZoruSelectItem value="multiply">Multiply</ZoruSelectItem><ZoruSelectItem value="screen">Screen</ZoruSelectItem><ZoruSelectItem value="overlay">Overlay</ZoruSelectItem></ZoruSelectContent></Select></div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
-                    <ZoruAccordionItem value="style_typography">
-                        <ZoruAccordionTrigger>Title Typography</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
-                             <div className="space-y-2"><Label>Font Family</Label><Select value={settings.fontFamily || 'inherit'} onValueChange={(val) => handleUpdate('fontFamily', val)}><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="inherit">Theme Default</ZoruSelectItem><ZoruSelectItem value="Inter, sans-serif">Inter</ZoruSelectItem><ZoruSelectItem value="'Roboto', sans-serif">Roboto</ZoruSelectItem><ZoruSelectItem value="'Lato', sans-serif">Lato</ZoruSelectItem><ZoruSelectItem value="'Merriweather', serif">Merriweather</ZoruSelectItem><ZoruSelectItem value="'Playfair Display', serif">Playfair Display</ZoruSelectItem></ZoruSelectContent></Select></div>
-                            <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Size (px)</Label><Input type="number" value={settings.fontSize || ''} onChange={(e) => handleUpdate('fontSize', e.target.value)} placeholder="e.g. 24" /></div><div className="space-y-2"><Label>Weight</Label><Select value={settings.fontWeight || 'normal'} onValueChange={(val) => handleUpdate('fontWeight', val)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="normal">Normal</ZoruSelectItem><ZoruSelectItem value="bold">Bold</ZoruSelectItem><ZoruSelectItem value="300">300</ZoruSelectItem><ZoruSelectItem value="500">500</ZoruSelectItem><ZoruSelectItem value="700">700</ZoruSelectItem></ZoruSelectContent></Select></div></div>
-                            <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Transform</Label><Select value={settings.textTransform || 'none'} onValueChange={v => handleUpdate('textTransform', v)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="none">None</ZoruSelectItem><ZoruSelectItem value="uppercase">Uppercase</ZoruSelectItem><ZoruSelectItem value="lowercase">Lowercase</ZoruSelectItem><ZoruSelectItem value="capitalize">Capitalize</ZoruSelectItem></ZoruSelectContent></Select></div><div className="space-y-2"><Label>Style</Label><Select value={settings.fontStyle || 'normal'} onValueChange={(val) => handleUpdate('fontStyle', val)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="normal">Normal</ZoruSelectItem><ZoruSelectItem value="italic">Italic</ZoruSelectItem></ZoruSelectContent></Select></div></div>
+                             <div className="space-y-2"><Label>Blend Mode</Label><Select value={settings.blendMode || 'normal'} onValueChange={(val) => handleUpdate('blendMode', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="normal">Normal</SelectItem><SelectItem value="multiply">Multiply</SelectItem><SelectItem value="screen">Screen</SelectItem><SelectItem value="overlay">Overlay</SelectItem></SelectContent></Select></div>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="style_typography">
+                        <AccordionTrigger>Title Typography</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
+                             <div className="space-y-2"><Label>Font Family</Label><Select value={settings.fontFamily || 'inherit'} onValueChange={(val) => handleUpdate('fontFamily', val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="inherit">Theme Default</SelectItem><SelectItem value="Inter, sans-serif">Inter</SelectItem><SelectItem value="'Roboto', sans-serif">Roboto</SelectItem><SelectItem value="'Lato', sans-serif">Lato</SelectItem><SelectItem value="'Merriweather', serif">Merriweather</SelectItem><SelectItem value="'Playfair Display', serif">Playfair Display</SelectItem></SelectContent></Select></div>
+                            <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Size (px)</Label><Input type="number" value={settings.fontSize || ''} onChange={(e) => handleUpdate('fontSize', e.target.value)} placeholder="e.g. 24" /></div><div className="space-y-2"><Label>Weight</Label><Select value={settings.fontWeight || 'normal'} onValueChange={(val) => handleUpdate('fontWeight', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="normal">Normal</SelectItem><SelectItem value="bold">Bold</SelectItem><SelectItem value="300">300</SelectItem><SelectItem value="500">500</SelectItem><SelectItem value="700">700</SelectItem></SelectContent></Select></div></div>
+                            <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Transform</Label><Select value={settings.textTransform || 'none'} onValueChange={v => handleUpdate('textTransform', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="uppercase">Uppercase</SelectItem><SelectItem value="lowercase">Lowercase</SelectItem><SelectItem value="capitalize">Capitalize</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>Style</Label><Select value={settings.fontStyle || 'normal'} onValueChange={(val) => handleUpdate('fontStyle', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="normal">Normal</SelectItem><SelectItem value="italic">Italic</SelectItem></SelectContent></Select></div></div>
                             <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Line Height</Label><Input type="number" step="0.1" value={settings.lineHeight || ''} onChange={(e) => handleUpdate('lineHeight', e.target.value)} placeholder="e.g. 1.6" /></div><div className="space-y-2"><Label>Letter Spacing (px)</Label><Input type="number" value={settings.letterSpacing || ''} onChange={(e) => handleUpdate('letterSpacing', e.target.value)} placeholder="e.g. 1.2" /></div></div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
-                    <ZoruAccordionItem value="style_subheading">
-                        <ZoruAccordionTrigger>Subheading Style</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="style_subheading">
+                        <AccordionTrigger>Subheading Style</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2"><Label>Color</Label><Input type="color" value={settings.subheading?.color || '#333333'} onChange={(e) => handleSubFieldUpdate('subheading', 'color', e.target.value)} /></div>
-                             <div className="space-y-2"><Label>Typography</Label><Select value={settings.subheading?.fontFamily || 'inherit'} onValueChange={v => handleSubFieldUpdate('subheading', 'fontFamily', v)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="inherit">Theme Default</ZoruSelectItem><ZoruSelectItem value="Inter, sans-serif">Inter</ZoruSelectItem></ZoruSelectContent></Select></div>
-                             <div className="grid grid-cols-2 gap-2"><div className="space-y-2"><Label>Size (px)</Label><Input type="number" value={settings.subheading?.fontSize || ''} onChange={e => handleSubFieldUpdate('subheading', 'fontSize', e.target.value, true)} /></div><div className="space-y-2"><Label>Weight</Label><Select value={settings.subheading?.fontWeight || 'normal'} onValueChange={v => handleSubFieldUpdate('subheading', 'fontWeight', v)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="normal">Normal</ZoruSelectItem><ZoruSelectItem value="bold">Bold</ZoruSelectItem></ZoruSelectContent></Select></div></div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
-                    <ZoruAccordionItem value="style_shadow">
-                        <ZoruAccordionTrigger>Text Shadow</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
+                             <div className="space-y-2"><Label>Typography</Label><Select value={settings.subheading?.fontFamily || 'inherit'} onValueChange={v => handleSubFieldUpdate('subheading', 'fontFamily', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="inherit">Theme Default</SelectItem><SelectItem value="Inter, sans-serif">Inter</SelectItem></SelectContent></Select></div>
+                             <div className="grid grid-cols-2 gap-2"><div className="space-y-2"><Label>Size (px)</Label><Input type="number" value={settings.subheading?.fontSize || ''} onChange={e => handleSubFieldUpdate('subheading', 'fontSize', e.target.value, true)} /></div><div className="space-y-2"><Label>Weight</Label><Select value={settings.subheading?.fontWeight || 'normal'} onValueChange={v => handleSubFieldUpdate('subheading', 'fontWeight', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="normal">Normal</SelectItem><SelectItem value="bold">Bold</SelectItem></SelectContent></Select></div></div>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="style_shadow">
+                        <AccordionTrigger>Text Shadow</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
                             <div className="grid grid-cols-4 gap-2">
                                 <Input type="number" placeholder="X" value={settings.textShadow?.x || '0'} onChange={(e) => handleSubFieldUpdate('textShadow', 'x', e.target.value, true)} />
                                 <Input type="number" placeholder="Y" value={settings.textShadow?.y || '0'} onChange={(e) => handleSubFieldUpdate('textShadow', 'y', e.target.value, true)} />
                                 <Input type="number" placeholder="Blur" value={settings.textShadow?.blur || '0'} onChange={(e) => handleSubFieldUpdate('textShadow', 'blur', e.target.value, true)} />
                                 <Input type="color" value={settings.textShadow?.color || '#000000'} onChange={(e) => handleSubFieldUpdate('textShadow', 'color', e.target.value)} />
                             </div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
+                        </AccordionContent>
+                    </AccordionItem>
                 </Accordion>
             </TabsContent>
             
             <TabsContent value="advanced" className="pt-4">
                  <Accordion type="multiple" className="w-full" defaultValue={['advanced_spacing']}>
-                    <ZoruAccordionItem value="advanced_spacing">
-                        <ZoruAccordionTrigger>Spacing</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
+                    <AccordionItem value="advanced_spacing">
+                        <AccordionTrigger>Spacing</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2"><Label>Margin (Top, Right, Bottom, Left) in px</Label><div className="grid grid-cols-4 gap-2"><Input type="number" placeholder="Top" value={settings.margin?.top ?? ''} onChange={(e) => handleSubFieldUpdate('margin', 'top', e.target.value, true)} /><Input type="number" placeholder="R" value={settings.margin?.right ?? ''} onChange={(e) => handleSubFieldUpdate('margin', 'right', e.target.value, true)} /><Input type="number" placeholder="B" value={settings.margin?.bottom ?? ''} onChange={(e) => handleSubFieldUpdate('margin', 'bottom', e.target.value, true)} /><Input type="number" placeholder="L" value={settings.margin?.left ?? ''} onChange={(e) => handleSubFieldUpdate('margin', 'left', e.target.value, true)} /></div></div>
                              <div className="space-y-2"><Label>Padding (Top, Right, Bottom, Left) in px</Label><div className="grid grid-cols-4 gap-2"><Input type="number" placeholder="T" value={settings.padding?.top ?? ''} onChange={(e) => handleSubFieldUpdate('padding', 'top', e.target.value, true)} /><Input type="number" placeholder="R" value={settings.padding?.right ?? ''} onChange={(e) => handleSubFieldUpdate('padding', 'right', e.target.value, true)} /><Input type="number" placeholder="B" value={settings.padding?.bottom ?? ''} onChange={(e) => handleSubFieldUpdate('padding', 'bottom', e.target.value, true)} /><Input type="number" placeholder="L" value={settings.padding?.left ?? ''} onChange={(e) => handleSubFieldUpdate('padding', 'left', e.target.value, true)} /></div></div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
-                    <ZoruAccordionItem value="advanced_motion">
-                        <ZoruAccordionTrigger>Motion Effects</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
-                            <div className="space-y-2"><Label>Entrance Animation</Label><Select value={settings.animation || 'none'} onValueChange={(val) => handleUpdate('animation', val)}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="none">None</ZoruSelectItem><ZoruSelectItem value="fadeIn">Fade In</ZoruSelectItem><ZoruSelectItem value="fadeInUp">Fade In Up</ZoruSelectItem><ZoruSelectItem value="zoomIn">Zoom In</ZoruSelectItem><ZoruSelectItem value="bounce">Bounce</ZoruSelectItem></ZoruSelectContent></Select></div>
-                             <Alert><Lightbulb className="h-4 w-4" /><ZoruAlertTitle>Coming Soon</ZoruAlertTitle><ZoruAlertDescription>Advanced scrolling and mouse effects are planned for a future update.</ZoruAlertDescription></Alert>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
-                    <ZoruAccordionItem value="advanced_responsive">
-                        <ZoruAccordionTrigger>Responsive</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="advanced_motion">
+                        <AccordionTrigger>Motion Effects</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
+                            <div className="space-y-2"><Label>Entrance Animation</Label><Select value={settings.animation || 'none'} onValueChange={(val) => handleUpdate('animation', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="fadeIn">Fade In</SelectItem><SelectItem value="fadeInUp">Fade In Up</SelectItem><SelectItem value="zoomIn">Zoom In</SelectItem><SelectItem value="bounce">Bounce</SelectItem></SelectContent></Select></div>
+                             <Alert><Lightbulb className="h-4 w-4" /><AlertTitle>Coming Soon</AlertTitle><AlertDescription>Advanced scrolling and mouse effects are planned for a future update.</AlertDescription></Alert>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="advanced_responsive">
+                        <AccordionTrigger>Responsive</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
                             <Label>Visibility</Label>
                             <div className="flex flex-col gap-2 rounded-md border p-3">
                                 <div className="flex items-center justify-between"><Label htmlFor="showOnDesktop" className="font-normal">Show on Desktop</Label><Switch id="showOnDesktop" checked={settings.responsiveVisibility?.desktop !== false} onCheckedChange={(val) => handleSubFieldUpdate('responsiveVisibility', 'desktop', val)} /></div>
@@ -207,28 +188,28 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
                             <Separator />
                             <Label>Responsive Alignment</Label>
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2"><Label className="text-xs">Tablet</Label><Select value={settings.tabletTextAlign || 'default'} onValueChange={v => handleUpdate('tabletTextAlign', v === 'default' ? undefined : v)}><ZoruSelectTrigger><ZoruSelectValue placeholder="Inherit"/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="default">Inherit</ZoruSelectItem><ZoruSelectItem value="left">Left</ZoruSelectItem><ZoruSelectItem value="center">Center</ZoruSelectItem><ZoruSelectItem value="right">Right</ZoruSelectItem></ZoruSelectContent></Select></div>
-                                <div className="space-y-2"><Label className="text-xs">Mobile</Label><Select value={settings.mobileTextAlign || 'default'} onValueChange={v => handleUpdate('mobileTextAlign', v === 'default' ? undefined : v)}><ZoruSelectTrigger><ZoruSelectValue placeholder="Inherit"/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="default">Inherit</ZoruSelectItem><ZoruSelectItem value="left">Left</ZoruSelectItem><ZoruSelectItem value="center">Center</ZoruSelectItem><ZoruSelectItem value="right">Right</ZoruSelectItem></ZoruSelectContent></Select></div>
+                                <div className="space-y-2"><Label className="text-xs">Tablet</Label><Select value={settings.tabletTextAlign || 'default'} onValueChange={v => handleUpdate('tabletTextAlign', v === 'default' ? undefined : v)}><SelectTrigger><SelectValue placeholder="Inherit"/></SelectTrigger><SelectContent><SelectItem value="default">Inherit</SelectItem><SelectItem value="left">Left</SelectItem><SelectItem value="center">Center</SelectItem><SelectItem value="right">Right</SelectItem></SelectContent></Select></div>
+                                <div className="space-y-2"><Label className="text-xs">Mobile</Label><Select value={settings.mobileTextAlign || 'default'} onValueChange={v => handleUpdate('mobileTextAlign', v === 'default' ? undefined : v)}><SelectTrigger><SelectValue placeholder="Inherit"/></SelectTrigger><SelectContent><SelectItem value="default">Inherit</SelectItem><SelectItem value="left">Left</SelectItem><SelectItem value="center">Center</SelectItem><SelectItem value="right">Right</SelectItem></SelectContent></Select></div>
                             </div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
-                    <ZoruAccordionItem value="advanced_attributes">
-                        <ZoruAccordionTrigger>Attributes</ZoruAccordionTrigger>
-                         <ZoruAccordionContent className="space-y-4 pt-2">
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="advanced_attributes">
+                        <AccordionTrigger>Attributes</AccordionTrigger>
+                         <AccordionContent className="space-y-4 pt-2">
                              {(settings.customAttributes || []).map((attr: any, index: number) => (
                                  <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Key" value={attr.key} onChange={e => handleAttributeChange(index, 'key', e.target.value)} /><Input placeholder="Value" value={attr.value} onChange={e => handleAttributeChange(index, 'value', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-[var(--st-text)]"/></Button></div>
                              ))}
                              <Button type="button" variant="outline" className="w-full" onClick={addAttribute}><Plus className="mr-2 h-4 w-4"/>Add Attribute</Button>
-                         </ZoruAccordionContent>
-                    </ZoruAccordionItem>
-                     <ZoruAccordionItem value="advanced_custom">
-                        <ZoruAccordionTrigger>Custom CSS</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
+                         </AccordionContent>
+                    </AccordionItem>
+                     <AccordionItem value="advanced_custom">
+                        <AccordionTrigger>Custom CSS</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
                             <div className="space-y-2"><Label>CSS ID</Label><Input value={settings.cssId || ''} onChange={e => handleUpdate('cssId', e.target.value)} /></div>
                             <div className="space-y-2"><Label>CSS Classes</Label><Input value={settings.cssClasses || ''} onChange={e => handleUpdate('cssClasses', e.target.value)} /></div>
                             <div className="space-y-2"><Label>Custom CSS</Label><Textarea value={settings.customCss || ''} onChange={e => handleUpdate('customCss', e.target.value)} className="font-mono" placeholder={`selector {\n  color: red;\n}`}/></div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
+                        </AccordionContent>
+                    </AccordionItem>
                 </Accordion>
              </TabsContent>
         </Tabs>

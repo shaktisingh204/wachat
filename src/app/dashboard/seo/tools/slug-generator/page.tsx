@@ -1,18 +1,6 @@
 'use client';
 
-import { 
-  Button, 
-  Textarea, 
-  Card, 
-  ZoruCardContent, 
-  Label, 
-  useZoruToast,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, Label, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -50,7 +38,7 @@ export default function SlugGeneratorPage() {
   const [input, setInput] = useState('');
   const [casing, setCasing] = useState<CasingOption>('lowercase');
   const [separator, setSeparator] = useState<SeparatorOption>('-');
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   const slug = useMemo(() => generateSlug(input, casing, separator), [input, casing, separator]);
   const [copied, setCopied] = useState(false);
@@ -112,13 +100,13 @@ export default function SlugGeneratorPage() {
 
       {slug && (
         <Card className="mt-5">
-          <ZoruCardContent className="p-4 space-y-3">
+          <CardBody className="p-4 space-y-3">
             <Label>Generated slug</Label>
             <div className="font-mono text-lg break-all">{slug}</div>
             <Button variant="outline" onClick={copy}>
               {copied ? 'Copied!' : 'Copy'}
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

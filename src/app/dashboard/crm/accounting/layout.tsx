@@ -3,7 +3,7 @@
 import React from 'react';
 import { useProject } from '@/context/project-context';
 import { FeatureLock, FeatureLockOverlay } from '@/components/zoruui-domain/feature-lock';
-import { Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { useAccountingStore } from './_components/accounting-store';
 
 export default function AccountingLayout({ children }: { children: React.ReactNode }) {
@@ -23,25 +23,25 @@ export default function AccountingLayout({ children }: { children: React.ReactNo
                         <div className="flex items-center gap-2">
                             <span className="text-xs text-[var(--st-text-secondary)]">Standard:</span>
                             <Select value={standard} onValueChange={(v: any) => setStandard(v)}>
-                                <ZoruSelectTrigger className="h-8 w-[100px] text-xs">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="GAAP">GAAP</ZoruSelectItem>
-                                    <ZoruSelectItem value="IFRS">IFRS</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger className="h-8 w-[100px] text-xs">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="GAAP">GAAP</SelectItem>
+                                    <SelectItem value="IFRS">IFRS</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="text-xs text-[var(--st-text-secondary)]">Fiscal Year:</span>
                             <Select value={fiscalYear} onValueChange={(v: any) => setFiscalYear(v)}>
-                                <ZoruSelectTrigger className="h-8 w-[140px] text-xs">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="current">Current FY</ZoruSelectItem>
-                                    <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger className="h-8 w-[140px] text-xs">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="current">Current FY</SelectItem>
+                                    <SelectItem value="previous">Previous FY</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>

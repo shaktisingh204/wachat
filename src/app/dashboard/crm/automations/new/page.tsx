@@ -8,12 +8,7 @@ import { Mail, ShoppingCart, Plus } from 'lucide-react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
-import {
-    Card,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
 
 import { AutomationForm } from '../_components/automation-form';
 
@@ -40,37 +35,37 @@ export default async function NewAutomationPage({
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     <Link href="?template=blank" className="block h-full">
                         <Card className="h-full hover:border-primary/50 transition-colors cursor-pointer group">
-                            <ZoruCardHeader>
+                            <CardHeader>
                                 <div className="h-10 w-10 rounded-lg bg-[var(--st-bg-muted)] flex items-center justify-center mb-4 group-hover:bg-[var(--st-text)]/10 transition-colors">
                                     <Plus className="h-5 w-5 text-[var(--st-text)] group-hover:text-[var(--st-text)]" />
                                 </div>
-                                <ZoruCardTitle>Blank Automation</ZoruCardTitle>
-                                <ZoruCardDescription>Start from scratch and build your own custom automation flow.</ZoruCardDescription>
-                            </ZoruCardHeader>
+                                <CardTitle>Blank Automation</CardTitle>
+                                <CardDescription>Start from scratch and build your own custom automation flow.</CardDescription>
+                            </CardHeader>
                         </Card>
                     </Link>
 
                     <Link href="?template=tpl-new-lead-welcome" className="block h-full">
                         <Card className="h-full hover:border-primary/50 transition-colors cursor-pointer group">
-                            <ZoruCardHeader>
+                            <CardHeader>
                                 <div className="h-10 w-10 rounded-lg bg-[var(--st-bg-muted)] flex items-center justify-center mb-4 group-hover:bg-[var(--st-bg-muted)] transition-colors">
                                     <Mail className="h-5 w-5 text-[var(--st-text)]" />
                                 </div>
-                                <ZoruCardTitle>New Lead Welcome Sequence</ZoruCardTitle>
-                                <ZoruCardDescription>Automatically sends a welcome email and WhatsApp message when a new lead is tagged.</ZoruCardDescription>
-                            </ZoruCardHeader>
+                                <CardTitle>New Lead Welcome Sequence</CardTitle>
+                                <CardDescription>Automatically sends a welcome email and WhatsApp message when a new lead is tagged.</CardDescription>
+                            </CardHeader>
                         </Card>
                     </Link>
 
                     <Link href="?template=tpl-abandoned-cart" className="block h-full">
                         <Card className="h-full hover:border-primary/50 transition-colors cursor-pointer group">
-                            <ZoruCardHeader>
+                            <CardHeader>
                                 <div className="h-10 w-10 rounded-lg bg-[var(--st-bg-muted)] flex items-center justify-center mb-4 group-hover:bg-[var(--st-bg-muted)] transition-colors">
                                     <ShoppingCart className="h-5 w-5 text-[var(--st-text)]" />
                                 </div>
-                                <ZoruCardTitle>Abandoned Cart Recovery</ZoruCardTitle>
-                                <ZoruCardDescription>Sends a reminder email to customers who left items in their cart.</ZoruCardDescription>
-                            </ZoruCardHeader>
+                                <CardTitle>Abandoned Cart Recovery</CardTitle>
+                                <CardDescription>Sends a reminder email to customers who left items in their cart.</CardDescription>
+                            </CardHeader>
                         </Card>
                     </Link>
                 </div>

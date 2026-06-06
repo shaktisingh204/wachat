@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Skeleton,
-  useZoruToast,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Skeleton, useToast, Input } from '@/components/sabcrm/20ui/compat';
 import { useTransition, useState, useMemo, useEffect } from 'react';
 import {
   LoaderCircle,
@@ -26,7 +17,7 @@ import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 
 function VerifyButton({ domainId, onActionComplete }: { domainId: string; onActionComplete: () => void }) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const onVerify = () => {
     startTransition(async () => {
@@ -50,7 +41,7 @@ function VerifyButton({ domainId, onActionComplete }: { domainId: string; onActi
 
 function DeleteButton({ domainId, onActionComplete }: { domainId: string; onActionComplete: () => void }) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const onDelete = () => {
     if (!confirm('Are you sure you want to delete this custom domain?')) return;
@@ -164,8 +155,8 @@ export function DomainList({
             {!domain.verified && (
               <Alert className="border-[var(--st-warn)]/40 bg-[var(--st-warn)]/10">
                 <AlertTriangle className="h-4 w-4 text-[var(--st-warn)]" />
-                <ZoruAlertTitle className="text-[var(--st-warn)]">Action Required: Verify Domain Ownership</ZoruAlertTitle>
-                <ZoruAlertDescription className="text-[var(--st-warn)] mt-2">
+                <AlertTitle className="text-[var(--st-warn)]">Action Required: Verify Domain Ownership</AlertTitle>
+                <AlertDescription className="text-[var(--st-warn)] mt-2">
                   Please add a <strong>TXT record</strong> to your DNS configuration to verify you own this domain.
                   <div className="mt-3 p-3 bg-[var(--st-bg)] rounded border border-[var(--st-warn)]/40 flex items-center justify-between gap-4">
                     <code className="font-mono text-xs break-all">{domain.verificationCode}</code>
@@ -174,7 +165,7 @@ export function DomainList({
                     </Button>
                   </div>
                   <p className="text-xs mt-2">After adding the record, click 'Verify DNS'. Record propagation usually takes a few minutes.</p>
-                </ZoruAlertDescription>
+                </AlertDescription>
               </Alert>
             )}
 

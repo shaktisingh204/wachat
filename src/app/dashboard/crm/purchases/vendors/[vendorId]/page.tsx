@@ -1,4 +1,4 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -182,25 +182,25 @@ export default async function VendorDetailPage({ params }: PageProps) {
                 <>
                     {/* At-a-glance commercial */}
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>At a glance</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>At a glance</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="space-y-1.5 text-[12.5px]">
                                 <Row label="Vendor type" value={v.vendorType} />
                                 <Row label="Payment terms" value={v.paymentTerms} />
                                 <Row label="Industry" value={v.industry} />
                                 <Row label="Country" value={v.country} />
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     {/* Related rails */}
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Related</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="space-y-1">
+                        <CardHeader>
+                            <CardTitle>Related</CardTitle>
+                        </CardHeader>
+                        <CardBody className="space-y-1">
                             {relatedItems.map((item) => (
                                 <Link
                                     key={item.label}
@@ -214,16 +214,16 @@ export default async function VendorDetailPage({ params }: PageProps) {
                                     <Badge variant="secondary">{item.count}</Badge>
                                 </Link>
                             ))}
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
 
                     {/* Identifiers */}
                     {(v.gstin || v.pan || v.msmeNumber) ? (
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Identifiers</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            <CardHeader>
+                                <CardTitle>Identifiers</CardTitle>
+                            </CardHeader>
+                            <CardBody>
                                 <div className="space-y-1.5 text-[12.5px]">
                                     {v.gstin ? <Row label="GSTIN" value={v.gstin} /> : null}
                                     {v.pan ? <Row label="PAN" value={v.pan} /> : null}
@@ -231,7 +231,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
                                         <Row label="MSME" value={v.msmeNumber} />
                                     ) : null}
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     ) : null}
                 </>
@@ -240,13 +240,13 @@ export default async function VendorDetailPage({ params }: PageProps) {
         >
             {/* Profile */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>
+                <CardHeader>
+                    <CardTitle>
                         <Building2 className="inline h-4 w-4 mr-2 align-text-bottom" />
                         Profile
-                    </ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2 text-[13px]">
                         <Row label="Vendor name" value={v.name} />
                         <Row label="Display name" value={v.displayName} />
@@ -256,15 +256,15 @@ export default async function VendorDetailPage({ params }: PageProps) {
                         <Row label="Website" value={v.website} />
                     </div>
                     <PortalLinkCopy vendorId={id} />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Address */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Address</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Address</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2 text-[13px]">
                         <Row label="Street" value={v.street ?? v.address} />
                         <Row label="City" value={v.city} />
@@ -272,15 +272,15 @@ export default async function VendorDetailPage({ params }: PageProps) {
                         <Row label="Country" value={v.country} />
                         <Row label="Pincode" value={v.pincode} />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Commercial */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Commercial</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Commercial</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2 text-[13px]">
                         <Row label="Vendor type" value={v.vendorType} />
                         <Row label="Payment terms" value={v.paymentTerms} />
@@ -301,20 +301,20 @@ export default async function VendorDetailPage({ params }: PageProps) {
                             </>
                         ) : null}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Notes */}
             {v.notes ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Notes</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Notes</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                             {v.notes}
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
         </EntityDetailShell>

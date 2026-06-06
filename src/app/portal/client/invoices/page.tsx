@@ -7,7 +7,7 @@ import { fmtINR } from "@/lib/utils";
 export const dynamic = 'force-dynamic';
 
 import { getClientInvoices } from '@/app/actions/client-portal.actions';
-import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { ClientInvoicesView } from './client-invoices-view';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 
@@ -45,22 +45,22 @@ async function ClientInvoicesPageContent() {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <Card>
-                    <ZoruCardContent className="p-4">
+                    <CardBody className="p-4">
                         <div className="text-xs text-[var(--st-text-secondary)]">Total Outstanding</div>
                         <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{fmtINR(outstanding, currency)}</div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardContent className="p-4">
+                    <CardBody className="p-4">
                         <div className="text-xs text-[var(--st-text-secondary)]">Paid YTD</div>
                         <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{fmtINR(paidYtd, currency)}</div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardContent className="p-4">
+                    <CardBody className="p-4">
                         <div className="text-xs text-[var(--st-text-secondary)]">Overdue</div>
                         <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{overdueCount}</div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 

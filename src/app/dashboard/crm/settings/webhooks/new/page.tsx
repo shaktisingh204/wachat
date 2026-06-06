@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Checkbox, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Check,
@@ -44,7 +24,7 @@ import {
 
 export default function NewWebhookPage() {
     const router = useRouter();
-    const toast = useZoruToast();
+    const toast = useToast();
 
     const [name, setName] = React.useState('');
     const [targetUrl, setTargetUrl] = React.useState('');
@@ -138,18 +118,18 @@ export default function NewWebhookPage() {
         return (
             <div className="flex min-h-full flex-col gap-6">
                 <PageHeader>
-                    <ZoruPageHeading>
+                    <PageHeading>
                         <Webhook className="size-5" />
-                        <ZoruPageTitle>Subscription created</ZoruPageTitle>
-                    </ZoruPageHeading>
+                        <PageTitle>Subscription created</PageTitle>
+                    </PageHeading>
                 </PageHeader>
                 <Alert variant="destructive">
-                    <ZoruAlertTitle>Copy the signing secret now</ZoruAlertTitle>
-                    <ZoruAlertDescription>
+                    <AlertTitle>Copy the signing secret now</AlertTitle>
+                    <AlertDescription>
                         This secret is used to verify the{' '}
                         <code className="font-mono">X-Sabnode-Signature</code> HMAC header
                         on every delivery. It will not be shown again.
-                    </ZoruAlertDescription>
+                    </AlertDescription>
                 </Alert>
                 <Card className="p-4">
                     <div className="font-mono text-sm break-all rounded-md bg-[var(--st-bg-muted)] p-3">
@@ -184,26 +164,26 @@ export default function NewWebhookPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/crm/settings/webhooks">
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/crm/settings/webhooks">
                             Webhooks
-                        </ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>New</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>New</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
             <PageHeader>
-                <ZoruPageHeading>
+                <PageHeading>
                     <Webhook className="size-5" />
-                    <ZoruPageTitle>New webhook subscription</ZoruPageTitle>
-                </ZoruPageHeading>
-                <ZoruPageDescription>
+                    <PageTitle>New webhook subscription</PageTitle>
+                </PageHeading>
+                <PageDescription>
                     The shared signing secret will be shown once after creation.
-                </ZoruPageDescription>
+                </PageDescription>
             </PageHeader>
 
             <form className="space-y-6" onSubmit={handleSubmit}>

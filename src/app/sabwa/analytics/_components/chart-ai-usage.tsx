@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 import {
   Sparkles } from 'lucide-react';
 
@@ -30,7 +30,7 @@ export function ChartAiUsage({ data }: ChartAiUsageProps) {
     );
   }
   return (
-    <ZoruChartContainer height={288}>
+    <ChartContainer height={288}>
       <ZoruChart.BarChart
         data={data}
         margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -46,7 +46,7 @@ export function ChartAiUsage({ data }: ChartAiUsageProps) {
           axisLine={false}
         />
         <ZoruChart.YAxis fontSize={11} tickLine={false} axisLine={false} />
-        <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+        <ZoruChart.Tooltip content={<ChartTooltip />} />
         <ZoruChart.Legend wrapperStyle={{ fontSize: 12 }} />
         <ZoruChart.Bar
           dataKey="suggest"
@@ -68,6 +68,6 @@ export function ChartAiUsage({ data }: ChartAiUsageProps) {
           radius={[3, 3, 0, 0]}
         />
       </ZoruChart.BarChart>
-    </ZoruChartContainer>
+    </ChartContainer>
   );
 }

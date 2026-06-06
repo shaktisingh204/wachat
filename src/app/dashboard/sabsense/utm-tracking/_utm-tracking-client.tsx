@@ -4,26 +4,12 @@ import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Plus, Edit2, Trash2, Wand2 } from 'lucide-react';
-import { 
-  Table, 
-  ZoruTableHeader, 
-  ZoruTableBody, 
-  ZoruTableRow, 
-  ZoruTableHead, 
-  ZoruTableCell 
-} from '@/components/sabcrm/20ui/compat';
-import { 
-  Dialog, 
-  ZoruDialogTrigger, 
-  ZoruDialogContent, 
-  ZoruDialogHeader, 
-  ZoruDialogFooter, 
-  ZoruDialogTitle 
-} from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import { Input } from '@/components/sabcrm/20ui/compat';
 import { Label } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { createUtmLink, updateUtmLink, deleteUtmLink, generateOptimalUtmTags } from '@/app/actions/marketing/utm-tracking.actions';
 
 export function UtmLinkClient({ initialData }: { initialData: any[] }) {
@@ -32,7 +18,7 @@ export function UtmLinkClient({ initialData }: { initialData: any[] }) {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   // Form State
   const [url, setUrl] = useState<any>("");
@@ -137,16 +123,16 @@ export function UtmLinkClient({ initialData }: { initialData: any[] }) {
       search={{ value: search, onChange: setSearch, placeholder: 'Search...' }}
       primaryAction={
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <ZoruDialogTrigger asChild>
+          <DialogTrigger asChild>
             <Button onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" />
               Create New
             </Button>
-          </ZoruDialogTrigger>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</ZoruDialogTitle>
-            </ZoruDialogHeader>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
+            </DialogHeader>
             <div className="grid gap-4 py-4">
               
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -217,10 +203,10 @@ export function UtmLinkClient({ initialData }: { initialData: any[] }) {
                 </div>
               
             </div>
-            <ZoruDialogFooter>
+            <DialogFooter>
               <Button disabled={loading} onClick={handleSave}>Save</Button>
-            </ZoruDialogFooter>
-          </ZoruDialogContent>
+            </DialogFooter>
+          </DialogContent>
         </Dialog>
       }
     >
@@ -231,49 +217,49 @@ export function UtmLinkClient({ initialData }: { initialData: any[] }) {
       ) : (
         <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="capitalize">url</ZoruTableHead>
-                <ZoruTableHead className="capitalize">source</ZoruTableHead>
-                <ZoruTableHead className="capitalize">medium</ZoruTableHead>
-                <ZoruTableHead className="capitalize">campaign</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th className="capitalize">url</Th>
+                <Th className="capitalize">source</Th>
+                <Th className="capitalize">medium</Th>
+                <Th className="capitalize">campaign</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filteredData.map((item) => (
-                <ZoruTableRow key={item._id}>
+                <Tr key={item._id}>
                   
-                    <ZoruTableCell>
+                    <Td>
                       {String(item.url || '')}
-                    </ZoruTableCell>
+                    </Td>
                   
                   
-                    <ZoruTableCell>
+                    <Td>
                       {String(item.source || '')}
-                    </ZoruTableCell>
+                    </Td>
                   
                   
-                    <ZoruTableCell>
+                    <Td>
                       {String(item.medium || '')}
-                    </ZoruTableCell>
+                    </Td>
                   
                   
-                    <ZoruTableCell>
+                    <Td>
                       {String(item.campaign || '')}
-                    </ZoruTableCell>
+                    </Td>
                   
-                  <ZoruTableCell className="text-right space-x-2">
+                  <Td className="text-right space-x-2">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
                       <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
                       <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                     </Button>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       )}

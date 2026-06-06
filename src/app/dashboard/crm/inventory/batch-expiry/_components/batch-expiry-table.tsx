@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   Trash2 } from 'lucide-react';
@@ -93,7 +76,7 @@ function statusLabel(b: CrmItemBatchDoc, flag: ExpiryFlag): string {
 }
 
 export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [pendingDelete, setPendingDelete] =
         React.useState<CrmItemBatchDoc | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
@@ -134,37 +117,37 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
         <>
             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                    <THead>
+                        <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                            <Th className="text-[var(--st-text-secondary)]">
                                 Item
-                            </ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                            </Th>
+                            <Th className="text-[var(--st-text-secondary)]">
                                 Batch no.
-                            </ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                            </Th>
+                            <Th className="text-[var(--st-text-secondary)]">
                                 Manufacture
-                            </ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                            </Th>
+                            <Th className="text-[var(--st-text-secondary)]">
                                 Expiry
-                            </ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                            </Th>
+                            <Th className="text-[var(--st-text-secondary)] text-right">
                                 Qty
-                            </ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                            </Th>
+                            <Th className="text-[var(--st-text-secondary)]">
                                 Status
-                            </ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                            </Th>
+                            <Th className="text-[var(--st-text-secondary)] text-right">
                                 Actions
-                            </ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                            </Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {batches.map((b) => {
                             const flag = expiryFlag(b.expiryDate);
                             const danger = flag.expired || flag.soon;
                             return (
-                                <ZoruTableRow
+                                <Tr
                                     key={b._id}
                                     className={
                                         flag.expired
@@ -174,21 +157,21 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
                                               : 'border-[var(--st-border)]'
                                     }
                                 >
-                                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                    <Td className="font-medium text-[var(--st-text)]">
                                         <Link
                                             href={`${BASE}/${b._id}`}
                                             className="hover:underline"
                                         >
                                             {b.itemName}
                                         </Link>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                         {b.batchNumber}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-[var(--st-text)]">
                                         {fmtDate(b.manufactureDate)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell
+                                    </Td>
+                                    <Td
                                         className={
                                             danger
                                                 ? 'font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
@@ -196,18 +179,18 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
                                         }
                                     >
                                         {fmtDate(b.expiryDate)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-right font-mono text-[var(--st-text)]">
                                         {b.quantity}
                                         {b.unit ? ` ${b.unit}` : ''}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <StatusPill
                                             label={statusLabel(b, flag)}
                                             tone={statusTone(b, flag)}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <Button variant="ghost" size="icon" asChild>
                                             <Link href={`${BASE}/${b._id}/edit`}>
                                                 <Edit className="h-4 w-4" />
@@ -220,37 +203,37 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
                                         >
                                             <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                         </Button>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             );
                         })}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             </div>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete batch?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete batch?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Deleting batch &ldquo;{pendingDelete?.batchNumber}&rdquo;
                             removes it from the list. This cannot be undone.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deletePending}
                         >
                             {deletePending ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

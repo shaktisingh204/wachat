@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea, Input, Button, Alert, Card, ZoruCardContent as CardContent, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Textarea, Input, Button, Alert, Card, CardBody as CardContent, useToast } from '@/components/sabcrm/20ui/compat';
 import { useState, useMemo, Component, ReactNode } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
@@ -52,7 +52,7 @@ export default function CssMinifierPage() {
     return { original, minified, saved, percent };
   }, [text, min]);
 
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   async function fetchCss() {
     if (!url) return;

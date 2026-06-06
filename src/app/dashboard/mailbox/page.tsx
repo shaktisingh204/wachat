@@ -15,17 +15,7 @@ import {
     listMailAccounts,
     listMailDomains,
 } from '@/app/actions/mailbox.actions';
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    EmptyState,
-    PageHeader,
-    StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, StatCard } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 
@@ -113,14 +103,14 @@ export default async function MailboxLandingPage() {
                         const email = account.emailAddress ?? account.localPart;
                         return (
                             <Card key={id}>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle className="flex items-center gap-2">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
                                         <Mail className="h-4 w-4" />
                                         {account.displayName ?? email}
-                                    </ZoruCardTitle>
-                                    <ZoruCardDescription>{email}</ZoruCardDescription>
-                                </ZoruCardHeader>
-                                <ZoruCardContent className="flex gap-2">
+                                    </CardTitle>
+                                    <CardDescription>{email}</CardDescription>
+                                </CardHeader>
+                                <CardBody className="flex gap-2">
                                     <Button asChild size="sm" className="flex-1">
                                         <Link href={`/dashboard/mailbox/${id}/inbox`}>
                                             Open inbox
@@ -131,7 +121,7 @@ export default async function MailboxLandingPage() {
                                             Compose
                                         </Link>
                                     </Button>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         );
                     })}

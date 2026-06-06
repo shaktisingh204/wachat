@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Label,
-  Switch,
-  Textarea,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Label, Switch, Textarea, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -156,8 +139,8 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                     <div className="space-y-2">
                         <Label htmlFor="timezone">Timezone</Label>
                         <Select name="timezone" defaultValue={settings?.timezone || 'Asia/Kolkata'}>
-                            <ZoruSelectTrigger id="timezone"><ZoruSelectValue /></ZoruSelectTrigger>
-                            <ZoruSelectContent className="max-h-60">{timezones.map(tz => <ZoruSelectItem key={tz} value={tz}>{tz}</ZoruSelectItem>)}</ZoruSelectContent>
+                            <SelectTrigger id="timezone"><SelectValue /></SelectTrigger>
+                            <SelectContent className="max-h-60">{timezones.map(tz => <SelectItem key={tz} value={tz}>{tz}</SelectItem>)}</SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-2">
@@ -203,11 +186,11 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                                 <Textarea value={rule.reply} onChange={(e) => handleReplyRuleChange(rule.id, 'reply', e.target.value)} placeholder="Hi there! How can I help you?" />
                             </div>
                             <Select value={rule.matchType} onValueChange={(val) => handleReplyRuleChange(rule.id, 'matchType', val)}>
-                                <ZoruSelectTrigger className="w-[180px] h-8 text-xs"><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="contains">Contains keyword</ZoruSelectItem>
-                                    <ZoruSelectItem value="exact">Exact match</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger className="w-[180px] h-8 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="contains">Contains keyword</SelectItem>
+                                    <SelectItem value="exact">Exact match</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                     ))}
@@ -230,21 +213,21 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
         {type === 'inactiveHours' && selectedDays.map(d => (
             <input key={d} type="hidden" name={`day_${d}`} value="true" />
         ))}
-        <ZoruCardHeader>
+        <CardHeader>
           <div className="flex items-center justify-between">
             <div className="space-y-1.5">
-                <ZoruCardTitle>{formDetails[type].title}</ZoruCardTitle>
-                <ZoruCardDescription>{formDetails[type].description}</ZoruCardDescription>
+                <CardTitle>{formDetails[type].title}</CardTitle>
+                <CardDescription>{formDetails[type].description}</CardDescription>
             </div>
             <Switch checked={isEnabled} onCheckedChange={setIsEnabled} />
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent className={cn(!isEnabled && 'opacity-50 pointer-events-none')}>
+        </CardHeader>
+        <CardBody className={cn(!isEnabled && 'opacity-50 pointer-events-none')}>
           {renderFormContent()}
-        </ZoruCardContent>
-        <ZoruCardFooter className={cn(!isEnabled && 'hidden')}>
+        </CardBody>
+        <CardFooter className={cn(!isEnabled && 'hidden')}>
           <SubmitButton />
-        </ZoruCardFooter>
+        </CardFooter>
       </form>
     </Card>
   );

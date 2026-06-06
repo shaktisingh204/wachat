@@ -1,24 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Skeleton,
-  Input,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Skeleton, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -72,20 +54,20 @@ function SiteCard({ site }: { site: WithId<Website> }) {
 
     return (
         <Card className="flex flex-col h-full hover:shadow-md transition-shadow">
-            <ZoruCardHeader>
+            <CardHeader>
                 <div className="flex justify-between items-start">
                     <div>
-                        <ZoruCardTitle className="text-xl">{site.name}</ZoruCardTitle>
-                        <ZoruCardDescription className="mt-1">
+                        <CardTitle className="text-xl">{site.name}</CardTitle>
+                        <CardDescription className="mt-1">
                             Slug: <span className="font-mono bg-[var(--st-bg-muted)] px-1 py-0.5 rounded text-xs">{site.slug}</span>
-                        </ZoruCardDescription>
+                        </CardDescription>
                     </div>
                     <Button variant="ghost" size="icon" onClick={handleViewLive} title="View Live Site">
                         <ExternalLink className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </Button>
                 </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex-grow">
+            </CardHeader>
+            <CardBody className="flex-grow">
                 <div className="flex flex-col gap-2">
                     <p className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
                         Created: <time dateTime={new Date(site.createdAt).toISOString()} suppressHydrationWarning>{format(new Date(site.createdAt), 'MMM dd, yyyy')}</time>
@@ -94,12 +76,12 @@ function SiteCard({ site }: { site: WithId<Website> }) {
                         Last Updated: <time dateTime={new Date(site.updatedAt).toISOString()} suppressHydrationWarning>{format(new Date(site.updatedAt), 'MMM dd, yyyy')}</time>
                     </p>
                 </div>
-            </ZoruCardContent>
-            <ZoruCardFooter>
+            </CardBody>
+            <CardFooter>
                  <Button onClick={handleManage} className="w-full">
                     Manage Builder <ArrowRight className="ml-2 h-4 w-4"/>
                 </Button>
-            </ZoruCardFooter>
+            </CardFooter>
         </Card>
     );
 }
@@ -199,8 +181,8 @@ export default function WebsiteBuilderDashboard() {
             {error && (
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Error</ZoruAlertTitle>
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 
@@ -217,15 +199,15 @@ export default function WebsiteBuilderDashboard() {
                     </div>
                     <div className="w-full sm:w-48 shrink-0">
                         <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
-                            <ZoruSelectTrigger className="bg-[var(--st-bg-secondary)]">
-                                <ZoruSelectValue placeholder="Sort by" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="newest">Newest First</ZoruSelectItem>
-                                <ZoruSelectItem value="oldest">Oldest First</ZoruSelectItem>
-                                <ZoruSelectItem value="name-asc">Name (A-Z)</ZoruSelectItem>
-                                <ZoruSelectItem value="name-desc">Name (Z-A)</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="bg-[var(--st-bg-secondary)]">
+                                <SelectValue placeholder="Sort by" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="newest">Newest First</SelectItem>
+                                <SelectItem value="oldest">Oldest First</SelectItem>
+                                <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                                <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>

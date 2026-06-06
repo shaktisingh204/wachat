@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -28,7 +28,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 
 export default function CreateInstagramPostPage() {
   const [state, formAction] = useActionState(createInstagramImagePost, initialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
@@ -56,7 +56,7 @@ export default function CreateInstagramPostPage() {
       <form action={formAction} ref={formRef} className="w-full max-w-xl">
         <input type="hidden" name="projectId" value={projectId || ''} />
         <Card className="p-0">
-          <ZoruCardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-row items-center justify-between">
             <Button variant="ghost" size="icon" asChild>
               <Link href="/dashboard/instagram/feed">
                 <X className="h-5 w-5" />
@@ -66,8 +66,8 @@ export default function CreateInstagramPostPage() {
               <Instagram className="h-5 w-5" /> Create Post
             </h1>
             <SubmitButton disabled={!projectId} />
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-4">
+          </CardHeader>
+          <CardBody className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="imageUrl">Image URL</Label>
               <SabFileUrlInput
@@ -91,7 +91,7 @@ export default function CreateInstagramPostPage() {
                 className="min-h-48"
               />
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </form>
     </div>

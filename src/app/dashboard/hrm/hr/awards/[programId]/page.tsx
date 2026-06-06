@@ -1,15 +1,5 @@
 import { fmtDate, fmtINR } from '@/lib/utils';
-import {
-  Badge,
-  Button,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -247,32 +237,32 @@ export default async function AwardProgramDetailPage({
                 ) : (
                     <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Nominee</ZoruTableHead>
-                                    <ZoruTableHead>Nominated by</ZoruTableHead>
-                                    <ZoruTableHead>Reason</ZoruTableHead>
-                                    <ZoruTableHead>Submitted</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Nominee</Th>
+                                    <Th>Nominated by</Th>
+                                    <Th>Reason</Th>
+                                    <Th>Submitted</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {nominationsList.map((n, i) => (
-                                    <ZoruTableRow key={i}>
-                                        <ZoruTableCell>
+                                    <Tr key={i}>
+                                        <Td>
                                             {String(n.nomineeName || n.nomineeId || '—')}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {String(n.nominatorName || n.nominatorId || '—')}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="max-w-[320px] truncate">
+                                        </Td>
+                                        <Td className="max-w-[320px] truncate">
                                             {String(n.reason || n.notes || '—')}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {fmtDate(n.submittedAt || n.createdAt)}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 )}
@@ -291,28 +281,28 @@ export default async function AwardProgramDetailPage({
                 ) : (
                     <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Winner</ZoruTableHead>
-                                    <ZoruTableHead>Award date</ZoruTableHead>
-                                    <ZoruTableHead>Citation</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Winner</Th>
+                                    <Th>Award date</Th>
+                                    <Th>Citation</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {winnersList.map((w, i) => (
-                                    <ZoruTableRow key={i}>
-                                        <ZoruTableCell>
+                                    <Tr key={i}>
+                                        <Td>
                                             {String(w.employeeName || w.employeeId || '—')}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             {fmtDate(w.awardedAt || w.date)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="max-w-[320px] truncate">
+                                        </Td>
+                                        <Td className="max-w-[320px] truncate">
                                             {String(w.citation || w.reason || '—')}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 )}

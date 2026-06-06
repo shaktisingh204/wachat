@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -52,7 +40,7 @@ export interface MilestoneFormProps {
 
 export function MilestoneForm({ initialData }: MilestoneFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const isEditing = !!initialData?._id;
 
   const [state, formAction] = useActionState(saveWsProjectMilestone, {} as any);
@@ -154,13 +142,13 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
           <div className="space-y-1.5">
             <Label>Status</Label>
             <Select value={status} onValueChange={setStatus}>
-              <ZoruSelectTrigger className="w-full text-sm">
-                <ZoruSelectValue placeholder="Select status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="incomplete">Incomplete</ZoruSelectItem>
-                <ZoruSelectItem value="complete">Complete</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="w-full text-sm">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="incomplete">Incomplete</SelectItem>
+                <SelectItem value="complete">Complete</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">

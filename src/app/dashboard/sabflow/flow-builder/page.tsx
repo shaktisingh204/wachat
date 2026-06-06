@@ -1,56 +1,6 @@
 "use client";
 
-import {
-  cn,
-  useZoruToast,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { cn, useToast, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -116,7 +66,7 @@ type ViewMode = "grid" | "list";
 
 export default function SabFlowListPage() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [flows, setFlows] = useState<FlowItem[]>([]);
   const [todayCounts, setTodayCounts] = useState<Record<string, number>>({});
@@ -274,37 +224,37 @@ export default function SabFlowListPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/sabflow/flow-builder">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/sabflow/flow-builder">
               SabFlow
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Flow Builder</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Flow Builder</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>SabFlow</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>SabFlow</PageTitle>
+          <PageDescription>
             Build visual conversational flows.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <FlowImportExport />
           <Button onClick={() => setShowCreate(true)}>
             <Plus />
             New Flow
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {/* ── Stats cards ─────────────────────────────────────────────── */}
@@ -338,13 +288,13 @@ export default function SabFlowListPage() {
             <RecentActivityFeed />
           </div>
           <Card className="overflow-hidden lg:col-span-2 p-0">
-            <ZoruCardHeader className="flex flex-row items-center gap-2.5 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] py-3">
+            <CardHeader className="flex flex-row items-center gap-2.5 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] py-3">
               <Zap className="h-4 w-4 text-[var(--st-text-secondary)]" />
-              <ZoruCardTitle className="text-[13px]">
+              <CardTitle className="text-[13px]">
                 Today&apos;s activity
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="px-4 py-3">
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="px-4 py-3">
               {flows.length === 0 ? (
                 <p className="py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
                   No flows yet.
@@ -387,7 +337,7 @@ export default function SabFlowListPage() {
                     })}
                 </ul>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       )}
@@ -521,28 +471,28 @@ export default function SabFlowListPage() {
           /* ── List view ───────────────────────────────────────────── */
           <Card className="overflow-hidden p-0">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Name</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead>Groups</ZoruTableHead>
-                  <ZoruTableHead className="hidden sm:table-cell">
+              <THead>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Status</Th>
+                  <Th>Groups</Th>
+                  <Th className="hidden sm:table-cell">
                     Created
-                  </ZoruTableHead>
-                  <ZoruTableHead>Updated</ZoruTableHead>
-                  <ZoruTableHead className="hidden md:table-cell">
+                  </Th>
+                  <Th>Updated</Th>
+                  <Th className="hidden md:table-cell">
                     Today
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                  <Th className="text-right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filtered.map((flow) => {
                   const isPublished = flow.status === "PUBLISHED";
                   const todayCount = todayCounts[flow._id] ?? 0;
                   return (
-                    <ZoruTableRow key={flow._id} className="group">
-                      <ZoruTableCell>
+                    <Tr key={flow._id} className="group">
+                      <Td>
                         <button
                           onClick={() =>
                             router.push(
@@ -553,34 +503,34 @@ export default function SabFlowListPage() {
                         >
                           {flow.name}
                         </button>
-                      </ZoruTableCell>
+                      </Td>
 
-                      <ZoruTableCell>
+                      <Td>
                         <Badge variant={isPublished ? "success" : "warning"}>
                           {isPublished ? "Published" : "Draft"}
                         </Badge>
-                      </ZoruTableCell>
+                      </Td>
 
-                      <ZoruTableCell className="tabular-nums text-[var(--st-text-secondary)]">
+                      <Td className="tabular-nums text-[var(--st-text-secondary)]">
                         {flow.groups?.length ?? 0}
-                      </ZoruTableCell>
+                      </Td>
 
-                      <ZoruTableCell className="hidden text-[11.5px] text-[var(--st-text-secondary)] sm:table-cell">
+                      <Td className="hidden text-[11.5px] text-[var(--st-text-secondary)] sm:table-cell">
                         {flow.createdAt
                           ? format(new Date(flow.createdAt), "MMM d, yyyy")
                           : "—"}
-                      </ZoruTableCell>
+                      </Td>
 
-                      <ZoruTableCell className="text-[11.5px] text-[var(--st-text-secondary)]">
+                      <Td className="text-[11.5px] text-[var(--st-text-secondary)]">
                         {flow.updatedAt
                           ? format(
                               new Date(flow.updatedAt),
                               "MMM d, yyyy · HH:mm",
                             )
                           : "—"}
-                      </ZoruTableCell>
+                      </Td>
 
-                      <ZoruTableCell className="hidden md:table-cell">
+                      <Td className="hidden md:table-cell">
                         {todayCount > 0 ? (
                           <Badge variant="secondary" className="tabular-nums">
                             +{todayCount}
@@ -590,11 +540,11 @@ export default function SabFlowListPage() {
                             —
                           </span>
                         )}
-                      </ZoruTableCell>
+                      </Td>
 
-                      <ZoruTableCell className="text-right">
+                      <Td className="text-right">
                         <DropdownMenu>
-                          <ZoruDropdownMenuTrigger asChild>
+                          <DropdownMenuTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon-sm"
@@ -602,11 +552,11 @@ export default function SabFlowListPage() {
                             >
                               <MoreHorizontal />
                             </Button>
-                          </ZoruDropdownMenuTrigger>
-                          <ZoruDropdownMenuContent align="end" className="w-44">
-                            <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
-                            <ZoruDropdownMenuSeparator />
-                            <ZoruDropdownMenuItem
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-44">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
                               onClick={() =>
                                 router.push(
                                   `/dashboard/sabflow/flow-builder/${flow._id}`,
@@ -615,8 +565,8 @@ export default function SabFlowListPage() {
                             >
                               <Pencil />
                               Edit
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
                               onClick={() =>
                                 router.push(
                                   `/dashboard/sabflow/logs?flowId=${flow._id}`,
@@ -625,22 +575,22 @@ export default function SabFlowListPage() {
                             >
                               <BarChart3 />
                               Results
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem onClick={() => handleRunNow(flow._id)}>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleRunNow(flow._id)}>
                               <Play />
                               Run now
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem onClick={() => handleToggleActive(flow)}>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleToggleActive(flow)}>
                               {flow.status === 'PUBLISHED' ? <ToggleRight /> : <ToggleLeft />}
                               {flow.status === 'PUBLISHED' ? 'Deactivate' : 'Activate'}
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
                               onClick={() => handleDuplicate(flow._id)}
                             >
                               <Copy />
                               Duplicate
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
                               onClick={() => {
                                 const a = document.createElement("a");
                                 a.href = `/api/sabflow/export/${flow._id}`;
@@ -652,9 +602,9 @@ export default function SabFlowListPage() {
                             >
                               <Download />
                               Export
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuSeparator />
-                            <ZoruDropdownMenuItem
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
                               onClick={() =>
                                 setDeleteTarget({
                                   id: flow._id,
@@ -664,14 +614,14 @@ export default function SabFlowListPage() {
                             >
                               <Trash2 />
                               Delete
-                            </ZoruDropdownMenuItem>
-                          </ZoruDropdownMenuContent>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
                         </DropdownMenu>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </Card>
         )}
@@ -679,13 +629,13 @@ export default function SabFlowListPage() {
 
       {/* ── Create flow dialog ────────────────────────────────────────── */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <ZoruDialogContent className="max-w-sm">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New SabFlow</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>New SabFlow</DialogTitle>
+            <DialogDescription>
               Give your flow a name. You can change it later in the editor.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="py-2">
             <Input
               placeholder="Flow name…"
@@ -695,7 +645,7 @@ export default function SabFlowListPage() {
               autoFocus
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreate(false)}>
               Cancel
             </Button>
@@ -709,32 +659,32 @@ export default function SabFlowListPage() {
                 "Create"
               )}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* ── Delete confirm dialog ─────────────────────────────────────── */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!deleteTarget}
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
       >
-        <ZoruAlertDialogContent className="max-w-sm">
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete flow?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete flow?</AlertDialogTitle>
+            <AlertDialogDescription>
               <strong className="font-medium text-[var(--st-text)]">
                 &ldquo;{deleteTarget?.name}&rdquo;
               </strong>{" "}
               will be permanently deleted. This cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={isDeleting}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
               Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogCancel>
+            <AlertDialogAction
               destructive
               disabled={isDeleting}
               onClick={handleDeleteConfirm}
@@ -747,10 +697,10 @@ export default function SabFlowListPage() {
               ) : (
                 "Delete"
               )}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

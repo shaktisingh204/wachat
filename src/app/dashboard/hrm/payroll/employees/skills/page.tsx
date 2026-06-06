@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Button,
-  Card,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -34,7 +23,7 @@ type FormState = { _id: string; name: string };
 const EMPTY_FORM: FormState = { _id: '', name: '' };
 
 export default function SkillsMasterPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [skills, setSkills] = useState<SkillRow[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [isSaving, startSave] = useTransition();
@@ -155,12 +144,12 @@ export default function SkillsMasterPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-sm border-[var(--st-border)] bg-[var(--st-bg)]">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-[var(--st-text)]">
+        <DialogContent className="max-w-sm border-[var(--st-border)] bg-[var(--st-bg)]">
+          <DialogHeader>
+            <DialogTitle className="text-[var(--st-text)]">
               {form._id ? 'Edit Skill' : 'Add Skill'}
-            </ZoruDialogTitle>
-          </ZoruDialogHeader>
+            </DialogTitle>
+          </DialogHeader>
 
           <div className="py-2">
             <Label className="text-[12px] text-[var(--st-text-secondary)]">
@@ -176,7 +165,7 @@ export default function SkillsMasterPage() {
             />
           </div>
 
-          <ZoruDialogFooter className="gap-2">
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
@@ -184,8 +173,8 @@ export default function SkillsMasterPage() {
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Add'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

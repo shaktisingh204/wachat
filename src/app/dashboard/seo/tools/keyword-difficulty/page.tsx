@@ -1,22 +1,6 @@
 'use client';
 
-import { 
-  Button, 
-  Input, 
-  Card, 
-  ZoruCardContent, 
-  Alert, 
-  ZoruAlertTitle, 
-  ZoruAlertDescription,
-  Skeleton,
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Alert, AlertTitle, AlertDescription, Skeleton, Table, THead, TBody, Tr, Th, Td, Badge } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { InfoIcon, Search, ExternalLink, Activity } from 'lucide-react';
@@ -78,10 +62,10 @@ export default function KeywordDifficultyPage() {
     <ToolShell title="Keyword Difficulty" description="Estimate how hard it will be to rank for a keyword based on top 10 search results.">
       <Alert variant="info" className="mb-6">
         <InfoIcon className="h-4 w-4" />
-        <ZoruAlertTitle>Heuristic DA Estimation</ZoruAlertTitle>
-        <ZoruAlertDescription>
+        <AlertTitle>Heuristic DA Estimation</AlertTitle>
+        <AlertDescription>
           This tool fetches real Search Engine Results Page (SERP) competitors via DuckDuckGo. However, the Domain Authority (DA) values are estimated using a heuristic algorithm since live indexing APIs are not integrated in this demo environment.
-        </ZoruAlertDescription>
+        </AlertDescription>
       </Alert>
 
       <div className="flex gap-2">
@@ -104,14 +88,14 @@ export default function KeywordDifficultyPage() {
 
       {error && (
         <Alert variant="destructive" className="mt-6">
-          <ZoruAlertTitle>Error</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {loading && (
         <Card className="mt-6">
-          <ZoruCardContent className="p-6 space-y-6">
+          <CardBody className="p-6 space-y-6">
             <div className="space-y-4">
               <Skeleton className="h-12 w-48" />
               <Skeleton className="h-4 w-full" />
@@ -123,14 +107,14 @@ export default function KeywordDifficultyPage() {
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {result !== null && l && (
         <div className="mt-6 space-y-6">
           <Card>
-            <ZoruCardContent className="p-6">
+            <CardBody className="p-6">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-[var(--st-text)]">Keyword Difficulty</h3>
@@ -158,11 +142,11 @@ export default function KeywordDifficultyPage() {
                   style={{ width: `${result.score}%` }} 
                 />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardContent className="p-0">
+            <CardBody className="p-0">
               <div className="p-6 pb-2">
                 <h3 className="text-lg font-semibold text-[var(--st-text)]">Top 10 Search Results</h3>
                 <p className="text-sm text-[var(--st-text-secondary)] mt-1">
@@ -171,20 +155,20 @@ export default function KeywordDifficultyPage() {
               </div>
               
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12 text-center">Rank</TableHead>
-                    <TableHead>Page Title & URL</TableHead>
-                    <TableHead className="text-right">Domain Authority</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead>
+                  <Tr>
+                    <Th className="w-12 text-center">Rank</Th>
+                    <Th>Page Title & URL</Th>
+                    <Th className="text-right">Domain Authority</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {result.results.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="text-center font-medium text-[var(--st-text-secondary)]">
+                    <Tr key={index}>
+                      <Td className="text-center font-medium text-[var(--st-text-secondary)]">
                         {index + 1}
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <div className="flex flex-col gap-1">
                           <span className="font-medium text-[var(--st-text)] line-clamp-1">{item.title}</span>
                           <a 
@@ -196,17 +180,17 @@ export default function KeywordDifficultyPage() {
                             <ExternalLink className="h-3 w-3 inline-block opacity-50" />
                           </a>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <Badge tone={item.domainAuthority > 70 ? "red" : item.domainAuthority > 40 ? "amber" : "green"}>
                           {item.domainAuthority} DA
                         </Badge>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </TableBody>
+                </TBody>
               </Table>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       )}

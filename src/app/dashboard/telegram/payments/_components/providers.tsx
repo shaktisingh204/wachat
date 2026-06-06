@@ -1,61 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-  StatCard,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Skeleton, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   CreditCard,
   Plus,
@@ -182,7 +127,7 @@ export function ProvidersSection({
     bots: BotOption[];
     onChange: () => void;
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [drawer, setDrawer] = React.useState<{ open: boolean; editing: ProviderRow | null }>({
         open: false,
         editing: null,
@@ -227,46 +172,46 @@ export function ProvidersSection({
             )}
             <Card className="overflow-hidden">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow>
-                            <ZoruTableHead>Label</ZoruTableHead>
-                            <ZoruTableHead>Bot</ZoruTableHead>
-                            <ZoruTableHead>Token</ZoruTableHead>
-                            <ZoruTableHead>Currency</ZoruTableHead>
-                            <ZoruTableHead>Mode</ZoruTableHead>
-                            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                    <THead>
+                        <Tr>
+                            <Th>Label</Th>
+                            <Th>Bot</Th>
+                            <Th>Token</Th>
+                            <Th>Currency</Th>
+                            <Th>Mode</Th>
+                            <Th className="text-right">Actions</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {providers.length === 0 && (
-                            <ZoruTableRow>
-                                <ZoruTableCell colSpan={6}>
+                            <Tr>
+                                <Td colSpan={6}>
                                     <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
                                         No provider tokens saved yet.
                                     </div>
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         )}
                         {providers.map((p) => {
                             const bot = bots.find((b) => b.id === p.botId);
                             return (
-                                <ZoruTableRow key={p._id}>
-                                    <ZoruTableCell>{p.label}</ZoruTableCell>
-                                    <ZoruTableCell>
+                                <Tr key={p._id}>
+                                    <Td>{p.label}</Td>
+                                    <Td>
                                         @{bot?.username ?? '—'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <span className="font-mono text-xs">
                                             {p.providerTokenMasked}
                                         </span>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>{p.currency}</ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>{p.currency}</Td>
+                                    <Td>
                                         <Badge variant={p.testMode ? 'warning' : 'success'}>
                                             {p.testMode ? 'Test' : 'Live'}
                                         </Badge>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <Button
                                             size="icon-sm"
                                             variant="ghost"
@@ -298,11 +243,11 @@ export function ProvidersSection({
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             );
                         })}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             </Card>
 
@@ -320,23 +265,23 @@ export function ProvidersSection({
                 />
             )}
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!deleteTarget}
                 onOpenChange={(v) => !v && setDeleteTarget(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             Delete provider &ldquo;{deleteTarget?.label}&rdquo;?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             Templates referencing this provider will need a new
                             provider before sending non-XTR invoices.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={async () => {
                                 if (!deleteTarget) return;
                                 const r = await deletePaymentProviderAction(
@@ -357,10 +302,10 @@ export function ProvidersSection({
                             }}
                         >
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
@@ -381,7 +326,7 @@ export function ProviderDrawer({
     onClose: () => void;
     onSaved: () => void;
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [label, setLabel] = React.useState(editing?.label ?? '');
     const [botId, setBotId] = React.useState(editing?.botId ?? bots[0]?.id ?? '');
     const [providerToken, setProviderToken] = React.useState('');
@@ -424,17 +369,17 @@ export function ProviderDrawer({
 
     return (
         <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-            <ZoruSheetContent className="w-full sm:max-w-md">
-                <ZoruSheetHeader>
-                    <ZoruSheetTitle>
+            <SheetContent className="w-full sm:max-w-md">
+                <SheetHeader>
+                    <SheetTitle>
                         {editing ? 'Edit provider' : 'New provider token'}
-                    </ZoruSheetTitle>
-                    <ZoruSheetDescription>
+                    </SheetTitle>
+                    <SheetDescription>
                         Tokens are issued by BotFather + your payment provider.
                         Provider tokens are stored server-side and never returned
                         to the browser.
-                    </ZoruSheetDescription>
-                </ZoruSheetHeader>
+                    </SheetDescription>
+                </SheetHeader>
                 <div className="flex flex-col gap-3 py-4">
                     <Field label="Label">
                         <Input
@@ -450,16 +395,16 @@ export function ProviderDrawer({
                                 onValueChange={setBotId}
                                 disabled={bots.length === 0}
                             >
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue placeholder="Pick a bot" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pick a bot" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {bots.map((b) => (
-                                        <ZoruSelectItem key={b.id} value={b.id}>
+                                        <SelectItem key={b.id} value={b.id}>
                                             @{b.username || b.name}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </Field>
                     )}
@@ -480,18 +425,18 @@ export function ProviderDrawer({
                     </Field>
                     <Field label="Currency">
                         <Select value={currency} onValueChange={setCurrency}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {CURRENCY_OPTIONS.filter((c) => c.code !== 'XTR').map(
                                     (c) => (
-                                        <ZoruSelectItem key={c.code} value={c.code}>
+                                        <SelectItem key={c.code} value={c.code}>
                                             {c.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ),
                                 )}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </Field>
                     <ToggleRow
@@ -500,7 +445,7 @@ export function ProviderDrawer({
                         onChange={setTestMode}
                     />
                 </div>
-                <ZoruSheetFooter>
+                <SheetFooter>
                     <Button variant="outline" onClick={onClose} disabled={busy}>
                         Cancel
                     </Button>
@@ -508,8 +453,8 @@ export function ProviderDrawer({
                         {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                         Save
                     </Button>
-                </ZoruSheetFooter>
-            </ZoruSheetContent>
+                </SheetFooter>
+            </SheetContent>
         </Sheet>
     );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import {
   createUserWithEmailAndPassword,
   signInWithPopup,
@@ -104,8 +104,8 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
             {error && (
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Could not create account</ZoruAlertTitle>
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    <AlertTitle>Could not create account</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 

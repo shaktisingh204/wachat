@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Textarea, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Textarea, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 
 void _zoruCn;
@@ -17,7 +17,7 @@ export default function WordFrequencyPage() {
     <ToolShell title="Word Frequency Counter" description="Rank the most used words in your content.">
       <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[220px]" />
       <Card>
-        <ZoruCardContent className="p-4 space-y-2">
+        <CardBody className="p-4 space-y-2">
           {freq.map((row) => (
             <div key={row.word} className="space-y-0.5">
               <div className="flex justify-between text-xs">
@@ -30,7 +30,7 @@ export default function WordFrequencyPage() {
             </div>
           ))}
           {freq.length === 0 && <div className="text-center text-[var(--st-text-secondary)] py-6">Start typing to see word frequency.</div>}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </ToolShell>
   );

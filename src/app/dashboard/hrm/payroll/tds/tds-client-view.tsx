@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, use } from 'react';
-import { Badge, Card, ZoruButton, Input, ZoruCheckbox, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Button, Input, Checkbox, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
 import { Search, Download, FileText, Trash, Filter } from 'lucide-react';
 import { zoruSonnerToast } from '@/components/sabcrm/20ui/zoru/sonner';
@@ -211,41 +211,41 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                             />
                         </div>
                         <Select value={taxRegimeFilter} onValueChange={setTaxRegimeFilter}>
-                            <ZoruSelectTrigger className="w-[140px] h-9 text-[13px]">
+                            <SelectTrigger className="w-[140px] h-9 text-[13px]">
                                 <Filter className="w-3.5 h-3.5 mr-2 opacity-70" />
-                                <ZoruSelectValue placeholder="Tax Regime" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All Regimes</ZoruSelectItem>
-                                <ZoruSelectItem value="old">Old Regime</ZoruSelectItem>
-                                <ZoruSelectItem value="new">New Regime</ZoruSelectItem>
-                            </ZoruSelectContent>
+                                <SelectValue placeholder="Tax Regime" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Regimes</SelectItem>
+                                <SelectItem value="old">Old Regime</SelectItem>
+                                <SelectItem value="new">New Regime</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Select value={tdsFilter} onValueChange={setTdsFilter}>
-                            <ZoruSelectTrigger className="w-[140px] h-9 text-[13px]">
+                            <SelectTrigger className="w-[140px] h-9 text-[13px]">
                                 <Filter className="w-3.5 h-3.5 mr-2 opacity-70" />
-                                <ZoruSelectValue placeholder="TDS Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All Records</ZoruSelectItem>
-                                <ZoruSelectItem value="has-tds">Has TDS</ZoruSelectItem>
-                                <ZoruSelectItem value="no-tds">No TDS (Nil)</ZoruSelectItem>
-                            </ZoruSelectContent>
+                                <SelectValue placeholder="TDS Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Records</SelectItem>
+                                <SelectItem value="has-tds">Has TDS</SelectItem>
+                                <SelectItem value="no-tds">No TDS (Nil)</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="flex items-center gap-2">
                         {selectedIds.size > 0 && (
-                            <ZoruButton variant="danger" size="sm" onClick={handleBulkDelete} className="h-9 text-[12.5px]">
+                            <Button variant="danger" size="sm" onClick={handleBulkDelete} className="h-9 text-[12.5px]">
                                 <Trash className="w-3.5 h-3.5 mr-1.5" />
                                 Delete ({selectedIds.size})
-                            </ZoruButton>
+                            </Button>
                         )}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">
+                                <Button variant="outline" size="sm" className="h-9 text-[12.5px]">
                                     <Download className="w-3.5 h-3.5 mr-1.5" />
                                     Export
-                                </ZoruButton>
+                                </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={exportCSV} className="text-[13px]">
@@ -266,7 +266,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                         <thead className="sticky top-0 bg-[var(--st-bg-muted)] z-10 border-b border-[var(--st-border)] shadow-sm">
                             <tr>
                                 <th className="px-4 py-3 w-12 text-center">
-                                    <ZoruCheckbox 
+                                    <Checkbox 
                                         checked={selectedIds.size > 0 && selectedIds.size === filteredRows.length}
                                         onCheckedChange={toggleAll}
                                     />
@@ -294,7 +294,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                                         return (
                                             <tr key={row._id?.toString() ?? virtualRow.index} className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors group">
                                                 <td className="px-4 py-3 text-center">
-                                                    <ZoruCheckbox 
+                                                    <Checkbox 
                                                         checked={selectedIds.has(row._id.toString())}
                                                         onCheckedChange={(c) => toggleRow(row._id.toString(), !!c)}
                                                     />
@@ -316,14 +316,14 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-3 text-center">
-                                                    <ZoruButton 
+                                                    <Button 
                                                         variant="ghost" 
                                                         size="sm" 
                                                         className="h-8 text-[12px] opacity-0 group-hover:opacity-100 transition-opacity"
                                                         onClick={() => setEditingRow(row)}
                                                     >
                                                         Adjust
-                                                    </ZoruButton>
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         );

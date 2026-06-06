@@ -4,16 +4,7 @@
  * Server-fetches all plans for the signed-in user and hands off to a
  * thin client component that owns the create/edit/archive forms.
  */
-import {
-  Card,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription } from '@/components/sabcrm/20ui/compat';
 
 import { listSabcheckoutPlans } from '@/app/actions/sabcheckout.actions';
 import { SabcheckoutPlansClient } from './plans-client';
@@ -27,20 +18,20 @@ export default async function SabcheckoutPlansPage() {
   return (
     <div className="flex w-full flex-col gap-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Plans</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Plans</PageTitle>
+          <PageDescription>
             Recurring billing templates referenced by your payment pages.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       {!res.ok ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Couldn't load plans</ZoruCardTitle>
-            <ZoruCardDescription>{res.error}</ZoruCardDescription>
-          </ZoruCardHeader>
+          <CardHeader>
+            <CardTitle>Couldn't load plans</CardTitle>
+            <CardDescription>{res.error}</CardDescription>
+          </CardHeader>
         </Card>
       ) : (
         <SabcheckoutPlansClient initial={plans} />

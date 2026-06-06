@@ -1,5 +1,5 @@
 import { BarChart } from 'lucide-react';
-import { PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function AnalyticsLoading() {
     return (
@@ -9,14 +9,14 @@ export default function AnalyticsLoading() {
                     <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
                         <BarChart className="h-5 w-5 text-[var(--st-text)]" strokeWidth={1.75} />
                     </div>
-                    <ZoruPageHeading>
-                        <ZoruPageTitle>
+                    <PageHeading>
+                        <PageTitle>
                             <Skeleton className="h-8 w-48" />
-                        </ZoruPageTitle>
-                        <ZoruPageDescription>
+                        </PageTitle>
+                        <PageDescription>
                             <Skeleton className="mt-2 h-4 w-64" />
-                        </ZoruPageDescription>
-                    </ZoruPageHeading>
+                        </PageDescription>
+                    </PageHeading>
                 </div>
             </PageHeader>
 

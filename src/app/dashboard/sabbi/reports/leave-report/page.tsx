@@ -2,16 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
 
-import {
-  Badge,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -154,63 +145,63 @@ export default async function LeaveReportPage(props: PageProps) {
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Leave Type</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Reason</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Days</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Date</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">Employee</Th>
+                <Th className="text-[var(--st-text-secondary)]">Department</Th>
+                <Th className="text-[var(--st-text-secondary)]">Leave Type</Th>
+                <Th className="text-[var(--st-text-secondary)]">Reason</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Days</Th>
+                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Date</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={7}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No leaves in this range.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 pageRows.map((r, i) => (
-                  <ZoruTableRow
+                  <Tr
                     key={`${r.employeeId}-${i}`}
                     className="border-[var(--st-border)]"
                   >
-                    <ZoruTableCell>
+                    <Td>
                       <EntityRowLink
                         href={`/dashboard/crm/hr-payroll/employees/${r.employeeId}`}
                         label={r.employeeName}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       <Badge variant="outline">{r.department}</Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {r.leaveTypeName}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[240px] truncate text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="max-w-[240px] truncate text-[13px] text-[var(--st-text-secondary)]">
                       {r.reason}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text)]">
                       {r.days}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant={statusVariant(r.status)}>
                         {r.status}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {r.leaveDate ? r.leaveDate.slice(0, 10) : '—'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

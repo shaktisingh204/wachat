@@ -3,18 +3,7 @@
  */
 import Link from 'next/link';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Table,
-  TableBody,
-  TableHeader,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui/compat';
 import { listDatasetsAction } from '@/app/actions/analytics-bi.actions';
 
 import { NewDatasetPanel } from './_components/new-dataset-panel';
@@ -63,15 +52,15 @@ export default async function DatasetsPage() {
             <p className="text-sm text-[var(--st-text-secondary)]">No datasets yet.</p>
           ) : (
             <Table>
-              <TableHeader>
+              <THead>
                 <tr>
                   <th className="text-left">Name</th>
                   <th className="text-left">Source</th>
                   <th className="text-right">Rows</th>
                   <th className="text-left">Last refresh</th>
                 </tr>
-              </TableHeader>
-              <TableBody>
+              </THead>
+              <TBody>
                 {items.map((d) => (
                   <tr key={d._id} className="border-t border-[var(--st-border)]">
                     <td className="py-2">
@@ -89,7 +78,7 @@ export default async function DatasetsPage() {
                     <td className="py-2 text-[var(--st-text-secondary)]">{d.lastRefreshAt ?? '—'}</td>
                   </tr>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
           )}
         </CardContent>

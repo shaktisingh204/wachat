@@ -1,49 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Tooltip,
-  ZoruTooltipContent,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Table, TBody, Td, Th, THead, Tr, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -120,7 +77,7 @@ function formatRelative(date?: Date | string): string {
 
 export function DevicesClient() {
   const router = useRouter();
-  const toast = useZoruToast();
+  const toast = useToast();
   const { activeProjectId, activeProjectName } = useProject();
 
   const [sessions, setSessions] = React.useState<WithId<SabwaSession>[] | null>(null);
@@ -220,19 +177,19 @@ export function DevicesClient() {
     <div className="mx-auto w-full max-w-[1180px] px-4 md:px-6 lg:px-8 pt-6 pb-10 space-y-6">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Linked Devices</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Linked Devices</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Header */}
@@ -255,9 +212,9 @@ export function DevicesClient() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <ZoruTooltipProvider delayDuration={150}>
+          <TooltipProvider delayDuration={150}>
             <Tooltip>
-              <ZoruTooltipTrigger asChild>
+              <TooltipTrigger asChild>
                 <Button
                   type="button"
                   variant="ghost"
@@ -270,10 +227,10 @@ export function DevicesClient() {
                     className={cn('h-4 w-4', isLoading && 'animate-spin')}
                   />
                 </Button>
-              </ZoruTooltipTrigger>
-              <ZoruTooltipContent>Refresh</ZoruTooltipContent>
+              </TooltipTrigger>
+              <TooltipContent>Refresh</TooltipContent>
             </Tooltip>
-          </ZoruTooltipProvider>
+          </TooltipProvider>
 
           {/* Segmented view-mode switcher — replaces the previous Tabs UI */}
           <div
@@ -316,13 +273,13 @@ export function DevicesClient() {
       {/* Body */}
       {isLoading ? (
         <Card>
-          <ZoruCardContent className="flex h-40 items-center justify-center text-[var(--st-text-secondary)]">
+          <CardBody className="flex h-40 items-center justify-center text-[var(--st-text-secondary)]">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading sessions…
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : !sessions || sessions.length === 0 ? (
         <Card>
-          <ZoruCardContent className="py-10">
+          <CardBody className="py-10">
             <EmptyState
               icon={Smartphone}
               title="No linked WhatsApp numbers yet"
@@ -337,25 +294,25 @@ export function DevicesClient() {
                 </Button>
               }
             />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : view === 'table' ? (
         <Card className="p-0 overflow-hidden">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Number</ZoruTableHead>
-                <ZoruTableHead>Label</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Platform</ZoruTableHead>
-                <ZoruTableHead>Last seen</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Number</Th>
+                <Th>Label</Th>
+                <Th>Status</Th>
+                <Th>Platform</Th>
+                <Th>Last seen</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {sessions.map((s) => (
-                <ZoruTableRow key={s._id.toString()}>
-                  <ZoruTableCell className="font-medium">
+                <Tr key={s._id.toString()}>
+                  <Td className="font-medium">
                     <div className="flex items-center gap-2">
                       <span
                         aria-hidden
@@ -372,18 +329,18 @@ export function DevicesClient() {
                         ) : null}
                       </div>
                     </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell>{s.label ?? '—'}</ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>{s.label ?? '—'}</Td>
+                  <Td>
                     <StatusBadge status={s.status} size="sm" />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[var(--st-text-secondary)]">
                     {s.deviceMeta?.platform ?? '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[var(--st-text-secondary)]">
                     {formatRelative(s.lastSeenAt)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     <Button
                       type="button"
                       size="sm"
@@ -406,17 +363,17 @@ export function DevicesClient() {
                     >
                       Logout
                     </Button>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {sessions.map((s) => (
             <Card key={s._id.toString()} className="flex flex-col p-0">
-              <ZoruCardHeader className="flex flex-row items-start gap-3 space-y-0">
+              <CardHeader className="flex flex-row items-start gap-3 space-y-0">
                 <span
                   aria-hidden
                   className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-base font-semibold text-[var(--st-text)]"
@@ -424,18 +381,18 @@ export function DevicesClient() {
                   {initials(s)}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <ZoruCardTitle className="truncate text-base">
+                  <CardTitle className="truncate text-base">
                     {formatPhone(s.phoneE164)}
-                  </ZoruCardTitle>
-                  <ZoruCardDescription className="truncate">
+                  </CardTitle>
+                  <CardDescription className="truncate">
                     {s.pushName ?? s.label ?? 'Unnamed session'}
-                  </ZoruCardDescription>
+                  </CardDescription>
                   <div className="mt-2">
                     <StatusBadge status={s.status} size="sm" />
                   </div>
                 </div>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex-1 text-sm">
+              </CardHeader>
+              <CardBody className="flex-1 text-sm">
                 <dl className="grid grid-cols-2 gap-2 text-xs">
                   <div>
                     <dt className="text-[var(--st-text-secondary)]">Platform</dt>
@@ -468,8 +425,8 @@ export function DevicesClient() {
                     {s.banSignals.length === 1 ? '' : 's'}
                   </Badge>
                 ) : null}
-              </ZoruCardContent>
-              <ZoruCardFooter className="flex justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 py-3 px-5 sm:px-6">
+              </CardBody>
+              <CardFooter className="flex justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 py-3 px-5 sm:px-6">
                 <Button
                   type="button"
                   size="sm"
@@ -491,7 +448,7 @@ export function DevicesClient() {
                 >
                   Logout
                 </Button>
-              </ZoruCardFooter>
+              </CardFooter>
             </Card>
           ))}
         </div>
@@ -504,14 +461,14 @@ export function DevicesClient() {
           if (!o) setRenameTarget(null);
         }}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Rename session</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename session</DialogTitle>
+            <DialogDescription>
               Choose an internal label — it is never shown to your WhatsApp
               contacts.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-1.5">
             <Label htmlFor="rename-label">Label</Label>
             <Input
@@ -523,7 +480,7 @@ export function DevicesClient() {
               maxLength={64}
             />
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -540,31 +497,31 @@ export function DevicesClient() {
               {renamePending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Logout confirmation */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={logoutTarget !== null}
         onOpenChange={(o) => {
           if (!o) setLogoutTarget(null);
         }}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Log this WhatsApp session out?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Log this WhatsApp session out?</AlertDialogTitle>
+            <AlertDialogDescription>
               {logoutTarget
                 ? `${formatPhone(logoutTarget.phoneE164)} will be unlinked from this project. You can reconnect later from the Connect page.`
                 : ''}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={logoutPending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={logoutPending}>
               Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 handleLogout();
@@ -574,10 +531,10 @@ export function DevicesClient() {
             >
               {logoutPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Log out
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Skeleton,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Switch,
-  Badge,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton, Alert, AlertTitle, AlertDescription, Switch, Badge, Table, TBody, Td, Th, THead, Tr, Input } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -47,8 +27,8 @@ function PageSkeleton() {
         <div className="flex flex-col gap-8">
             <Skeleton className="h-8 w-64" />
             <Card>
-                <ZoruCardHeader><Skeleton className="h-6 w-1/3" /></ZoruCardHeader>
-                <ZoruCardContent><Skeleton className="h-48 w-full" /></ZoruCardContent>
+                <CardHeader><Skeleton className="h-6 w-1/3" /></CardHeader>
+                <CardBody><Skeleton className="h-48 w-full" /></CardBody>
             </Card>
         </div>
     );
@@ -209,19 +189,19 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
             {error && (
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Error fetching Ad Sets</ZoruAlertTitle>
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    <AlertTitle>Error fetching Ad Sets</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 
             <Card>
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                            <ZoruCardTitle className="flex items-center gap-2">
+                            <CardTitle className="flex items-center gap-2">
                                 <Layers className="h-5 w-5" /> Ad Sets
-                            </ZoruCardTitle>
-                            <ZoruCardDescription>Manage the ad sets within this campaign.</ZoruCardDescription>
+                            </CardTitle>
+                            <CardDescription>Manage the ad sets within this campaign.</CardDescription>
                         </div>
                         <div className="flex items-center gap-2">
                             <Input
@@ -244,27 +224,27 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                             />
                         </div>
                     </div>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <div className="border rounded-md">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Status</ZoruTableHead>
-                                    <ZoruTableHead>Ad Set Name</ZoruTableHead>
-                                    <ZoruTableHead>Budget</ZoruTableHead>
-                                    <ZoruTableHead>ROAS</ZoruTableHead>
-                                    <ZoruTableHead>Optimization</ZoruTableHead>
-                                    <ZoruTableHead>Results</ZoruTableHead>
-                                    <ZoruTableHead>Cost/Result</ZoruTableHead>
-                                    <ZoruTableHead></ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Status</Th>
+                                    <Th>Ad Set Name</Th>
+                                    <Th>Budget</Th>
+                                    <Th>ROAS</Th>
+                                    <Th>Optimization</Th>
+                                    <Th>Results</Th>
+                                    <Th>Cost/Result</Th>
+                                    <Th></Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {filteredAdSets.length > 0 ? (
                                     filteredAdSets.map((adSet) => (
-                                        <ZoruTableRow key={adSet.id}>
-                                            <ZoruTableCell>
+                                        <Tr key={adSet.id}>
+                                            <Td>
                                                 <div className="flex items-center gap-2">
                                                     <Switch
                                                         checked={adSet.status === 'ACTIVE'}
@@ -272,13 +252,13 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                                                     />
                                                     <span className="text-xs text-[var(--st-text-secondary)]">{adSet.status}</span>
                                                 </div>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="font-medium">
+                                            </Td>
+                                            <Td className="font-medium">
                                                 <Link href={`/dashboard/ad-manager/ad-sets/${adSet.id}`} className="hover:underline">
                                                     {adSet.name}
                                                 </Link>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 {editingBudgetId === adSet.id ? (
                                                     <div className="flex items-center gap-1">
                                                         <span className="text-sm text-[var(--st-text-secondary)]">₹</span>
@@ -323,35 +303,35 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                                                         <Edit2 className="h-3 w-3 text-[var(--st-text-secondary)] opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     </div>
                                                 )}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 {getRoas(adSet.insights) > 0 ? `${getRoas(adSet.insights).toFixed(2)}x` : '-'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell><Badge variant="outline">{adSet.optimization_goal}</Badge></ZoruTableCell>
-                                            <ZoruTableCell>{adSet.insights?.clicks || 0} Clicks</ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td><Badge variant="outline">{adSet.optimization_goal}</Badge></Td>
+                                            <Td>{adSet.insights?.clicks || 0} Clicks</Td>
+                                            <Td>
                                                 {adSet.insights?.clicks > 0
                                                     ? `₹${getCpa(adSet.insights).toFixed(2)}`
                                                     : '-'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <Button variant="ghost" size="sm" asChild>
                                                     <Link href={`/dashboard/ad-manager/ad-sets/${adSet.id}`}>
                                                         Ads <ChevronRight className="ml-1 h-4 w-4" />
                                                     </Link>
                                                 </Button>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ))
                                 ) : (
-                                    <ZoruTableRow>
-                                        <ZoruTableCell colSpan={8} className="h-24 text-center">No ad sets found matching the criteria.</ZoruTableCell>
-                                    </ZoruTableRow>
+                                    <Tr>
+                                        <Td colSpan={8} className="h-24 text-center">No ad sets found matching the criteria.</Td>
+                                    </Tr>
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

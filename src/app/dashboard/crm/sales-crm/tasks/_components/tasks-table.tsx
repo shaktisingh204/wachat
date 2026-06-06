@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Checkbox,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   formatDistanceToNow } from 'date-fns';
 import {
@@ -125,44 +109,44 @@ export function TasksTable({
     return (
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                        <ZoruTableHead className="w-[36px]">
+                <THead>
+                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                        <Th className="w-[36px]">
                             <Checkbox
                                 aria-label="Select all tasks"
                                 checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                 onCheckedChange={(c) => onToggleAll(c === true)}
                             />
-                        </ZoruTableHead>
-                        <ZoruTableHead>Task</ZoruTableHead>
-                        <ZoruTableHead>Type</ZoruTableHead>
-                        <ZoruTableHead>Linked to</ZoruTableHead>
-                        <ZoruTableHead>Assignee</ZoruTableHead>
-                        <ZoruTableHead>Priority</ZoruTableHead>
-                        <ZoruTableHead>Status</ZoruTableHead>
-                        <ZoruTableHead>Due</ZoruTableHead>
-                        <ZoruTableHead>Created</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                        </Th>
+                        <Th>Task</Th>
+                        <Th>Type</Th>
+                        <Th>Linked to</Th>
+                        <Th>Assignee</Th>
+                        <Th>Priority</Th>
+                        <Th>Status</Th>
+                        <Th>Due</Th>
+                        <Th>Created</Th>
+                        <Th className="text-right">Actions</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {loading ? (
                         Array.from({ length: 6 }).map((_, i) => (
-                            <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                                <ZoruTableCell colSpan={10}>
+                            <Tr key={i} className="border-[var(--st-border)]">
+                                <Td colSpan={10}>
                                     <Skeleton className="h-10 w-full" />
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ))
                     ) : tasks.length === 0 ? (
-                        <ZoruTableRow className="border-[var(--st-border)]">
-                            <ZoruTableCell
+                        <Tr className="border-[var(--st-border)]">
+                            <Td
                                 colSpan={10}
                                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 No tasks match the current filters.
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                        </Tr>
                     ) : (
                         tasks.map((task) => {
                             const id = String(task._id);
@@ -183,7 +167,7 @@ export function TasksTable({
                             const linkedRowHref = linkedHref(linkedKind, linkedId);
 
                             return (
-                                <ZoruTableRow
+                                <Tr
                                     key={id}
                                     className={[
                                         'border-[var(--st-border)] transition-colors',
@@ -192,14 +176,14 @@ export function TasksTable({
                                         status === 'Completed' ? 'opacity-70' : '',
                                     ].join(' ')}
                                 >
-                                    <ZoruTableCell>
+                                    <Td>
                                         <Checkbox
                                             aria-label={`Select task ${task.title}`}
                                             checked={isSel}
                                             onCheckedChange={() => onToggleOne(id)}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <EntityRowLink
                                             href={`/dashboard/crm/sales-crm/tasks/${id}`}
                                             label={
@@ -214,13 +198,13 @@ export function TasksTable({
                                             }
                                             subtitle={task.description || undefined}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                         <Badge variant="secondary">
                                             {(task.type as string) || 'Follow-up'}
                                         </Badge>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {linkedKey && linkedId ? (
                                             linkedRowHref ? (
                                                 <Link
@@ -244,8 +228,8 @@ export function TasksTable({
                                         ) : (
                                             <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {task.assignedTo ? (
                                             <EntityPickerChip
                                                 entity="user"
@@ -257,17 +241,17 @@ export function TasksTable({
                                                 Unassigned
                                             </span>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <StatusPill
                                             label={(task.priority as string) || 'Medium'}
                                             tone={priorityTone}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <StatusPill label={status} tone={statusToTone(status)} />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell
+                                    </Td>
+                                    <Td
                                         className={[
                                             'text-[12.5px]',
                                             isOverdue ? 'text-[var(--st-danger)]' : 'text-[var(--st-text)]',
@@ -284,8 +268,8 @@ export function TasksTable({
                                         ) : (
                                             <span className="text-[var(--st-text-secondary)]">—</span>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell
+                                    </Td>
+                                    <Td
                                         className="text-[12.5px] text-[var(--st-text-secondary)]"
                                         title={task.createdAt ? new Date(task.createdAt).toLocaleString() : ''}
                                     >
@@ -294,10 +278,10 @@ export function TasksTable({
                                                   addSuffix: true,
                                               })
                                             : '—'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <DropdownMenu>
-                                            <ZoruDropdownMenuTrigger asChild>
+                                            <DropdownMenuTrigger asChild>
                                                 <button
                                                     type="button"
                                                     aria-label={`Actions for ${task.title}`}
@@ -305,58 +289,58 @@ export function TasksTable({
                                                 >
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </button>
-                                            </ZoruDropdownMenuTrigger>
-                                            <ZoruDropdownMenuContent align="end">
-                                                <ZoruDropdownMenuItem asChild>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem asChild>
                                                     <Link href={`/dashboard/crm/sales-crm/tasks/${id}`}>
                                                         <Edit className="mr-1.5 h-3.5 w-3.5" /> View
                                                     </Link>
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem asChild>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
                                                     <Link href={`/dashboard/crm/sales-crm/tasks/${id}/edit`}>
                                                         <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
                                                     </Link>
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     onClick={() => onComplete(id)}
                                                     disabled={status === 'Completed'}
                                                 >
                                                     <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Mark complete
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuSeparator />
-                                                <ZoruDropdownMenuLabel>Snooze</ZoruDropdownMenuLabel>
-                                                <ZoruDropdownMenuItem onClick={() => onSnooze(id, 1)}>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuLabel>Snooze</DropdownMenuLabel>
+                                                <DropdownMenuItem onClick={() => onSnooze(id, 1)}>
                                                     <Clock className="mr-1.5 h-3.5 w-3.5" /> +1 hour
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem onClick={() => onSnooze(id, 24)}>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onSnooze(id, 24)}>
                                                     <Clock className="mr-1.5 h-3.5 w-3.5" /> +1 day
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem onClick={() => onSnooze(id, 24 * 7)}>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onSnooze(id, 24 * 7)}>
                                                     <Clock className="mr-1.5 h-3.5 w-3.5" /> +1 week
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuSeparator />
-                                                <ZoruDropdownMenuItem asChild>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem asChild>
                                                     <Link
                                                         href={`/dashboard/crm/sales-crm/tasks/${id}/edit`}
                                                         className="text-[var(--st-text-secondary)]"
                                                     >
                                                         <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Reassign
                                                     </Link>
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     onClick={() => onDelete(id)}
                                                     className="text-[var(--st-danger)]"
                                                 >
                                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
-                                                </ZoruDropdownMenuItem>
-                                            </ZoruDropdownMenuContent>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             );
                         })
                     )}
-                </ZoruTableBody>
+                </TBody>
             </Table>
         </div>
     );

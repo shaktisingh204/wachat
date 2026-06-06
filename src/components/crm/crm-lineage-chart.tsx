@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, Badge, Tooltip, ZoruTooltipTrigger, ZoruTooltipContent, ZoruTooltipProvider } from '@/components/sabcrm/20ui/compat';
+import { Card, Badge, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/sabcrm/20ui/compat';
 import { Check, ArrowRight, FileText, ArrowRightCircle } from 'lucide-react';
 
 export interface LineageNode {
@@ -40,7 +40,7 @@ export function CrmLineageChart({ nodes, onNodeClick }: CrmLineageChartProps) {
   };
 
   return (
-    <ZoruTooltipProvider>
+    <TooltipProvider>
       <Card className="p-5 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <h4 className="text-[12px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] mb-4 flex items-center gap-2">
           <ArrowRightCircle className="h-4 w-4 text-[var(--st-text)]" /> Document Conversion Lineage Track
@@ -56,7 +56,7 @@ export function CrmLineageChart({ nodes, onNodeClick }: CrmLineageChartProps) {
               <React.Fragment key={node.id}>
                 {/* Node Card */}
                 <Tooltip>
-                  <ZoruTooltipTrigger asChild>
+                  <TooltipTrigger asChild>
                     <div
                       onClick={() => onNodeClick && onNodeClick(node)}
                       className={`flex flex-col gap-2 p-3.5 rounded-xl border w-[170px] shrink-0 cursor-pointer select-none transition-all duration-300 ${style.card}`}
@@ -92,10 +92,10 @@ export function CrmLineageChart({ nodes, onNodeClick }: CrmLineageChartProps) {
                         )}
                       </div>
                     </div>
-                  </ZoruTooltipTrigger>
+                  </TooltipTrigger>
                   
                   {/* Detailed tooltip */}
-                  <ZoruTooltipContent className="bg-[var(--st-bg-secondary)] border border-[var(--st-border)] text-[var(--st-text)] p-3 rounded-lg shadow-lg w-[220px]">
+                  <TooltipContent className="bg-[var(--st-bg-secondary)] border border-[var(--st-border)] text-[var(--st-text)] p-3 rounded-lg shadow-lg w-[220px]">
                     <div className="space-y-1.5">
                       <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] font-bold">
                         {node.type} Record Details
@@ -115,7 +115,7 @@ export function CrmLineageChart({ nodes, onNodeClick }: CrmLineageChartProps) {
                         Click node card to preview record.
                       </div>
                     </div>
-                  </ZoruTooltipContent>
+                  </TooltipContent>
                 </Tooltip>
 
                 {/* Arrow Connector */}
@@ -131,6 +131,6 @@ export function CrmLineageChart({ nodes, onNodeClick }: CrmLineageChartProps) {
           })}
         </div>
       </Card>
-    </ZoruTooltipProvider>
+    </TooltipProvider>
   );
 }

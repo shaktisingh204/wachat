@@ -7,16 +7,7 @@
  */
 import { useMemo, useState, useTransition } from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { createEpic } from '@/app/actions/agile.actions';
 import type { AgileEpicDoc } from '@/lib/rust-client/agile-epics';
 import type { AgileStoryDoc } from '@/lib/rust-client/agile-stories';
@@ -47,7 +38,7 @@ function pctOf(value: number, bounds: Bounds): number {
 }
 
 export function EpicsBoard({ projectId, initialEpics, stories }: Props) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [epics, setEpics] = useState(initialEpics);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');

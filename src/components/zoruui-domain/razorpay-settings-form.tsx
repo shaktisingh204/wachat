@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -55,14 +45,14 @@ export function RazorpaySettingsForm({ project }: RazorpaySettingsFormProps) {
         <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
             <Card className="card-gradient card-gradient-blue">
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
                         <Key className="h-5 w-5"/>
                         Razorpay Integration
-                    </ZoruCardTitle>
-                    <ZoruCardDescription>Enter your Razorpay API keys to enable payments.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                    </CardTitle>
+                    <CardDescription>Enter your Razorpay API keys to enable payments.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="keyId">Key ID</Label>
                         <Input id="keyId" name="keyId" defaultValue={project.razorpaySettings?.keyId} placeholder="rzp_test_..." required />
@@ -71,10 +61,10 @@ export function RazorpaySettingsForm({ project }: RazorpaySettingsFormProps) {
                         <Label htmlFor="keySecret">Key Secret</Label>
                         <Input id="keySecret" name="keySecret" type="password" defaultValue={project.razorpaySettings?.keySecret} placeholder="Your Key Secret" required />
                     </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <SubmitButton />
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </form>
     );

@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';
@@ -66,7 +49,7 @@ function todayIso(): string {
 export default function BulkMarkAttendancePage(): React.JSX.Element {
     const router = useRouter();
     const params = useSearchParams();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const initialDate = params.get('date') || todayIso();
     const [dateIso, setDateIso] = React.useState(initialDate);
@@ -182,17 +165,17 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                     <div>
                         <Label>Department</Label>
                         <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                            <ZoruSelectTrigger className="mt-1.5 h-10 w-[200px]">
-                                <ZoruSelectValue placeholder="All departments" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All departments</ZoruSelectItem>
+                            <SelectTrigger className="mt-1.5 h-10 w-[200px]">
+                                <SelectValue placeholder="All departments" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All departments</SelectItem>
                                 {departments.map((d) => (
-                                    <ZoruSelectItem key={d} value={d}>
+                                    <SelectItem key={d} value={d}>
                                         {d}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="min-w-[200px] flex-1">
@@ -224,63 +207,63 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
 
             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
-                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                    <THead>
+                        <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                            <Th className="text-[var(--st-text-secondary)]">Employee</Th>
+                            <Th className="text-[var(--st-text-secondary)]">Department</Th>
+                            <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {isLoading && employees.length === 0 ? (
-                            <ZoruTableRow className="border-[var(--st-border)]">
-                                <ZoruTableCell colSpan={3} className="h-24 text-center">
+                            <Tr className="border-[var(--st-border)]">
+                                <Td colSpan={3} className="h-24 text-center">
                                     <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : filtered.length === 0 ? (
-                            <ZoruTableRow className="border-[var(--st-border)]">
-                                <ZoruTableCell
+                            <Tr className="border-[var(--st-border)]">
+                                <Td
                                     colSpan={3}
                                     className="h-24 text-center text-[var(--st-text-secondary)]"
                                 >
                                     No employees match this filter.
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : (
                             filtered.map((e) => {
                                 const id = e._id;
                                 const current = statuses[id] ?? 'Present';
                                 return (
-                                    <ZoruTableRow key={id} className="border-[var(--st-border)]">
-                                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                    <Tr key={id} className="border-[var(--st-border)]">
+                                        <Td className="font-medium text-[var(--st-text)]">
                                             {employeeName(e)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {e.departmentId ?? '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <Select
                                                 value={current}
                                                 onValueChange={(v) => updateOne(id, v as BulkStatus)}
                                             >
-                                                <ZoruSelectTrigger className="h-9 w-[160px]">
-                                                    <ZoruSelectValue />
-                                                </ZoruSelectTrigger>
-                                                <ZoruSelectContent>
+                                                <SelectTrigger className="h-9 w-[160px]">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
                                                     {STATUS_OPTIONS.map((s) => (
-                                                        <ZoruSelectItem key={s} value={s}>
+                                                        <SelectItem key={s} value={s}>
                                                             {s}
-                                                        </ZoruSelectItem>
+                                                        </SelectItem>
                                                     ))}
-                                                </ZoruSelectContent>
+                                                </SelectContent>
                                             </Select>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 );
                             })
                         )}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             </div>
 

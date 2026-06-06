@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Button,
-  Avatar,
-  ZoruAvatarImage,
-  ZoruAvatarFallback,
-  Skeleton,
-  ZoruDrawer,
-  ZoruDrawerTrigger,
-  ZoruCollapsible,
-  ZoruCollapsibleContent,
-  ZoruCollapsibleTrigger,
-  Separator,
-  Sheet,
-  Badge,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Button, Avatar, AvatarImage, AvatarFallback, Skeleton, Drawer, DrawerTrigger, Collapsible, CollapsibleContent, CollapsibleTrigger, Separator, Sheet, Badge, cn } from '@/components/sabcrm/20ui/compat';
 import {
   usePathname,
   useRouter } from 'next/navigation';
@@ -109,17 +88,7 @@ import type { Plan,
   Project,
   User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/zoruui-domain/facebook-project-switcher';
-import {
-    Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarFooter,
-  SidebarTrigger,
-  SidebarProvider,
-  } from '@/components/sabcrm/20ui/compat';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarTrigger, SidebarProvider } from '@/components/sabcrm/20ui/compat';
 import { ProjectProvider, useProject } from '@/context/project-context';
 
 import React from 'react';
@@ -754,13 +723,13 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const CollapsibleSidebarItem = ({ item }: { item: any }) => {
         const isOpen = pathname.startsWith(item.href);
         return (
-            <ZoruCollapsible defaultOpen={isOpen}>
-                <ZoruCollapsibleTrigger asChild>
+            <Collapsible defaultOpen={isOpen}>
+                <CollapsibleTrigger asChild>
                     <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
                         <item.icon /><span>{item.label}</span><ChevronRight className="ml-auto transition-transform group-data-[state=open]:rotate-90" />
                     </SidebarMenuButton>
-                </ZoruCollapsibleTrigger>
-                <ZoruCollapsibleContent asChild>
+                </CollapsibleTrigger>
+                <CollapsibleContent asChild>
                     <SidebarMenu className="pl-4">
                         {item.subItems.map((subItem: any) =>
                             subItem.subSubItems ? (
@@ -770,8 +739,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                             )
                         )}
                     </SidebarMenu>
-                </ZoruCollapsibleContent>
-            </ZoruCollapsible>
+                </CollapsibleContent>
+            </Collapsible>
         )
     }
 
@@ -843,23 +812,23 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                     <div className="flex items-center gap-2">
                         <div className="font-medium text-sm hidden md:block">{activeProjectName}</div>
                         <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                                     <Avatar>
-                                        <ZoruAvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" data-ai-hint="person avatar" />
-                                        <ZoruAvatarFallback>{sessionUser?.name.charAt(0) || 'U'}</ZoruAvatarFallback>
+                                        <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" data-ai-hint="person avatar" />
+                                        <AvatarFallback>{sessionUser?.name.charAt(0) || 'U'}</AvatarFallback>
                                     </Avatar>
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                                <ZoruDropdownMenuLabel>My Account</ZoruDropdownMenuLabel>
-                                <ZoruDropdownMenuSeparator />
-                                <ZoruDropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuSeparator />
-                                <ZoruDropdownMenuItem asChild><Link href="/api/auth/admin-logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Admin Logout</Link></ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem asChild><Link href="/api/auth/logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Logout</Link></ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild><Link href="/dashboard/user/settings/profile">Profile</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link href="/dashboard/user/billing">Billing</Link></DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild><Link href="/api/auth/admin-logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Admin Logout</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link href="/api/auth/logout" prefetch={false}><LogOut className="mr-2 h-4 w-4" />Logout</Link></DropdownMenuItem>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 </header>

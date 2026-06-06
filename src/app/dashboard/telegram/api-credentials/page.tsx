@@ -1,40 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  Skeleton,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -185,7 +151,7 @@ function MaskedCell({
 export default function TelegramApiCredentialsPage() {
     const { activeProject } = useProject();
     const projectId = activeProject?._id?.toString() ?? '';
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [rows, setRows] = React.useState<CredentialRow[]>([]);
     const [loading, setLoading] = React.useState(true);
@@ -700,52 +666,52 @@ export default function TelegramApiCredentialsPage() {
                                         </td>
                                         <td className="px-4 py-3 text-right">
                                             <DropdownMenu>
-                                                <ZoruDropdownMenuTrigger asChild>
+                                                <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" size="sm">
                                                         <MoreHorizontal className="h-4 w-4" />
                                                     </Button>
-                                                </ZoruDropdownMenuTrigger>
-                                                <ZoruDropdownMenuContent align="end">
-                                                    <ZoruDropdownMenuItem
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem
                                                         onClick={() => void runVerify(r)}
                                                     >
                                                         <ShieldCheck className="h-3 w-3" />
                                                         Verify
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
                                                         onClick={() => void openLogin(r)}
                                                     >
                                                         <LogIn className="h-3 w-3" />
                                                         Start login
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
                                                         onClick={() => void runLogout(r)}
                                                         disabled={r.sessionState === 'none'}
                                                     >
                                                         <LogOut className="h-3 w-3" />
                                                         Logout
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuSeparator />
-                                                    <ZoruDropdownMenuItem
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem
                                                         onClick={() => void openDetail(r)}
                                                     >
                                                         <Pencil className="h-3 w-3" />
                                                         Edit
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
                                                         onClick={() => setRevokeRow(r)}
                                                         disabled={r.status === 'revoked'}
                                                     >
                                                         <AlertTriangle className="h-3 w-3" />
                                                         Revoke
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
                                                         onClick={() => setDeleteRow(r)}
                                                     >
                                                         <Trash2 className="h-3 w-3" />
                                                         Delete
-                                                    </ZoruDropdownMenuItem>
-                                                </ZoruDropdownMenuContent>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
                                             </DropdownMenu>
                                         </td>
                                     </tr>
@@ -757,11 +723,11 @@ export default function TelegramApiCredentialsPage() {
             </Card>
 
             {/* --------- Add credentials drawer --------- */}
-            <ZoruDrawer open={createOpen} onOpenChange={setCreateOpen}>
-                <ZoruDrawerContent className="max-w-xl">
-                    <ZoruDrawerHeader>
-                        <ZoruDrawerTitle>Add Telegram credentials</ZoruDrawerTitle>
-                        <ZoruDrawerDescription>
+            <Drawer open={createOpen} onOpenChange={setCreateOpen}>
+                <DrawerContent className="max-w-xl">
+                    <DrawerHeader>
+                        <DrawerTitle>Add Telegram credentials</DrawerTitle>
+                        <DrawerDescription>
                             Copy these from{' '}
                             <a
                                 href="https://my.telegram.org"
@@ -772,8 +738,8 @@ export default function TelegramApiCredentialsPage() {
                                 my.telegram.org → API development tools
                             </a>
                             .
-                        </ZoruDrawerDescription>
-                    </ZoruDrawerHeader>
+                        </DrawerDescription>
+                    </DrawerHeader>
                     <div className="flex flex-col gap-4 px-6 pb-6">
                         <Field label="Label (optional)">
                             <Input
@@ -876,25 +842,25 @@ export default function TelegramApiCredentialsPage() {
                             </Button>
                         </div>
                     </div>
-                </ZoruDrawerContent>
-            </ZoruDrawer>
+                </DrawerContent>
+            </Drawer>
 
             {/* --------- Detail drawer --------- */}
-            <ZoruDrawer
+            <Drawer
                 open={!!detailRow}
                 onOpenChange={(v) => {
                     if (!v) closeDetail();
                 }}
             >
-                <ZoruDrawerContent className="max-w-2xl">
-                    <ZoruDrawerHeader>
-                        <ZoruDrawerTitle>
+                <DrawerContent className="max-w-2xl">
+                    <DrawerHeader>
+                        <DrawerTitle>
                             {detailRow?.label ?? 'Credential detail'}
-                        </ZoruDrawerTitle>
-                        <ZoruDrawerDescription>
+                        </DrawerTitle>
+                        <DrawerDescription>
                             Status, login session walk-through, and audit log.
-                        </ZoruDrawerDescription>
-                    </ZoruDrawerHeader>
+                        </DrawerDescription>
+                    </DrawerHeader>
                     {detailRow && editForm ? (
                         <div className="flex flex-col gap-6 px-6 pb-6">
                             <section className="grid gap-3 md:grid-cols-2">
@@ -1047,8 +1013,8 @@ export default function TelegramApiCredentialsPage() {
                             </section>
                         </div>
                     ) : null}
-                </ZoruDrawerContent>
-            </ZoruDrawer>
+                </DrawerContent>
+            </Drawer>
 
             {/* --------- Login flow modal --------- */}
             <Dialog
@@ -1057,17 +1023,17 @@ export default function TelegramApiCredentialsPage() {
                     if (!v) closeLogin();
                 }}
             >
-                <ZoruDialogContent className="max-w-md">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>
                             MTProto login{' '}
                             <Badge variant="warning">Preview</Badge>
-                        </ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                        </DialogTitle>
+                        <DialogDescription>
                             This flow currently simulates each step — no MTProto handshake is
                             performed yet.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
 
                     {loginStep === 'start' ? (
                         <div className="flex flex-col gap-3">
@@ -1130,7 +1096,7 @@ export default function TelegramApiCredentialsPage() {
                         </div>
                     ) : null}
 
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" size="sm" onClick={closeLogin}>
                             Close
                         </Button>
@@ -1160,58 +1126,58 @@ export default function TelegramApiCredentialsPage() {
                                 Submit password
                             </Button>
                         ) : null}
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* --------- Revoke confirm --------- */}
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!revokeRow}
                 onOpenChange={(v) => {
                     if (!v) setRevokeRow(null);
                 }}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Revoke credential?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Revoke credential?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             The credential will be marked <code>revoked</code> and any active
                             session cleared. The record is preserved for audit — use{' '}
                             <strong>Delete</strong> to remove it entirely.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={confirmRevoke}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmRevoke}>
                             Revoke
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {/* --------- Delete confirm --------- */}
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!deleteRow}
                 onOpenChange={(v) => {
                     if (!v) setDeleteRow(null);
                 }}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete credential?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete credential?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             The credential and all login sessions will be removed. The audit log
                             entries remain so the action is traceable.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={confirmDelete}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDelete}>
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 export default function SabchatAdminLayout({ children }: { children: React.ReactNode }) {
     const navItems = [
@@ -14,10 +14,10 @@ export default function SabchatAdminLayout({ children }: { children: React.React
     return (
         <div className="zoruui flex h-[calc(100vh-4rem)] p-4 gap-4">
             <Card className="w-64 h-full shrink-0 flex flex-col">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>SabChat Admin</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex-1 overflow-y-auto p-2">
+                <CardHeader>
+                    <CardTitle>SabChat Admin</CardTitle>
+                </CardHeader>
+                <CardBody className="flex-1 overflow-y-auto p-2">
                     <nav className="flex flex-col gap-2">
                         {navItems.map((item) => (
                             <Link
@@ -29,7 +29,7 @@ export default function SabchatAdminLayout({ children }: { children: React.React
                             </Link>
                         ))}
                     </nav>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
             <main className="flex-1 overflow-hidden flex flex-col">
                 {children}

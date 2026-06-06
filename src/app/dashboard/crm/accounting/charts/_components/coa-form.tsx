@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  DatePicker,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { DatePicker, Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { useActionState } from 'react';
@@ -46,7 +32,7 @@ const initialState: { message?: string; error?: string } = {};
 export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
     const isEdit = !!initial;
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [state, formAction] = useActionState(saveCrmChartOfAccount, initialState);
 
@@ -130,22 +116,22 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                     to <EntityFormField>. Keeping the SSR-passed `groups` array bound to
                                     the in-page state for now so the parent dropdown stays functional. */}
                                 <Select value={groupId} onValueChange={setGroupId}>
-                                    <ZoruSelectTrigger id="accountGroupId">
-                                        <ZoruSelectValue placeholder="Select an account group" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger id="accountGroupId">
+                                        <SelectValue placeholder="Select an account group" />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {groups.length === 0 ? (
-                                            <ZoruSelectItem value="__placeholder__" disabled>
+                                            <SelectItem value="__placeholder__" disabled>
                                                 No groups yet — create one under Account Groups
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ) : (
                                             groups.map((g) => (
-                                                <ZoruSelectItem key={g._id.toString()} value={g._id.toString()}>
+                                                <SelectItem key={g._id.toString()} value={g._id.toString()}>
                                                     {g.name} · {g.type} · {g.category.replace(/_/g, ' ')}
-                                                </ZoruSelectItem>
+                                                </SelectItem>
                                             ))
                                         )}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                                 {selectedNature ? (
                                     <p className="text-[11.5px] text-[var(--st-text-secondary)]">

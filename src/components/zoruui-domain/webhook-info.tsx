@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-  Label,
-  Skeleton,
-  Badge,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Input, Label, Skeleton, Badge, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useToast } from '@/hooks/use-toast';
 import { Copy, CheckCircle, AlertTriangle, RefreshCw, LoaderCircle } from 'lucide-react';
@@ -108,16 +96,16 @@ function WebhookStatus() {
 
     return (
         <Card>
-            <ZoruCardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                    <ZoruCardTitle>Live Status</ZoruCardTitle>
-                    <ZoruCardDescription>Real-time status of your webhook subscription from Meta.</ZoruCardDescription>
+                    <CardTitle>Live Status</CardTitle>
+                    <CardDescription>Real-time status of your webhook subscription from Meta.</CardDescription>
                 </div>
                 <Button variant="outline" size="icon" onClick={checkStatus} disabled={isLoading}>
                    {isLoading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <RefreshCw className="h-4 w-4" />}
                 </Button>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            </CardHeader>
+            <CardBody>
                 {isLoading ? (
                     <Skeleton className="h-10 w-full" />
                 ) : status && projectId ? (
@@ -140,7 +128,7 @@ function WebhookStatus() {
                 ) : (
                     <p className="text-[var(--st-text-secondary)] text-sm">Could not determine status. Select a project.</p>
                 )}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -166,11 +154,11 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
     if (!isClient) {
         return (
             <Card>
-                <ZoruCardHeader>
+                <CardHeader>
                     <Skeleton className="h-6 w-1/3" />
                     <Skeleton className="h-4 w-2/3" />
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                </CardHeader>
+                <CardBody className="space-y-4">
                     <div className="space-y-2">
                        <Skeleton className="h-4 w-1/4" />
                        <Skeleton className="h-10 w-full" />
@@ -179,7 +167,7 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
                        <Skeleton className="h-4 w-1/4" />
                        <Skeleton className="h-10 w-full" />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         )
     }
@@ -187,16 +175,16 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
   return (
     <div className="grid lg:grid-cols-2 gap-8">
         <Card className="card-gradient card-gradient-green">
-            <ZoruCardHeader>
-                <ZoruCardTitle>Webhook Configuration</ZoruCardTitle>
-                <ZoruCardDescription>
+            <CardHeader>
+                <CardTitle>Webhook Configuration</CardTitle>
+                <CardDescription>
                     Copy these values into your Meta App configuration.
-                </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+                </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
                 <InfoRow label="Callback URL" value={fullUrl} />
                 <InfoRow label="Verify Token" value={verifyToken || "Token not set in .env"} isSecret />
-            </ZoruCardContent>
+            </CardBody>
         </Card>
         <WebhookStatus />
     </div>

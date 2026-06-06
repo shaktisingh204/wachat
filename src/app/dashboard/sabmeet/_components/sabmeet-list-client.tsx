@@ -2,21 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  Badge,
-  Input,
-  EmptyState,
-  PageHeader,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Badge, Input, EmptyState, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
 import { Calendar, Plus, Search, Video, Clock, Users } from 'lucide-react';
 import type { MeetRoom } from '@/app/actions/sabmeet.actions.types';
 
@@ -40,18 +26,18 @@ export function MeetingsListClient({ upcoming, past }: MeetingsListClientProps) 
     <div className="space-y-6 p-6">
       <PageHeader>
         <div>
-          <ZoruPageTitle>Meetings</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>Meetings</PageTitle>
+          <PageDescription>
             Schedule, host, and review video meetings.
-          </ZoruPageDescription>
+          </PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Button asChild>
             <Link href="/dashboard/meetings/new">
               <Plus className="h-4 w-4 mr-2" /> New meeting
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

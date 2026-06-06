@@ -11,20 +11,8 @@ import {
 import { Plus, Trash2, Download, Search, FileText } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Checkbox,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Checkbox, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   saveShiftRotation,
@@ -151,7 +139,7 @@ export default function ShiftRotationClient({
   initialSequences: WsShiftRotationSequence[];
   shifts: WsEmployeeShift[];
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rotation, setRotation] = useState<WsShiftRotation>(initialRotation);
   const [sequences, setSequences] = useState<WsShiftRotationSequence[]>(initialSequences);
   const [pending, startTransition] = useTransition();

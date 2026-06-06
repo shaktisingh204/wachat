@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, ZoruCardContent, Button, Input, Label, Select } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Button, Input, Label, Select } from '@/components/sabcrm/20ui/compat';
 import { CreditCard, LoaderCircle, Terminal, HeartHandshake, Info } from 'lucide-react';
 import { recordPublicPayment } from '@/app/actions/worksuite/public.actions';
 
@@ -77,7 +77,7 @@ export function InvoicePayForm({
 
   return (
     <Card className="shadow-md border-foreground/10">
-      <ZoruCardContent className="flex flex-col gap-4 p-5">
+      <CardBody className="flex flex-col gap-4 p-5">
         <div className="flex items-center justify-between">
           <h2 className="text-[13px] font-mono uppercase tracking-wider text-[var(--st-text)] flex items-center gap-1.5">
             <Terminal className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -231,7 +231,7 @@ export function InvoicePayForm({
   -d '{"amount": ${totalAmount}, "gateway": "${gateway}", "transaction_id": "${txId || '...'}"}'`}
           </pre>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

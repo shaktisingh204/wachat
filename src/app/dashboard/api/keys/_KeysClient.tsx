@@ -5,24 +5,7 @@ import {
   createDeveloperKey,
   revokeDeveloperKey,
 } from '@/app/actions/developer-platform.actions';
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardContent,
-  Button,
-  Input,
-  Alert,
-  ZoruAlertDescription,
-  Table,
-  ZoruTableHeader,
-  ZoruTableHead,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableCell,
-  Badge,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button, Input, Alert, AlertDescription, Table, THead, Th, TBody, Tr, Td, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, TriangleAlert, Copy, Key } from 'lucide-react';
 
 interface KeyRow {
@@ -118,10 +101,10 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
       ) : null}
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Generate new key</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Generate new key</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="flex flex-wrap items-center gap-2">
             <Input
               value={name}
@@ -144,72 +127,72 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
               {busy ? 'Working…' : 'Generate'}
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {error ? (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
 
       <Card>
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>Name</ZoruTableHead>
-              <ZoruTableHead>Key</ZoruTableHead>
-              <ZoruTableHead>Scopes</ZoruTableHead>
-              <ZoruTableHead>Requests</ZoruTableHead>
-              <ZoruTableHead>Created</ZoruTableHead>
-              <ZoruTableHead>Last used</ZoruTableHead>
-              <ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Key</Th>
+              <Th>Scopes</Th>
+              <Th>Requests</Th>
+              <Th>Created</Th>
+              <Th>Last used</Th>
+              <Th>Status</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {keys.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={6}>
+              <Tr>
+                <Td colSpan={6}>
                   <EmptyState
                     icon={<Key className="h-8 w-8" />}
                     title="No keys yet"
                     description="Generate a key above to get started."
                   />
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : null}
             {keys.map((k) => (
-              <ZoruTableRow key={k._id}>
-                <ZoruTableCell>{k.name}</ZoruTableCell>
-                <ZoruTableCell className="font-mono text-sm text-[var(--st-text)]">
+              <Tr key={k._id}>
+                <Td>{k.name}</Td>
+                <Td className="font-mono text-sm text-[var(--st-text)]">
                   {maskKey(k.key)}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </Td>
+                <Td>
                     {k.scopes && k.scopes.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                             {k.scopes.map(s => <Badge variant="outline" key={s} className="text-[10px] font-mono">{s}</Badge>)}
                         </div>
                     ) : <span className="text-[var(--st-text-secondary)] text-xs">All</span>}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                </Td>
+                <Td className="text-[var(--st-text-secondary)]">
                     {usageData.find(u => u.keyId === k._id)?.count || k.requestCount || 0}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">{formatDate(k.createdAt)}</ZoruTableCell>
-                <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">
+                </Td>
+                <Td className="text-[var(--st-text-secondary)] text-xs">{formatDate(k.createdAt)}</Td>
+                <Td className="text-[var(--st-text-secondary)] text-xs">
                   {usageData.find(u => u.keyId === k._id)?.lastUsedAt 
                     ? formatDate(usageData.find(u => u.keyId === k._id)?.lastUsedAt as string) 
                     : (k.lastUsedAt ? formatDate(k.lastUsedAt) : '—')}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </Td>
+                <Td>
                   {k.revoked ? (
                     <Badge variant="destructive">Revoked</Badge>
                   ) : (
                     <Badge variant="success">Active</Badge>
                   )}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right">
+                </Td>
+                <Td className="text-right">
                   <div className="flex justify-end gap-2">
                     {k.key ? (
                       <Button
@@ -233,54 +216,54 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
                       </Button>
                     ) : null}
                   </div>
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Audit Logs</ZoruCardTitle>
-        </ZoruCardHeader>
+        <CardHeader>
+          <CardTitle>Audit Logs</CardTitle>
+        </CardHeader>
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>Time</ZoruTableHead>
-              <ZoruTableHead>Key ID</ZoruTableHead>
-              <ZoruTableHead>Method</ZoruTableHead>
-              <ZoruTableHead>Path</ZoruTableHead>
-              <ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead>Latency</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>Time</Th>
+              <Th>Key ID</Th>
+              <Th>Method</Th>
+              <Th>Path</Th>
+              <Th>Status</Th>
+              <Th>Latency</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {logsData.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={6} className="text-center text-[var(--st-text)] py-8">
+              <Tr>
+                <Td colSpan={6} className="text-center text-[var(--st-text)] py-8">
                   No logs available.
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : logsData.map((log) => (
-              <ZoruTableRow key={log._id}>
-                <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">{formatDate(log.ts)}</ZoruTableCell>
-                <ZoruTableCell className="font-mono text-xs">{log.keyId}</ZoruTableCell>
-                <ZoruTableCell>
+              <Tr key={log._id}>
+                <Td className="text-[var(--st-text-secondary)] text-xs">{formatDate(log.ts)}</Td>
+                <Td className="font-mono text-xs">{log.keyId}</Td>
+                <Td>
                   <Badge variant="outline">{log.method}</Badge>
-                </ZoruTableCell>
-                <ZoruTableCell className="font-mono text-xs max-w-[200px] truncate" title={log.path}>
+                </Td>
+                <Td className="font-mono text-xs max-w-[200px] truncate" title={log.path}>
                   {log.path}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </Td>
+                <Td>
                   <span className={log.status >= 400 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}>
                     {log.status}
                   </span>
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">{log.latencyMs} ms</ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+                <Td className="text-[var(--st-text-secondary)] text-xs">{log.latencyMs} ms</Td>
+              </Tr>
             ))}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </Card>
     </div>

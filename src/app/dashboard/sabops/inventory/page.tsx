@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Badge, Button, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardBody, Badge, Button, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import { Package, Download, HardDrive } from 'lucide-react';
 
 export default function InventoryPage() {
@@ -14,10 +14,10 @@ export default function InventoryPage() {
         <div className="flex flex-col gap-6">
             <PageHeader>
                 <div className="flex w-full items-center justify-between">
-                    <ZoruPageHeading>
-                        <ZoruPageTitle>Hardware Inventory</ZoruPageTitle>
-                        <ZoruPageDescription>Track and manage all hardware assets across your organization.</ZoruPageDescription>
-                    </ZoruPageHeading>
+                    <PageHeading>
+                        <PageTitle>Hardware Inventory</PageTitle>
+                        <PageDescription>Track and manage all hardware assets across your organization.</PageDescription>
+                    </PageHeading>
                     <Button variant="outline">
                         <Download className="mr-2 size-4" />
                         Export CSV
@@ -26,40 +26,40 @@ export default function InventoryPage() {
             </PageHeader>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Device Roster</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Device Roster</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Asset Tag</TableHead>
-                                <TableHead>Assigned To</TableHead>
-                                <TableHead>Hardware Model</TableHead>
-                                <TableHead>OS Version</TableHead>
-                                <TableHead>Status</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                        <THead>
+                            <Tr>
+                                <Th>Asset Tag</Th>
+                                <Th>Assigned To</Th>
+                                <Th>Hardware Model</Th>
+                                <Th>OS Version</Th>
+                                <Th>Status</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {devices.map(device => (
-                                <TableRow key={device.id}>
-                                    <TableCell className="font-medium flex items-center gap-2">
+                                <Tr key={device.id}>
+                                    <Td className="font-medium flex items-center gap-2">
                                         <HardDrive className="size-4 text-[var(--st-text-secondary)]" />
                                         {device.id}
-                                    </TableCell>
-                                    <TableCell>{device.user}</TableCell>
-                                    <TableCell>{device.model}</TableCell>
-                                    <TableCell>{device.os}</TableCell>
-                                    <TableCell>
+                                    </Td>
+                                    <Td>{device.user}</Td>
+                                    <Td>{device.model}</Td>
+                                    <Td>{device.os}</Td>
+                                    <Td>
                                         <Badge variant={device.status === 'Online' ? 'default' : device.status === 'Offline' ? 'secondary' : 'destructive'}>
                                             {device.status}
                                         </Badge>
-                                    </TableCell>
-                                </TableRow>
+                                    </Td>
+                                </Tr>
                             ))}
-                        </TableBody>
+                        </TBody>
                     </Table>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

@@ -1,36 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  DataTable,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuRadioGroup,
-  ZoruDropdownMenuRadioItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DataTable, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -148,7 +118,7 @@ function RowActions({
 }) {
   const [isUpdateOpen, setIsUpdateOpen] = React.useState(false);
   const [isLiking, startLiking] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const onLike = () => {
     startLiking(async () => {
@@ -359,82 +329,82 @@ export default function FacebookPostsPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Posts</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Posts</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader bordered={false} className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
-          <ZoruPageTitle>Page posts</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Meta Suite</PageEyebrow>
+          <PageTitle>Page posts</PageTitle>
+          <PageDescription>
             Browse, edit and remove posts from your connected Facebook Page.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 {typeFilter === "all"
                   ? "All types"
                   : TYPE_LABEL[typeFilter as PostType]}
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end" className="w-48">
-              <ZoruDropdownMenuLabel>Filter by type</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuRadioGroup
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>Filter by type</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup
                 value={typeFilter}
                 onValueChange={(v) => setTypeFilter(v as TypeFilter)}
               >
-                <ZoruDropdownMenuRadioItem value="all">
+                <DropdownMenuRadioItem value="all">
                   All types
-                </ZoruDropdownMenuRadioItem>
-                <ZoruDropdownMenuRadioItem value="text">
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="text">
                   Text
-                </ZoruDropdownMenuRadioItem>
-                <ZoruDropdownMenuRadioItem value="photo">
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="photo">
                   Photo
-                </ZoruDropdownMenuRadioItem>
-                <ZoruDropdownMenuRadioItem value="video">
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="video">
                   Video
-                </ZoruDropdownMenuRadioItem>
-              </ZoruDropdownMenuRadioGroup>
-            </ZoruDropdownMenuContent>
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="outline" size="sm" onClick={fetchPosts}>
             <RefreshCw /> Refresh
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="mt-6">
         {!projectId ? (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-            <ZoruAlertDescription>
+            <AlertTitle>No project selected</AlertTitle>
+            <AlertDescription>
               Please select a project from the main dashboard to view its posts.
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
         ) : error ? (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <ZoruAlertTitle>Could not fetch posts</ZoruAlertTitle>
-            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+            <AlertTitle>Could not fetch posts</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
         ) : filtered.length === 0 ? (
           <EmptyState

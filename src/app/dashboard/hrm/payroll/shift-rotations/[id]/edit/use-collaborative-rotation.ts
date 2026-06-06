@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 export function useCollaborativeRotation(rotationId?: string) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (!rotationId) return;

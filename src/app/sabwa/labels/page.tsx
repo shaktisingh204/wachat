@@ -1,44 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Input,
-  Label as ZoruUiLabel,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Input, Label as ZoruUiLabel, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   MoreHorizontal,
@@ -61,7 +23,7 @@ import {
  * Layout: header + "New label" button + grid of label cards (swatch +
  * name + chat count + Rename/Recolour/Delete actions). Edit/create
  * open a Dialog with a name input and a 10-swatch colour picker.
- * Delete opens a ZoruAlertDialog that warns the user that chats keep
+ * Delete opens a AlertDialog that warns the user that chats keep
  * their tag references.
  *
  * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports.
@@ -93,7 +55,7 @@ const PRESET_COLORS = [
 ];
 
 export default function SabWaLabelsPage() {
-  const toast = useZoruToast();
+  const toast = useToast();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? '';
   const { data: labels, loading, error, refetch } = useLabels(sessionId);
@@ -164,19 +126,19 @@ export default function SabWaLabelsPage() {
   return (
     <div className="space-y-6 p-4 md:p-6 lg:p-8">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Labels</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Labels</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <header className="flex items-start justify-between gap-3">
@@ -245,32 +207,32 @@ export default function SabWaLabelsPage() {
         onSaved={handleSaved}
       />
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={Boolean(deleting)}
         onOpenChange={(open) => {
           if (!open) setDeleting(null);
         }}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete this label?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this label?</AlertDialogTitle>
+            <AlertDialogDescription>
               {deleting
                 ? `"${deleting.name}" will be removed. Any chats already tagged with it keep their reference — the label just disappears from the picker.`
                 : ""}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90"
               onClick={() => deleting && handleDelete(deleting)}
             >
               Delete label
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -287,7 +249,7 @@ function LabelCard({ label, onEdit, onDelete }: LabelCardProps) {
   const count = label.chatCount ?? 0;
   return (
     <Card>
-      <ZoruCardContent className="flex items-start gap-3 p-4">
+      <CardBody className="flex items-start gap-3 p-4">
         <span
           aria-hidden
           className="mt-0.5 h-8 w-8 shrink-0 rounded-[var(--st-radius)] border border-[var(--st-border)]"
@@ -300,7 +262,7 @@ function LabelCard({ label, onEdit, onDelete }: LabelCardProps) {
           </p>
         </div>
         <DropdownMenu>
-          <ZoruDropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild>
             <Button
               type="button"
               variant="ghost"
@@ -310,20 +272,20 @@ function LabelCard({ label, onEdit, onDelete }: LabelCardProps) {
             >
               <MoreHorizontal className="h-4 w-4" />
             </Button>
-          </ZoruDropdownMenuTrigger>
-          <ZoruDropdownMenuContent align="end">
-            <ZoruDropdownMenuItem onSelect={onEdit}>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={onEdit}>
               <Pencil className="mr-2 h-4 w-4" /> Rename / recolour
-            </ZoruDropdownMenuItem>
-            <ZoruDropdownMenuItem
+            </DropdownMenuItem>
+            <DropdownMenuItem
               onSelect={onDelete}
               className="text-[var(--st-danger)] focus:text-[var(--st-danger)]"
             >
               <Trash2 className="mr-2 h-4 w-4" /> Delete
-            </ZoruDropdownMenuItem>
-          </ZoruDropdownMenuContent>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -343,7 +305,7 @@ function LabelEditorDialog({
   onOpenChange,
   onSaved,
 }: LabelEditorDialogProps) {
-  const toast = useZoruToast();
+  const toast = useToast();
   const isEdit = Boolean(initial);
   const [name, setName] = React.useState(initial?.name ?? "");
   const [color, setColor] = React.useState(
@@ -400,15 +362,15 @@ function LabelEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>{isEdit ? "Edit label" : "New label"}</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{isEdit ? "Edit label" : "New label"}</DialogTitle>
+          <DialogDescription>
             {isEdit
               ? "Rename or pick a new colour. Existing chat references stay intact."
               : "Pick a memorable name and a colour swatch."}
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <ZoruUiLabel htmlFor="label-name">Name</ZoruUiLabel>
@@ -457,7 +419,7 @@ function LabelEditorDialog({
               })}
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
@@ -469,9 +431,9 @@ function LabelEditorDialog({
             <Button type="submit" disabled={saving}>
               {saving ? "Saving…" : isEdit ? "Save changes" : "Create label"}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -482,13 +444,13 @@ function LabelGridSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <li key={i}>
           <Card>
-            <ZoruCardContent className="flex items-start gap-3 p-4">
+            <CardBody className="flex items-start gap-3 p-4">
               <Skeleton className="h-8 w-8 rounded-[var(--st-radius)]" />
               <div className="flex-1 space-y-2">
                 <Skeleton className="h-3 w-2/3" />
                 <Skeleton className="h-3 w-1/3" />
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </li>
       ))}
@@ -505,7 +467,7 @@ function LabelsEmptyState({
 }) {
   return (
     <Card>
-      <ZoruCardContent className="flex flex-col items-center gap-3 py-12 text-center">
+      <CardBody className="flex flex-col items-center gap-3 py-12 text-center">
         <div
           aria-hidden
           className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
@@ -527,7 +489,7 @@ function LabelsEmptyState({
             </Button>
           )}
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,13 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import { Download } from 'lucide-react';
 import {
   downloadCsv,
@@ -53,7 +47,7 @@ export function ReportExportButton({
 
   return (
     <DropdownMenu>
-      <ZoruDropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild>
         <Button
           type="button"
           size="sm"
@@ -63,13 +57,13 @@ export function ReportExportButton({
           <Download className="mr-1.5 h-3.5 w-3.5" />
           Export
         </Button>
-      </ZoruDropdownMenuTrigger>
-      <ZoruDropdownMenuContent align="end">
-        <ZoruDropdownMenuItem onSelect={onCsv}>Export CSV</ZoruDropdownMenuItem>
-        <ZoruDropdownMenuItem onSelect={onXlsx}>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onSelect={onCsv}>Export CSV</DropdownMenuItem>
+        <DropdownMenuItem onSelect={onXlsx}>
           Export XLSX
-        </ZoruDropdownMenuItem>
-      </ZoruDropdownMenuContent>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 }

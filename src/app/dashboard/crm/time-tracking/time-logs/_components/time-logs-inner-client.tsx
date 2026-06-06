@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, Checkbox, Input, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import { useDebouncedCallback } from 'use-debounce';
 import {
@@ -82,7 +67,7 @@ interface TimeLogsInnerClientProps {
 }
 
 export function TimeLogsInnerClient({ rows, initialFilters }: TimeLogsInnerClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const [search, setSearch] = React.useState('');
 
@@ -584,7 +569,7 @@ export function TimeLogsInnerClient({ rows, initialFilters }: TimeLogsInnerClien
               >
                 Mark non-billable
               </Button>
-              <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+              <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
                 <Button
                   variant="destructive"
                   size="sm"
@@ -594,19 +579,19 @@ export function TimeLogsInnerClient({ rows, initialFilters }: TimeLogsInnerClien
                   <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                   Delete selected
                 </Button>
-                <ZoruAlertDialogContent>
-                  <ZoruAlertDialogHeader>
-                    <ZoruAlertDialogTitle>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
                       Delete {selectedIds.length} log(s)?
-                    </ZoruAlertDialogTitle>
-                    <ZoruAlertDialogDescription>
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
                       This permanently removes the selected time entries. This
                       action cannot be undone.
-                    </ZoruAlertDialogDescription>
-                  </ZoruAlertDialogHeader>
-                  <ZoruAlertDialogFooter>
-                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                    <ZoruAlertDialogAction
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
                       onClick={handleBulkDelete}
                       disabled={bulkPending}
                     >
@@ -614,10 +599,10 @@ export function TimeLogsInnerClient({ rows, initialFilters }: TimeLogsInnerClien
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                       ) : null}
                       Delete
-                    </ZoruAlertDialogAction>
-                  </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-              </ZoruAlertDialog>
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Button
                 variant="ghost"
                 size="sm"

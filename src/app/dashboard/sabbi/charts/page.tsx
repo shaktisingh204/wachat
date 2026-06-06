@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { 
-  Card, CardHeader, CardTitle, CardDescription, CardContent,
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
-  Button, Badge, Input
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Table, THead, TBody, Tr, Th, Td, Button, Badge, Input } from '@/components/sabcrm/20ui/compat';
 import { BarChart2, Plus, LineChart, PieChart, Search, Play, MoreVertical } from 'lucide-react';
 
 const mockCharts = [
@@ -112,49 +108,49 @@ export default function ChartsPage() {
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Chart Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Source Dataset</TableHead>
-                <TableHead>Created By</TableHead>
-                <TableHead>Last Updated</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr>
+                <Th>Chart Name</Th>
+                <Th>Type</Th>
+                <Th>Source Dataset</Th>
+                <Th>Created By</Th>
+                <Th>Last Updated</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.map((chart) => (
-                <TableRow key={chart.id}>
-                  <TableCell className="font-medium">{chart.name}</TableCell>
-                  <TableCell>
+                <Tr key={chart.id}>
+                  <Td className="font-medium">{chart.name}</Td>
+                  <Td>
                     <div className="flex items-center capitalize">
                       {getChartIcon(chart.type)}
                       {chart.type}
                     </div>
-                  </TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>
                     <Badge variant="outline">{chart.dataset}</Badge>
-                  </TableCell>
-                  <TableCell>{chart.creator}</TableCell>
-                  <TableCell>{new Date(chart.updated).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right">
+                  </Td>
+                  <Td>{chart.creator}</Td>
+                  <Td>{new Date(chart.updated).toLocaleDateString()}</Td>
+                  <Td className="text-right">
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500/80 hover:text-blue-600">
                       <Play className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)]/60 hover:text-[var(--st-text)]">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))}
               {filtered.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                <Tr>
+                  <Td colSpan={6} className="h-24 text-center text-muted-foreground">
                     No charts found.
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               )}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
       </Card>

@@ -1,41 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   use,
   useCallback,
@@ -174,7 +139,7 @@ export default function ProjectDetailPage(props: {
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = use(props.params);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -635,38 +600,38 @@ export default function ProjectDetailPage(props: {
             </div>
             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Assignee</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Priority</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Due</ZoruTableHead>
-                    <ZoruTableHead className="w-[120px] text-right text-[var(--st-text-secondary)]">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="text-[var(--st-text-secondary)]">Title</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Assignee</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Priority</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Due</Th>
+                    <Th className="w-[120px] text-right text-[var(--st-text-secondary)]">
                       Actions
-                    </ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {tasks.length === 0 ? (
-                    <ZoruTableRow className="border-[var(--st-border)]">
-                      <ZoruTableCell
+                    <Tr className="border-[var(--st-border)]">
+                      <Td
                         colSpan={6}
                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         No tasks yet — click Add Task to get started.
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     tasks.map((t) => (
-                      <ZoruTableRow key={t._id} className="border-[var(--st-border)]">
-                        <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
+                      <Tr key={t._id} className="border-[var(--st-border)]">
+                        <Td className="text-[13px] font-medium text-[var(--st-text)]">
                           {t.heading}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {t.assigneeName || '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <Badge
                             variant={
                               TASK_STATUS_VARIANTS[t.status] || 'ghost'
@@ -674,8 +639,8 @@ export default function ProjectDetailPage(props: {
                           >
                             {t.status}
                           </Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           {t.priority ? (
                             <Badge
                               variant={
@@ -687,11 +652,11 @@ export default function ProjectDetailPage(props: {
                           ) : (
                             '—'
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {fmtDate(t.dueDate)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <div className="flex justify-end gap-1">
                             <PinButton
                               entityType="task"
@@ -716,11 +681,11 @@ export default function ProjectDetailPage(props: {
                               <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           </div>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </div>
@@ -978,37 +943,37 @@ export default function ProjectDetailPage(props: {
             ) : (
               <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow className="border-[var(--st-border)]">
-                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Task</ZoruTableHead>
-                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Start</ZoruTableHead>
-                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Due</ZoruTableHead>
-                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Deps</ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                  <THead>
+                    <Tr className="border-[var(--st-border)]">
+                      <Th className="text-[var(--st-text-secondary)]">Task</Th>
+                      <Th className="text-[var(--st-text-secondary)]">Start</Th>
+                      <Th className="text-[var(--st-text-secondary)]">Due</Th>
+                      <Th className="text-[var(--st-text-secondary)]">Deps</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {tasks.map((t) => {
                       const deps = ganttLinks.filter(
                         (g) => String(g.target) === t._id,
                       ).length;
                       return (
-                        <ZoruTableRow key={t._id} className="border-[var(--st-border)]">
-                          <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
+                        <Tr key={t._id} className="border-[var(--st-border)]">
+                          <Td className="text-[13px] font-medium text-[var(--st-text)]">
                             {t.heading}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[13px] text-[var(--st-text)]">
                             {fmtDate(t.startDate)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[13px] text-[var(--st-text)]">
                             {fmtDate(t.dueDate)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[13px] text-[var(--st-text)]">
                             {deps}
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       );
                     })}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
               </div>
             )}
@@ -1018,15 +983,15 @@ export default function ProjectDetailPage(props: {
 
       {/* ── Task dialog ── */}
       <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
-        <ZoruDialogContent className="max-w-2xl">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-[var(--st-text)]">
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-[var(--st-text)]">
               {editingTask ? 'Edit Task' : 'Add Task'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+            </DialogTitle>
+            <DialogDescription className="text-[var(--st-text-secondary)]">
               Fill in the task details below.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <form action={taskSaveAction} className="space-y-4">
             {editingTask?._id ? (
               <input type="hidden" name="_id" value={editingTask._id} />
@@ -1062,16 +1027,16 @@ export default function ProjectDetailPage(props: {
                   name="status"
                   defaultValue={editingTask?.status || 'incomplete'}
                 >
-                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="incomplete">Incomplete</ZoruSelectItem>
-                    <ZoruSelectItem value="todo">To Do</ZoruSelectItem>
-                    <ZoruSelectItem value="in-progress">In Progress</ZoruSelectItem>
-                    <ZoruSelectItem value="review">Review</ZoruSelectItem>
-                    <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="incomplete">Incomplete</SelectItem>
+                    <SelectItem value="todo">To Do</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="review">Review</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
@@ -1080,15 +1045,15 @@ export default function ProjectDetailPage(props: {
                   name="priority"
                   defaultValue={editingTask?.priority || 'medium'}
                 >
-                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                    <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                    <ZoruSelectItem value="high">High</ZoruSelectItem>
-                    <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
@@ -1149,7 +1114,7 @@ export default function ProjectDetailPage(props: {
                 />
               </div>
             </div>
-            <ZoruDialogFooter className="gap-2">
+            <DialogFooter className="gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -1166,32 +1131,32 @@ export default function ProjectDetailPage(props: {
                 ) : null}
                 Save
               </Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </form>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={deletingTaskId !== null}
         onOpenChange={(o) => !o && setDeletingTaskId(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-[var(--st-text)]">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[var(--st-text)]">
               Delete task?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[var(--st-text-secondary)]">
               This action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDeleteTask}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteTask}>
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* ── Add-Member dialog ── */}
       <SimpleFormDialog
@@ -1328,13 +1293,13 @@ function SimpleFormDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="text-[var(--st-text)]">{title}</ZoruDialogTitle>
-        </ZoruDialogHeader>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="text-[var(--st-text)]">{title}</DialogTitle>
+        </DialogHeader>
         <form action={action} className="space-y-3">
           {children}
-          <ZoruDialogFooter className="gap-2">
+          <DialogFooter className="gap-2">
             <Button
               type="button"
               variant="outline"
@@ -1351,9 +1316,9 @@ function SimpleFormDialog({
               ) : null}
               Save
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -1416,16 +1381,16 @@ function FormSelect({
     <div>
       <Label className="text-[var(--st-text)]">{label}</Label>
       <Select name={name} defaultValue={defaultValue}>
-        <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
           {options.map((o) => (
-            <ZoruSelectItem key={o.value} value={o.value}>
+            <SelectItem key={o.value} value={o.value}>
               {o.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
     </div>
   );

@@ -1,22 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-import {
-    Button,
-    Card,
-    CardContent,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageActions,
-    Badge,
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, PageHeader, PageTitle, PageActions, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { Plus, Building2 } from 'lucide-react';
 import { getSabworkerlyClients } from '@/app/actions/sabworkerly.actions';
 
@@ -25,15 +10,15 @@ export default async function ClientsListPage() {
     return (
         <div className="zoruui flex flex-col gap-5">
             <PageHeader>
-                <ZoruPageTitle>Clients</ZoruPageTitle>
-                <ZoruPageActions>
+                <PageTitle>Clients</PageTitle>
+                <PageActions>
                     <Link href="/dashboard/sabworkerly/clients/new">
                         <Button>
                             <Plus className="mr-2 h-4 w-4" />
                             Add client
                         </Button>
                     </Link>
-                </ZoruPageActions>
+                </PageActions>
             </PageHeader>
 
             {clients.length === 0 ? (
@@ -48,39 +33,39 @@ export default async function ClientsListPage() {
                 <Card>
                     <CardContent className="p-0">
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Business</TableHead>
-                                    <TableHead>Contact</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Terms</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Business</Th>
+                                    <Th>Contact</Th>
+                                    <Th>Email</Th>
+                                    <Th>Terms</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {clients.map((c) => (
-                                    <TableRow key={c._id}>
-                                        <TableCell>
+                                    <Tr key={c._id}>
+                                        <Td>
                                             <Link
                                                 href={`/dashboard/sabworkerly/clients/${c._id}`}
                                                 className="font-medium hover:underline"
                                             >
                                                 {c.name}
                                             </Link>
-                                        </TableCell>
-                                        <TableCell>{c.contactName ?? '—'}</TableCell>
-                                        <TableCell className="text-[color:var(--st-text-secondary)]">
+                                        </Td>
+                                        <Td>{c.contactName ?? '—'}</Td>
+                                        <Td className="text-[color:var(--st-text-secondary)]">
                                             {c.contactEmail ?? '—'}
-                                        </TableCell>
-                                        <TableCell>NET-{c.paymentTermsDays}</TableCell>
-                                        <TableCell>
+                                        </Td>
+                                        <Td>NET-{c.paymentTermsDays}</Td>
+                                        <Td>
                                             <Badge variant={c.status === 'active' ? 'default' : 'outline'}>
                                                 {c.status}
                                             </Badge>
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     </CardContent>
                 </Card>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 
 void _zoruCn;
@@ -82,14 +82,14 @@ export default function ServerLocationPage() {
       
       {error && (
         <Card className="border-[var(--st-border)]">
-          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent>
+          <CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody>
         </Card>
       )}
       
       {data && (
         <div className="space-y-4">
           <Card>
-            <ZoruCardContent className="p-4 text-sm space-y-2">
+            <CardBody className="p-4 text-sm space-y-2">
               <div><span className="font-semibold">Host:</span> {data.host}</div>
               <div>
                 <span className="font-semibold">IPv4 addresses:</span>
@@ -99,7 +99,7 @@ export default function ServerLocationPage() {
                   ))}
                 </ul>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
           
           {data.geoInfo.length > 0 && (
@@ -110,7 +110,7 @@ export default function ServerLocationPage() {
                     <span>{geo.ip}</span>
                     <span className="text-xs text-[var(--st-text-secondary)]">{geo.country}</span>
                   </div>
-                  <ZoruCardContent className="p-0">
+                  <CardBody className="p-0">
                     <div className="p-4 space-y-2 text-sm">
                       <div className="grid grid-cols-2 gap-2">
                         <div className="text-[var(--st-text-secondary)]">Location:</div>
@@ -137,7 +137,7 @@ export default function ServerLocationPage() {
                         />
                       </div>
                     )}
-                  </ZoruCardContent>
+                  </CardBody>
                 </Card>
               ))}
             </div>
@@ -145,9 +145,9 @@ export default function ServerLocationPage() {
           
           {data.geoInfo.length === 0 && (
             <Card>
-              <ZoruCardContent className="p-4 text-sm text-[var(--st-text-secondary)]">
+              <CardBody className="p-4 text-sm text-[var(--st-text-secondary)]">
                 Geolocation data could not be retrieved for the IP addresses found.
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
         </div>

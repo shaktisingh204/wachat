@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { useZoruToast, Avatar, ZoruAvatarFallback } from '@/components/sabcrm/20ui/compat';
+import { useToast, Avatar, AvatarFallback } from '@/components/sabcrm/20ui/compat';
 import {
   LayoutGrid,
   Table as TableIcon,
@@ -75,7 +75,7 @@ interface CandidatesViewProps {
 }
 
 export function CandidatesView({ initial, kpis }: CandidatesViewProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Candidate[]>(initial);
   const [view, setView] = React.useState<'table' | 'kanban'>('table');
   const [search, setSearch] = React.useState('');
@@ -216,9 +216,9 @@ export function CandidatesView({ initial, kpis }: CandidatesViewProps) {
           className="inline-flex items-center gap-2 text-[var(--st-text)] hover:underline"
         >
           <Avatar className="h-6 w-6 text-[10px]">
-            <ZoruAvatarFallback>
+            <AvatarFallback>
               {(row.name || '?').slice(0, 2).toUpperCase()}
-            </ZoruAvatarFallback>
+            </AvatarFallback>
           </Avatar>
           <span className="truncate font-medium">{row.name || '—'}</span>
         </Link>

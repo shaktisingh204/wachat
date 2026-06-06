@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 /**
  * <RfqFilters> — collapsible filter row for the RFQs list.
  *
@@ -106,16 +106,16 @@ export function RfqFilters(props: RfqFiltersProps) {
         <div className="space-y-1">
           <Label>Scope category</Label>
           <Select value={scopeFilter} onValueChange={onScopeChange}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {SCOPE_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
 
@@ -125,16 +125,16 @@ export function RfqFilters(props: RfqFiltersProps) {
             value={vendorsInvitedFilter}
             onValueChange={onVendorsInvitedChange}
           >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {VENDORS_INVITED_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
 

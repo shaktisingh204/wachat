@@ -3,19 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-    Button,
-    Dialog,
-    ZoruDialogTrigger,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogFooter,
-    Input,
-    Textarea,
-    Label,
-    Checkbox,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Textarea, Label, Checkbox } from '@/components/sabcrm/20ui/compat';
 
 import { createSabConnectManual } from '@/app/actions/sabconnect.actions';
 
@@ -54,13 +42,13 @@ export function CreateManualDialog() {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button>New manual</Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="max-w-2xl">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Create a manual</ZoruDialogTitle>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle>Create a manual</DialogTitle>
+                </DialogHeader>
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="manual-title">Title</Label>
@@ -92,15 +80,15 @@ export function CreateManualDialog() {
                         </p>
                     ) : null}
                 </div>
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button variant="outline" onClick={() => setOpen(false)}>
                         Cancel
                     </Button>
                     <Button onClick={submit} disabled={pending}>
                         {pending ? 'Saving…' : 'Save manual'}
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

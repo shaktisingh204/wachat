@@ -3,19 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { listSabpracticeDocumentRequests } from '@/app/actions/sabpractice.actions';
-import {
-    Badge,
-    Card,
-    CardContent,
-    EmptyState,
-    PageHeader,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardContent, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 async function DocRequestsData() {
     const list = await listSabpracticeDocumentRequests({ status: 'open', limit: 200 });
@@ -40,46 +28,46 @@ async function DocRequestsData() {
                         />
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Client</TableHead>
-                                    <TableHead>Slots</TableHead>
-                                    <TableHead>Due</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Title</Th>
+                                    <Th>Client</Th>
+                                    <Th>Slots</Th>
+                                    <Th>Due</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {list.items.map((r) => {
                                     const filled = (r.requestedFiles ?? []).filter(
                                         (f) => f.status === 'uploaded' || f.status === 'approved',
                                     ).length;
                                     return (
-                                        <TableRow key={r._id}>
-                                            <TableCell className="font-medium">{r.title}</TableCell>
-                                            <TableCell>
+                                        <Tr key={r._id}>
+                                            <Td className="font-medium">{r.title}</Td>
+                                            <Td>
                                                 <Link
                                                     className="font-mono text-xs underline-offset-2 hover:underline"
                                                     href={`/dashboard/sabpractice/clients/${r.clientId}`}
                                                 >
                                                     {r.clientId.slice(-6)}
                                                 </Link>
-                                            </TableCell>
-                                            <TableCell className="text-sm">
+                                            </Td>
+                                            <Td className="text-sm">
                                                 {filled}/{(r.requestedFiles ?? []).length}
-                                            </TableCell>
-                                            <TableCell>
+                                            </Td>
+                                            <Td>
                                                 {r.dueDate
                                                     ? new Date(r.dueDate).toLocaleDateString()
                                                     : '—'}
-                                            </TableCell>
-                                            <TableCell>
+                                            </Td>
+                                            <Td>
                                                 <Badge>{r.status ?? 'requested'}</Badge>
-                                            </TableCell>
-                                        </TableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>

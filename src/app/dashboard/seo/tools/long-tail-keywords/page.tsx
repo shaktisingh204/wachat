@@ -1,19 +1,6 @@
 'use client';
 
-import { 
-  Button, 
-  Input, 
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardContent, 
-  cn,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardHeader, CardTitle, CardBody, cn, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -106,16 +93,16 @@ export default function LongTailKeywordsPage() {
         <div className="space-y-4">
           {Object.entries(results).map(([category, items]) => (
             <Card key={category}>
-              <ZoruCardHeader>
-                <ZoruCardTitle>{category}</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-3">
+              <CardHeader>
+                <CardTitle>{category}</CardTitle>
+              </CardHeader>
+              <CardBody className="space-y-3">
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
                   {items.map((r) => (
                     <li key={r} className="p-3 rounded-md bg-[var(--st-bg-secondary)] border border-[var(--st-border)] text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)]">{r}</li>
                   ))}
                 </ul>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ))}
         </div>

@@ -1,4 +1,4 @@
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   Pencil } from 'lucide-react';
 
@@ -120,10 +120,10 @@ export function HrDetailPage({
     >
       {sections.map((sec) => (
         <Card key={sec.title}>
-          <ZoruCardHeader>
-            <ZoruCardTitle>{sec.title}</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>{sec.title}</CardTitle>
+          </CardHeader>
+          <CardBody>
             <dl className="grid gap-4 md:grid-cols-2">
               {sec.fields.map((f, i) => (
                 <div
@@ -141,7 +141,7 @@ export function HrDetailPage({
                 </div>
               ))}
             </dl>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ))}
     </EntityDetailShell>

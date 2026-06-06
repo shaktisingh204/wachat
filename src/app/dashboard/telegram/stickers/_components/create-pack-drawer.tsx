@@ -1,26 +1,5 @@
 import * as React from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetDescription,
-  StatCard,
-  EmptyState,
-  Skeleton,
-  useZoruToast,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, StatCard, EmptyState, Skeleton, useToast, cn } from '@/components/sabcrm/20ui/compat';
 import {
   Sticker as StickerIcon,
   Plus,
@@ -79,7 +58,7 @@ export function CreatePackDrawer({
     botUsername: string;
     onCreated: () => void;
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [step, setStep] = React.useState<1 | 2 | 3>(1);
     const [submitting, setSubmitting] = React.useState(false);
 
@@ -183,16 +162,16 @@ export function CreatePackDrawer({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <ZoruSheetContent
+            <SheetContent
                 side="right"
                 className="flex w-full max-w-2xl flex-col gap-4 overflow-y-auto"
             >
-                <ZoruSheetHeader>
-                    <ZoruSheetTitle>New sticker pack</ZoruSheetTitle>
-                    <ZoruSheetDescription>
+                <SheetHeader>
+                    <SheetTitle>New sticker pack</SheetTitle>
+                    <SheetDescription>
                         Step {step} of 3 — {step === 1 ? 'basics' : step === 2 ? 'stickers' : 'review'}.
-                    </ZoruSheetDescription>
-                </ZoruSheetHeader>
+                    </SheetDescription>
+                </SheetHeader>
 
                 <Stepper step={step} />
 
@@ -264,7 +243,7 @@ export function CreatePackDrawer({
                         )}
                     </div>
                 </div>
-            </ZoruSheetContent>
+            </SheetContent>
         </Sheet>
     );
 }
@@ -384,14 +363,14 @@ function Step1Basics({
                     value={stickerType}
                     onValueChange={(v) => setStickerType(v as StickerType)}
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="regular">Regular</ZoruSelectItem>
-                        <ZoruSelectItem value="mask">Mask</ZoruSelectItem>
-                        <ZoruSelectItem value="custom_emoji">Custom emoji</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger>
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="regular">Regular</SelectItem>
+                        <SelectItem value="mask">Mask</SelectItem>
+                        <SelectItem value="custom_emoji">Custom emoji</SelectItem>
+                    </SelectContent>
                 </Select>
             </div>
         </div>
@@ -528,15 +507,15 @@ function MaskFields({
             <div className="flex flex-col gap-1">
                 <Label className="text-[11px]">Anchor</Label>
                 <Select value={point} onValueChange={(v) => onChange({ maskPoint: v })}>
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="forehead" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="forehead">forehead</ZoruSelectItem>
-                        <ZoruSelectItem value="eyes">eyes</ZoruSelectItem>
-                        <ZoruSelectItem value="mouth">mouth</ZoruSelectItem>
-                        <ZoruSelectItem value="chin">chin</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger>
+                        <SelectValue placeholder="forehead" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="forehead">forehead</SelectItem>
+                        <SelectItem value="eyes">eyes</SelectItem>
+                        <SelectItem value="mouth">mouth</SelectItem>
+                        <SelectItem value="chin">chin</SelectItem>
+                    </SelectContent>
                 </Select>
             </div>
             <NumberField

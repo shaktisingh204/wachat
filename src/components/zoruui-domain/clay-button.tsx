@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, type ZoruButtonProps } from '@/components/sabcrm/20ui/compat';
+import { Button, type ButtonProps } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -27,7 +27,7 @@ export interface ClayButtonProps
  * back-compat wrapper around Button for the public-facing pages
  * and dashboards that still reference it.
  */
-const variantToZoru: Record<Variant, ZoruButtonProps['variant']> = {
+const variantToZoru: Record<Variant, ButtonProps['variant']> = {
   obsidian: 'default',
   rose: 'default',
   'rose-soft': 'secondary',
@@ -52,7 +52,7 @@ const variantOverride: Record<Variant, string> = {
     'rounded-lg text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]',
 };
 
-const sizeToZoru: Record<Size, ZoruButtonProps['size']> = {
+const sizeToZoru: Record<Size, ButtonProps['size']> = {
   sm: 'sm',
   md: 'md',
   lg: 'lg',

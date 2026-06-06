@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -46,27 +35,27 @@ export function FacebookKanbanCard({ conversation, index }: FacebookKanbanCardPr
             <Card
                 className="cursor-grab active:cursor-grabbing bg-[var(--st-bg-secondary)]"
             >
-                <ZoruCardHeader className="flex-row items-center gap-3 p-3">
+                <CardHeader className="flex-row items-center gap-3 p-3">
                     <Avatar>
-                        <ZoruAvatarImage src={`https://graph.facebook.com/${conversation.psid}/picture`} alt={conversation.name} data-ai-hint="person avatar"/>
-                        <ZoruAvatarFallback>{conversation.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
+                        <AvatarImage src={`https://graph.facebook.com/${conversation.psid}/picture`} alt={conversation.name} data-ai-hint="person avatar"/>
+                        <AvatarFallback>{conversation.name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div>
-                         <ZoruCardTitle className="text-sm font-semibold">{conversation.name}</ZoruCardTitle>
-                         <ZoruCardDescription className="text-xs font-mono">{conversation.psid}</ZoruCardDescription>
+                         <CardTitle className="text-sm font-semibold">{conversation.name}</CardTitle>
+                         <CardDescription className="text-xs font-mono">{conversation.psid}</CardDescription>
                     </div>
-                </ZoruCardHeader>
-                <ZoruCardContent className="px-3 pb-3">
+                </CardHeader>
+                <CardBody className="px-3 pb-3">
                     <p className="text-xs text-[var(--st-text-secondary)] line-clamp-2">
                         {conversation.snippet || 'No recent messages.'}
                     </p>
-                </ZoruCardContent>
-                <ZoruCardFooter className="p-3 pt-0">
+                </CardBody>
+                <CardFooter className="p-3 pt-0">
                      <Button variant="outline" size="sm" className="w-full" onClick={handleGoToChat}>
                         <MessageSquare className="mr-2 h-4 w-4" />
                         View Conversation
                      </Button>
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </div>
     );

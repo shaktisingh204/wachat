@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   Pencil,
   Trash2,
@@ -62,9 +52,9 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
         <Card className="p-0">
             <div className="overflow-x-auto rounded-lg">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow className="hover:bg-transparent">
-                            <ZoruTableHead className="w-[40px]">
+                    <THead>
+                        <Tr className="hover:bg-transparent">
+                            <Th className="w-[40px]">
                                 <Checkbox
                                     checked={
                                         rows.length > 0 &&
@@ -73,44 +63,44 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
                                     onCheckedChange={onToggleAll}
                                     aria-label="Select all"
                                 />
-                            </ZoruTableHead>
+                            </Th>
                             {columns.map((c) => (
-                                <ZoruTableHead key={c.key} className={c.className}>
+                                <Th key={c.key} className={c.className}>
                                     {c.label}
-                                </ZoruTableHead>
+                                </Th>
                             ))}
-                            <ZoruTableHead className="w-[140px] text-right">
+                            <Th className="w-[140px] text-right">
                                 Actions
-                            </ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                            </Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {isLoading && rows.length === 0 ? (
-                            <ZoruTableRow>
-                                <ZoruTableCell
+                            <Tr>
+                                <Td
                                     colSpan={columns.length + 2}
                                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                 >
                                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : rows.length === 0 ? (
-                            <ZoruTableRow>
-                                <ZoruTableCell
+                            <Tr>
+                                <Td
                                     colSpan={columns.length + 2}
                                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                 >
                                     {search
                                         ? `No ${singular.toLowerCase()} matched “${search}”.`
                                         : `No ${singular.toLowerCase()} yet — click New to get started.`}
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ) : (
                             rows.map((row) => {
                                 const isChecked = selected.has(row._id);
                                 return (
-                                    <ZoruTableRow key={row._id}>
-                                        <ZoruTableCell>
+                                    <Tr key={row._id}>
+                                        <Td>
                                             <Checkbox
                                                 checked={isChecked}
                                                 onCheckedChange={() =>
@@ -118,9 +108,9 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
                                                 }
                                                 aria-label="Select row"
                                             />
-                                        </ZoruTableCell>
+                                        </Td>
                                         {columns.map((c) => (
-                                            <ZoruTableCell
+                                            <Td
                                                 key={c.key}
                                                 className="text-[13px] text-[var(--st-text)]"
                                             >
@@ -129,9 +119,9 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
                                                     : ((row as Record<string, unknown>)[
                                                           c.key
                                                       ] as React.ReactNode) ?? '—'}
-                                            </ZoruTableCell>
+                                            </Td>
                                         ))}
-                                        <ZoruTableCell className="text-right">
+                                        <Td className="text-right">
                                             <div className="flex justify-end gap-1">
                                                 {extraRowActions?.(row)}
                                                 <Button
@@ -151,12 +141,12 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
                                                     <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                                                 </Button>
                                             </div>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 );
                             })
                         )}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             </div>
         </Card>

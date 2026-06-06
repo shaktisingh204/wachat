@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Button,
-  Card,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, Card, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -30,7 +16,7 @@ import { CrmEmailTemplateDialog } from './crm-email-template-dialog';
 export function CrmEmailTemplatesManager() {
     const [templates, setTemplates] = useState<WithId<CrmEmailTemplate>[]>([]);
     const [isLoading, startLoading] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingTemplate, setEditingTemplate] = useState<WithId<CrmEmailTemplate> | null>(null);
 
@@ -100,21 +86,21 @@ export function CrmEmailTemplatesManager() {
                                     </div>
                                     <div className="flex gap-2">
                                         <Button variant="ghost" size="icon" onClick={() => handleEdit(template)}><Edit className="h-4 w-4"/></Button>
-                                         <ZoruAlertDialog>
-                                            <ZoruAlertDialogTrigger asChild>
+                                         <AlertDialog>
+                                            <AlertDialogTrigger asChild>
                                                 <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-[var(--st-danger)]"/></Button>
-                                            </ZoruAlertDialogTrigger>
-                                            <ZoruAlertDialogContent>
-                                                <ZoruAlertDialogHeader>
-                                                    <ZoruAlertDialogTitle>Delete Template?</ZoruAlertDialogTitle>
-                                                    <ZoruAlertDialogDescription>This will permanently delete the "{template.name}" template.</ZoruAlertDialogDescription>
-                                                </ZoruAlertDialogHeader>
-                                                <ZoruAlertDialogFooter>
-                                                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                                    <ZoruAlertDialogAction onClick={() => handleDelete(template._id.toString())}>Delete</ZoruAlertDialogAction>
-                                                </ZoruAlertDialogFooter>
-                                            </ZoruAlertDialogContent>
-                                        </ZoruAlertDialog>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Delete Template?</AlertDialogTitle>
+                                                    <AlertDialogDescription>This will permanently delete the "{template.name}" template.</AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDelete(template._id.toString())}>Delete</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </div>
                             ))}

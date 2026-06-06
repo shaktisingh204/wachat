@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, DropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   CheckCheck,
   Download,
@@ -86,21 +86,21 @@ export function PurchaseOrdersBulkBar({
           <Mail className="h-3.5 w-3.5" /> Send
         </Button>
         <DropdownMenu>
-          <ZoruDropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild>
             <Button size="sm" variant="outline">
               Change status
             </Button>
-          </ZoruDropdownMenuTrigger>
-          <ZoruDropdownMenuContent>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
             {STATUS_OPTIONS.map((s) => (
-              <ZoruDropdownMenuItem
+              <DropdownMenuItem
                 key={s.value}
                 onSelect={() => onChangeStatus(s.value)}
               >
                 {s.label}
-              </ZoruDropdownMenuItem>
+              </DropdownMenuItem>
             ))}
-          </ZoruDropdownMenuContent>
+          </DropdownMenuContent>
         </DropdownMenu>
         <Button size="sm" variant="outline" asChild>
           <Link href={grnHref}>

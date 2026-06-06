@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useTransition } from "react";
 import { Loader2 } from "lucide-react";
@@ -43,7 +33,7 @@ export function UnblockProfileDialog({
   onUnblocked,
 }: UnblockProfileDialogProps) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleConfirm = () => {
     if (!profileId) return;
@@ -68,20 +58,20 @@ export function UnblockProfileDialog({
   };
 
   return (
-    <ZoruAlertDialog open={open} onOpenChange={onOpenChange}>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Unblock this profile?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Unblock this profile?</AlertDialogTitle>
+          <AlertDialogDescription>
             {profileName || profileId} will be able to comment and message your
             Page again. You can re-block them at any time.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel disabled={isPending}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>
             Cancel
-          </ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
+          </AlertDialogCancel>
+          <AlertDialogAction
             disabled={isPending}
             onClick={(e) => {
               e.preventDefault();
@@ -92,9 +82,9 @@ export function UnblockProfileDialog({
               <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
             ) : null}
             {isPending ? "Unblocking…" : "Unblock"}
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

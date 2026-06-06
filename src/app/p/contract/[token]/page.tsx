@@ -1,17 +1,5 @@
 import { resolvePublicToken } from '@/app/actions/worksuite/public.actions';
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Badge,
-  Table,
-  ZoruTableHeader,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableHead,
-  ZoruTableCell,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
 import { fmtCurrency } from '@/lib/worksuite/format';
 import { InvalidLinkCard } from '../../_components/invalid-link';
 import { ContractSignForm } from './_form';
@@ -69,55 +57,55 @@ function ContractHeader({ token, contract }: { token: string; contract: Contract
 function ContractAttributes({ contract, isSigned }: { contract: ContractDetails; isSigned: boolean }) {
   return (
     <Card>
-      <ZoruCardHeader className="border-b border-[var(--st-border)] py-3 bg-[var(--st-bg-muted)]/50">
+      <CardHeader className="border-b border-[var(--st-border)] py-3 bg-[var(--st-bg-muted)]/50">
         <div className="flex items-center gap-2">
           <Database className="h-4 w-4 text-[var(--st-text-secondary)]" />
-          <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-[var(--st-text-secondary)]">
+          <CardTitle className="text-[12px] font-mono uppercase tracking-wider text-[var(--st-text-secondary)]">
             Document Attributes
-          </ZoruCardTitle>
+          </CardTitle>
         </div>
-      </ZoruCardHeader>
-      <ZoruCardContent className="p-0">
+      </CardHeader>
+      <CardBody className="p-0">
         <Table>
-          <ZoruTableHeader className="bg-[var(--st-bg-muted)]/20">
-            <ZoruTableRow>
-              <ZoruTableHead className="font-mono text-[11.5px]">Attribute</ZoruTableHead>
-              <ZoruTableHead className="font-mono text-[11.5px]">Type</ZoruTableHead>
-              <ZoruTableHead className="font-mono text-[11.5px] text-right">Value</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
-            <ZoruTableRow>
-              <ZoruTableCell className="font-mono text-[12.5px]">start_date</ZoruTableCell>
-              <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">date</ZoruTableCell>
-              <ZoruTableCell className="text-right text-[12.5px] font-medium">{isoDate(contract.start_date)}</ZoruTableCell>
-            </ZoruTableRow>
-            <ZoruTableRow>
-              <ZoruTableCell className="font-mono text-[12.5px]">end_date</ZoruTableCell>
-              <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">date</ZoruTableCell>
-              <ZoruTableCell className="text-right text-[12.5px] font-medium">{isoDate(contract.end_date)}</ZoruTableCell>
-            </ZoruTableRow>
+          <THead className="bg-[var(--st-bg-muted)]/20">
+            <Tr>
+              <Th className="font-mono text-[11.5px]">Attribute</Th>
+              <Th className="font-mono text-[11.5px]">Type</Th>
+              <Th className="font-mono text-[11.5px] text-right">Value</Th>
+            </Tr>
+          </THead>
+          <TBody>
+            <Tr>
+              <Td className="font-mono text-[12.5px]">start_date</Td>
+              <Td className="font-mono text-[11px] text-[var(--st-text-secondary)]">date</Td>
+              <Td className="text-right text-[12.5px] font-medium">{isoDate(contract.start_date)}</Td>
+            </Tr>
+            <Tr>
+              <Td className="font-mono text-[12.5px]">end_date</Td>
+              <Td className="font-mono text-[11px] text-[var(--st-text-secondary)]">date</Td>
+              <Td className="text-right text-[12.5px] font-medium">{isoDate(contract.end_date)}</Td>
+            </Tr>
             {contract.value ? (
-              <ZoruTableRow>
-                <ZoruTableCell className="font-mono text-[12.5px]">contract_value</ZoruTableCell>
-                <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">currency</ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] font-bold text-[var(--st-text)]">
+              <Tr>
+                <Td className="font-mono text-[12.5px]">contract_value</Td>
+                <Td className="font-mono text-[11px] text-[var(--st-text-secondary)]">currency</Td>
+                <Td className="text-right text-[12.5px] font-bold text-[var(--st-text)]">
                   {fmtCurrency(Number(contract.value), contract.currency || 'INR')}
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ) : null}
-            <ZoruTableRow>
-              <ZoruTableCell className="font-mono text-[12.5px]">signature_status</ZoruTableCell>
-              <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">string</ZoruTableCell>
-              <ZoruTableCell className="text-right">
+            <Tr>
+              <Td className="font-mono text-[12.5px]">signature_status</Td>
+              <Td className="font-mono text-[11px] text-[var(--st-text-secondary)]">string</Td>
+              <Td className="text-right">
                 <Badge variant={isSigned ? 'success' : 'warning'}>
                   {isSigned ? 'SIGNED' : 'PENDING'}
                 </Badge>
-              </ZoruTableCell>
-            </ZoruTableRow>
-          </ZoruTableBody>
+              </Td>
+            </Tr>
+          </TBody>
         </Table>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -152,7 +140,7 @@ function SignatureLogs({ signs }: { signs: ContractSign[] }) {
       <div className="grid gap-3">
         {signs.map((s, i) => (
           <Card key={i} className="border-success/20 bg-success/5 shadow-sm overflow-hidden">
-            <ZoruCardContent className="p-0">
+            <CardBody className="p-0">
               <div className="p-4 flex items-start justify-between gap-3 flex-wrap border-b border-success/10">
                 <div>
                   <p className="text-[13px] font-bold text-[var(--st-text)] font-mono">
@@ -172,7 +160,7 @@ function SignatureLogs({ signs }: { signs: ContractSign[] }) {
                   SHA-256: {generateAuditHash(s.signature_data_url)}
                 </span>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         ))}
       </div>
@@ -183,7 +171,7 @@ function SignatureLogs({ signs }: { signs: ContractSign[] }) {
 function ContractExecutionStatus({ signsCount }: { signsCount: number }) {
   return (
     <Card className="border-success/20 bg-success/5 mb-5">
-      <ZoruCardContent className="py-6 text-center flex flex-col items-center gap-3">
+      <CardBody className="py-6 text-center flex flex-col items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 text-success-ink border border-success/20 font-mono text-xs">
           200
         </div>
@@ -206,7 +194,7 @@ function ContractExecutionStatus({ signsCount }: { signsCount: number }) {
           </div>
           <span className="text-[var(--st-text-secondary)]">{"}"}</span>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -12,18 +12,7 @@ import {
     listSabpracticeTasks,
     listSabpracticeTimeLogs,
 } from '@/app/actions/sabpractice.actions';
-import {
-    Badge,
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    EmptyState,
-    PageHeader,
-    Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, Separator } from '@/components/sabcrm/20ui/compat';
 
 import {
     ClientDocRequestBinder,

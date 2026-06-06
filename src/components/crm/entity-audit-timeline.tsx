@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   ObjectId } from 'mongodb';
 
@@ -159,12 +159,12 @@ export async function EntityAuditTimeline({
     if (!session?.user?._id) {
         return (
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>{title}</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>{title}</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <p className="text-sm text-[var(--st-text)]">Login required to view activity.</p>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         );
     }
@@ -194,22 +194,22 @@ export async function EntityAuditTimeline({
     if (entries.length === 0) {
         return (
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>{title}</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>{title}</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <p className="text-sm text-[var(--st-text)]">No activity yet.</p>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         );
     }
 
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle>{title}</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+            </CardHeader>
+            <CardBody>
                 <ol className="relative space-y-4 border-l border-[var(--st-border)] pl-4 dark:border-[var(--st-border)]">
                     {entries.map((entry) => {
                         const tone = toneFor(entry.action);
@@ -243,7 +243,7 @@ export async function EntityAuditTimeline({
                         );
                     })}
                 </ol>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

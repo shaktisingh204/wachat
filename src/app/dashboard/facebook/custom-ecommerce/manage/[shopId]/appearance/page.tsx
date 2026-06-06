@@ -1,28 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Card,
-  ZoruColorPicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, ColorPicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -45,7 +23,7 @@ import type { WithId } from "mongodb";
 /**
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/appearance
  *
- * Per-shop theme picker. Uses ZoruColorPicker with neutral presets and a
+ * Per-shop theme picker. Uses ColorPicker with neutral presets and a
  * Card preview pane (storefront mock) — same neutral palette as the
  * account-level appearance page. Save flow goes through a confirmation
  * dialog before persisting.
@@ -81,7 +59,7 @@ const PRESET_PALETTES: { id: string; label: string; primary: string }[] = [
 export default function ShopAppearancePage() {
   const params = useParams();
   const shopId = params?.shopId as string | undefined;
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -239,7 +217,7 @@ export default function ShopAppearancePage() {
 
           <div className="mt-6 flex flex-col gap-1.5">
             <Label htmlFor="primary-color">Primary color</Label>
-            <ZoruColorPicker
+            <ColorPicker
               value={primary}
               onChange={(c) => {
                 setPrimary(c);
@@ -318,16 +296,16 @@ export default function ShopAppearancePage() {
       </div>
 
       <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Save theme?</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save theme?</DialogTitle>
+            <DialogDescription>
               The current palette will be saved to this shop as
               &ldquo;{themeName}&rdquo;. You can publish it later from this
               page.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setSaveOpen(false)}>
               Cancel
             </Button>
@@ -335,31 +313,31 @@ export default function ShopAppearancePage() {
               {isSaving ? <LoaderCircle className="animate-spin" /> : null}
               Save theme
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
-      <ZoruAlertDialog open={publishOpen} onOpenChange={setPublishOpen}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Publish shop?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={publishOpen} onOpenChange={setPublishOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Publish shop?</AlertDialogTitle>
+            <AlertDialogDescription>
               This will re-apply the saved theme and refresh the live
               storefront layout. Visitors may see a brief flash while the
               new layout takes effect.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={isPublishing}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPublishing}>
               Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handlePublish}>
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handlePublish}>
               {isPublishing ? <LoaderCircle className="animate-spin" /> : null}
               Publish
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

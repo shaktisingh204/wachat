@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Trash2 } from 'lucide-react';
@@ -21,7 +21,7 @@ export function HrDeleteButton({
   deleteAction,
 }: HrDeleteButtonProps): React.JSX.Element {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [deleting, setDeleting] = React.useState(false);
 
   const handleConfirmDelete = React.useCallback(async () => {

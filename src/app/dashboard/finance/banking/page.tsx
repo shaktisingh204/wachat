@@ -3,7 +3,7 @@
 import React, { useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
 import { RefreshCw, CheckCircle2, AlertCircle, Building2 } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
@@ -66,33 +66,33 @@ export default function BankingReconciliationPage() {
           </CardHeader>
           <CardContent className="flex-1 overflow-auto p-0">
             <Table>
-              <TableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+              <THead className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
+                <Tr>
+                  <Th>Date</Th>
+                  <Th>Description</Th>
+                  <Th className="text-right">Amount</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {[
                   { date: 'Oct 24', desc: 'RAZORPAY SETTLEMENT', amount: '+₹45,200.00', status: 'match' },
                   { date: 'Oct 23', desc: 'AWS EMEA SARL', amount: '-₹12,450.00', status: 'partial' },
                   { date: 'Oct 22', desc: 'NEFT-SBIN-JOHN DOE', amount: '+₹5,000.00', status: 'unmatched' },
                   { date: 'Oct 21', desc: 'ZOHO CORP RENEWAL', amount: '-₹3,200.00', status: 'match' },
                 ].map((txn, i) => (
-                  <TableRow key={i} className={`animate-row cursor-pointer hover:bg-[var(--st-bg-muted)]/50 ${i === 0 ? 'bg-[var(--st-text)]/5 border-l-4 border-l-primary' : ''}`}>
-                    <TableCell className="whitespace-nowrap">{txn.date}</TableCell>
-                    <TableCell className="font-medium text-sm">
+                  <Tr key={i} className={`animate-row cursor-pointer hover:bg-[var(--st-bg-muted)]/50 ${i === 0 ? 'bg-[var(--st-text)]/5 border-l-4 border-l-primary' : ''}`}>
+                    <Td className="whitespace-nowrap">{txn.date}</Td>
+                    <Td className="font-medium text-sm">
                       {txn.desc}
                       {txn.status === 'match' && <Badge variant="default" className="ml-2 bg-[var(--st-text)] hover:bg-[var(--st-text)]">AI Match</Badge>}
                       {txn.status === 'partial' && <Badge variant="secondary" className="ml-2">Needs Review</Badge>}
-                    </TableCell>
-                    <TableCell className={`text-right font-medium ${txn.amount.startsWith('+') ? 'text-[var(--st-text)]' : ''}`}>
+                    </Td>
+                    <Td className={`text-right font-medium ${txn.amount.startsWith('+') ? 'text-[var(--st-text)]' : ''}`}>
                       {txn.amount}
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
           </CardContent>
         </Card>

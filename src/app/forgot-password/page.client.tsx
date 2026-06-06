@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Alert, AlertDescription, AlertTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -69,23 +55,23 @@ function ForgotPasswordForm() {
 
     return (
         <form action={formAction}>
-            <ZoruCardHeader className="text-center">
-                <ZoruCardTitle className="text-2xl font-bold font-headline">Forgot Your Password?</ZoruCardTitle>
-                <ZoruCardDescription>Enter your email and we'll send you instructions to reset your password.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-6 p-6">
+            <CardHeader className="text-center">
+                <CardTitle className="text-2xl font-bold font-headline">Forgot Your Password?</CardTitle>
+                <CardDescription>Enter your email and we'll send you instructions to reset your password.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-6 p-6">
                 {state?.error && (
                     <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
-                        <ZoruAlertTitle>Error</ZoruAlertTitle>
-                        <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>{state.error}</AlertDescription>
                     </Alert>
                 )}
                 {state?.message && (
                     <Alert>
                         <CheckCircle className="h-4 w-4" />
-                        <ZoruAlertTitle>Check Your Email</ZoruAlertTitle>
-                        <ZoruAlertDescription>{state.message}</ZoruAlertDescription>
+                        <AlertTitle>Check Your Email</AlertTitle>
+                        <AlertDescription>{state.message}</AlertDescription>
                     </Alert>
                 )}
                 <div className="space-y-2">
@@ -101,12 +87,12 @@ function ForgotPasswordForm() {
                     />
                 </div>
                 <SubmitButton />
-            </ZoruCardContent>
-            <ZoruCardFooter className="justify-center">
+            </CardBody>
+            <CardFooter className="justify-center">
                 <p className="text-sm text-[var(--st-text-secondary)]">
                     <Link href="/login" className="font-semibold text-[var(--st-text)] hover:text-[var(--st-text)]">&larr; Back to Sign In</Link>
                 </p>
-            </ZoruCardFooter>
+            </CardFooter>
         </form>
     );
 }

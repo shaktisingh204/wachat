@@ -2,11 +2,7 @@
 
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import {
-    Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent, ZoruCardFooter,
-    Button, Input, Label, Badge, Switch, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem,
-    Separator, useZoruToast, Breadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Button, Input, Label, Badge, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator, useToast, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui/compat';
 import { 
     Settings, Store, CreditCard, ShoppingBag, Bell, Globe, 
     Truck, Receipt, Save, RefreshCw, Upload, Plus, AlertCircle 
@@ -18,7 +14,7 @@ type TabKey = 'general' | 'payments' | 'checkout' | 'notifications' | 'domains' 
 export default function SettingsPage() {
     const params = useParams<{ storefrontId: string }>();
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [activeTab, setActiveTab] = React.useState<TabKey>('general');
     const [isSaving, setIsSaving] = React.useState(false);
 
@@ -51,15 +47,15 @@ export default function SettingsPage() {
         <div className="zoruui flex h-full flex-col gap-6 p-8 max-w-7xl mx-auto w-full">
             <div className="flex flex-col gap-2">
                 <Breadcrumb>
-                    <ZoruBreadcrumbList>
-                        <ZoruBreadcrumbItem>
-                            <ZoruBreadcrumbLink href={`/dashboard/sabshop/${params.storefrontId}`}>Store</ZoruBreadcrumbLink>
-                        </ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbSeparator />
-                        <ZoruBreadcrumbItem>
-                            <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
-                        </ZoruBreadcrumbItem>
-                    </ZoruBreadcrumbList>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/dashboard/sabshop/${params.storefrontId}`}>Store</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Settings</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
                 </Breadcrumb>
                 
                 <div className="flex items-center justify-between">
@@ -125,11 +121,11 @@ export default function SettingsPage() {
                     {activeTab === 'general' && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                             <Card>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle>Store Details</ZoruCardTitle>
-                                    <ZoruCardDescription>Your customers will use this information to contact you.</ZoruCardDescription>
-                                </ZoruCardHeader>
-                                <ZoruCardContent className="space-y-4">
+                                <CardHeader>
+                                    <CardTitle>Store Details</CardTitle>
+                                    <CardDescription>Your customers will use this information to contact you.</CardDescription>
+                                </CardHeader>
+                                <CardBody className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label>Store Name</Label>
@@ -147,70 +143,70 @@ export default function SettingsPage() {
                                     <div className="space-y-2">
                                         <Label>Store Industry</Label>
                                         <Select defaultValue="apparel">
-                                            <ZoruSelectTrigger>
-                                                <ZoruSelectValue placeholder="Select industry" />
-                                            </ZoruSelectTrigger>
-                                            <ZoruSelectContent>
-                                                <ZoruSelectItem value="apparel">Clothing & Apparel</ZoruSelectItem>
-                                                <ZoruSelectItem value="electronics">Electronics</ZoruSelectItem>
-                                                <ZoruSelectItem value="beauty">Health & Beauty</ZoruSelectItem>
-                                                <ZoruSelectItem value="home">Home & Garden</ZoruSelectItem>
-                                                <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                                            </ZoruSelectContent>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select industry" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="apparel">Clothing & Apparel</SelectItem>
+                                                <SelectItem value="electronics">Electronics</SelectItem>
+                                                <SelectItem value="beauty">Health & Beauty</SelectItem>
+                                                <SelectItem value="home">Home & Garden</SelectItem>
+                                                <SelectItem value="other">Other</SelectItem>
+                                            </SelectContent>
                                         </Select>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
 
                             <Card>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle>Standards and Formats</ZoruCardTitle>
-                                    <ZoruCardDescription>Standards and formats are used to calculate product prices, shipping weights, and order times.</ZoruCardDescription>
-                                </ZoruCardHeader>
-                                <ZoruCardContent className="space-y-4">
+                                <CardHeader>
+                                    <CardTitle>Standards and Formats</CardTitle>
+                                    <CardDescription>Standards and formats are used to calculate product prices, shipping weights, and order times.</CardDescription>
+                                </CardHeader>
+                                <CardBody className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label>Timezone</Label>
                                             <Select defaultValue="pst">
-                                                <ZoruSelectTrigger>
-                                                    <ZoruSelectValue placeholder="Select timezone" />
-                                                </ZoruSelectTrigger>
-                                                <ZoruSelectContent>
-                                                    <ZoruSelectItem value="pst">(GMT-08:00) Pacific Time (US & Canada)</ZoruSelectItem>
-                                                    <ZoruSelectItem value="est">(GMT-05:00) Eastern Time (US & Canada)</ZoruSelectItem>
-                                                    <ZoruSelectItem value="ist">(GMT+05:30) Indian Standard Time</ZoruSelectItem>
-                                                </ZoruSelectContent>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select timezone" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="pst">(GMT-08:00) Pacific Time (US & Canada)</SelectItem>
+                                                    <SelectItem value="est">(GMT-05:00) Eastern Time (US & Canada)</SelectItem>
+                                                    <SelectItem value="ist">(GMT+05:30) Indian Standard Time</SelectItem>
+                                                </SelectContent>
                                             </Select>
                                         </div>
                                         <div className="space-y-2">
                                             <Label>Unit System</Label>
                                             <Select defaultValue="metric">
-                                                <ZoruSelectTrigger>
-                                                    <ZoruSelectValue placeholder="Select unit system" />
-                                                </ZoruSelectTrigger>
-                                                <ZoruSelectContent>
-                                                    <ZoruSelectItem value="metric">Metric system (kg, g, cm)</ZoruSelectItem>
-                                                    <ZoruSelectItem value="imperial">Imperial system (lb, oz, in)</ZoruSelectItem>
-                                                </ZoruSelectContent>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select unit system" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="metric">Metric system (kg, g, cm)</SelectItem>
+                                                    <SelectItem value="imperial">Imperial system (lb, oz, in)</SelectItem>
+                                                </SelectContent>
                                             </Select>
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Store Currency</Label>
                                         <Select defaultValue="usd">
-                                            <ZoruSelectTrigger>
-                                                <ZoruSelectValue placeholder="Select currency" />
-                                            </ZoruSelectTrigger>
-                                            <ZoruSelectContent>
-                                                <ZoruSelectItem value="usd">US Dollar (USD)</ZoruSelectItem>
-                                                <ZoruSelectItem value="inr">Indian Rupee (INR)</ZoruSelectItem>
-                                                <ZoruSelectItem value="eur">Euro (EUR)</ZoruSelectItem>
-                                                <ZoruSelectItem value="gbp">British Pound (GBP)</ZoruSelectItem>
-                                            </ZoruSelectContent>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select currency" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="usd">US Dollar (USD)</SelectItem>
+                                                <SelectItem value="inr">Indian Rupee (INR)</SelectItem>
+                                                <SelectItem value="eur">Euro (EUR)</SelectItem>
+                                                <SelectItem value="gbp">British Pound (GBP)</SelectItem>
+                                            </SelectContent>
                                         </Select>
                                         <p className="text-xs text-[var(--st-text-secondary)] mt-1">Changing your store currency can affect the pricing of your products and discounts.</p>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         </div>
                     )}
@@ -218,14 +214,14 @@ export default function SettingsPage() {
                     {activeTab === 'payments' && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                             <Card>
-                                <ZoruCardHeader className="flex flex-row items-start justify-between">
+                                <CardHeader className="flex flex-row items-start justify-between">
                                     <div>
-                                        <ZoruCardTitle>Payment Providers</ZoruCardTitle>
-                                        <ZoruCardDescription>Accept payments on your store using third-party providers.</ZoruCardDescription>
+                                        <CardTitle>Payment Providers</CardTitle>
+                                        <CardDescription>Accept payments on your store using third-party providers.</CardDescription>
                                     </div>
                                     <Badge variant="success">Active</Badge>
-                                </ZoruCardHeader>
-                                <ZoruCardContent className="space-y-4">
+                                </CardHeader>
+                                <CardBody className="space-y-4">
                                     <div className="p-4 border border-[var(--st-border)] rounded-lg bg-[var(--st-hover)] flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className="h-10 w-10 bg-[#635BFF] rounded-md flex items-center justify-center">
@@ -251,15 +247,15 @@ export default function SettingsPage() {
                                         </div>
                                         <Button variant="secondary" size="sm">Connect</Button>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
 
                             <Card>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle>Manual Payments</ZoruCardTitle>
-                                    <ZoruCardDescription>Payments that are made outside of your online store.</ZoruCardDescription>
-                                </ZoruCardHeader>
-                                <ZoruCardContent className="space-y-4">
+                                <CardHeader>
+                                    <CardTitle>Manual Payments</CardTitle>
+                                    <CardDescription>Payments that are made outside of your online store.</CardDescription>
+                                </CardHeader>
+                                <CardBody className="space-y-4">
                                     <div className="flex items-center justify-between p-4 border border-[var(--st-border)] rounded-lg">
                                         <div className="space-y-1">
                                             <p className="font-medium text-[var(--st-text)]">Cash on Delivery (COD)</p>
@@ -274,7 +270,7 @@ export default function SettingsPage() {
                                         </div>
                                         <Switch />
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         </div>
                     )}
@@ -282,11 +278,11 @@ export default function SettingsPage() {
                     {activeTab === 'checkout' && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                             <Card>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle>Customer Accounts</ZoruCardTitle>
-                                    <ZoruCardDescription>Choose how customers interact with accounts at checkout.</ZoruCardDescription>
-                                </ZoruCardHeader>
-                                <ZoruCardContent className="space-y-4">
+                                <CardHeader>
+                                    <CardTitle>Customer Accounts</CardTitle>
+                                    <CardDescription>Choose how customers interact with accounts at checkout.</CardDescription>
+                                </CardHeader>
+                                <CardBody className="space-y-4">
                                     <div className="space-y-3">
                                         <label className="flex items-start gap-3 p-3 border border-[var(--st-border)] rounded-lg cursor-pointer hover:bg-[var(--st-hover)] transition-colors">
                                             <input type="radio" name="accounts" className="mt-1" />
@@ -310,15 +306,15 @@ export default function SettingsPage() {
                                             </div>
                                         </label>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
 
                             <Card>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle>Customer Contact Method</ZoruCardTitle>
-                                    <ZoruCardDescription>Choose how customers are contacted after placing an order.</ZoruCardDescription>
-                                </ZoruCardHeader>
-                                <ZoruCardContent className="space-y-4">
+                                <CardHeader>
+                                    <CardTitle>Customer Contact Method</CardTitle>
+                                    <CardDescription>Choose how customers are contacted after placing an order.</CardDescription>
+                                </CardHeader>
+                                <CardBody className="space-y-4">
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2">
                                             <Switch defaultChecked />
@@ -326,7 +322,7 @@ export default function SettingsPage() {
                                         </div>
                                         <p className="text-sm text-[var(--st-text-secondary)] pl-11">Customers can check out using either their phone number or email address.</p>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         </div>
                     )}
@@ -334,11 +330,11 @@ export default function SettingsPage() {
                     {activeTab === 'notifications' && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                             <Card>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle>Customer Notifications</ZoruCardTitle>
-                                    <ZoruCardDescription>Customize the emails and SMS messages sent to your customers.</ZoruCardDescription>
-                                </ZoruCardHeader>
-                                <ZoruCardContent>
+                                <CardHeader>
+                                    <CardTitle>Customer Notifications</CardTitle>
+                                    <CardDescription>Customize the emails and SMS messages sent to your customers.</CardDescription>
+                                </CardHeader>
+                                <CardBody>
                                     <div className="divide-y divide-[var(--st-border)] border border-[var(--st-border)] rounded-lg">
                                         <div className="flex items-center justify-between p-4 hover:bg-[var(--st-hover)] transition-colors">
                                             <div>
@@ -362,7 +358,7 @@ export default function SettingsPage() {
                                             <Button variant="outline" size="sm">Edit</Button>
                                         </div>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         </div>
                     )}
@@ -370,14 +366,14 @@ export default function SettingsPage() {
                     {activeTab === 'domains' && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                             <Card>
-                                <ZoruCardHeader className="flex flex-row items-center justify-between">
+                                <CardHeader className="flex flex-row items-center justify-between">
                                     <div>
-                                        <ZoruCardTitle>Domains</ZoruCardTitle>
-                                        <ZoruCardDescription>Manage your custom domains and subdomains.</ZoruCardDescription>
+                                        <CardTitle>Domains</CardTitle>
+                                        <CardDescription>Manage your custom domains and subdomains.</CardDescription>
                                     </div>
                                     <Button size="sm" className="gap-2"><Plus className="h-4 w-4" /> Add Domain</Button>
-                                </ZoruCardHeader>
-                                <ZoruCardContent>
+                                </CardHeader>
+                                <CardBody>
                                     <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
                                         <table className="w-full text-sm text-left">
                                             <thead className="bg-[var(--st-hover)] border-b border-[var(--st-border)] text-xs uppercase text-[var(--st-text-secondary)]">
@@ -409,7 +405,7 @@ export default function SettingsPage() {
                                             </tbody>
                                         </table>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         </div>
                     )}

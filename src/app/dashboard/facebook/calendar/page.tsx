@@ -1,25 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  EmptyState,
-  ZoruFullscreenCalendar,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  type ZoruFullscreenCalendarEvent,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, FullscreenCalendar, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, type ZoruFullscreenCalendarEvent } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -45,7 +26,7 @@ import {
  * /dashboard/facebook/calendar — Post calendar, ZoruUI rebuild.
  *
  * Same handlers + server actions (`getFacebookPosts`, `getScheduledPosts`).
- * Visual layer: PageHeader + Breadcrumb, ZoruFullscreenCalendar
+ * Visual layer: PageHeader + Breadcrumb, FullscreenCalendar
  * showing both published and scheduled posts as events.
  */
 
@@ -198,33 +179,33 @@ export default function CalendarPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Calendar</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Calendar</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader bordered={false} className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
-          <ZoruPageTitle>Post calendar</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Meta Suite</PageEyebrow>
+          <PageTitle>Post calendar</PageTitle>
+          <PageDescription>
             View your published and scheduled Facebook posts on a single
             calendar.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Badge variant="success">
             <CalendarDays />
             {counts.published} published
@@ -241,7 +222,7 @@ export default function CalendarPage() {
               <Plus /> New post
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="mt-6">
@@ -264,7 +245,7 @@ export default function CalendarPage() {
           />
         ) : (
           <div className="h-[720px]">
-            <ZoruFullscreenCalendar
+            <FullscreenCalendar
               events={events}
               onCreateEvent={() => {
                 // Defer to dedicated create page; calendar primitive

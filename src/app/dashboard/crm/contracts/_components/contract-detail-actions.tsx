@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -79,7 +72,7 @@ export function ContractDetailActions({
   pendingSigners = [],
 }: ContractDetailActionsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [currentStatus, setCurrentStatus] = React.useState<ContractStatus>(
     (status as ContractStatus) ?? 'draft',
   );
@@ -118,7 +111,7 @@ export function ContractDetailActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <DropdownMenu>
-        <ZoruDropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild>
           <button
             type="button"
             className="inline-flex items-center gap-1 rounded-full transition-opacity hover:opacity-80"
@@ -129,17 +122,17 @@ export function ContractDetailActions({
               tone={statusToTone(currentStatus)}
             />
           </button>
-        </ZoruDropdownMenuTrigger>
-        <ZoruDropdownMenuContent>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
           {STATUS_OPTIONS.map((s) => (
-            <ZoruDropdownMenuItem
+            <DropdownMenuItem
               key={s.value}
               onSelect={() => moveTo(s.value)}
             >
               {s.label}
-            </ZoruDropdownMenuItem>
+            </DropdownMenuItem>
           ))}
-        </ZoruDropdownMenuContent>
+        </DropdownMenuContent>
       </DropdownMenu>
 
       <Button size="sm" variant="outline" asChild>
@@ -154,14 +147,14 @@ export function ContractDetailActions({
 
       {pendingSigners.length > 0 ? (
         <DropdownMenu>
-          <ZoruDropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild>
             <Button size="sm" variant="outline">
               <Mail className="h-3.5 w-3.5" /> Resend invite
             </Button>
-          </ZoruDropdownMenuTrigger>
-          <ZoruDropdownMenuContent>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
             {pendingSigners.map((s) => (
-              <ZoruDropdownMenuItem
+              <DropdownMenuItem
                 key={s.email}
                 onSelect={() => {
                   startTransition(async () => {
@@ -183,9 +176,9 @@ export function ContractDetailActions({
                 }}
               >
                 {s.name ? `${s.name} (${s.email})` : s.email}
-              </ZoruDropdownMenuItem>
+              </DropdownMenuItem>
             ))}
-          </ZoruDropdownMenuContent>
+          </DropdownMenuContent>
         </DropdownMenu>
       ) : null}
 

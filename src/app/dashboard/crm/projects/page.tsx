@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  StatCard,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, StatCard, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useDebouncedCallback } from 'use-debounce';
 import {
@@ -79,7 +70,7 @@ const PRIORITY_OPTIONS: { value: string; label: string }[] = [
 ];
 
 export default function ProjectsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<ProjectRow[]>([]);
   const [loading, startLoading] = React.useTransition();
 
@@ -295,30 +286,30 @@ export default function ProjectsPage() {
         filters={
           <>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[160px] text-[13px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
                 {STATUS_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
+                  <SelectItem key={o.value} value={o.value}>
                     {o.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-              <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                <ZoruSelectValue placeholder="Priority" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All priorities</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[160px] text-[13px]">
+                <SelectValue placeholder="Priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All priorities</SelectItem>
                 {PRIORITY_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
+                  <SelectItem key={o.value} value={o.value}>
                     {o.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             {hasActiveFilters ? (
               <Button variant="ghost" size="sm" onClick={clearFilters}>

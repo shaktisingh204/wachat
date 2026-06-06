@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Input } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -54,12 +48,12 @@ export default function ProfilePage() {
     if (!user) {
         return (
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2"><AlertCircle /> Error</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><AlertCircle /> Error</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <p>Could not load user profile. You may need to log in again.</p>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         )
     }

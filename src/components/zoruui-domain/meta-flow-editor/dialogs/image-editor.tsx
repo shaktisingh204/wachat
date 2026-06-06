@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Label,
-  Button,
-  Textarea,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Textarea, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';
 
@@ -86,11 +76,11 @@ export function ImageEditor({ component, updateField, updateAction }: ImageEdito
         <div className="space-y-2">
           <Label>Scale Type</Label>
           <Select value={component['scale-type'] || 'cover'} onValueChange={(val) => updateField('scale-type', val)}>
-            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="cover">Cover (Crop)</ZoruSelectItem>
-              <ZoruSelectItem value="contain">Contain (Fit)</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="cover">Cover (Crop)</SelectItem>
+              <SelectItem value="contain">Contain (Fit)</SelectItem>
+            </SelectContent>
           </Select>
         </div>
       </div>

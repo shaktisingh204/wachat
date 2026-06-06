@@ -1,20 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import { Bell, Boxes, Settings2, Users } from 'lucide-react';
 import { useTransition } from 'react';
 
@@ -123,7 +110,7 @@ function ToggleRow({
 
 /* ─── Main client component ─────────────────────────────────────── */
 export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [pipelinePending, startPipelineTransition] = useTransition();
   const [leadPending, startLeadTransition] = useTransition();
   const [dealPending, startDealTransition] = useTransition();
@@ -210,17 +197,17 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
               name="defaultPipelineId"
               defaultValue={config.defaultPipelineId ?? '__none__'}
             >
-              <ZoruSelectTrigger id="defaultPipeline">
-                <ZoruSelectValue placeholder="Select pipeline…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="__none__">None</ZoruSelectItem>
+              <SelectTrigger id="defaultPipeline">
+                <SelectValue placeholder="Select pipeline…" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">None</SelectItem>
                 {pipelines.map((p) => (
-                  <ZoruSelectItem key={p.id} value={p.id}>
+                  <SelectItem key={p.id} value={p.id}>
                     {p.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <p className="text-[11.5px] text-[var(--st-text-secondary)]">
               New deals will be created in this pipeline by default.
@@ -271,13 +258,13 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
               name="defaultLeadStatusId"
               defaultValue={config.defaultLeadStatusId ?? '__none__'}
             >
-              <ZoruSelectTrigger id="defaultStatus">
-                <ZoruSelectValue placeholder="Select status…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="__none__">None</ZoruSelectItem>
+              <SelectTrigger id="defaultStatus">
+                <SelectValue placeholder="Select status…" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">None</SelectItem>
                 {leadStatuses.map((s) => (
-                  <ZoruSelectItem key={s._id} value={s._id}>
+                  <SelectItem key={s._id} value={s._id}>
                     <span className="inline-flex items-center gap-1.5">
                       {s.color ? (
                         <span
@@ -288,9 +275,9 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
                       ) : null}
                       {s.type}
                     </span>
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <p className="text-[11.5px] text-[var(--st-text-secondary)]">
               Applied to every new lead created without an explicit status.
@@ -343,16 +330,16 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
               name="defaultCurrency"
               defaultValue={config.defaultCurrency ?? 'INR'}
             >
-              <ZoruSelectTrigger id="currency" className="w-36">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="currency" className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {CURRENCIES.map((c) => (
-                  <ZoruSelectItem key={c} value={c}>
+                  <SelectItem key={c} value={c}>
                     {c}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
         </SectionCard>

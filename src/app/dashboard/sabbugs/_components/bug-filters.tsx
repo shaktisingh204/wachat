@@ -2,15 +2,7 @@
 
 import * as React from 'react';
 
-import {
-  Button,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import type {
   BugListParams,
   BugPriority,
@@ -67,18 +59,18 @@ export function BugFilters({
           })
         }
       >
-        <ZoruSelectTrigger className="w-[150px]">
-          <ZoruSelectValue placeholder="Status" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
-          <ZoruSelectItem value="active_visible">Active (default)</ZoruSelectItem>
-          <ZoruSelectItem value="all">All</ZoruSelectItem>
+        <SelectTrigger className="w-[150px]">
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="active_visible">Active (default)</SelectItem>
+          <SelectItem value="all">All</SelectItem>
           {BUG_STATUSES.map((s) => (
-            <ZoruSelectItem key={s} value={s}>
+            <SelectItem key={s} value={s}>
               {s}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
 
       <Select
@@ -90,17 +82,17 @@ export function BugFilters({
           })
         }
       >
-        <ZoruSelectTrigger className="w-[140px]">
-          <ZoruSelectValue placeholder="Severity" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
-          <ZoruSelectItem value="any">Any severity</ZoruSelectItem>
+        <SelectTrigger className="w-[140px]">
+          <SelectValue placeholder="Severity" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="any">Any severity</SelectItem>
           {BUG_SEVERITIES.map((s) => (
-            <ZoruSelectItem key={s} value={s}>
+            <SelectItem key={s} value={s}>
               {s}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
 
       <Select
@@ -112,17 +104,17 @@ export function BugFilters({
           })
         }
       >
-        <ZoruSelectTrigger className="w-[140px]">
-          <ZoruSelectValue placeholder="Priority" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
-          <ZoruSelectItem value="any">Any priority</ZoruSelectItem>
+        <SelectTrigger className="w-[140px]">
+          <SelectValue placeholder="Priority" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="any">Any priority</SelectItem>
           {BUG_PRIORITIES.map((p) => (
-            <ZoruSelectItem key={p} value={p}>
+            <SelectItem key={p} value={p}>
               {p}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
 
       <Select
@@ -131,17 +123,17 @@ export function BugFilters({
           onChange({ ...value, projectId: v === 'any' ? undefined : v })
         }
       >
-        <ZoruSelectTrigger className="w-[180px]">
-          <ZoruSelectValue placeholder="Project" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
-          <ZoruSelectItem value="any">Any project</ZoruSelectItem>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Project" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="any">Any project</SelectItem>
           {projectOptions.map((p) => (
-            <ZoruSelectItem key={p.id} value={p.id}>
+            <SelectItem key={p.id} value={p.id}>
               {p.name}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
 
       <Button

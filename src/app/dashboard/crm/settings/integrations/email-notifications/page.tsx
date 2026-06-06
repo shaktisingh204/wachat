@@ -13,13 +13,7 @@ import {
   CalendarClock,
 } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  Switch,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Switch, Badge } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ModuleConnectionWizard,
@@ -149,7 +143,7 @@ export default function EmailNotificationsPage() {
           const on = EVENT_CATALOG.filter((e) => events[e.key]);
           return (
             <Card>
-              <ZoruCardContent className="p-6 space-y-4">
+              <CardBody className="p-6 space-y-4">
                 <div>
                   <p className="text-sm text-[var(--st-text-secondary)]">
                     Enabled events
@@ -179,7 +173,7 @@ export default function EmailNotificationsPage() {
                     Edit
                   </Button>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           );
         }}

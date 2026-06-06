@@ -1,36 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Card,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardFooter,
-  Badge,
-  Button,
-  Avatar,
-  ZoruAvatarImage,
-  ZoruAvatarFallback,
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
-  Input,
-  Textarea,
-  Label,
-  useZoruToast,
-  Select,
-  SelectValue,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardTitle, CardDescription, CardBody, CardHeader, CardFooter, Badge, Button, Avatar, AvatarImage, AvatarFallback, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose, Input, Textarea, Label, useToast, Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { Star, CheckCircle2, Briefcase, MapPin, Search, SlidersHorizontal } from 'lucide-react';
 
 const MOCK_EXPERTS = [
@@ -89,7 +60,7 @@ const MOCK_EXPERTS = [
 ];
 
 function ExpertCard({ expert }: { expert: typeof MOCK_EXPERTS[0] }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [open, setOpen] = useState(false);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -103,20 +74,20 @@ function ExpertCard({ expert }: { expert: typeof MOCK_EXPERTS[0] }) {
 
     return (
         <Card className="flex flex-col">
-            <ZoruCardHeader className="flex flex-row items-start gap-4 pb-4">
+            <CardHeader className="flex flex-row items-start gap-4 pb-4">
                 <Avatar className="h-16 w-16 border">
-                    <ZoruAvatarImage src={expert.avatar} alt={expert.name} />
-                    <ZoruAvatarFallback>{expert.name.substring(0, 2)}</ZoruAvatarFallback>
+                    <AvatarImage src={expert.avatar} alt={expert.name} />
+                    <AvatarFallback>{expert.name.substring(0, 2)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                     <div className="flex items-start justify-between">
                         <div>
-                            <ZoruCardTitle className="flex items-center gap-1.5 text-lg">
+                            <CardTitle className="flex items-center gap-1.5 text-lg">
                                 {expert.name}
                                 {expert.verified && (
                                     <CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" />
                                 )}
-                            </ZoruCardTitle>
+                            </CardTitle>
                             <p className="text-sm text-[var(--st-text-secondary)]">{expert.title}</p>
                         </div>
                         <div className="text-right">
@@ -136,11 +107,11 @@ function ExpertCard({ expert }: { expert: typeof MOCK_EXPERTS[0] }) {
                         </div>
                     </div>
                 </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex-1 pb-4">
-                <ZoruCardDescription className="line-clamp-3 text-sm text-[var(--st-text-secondary)]">
+            </CardHeader>
+            <CardBody className="flex-1 pb-4">
+                <CardDescription className="line-clamp-3 text-sm text-[var(--st-text-secondary)]">
                     {expert.description}
-                </ZoruCardDescription>
+                </CardDescription>
                 <div className="mt-4 flex flex-wrap gap-2">
                     {expert.skills.map(skill => (
                         <Badge key={skill} variant="secondary">
@@ -148,8 +119,8 @@ function ExpertCard({ expert }: { expert: typeof MOCK_EXPERTS[0] }) {
                         </Badge>
                     ))}
                 </div>
-            </ZoruCardContent>
-            <ZoruCardFooter className="pt-0">
+            </CardBody>
+            <CardFooter className="pt-0">
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
                         <Button variant="outline" className="w-full gap-2">
@@ -182,7 +153,7 @@ function ExpertCard({ expert }: { expert: typeof MOCK_EXPERTS[0] }) {
                         </form>
                     </DialogContent>
                 </Dialog>
-            </ZoruCardFooter>
+            </CardFooter>
         </Card>
     );
 }

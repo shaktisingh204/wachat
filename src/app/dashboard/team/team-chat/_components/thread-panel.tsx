@@ -8,15 +8,7 @@ import * as React from 'react';
 import { format } from 'date-fns';
 import { Loader, Send, X } from 'lucide-react';
 
-import {
-    Button,
-    Input,
-    Sheet,
-    ZoruSheetContent,
-    ZoruSheetHeader,
-    ZoruSheetTitle,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Sheet, SheetContent, SheetHeader, SheetTitle, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
     getMessageThread,
@@ -37,7 +29,7 @@ export function ThreadPanel({
     meId,
     onClose,
 }: ThreadPanelProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [thread, setThread] = React.useState<TeamThreadView | null>(null);
     const [loading, setLoading] = React.useState(false);
     const [body, setBody] = React.useState('');
@@ -89,9 +81,9 @@ export function ThreadPanel({
 
     return (
         <Sheet open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-            <ZoruSheetContent side="right" className="flex w-[420px] flex-col p-0">
-                <ZoruSheetHeader className="flex flex-row items-center justify-between gap-2 border-b border-[var(--st-border)] px-4 py-3">
-                    <ZoruSheetTitle className="text-[13px]">Thread</ZoruSheetTitle>
+            <SheetContent side="right" className="flex w-[420px] flex-col p-0">
+                <SheetHeader className="flex flex-row items-center justify-between gap-2 border-b border-[var(--st-border)] px-4 py-3">
+                    <SheetTitle className="text-[13px]">Thread</SheetTitle>
                     <button
                         type="button"
                         onClick={onClose}
@@ -100,7 +92,7 @@ export function ThreadPanel({
                     >
                         <X className="h-4 w-4" />
                     </button>
-                </ZoruSheetHeader>
+                </SheetHeader>
 
                 <div className="flex-1 space-y-3 overflow-auto bg-[var(--st-bg-muted)]/40 px-4 py-3">
                     {loading || !thread ? (
@@ -145,7 +137,7 @@ export function ThreadPanel({
                         </Button>
                     </div>
                 </form>
-            </ZoruSheetContent>
+            </SheetContent>
         </Sheet>
     );
 }

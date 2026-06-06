@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import {
@@ -121,7 +111,7 @@ function SubmitButton({ label }: { label: string }) {
 
 export function StockTransferForm({ initial }: StockTransferFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initial?._id;
 
     const [state, formAction] = React.useActionState(
@@ -256,10 +246,10 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
 
             {/* ── Route ───────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Route</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-4">
+                <CardHeader>
+                    <CardTitle>Route</CardTitle>
+                </CardHeader>
+                <CardBody className="flex flex-col gap-4">
                     <div className="grid items-end gap-4 sm:grid-cols-[1fr_auto_1fr]">
                         <div className="space-y-1.5">
                             <Label htmlFor="fromWarehouseId">
@@ -365,14 +355,14 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             </select>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ── Line items ──────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
+                <CardHeader className="flex flex-row items-center justify-between gap-2">
                     <div>
-                        <ZoruCardTitle>Items</ZoruCardTitle>
+                        <CardTitle>Items</CardTitle>
                         <p className="text-[12px] text-[var(--st-text-secondary)]">
                             One row per SKU being moved. Total units:{' '}
                             <span className="font-mono tabular-nums text-[var(--st-text)]">
@@ -388,8 +378,8 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                     >
                         <Plus className="mr-1.5 h-3.5 w-3.5" /> Add item
                     </Button>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
                         <table className="w-full text-[13px]">
                             <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
@@ -496,18 +486,18 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             </tbody>
                         </table>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ── Approval workflow ───────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Approval workflow</ZoruCardTitle>
+                <CardHeader>
+                    <CardTitle>Approval workflow</CardTitle>
                     <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Draft → Requested → Approved → In transit → Received.
                     </p>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-1.5">
                             <Label htmlFor="status">Status</Label>
@@ -586,15 +576,15 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             />
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ── Logistics ───────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Logistics</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Logistics</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-1.5">
                             <Label htmlFor="carrier">Carrier</Label>
@@ -617,14 +607,14 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             />
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ── Attachments ─────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
+                <CardHeader className="flex flex-row items-center justify-between gap-2">
                     <div>
-                        <ZoruCardTitle>Attachments</ZoruCardTitle>
+                        <CardTitle>Attachments</CardTitle>
                         <p className="text-[12px] text-[var(--st-text-secondary)]">
                             Picking slips, delivery photos, signed receipts.
                         </p>
@@ -649,8 +639,8 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                     >
                         <Paperclip className="mr-1.5 h-3.5 w-3.5" /> Add file
                     </SabFilePickerButton>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     {attachments.length > 0 ? (
                         <ul className="flex flex-col gap-1.5">
                             {attachments.map((a, idx) => (
@@ -707,15 +697,15 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             No attachments yet.
                         </p>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ── Notes ───────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Notes</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Notes</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <Textarea
                         id="notes"
                         name="notes"
@@ -723,7 +713,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                         placeholder="Context, carrier, receiver instructions…"
                         defaultValue={initial?.notes ?? ''}
                     />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ── Sticky footer ───────────────────────────────────── */}

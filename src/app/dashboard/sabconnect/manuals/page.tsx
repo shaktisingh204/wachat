@@ -2,16 +2,7 @@
  * SabConnect — manuals / wiki list (tree view of top-level pages).
  */
 
-import {
-    PageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Card,
-    CardContent,
-    Badge,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardContent, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
 
 import { getSabConnectManuals } from '@/app/actions/sabconnect.actions';
 import { CreateManualDialog } from './_components/create-manual-dialog';
@@ -24,12 +15,12 @@ export default async function SabConnectManualsPage() {
     return (
         <div className="flex w-full flex-col gap-6">
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Manuals</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Manuals</PageTitle>
+                    <PageDescription>
                         Living documentation, runbooks and how-tos.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <CreateManualDialog />
             </PageHeader>
 

@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  ZoruCommandSeparator,
-  ZoruCommandShortcut,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut, Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -497,45 +484,45 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent
+      <DialogContent
         className="overflow-hidden p-0 shadow-lg sm:max-w-2xl border-[var(--st-border)] bg-[var(--st-bg-muted)]"
       >
-        <ZoruDialogTitle className="sr-only">ZoruCommand palette</ZoruDialogTitle>
-        <ZoruDialogDescription className="sr-only">
+        <DialogTitle className="sr-only">Command palette</DialogTitle>
+        <DialogDescription className="sr-only">
           Search clients, vendors, items, employees, and run quick actions.
-        </ZoruDialogDescription>
-        <ZoruCommand
+        </DialogDescription>
+        <Command
           className="bg-transparent text-[var(--st-text)] [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-[var(--st-text-secondary)] [&_[cmdk-group]]:px-2 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-2.5"
           shouldFilter={!isEmptyQuery ? false : true}
           // When typing, we already filter on the server — disable the
           // built-in fuzzy filter so server hits always render. When
           // empty, we let cmdk filter the static quick actions.
         >
-          <ZoruCommandInput
+          <CommandInput
             placeholder="Search or run a command…"
             value={query}
             onValueChange={setQuery}
             autoFocus
           />
-          <ZoruCommandList className="max-h-[60vh] border-t border-[var(--st-border)]">
+          <CommandList className="max-h-[60vh] border-t border-[var(--st-border)]">
             {isEmptyQuery ? (
               <>
-                <ZoruCommandGroup heading="Quick actions">
+                <CommandGroup heading="Quick actions">
                   {quickActions.map((action) => (
-                    <ZoruCommandItem
+                    <CommandItem
                       key={action.id}
                       value={`${action.label} ${action.hint}`}
                       onSelect={() => handleSelectAction(action)}
                     >
                       <span className="flex-1 truncate">{action.label}</span>
-                      <ZoruCommandShortcut className="text-[var(--st-text-secondary)]">{action.hint}</ZoruCommandShortcut>
-                    </ZoruCommandItem>
+                      <CommandShortcut className="text-[var(--st-text-secondary)]">{action.hint}</CommandShortcut>
+                    </CommandItem>
                   ))}
-                </ZoruCommandGroup>
+                </CommandGroup>
                 {recentsLoaded && recents.length > 0 ? (
                   <>
-                    <ZoruCommandSeparator className="bg-[var(--st-border)]" />
-                    <ZoruCommandGroup heading="Recent">
+                    <CommandSeparator className="bg-[var(--st-border)]" />
+                    <CommandGroup heading="Recent">
                       {recents.map(({ entity, item }) => (
                         <ResultItem
                           key={`recent-${entity}-${item.id}`}
@@ -545,21 +532,21 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                           onSelect={() => handleSelectItem(entity, item)}
                         />
                       ))}
-                    </ZoruCommandGroup>
+                    </CommandGroup>
                   </>
                 ) : null}
               </>
             ) : (
               <>
                 {!isSearching && totalHits === 0 ? (
-                  <ZoruCommandEmpty>No results for &ldquo;{debouncedQuery}&rdquo;.</ZoruCommandEmpty>
+                  <CommandEmpty>No results for &ldquo;{debouncedQuery}&rdquo;.</CommandEmpty>
                 ) : null}
 
                 {ENTITY_ORDER.map((entity) => {
                   const items = results[entity];
                   if (items.length === 0) return null;
                   return (
-                    <ZoruCommandGroup key={entity} heading={entityLabel[entity]}>
+                    <CommandGroup key={entity} heading={entityLabel[entity]}>
                       {items.map((item) => (
                         <ResultItem
                           key={`${entity}-${item.id}`}
@@ -569,7 +556,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                           onSelect={() => handleSelectItem(entity, item)}
                         />
                       ))}
-                    </ZoruCommandGroup>
+                    </CommandGroup>
                   );
                 })}
 
@@ -580,9 +567,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 ) : null}
               </>
             )}
-          </ZoruCommandList>
-        </ZoruCommand>
-      </ZoruDialogContent>
+          </CommandList>
+        </Command>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -666,7 +653,7 @@ function ResultItem({ entity, item, valuePrefix, onSelect }: ResultItemProps) {
     .join(' ');
 
   return (
-    <ZoruCommandItem value={value} onSelect={onSelect}>
+    <CommandItem value={value} onSelect={onSelect}>
       <Avatar avatarUrl={chip.avatarUrl} fallback={initials(chip.primary)} />
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-sm text-[var(--st-text)]">{chip.primary}</span>
@@ -676,10 +663,10 @@ function ResultItem({ entity, item, valuePrefix, onSelect }: ResultItemProps) {
           </span>
         ) : null}
       </div>
-      <ZoruCommandShortcut className="text-[var(--st-text-secondary)]">
+      <CommandShortcut className="text-[var(--st-text-secondary)]">
         {entityLabel[entity]}
-      </ZoruCommandShortcut>
-    </ZoruCommandItem>
+      </CommandShortcut>
+    </CommandItem>
   );
 }
 

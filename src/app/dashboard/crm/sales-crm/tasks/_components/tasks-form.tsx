@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DatePicker,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DatePicker, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { LoaderCircle,
@@ -81,7 +69,7 @@ function getLinkedEntity(kind: TaskLinkedKind): EntityKey | null {
 
 export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const formRef = React.useRef<HTMLFormElement>(null);
 
     const [pending, startTransition] = React.useTransition();
@@ -204,13 +192,13 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
 
             {/* ─── Overview ─────────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Overview</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Overview</CardTitle>
+                    <CardDescription>
                         What needs doing, how urgent, and where it sits in your queue.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2 md:col-span-2">
                         <Label htmlFor="title">Title *</Label>
                         <Input
@@ -256,18 +244,18 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                             allowInlineCreate={false}
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Schedule ─────────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Schedule</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Schedule</CardTitle>
+                    <CardDescription>
                         Due date, reminders, and optional recurrence.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                         <Label>Due date</Label>
                         <DatePicker
@@ -324,18 +312,18 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                             placeholder="No end date"
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Assignment ───────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Assignment</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Assignment</CardTitle>
+                    <CardDescription>
                         Who owns this task? Defaults to you.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                         <Label>Assignee</Label>
                         <EntityFormField
@@ -349,18 +337,18 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                             }}
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Linked entity (discriminator) ────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Linked entity</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Linked entity</CardTitle>
+                    <CardDescription>
                         Tie this task to a lead, deal, client, contact, ticket, or invoice.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                         <Label>Link to</Label>
                         <EnumFormField
@@ -396,18 +384,18 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                             </p>
                         )}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Checklist ────────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Checklist</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Checklist</CardTitle>
+                    <CardDescription>
                         One item per line. Becomes a togglable checklist on the detail page.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
                     <Textarea
                         id="checklist"
                         name="checklist"
@@ -415,19 +403,19 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                         defaultValue={checklistText}
                         placeholder="Draft proposal\nSend follow-up email\nBook demo slot"
                     />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Attachments ──────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Attachments</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Attachments</CardTitle>
+                    <CardDescription>
                         SabFile picker integration is deferred to the inline composer on the
                         detail page.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
                     {/* TODO 1D.3: SabFile picker integration deferred —
                         use SabFilePickerButton inside an array editor.
                         For now, attachments mirror through as a hidden JSON
@@ -442,7 +430,7 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                     <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                         Add files from the task detail page once it has been saved.
                     </p>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Sticky action bar ────────────────────────────────────── */}

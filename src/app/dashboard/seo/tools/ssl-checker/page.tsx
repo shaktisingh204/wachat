@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn, Progress, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn, Progress, Badge } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 
 void _zoruCn;
@@ -80,9 +80,9 @@ export default function SslCheckerPage() {
         <Input value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" onKeyDown={(e) => e.key === 'Enter' && run()} />
         <Button onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</Button>
       </div>
-      {error && <Card className="border-[var(--st-border)]"><ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-[var(--st-border)]"><CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody></Card>}
       {data && (
-        <Card><ZoruCardContent className="p-4 space-y-6 text-sm">
+        <Card><CardBody className="p-4 space-y-6 text-sm">
           {(() => {
             const score = getTrustScore(data);
             const daysRemaining = data.daysRemaining;
@@ -197,7 +197,7 @@ export default function SslCheckerPage() {
               </>
             );
           })()}
-        </ZoruCardContent></Card>
+        </CardBody></Card>
       )}
     </ToolShell>
   );

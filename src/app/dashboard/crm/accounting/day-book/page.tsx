@@ -13,21 +13,7 @@ import {
 } from 'recharts';
 import { ArrowDownCircle, ArrowUpCircle, ListChecks, Scale } from 'lucide-react';
 
-import {
-    Badge,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, Input } from '@/components/sabcrm/20ui/compat';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -198,27 +184,27 @@ export default function DayBookPage(): React.JSX.Element {
     const filters = (
         <div className="flex flex-wrap items-center gap-2">
             <Select value={fyChoice} onValueChange={handleFyChange}>
-                <ZoruSelectTrigger className="w-[180px]">
-                    <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="current">Current FY (Apr–Mar)</ZoruSelectItem>
-                    <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
-                    <ZoruSelectItem value="custom">Custom range</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="w-[180px]">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="current">Current FY (Apr–Mar)</SelectItem>
+                    <SelectItem value="previous">Previous FY</SelectItem>
+                    <SelectItem value="custom">Custom range</SelectItem>
+                </SelectContent>
             </Select>
             <Select value={voucherType} onValueChange={setVoucherType}>
-                <ZoruSelectTrigger className="w-[160px]">
-                    <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All voucher types</ZoruSelectItem>
-                    <ZoruSelectItem value="Invoice">Invoices</ZoruSelectItem>
-                    <ZoruSelectItem value="Receipt">Receipts</ZoruSelectItem>
-                    <ZoruSelectItem value="Bill">Bills</ZoruSelectItem>
-                    <ZoruSelectItem value="Payout">Payouts</ZoruSelectItem>
-                    <ZoruSelectItem value="Expense">Expenses</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="w-[160px]">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All voucher types</SelectItem>
+                    <SelectItem value="Invoice">Invoices</SelectItem>
+                    <SelectItem value="Receipt">Receipts</SelectItem>
+                    <SelectItem value="Bill">Bills</SelectItem>
+                    <SelectItem value="Payout">Payouts</SelectItem>
+                    <SelectItem value="Expense">Expenses</SelectItem>
+                </SelectContent>
             </Select>
             <Input
                 placeholder="Search party or number..."
@@ -257,47 +243,47 @@ export default function DayBookPage(): React.JSX.Element {
 
     const table = (
         <Table>
-            <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Number</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Party</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Amount</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="text-[var(--st-text-secondary)]">Date</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Type</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Number</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Party</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Amount</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                </Tr>
+            </THead>
+            <TBody>
                 {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-[var(--st-border)]">
-                        <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
+                    <Tr className="border-[var(--st-border)]">
+                        <Td colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
                             No transactions in this range.
-                        </ZoruTableCell>
-                    </ZoruTableRow>
+                        </Td>
+                    </Tr>
                 ) : (
                     pageRows.map((t) => (
-                        <ZoruTableRow key={t.id} className="border-[var(--st-border)]">
-                            <ZoruTableCell className="text-[var(--st-text)]">
+                        <Tr key={t.id} className="border-[var(--st-border)]">
+                            <Td className="text-[var(--st-text)]">
                                 {new Date(t.date).toLocaleDateString('en-IN')}
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-[var(--st-text)]">{t.type}</ZoruTableCell>
-                            <ZoruTableCell>
+                            </Td>
+                            <Td className="text-[var(--st-text)]">{t.type}</Td>
+                            <Td>
                                 <EntityRowLink href={vendorPathFor(t.type, t.id)} label={t.number} />
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-[var(--st-text)]">{t.partyName}</ZoruTableCell>
-                            <ZoruTableCell
+                            </Td>
+                            <Td className="text-[var(--st-text)]">{t.partyName}</Td>
+                            <Td
                                 className={`text-right font-mono ${t.flow === 'In' ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}
                             >
                                 {t.flow === 'In' ? '+' : '-'}
                                 {fmtMoney(t.amount)}
-                            </ZoruTableCell>
-                            <ZoruTableCell>
+                            </Td>
+                            <Td>
                                 <Badge variant="ghost">{t.status}</Badge>
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                        </Tr>
                     ))
                 )}
-            </ZoruTableBody>
+            </TBody>
         </Table>
     );
 

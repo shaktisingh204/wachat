@@ -1,6 +1,6 @@
 'use client';
 
-import { Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   usePathname,
   useRouter,
@@ -34,17 +34,17 @@ export function AdminUserFilter({ users }: AdminUserFilterProps) {
       onValueChange={handleFilter}
       defaultValue={searchParams.get('userId')?.toString() || 'all'}
     >
-      <ZoruSelectTrigger className="w-full sm:w-[200px]">
-        <ZoruSelectValue placeholder="Filter by user..." />
-      </ZoruSelectTrigger>
-      <ZoruSelectContent>
-        <ZoruSelectItem value="all">All Users</ZoruSelectItem>
+      <SelectTrigger className="w-full sm:w-[200px]">
+        <SelectValue placeholder="Filter by user..." />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">All Users</SelectItem>
         {users.map((user) => (
-          <ZoruSelectItem key={user._id.toString()} value={user._id.toString()}>
+          <SelectItem key={user._id.toString()} value={user._id.toString()}>
             {user.name} ({user.email})
-          </ZoruSelectItem>
+          </SelectItem>
         ))}
-      </ZoruSelectContent>
+      </SelectContent>
     </Select>
   );
 }

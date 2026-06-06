@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Tooltip, ZoruTooltipProvider, ZoruTooltipTrigger, ZoruTooltipContent, Popover, ZoruPopoverTrigger, ZoruPopoverContent } from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent, Popover, PopoverTrigger, PopoverContent } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useMemo,
@@ -164,7 +164,7 @@ export default function LeaveCalendarClient({
       title="Leave Calendar"
       subtitle="Calendar view of approved leaves across the organization."
     >
-      <ZoruTooltipProvider>
+      <TooltipProvider>
         <Card className="p-6">
           <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
@@ -286,7 +286,7 @@ export default function LeaveCalendarClient({
                         
                         return (
                           <Tooltip key={`${e._id}-${e.date}`}>
-                            <ZoruTooltipTrigger asChild>
+                            <TooltipTrigger asChild>
                               <div
                                 className="group relative truncate rounded-md px-2 py-1 text-[11.5px] font-medium cursor-default transition-colors hover:brightness-95"
                                 style={{
@@ -301,27 +301,27 @@ export default function LeaveCalendarClient({
                                   </div>
                                 )}
                               </div>
-                            </ZoruTooltipTrigger>
-                            <ZoruTooltipContent side="top">
+                            </TooltipTrigger>
+                            <TooltipContent side="top">
                               <div className="flex flex-col gap-1 text-[13px] py-1">
                                 <span className="font-semibold text-[var(--st-bg)]">{e.employeeName ?? 'Employee'}</span>
                                 <span className="text-[var(--st-bg)]/80">{e.type_name} {e.half_day_type ? `(${e.half_day_type})` : ''}</span>
                                 <span className="text-[var(--st-bg)]/80 font-mono text-[11px] mt-1">{dateRangeStr}</span>
                               </div>
-                            </ZoruTooltipContent>
+                            </TooltipContent>
                           </Tooltip>
                         );
                       })}
                       {hiddenCount > 0 && (
                         <Popover>
-                          <ZoruPopoverTrigger asChild>
+                          <PopoverTrigger asChild>
                             <div 
                               className="inline-block cursor-pointer text-[11px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline py-0.5"
                             >
                               +{hiddenCount} more
                             </div>
-                          </ZoruPopoverTrigger>
-                          <ZoruPopoverContent side="bottom" align="start" className="w-64 p-3 z-50">
+                          </PopoverTrigger>
+                          <PopoverContent side="bottom" align="start" className="w-64 p-3 z-50">
                             <div className="mb-2 text-[13px] font-medium text-[var(--st-text)] border-b border-[var(--st-border)] pb-2 flex justify-between items-center">
                               <span>{cell.date ? fmtDate(cell.date, 'EEE, MMM d') : ''}</span>
                               <span className="text-[11px] text-[var(--st-text-secondary)]">{dayEntries.length} leaves</span>
@@ -354,7 +354,7 @@ export default function LeaveCalendarClient({
                                 View day schedule
                               </button>
                             </div>
-                          </ZoruPopoverContent>
+                          </PopoverContent>
                         </Popover>
                       )}
                     </div>
@@ -369,7 +369,7 @@ export default function LeaveCalendarClient({
           <p className="mt-4 text-center text-[13px] text-[var(--st-text-secondary)]">Loading…</p>
         ) : null}
       </Card>
-      </ZoruTooltipProvider>
+      </TooltipProvider>
     </EntityListShell>
   );
 }

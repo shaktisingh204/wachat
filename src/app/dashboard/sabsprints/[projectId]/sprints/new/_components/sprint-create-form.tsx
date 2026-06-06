@@ -8,19 +8,12 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { createSprint } from '@/app/actions/agile.actions';
 
 export function SprintCreateForm({ projectId }: { projectId: string }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState('');
   const [goal, setGoal] = useState('');

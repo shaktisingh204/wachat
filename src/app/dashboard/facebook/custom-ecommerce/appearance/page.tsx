@@ -1,31 +1,6 @@
 "use client";
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruColorPicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, ColorPicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState } from "react";
@@ -38,7 +13,7 @@ import { Brush,
  *
  * Account-level theme picker for Custom E-commerce. Lets the operator
  * pick a neutral preset and a primary accent that becomes the default
- * starting palette for every newly-created shop. Uses ZoruColorPicker
+ * starting palette for every newly-created shop. Uses ColorPicker
  * with neutral presets and a Card preview pane.
  *
  * NOTE: in the legacy app this route was a redirect because per-shop
@@ -70,7 +45,7 @@ const PRESET_PALETTES: { id: string; label: string; primary: string }[] = [
 
 export default function CustomEcommerceAppearancePage() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [primary, setPrimary] = useState("#0F0F10");
   const [presetId, setPresetId] = useState<string>("ink");
   const [themeName, setThemeName] = useState("Default");
@@ -99,46 +74,46 @@ export default function CustomEcommerceAppearancePage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook/custom-ecommerce">
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook/custom-ecommerce">
               Custom Shops
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Appearance</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Appearance</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Custom Shops</ZoruPageEyebrow>
-          <ZoruPageTitle>Default appearance</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Custom Shops</PageEyebrow>
+          <PageTitle>Default appearance</PageTitle>
+          <PageDescription>
             Pick a neutral palette that newly-created shops will inherit. Each
             shop can override these tokens later from its own appearance tab.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" onClick={() => router.back()}>
             Cancel
           </Button>
           <Button onClick={() => setSaveOpen(true)}>
             <Save /> Save theme
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
@@ -175,7 +150,7 @@ export default function CustomEcommerceAppearancePage() {
 
           <div className="mt-6 flex flex-col gap-1.5">
             <Label htmlFor="primary-color">Primary color</Label>
-            <ZoruColorPicker
+            <ColorPicker
               value={primary}
               onChange={(c) => {
                 setPrimary(c);
@@ -259,21 +234,21 @@ export default function CustomEcommerceAppearancePage() {
       </div>
 
       <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Save default theme?</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save default theme?</DialogTitle>
+            <DialogDescription>
               This palette will become the starting point for every new shop
               you create. Existing shops will not be affected.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setSaveOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleSave}>Save theme</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

@@ -1,36 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Label,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   Edit,
@@ -104,7 +74,7 @@ function ContractTypeDialog({
         saveContractType,
         saveInitialState,
     );
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [status, setStatus] = React.useState<CrmContractTypeStatus>(
         (initialData?.status as CrmContractTypeStatus) ?? 'active',
     );
@@ -278,7 +248,7 @@ export default function ContractTypesPage() {
     const [pendingBulkDelete, setPendingBulkDelete] = React.useState(false);
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [deletePending, startDeleteTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -455,94 +425,94 @@ export default function ContractTypesPage() {
                     {/* KPI strip */}
                     <div className="mb-4 grid grid-cols-3 gap-3">
                         <Card className="p-0">
-                            <ZoruCardHeader className="pb-1 pt-3 px-4">
-                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+                            <CardHeader className="pb-1 pt-3 px-4">
+                                <CardTitle className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     Total
-                                </ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="pb-3 px-4">
+                                </CardTitle>
+                            </CardHeader>
+                            <CardBody className="pb-3 px-4">
                                 <span className="text-2xl font-semibold tabular-nums text-[var(--st-text)]">
                                     {kpi.total}
                                 </span>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                         <Card className="p-0 border-[var(--st-border)]/30">
-                            <ZoruCardHeader className="pb-1 pt-3 px-4">
-                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+                            <CardHeader className="pb-1 pt-3 px-4">
+                                <CardTitle className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                                     Active
-                                </ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="pb-3 px-4">
+                                </CardTitle>
+                            </CardHeader>
+                            <CardBody className="pb-3 px-4">
                                 <span className="text-2xl font-semibold tabular-nums text-[var(--st-text)]">
                                     {kpi.active}
                                 </span>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                         <Card className="p-0 border-[var(--st-border)]">
-                            <ZoruCardHeader className="pb-1 pt-3 px-4">
-                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+                            <CardHeader className="pb-1 pt-3 px-4">
+                                <CardTitle className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     Archived
-                                </ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="pb-3 px-4">
+                                </CardTitle>
+                            </CardHeader>
+                            <CardBody className="pb-3 px-4">
                                 <span className="text-2xl font-semibold tabular-nums text-[var(--st-text)]">
                                     {kpi.archived}
                                 </span>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     </div>
 
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <TableHeader>
-                                <TableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <TableHead className="w-[36px]">
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="w-[36px]">
                                         <Checkbox
                                             checked={allSelected}
                                             onCheckedChange={toggleAll}
                                             aria-label="Select all"
                                         />
-                                    </TableHead>
-                                    <TableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Code
-                                    </TableHead>
-                                    <TableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Name
-                                    </TableHead>
-                                    <TableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Description
-                                    </TableHead>
-                                    <TableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Default term
-                                    </TableHead>
-                                    <TableHead className="text-[var(--st-text-secondary)]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Status
-                                    </TableHead>
-                                    <TableHead className="text-[var(--st-text-secondary)] text-right">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)] text-right">
                                         Actions
-                                    </TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
-                                    <TableRow className="border-[var(--st-border)]">
-                                        <TableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={7}
                                             className="h-24 text-center"
                                         >
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : items.length === 0 ? (
-                                    <TableRow className="border-[var(--st-border)]">
-                                        <TableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={7}
                                             className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No contract types match this
                                             filter.
-                                        </TableCell>
-                                    </TableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     items.map((row) => {
                                         const status = (row.status ??
@@ -551,39 +521,39 @@ export default function ContractTypesPage() {
                                             STATUS_TONE[status] ?? 'neutral';
                                         const isSelected = selected.has(row._id);
                                         return (
-                                            <TableRow
+                                            <Tr
                                                 key={row._id}
                                                 className="border-[var(--st-border)]"
                                                 data-state={isSelected ? 'selected' : undefined}
                                             >
-                                                <TableCell>
+                                                <Td>
                                                     <Checkbox
                                                         checked={isSelected}
                                                         onCheckedChange={() => toggleRow(row._id)}
                                                         aria-label={`Select ${row.name}`}
                                                     />
-                                                </TableCell>
-                                                <TableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {row.code}
-                                                </TableCell>
-                                                <TableCell className="font-medium text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-medium text-[var(--st-text)]">
                                                     {row.name}
-                                                </TableCell>
-                                                <TableCell className="text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text-secondary)]">
                                                     {row.description ?? '—'}
-                                                </TableCell>
-                                                <TableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {row.defaultTermMonths != null
                                                         ? `${row.defaultTermMonths} mo`
                                                         : '—'}
-                                                </TableCell>
-                                                <TableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill
                                                         label={status}
                                                         tone={tone}
                                                     />
-                                                </TableCell>
-                                                <TableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
@@ -606,63 +576,63 @@ export default function ContractTypesPage() {
                                                     >
                                                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
-                                                </TableCell>
-                                            </TableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </EntityListShell>
 
             {/* Single delete */}
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             Delete contract type?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             Deleting &ldquo;{pendingDelete?.name}&rdquo; will
                             remove it from the type picker. Existing contracts
                             keep their stored type label.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deletePending}
                         >
                             {deletePending ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {/* Bulk delete */}
-            <ZoruAlertDialog
+            <AlertDialog
                 open={pendingBulkDelete}
                 onOpenChange={(o) => !o && setPendingBulkDelete(false)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             Delete {selected.size} contract type{selected.size === 1 ? '' : 's'}?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             This removes the selected types from the type
                             picker. Existing contracts keep their stored type
                             label.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel disabled={deletePending}>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deletePending}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={confirmBulkDelete}
                             disabled={deletePending}
                             className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
@@ -671,10 +641,10 @@ export default function ContractTypesPage() {
                                 <LoaderCircle className="mr-2 h-3.5 w-3.5 animate-spin" />
                             ) : null}
                             Delete permanently
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

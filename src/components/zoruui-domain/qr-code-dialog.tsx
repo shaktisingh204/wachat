@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, Button } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useRef } from 'react';
 
@@ -35,13 +35,13 @@ export function QrCodeDialog({ open, onOpenChange, dataString, config, logoDataU
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-xs max-h-[85vh] flex flex-col overflow-hidden p-0">
-                <ZoruDialogHeader className="px-6 pt-6 pb-2">
-                    <ZoruDialogTitle>QR Code</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            <DialogContent className="sm:max-w-xs max-h-[85vh] flex flex-col overflow-hidden p-0">
+                <DialogHeader className="px-6 pt-6 pb-2">
+                    <DialogTitle>QR Code</DialogTitle>
+                    <DialogDescription>
                         Scan this code with your device.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <div className="flex-1 overflow-y-auto px-6 py-2">
                     <div ref={qrCodeRef} className="flex justify-center items-center p-4 bg-white rounded-lg">
                         <QrCodeRenderer
@@ -60,7 +60,7 @@ export function QrCodeDialog({ open, onOpenChange, dataString, config, logoDataU
                         Download QR Code
                     </Button>
                 </div>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

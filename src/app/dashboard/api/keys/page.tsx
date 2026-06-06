@@ -1,18 +1,5 @@
 import { listDeveloperKeys, getUsageByKey, getUsageLogs } from '@/app/actions/developer-platform.actions';
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Breadcrumb,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbSeparator,
-  ZoruBreadcrumbPage,
-  Alert,
-  ZoruAlertDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage, Alert, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 import { KeysClient } from './_KeysClient';
 
@@ -32,31 +19,31 @@ export default async function ApiKeysPage(): Promise<JSX.Element> {
   return (
     <div className="flex min-h-full flex-col gap-6">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>API keys</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/api">Developer platform</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>API keys</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>API keys</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>API keys</PageTitle>
+          <PageDescription>
             Tenant-scoped Bearer tokens for server-to-server integrations. Treat them like
             passwords — they grant full programmatic access.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       {loadError ? (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertDescription>Failed to load keys: {loadError}</ZoruAlertDescription>
+          <AlertDescription>Failed to load keys: {loadError}</AlertDescription>
         </Alert>
       ) : null}
 

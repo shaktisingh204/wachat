@@ -1,36 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, StatCard, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   Eye,
@@ -86,7 +56,7 @@ const EMPTY_KPIS: DashboardWidgetKpis = {
 };
 
 export default function DashboardWidgetsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [widgets, setWidgets] = useState<Row[]>([]);
   const [kpis, setKpis] = useState<DashboardWidgetKpis>(EMPTY_KPIS);
   const [isLoading, setIsLoading] = useState(true);
@@ -493,56 +463,56 @@ export default function DashboardWidgetsPage() {
         <Card className="p-0">
           <div className="overflow-x-auto">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="w-[40px]">
+              <THead>
+                <Tr className="hover:bg-transparent">
+                  <Th className="w-[40px]">
                     <Checkbox
                       checked={allOnPageSelected}
                       onCheckedChange={toggleAllOnPage}
                       aria-label="Select all on page"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Name
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Type
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Width
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Position
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Visible
-                  </ZoruTableHead>
-                  <ZoruTableHead className="w-[180px] text-right text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="w-[180px] text-right text-[var(--st-text-secondary)]">
                     Actions
-                  </ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {pageRows.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={7}
                       className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No widgets match the current filters.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   pageRows.map((w, idx) => (
-                    <ZoruTableRow key={w._id}>
-                      <ZoruTableCell>
+                    <Tr key={w._id}>
+                      <Td>
                         <Checkbox
                           checked={selected.has(w._id)}
                           onCheckedChange={() => toggleOne(w._id)}
                           aria-label={`Select ${w.widget_name}`}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         <RowDrawer
                           label={w.widget_name}
                           subtitle={w.config?.data_source || undefined}
@@ -608,17 +578,17 @@ export default function DashboardWidgetsPage() {
                             </div>
                           </div>
                         </RowDrawer>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant="default">{w.type}</Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[12px] text-[var(--st-text-secondary)]">
                         {w.width}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[12px] text-[var(--st-text-secondary)]">
                         {w.position ?? 0}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge
                           variant={
                             w.is_visible === false ? 'ghost' : 'success'
@@ -626,8 +596,8 @@ export default function DashboardWidgetsPage() {
                         >
                           {w.is_visible === false ? 'Hidden' : 'Visible'}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button
                             variant="ghost"
@@ -670,11 +640,11 @@ export default function DashboardWidgetsPage() {
                             <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
           <PaginationBar
@@ -699,17 +669,17 @@ export default function DashboardWidgetsPage() {
           if (!o) resetForm();
         }}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
               {editing ? 'Edit widget' : 'Add widget'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               {editing
                 ? 'Update the widget configuration.'
                 : 'Add a new widget to your dashboard grid.'}
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="grid gap-3 py-2">
             <div className="grid gap-1.5">
               <Label htmlFor="widget-name">Widget name</Label>
@@ -772,56 +742,56 @@ export default function DashboardWidgetsPage() {
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
             <Button disabled={saving} onClick={handleSave}>
               {saving ? 'Saving…' : editing ? 'Save' : 'Add Widget'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete widget?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete widget?</AlertDialogTitle>
+            <AlertDialogDescription>
               This permanently removes the widget from your dashboard.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Delete {selected.size} widget(s)?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               The selected widgets will be permanently removed from your
               dashboard.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleBulkDelete}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete}>
               {bulkDeleting ? 'Deleting…' : 'Delete'}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
   );
 }

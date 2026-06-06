@@ -2,19 +2,7 @@ import * as React from 'react';
 import { Suspense } from 'react';
 
 import { listSabpracticeDeadlines } from '@/app/actions/sabpractice.actions';
-import {
-    Badge,
-    Card,
-    CardContent,
-    EmptyState,
-    PageHeader,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardContent, EmptyState, PageHeader, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 import { FileDeadlineButton } from './_components/file-deadline-button';
 
@@ -47,45 +35,45 @@ async function DeadlinesData() {
                         />
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Due</TableHead>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Kind</TableHead>
-                                    <TableHead>Client</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Due</Th>
+                                    <Th>Name</Th>
+                                    <Th>Kind</Th>
+                                    <Th>Client</Th>
+                                    <Th>Status</Th>
+                                    <Th className="text-right">Actions</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {sorted.map((d) => {
                                     const due = new Date(d.dueDate);
                                     const overdue =
                                         d.status !== 'filed' && due.getTime() < Date.now();
                                     return (
-                                        <TableRow key={d._id}>
-                                            <TableCell className="font-medium">
+                                        <Tr key={d._id}>
+                                            <Td className="font-medium">
                                                 {due.toLocaleDateString()}
-                                            </TableCell>
-                                            <TableCell>{d.name}</TableCell>
-                                            <TableCell>{d.kind ?? 'custom'}</TableCell>
-                                            <TableCell className="font-mono text-xs">
+                                            </Td>
+                                            <Td>{d.name}</Td>
+                                            <Td>{d.kind ?? 'custom'}</Td>
+                                            <Td className="font-mono text-xs">
                                                 {d.clientId.slice(-6)}
-                                            </TableCell>
-                                            <TableCell>
+                                            </Td>
+                                            <Td>
                                                 <Badge>
                                                     {overdue ? 'overdue' : d.status ?? 'upcoming'}
                                                 </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 {d.status !== 'filed' ? (
                                                     <FileDeadlineButton id={d._id!} />
                                                 ) : null}
-                                            </TableCell>
-                                        </TableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>

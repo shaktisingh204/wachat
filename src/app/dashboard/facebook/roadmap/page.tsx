@@ -1,34 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Card,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageEyebrow,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  ZoruButton,
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  ZoruInput,
-  ZoruTextarea,
-  ZoruLabel,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions, Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Textarea, Label, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   BarChart3,
   Bot,
@@ -261,40 +234,40 @@ export default function FacebookRoadmapPage() {
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Roadmap</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Roadmap</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Page header */}
       <PageHeader className="mt-4">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Meta Suite · What&apos;s next</ZoruPageEyebrow>
-          <ZoruPageTitle>Roadmap</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Meta Suite · What&apos;s next</PageEyebrow>
+          <PageTitle>Roadmap</PageTitle>
+          <PageDescription>
             Public view of what&apos;s shipped, what&apos;s in flight and
             what&apos;s coming next for the Meta Suite. Subject to change.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Dialog open={featureRequestOpen} onOpenChange={setFeatureRequestOpen}>
             <DialogTrigger asChild>
-              <ZoruButton variant="primary">
+              <Button variant="primary">
                 <Plus className="mr-2 h-4 w-4" />
                 Request Feature
-              </ZoruButton>
+              </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <form onSubmit={handleFeatureSubmit}>
@@ -306,12 +279,12 @@ export default function FacebookRoadmapPage() {
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
-                    <ZoruLabel htmlFor="title">Feature title</ZoruLabel>
-                    <ZoruInput id="title" placeholder="E.g. Instagram Stories publishing" required />
+                    <Label htmlFor="title">Feature title</Label>
+                    <Input id="title" placeholder="E.g. Instagram Stories publishing" required />
                   </div>
                   <div className="grid gap-2">
-                    <ZoruLabel htmlFor="description">Details & use case</ZoruLabel>
-                    <ZoruTextarea
+                    <Label htmlFor="description">Details & use case</Label>
+                    <Textarea
                       id="description"
                       placeholder="How would you use this feature?"
                       required
@@ -320,17 +293,17 @@ export default function FacebookRoadmapPage() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <ZoruButton type="button" variant="ghost" onClick={() => setFeatureRequestOpen(false)}>
+                  <Button type="button" variant="ghost" onClick={() => setFeatureRequestOpen(false)}>
                     Cancel
-                  </ZoruButton>
-                  <ZoruButton type="submit" variant="primary" disabled={isSubmitting}>
+                  </Button>
+                  <Button type="submit" variant="primary" disabled={isSubmitting}>
                     {isSubmitting ? 'Submitting...' : 'Submit request'}
-                  </ZoruButton>
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {/* Stat strip */}

@@ -9,24 +9,7 @@ import React, {
   Suspense,
   use,
 } from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Checkbox,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox } from '@/components/sabcrm/20ui/compat';
 import { Check, Plus, X, Download, RefreshCw, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -338,29 +321,29 @@ function ShiftChangeRequestsContent() {
             )}
             
             <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
-              <ZoruSelectTrigger className="w-[180px] h-8 text-xs">
-                <ZoruSelectValue placeholder="All Employees" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All Employees</ZoruSelectItem>
+              <SelectTrigger className="w-[180px] h-8 text-xs">
+                <SelectValue placeholder="All Employees" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Employees</SelectItem>
                 {employees.map(e => (
-                  <ZoruSelectItem key={String(e._id)} value={String(e._id)}>
+                  <SelectItem key={String(e._id)} value={String(e._id)}>
                     {e.firstName} {e.lastName}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <ZoruSelectTrigger className="w-[140px] h-8 text-xs">
-                <ZoruSelectValue placeholder="All Statuses" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All Statuses</ZoruSelectItem>
-                <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-                <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
-                <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="w-[140px] h-8 text-xs">
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
             </Select>
 
             <Input 
@@ -488,17 +471,17 @@ function ShiftChangeRequestsContent() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="sm:max-w-[520px]">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New Shift Change Request</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle>New Shift Change Request</DialogTitle>
+          </DialogHeader>
           <NewShiftChangeRequestForm
             employees={employees}
             shifts={shifts}
             onCancel={() => setDialogOpen(false)}
             onSubmit={handleCreateRequest}
           />
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

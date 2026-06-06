@@ -3,23 +3,11 @@
 import { useState, useTransition } from 'react';
 import { CirclePlus } from 'lucide-react';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import { registerSablensDevice } from '@/app/actions/sablens.actions';
 
 export function DeviceRegisterDialog() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState('');
@@ -46,20 +34,20 @@ export function DeviceRegisterDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button>
           <CirclePlus className="size-4" /> Register device
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent>
+      </DialogTrigger>
+      <DialogContent>
         <form onSubmit={onSubmit}>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Register a customer device</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Register a customer device</DialogTitle>
+            <DialogDescription>
               Pair a phone or tablet so you can connect to it later without a
               one-off join token.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex flex-col gap-3 py-4">
             <div className="flex flex-col gap-1">
               <Label htmlFor="label">Label</Label>
@@ -80,7 +68,7 @@ export function DeviceRegisterDialog() {
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               type="button"
               variant="ghost"
@@ -91,9 +79,9 @@ export function DeviceRegisterDialog() {
             <Button type="submit" disabled={isPending}>
               {isPending ? 'Registering…' : 'Register'}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -2,25 +2,7 @@
 
 import * as React from 'react';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  Textarea,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   createVersion,
@@ -45,7 +27,7 @@ export function BugVersionsClient({
   initialError?: string;
   projectOptions: ProjectOption[];
 }) {
-  const toast = useZoruToast();
+  const toast = useToast();
   const [versions, setVersions] = React.useState(initialVersions);
   const [draftName, setDraftName] = React.useState('');
   const [draftProject, setDraftProject] = React.useState<string | undefined>();
@@ -122,17 +104,17 @@ export function BugVersionsClient({
                 setDraftProject(v === 'none' ? undefined : v)
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="none">No project</ZoruSelectItem>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No project</SelectItem>
                 {projectOptions.map((p) => (
-                  <ZoruSelectItem key={p.id} value={p.id}>
+                  <SelectItem key={p.id} value={p.id}>
                     {p.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex items-end">
@@ -154,54 +136,54 @@ export function BugVersionsClient({
 
       <Card className="overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Project</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Released</TableHead>
-              <TableHead aria-label="row actions" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <THead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Project</Th>
+              <Th>Status</Th>
+              <Th>Released</Th>
+              <Th aria-label="row actions" />
+            </Tr>
+          </THead>
+          <TBody>
             {versions.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center text-sm text-[var(--st-text-secondary)]">
+              <Tr>
+                <Td colSpan={5} className="text-center text-sm text-[var(--st-text-secondary)]">
                   No versions yet.
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ) : null}
             {versions.map((v) => (
-              <TableRow key={v._id}>
-                <TableCell className="font-medium">{v.name}</TableCell>
-                <TableCell className="text-xs text-[var(--st-text-secondary)]">
+              <Tr key={v._id}>
+                <Td className="font-medium">{v.name}</Td>
+                <Td className="text-xs text-[var(--st-text-secondary)]">
                   {projectOptions.find((p) => p.id === v.projectId)?.name ?? '—'}
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   <Select
                     value={v.status}
                     onValueChange={(next) =>
                       setStatus(v._id, next as BugVersionStatus)
                     }
                   >
-                    <ZoruSelectTrigger className="w-[140px]">
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
                       {STATUSES.map((s) => (
-                        <ZoruSelectItem key={s} value={s}>
+                        <SelectItem key={s} value={s}>
                           {s}
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
-                </TableCell>
-                <TableCell className="text-xs text-[var(--st-text-secondary)]">
+                </Td>
+                <Td className="text-xs text-[var(--st-text-secondary)]">
                   {v.releasedAt
                     ? new Date(v.releasedAt).toLocaleDateString()
                     : '—'}
-                </TableCell>
-                <TableCell className="text-right">
+                </Td>
+                <Td className="text-right">
                   <Button
                     variant="outline"
                     size="sm"
@@ -209,10 +191,10 @@ export function BugVersionsClient({
                   >
                     Archive
                   </Button>
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ))}
-          </TableBody>
+          </TBody>
         </Table>
       </Card>
     </div>

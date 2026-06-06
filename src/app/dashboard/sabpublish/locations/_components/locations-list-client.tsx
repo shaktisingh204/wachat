@@ -3,17 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  EmptyState,
-  PageHeader,
-  ZoruPageDescription,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, EmptyState, PageHeader, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 
 export function SabpublishLocationsListClient({
@@ -24,12 +14,12 @@ export function SabpublishLocationsListClient({
   return (
     <div className="zoruui space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Locations</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Locations</PageTitle>
+          <PageDescription>
             Every physical place you publish about. One row per storefront.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <Button asChild>
           <Link href="/dashboard/sabpublish/locations/new">New location</Link>
         </Button>

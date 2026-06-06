@@ -1,20 +1,6 @@
 "use client";
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * Shared zoru-only chrome for the Custom E-commerce manage scope.
  *
@@ -49,43 +35,43 @@ export function ShopBreadcrumb({
 }: ShopBreadcrumbProps) {
   return (
     <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard/facebook">
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard/facebook">
             Meta Suite
-          </ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard/facebook/custom-ecommerce">
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard/facebook/custom-ecommerce">
             Custom Shops
-          </ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
         {leaf ? (
           <>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink
+            <BreadcrumbItem>
+              <BreadcrumbLink
                 href={`/dashboard/facebook/custom-ecommerce/manage/${shopId}`}
               >
                 {shopName}
-              </ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>{leaf}</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{leaf}</BreadcrumbPage>
+            </BreadcrumbItem>
           </>
         ) : (
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>{shopName}</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
+          <BreadcrumbItem>
+            <BreadcrumbPage>{shopName}</BreadcrumbPage>
+          </BreadcrumbItem>
         )}
-      </ZoruBreadcrumbList>
+      </BreadcrumbList>
     </Breadcrumb>
   );
 }
@@ -107,14 +93,14 @@ export function ShopHeader({
 }: ShopHeaderProps) {
   return (
     <PageHeader className={className}>
-      <ZoruPageHeading>
-        {eyebrow ? <ZoruPageEyebrow>{eyebrow}</ZoruPageEyebrow> : null}
-        <ZoruPageTitle>{title}</ZoruPageTitle>
+      <PageHeading>
+        {eyebrow ? <PageEyebrow>{eyebrow}</PageEyebrow> : null}
+        <PageTitle>{title}</PageTitle>
         {description ? (
-          <ZoruPageDescription>{description}</ZoruPageDescription>
+          <PageDescription>{description}</PageDescription>
         ) : null}
-      </ZoruPageHeading>
-      {actions ? <ZoruPageActions>{actions}</ZoruPageActions> : null}
+      </PageHeading>
+      {actions ? <PageActions>{actions}</PageActions> : null}
     </PageHeader>
   );
 }

@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Textarea,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogClose,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, Label } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Edit, Check, AlertTriangle, Barcode, Calendar } from 'lucide-react';
 
 /**
@@ -111,16 +99,16 @@ function SerialBatchAllocationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-md rounded-lg p-6 bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)]">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="flex items-center gap-2 text-base font-semibold">
+      <DialogContent className="max-w-md rounded-lg p-6 bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-base font-semibold">
             <Barcode className="h-5 w-5 text-[var(--st-text)]" /> Allocate Serials & Batches
-          </ZoruDialogTitle>
-          <ZoruDialogDescription className="text-xs text-[var(--st-text-secondary)]">
+          </DialogTitle>
+          <DialogDescription className="text-xs text-[var(--st-text-secondary)]">
             Specify the tracking batch number, expiration date, and physical serial codes for:
             <strong className="block mt-1 text-[var(--st-text)]">{row.name || 'Unnamed Item'}</strong>
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-4 my-4">
           <div className="grid grid-cols-2 gap-3">
@@ -206,17 +194,17 @@ function SerialBatchAllocationDialog({
           </div>
         </div>
 
-        <ZoruDialogFooter className="mt-4 gap-2">
-          <ZoruDialogClose asChild>
+        <DialogFooter className="mt-4 gap-2">
+          <DialogClose asChild>
             <Button variant="ghost" size="sm" className="text-xs">
               Cancel
             </Button>
-          </ZoruDialogClose>
+          </DialogClose>
           <Button type="button" size="sm" onClick={handleApply} className="text-xs">
             Apply Allocation
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -26,7 +26,7 @@
  *   we still respect no raw URL inputs for any fields).
  * - All UI uses ZoruUI primitives exclusively.
  * - No `any` (except the Recharts `ResponsiveContainer` children cast already
- *   present in the ZoruChartContainer upstream).
+ *   present in the ChartContainer upstream).
  * - Named export only.
  */
 
@@ -45,28 +45,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  cn,
-  Input,
-  Label,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  Separator,
-  Skeleton,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  ZORU_CHART_PALETTE,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, cn, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator, Skeleton, ChartContainer, ChartTooltip, ZORU_CHART_PALETTE, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   listObjectsAction,
@@ -266,7 +245,7 @@ export function ReportBuilder({
   onSaved,
   className,
 }: ReportBuilderProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const toastRef = React.useRef(toast);
   React.useEffect(() => {
     toastRef.current = toast;
@@ -462,13 +441,13 @@ export function ReportBuilder({
     <div className={cn('grid grid-cols-1 gap-6 lg:grid-cols-2', className)}>
       {/* ── Left: form ─────────────────────────────────────────────────────── */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Report definition</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Report definition</CardTitle>
+          <CardDescription>
             Configure what this report measures and how to display it.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex flex-col gap-5">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-5">
           {/* Name + description */}
           <FieldRow label="Name" htmlFor="rb-name">
             <Input
@@ -697,19 +676,19 @@ export function ReportBuilder({
               {initialReport ? 'Update report' : 'Save report'}
             </Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* ── Right: preview ─────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Live preview</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Live preview</CardTitle>
+            <CardDescription>
               Updates automatically as you change the definition.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <PreviewPane
               series={preview}
               loading={previewLoading}
@@ -721,7 +700,7 @@ export function ReportBuilder({
               }
               objectLabel={selectedObject?.labelPlural}
             />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* Metadata strip: record count + computed-at */}
@@ -864,7 +843,7 @@ function PreviewPane({
   // Bar chart
   if (chartType === 'bar') {
     return (
-      <ZoruChartContainer height={280}>
+      <ChartContainer height={280}>
         <Recharts.BarChart
           data={series.rows}
           margin={{ top: 8, right: 8, bottom: 40, left: 8 }}
@@ -881,7 +860,7 @@ function PreviewPane({
             tick={{ fill: 'var(--st-text-secondary)', fontSize: 11 }}
             tickFormatter={(v: number) => formatValue(v, metric)}
           />
-          <Recharts.Tooltip content={<ZoruChartTooltip />} />
+          <Recharts.Tooltip content={<ChartTooltip />} />
           <Recharts.Bar
             dataKey="value"
             name={valueLabel}
@@ -896,14 +875,14 @@ function PreviewPane({
             ))}
           </Recharts.Bar>
         </Recharts.BarChart>
-      </ZoruChartContainer>
+      </ChartContainer>
     );
   }
 
   // Line chart
   if (chartType === 'line') {
     return (
-      <ZoruChartContainer height={280}>
+      <ChartContainer height={280}>
         <Recharts.LineChart
           data={series.rows}
           margin={{ top: 8, right: 8, bottom: 40, left: 8 }}
@@ -920,7 +899,7 @@ function PreviewPane({
             tick={{ fill: 'var(--st-text-secondary)', fontSize: 11 }}
             tickFormatter={(v: number) => formatValue(v, metric)}
           />
-          <Recharts.Tooltip content={<ZoruChartTooltip />} />
+          <Recharts.Tooltip content={<ChartTooltip />} />
           <Recharts.Line
             type="monotone"
             dataKey="value"
@@ -931,16 +910,16 @@ function PreviewPane({
             activeDot={{ r: 5 }}
           />
         </Recharts.LineChart>
-      </ZoruChartContainer>
+      </ChartContainer>
     );
   }
 
   // Pie chart
   if (chartType === 'pie') {
     return (
-      <ZoruChartContainer height={280}>
+      <ChartContainer height={280}>
         <Recharts.PieChart>
-          <Recharts.Tooltip content={<ZoruChartTooltip />} />
+          <Recharts.Tooltip content={<ChartTooltip />} />
           <Recharts.Legend
             iconType="circle"
             iconSize={8}
@@ -968,7 +947,7 @@ function PreviewPane({
             ))}
           </Recharts.Pie>
         </Recharts.PieChart>
-      </ZoruChartContainer>
+      </ChartContainer>
     );
   }
 

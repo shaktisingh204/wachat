@@ -3,16 +3,7 @@
 import { useActionState, useEffect } from 'react';
 import { handleUpdateUserProfile } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
-import {
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardFooter,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Input,
-    Label,
-    Button,
-} from '@/components/sabcrm/20ui/compat';
+import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button } from '@/components/sabcrm/20ui/compat';
 import { Save, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { UserProfileFormProps, ActionResponse } from './types';
@@ -51,11 +42,11 @@ export function ProfileForm({ user }: UserProfileFormProps) {
             <input type="hidden" name="businessAddress" value={user.businessProfile?.address || ''} />
             <input type="hidden" name="businessGstin" value={user.businessProfile?.gstin || ''} />
 
-            <ZoruCardHeader>
-                <ZoruCardTitle>User Profile</ZoruCardTitle>
-                <ZoruCardDescription>Manage your name and view your account details.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+            <CardHeader>
+                <CardTitle>User Profile</CardTitle>
+                <CardDescription>Manage your name and view your account details.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
                     <Input 
@@ -76,10 +67,10 @@ export function ProfileForm({ user }: UserProfileFormProps) {
                     <Label>Account Created</Label>
                     <Input value={formattedCreatedAt} disabled />
                 </div>
-            </ZoruCardContent>
-            <ZoruCardFooter>
+            </CardBody>
+            <CardFooter>
                 <SubmitButton icon={Save}>Save Changes</SubmitButton>
-            </ZoruCardFooter>
+            </CardFooter>
         </form>
     );
 }

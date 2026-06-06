@@ -3,20 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    Input,
-    Label,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Progress,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, PageHeader, PageTitle, PageDescription, Progress } from '@/components/sabcrm/20ui/compat';
 
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 import type { HeatmapEventDoc } from '@/lib/rust-client/pagesense-heatmap-events';
@@ -75,20 +62,20 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
     return (
         <div className="zoruui p-8 space-y-6">
             <PageHeader>
-                <ZoruPageTitle>{site.name} — Scroll map</ZoruPageTitle>
-                <ZoruPageDescription>
+                <PageTitle>{site.name} — Scroll map</PageTitle>
+                <PageDescription>
                     Percentage of sessions that scrolled past each decile of the
                     viewport.
-                </ZoruPageDescription>
+                </PageDescription>
             </PageHeader>
 
             <PagesenseSiteNav siteId={site._id} />
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Filters</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Filters</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
                         <div className="space-y-2">
                             <Label htmlFor="ps-url">URL path</Label>
@@ -103,17 +90,17 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
                             <Button onClick={apply}>Apply</Button>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Scroll depth</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Scroll depth</CardTitle>
+                    <CardDescription>
                         {deciles.total} unique session(s) · {snapshots.length} snapshot(s)
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
                     <div className="space-y-3">
                         {deciles.pct.map((pct, i) => (
                             <div key={i} className="space-y-1">
@@ -125,7 +112,7 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
                             </div>
                         ))}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

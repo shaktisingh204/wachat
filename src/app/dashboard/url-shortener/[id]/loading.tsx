@@ -1,23 +1,23 @@
-import { Card, Breadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage } from '@/components/sabcrm/20ui/compat';
+import { Card, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui/compat';
 
 export default function LoadingShortUrl() {
   return (
     <div className="flex min-h-full flex-col gap-6 animate-pulse">
       {/* Breadcrumb Skeleton */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
+        <BreadcrumbList>
+          <BreadcrumbItem>
             <div className="h-4 w-12 bg-[var(--st-hover)] rounded" />
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
             <div className="h-4 w-24 bg-[var(--st-hover)] rounded" />
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
             <div className="h-4 w-16 bg-[var(--st-hover)] rounded" />
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Header Skeleton */}

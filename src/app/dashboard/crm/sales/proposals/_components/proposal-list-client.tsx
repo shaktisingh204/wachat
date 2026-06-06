@@ -14,19 +14,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { Archive, Download, FileText, LayoutTemplate, Plus, Trash2, X } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -152,7 +140,7 @@ export function ProposalListClient({
   initialQuery,
   kpi,
 }: ProposalListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -491,81 +479,81 @@ export function ProposalListClient({
 
           <Card className="overflow-hidden p-0">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[36px]">
+              <THead>
+                <Tr>
+                  <Th className="w-[36px]">
                     <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
                     />
-                  </TableHead>
-                  <TableHead>Number</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Issued</TableHead>
-                  <TableHead>Valid until</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+                  </Th>
+                  <Th>Number</Th>
+                  <Th>Title</Th>
+                  <Th>Issued</Th>
+                  <Th>Valid until</Th>
+                  <Th>Status</Th>
+                  <Th className="text-right">Total</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filtered.length === 0 ? (
-                  <TableRow>
-                    <TableCell
+                  <Tr>
+                    <Td
                       colSpan={7}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive || query
                         ? 'No proposals match these filters.'
                         : 'No proposals yet — click "New proposal" to add one.'}
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filtered.map((p) => {
                     const id = String(p._id);
                     const isSelected = selected.has(id);
                     return (
-                      <TableRow
+                      <Tr
                         key={id}
                         data-state={isSelected ? 'selected' : undefined}
                       >
-                        <TableCell>
+                        <Td>
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${p.proposal_number}`}
                           />
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           <EntityRowLink
                             href={`/dashboard/crm/sales/proposals/${id}`}
                             label={p.proposal_number}
                             subtitle={p.title || undefined}
                           />
-                        </TableCell>
-                        <TableCell className="text-[12.5px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text)]">
                           {p.title || '—'}
-                        </TableCell>
-                        <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(p.issue_date)}
-                        </TableCell>
-                        <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(p.valid_until)}
-                        </TableCell>
-                        <TableCell>
+                        </Td>
+                        <Td>
                           <StatusPill
                             label={p.status}
                             tone={STATUS_TONE[p.status] ?? 'neutral'}
                           />
-                        </TableCell>
-                        <TableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                           {fmtINR(p.total || 0, p.currency)}
-                        </TableCell>
-                      </TableRow>
+                        </Td>
+                      </Tr>
                     );
                   })
                 )}
-              </TableBody>
+              </TBody>
             </Table>
           </Card>
         </div>

@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { 
-  Card, CardHeader, CardTitle, CardDescription, CardContent,
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
-  Button, Badge, Input, Switch, Label
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Table, THead, TBody, Tr, Th, Td, Button, Badge, Input, Switch, Label } from '@/components/sabcrm/20ui/compat';
 import { LayoutDashboard, Plus, Search, Code, ExternalLink, Copy, Settings, Trash2 } from 'lucide-react';
 
 const mockEmbeds = [
@@ -106,35 +102,35 @@ export default function EmbedsPage() {
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Embed Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Total Views</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr>
+                <Th>Embed Name</Th>
+                <Th>Type</Th>
+                <Th>Status</Th>
+                <Th>Total Views</Th>
+                <Th>Created</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.map((embed) => (
-                <TableRow key={embed.id}>
-                  <TableCell className="font-medium">{embed.name}</TableCell>
-                  <TableCell>
+                <Tr key={embed.id}>
+                  <Td className="font-medium">{embed.name}</Td>
+                  <Td>
                     <Badge variant="outline" className="capitalize">
                       {embed.type === 'dashboard' ? <LayoutDashboard className="w-3 h-3 mr-1" /> : <Code className="w-3 h-3 mr-1" />}
                       {embed.type}
                     </Badge>
-                  </TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>
                     <div className="flex items-center space-x-2">
                       <div className={`w-2 h-2 rounded-full ${getStatusColor(embed.status)}`} />
                       <span className="capitalize text-sm">{embed.status}</span>
                     </div>
-                  </TableCell>
-                  <TableCell>{embed.views.toLocaleString()}</TableCell>
-                  <TableCell>{new Date(embed.created).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right">
+                  </Td>
+                  <Td>{embed.views.toLocaleString()}</Td>
+                  <Td>{new Date(embed.created).toLocaleDateString()}</Td>
+                  <Td className="text-right">
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)]/60 hover:text-[var(--st-text)]">
                       <Copy className="h-4 w-4" />
                     </Button>
@@ -144,17 +140,17 @@ export default function EmbedsPage() {
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500/60 hover:text-red-600">
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))}
               {filtered.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                <Tr>
+                  <Td colSpan={6} className="h-24 text-center text-muted-foreground">
                     No embeds found.
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               )}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
       </Card>

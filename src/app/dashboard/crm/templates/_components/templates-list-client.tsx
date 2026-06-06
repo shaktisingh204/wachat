@@ -20,28 +20,7 @@ import {
     Bookmark
 } from 'lucide-react';
 
-import {
-    Button,
-    Input,
-    Label,
-    Select,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    Dialog,
-    ZoruDialogTrigger,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogDescription,
-    ZoruDialogClose,
-    ZoruDialogFooter,
-    Card,
-    ZoruCardContent,
-    Badge,
-    useZoruToast
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose, DialogFooter, Card, CardBody, Badge, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { cn } from '@/components/sabcrm/20ui/compat';
 import {
@@ -57,7 +36,7 @@ interface TemplatesListClientProps {
 type FilterType = 'all' | 'email' | 'whatsapp' | 'sms' | 'document';
 
 export function TemplatesListClient({ initialTemplates }: TemplatesListClientProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
     
     // Core state
@@ -179,7 +158,7 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
             {/* Stat Overlay Row */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <Card className="bg-[var(--st-text)]/80 border-[var(--st-border)]/80 hover:border-[var(--st-border)]/80 backdrop-blur-md rounded-xl transition-all shadow-lg p-4 group">
-                    <ZoruCardContent className="p-0 flex items-center justify-between">
+                    <CardBody className="p-0 flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-[10px] uppercase font-bold text-[var(--st-text)] tracking-wider">All Templates</span>
                             <span className="text-2xl font-extrabold text-white mt-1 group-hover:scale-105 transition-transform duration-200">{templates.length}</span>
@@ -187,11 +166,11 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
                         <div className="h-10 w-10 rounded-lg bg-[var(--st-text)] border border-[var(--st-border)]/80 flex items-center justify-center text-[var(--st-text-secondary)]">
                             <Bookmark className="h-5 w-5" />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card className="bg-[var(--st-text)]/80 border-[var(--st-border)]/80 hover:border-[var(--st-border)]/30 backdrop-blur-md rounded-xl transition-all shadow-lg p-4 group">
-                    <ZoruCardContent className="p-0 flex items-center justify-between">
+                    <CardBody className="p-0 flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-[10px] uppercase font-bold text-[var(--st-text)] tracking-wider">Email Templates</span>
                             <span className="text-2xl font-extrabold text-[var(--st-text-secondary)] mt-1">{emailCount}</span>
@@ -199,11 +178,11 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
                         <div className="h-10 w-10 rounded-lg bg-[var(--st-text)]/20 border border-[var(--st-border)]/30 flex items-center justify-center text-[var(--st-text-secondary)]">
                             <Mail className="h-5 w-5" />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card className="bg-[var(--st-text)]/80 border-[var(--st-border)]/80 hover:border-[var(--st-border)]/30 backdrop-blur-md rounded-xl transition-all shadow-lg p-4 group">
-                    <ZoruCardContent className="p-0 flex items-center justify-between">
+                    <CardBody className="p-0 flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-[10px] uppercase font-bold text-[var(--st-text)] tracking-wider">WhatsApp Templates</span>
                             <span className="text-2xl font-extrabold text-[var(--st-text-secondary)] mt-1">{whatsappCount}</span>
@@ -211,11 +190,11 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
                         <div className="h-10 w-10 rounded-lg bg-[var(--st-text)]/20 border border-[var(--st-border)]/30 flex items-center justify-center text-[var(--st-text-secondary)]">
                             <MessageSquare className="h-5 w-5" />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card className="bg-[var(--st-text)]/80 border-[var(--st-border)]/80 hover:border-[var(--st-border)]/30 backdrop-blur-md rounded-xl transition-all shadow-lg p-4 group">
-                    <ZoruCardContent className="p-0 flex items-center justify-between">
+                    <CardBody className="p-0 flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-[10px] uppercase font-bold text-[var(--st-text)] tracking-wider">SMS Segments</span>
                             <span className="text-2xl font-extrabold text-[var(--st-text-secondary)] mt-1">{smsCount}</span>
@@ -223,11 +202,11 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
                         <div className="h-10 w-10 rounded-lg bg-[var(--st-text)]/20 border border-[var(--st-border)]/30 flex items-center justify-center text-[var(--st-text-secondary)]">
                             <MessageSquare className="h-5 w-5" />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card className="bg-[var(--st-text)]/80 border-[var(--st-border)]/80 hover:border-[var(--st-border)]/30 backdrop-blur-md rounded-xl transition-all shadow-lg p-4 group col-span-2 md:col-span-1">
-                    <ZoruCardContent className="p-0 flex items-center justify-between">
+                    <CardBody className="p-0 flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-[10px] uppercase font-bold text-[var(--st-text)] tracking-wider">PDF Quotations</span>
                             <span className="text-2xl font-extrabold text-[var(--st-text-secondary)] mt-1">{docCount}</span>
@@ -235,7 +214,7 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
                         <div className="h-10 w-10 rounded-lg bg-[var(--st-text)]/20 border border-[var(--st-border)]/30 flex items-center justify-center text-[var(--st-text-secondary)]">
                             <FileText className="h-5 w-5" />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 
@@ -278,21 +257,21 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
                     </div>
 
                     <Dialog open={openCreator} onOpenChange={setOpenCreator}>
-                        <ZoruDialogTrigger asChild>
+                        <DialogTrigger asChild>
                             <Button className="bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] text-white font-bold text-xs h-9 px-4 gap-1.5 shadow-lg shadow-[var(--st-border)]/20 shrink-0">
                                 <Plus className="h-4 w-4" /> Create Template
                             </Button>
-                        </ZoruDialogTrigger>
-                        <ZoruDialogContent className="bg-[var(--st-text)] border-[var(--st-border)]/80 text-white max-w-md">
+                        </DialogTrigger>
+                        <DialogContent className="bg-[var(--st-text)] border-[var(--st-border)]/80 text-white max-w-md">
                             <form onSubmit={handleCreateTemplate} className="flex flex-col gap-4">
-                                <ZoruDialogHeader>
-                                    <ZoruDialogTitle className="text-xl font-bold bg-gradient-to-r from-[var(--st-bg-muted)] to-[var(--st-bg-muted)] bg-clip-text text-transparent flex items-center gap-2">
+                                <DialogHeader>
+                                    <DialogTitle className="text-xl font-bold bg-gradient-to-r from-[var(--st-bg-muted)] to-[var(--st-bg-muted)] bg-clip-text text-transparent flex items-center gap-2">
                                         <Sparkles className="h-5 w-5 text-[var(--st-text-secondary)]" /> New Campaign Template
-                                    </ZoruDialogTitle>
-                                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+                                    </DialogTitle>
+                                    <DialogDescription className="text-[var(--st-text-secondary)]">
                                         Initialize your campaign layout details. Once created, you will enter our Visual Studio designer workspace.
-                                    </ZoruDialogDescription>
-                                </ZoruDialogHeader>
+                                    </DialogDescription>
+                                </DialogHeader>
 
                                 <div className="flex flex-col gap-3">
                                     <div className="flex flex-col gap-1.5">
@@ -310,25 +289,25 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
                                     <div className="flex flex-col gap-1.5">
                                         <Label htmlFor="creator-type" className="text-xs font-semibold">Communication Type</Label>
                                         <Select value={newType} onValueChange={(val: any) => setNewType(val)}>
-                                            <ZoruSelectTrigger id="creator-type" className="bg-[var(--st-text)] border-[var(--st-border)] text-xs h-9">
-                                                <ZoruSelectValue placeholder="Select type" />
-                                            </ZoruSelectTrigger>
-                                            <ZoruSelectContent className="bg-[var(--st-text)] border-[var(--st-border)] text-white">
-                                                <ZoruSelectItem value="email">📧 Custom Rich Email Campaigns</ZoruSelectItem>
-                                                <ZoruSelectItem value="whatsapp">💬 Interactive WhatsApp Messages</ZoruSelectItem>
-                                                <ZoruSelectItem value="sms">📱 Standard Bulk SMS Alerts</ZoruSelectItem>
-                                                <ZoruSelectItem value="document">📄 Professional PDF Invoice/Quotation</ZoruSelectItem>
-                                            </ZoruSelectContent>
+                                            <SelectTrigger id="creator-type" className="bg-[var(--st-text)] border-[var(--st-border)] text-xs h-9">
+                                                <SelectValue placeholder="Select type" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[var(--st-text)] border-[var(--st-border)] text-white">
+                                                <SelectItem value="email">📧 Custom Rich Email Campaigns</SelectItem>
+                                                <SelectItem value="whatsapp">💬 Interactive WhatsApp Messages</SelectItem>
+                                                <SelectItem value="sms">📱 Standard Bulk SMS Alerts</SelectItem>
+                                                <SelectItem value="document">📄 Professional PDF Invoice/Quotation</SelectItem>
+                                            </SelectContent>
                                         </Select>
                                     </div>
                                 </div>
 
-                                <ZoruDialogFooter className="mt-2 flex gap-2">
-                                    <ZoruDialogClose asChild>
+                                <DialogFooter className="mt-2 flex gap-2">
+                                    <DialogClose asChild>
                                         <Button type="button" variant="outline" className="bg-[var(--st-text)] border-[var(--st-border)] text-xs h-9">
                                             Cancel
                                         </Button>
-                                    </ZoruDialogClose>
+                                    </DialogClose>
                                     <Button
                                         type="submit"
                                         disabled={creating || !newName.trim()}
@@ -345,9 +324,9 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
                                             </>
                                         )}
                                     </Button>
-                                </ZoruDialogFooter>
+                                </DialogFooter>
                             </form>
-                        </ZoruDialogContent>
+                        </DialogContent>
                     </Dialog>
                 </div>
             </div>

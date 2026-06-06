@@ -33,26 +33,7 @@ import {
 } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    Checkbox,
-    ZoruDateRangePicker,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -120,7 +101,7 @@ function formatCurrency(value: number, currency: string): string {
 }
 
 export default function SalesPipelinePage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // List + KPIs
     const [pipelines, setPipelines] = React.useState<PipelineRow[]>([]);
@@ -480,7 +461,7 @@ interface PipelinesFiltersRowProps {
 function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element {
     return (
         <Card>
-            <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-4">
+            <CardBody className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-4">
                 <div className="space-y-1">
                     <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
@@ -489,15 +470,15 @@ function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element
                         value={props.statusFilter}
                         onValueChange={(v) => props.onStatusChange(v as PipelineStatusFilter)}
                     >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue placeholder="All statuses" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                            <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                            <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                            <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                            <SelectValue placeholder="All statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All statuses</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
 
@@ -509,13 +490,13 @@ function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element
                         value={props.ownerFilter}
                         onValueChange={(v) => props.onOwnerChange(v as 'all' | 'mine')}
                     >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue placeholder="Any owner" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">Any owner</ZoruSelectItem>
-                            <ZoruSelectItem value="mine">Mine</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Any owner" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Any owner</SelectItem>
+                            <SelectItem value="mine">Mine</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
 
@@ -523,7 +504,7 @@ function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element
                     <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Created
                     </Label>
-                    <ZoruDateRangePicker
+                    <DateRangePicker
                         value={props.dateRange}
                         onChange={props.onDateRangeChange}
                     />
@@ -541,7 +522,7 @@ function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element
                         </Button>
                     </div>
                 ) : null}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -564,19 +545,19 @@ function PipelinesBulkBar(props: PipelinesBulkBarProps): React.JSX.Element {
             </span>
             <span className="flex-1" />
             <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                     <Button size="sm" variant="outline">
                         <Download className="h-3.5 w-3.5" /> Export
                     </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                    <ZoruDropdownMenuItem onClick={props.onExportCsv}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={props.onExportCsv}>
                         Export as CSV
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem onClick={props.onExportXlsx}>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={props.onExportXlsx}>
                         Export as XLSX
-                    </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
             </DropdownMenu>
             <Button size="sm" variant="destructive" onClick={props.onDelete}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -624,7 +605,7 @@ function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
                                     : undefined
                             }
                         >
-                            <ZoruCardContent className="space-y-3 pt-4">
+                            <CardBody className="space-y-3 pt-4">
                                 <div className="flex items-start gap-3">
                                     <Checkbox
                                         aria-label={`Select ${p.name}`}
@@ -667,7 +648,7 @@ function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
                                         View deals in this pipeline →
                                     </Link>
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     );
                 })}

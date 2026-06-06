@@ -1,41 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Separator,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Separator, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowLeft,
   ChevronRight,
@@ -410,12 +375,12 @@ function BroadcastDetailPane({
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-3 md:p-4">
         {/* Recipients */}
         <Card>
-          <ZoruCardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+          <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
             <div>
-              <ZoruCardTitle className="text-sm">Recipients</ZoruCardTitle>
-              <ZoruCardDescription className="text-xs">
+              <CardTitle className="text-sm">Recipients</CardTitle>
+              <CardDescription className="text-xs">
                 Each recipient receives the message as a 1:1 chat.
-              </ZoruCardDescription>
+              </CardDescription>
             </div>
             <div className="flex flex-wrap gap-2">
               {selected.size > 0 && (
@@ -442,47 +407,47 @@ function BroadcastDetailPane({
                 Add recipient
               </Button>
             </div>
-          </ZoruCardHeader>
-          <ZoruCardContent className="px-0">
+          </CardHeader>
+          <CardBody className="px-0">
             {broadcast.recipients.length === 0 ? (
               <div className="px-4 py-6 text-center text-sm text-[var(--st-text-secondary)]">
                 No recipients yet. Add at least one to enable sending.
               </div>
             ) : (
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow>
-                    <ZoruTableHead className="w-10">
+                <THead>
+                  <Tr>
+                    <Th className="w-10">
                       <Checkbox
                         aria-label="Select all"
                         checked={allSelected}
                         onCheckedChange={toggleAll}
                       />
-                    </ZoruTableHead>
-                    <ZoruTableHead>Name</ZoruTableHead>
-                    <ZoruTableHead>JID</ZoruTableHead>
-                    <ZoruTableHead className="w-10" />
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th>Name</Th>
+                    <Th>JID</Th>
+                    <Th className="w-10" />
+                  </Tr>
+                </THead>
+                <TBody>
                   {broadcast.recipients.map((r) => {
                     const resolvedName = r.displayName ?? resolve(r.jid);
                     return (
-                      <ZoruTableRow key={r.jid}>
-                        <ZoruTableCell>
+                      <Tr key={r.jid}>
+                        <Td>
                           <Checkbox
                             aria-label={`Select ${resolvedName}`}
                             checked={selected.has(r.jid)}
                             onCheckedChange={() => toggleOne(r.jid)}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                        </Td>
+                        <Td className="font-medium text-[var(--st-text)]">
                           {resolvedName}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-mono text-xs text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="font-mono text-xs text-[var(--st-text-secondary)]">
                           {formatJid(r.jid)}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <button
                             type="button"
                             aria-label={`Remove ${resolvedName}`}
@@ -493,26 +458,26 @@ function BroadcastDetailPane({
                           >
                             <X className="h-3.5 w-3.5" />
                           </button>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* Composer */}
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-sm">Compose &amp; send</ZoruCardTitle>
-            <ZoruCardDescription className="text-xs">
+          <CardHeader>
+            <CardTitle className="text-sm">Compose &amp; send</CardTitle>
+            <CardDescription className="text-xs">
               Sent to all {broadcast.recipients.length} recipient
               {broadcast.recipients.length === 1 ? '' : 's'} as 1:1.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-3">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-3">
             <Textarea
               placeholder="Type your message…"
               value={body}
@@ -562,68 +527,68 @@ function BroadcastDetailPane({
                 Send
               </Button>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* History */}
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-sm">History</ZoruCardTitle>
-            <ZoruCardDescription className="text-xs">
+          <CardHeader>
+            <CardTitle className="text-sm">History</CardTitle>
+            <CardDescription className="text-xs">
               Past sends from this list with delivery counts.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="px-0">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="px-0">
             {broadcast.history.length === 0 ? (
               <div className="px-4 py-6 text-center text-sm text-[var(--st-text-secondary)]">
                 No sends yet.
               </div>
             ) : (
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow>
-                    <ZoruTableHead>Sent</ZoruTableHead>
-                    <ZoruTableHead>Body</ZoruTableHead>
-                    <ZoruTableHead className="w-24 text-right">
+                <THead>
+                  <Tr>
+                    <Th>Sent</Th>
+                    <Th>Body</Th>
+                    <Th className="w-24 text-right">
                       Delivered
-                    </ZoruTableHead>
-                    <ZoruTableHead className="w-20 text-right">
+                    </Th>
+                    <Th className="w-20 text-right">
                       Failed
-                    </ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {broadcast.history.map((h) => (
-                    <ZoruTableRow key={h.id}>
-                      <ZoruTableCell className="whitespace-nowrap text-xs text-[var(--st-text-secondary)]">
+                    <Tr key={h.id}>
+                      <Td className="whitespace-nowrap text-xs text-[var(--st-text-secondary)]">
                         {h.sentAt.toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="max-w-[280px] truncate text-xs">
+                      </Td>
+                      <Td className="max-w-[280px] truncate text-xs">
                         {h.body || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-xs">
+                      </Td>
+                      <Td className="text-right text-xs">
                         {h.sentCount}/{h.totalCount}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-xs text-[var(--st-danger)]">
+                      </Td>
+                      <Td className="text-right text-xs text-[var(--st-danger)]">
                         {h.failedCount}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add recipient</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add recipient</DialogTitle>
+            <DialogDescription>
               Enter a phone number with country code, or a full JID.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1">
               <Label htmlFor="add-jid">Phone or JID</Label>
@@ -644,7 +609,7 @@ function BroadcastDetailPane({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setAddOpen(false)}>
               Cancel
             </Button>
@@ -654,8 +619,8 @@ function BroadcastDetailPane({
             >
               Add
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );
@@ -664,7 +629,7 @@ function BroadcastDetailPane({
 // ─── Page ──────────────────────────────────────────────────────────────────
 
 export default function BroadcastsPage() {
-  const toaster = useZoruToast();
+  const toaster = useToast();
   const { current: currentSession } = useSabwaSession();
   const sessionId = currentSession?.id;
   const resolve = useResolveJid(sessionId ?? '');
@@ -891,19 +856,19 @@ export default function BroadcastsPage() {
       {/* Breadcrumb + heading */}
       <div className="border-b border-[var(--st-border)] p-3 md:p-4">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Broadcasts</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Broadcasts</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
 
         <div className="mt-3 flex items-start justify-between gap-3">
@@ -1016,14 +981,14 @@ export default function BroadcastsPage() {
       </div>
 
       <Dialog open={newOpen} onOpenChange={setNewOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New broadcast list</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New broadcast list</DialogTitle>
+            <DialogDescription>
               Give the list a recognisable name. You can add recipients after
               creating it.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-1">
             <Label htmlFor="new-broadcast-name">Name</Label>
             <Input
@@ -1038,7 +1003,7 @@ export default function BroadcastsPage() {
             />
           </div>
           <Separator />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setNewOpen(false)}>
               Cancel
             </Button>
@@ -1048,8 +1013,8 @@ export default function BroadcastsPage() {
             >
               Create
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

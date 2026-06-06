@@ -1,21 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, PageActions, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 import {
   CircleAlert } from "lucide-react";
 
@@ -40,31 +25,31 @@ interface FbBreadcrumbProps {
 export function FbBreadcrumb({ page, parent }: FbBreadcrumbProps) {
   return (
     <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard/facebook">
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard/facebook">
             Meta Suite
-          </ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
         {parent && (
           <>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href={parent.href}>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href={parent.href}>
                 {parent.label}
-              </ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
           </>
         )}
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbPage>{page}</ZoruBreadcrumbPage>
-        </ZoruBreadcrumbItem>
-      </ZoruBreadcrumbList>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>{page}</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
     </Breadcrumb>
   );
 }
@@ -84,13 +69,13 @@ export function FbHeader({
 }: FbHeaderProps) {
   return (
     <PageHeader className={className ?? "mt-5"}>
-      <ZoruPageHeading>
-        <ZoruPageTitle>{title}</ZoruPageTitle>
+      <PageHeading>
+        <PageTitle>{title}</PageTitle>
         {description && (
-          <ZoruPageDescription>{description}</ZoruPageDescription>
+          <PageDescription>{description}</PageDescription>
         )}
-      </ZoruPageHeading>
-      {actions ? <ZoruPageActions>{actions}</ZoruPageActions> : null}
+      </PageHeading>
+      {actions ? <PageActions>{actions}</PageActions> : null}
     </PageHeader>
   );
 }
@@ -99,10 +84,10 @@ export function FbNoProject() {
   return (
     <Alert variant="destructive" className="mt-6">
       <CircleAlert />
-      <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-      <ZoruAlertDescription>
+      <AlertTitle>No project selected</AlertTitle>
+      <AlertDescription>
         Please select a project from the main dashboard to manage this section.
-      </ZoruAlertDescription>
+      </AlertDescription>
     </Alert>
   );
 }
@@ -111,8 +96,8 @@ export function FbErrorAlert({ message }: { message: string }) {
   return (
     <Alert variant="destructive" className="mt-6">
       <CircleAlert />
-      <ZoruAlertTitle>Something went wrong</ZoruAlertTitle>
-      <ZoruAlertDescription>{message}</ZoruAlertDescription>
+      <AlertTitle>Something went wrong</AlertTitle>
+      <AlertDescription>{message}</AlertDescription>
     </Alert>
   );
 }

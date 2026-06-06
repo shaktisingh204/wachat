@@ -1,21 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  DataTable,
-  EmptyState,
-  Separator,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, DataTable, EmptyState, Separator, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -174,10 +159,10 @@ export default function OrdersPage() {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>Shop not found</ZoruAlertTitle>
-        <ZoruAlertDescription>
+        <AlertTitle>Shop not found</AlertTitle>
+        <AlertDescription>
           Please select a valid shop to manage its orders.
-        </ZoruAlertDescription>
+        </AlertDescription>
       </Alert>
     );
   }
@@ -225,13 +210,13 @@ export default function OrdersPage() {
         open={!!activeOrder}
         onOpenChange={(open) => !open && setActiveOrder(null)}
       >
-        <ZoruSheetContent className="w-full sm:max-w-md">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>Order details</ZoruSheetTitle>
-            <ZoruSheetDescription>
+        <SheetContent className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Order details</SheetTitle>
+            <SheetDescription>
               Full information for the selected order.
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </SheetDescription>
+          </SheetHeader>
           {activeOrder ? (
             <div className="mt-4 space-y-4 text-sm">
               <div>
@@ -354,7 +339,7 @@ export default function OrdersPage() {
               </div>
             </div>
           ) : null}
-        </ZoruSheetContent>
+        </SheetContent>
       </Sheet>
     </div>
   );

@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
@@ -49,12 +38,12 @@ export function ApiEditor({ node, onUpdate }: EditorProps) {
             <h3 className="font-semibold">Request</h3>
             <div className="space-y-4 pt-2 border-t">
                 <Select value={apiRequest.method || 'GET'} onValueChange={(val) => handleApiChange('method', val)}>
-                    <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="GET">GET</ZoruSelectItem>
-                        <ZoruSelectItem value="POST">POST</ZoruSelectItem>
-                        <ZoruSelectItem value="PUT">PUT</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger><SelectValue/></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="GET">GET</SelectItem>
+                        <SelectItem value="POST">POST</SelectItem>
+                        <SelectItem value="PUT">PUT</SelectItem>
+                    </SelectContent>
                 </Select>
                 <Input placeholder="https://api.example.com" value={apiRequest.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} />
                 <Textarea placeholder='Headers (JSON format)\n{\n  "Authorization": "Bearer ..."\n}' className="font-mono text-xs h-24" value={apiRequest.headers || ''} onChange={(e) => handleApiChange('headers', e.target.value)} />

@@ -1,59 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Tooltip,
-  ZoruTooltipContent,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Table, TBody, Td, Th, THead, Tr, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   format,
   formatDistanceToNow } from 'date-fns';
@@ -130,7 +77,7 @@ function successRateTone(
 }
 
 export default function WebhooksPage() {
-  const toast = useZoruToast();
+  const toast = useToast();
   const { activeProjectId } = useProject();
   const [rows, setRows] = React.useState<SabwaWebhookRow[]>([]);
   const [loading, setLoading] = React.useState(false);
@@ -233,24 +180,24 @@ export default function WebhooksPage() {
   }, [rows, searchQuery, statusFilter, eventFilter]);
 
   return (
-    <ZoruTooltipProvider delayDuration={150}>
+    <TooltipProvider delayDuration={150}>
       <div className="mx-auto w-full max-w-[1180px] space-y-6 px-6 pt-6 pb-10">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">
                 SabNode
-              </ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Webhooks</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Webhooks</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
 
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -284,12 +231,12 @@ export default function WebhooksPage() {
               Refresh
             </Button>
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-              <ZoruDialogTrigger asChild>
+              <DialogTrigger asChild>
                 <Button size="sm" className="gap-1.5">
                   <Plus className="h-4 w-4" />
                   New webhook
                 </Button>
-              </ZoruDialogTrigger>
+              </DialogTrigger>
               <CreateWebhookDialogContent
                 projectId={activeProjectId}
                 onCreated={async (secret) => {
@@ -357,15 +304,15 @@ export default function WebhooksPage() {
         </div>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-base">
+          <CardHeader>
+            <CardTitle className="text-base">
               Registered endpoints
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Click a row to inspect recent deliveries.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {rows.length === 0 ? (
               <EmptyState
                 icon={WebhookIcon}
@@ -404,29 +351,29 @@ export default function WebhooksPage() {
             ) : (
               <div className="overflow-x-auto">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow>
-                      <ZoruTableHead>URL</ZoruTableHead>
-                      <ZoruTableHead>Events</ZoruTableHead>
-                      <ZoruTableHead>Status</ZoruTableHead>
-                      <ZoruTableHead>Last delivery</ZoruTableHead>
-                      <ZoruTableHead>Success rate</ZoruTableHead>
-                      <ZoruTableHead className="text-right">
+                  <THead>
+                    <Tr>
+                      <Th>URL</Th>
+                      <Th>Events</Th>
+                      <Th>Status</Th>
+                      <Th>Last delivery</Th>
+                      <Th>Success rate</Th>
+                      <Th className="text-right">
                         Actions
-                      </ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                      </Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {filteredRows.map((row) => (
-                      <ZoruTableRow
+                      <Tr
                         key={row.id}
                         className="cursor-pointer"
                         onClick={() => setSelected(row)}
                       >
-                        <ZoruTableCell className="max-w-[280px] truncate font-mono text-xs">
+                        <Td className="max-w-[280px] truncate font-mono text-xs">
                           {maskUrl(row.url)}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <div className="flex max-w-[260px] flex-wrap gap-1">
                             {row.events.slice(0, 3).map((ev) => (
                               <Badge
@@ -446,15 +393,15 @@ export default function WebhooksPage() {
                               </Badge>
                             ) : null}
                           </div>
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <Badge
                             variant={row.enabled ? 'success' : 'secondary'}
                           >
                             {row.enabled ? 'Enabled' : 'Disabled'}
                           </Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           {row.lastDeliveryAt ? (
                             <span
                               title={format(
@@ -473,21 +420,21 @@ export default function WebhooksPage() {
                           ) : (
                             <span className="text-[var(--st-text-secondary)]">—</span>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <Badge variant={successRateTone(row.successRate)}>
                             {row.successRate === undefined
                               ? '—'
                               : `${Math.round(row.successRate * 100)}%`}
                           </Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell
+                        </Td>
+                        <Td
                           className="text-right"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex items-center justify-end gap-1">
                             <Tooltip>
-                              <ZoruTooltipTrigger asChild>
+                              <TooltipTrigger asChild>
                                 <Button
                                   size="icon-sm"
                                   variant="ghost"
@@ -495,13 +442,13 @@ export default function WebhooksPage() {
                                 >
                                   <Send className="h-3.5 w-3.5" />
                                 </Button>
-                              </ZoruTooltipTrigger>
-                              <ZoruTooltipContent>
+                              </TooltipTrigger>
+                              <TooltipContent>
                                 Send test event
-                              </ZoruTooltipContent>
+                              </TooltipContent>
                             </Tooltip>
                             <Tooltip>
-                              <ZoruTooltipTrigger asChild>
+                              <TooltipTrigger asChild>
                                 <Button
                                   size="icon-sm"
                                   variant="ghost"
@@ -510,18 +457,18 @@ export default function WebhooksPage() {
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
-                              </ZoruTooltipTrigger>
-                              <ZoruTooltipContent>Delete</ZoruTooltipContent>
+                              </TooltipTrigger>
+                              <TooltipContent>Delete</TooltipContent>
                             </Tooltip>
                           </div>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <DeliveriesSheet
@@ -529,33 +476,33 @@ export default function WebhooksPage() {
           onClose={() => setSelected(null)}
         />
 
-        <ZoruAlertDialog
+        <AlertDialog
           open={pendingDelete !== null}
           onOpenChange={(o) => !o && setPendingDelete(null)}
         >
-          <ZoruAlertDialogContent>
-            <ZoruAlertDialogHeader>
-              <ZoruAlertDialogTitle>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
                 Delete this webhook?
-              </ZoruAlertDialogTitle>
-              <ZoruAlertDialogDescription>
+              </AlertDialogTitle>
+              <AlertDialogDescription>
                 Pending deliveries will be dropped. This action cannot be
                 undone.
-              </ZoruAlertDialogDescription>
-            </ZoruAlertDialogHeader>
-            <ZoruAlertDialogFooter>
-              <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-              <ZoruAlertDialogAction
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
                 onClick={() => void handleDelete()}
                 className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90"
               >
                 Delete
-              </ZoruAlertDialogAction>
-            </ZoruAlertDialogFooter>
-          </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
-    </ZoruTooltipProvider>
+    </TooltipProvider>
   );
 }
 
@@ -568,7 +515,7 @@ function CreateWebhookDialogContent({
   projectId: string | null;
   onCreated: (signingSecret: string) => void | Promise<void>;
 }) {
-  const toast = useZoruToast();
+  const toast = useToast();
   const [url, setUrl] = React.useState('');
   const [sessionScope, setSessionScope] = React.useState('');
   const [events, setEvents] = React.useState<SabwaWebhookEvent[]>([
@@ -629,13 +576,13 @@ function CreateWebhookDialogContent({
   };
 
   return (
-    <ZoruDialogContent className="sm:max-w-[520px]">
-      <ZoruDialogHeader>
-        <ZoruDialogTitle>New webhook</ZoruDialogTitle>
-        <ZoruDialogDescription>
+    <DialogContent className="sm:max-w-[520px]">
+      <DialogHeader>
+        <DialogTitle>New webhook</DialogTitle>
+        <DialogDescription>
           Register an HTTPS endpoint and choose which events to fan out.
-        </ZoruDialogDescription>
-      </ZoruDialogHeader>
+        </DialogDescription>
+      </DialogHeader>
       <div className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="wh-url">Endpoint URL</Label>
@@ -675,15 +622,15 @@ function CreateWebhookDialogContent({
           </div>
         </div>
       </div>
-      <ZoruDialogFooter>
+      <DialogFooter>
         <Button onClick={() => void submit()} disabled={submitting}>
           {submitting ? (
             <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
           ) : null}
           Create webhook
         </Button>
-      </ZoruDialogFooter>
-    </ZoruDialogContent>
+      </DialogFooter>
+    </DialogContent>
   );
 }
 
@@ -696,21 +643,21 @@ function SecretRevealCard({
   secret: string;
   onDismiss: () => void;
 }) {
-  const toast = useZoruToast();
+  const toast = useToast();
   return (
     <Card className="border-[var(--st-warn)]/40 bg-[var(--st-warn)]/5">
-      <ZoruCardHeader>
-        <ZoruCardTitle className="flex items-center gap-2 text-base text-[var(--st-text)]">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base text-[var(--st-text)]">
           <AlertTriangle className="h-4 w-4 text-[var(--st-warn)]" />
           Signing secret — copy now
-        </ZoruCardTitle>
-        <ZoruCardDescription>
+        </CardTitle>
+        <CardDescription>
           This secret is shown <strong>once</strong>. Use it to verify the HMAC
           signature on incoming requests. You won&apos;t be able to see it
           again.
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="flex items-center gap-2">
+        </CardDescription>
+      </CardHeader>
+      <CardBody className="flex items-center gap-2">
         <code className="flex-1 truncate rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs text-[var(--st-text)]">
           {secret}
         </code>
@@ -729,7 +676,7 @@ function SecretRevealCard({
         <Button size="sm" variant="ghost" onClick={onDismiss}>
           Dismiss
         </Button>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -743,7 +690,7 @@ function DeliveriesSheet({
   webhook: SabwaWebhookRow | null;
   onClose: () => void;
 }) {
-  const toast = useZoruToast();
+  const toast = useToast();
   const [deliveries, setDeliveries] = React.useState<SabwaWebhookDelivery[]>(
     [],
   );
@@ -783,13 +730,13 @@ function DeliveriesSheet({
 
   return (
     <Sheet open={webhook !== null} onOpenChange={(o) => !o && onClose()}>
-      <ZoruSheetContent className="w-full sm:max-w-xl">
-        <ZoruSheetHeader>
-          <ZoruSheetTitle>Recent deliveries</ZoruSheetTitle>
-          <ZoruSheetDescription className="truncate font-mono text-xs">
+      <SheetContent className="w-full sm:max-w-xl">
+        <SheetHeader>
+          <SheetTitle>Recent deliveries</SheetTitle>
+          <SheetDescription className="truncate font-mono text-xs">
             {webhook ? maskUrl(webhook.url) : ''}
-          </ZoruSheetDescription>
-        </ZoruSheetHeader>
+          </SheetDescription>
+        </SheetHeader>
         <div className="mt-4">
           {loading ? (
             <div className="flex items-center justify-center py-8">
@@ -849,7 +796,7 @@ function DeliveriesSheet({
             </ul>
           )}
         </div>
-      </ZoruSheetContent>
+      </SheetContent>
     </Sheet>
   );
 }

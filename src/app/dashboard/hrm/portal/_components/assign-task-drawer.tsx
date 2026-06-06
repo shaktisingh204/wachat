@@ -1,13 +1,7 @@
 'use client';
 
 
-import {
-    Sheet,
-    ZoruSheetContent,
-    ZoruSheetHeader,
-    ZoruSheetTitle,
-    ZoruSheetDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/sabcrm/20ui/compat';
 import { AssignTaskForm } from './assign-task-form';
 import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions.types';
 
@@ -30,15 +24,15 @@ export function AssignTaskDrawer({
 
     return (
         <Sheet open={open} onOpenChange={handleOpenChange}>
-            <ZoruSheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-                <ZoruSheetHeader>
-                    <ZoruSheetTitle>Assign Task</ZoruSheetTitle>
-                    <ZoruSheetDescription>
+            <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+                <SheetHeader>
+                    <SheetTitle>Assign Task</SheetTitle>
+                    <SheetDescription>
                         {employee
                             ? `Assigning task to ${employee.firstName} ${employee.lastName}`
                             : 'Select a team member to assign a task.'}
-                    </ZoruSheetDescription>
-                </ZoruSheetHeader>
+                    </SheetDescription>
+                </SheetHeader>
 
                 {employee && (
                     <AssignTaskForm 
@@ -50,7 +44,7 @@ export function AssignTaskDrawer({
                         }}
                     />
                 )}
-            </ZoruSheetContent>
+            </SheetContent>
         </Sheet>
     );
 }

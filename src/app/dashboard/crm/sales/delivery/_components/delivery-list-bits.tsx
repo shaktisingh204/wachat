@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowRightCircle,
   CalendarRange,
@@ -169,16 +169,16 @@ export function DcFiltersBar({
           onUpdate({ status: v === '__all' ? undefined : v, page: '1' })
         }
       >
-        <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-          <ZoruSelectValue placeholder="Status" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="h-9 w-[140px] text-[13px]">
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
           {STATUS_OPTIONS.map((o) => (
-            <ZoruSelectItem key={o.value || '__all'} value={o.value || '__all'}>
+            <SelectItem key={o.value || '__all'} value={o.value || '__all'}>
               {o.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
       <div className="w-[200px]">
         <EntityPicker
@@ -312,15 +312,15 @@ export function DcBulkBar({
       <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
       {onStatus ? (
         <Select onValueChange={(v) => onStatus(v as DcStatus)}>
-          <ZoruSelectTrigger className="h-8 w-[160px] text-[12px]">
-            <ZoruSelectValue placeholder="Change status…" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="Draft">Draft</ZoruSelectItem>
-            <ZoruSelectItem value="In Transit">In Transit</ZoruSelectItem>
-            <ZoruSelectItem value="Delivered">Delivered</ZoruSelectItem>
-            <ZoruSelectItem value="Returned">Returned</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="h-8 w-[160px] text-[12px]">
+            <SelectValue placeholder="Change status…" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Draft">Draft</SelectItem>
+            <SelectItem value="In Transit">In Transit</SelectItem>
+            <SelectItem value="Delivered">Delivered</SelectItem>
+            <SelectItem value="Returned">Returned</SelectItem>
+          </SelectContent>
         </Select>
       ) : null}
       <Button variant="outline" size="sm" onClick={onExport}>

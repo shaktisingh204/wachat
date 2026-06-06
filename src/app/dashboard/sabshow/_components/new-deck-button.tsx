@@ -10,17 +10,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
-import {
-    Button,
-    Dialog,
-    ZoruDialogTrigger,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogFooter,
-    Input,
-    Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { createSabshowDeck } from '@/app/actions/sabshow.actions';
 
 export function NewDeckButton() {
@@ -47,13 +37,13 @@ export function NewDeckButton() {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button>+ New deck</Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>New SabShow deck</ZoruDialogTitle>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>New SabShow deck</DialogTitle>
+                </DialogHeader>
                 <div className="space-y-3">
                     <Label htmlFor="sabshow-title">Deck title</Label>
                     <Input
@@ -70,7 +60,7 @@ export function NewDeckButton() {
                         <p className="text-sm text-[var(--st-text)]">{error}</p>
                     ) : null}
                 </div>
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button
                         variant="ghost"
                         onClick={() => setOpen(false)}
@@ -88,8 +78,8 @@ export function NewDeckButton() {
                     <Button onClick={() => submit(false)} disabled={pending}>
                         {pending ? 'Creating…' : 'Create blank'}
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

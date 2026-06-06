@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Label,
-  Switch,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Label, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -57,16 +46,16 @@ export function FacebookCommentAutoReplyForm({ project }: FacebookCommentAutoRep
         <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
             <Card className="card-gradient card-gradient-purple">
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
                         <MessageSquareReply className="h-5 w-5" />
                         Comment Auto-Reply
-                    </ZoruCardTitle>
-                    <ZoruCardDescription>
+                    </CardTitle>
+                    <CardDescription>
                         Automatically reply to new comments on your Facebook posts.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                     <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
                         <div className="space-y-0.5">
                             <Label htmlFor="enabled" className="text-base">Enable Auto-Reply</Label>
@@ -85,10 +74,10 @@ export function FacebookCommentAutoReplyForm({ project }: FacebookCommentAutoRep
                         />
                         <p className="text-xs text-[var(--st-text-secondary)]">This message will be posted as a reply to the comment.</p>
                     </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <SubmitButton />
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </form>
     );

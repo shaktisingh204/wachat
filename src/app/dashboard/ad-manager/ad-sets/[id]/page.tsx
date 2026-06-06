@@ -1,37 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Skeleton,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Switch,
-  Badge,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  Input,
-  Textarea,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton, Alert, AlertDescription, AlertTitle, Switch, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -255,8 +224,8 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
             {error && (
                 <Alert variant="destructive">
                     <CircleAlert className="h-4 w-4" />
-                    <ZoruAlertTitle>Error fetching Ads</ZoruAlertTitle>
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    <AlertTitle>Error fetching Ads</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 
@@ -286,7 +255,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                     <Badge variant={ad.status === 'ACTIVE' ? 'default' : 'secondary'}>{ad.status}</Badge>
                                 </div>
                             </div>
-                            <ZoruCardHeader className="p-4">
+                            <CardHeader className="p-4">
                                 <div className="flex justify-between items-start gap-2">
                                     {editingAdId === ad.id ? (
                                         <div className="flex-1 flex items-center gap-2">
@@ -303,7 +272,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                             <Button size="sm" className="h-7" onClick={() => handleSaveName(ad.id)}>Save</Button>
                                         </div>
                                     ) : (
-                                        <ZoruCardTitle 
+                                        <CardTitle 
                                             className="text-base truncate cursor-pointer hover:underline" 
                                             title={ad.name}
                                             onClick={() => {
@@ -312,7 +281,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                             }}
                                         >
                                             {ad.name}
-                                        </ZoruCardTitle>
+                                        </CardTitle>
                                     )}
                                     <div className="flex items-center gap-1 shrink-0">
                                         <Switch
@@ -321,35 +290,35 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                             onCheckedChange={() => handleStatusToggle(ad.id, ad.status)}
                                         />
                                         <DropdownMenu>
-                                            <ZoruDropdownMenuTrigger asChild>
+                                            <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8">
                                                     <EllipsisVertical className="h-4 w-4" />
                                                 </Button>
-                                            </ZoruDropdownMenuTrigger>
-                                            <ZoruDropdownMenuContent align="end">
-                                                <ZoruDropdownMenuItem onClick={() => handleStatusToggle(ad.id, ad.status)}>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onClick={() => handleStatusToggle(ad.id, ad.status)}>
                                                     {ad.status === 'ACTIVE' ? (
                                                         <><Pause className="h-4 w-4 mr-2" /> Pause</>
                                                     ) : (
                                                         <><Play className="h-4 w-4 mr-2" /> Resume</>
                                                     )}
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem onClick={() => handleDuplicate(ad.id)}>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleDuplicate(ad.id)}>
                                                     <Copy className="h-4 w-4 mr-2" /> Duplicate
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     className="text-[var(--st-text)] focus:text-[var(--st-text)]"
                                                     onClick={() => setDeleteId(ad.id)}
                                                 >
                                                     <Trash2 className="h-4 w-4 mr-2" /> Delete
-                                                </ZoruDropdownMenuItem>
-                                            </ZoruDropdownMenuContent>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
                                 </div>
-                                <ZoruCardDescription className="text-xs">ID: {ad.id}</ZoruCardDescription>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="p-4 pt-0 text-sm grid grid-cols-2 gap-2">
+                                <CardDescription className="text-xs">ID: {ad.id}</CardDescription>
+                            </CardHeader>
+                            <CardBody className="p-4 pt-0 text-sm grid grid-cols-2 gap-2">
                                 <div>
                                     <span className="text-[var(--st-text-secondary)] block text-xs">Impressions</span>
                                     <span className="font-medium">{ad.insights?.impressions || 0}</span>
@@ -366,7 +335,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                     <span className="text-[var(--st-text-secondary)] block text-xs">CTR</span>
                                     <span className="font-medium">{ad.insights?.ctr ? Number(ad.insights.ctr).toFixed(2) : 0}%</span>
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     ))}
                 </div>
@@ -374,11 +343,11 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
 
             {/* Create Ad Dialog */}
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                <ZoruDialogContent className="max-w-md">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Create New Ad</ZoruDialogTitle>
-                        <ZoruDialogDescription>Build a new ad creative directly into this Ad Set.</ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Create New Ad</DialogTitle>
+                        <DialogDescription>Build a new ad creative directly into this Ad Set.</DialogDescription>
+                    </DialogHeader>
                     
                     <div className="flex flex-col gap-4 py-4">
                         <div className="space-y-2">
@@ -439,7 +408,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                         </div>
                     </div>
 
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
                         <Button 
                             onClick={handleCreateAd} 
@@ -447,22 +416,22 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                         >
                             {isCreating ? 'Creating...' : 'Create Ad'}
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Delete confirmation */}
             <Dialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
-                <ZoruDialogContent className="max-w-sm">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Delete ad?</ZoruDialogTitle>
-                        <ZoruDialogDescription>This action cannot be undone. The ad will be permanently deleted.</ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Delete ad?</DialogTitle>
+                        <DialogDescription>This action cannot be undone. The ad will be permanently deleted.</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
                         <Button variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

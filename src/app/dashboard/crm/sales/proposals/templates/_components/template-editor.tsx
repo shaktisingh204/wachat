@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Switch, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Switch, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -33,7 +33,7 @@ export interface TemplateEditorInitial {
 
 export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [name, setName] = useState(initial?.name || '');
   const [title, setTitle] = useState(initial?.title || '');

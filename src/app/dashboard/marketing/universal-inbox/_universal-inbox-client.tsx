@@ -2,7 +2,7 @@
 import { fmtDate } from "@/lib/utils";
 
 import React, { useState } from 'react';
-import { Button, Input, Card, ZoruAvatar, Badge } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, Avatar, Badge } from '@/components/sabcrm/20ui/compat';
 import { Send, CheckCircle2, MessageCircle, MoreVertical, BarChart, Activity, Users, Megaphone, Target, Link as LinkIcon, Share2, TrendingUp, Mail } from 'lucide-react';
 import { createInboxMessage, updateInboxMessage } from '@/app/actions/marketing/universal-inbox.actions';
 import Link from 'next/link';
@@ -67,11 +67,11 @@ export function UniversalInboxClient({
                 className={`p-4 border-b border-[var(--st-border)] cursor-pointer transition-colors hover:bg-[var(--st-bg-secondary)] ${selectedMessage?._id === msg._id ? 'bg-[var(--st-bg-secondary)]' : ''} ${!msg.isRead ? 'font-medium' : ''}`}
               >
                 <div className="flex items-center gap-3">
-                  <ZoruAvatar>
+                  <Avatar>
                     <div className="bg-[var(--st-bg-muted)] text-[var(--st-text)] w-full h-full flex items-center justify-center font-bold">
                       {msg.senderId.charAt(0).toUpperCase()}
                     </div>
-                  </ZoruAvatar>
+                  </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center mb-1">
                       <span className="truncate text-sm text-[var(--st-text)]">{msg.senderId}</span>
@@ -93,11 +93,11 @@ export function UniversalInboxClient({
           <>
             <div className="p-4 border-b border-[var(--st-border)] flex items-center justify-between bg-[var(--st-bg)]">
               <div className="flex items-center gap-3">
-                <ZoruAvatar>
+                <Avatar>
                   <div className="bg-[var(--st-bg-muted)] text-[var(--st-text)] w-full h-full flex items-center justify-center font-bold">
                     {selectedMessage.senderId.charAt(0).toUpperCase()}
                   </div>
-                </ZoruAvatar>
+                </Avatar>
                 <div>
                   <h3 className="text-sm font-semibold text-[var(--st-text)]">{selectedMessage.senderId}</h3>
                   <p className="text-xs text-[var(--st-text-secondary)] capitalize">{selectedMessage.channel}</p>

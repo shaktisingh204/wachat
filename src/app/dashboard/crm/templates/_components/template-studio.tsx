@@ -30,25 +30,7 @@ import {
     RefreshCw
 } from 'lucide-react';
 
-import {
-    Button,
-    Input,
-    Label,
-    Textarea,
-    Select,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    Badge,
-    Switch,
-    useZoruToast,
-    ZoruColorPicker,
-    Tooltip,
-    ZoruTooltipTrigger,
-    ZoruTooltipContent,
-    ZoruTooltipProvider
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge, Switch, useToast, ColorPicker, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/sabcrm/20ui/compat';
 
 import { cn } from '@/components/sabcrm/20ui/compat';
 import { AiCopilotPanel } from './ai-copilot-panel';
@@ -175,7 +157,7 @@ type ViewportMode = 'desktop' | 'tablet' | 'mobile';
 type CreatorTab = 'blocks' | 'placeholders' | 'starters';
 
 export function TemplateStudio({ initialTemplate }: TemplateStudioProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
     const [saving, setSaving] = React.useState(false);
     
@@ -1164,7 +1146,7 @@ export function TemplateStudio({ initialTemplate }: TemplateStudioProps): React.
                         
                         <div className="flex flex-col gap-1.5">
                             <span className="text-xs font-medium text-[var(--st-text-secondary)]">Accent Brand Color</span>
-                            <ZoruColorPicker
+                            <ColorPicker
                                 value={themeColor}
                                 onChange={setThemeColor}
                                 align="end"
@@ -1175,15 +1157,15 @@ export function TemplateStudio({ initialTemplate }: TemplateStudioProps): React.
                         <div className="flex flex-col gap-1.5">
                             <Label htmlFor="global-font" className="text-xs font-medium">Typography Font</Label>
                             <Select value={fontFamily} onValueChange={setFontFamily}>
-                                <ZoruSelectTrigger id="global-font" className="h-8.5 text-xs bg-[var(--st-text)]/40 border-[var(--st-border)]">
-                                    <ZoruSelectValue placeholder="Font family" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent className="bg-[var(--st-text)] border-[var(--st-border)]">
-                                    <ZoruSelectItem value="Inter">🖥️ Inter (System Modern)</ZoruSelectItem>
-                                    <ZoruSelectItem value="Outfit">✨ Outfit (Vibrant Premium)</ZoruSelectItem>
-                                    <ZoruSelectItem value="Roboto">📊 Roboto (Clean Data)</ZoruSelectItem>
-                                    <ZoruSelectItem value="serif">📚 Classic Serif</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger id="global-font" className="h-8.5 text-xs bg-[var(--st-text)]/40 border-[var(--st-border)]">
+                                    <SelectValue placeholder="Font family" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-[var(--st-text)] border-[var(--st-border)]">
+                                    <SelectItem value="Inter">🖥️ Inter (System Modern)</SelectItem>
+                                    <SelectItem value="Outfit">✨ Outfit (Vibrant Premium)</SelectItem>
+                                    <SelectItem value="Roboto">📊 Roboto (Clean Data)</SelectItem>
+                                    <SelectItem value="serif">📚 Classic Serif</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>
@@ -1297,15 +1279,15 @@ export function TemplateStudio({ initialTemplate }: TemplateStudioProps): React.
                                         return { blocks: next };
                                     })}
                                 >
-                                    <ZoruSelectTrigger id="block-padding" className="h-8 text-xs bg-[var(--st-text)]/40 border-[var(--st-border)]">
-                                        <ZoruSelectValue placeholder="Padding" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent className="bg-[var(--st-text)] border-[var(--st-border)]">
-                                        <ZoruSelectItem value="8px">Compact (8px)</ZoruSelectItem>
-                                        <ZoruSelectItem value="16px">Normal (16px)</ZoruSelectItem>
-                                        <ZoruSelectItem value="24px">Comfortable (24px)</ZoruSelectItem>
-                                        <ZoruSelectItem value="36px">Wide (36px)</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger id="block-padding" className="h-8 text-xs bg-[var(--st-text)]/40 border-[var(--st-border)]">
+                                        <SelectValue placeholder="Padding" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-[var(--st-text)] border-[var(--st-border)]">
+                                        <SelectItem value="8px">Compact (8px)</SelectItem>
+                                        <SelectItem value="16px">Normal (16px)</SelectItem>
+                                        <SelectItem value="24px">Comfortable (24px)</SelectItem>
+                                        <SelectItem value="36px">Wide (36px)</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         </div>

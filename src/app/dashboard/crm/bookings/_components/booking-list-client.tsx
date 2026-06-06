@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useRouter,
@@ -149,7 +137,7 @@ export function BookingListClient({
   error,
   kpis,
 }: BookingListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -460,74 +448,74 @@ export function BookingListClient({
           </div>
         ) : (
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-8">
+            <THead>
+              <Tr>
+                <Th className="w-8">
                   <Checkbox
                     checked={headChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Customer</ZoruTableHead>
-                <ZoruTableHead>Service</ZoruTableHead>
-                <ZoruTableHead>Slot start</ZoruTableHead>
-                <ZoruTableHead>Slot end</ZoruTableHead>
-                <ZoruTableHead>Payment</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Customer</Th>
+                <Th>Service</Th>
+                <Th>Slot start</Th>
+                <Th>Slot end</Th>
+                <Th>Payment</Th>
+                <Th>Status</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <Tr>
+                  <Td
                     colSpan={8}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {hasActiveFilters
                       ? 'No bookings match these filters.'
                       : 'No bookings yet — click "New booking" to add one.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((b) => {
                   const id = String(b._id);
                   const checked = selected.has(id);
                   return (
-                    <ZoruTableRow key={id}>
-                      <ZoruTableCell>
+                    <Tr key={id}>
+                      <Td>
                         <Checkbox
                           checked={checked}
                           onCheckedChange={() => toggleOne(id)}
                           aria-label={`Select booking ${bookingLabel(b)}`}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <EntityPickerChip entity="client" id={b.customerId} />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <EntityRowLink
                           href={`/dashboard/crm/bookings/${id}`}
                           label={bookingLabel(b)}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                         {fmtDateTime(b.slotStart)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                         {fmtDateTime(b.slotEnd)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                         {b.paymentStatus ?? 'unpaid'}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <StatusPill
                           label={b.status ?? 'pending'}
                           tone={statusToTone(b.status)}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button size="sm" variant="ghost" asChild>
                             <Link href={`/dashboard/crm/bookings/${id}/edit`}>
@@ -543,12 +531,12 @@ export function BookingListClient({
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         )}
 

@@ -10,14 +10,7 @@ import {
   XCircle,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Skeleton,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Skeleton, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { dateStamp, downloadCsv, downloadXlsx } from '@/lib/crm-list-export';
@@ -58,7 +51,7 @@ const GATEWAY_LABELS: Record<string, string> = {
 };
 
 export function PublicPaymentClient(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<Row[]>([]);
   const [kpis, setKpis] = React.useState({ configured: 0, active: 0, testMode: 0 });

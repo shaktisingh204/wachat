@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 /**
  * Internal helpers for <SettingsEntityShell>:
  *  - FieldRenderer: renders one form field by `SettingsField` shape
@@ -158,16 +158,16 @@ export function FieldRenderer({
                 name={field.name}
                 defaultValue={String(common.defaultValue || '')}
             >
-                <ZoruSelectTrigger id={field.name}>
-                    <ZoruSelectValue placeholder={field.placeholder || 'Select'} />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger id={field.name}>
+                    <SelectValue placeholder={field.placeholder || 'Select'} />
+                </SelectTrigger>
+                <SelectContent>
                     {(field.options || []).map((opt) => (
-                        <ZoruSelectItem key={opt.value} value={opt.value}>
+                        <SelectItem key={opt.value} value={opt.value}>
                             {opt.label}
-                        </ZoruSelectItem>
+                        </SelectItem>
                     ))}
-                </ZoruSelectContent>
+                </SelectContent>
             </Select>
         );
     }

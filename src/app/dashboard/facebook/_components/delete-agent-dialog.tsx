@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useTransition } from "react";
 import { Loader2,
@@ -43,7 +33,7 @@ export function DeleteAgentDialog({
   onDeleted,
 }: DeleteAgentDialogProps) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleConfirm = () => {
     if (!agentId) return;
@@ -68,23 +58,23 @@ export function DeleteAgentDialog({
   };
 
   return (
-    <ZoruAlertDialog open={open} onOpenChange={onOpenChange}>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
             Delete agent {agentName ? `“${agentName}”` : ""}?
-          </ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+          </AlertDialogTitle>
+          <AlertDialogDescription>
             This permanently removes the agent and its training data from this
             project. Conversations already routed to it will fall back to the
             default response.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel disabled={isPending}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>
             Cancel
-          </ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
+          </AlertDialogCancel>
+          <AlertDialogAction
             disabled={isPending}
             onClick={(e) => {
               e.preventDefault();
@@ -97,9 +87,9 @@ export function DeleteAgentDialog({
               <Trash2 className="mr-2 h-3.5 w-3.5" />
             )}
             {isPending ? "Deleting…" : "Delete agent"}
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

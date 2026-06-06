@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarDays,
   CalendarRange,
@@ -68,16 +68,16 @@ export function AttendanceToolbar({
           value={preset ?? 'today'}
           onValueChange={(v) => onPresetChange(v as AttendancePresetKey)}
         >
-          <ZoruSelectTrigger className="h-9 w-[180px]">
-            <ZoruSelectValue placeholder="Saved view" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[180px]">
+            <SelectValue placeholder="Saved view" />
+          </SelectTrigger>
+          <SelectContent>
             {ATTENDANCE_PRESETS.map((p) => (
-              <ZoruSelectItem key={p.key} value={p.key}>
+              <SelectItem key={p.key} value={p.key}>
                 {p.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         <div className="flex items-center rounded border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">

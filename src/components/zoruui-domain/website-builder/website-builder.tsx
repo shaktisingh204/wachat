@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Separator,
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Separator, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -285,15 +277,15 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
 
                     {/* B. FAB (Floating Action ZoruButton) - Absolute Overlay */}
                     <DropdownMenu open={isBlockPaletteOpen} onOpenChange={setIsBlockPaletteOpen}>
-                        <ZoruDropdownMenuTrigger asChild>
+                        <DropdownMenuTrigger asChild>
                             <Button
                                 size="icon"
                                 className="absolute bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl z-50 bg-gradient-to-br from-primary to-primary/80 text-white hover:shadow-primary/25 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/10"
                             >
                                 <Plus className="h-7 w-7" />
                             </Button>
-                        </ZoruDropdownMenuTrigger>
-                        <ZoruDropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-xl shadow-2xl border bg-[var(--st-bg-secondary)]/80 backdrop-blur-xl supports-[backdrop-filter]:bg-[var(--st-bg-secondary)]/60">
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-xl shadow-2xl border bg-[var(--st-bg-secondary)]/80 backdrop-blur-xl supports-[backdrop-filter]:bg-[var(--st-bg-secondary)]/60">
                             <div className="p-4 border-b sticky top-0 bg-[var(--st-bg-secondary)]/80 backdrop-blur-md z-10">
                                 <h3 className="font-semibold text-sm">Add Elements</h3>
                             </div>
@@ -303,7 +295,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                                 <div className="text-xs font-semibold text-[var(--st-text-secondary)] mb-2">PAGES & LAYOUT</div>
                                 <PageManagerPanel pages={pages} activePageId={activePage?._id.toString() || ''} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
                             </div>
-                        </ZoruDropdownMenuContent>
+                        </DropdownMenuContent>
                     </DropdownMenu>
 
                     {/* C. Properties Panel (Overlay Sidebar) */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Progress, Button, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Progress, Button, cn } from '@/components/sabcrm/20ui/compat';
 import { useState, useRef } from 'react';
 import { Upload, FileText, Loader2 } from 'lucide-react';
 
@@ -101,7 +101,7 @@ export default function LogAnalyzerPage() {
   return (
     <ToolShell title="Server Log Analyzer" description="Parse massive NCSA/Combined access logs locally and find top IPs, paths, and bots.">
       <Card className="mb-6 border-dashed">
-        <ZoruCardContent className="flex flex-col items-center justify-center p-8 text-center">
+        <CardBody className="flex flex-col items-center justify-center p-8 text-center">
           <div className="rounded-full bg-[var(--st-bg-muted)] p-3 mb-4">
             <Upload className="h-6 w-6 text-[var(--st-text-secondary)]" />
           </div>
@@ -139,7 +139,7 @@ export default function LogAnalyzerPage() {
               <span>{fileName}</span>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {loading && (
@@ -155,13 +155,13 @@ export default function LogAnalyzerPage() {
       {results && (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.total.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Lines parsed</div></ZoruCardContent></Card>
-            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.bots.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Bot hits</div></ZoruCardContent></Card>
-            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.topIps.length.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Unique IPs (top)</div></ZoruCardContent></Card>
+            <Card><CardBody className="p-4"><div className="text-2xl font-bold">{results.total.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Lines parsed</div></CardBody></Card>
+            <Card><CardBody className="p-4"><div className="text-2xl font-bold">{results.bots.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Bot hits</div></CardBody></Card>
+            <Card><CardBody className="p-4"><div className="text-2xl font-bold">{results.topIps.length.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Unique IPs (top)</div></CardBody></Card>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[['Top IPs', results.topIps], ['Top paths', results.topPaths], ['Top user agents', results.topUAs]].map(([title, list]) => (
-              <Card key={title as string}><ZoruCardContent className="p-4">
+              <Card key={title as string}><CardBody className="p-4">
                 <div className="font-semibold text-sm mb-2">{title as string}</div>
                 {(list as any[]).map(([k, v]) => (
                   <div key={k} className="flex justify-between text-xs border-t py-1.5 gap-2">
@@ -169,7 +169,7 @@ export default function LogAnalyzerPage() {
                     <span className="font-medium shrink-0">{v.toLocaleString()}</span>
                   </div>
                 ))}
-              </ZoruCardContent></Card>
+              </CardBody></Card>
             ))}
           </div>
         </>

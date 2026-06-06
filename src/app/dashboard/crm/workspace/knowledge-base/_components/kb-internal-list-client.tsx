@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useDebouncedCallback } from 'use-debounce';
@@ -75,7 +62,7 @@ type KbInternalViewMode = 'table' | 'tree';
 type ArticleRow = WsKnowledgeBase & { _id: string };
 
 export function KbInternalListClient(): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [articles, setArticles] = React.useState<ArticleRow[]>([]);
     const [categories, setCategories] = React.useState<
@@ -339,16 +326,16 @@ export function KbInternalListClient(): React.JSX.Element {
                             value={filters.kpiKey}
                             onValueChange={(v) => updateFilter('kpiKey', v as KbInternalKpiKey)}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[140px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All</ZoruSelectItem>
-                                <ZoruSelectItem value="published">Published</ZoruSelectItem>
-                                <ZoruSelectItem value="drafts">Drafts</ZoruSelectItem>
-                                <ZoruSelectItem value="pinned">Pinned</ZoruSelectItem>
-                                <ZoruSelectItem value="todo">To-do</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[140px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="published">Published</SelectItem>
+                                <SelectItem value="drafts">Drafts</SelectItem>
+                                <SelectItem value="pinned">Pinned</SelectItem>
+                                <SelectItem value="todo">To-do</SelectItem>
+                            </SelectContent>
                         </Select>
                         <EnumFilterField
                             enumName="kbArticleType"
@@ -360,17 +347,17 @@ export function KbInternalListClient(): React.JSX.Element {
                             value={filters.category || 'any'}
                             onValueChange={(v) => updateFilter('category', v === 'any' ? '' : v)}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Category" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="any">Any category</ZoruSelectItem>
+                            <SelectTrigger className="h-9 w-[180px]">
+                                <SelectValue placeholder="Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="any">Any category</SelectItem>
                                 {categories.map((c) => (
-                                    <ZoruSelectItem key={c._id} value={c._id}>
+                                    <SelectItem key={c._id} value={c._id}>
                                         {c.name}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                         <Input
                             type="date"

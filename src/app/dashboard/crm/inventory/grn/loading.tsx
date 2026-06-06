@@ -1,5 +1,5 @@
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { Plus } from 'lucide-react';
 import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
@@ -32,36 +32,36 @@ export default function GrnLoading() {
                         <Skeleton className="h-9 w-[250px]" />
                     </div>
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow>
-                                <ZoruTableHead className="w-[36px]"></ZoruTableHead>
-                                <ZoruTableHead>GRN #</ZoruTableHead>
-                                <ZoruTableHead>Vendor</ZoruTableHead>
-                                <ZoruTableHead>PO ref</ZoruTableHead>
-                                <ZoruTableHead>Date</ZoruTableHead>
-                                <ZoruTableHead>Vehicle</ZoruTableHead>
-                                <ZoruTableHead>Driver</ZoruTableHead>
-                                <ZoruTableHead>Status</ZoruTableHead>
-                                <ZoruTableHead>Linked Bill</ZoruTableHead>
-                                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr>
+                                <Th className="w-[36px]"></Th>
+                                <Th>GRN #</Th>
+                                <Th>Vendor</Th>
+                                <Th>PO ref</Th>
+                                <Th>Date</Th>
+                                <Th>Vehicle</Th>
+                                <Th>Driver</Th>
+                                <Th>Status</Th>
+                                <Th>Linked Bill</Th>
+                                <Th className="text-right">Actions</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {Array.from({ length: 5 }).map((_, i) => (
-                                <ZoruTableRow key={i}>
-                                    <ZoruTableCell><Skeleton className="h-4 w-4" /></ZoruTableCell>
-                                    <ZoruTableCell><Skeleton className="h-4 w-20" /></ZoruTableCell>
-                                    <ZoruTableCell><Skeleton className="h-4 w-24" /></ZoruTableCell>
-                                    <ZoruTableCell><Skeleton className="h-4 w-16" /></ZoruTableCell>
-                                    <ZoruTableCell><Skeleton className="h-4 w-24" /></ZoruTableCell>
-                                    <ZoruTableCell><Skeleton className="h-4 w-16" /></ZoruTableCell>
-                                    <ZoruTableCell><Skeleton className="h-4 w-24" /></ZoruTableCell>
-                                    <ZoruTableCell><Skeleton className="h-6 w-16 rounded-full" /></ZoruTableCell>
-                                    <ZoruTableCell><Skeleton className="h-4 w-16" /></ZoruTableCell>
-                                    <ZoruTableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></ZoruTableCell>
-                                </ZoruTableRow>
+                                <Tr key={i}>
+                                    <Td><Skeleton className="h-4 w-4" /></Td>
+                                    <Td><Skeleton className="h-4 w-20" /></Td>
+                                    <Td><Skeleton className="h-4 w-24" /></Td>
+                                    <Td><Skeleton className="h-4 w-16" /></Td>
+                                    <Td><Skeleton className="h-4 w-24" /></Td>
+                                    <Td><Skeleton className="h-4 w-16" /></Td>
+                                    <Td><Skeleton className="h-4 w-24" /></Td>
+                                    <Td><Skeleton className="h-6 w-16 rounded-full" /></Td>
+                                    <Td><Skeleton className="h-4 w-16" /></Td>
+                                    <Td className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></Td>
+                                </Tr>
                             ))}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </Card>
             </div>

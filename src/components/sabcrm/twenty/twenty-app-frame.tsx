@@ -50,7 +50,7 @@ import { listSabcrmFavoritesTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { SabcrmRustFavorite } from '@/app/actions/sabcrm-twenty.actions.types';
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import type { ObjectMetadata } from '@/lib/rust-client/sabcrm-objects';
-import { ZORU_ICONS } from '@/components/sabcrm/20ui/compat';
+import { ICONS } from '@/components/sabcrm/20ui/compat';
 import { getCrmSettingsTw } from '@/app/actions/sabcrm-settings.actions';
 import {
   SabcrmSettingsProvider,
@@ -82,7 +82,7 @@ function navHref(item: NavItem): string {
  * Standard-object → lucide icon map, keyed by slug. Used to give the live
  * data-model objects their familiar Twenty icons in the sidebar; custom
  * objects fall back to the icon picked in the data model (resolved via
- * {@link ZORU_ICONS}) or, failing that, a generic {@link Database} glyph.
+ * {@link ICONS}) or, failing that, a generic {@link Database} glyph.
  */
 const STANDARD_OBJECT_ICON: Record<string, LucideIcon> = {
   companies: Building2,
@@ -94,13 +94,13 @@ const STANDARD_OBJECT_ICON: Record<string, LucideIcon> = {
 
 /**
  * Resolve a data-model object's sidebar icon. Honours the icon chosen in the
- * data model first (`object.icon` is a {@link ZORU_ICONS} key — those values
+ * data model first (`object.icon` is a {@link ICONS} key — those values
  * are lucide icons at runtime, so the cast is safe and `size` still works),
  * then the standard per-slug icon, then a generic fallback.
  */
 function objectNavIcon(object: ObjectMetadata): LucideIcon {
   const picked = object.icon
-    ? (ZORU_ICONS[object.icon] as LucideIcon | undefined)
+    ? (ICONS[object.icon] as LucideIcon | undefined)
     : undefined;
   return picked ?? STANDARD_OBJECT_ICON[object.slug] ?? Database;
 }

@@ -6,15 +6,7 @@ import { usePathname } from 'next/navigation';
 import { fmtINR } from '@/lib/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { MoreHorizontal, Package } from 'lucide-react';
 import Image from 'next/image';
 
@@ -56,7 +48,7 @@ export function ItemsTable({
     window.addEventListener('click', handleClick);
     return () => window.removeEventListener('click', handleClick);
   }, []);
-const { toast } = useZoruToast();
+const { toast } = useToast();
   const router = useRouter();
 
   const bulky = useCrmBulkyState<ItemListRow>({
@@ -234,7 +226,7 @@ const { toast } = useZoruToast();
         const id = row._id;
         return (
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button
                 size="sm"
                 variant="ghost"
@@ -243,35 +235,35 @@ const { toast } = useZoruToast();
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuItem asChild>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/inventory/items/${id}`}>
                   View Details
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/inventory/items/${id}/edit`}>
                   Edit Item
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/inventory/adjustments/new?productId=${id}`}>
                   Adjust stock
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/inventory/items/new?fromKind=product&fromId=${id}`}>
                   Duplicate
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/inventory/items/${id}/activity`}>
                   Audit Logs / Activity
                 </Link>
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         );
       },

@@ -1,15 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-    Card,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardContent,
-    Badge,
-    Button,
-    Progress,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Badge, Button, Progress } from '@/components/sabcrm/20ui/compat';
 import type { ColumnProfile } from '@/lib/rust-client/sabprep-profiles';
 
 interface Props {
@@ -23,14 +15,14 @@ export function ColumnProfilerPanel({ profiles, onAddSuggestion }: Props) {
     }
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle className="text-sm">Column profiler</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-3">
+            <CardHeader>
+                <CardTitle className="text-sm">Column profiler</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-3">
                 {profiles.map((p) => (
                     <ColumnRow key={p.name} profile={p} onAdd={onAddSuggestion} />
                 ))}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

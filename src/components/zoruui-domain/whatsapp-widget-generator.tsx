@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Label,
-  Input,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Avatar,
-  ZoruAvatarImage,
-  ZoruAvatarFallback,
-  Separator,
-  Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Label, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Avatar, AvatarImage, AvatarFallback, Separator, Switch } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useMemo,
@@ -178,32 +157,32 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                 <input type="hidden" name="textColor" value={settings.textColor} />
                 <input type="hidden" name="buttonTextColor" value={settings.buttonTextColor} />
 
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="flex items-center gap-3">
                         <Code className="h-8 w-8" />
                         <div>
-                            <ZoruCardTitle>WhatsApp Widget Generator</ZoruCardTitle>
-                            <ZoruCardDescription>Create a customizable chat widget to embed on your website.</ZoruCardDescription>
+                            <CardTitle>WhatsApp Widget Generator</CardTitle>
+                            <CardDescription>Create a customizable chat widget to embed on your website.</CardDescription>
                         </div>
                     </div>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <div className="grid lg:grid-cols-2 gap-8 items-start">
                         {/* Customization Panel */}
                         <div className="space-y-4">
                             <Card>
-                                <ZoruCardHeader><ZoruCardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5" />Content</ZoruCardTitle></ZoruCardHeader>
-                                <ZoruCardContent className="space-y-4">
-                                    <div className="space-y-2"><Label>Phone Number</Label><Select value={settings.phoneNumber} onValueChange={(v) => handleSettingChange('phoneNumber', v)}><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent>{project.phoneNumbers.map(phone => (<ZoruSelectItem key={phone.id} value={phone.display_phone_number}>{phone.display_phone_number}</ZoruSelectItem>))}</ZoruSelectContent></Select></div>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5" />Content</CardTitle></CardHeader>
+                                <CardBody className="space-y-4">
+                                    <div className="space-y-2"><Label>Phone Number</Label><Select value={settings.phoneNumber} onValueChange={(v) => handleSettingChange('phoneNumber', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{project.phoneNumbers.map(phone => (<SelectItem key={phone.id} value={phone.display_phone_number}>{phone.display_phone_number}</SelectItem>))}</SelectContent></Select></div>
                                     <div className="space-y-2"><Label>Welcome Message</Label><Textarea value={settings.welcomeMessage} onChange={e => handleSettingChange('welcomeMessage', e.target.value)} /></div>
                                     <div className="space-y-2"><Label>Pre-filled User Message</Label><Textarea value={settings.prefilledMessage} onChange={e => handleSettingChange('prefilledMessage', e.target.value)} /></div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                             <Card>
-                                <ZoruCardHeader><ZoruCardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" />Appearance</ZoruCardTitle></ZoruCardHeader>
-                                <ZoruCardContent className="space-y-4">
+                                <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" />Appearance</CardTitle></CardHeader>
+                                <CardBody className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label>Position</Label><Select value={settings.position} onValueChange={(v) => handleSettingChange('position', v)}><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="bottom-right">Bottom Right</ZoruSelectItem><ZoruSelectItem value="bottom-left">Bottom Left</ZoruSelectItem></ZoruSelectContent></Select></div>
+                                        <div className="space-y-2"><Label>Position</Label><Select value={settings.position} onValueChange={(v) => handleSettingChange('position', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="bottom-right">Bottom Right</SelectItem><SelectItem value="bottom-left">Bottom Left</SelectItem></SelectContent></Select></div>
                                         <div className="space-y-2"><Label htmlFor="widget-color">Widget Color</Label><ColorPicker id="widget-color" value={settings.buttonColor} onChange={v => handleSettingChange('buttonColor', v)} /></div>
                                     </div>
                                     <div className="space-y-2"><Label>Header Title</Label><Input value={settings.headerTitle} onChange={e => handleSettingChange('headerTitle', e.target.value)} /></div>
@@ -226,11 +205,11 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                         <div className="space-y-2"><Label htmlFor="text-color">Text Color</Label><ColorPicker id="text-color" value={settings.textColor} onChange={v => handleSettingChange('textColor', v)} /></div>
                                         <div className="space-y-2"><Label htmlFor="button-text-color">Button Text Color</Label><ColorPicker id="button-text-color" value={settings.buttonTextColor} onChange={v => handleSettingChange('buttonTextColor', v)} /></div>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                             <Card>
-                                <ZoruCardHeader><ZoruCardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />Behavior & Testing</ZoruCardTitle></ZoruCardHeader>
-                                <ZoruCardContent className="space-y-4">
+                                <CardHeader><CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />Behavior & Testing</CardTitle></CardHeader>
+                                <CardBody className="space-y-4">
                                     <div className="space-y-2">
                                         <Label>Auto-Open Delay (seconds)</Label>
                                         <Input type="number" min="0" value={advancedSettings.autoOpenDelay} onChange={e => handleAdvancedSettingChange('autoOpenDelay', parseInt(e.target.value) || 0)} placeholder="0 for disabled" />
@@ -248,11 +227,11 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                         <div className="space-y-2">
                                             <Label>Style Variant to Preview</Label>
                                             <Select value={advancedSettings.styleVariant} onValueChange={(v) => handleAdvancedSettingChange('styleVariant', v)}>
-                                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                                <ZoruSelectContent>
-                                                    <ZoruSelectItem value="classic">Classic</ZoruSelectItem>
-                                                    <ZoruSelectItem value="modern">Modern (Floating Box)</ZoruSelectItem>
-                                                </ZoruSelectContent>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="classic">Classic</SelectItem>
+                                                    <SelectItem value="modern">Modern (Floating Box)</SelectItem>
+                                                </SelectContent>
                                             </Select>
                                         </div>
                                     )}
@@ -263,7 +242,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                             Save Advanced Settings
                                         </Button>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         </div>
                         {/* Preview and Code Panel */}
@@ -300,8 +279,8 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                         <div id="sabnode-widget-chatbox-preview" className="absolute bg-white overflow-hidden" style={{ bottom: advancedSettings.styleVariant === 'modern' ? '80px' : '96px', right: advancedSettings.styleVariant === 'modern' ? '-10px' : '0', width: advancedSettings.styleVariant === 'modern' ? '320px' : '350px', borderRadius: `${settings.borderRadius}px`, boxShadow: advancedSettings.styleVariant === 'modern' ? '0 10px 25px rgba(0,0,0,0.1)' : '0 5px 20px rgba(0,0,0,0.2)' }}>
                                             <div className="sabnode-chat-header flex items-center gap-3" style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor, padding: `${settings.padding}px` }}>
                                                 <Avatar className="w-10 h-10">
-                                                    {settings.headerAvatarUrl && <ZoruAvatarImage src={settings.headerAvatarUrl} />}
-                                                    <ZoruAvatarFallback>{settings.headerTitle.charAt(0)}</ZoruAvatarFallback>
+                                                    {settings.headerAvatarUrl && <AvatarImage src={settings.headerAvatarUrl} />}
+                                                    <AvatarFallback>{settings.headerTitle.charAt(0)}</AvatarFallback>
                                                 </Avatar>
                                                 <div><div className="title font-bold">{settings.headerTitle}</div><div className="subtitle text-xs opacity-90">{settings.headerSubtitle}</div></div>
                                             </div>
@@ -338,10 +317,10 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                             </div>
                         </div>
                     </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <SubmitButton />
-                </ZoruCardFooter>
+                </CardFooter>
             </form>
         </Card>
     );

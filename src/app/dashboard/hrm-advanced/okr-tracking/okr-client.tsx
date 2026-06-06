@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { OKR } from '@/lib/hrm-advanced-types';
 import { Button, Input, EmptyState } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { saveOKR, deleteOKR } from '@/app/actions/hrm-advanced/okr-tracking';
 import { OKRForm } from './okr-form';
 import { Download, FileText, Plus, Trash2, Search, Filter } from 'lucide-react';
@@ -24,7 +24,7 @@ export function OKRClient({ initialData }: OKRClientProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<OKR> | undefined>(undefined);
   const [isSaving, setIsSaving] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   const parentRef = useRef<HTMLDivElement>(null);
 

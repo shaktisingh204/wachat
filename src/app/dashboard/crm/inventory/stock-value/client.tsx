@@ -1,17 +1,7 @@
 'use client';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import {
-    Button,
-    Card,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
     Box,
     Download,
@@ -93,7 +83,7 @@ export default function StockValueDeepClient({
     summary: ReportSummary;
     kpis: StockValueDeepKpis;
 }): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const exportRows = useMemo<ExportRow[]>(
         () =>
@@ -234,53 +224,53 @@ export default function StockValueDeepClient({
                 <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Valuation details</h2>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Product</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Warehouse</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Stock</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Unit cost</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Stock value</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="text-[var(--st-text-secondary)]">Product</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Warehouse</Th>
+                                <Th className="text-right text-[var(--st-text-secondary)]">Stock</Th>
+                                <Th className="text-right text-[var(--st-text-secondary)]">Unit cost</Th>
+                                <Th className="text-right text-[var(--st-text-secondary)]">Stock value</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {reportData.length > 0 ? (
                                 reportData.map((item) => (
-                                    <ZoruTableRow
+                                    <Tr
                                         key={`${item.productId}-${item.warehouseId ?? 'default'}`}
                                         className="border-[var(--st-border)]"
                                     >
-                                        <ZoruTableCell>
+                                        <Td>
                                             <p className="font-medium text-[var(--st-text)]">{item.productName}</p>
                                             <p className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                                                 {item.sku || 'N/A'}
                                             </p>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {item.warehouseName}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-medium text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right font-medium text-[var(--st-text)]">
                                             {item.stock}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right font-mono text-[var(--st-text)]">
                                             {fmtINR(item.unitCost)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-semibold text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right font-semibold text-[var(--st-text)]">
                                             {fmtINR(item.stockValue)}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td
                                         colSpan={5}
                                         className="h-64 text-center text-[var(--st-text-secondary)]"
                                     >
                                         No stock data found for any products.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
                 <p className="mt-4 text-[11.5px] text-[var(--st-text-secondary)]">

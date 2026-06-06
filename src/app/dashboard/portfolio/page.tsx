@@ -1,30 +1,7 @@
 'use client';
 import { fmtDate } from "@/lib/utils";
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -137,11 +114,11 @@ function SiteCard({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => v
 
   return (
     <Card className="flex flex-col">
-      <ZoruCardHeader>
-        <ZoruCardTitle>{site.name}</ZoruCardTitle>
-        <ZoruCardDescription>Slug: {site.slug}</ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="flex-grow space-y-4">
+      <CardHeader>
+        <CardTitle>{site.name}</CardTitle>
+        <CardDescription>Slug: {site.slug}</CardDescription>
+      </CardHeader>
+      <CardBody className="flex-grow space-y-4">
         <div>
           <p className="text-sm text-[var(--st-text-secondary)]">
             Created: {fmtDate(site.createdAt)}
@@ -153,12 +130,12 @@ function SiteCard({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => v
           )}
         </div>
         <DomainMappingDialog site={site} onUpdate={onUpdate} />
-      </ZoruCardContent>
-      <ZoruCardFooter>
+      </CardBody>
+      <CardFooter>
         <Button onClick={handleManage} block>
           Manage <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
-      </ZoruCardFooter>
+      </CardFooter>
     </Card>
   );
 }
@@ -192,17 +169,17 @@ export default function WebsiteBuilderDashboard() {
     return (
       <div className="flex flex-col gap-8">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>
+          <PageHeading>
+            <PageTitle>
               <span className="inline-flex items-center gap-3">
                 <Globe className="h-7 w-7" />
                 Website builder
               </span>
-            </ZoruPageTitle>
-            <ZoruPageDescription>
+            </PageTitle>
+            <PageDescription>
               Create and manage your public-facing websites.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
         <div className="p-4 bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded-md border border-[var(--st-border)]">
           <p className="font-semibold">Error</p>
@@ -219,17 +196,17 @@ export default function WebsiteBuilderDashboard() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>
+          <PageHeading>
+            <PageTitle>
               <span className="inline-flex items-center gap-3">
                 <Globe className="h-7 w-7" />
                 Website builder
               </span>
-            </ZoruPageTitle>
-            <ZoruPageDescription>
+            </PageTitle>
+            <PageDescription>
               Create and manage your public-facing websites.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
         <CreatePortfolioDialog onSuccess={fetchData} />
       </div>

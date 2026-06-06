@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Checkbox,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   ExternalLink,
   MapPin,
@@ -147,22 +139,22 @@ export function EventsTable({
                                 </td>
                                 <td className="px-3 py-2 text-right">
                                     <DropdownMenu>
-                                        <ZoruDropdownMenuTrigger asChild>
+                                        <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" size="sm" aria-label="Row actions">
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
-                                        </ZoruDropdownMenuTrigger>
-                                        <ZoruDropdownMenuContent align="end">
-                                            <ZoruDropdownMenuItem asChild>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuItem asChild>
                                                 <Link href={`/dashboard/crm/workspace/events/${e._id}`}>View</Link>
-                                            </ZoruDropdownMenuItem>
-                                            <ZoruDropdownMenuItem asChild>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
                                                 <Link href={`/dashboard/crm/workspace/events/${e._id}/edit`}>Edit</Link>
-                                            </ZoruDropdownMenuItem>
-                                            <ZoruDropdownMenuItem onClick={() => onDelete(e._id)}>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => onDelete(e._id)}>
                                                 <Trash2 className="h-3.5 w-3.5" /> Delete
-                                            </ZoruDropdownMenuItem>
-                                        </ZoruDropdownMenuContent>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
                                     </DropdownMenu>
                                 </td>
                             </tr>

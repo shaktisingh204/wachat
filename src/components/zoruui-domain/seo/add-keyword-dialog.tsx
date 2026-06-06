@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Textarea,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Button, Textarea, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import { Plus, Loader2 } from 'lucide-react';
@@ -55,29 +41,29 @@ export function AddKeywordDialog({ projectId, onAdded }: { projectId: string; on
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button>
                     <Plus className="mr-2 h-4 w-4" /> Add Keywords
                 </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Add Keywords to Track</ZoruDialogTitle>
-                </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Add Keywords to Track</DialogTitle>
+                </DialogHeader>
 
                 <div className="space-y-4 py-4">
                     <div className="space-y-2">
                         <Label>Location</Label>
                         <Select value={location} onValueChange={setLocation}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Select Location" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="2840">United States</ZoruSelectItem>
-                                <ZoruSelectItem value="2826">United Kingdom</ZoruSelectItem>
-                                <ZoruSelectItem value="2356">India</ZoruSelectItem>
-                                <ZoruSelectItem value="2036">Australia</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select Location" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="2840">United States</SelectItem>
+                                <SelectItem value="2826">United Kingdom</SelectItem>
+                                <SelectItem value="2356">India</SelectItem>
+                                <SelectItem value="2036">Australia</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
 
@@ -96,7 +82,7 @@ export function AddKeywordDialog({ projectId, onAdded }: { projectId: string; on
                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Add Keywords
                 </Button>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

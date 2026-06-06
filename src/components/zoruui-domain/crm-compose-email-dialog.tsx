@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -51,7 +34,7 @@ interface ComposeEmailDialogProps {
 
 export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initialSubject = '' }: ComposeEmailDialogProps) {
   const [state, formAction] = useActionState(sendCrmEmail, initialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [templates, setTemplates] = useState<WithId<CrmEmailTemplate>[]>([]);
   const [subject, setSubject] = useState(initialSubject);
@@ -86,26 +69,26 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initi
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle className="text-[var(--st-text)]">Compose Email</ZoruDialogTitle>
-          </ZoruDialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle className="text-[var(--st-text)]">Compose Email</DialogTitle>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
                 <Label htmlFor="template" className="text-[var(--st-text)]">Use Template (Optional)</Label>
                 <Select onValueChange={handleTemplateSelect}>
-                  <ZoruSelectTrigger id="template">
-                    <ZoruSelectValue placeholder="Select a template..." />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger id="template">
+                    <SelectValue placeholder="Select a template..." />
+                  </SelectTrigger>
+                  <SelectContent>
                     {templates.map(template => (
-                      <ZoruSelectItem key={template._id.toString()} value={template._id.toString()}>
+                      <SelectItem key={template._id.toString()} value={template._id.toString()}>
                         {template.name}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
@@ -123,12 +106,12 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initi
               </div>
             </div>
           </div>
-          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -106,7 +106,7 @@ export interface ReceiptFormProps {
 export function ReceiptForm({ initial }: ReceiptFormProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
     const [state, formAction] = useActionState(savePaymentReceiptAction, INITIAL_STATE);
     const editing = !!initial?._id;
@@ -1083,13 +1083,13 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
         </form>
         
         <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-            <ZoruDialogContent className="max-w-3xl">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Receipt Preview</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                    <DialogTitle>Receipt Preview</DialogTitle>
+                    <DialogDescription>
                         Scanned physical receipt document.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <div className="flex justify-center p-4 bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)] overflow-hidden min-h-[400px]">
                     {receiptUrl ? (
                         <img src={receiptUrl} alt="Receipt Preview" className="max-w-full max-h-[60vh] object-contain" />
@@ -1099,7 +1099,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                         </div>
                     )}
                 </div>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
         </>
     );

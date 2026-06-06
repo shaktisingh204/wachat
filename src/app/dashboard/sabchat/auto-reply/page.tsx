@@ -1,31 +1,6 @@
 "use client";
 
-import {
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Label, PageDescription, PageHeader, PageHeading, PageTitle, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect } from "react";
 import { useActionState } from "react";
@@ -69,7 +44,7 @@ export default function SabChatAutoReplyPage() {
   const settings = sessionUser?.sabChatSettings || {};
   // @ts-expect-error - sabchat settings action signature
   const [state, formAction] = useActionState(saveSabChatSettings, initialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (state.message) {
@@ -91,30 +66,30 @@ export default function SabChatAutoReplyPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/sabchat/inbox">
               SabChat
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Auto Reply</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Auto Reply</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Auto reply</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Auto reply</PageTitle>
+          <PageDescription>
             Automated messages sent to visitors based on triggers.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <form action={formAction}>
@@ -137,37 +112,37 @@ export default function SabChatAutoReplyPage() {
         />
 
         <Card>
-          <ZoruCardHeader>
+          <CardHeader>
             <div className="flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 <Bot className="h-4 w-4" />
               </span>
               <div>
-                <ZoruCardTitle>Automated messages</ZoruCardTitle>
-                <ZoruCardDescription>
+                <CardTitle>Automated messages</CardTitle>
+                <CardDescription>
                   Configure each trigger independently. Office hours can be
                   configured under general settings.
-                </ZoruCardDescription>
+                </CardDescription>
               </div>
             </div>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          </CardHeader>
+          <CardBody>
             <Accordion
               type="multiple"
               defaultValue={["welcome", "away"]}
               className="w-full"
             >
               {/* Welcome message */}
-              <ZoruAccordionItem value="welcome">
-                <ZoruAccordionTrigger>
+              <AccordionItem value="welcome">
+                <AccordionTrigger>
                   <span className="flex flex-col items-start gap-0.5">
                     <span className="text-[var(--st-text)]">Welcome message</span>
                     <span className="text-xs font-normal text-[var(--st-text-secondary)]">
                       The first message a visitor sees when they start a chat.
                     </span>
                   </span>
-                </ZoruAccordionTrigger>
-                <ZoruAccordionContent>
+                </AccordionTrigger>
+                <AccordionContent>
                   <div className="space-y-3 pt-1">
                     <div className="flex items-center gap-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                       <Switch
@@ -189,12 +164,12 @@ export default function SabChatAutoReplyPage() {
                       className="min-h-24"
                     />
                   </div>
-                </ZoruAccordionContent>
-              </ZoruAccordionItem>
+                </AccordionContent>
+              </AccordionItem>
 
               {/* Away message */}
-              <ZoruAccordionItem value="away">
-                <ZoruAccordionTrigger>
+              <AccordionItem value="away">
+                <AccordionTrigger>
                   <span className="flex flex-col items-start gap-0.5">
                     <span className="text-[var(--st-text)]">Away message</span>
                     <span className="text-xs font-normal text-[var(--st-text-secondary)]">
@@ -202,8 +177,8 @@ export default function SabChatAutoReplyPage() {
                       office hours.
                     </span>
                   </span>
-                </ZoruAccordionTrigger>
-                <ZoruAccordionContent>
+                </AccordionTrigger>
+                <AccordionContent>
                   <div className="space-y-3 pt-1">
                     <div className="flex items-center gap-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                       <Switch
@@ -225,14 +200,14 @@ export default function SabChatAutoReplyPage() {
                       className="min-h-24"
                     />
                   </div>
-                </ZoruAccordionContent>
-              </ZoruAccordionItem>
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
 
             <div className="mt-6 flex justify-end">
               <SubmitButton />
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </form>
     </div>

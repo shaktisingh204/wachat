@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 
 export default function DashboardError({
@@ -19,7 +19,7 @@ export default function DashboardError({
     return (
         <div className="flex h-[80vh] w-full items-center justify-center p-6">
             <Card className="w-full max-w-md shadow-sm border-[var(--st-danger)]/30">
-                <ZoruCardContent className="flex flex-col items-center p-8 text-center space-y-4">
+                <CardBody className="flex flex-col items-center p-8 text-center space-y-4">
                     <div className="rounded-full bg-[var(--st-danger-soft)] p-3">
                         <AlertCircle className="h-6 w-6 text-[var(--st-danger)]" />
                     </div>
@@ -39,7 +39,7 @@ export default function DashboardError({
                         <RotateCcw className="h-4 w-4" />
                         Try again
                     </Button>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

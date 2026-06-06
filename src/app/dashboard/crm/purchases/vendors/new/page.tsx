@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Card, Checkbox, Input, Label, RadioGroup, ZoruRadioGroupItem, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
@@ -45,7 +32,7 @@ function SubmitButton({ isEdit }: { isEdit: boolean }) {
 
 export default function NewVendorPage() {
     const [state, formAction] = useActionState(saveCrmVendor, initialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
     const searchParams = useSearchParams();
     const editVendorId = searchParams?.get('vendorId') ?? '';
@@ -149,9 +136,9 @@ export default function NewVendorPage() {
                 <input type="hidden" name="attachmentUrls" value={JSON.stringify(attachmentUrls.map(a => a.url))} />
                 <Card>
                     <Accordion type="multiple" defaultValue={['basic', 'tax', 'address', 'additional']} className="w-full">
-                        <ZoruAccordionItem value="basic">
-                            <ZoruAccordionTrigger>Basic Information</ZoruAccordionTrigger>
-                            <ZoruAccordionContent className="space-y-4 pt-2">
+                        <AccordionItem value="basic">
+                            <AccordionTrigger>Basic Information</AccordionTrigger>
+                            <AccordionContent className="space-y-4 pt-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="logo">Upload Logo</Label>
                                     <div className="flex items-center gap-2">
@@ -255,11 +242,11 @@ export default function NewVendorPage() {
                                         <input type="hidden" name="city" value={cityId} />
                                     </div>
                                 </div>
-                            </ZoruAccordionContent>
-                        </ZoruAccordionItem>
-                        <ZoruAccordionItem value="tax">
-                            <ZoruAccordionTrigger>Tax Information (Optional)</ZoruAccordionTrigger>
-                            <ZoruAccordionContent className="space-y-4 pt-2">
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="tax">
+                            <AccordionTrigger>Tax Information (Optional)</AccordionTrigger>
+                            <AccordionContent className="space-y-4 pt-2">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2"><Label>Business GSTIN</Label><Input name="gstin" maxLength={15} className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]" /></div>
                                     <div className="space-y-2"><Label>Business PAN</Label><Input name="pan" maxLength={10} className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]" /></div>
@@ -269,11 +256,11 @@ export default function NewVendorPage() {
                                     <div className="space-y-2"><Label>Vendor Type</Label><RadioGroup name="vendorType" defaultValue="individual" className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="individual" id="type-individual" /><Label htmlFor="type-individual" className="font-normal">Individual</Label></div><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="company" id="type-company" /><Label htmlFor="type-company" className="font-normal">Company</Label></div></RadioGroup></div>
                                     <div className="space-y-2"><Label>Tax Treatment</Label><EnumFormField enumName="taxTreatment" name="taxTreatment" placeholder="Select..." /></div>
                                 </div>
-                            </ZoruAccordionContent>
-                        </ZoruAccordionItem>
-                        <ZoruAccordionItem value="address">
-                            <ZoruAccordionTrigger>Address (Optional)</ZoruAccordionTrigger>
-                            <ZoruAccordionContent className="space-y-4 pt-2">
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="address">
+                            <AccordionTrigger>Address (Optional)</AccordionTrigger>
+                            <AccordionContent className="space-y-4 pt-2">
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label>Country</Label>
@@ -328,11 +315,11 @@ export default function NewVendorPage() {
                                 </div>
                                 <div className="space-y-2"><Label>Postal Code / Zip Code</Label><Input name="pincode" maxLength={20} className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]" /></div>
                                 <div className="space-y-2"><Label>Street Address</Label><Input name="street" maxLength={200} className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]" /></div>
-                            </ZoruAccordionContent>
-                        </ZoruAccordionItem>
-                        <ZoruAccordionItem value="msme">
-                            <ZoruAccordionTrigger>MSME / Compliance (Optional)</ZoruAccordionTrigger>
-                            <ZoruAccordionContent className="space-y-4 pt-2">
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="msme">
+                            <AccordionTrigger>MSME / Compliance (Optional)</AccordionTrigger>
+                            <AccordionContent className="space-y-4 pt-2">
                                 <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                     India MSMED Act 2006 + IT §43B(h): bills owed to MSME-registered vendors
                                     must be cleared within 45 days (or 15 days if no written agreement). Late
@@ -402,11 +389,11 @@ export default function NewVendorPage() {
                                         Override only when a written agreement specifies a shorter window.
                                     </p>
                                 </div>
-                            </ZoruAccordionContent>
-                        </ZoruAccordionItem>
-                        <ZoruAccordionItem value="additional">
-                            <ZoruAccordionTrigger>Additional Details (Optional)</ZoruAccordionTrigger>
-                            <ZoruAccordionContent className="space-y-4 pt-2">
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="additional">
+                            <AccordionTrigger>Additional Details (Optional)</AccordionTrigger>
+                            <AccordionContent className="space-y-4 pt-2">
                                 <div className="space-y-2"><Label htmlFor="displayName">Display Name</Label><Input id="displayName" name="displayName" maxLength={100} className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]" /></div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
@@ -455,11 +442,11 @@ export default function NewVendorPage() {
                                         )}
                                     </div>
                                 </div>
-                            </ZoruAccordionContent>
-                        </ZoruAccordionItem>
-                        <ZoruAccordionItem value="bank">
-                            <ZoruAccordionTrigger>Bank Account Details (Optional)</ZoruAccordionTrigger>
-                            <ZoruAccordionContent className="space-y-4 pt-2">
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="bank">
+                            <AccordionTrigger>Bank Account Details (Optional)</AccordionTrigger>
+                            <AccordionContent className="space-y-4 pt-2">
                                 <p className="text-[12.5px] text-[var(--st-text-secondary)]">Record all payments made to your Vendor&apos;s Bank Accounts against this and future Purchases.</p>
                                 {bankDetails.accountNumber ? (
                                     <div className="p-3 rounded-lg border border-[var(--st-border)]">
@@ -473,15 +460,15 @@ export default function NewVendorPage() {
                                         Add Bank Account
                                     </Button>
                                 )}
-                            </ZoruAccordionContent>
-                        </ZoruAccordionItem>
-                        <ZoruAccordionItem value="account-details">
-                            <ZoruAccordionTrigger>Account Details (Optional)</ZoruAccordionTrigger>
-                            <ZoruAccordionContent className="pt-2 text-center text-[var(--st-text-secondary)]">
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="account-details">
+                            <AccordionTrigger>Account Details (Optional)</AccordionTrigger>
+                            <AccordionContent className="pt-2 text-center text-[var(--st-text-secondary)]">
                                 <p className="text-[13px]">Enable Advanced Accounting to create or link ledger.</p>
                                 <Button variant="outline" size="sm" className="mt-2" disabled>Enable Now</Button>
-                            </ZoruAccordionContent>
-                        </ZoruAccordionItem>
+                            </AccordionContent>
+                        </AccordionItem>
                     </Accordion>
 
                     <div className="flex justify-end pt-6">

@@ -1,4 +1,4 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import { ObjectId } from 'mongodb';
@@ -166,10 +166,10 @@ async function RightRailSuspense({
     <>
       {/* Customer chip + outstanding */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Customer</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-2 text-[12.5px]">
+        <CardHeader>
+          <CardTitle>Customer</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-2 text-[12.5px]">
           {invoice.clientId ? (
             <EntityPickerChip entity="client" id={invoice.clientId} />
           ) : (
@@ -187,15 +187,15 @@ async function RightRailSuspense({
               {fmtINR(invoice.balance ?? totals.total, currency)}
             </span>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* At a glance + quick edits */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>At a glance</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>At a glance</CardTitle>
+        </CardHeader>
+        <CardBody>
           <InvoiceQuickEdits
             invoiceId={invoiceId}
             status={String(status)}
@@ -238,15 +238,15 @@ async function RightRailSuspense({
               </span>
             </div>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Related entities */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Related</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-1">
+        <CardHeader>
+          <CardTitle>Related</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-1">
           {relatedRailItems.map((item) => (
             <Link
               key={item.label}
@@ -260,7 +260,7 @@ async function RightRailSuspense({
               <Badge variant="secondary">{item.count}</Badge>
             </Link>
           ))}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <InvoiceRelatedRail invoiceId={invoiceId} initial={related} />
@@ -302,10 +302,10 @@ async function DetailsAndTablesSuspense({
 
       {/* Payment history */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Payment history</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Payment history</CardTitle>
+        </CardHeader>
+        <CardBody>
           {related.receipts === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">
               No payment receipts applied yet.{' '}
@@ -325,7 +325,7 @@ async function DetailsAndTablesSuspense({
               {related.receipts === 1 ? '' : 's'} applied to this invoice →
             </Link>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Payment Link Placeholder */}
@@ -341,10 +341,10 @@ async function DetailsAndTablesSuspense({
       {/* E-invoice */}
       {invoice.eInvoice ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>E-invoice</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>E-invoice</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="grid gap-4 md:grid-cols-2 text-[13px]">
               <p>
                 <span className="text-[var(--st-text-secondary)]">IRN:</span>{' '}
@@ -365,17 +365,17 @@ async function DetailsAndTablesSuspense({
                 </code>
               </p>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       {/* Notes */}
       {invoice.customerNotes || invoice.termsAndConditions ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Notes</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Notes</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="grid gap-4 md:grid-cols-2 text-[13px]">
               {invoice.customerNotes ? (
                 <div>
@@ -398,17 +398,17 @@ async function DetailsAndTablesSuspense({
                 </div>
               ) : null}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       {/* Tags */}
       {Array.isArray(invoice.tags) && invoice.tags.length > 0 ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Tags</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Tags</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="flex flex-wrap gap-2">
               {invoice.tags.map((t) => (
                 <Badge key={t} variant="outline">
@@ -416,17 +416,17 @@ async function DetailsAndTablesSuspense({
                 </Badge>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       {/* Custom fields */}
       {customFields.length > 0 ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Custom fields</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Custom fields</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="grid gap-4 md:grid-cols-2">
               {customFields.map((field) => (
                 <div key={String(field._id ?? field.name)}>
@@ -446,7 +446,7 @@ async function DetailsAndTablesSuspense({
                 </div>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </>

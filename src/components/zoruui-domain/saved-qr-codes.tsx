@@ -1,29 +1,5 @@
 'use client';
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Badge,
-  Skeleton,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Table, TBody, Td, Th, THead, Tr, Badge, Skeleton, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -57,23 +33,23 @@ function DeleteQrCodeButton({ qrCode, onDeleted }: { qrCode: WithId<QrCode>, onD
     }
 
     return (
-        <ZoruAlertDialog>
-            <ZoruAlertDialogTrigger asChild>
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-[var(--st-text)]"/></Button>
-            </ZoruAlertDialogTrigger>
-            <ZoruAlertDialogContent>
-                <ZoruAlertDialogHeader>
-                    <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
-                    <ZoruAlertDialogDescription>This will permanently delete the QR code "{qrCode.name}". This action cannot be undone.</ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                    <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>This will permanently delete the QR code "{qrCode.name}". This action cannot be undone.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
-                    </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-            </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 }
 
@@ -125,33 +101,33 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
             onOpenChange={(open) => !open && setSelectedQrData(null)}
         />
         <Card className="card-gradient card-gradient-purple">
-            <ZoruCardHeader>
-                <ZoruCardTitle>Your Saved QR Codes</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+                <CardTitle>Your Saved QR Codes</CardTitle>
+            </CardHeader>
+            <CardBody>
                 <div className="border rounded-md">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow>
-                                <ZoruTableHead>Name</ZoruTableHead>
-                                <ZoruTableHead>Type</ZoruTableHead>
-                                <ZoruTableHead>Data Preview</ZoruTableHead>
-                                <ZoruTableHead>Created</ZoruTableHead>
-                                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {isLoading ? <ZoruTableRow><ZoruTableCell colSpan={5}><Skeleton className="h-10 w-full"/></ZoruTableCell></ZoruTableRow>
+                        <THead>
+                            <Tr>
+                                <Th>Name</Th>
+                                <Th>Type</Th>
+                                <Th>Data Preview</Th>
+                                <Th>Created</Th>
+                                <Th className="text-right">Actions</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
+                            {isLoading ? <Tr><Td colSpan={5}><Skeleton className="h-10 w-full"/></Td></Tr>
                             : qrCodes.length > 0 ? qrCodes.map(code => (
-                                <ZoruTableRow key={code._id.toString()}>
-                                    <ZoruTableCell className="font-medium">{code.name}</ZoruTableCell>
-                                    <ZoruTableCell>
+                                <Tr key={code._id.toString()}>
+                                    <Td className="font-medium">{code.name}</Td>
+                                    <Td>
                                         <div className="flex flex-col gap-1">
                                             <Badge variant="outline" className="capitalize">{code.dataType}</Badge>
                                             {code.shortUrl && <Badge variant="secondary">Dynamic</Badge>}
                                         </div>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[var(--st-text-secondary)] truncate max-w-xs font-mono text-xs">
+                                    </Td>
+                                    <Td className="text-[var(--st-text-secondary)] truncate max-w-xs font-mono text-xs">
                                         {code.shortUrl ? (
                                             <Button asChild variant="outline" size="sm">
                                                 <Link href={`/dashboard/url-shortener/${code.shortUrl._id}`}>
@@ -161,19 +137,19 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
                                         ) : (
                                             generateDataString(code)
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>{new Date(code.createdAt).toLocaleDateString()}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td>{new Date(code.createdAt).toLocaleDateString()}</Td>
+                                    <Td className="text-right">
                                         <Button variant="ghost" size="icon" onClick={() => handleViewQr(code)}><Eye className="h-4 w-4"/></Button>
                                         <DeleteQrCodeButton qrCode={code} onDeleted={fetchData} />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ))
-                            : <ZoruTableRow><ZoruTableCell colSpan={5} className="text-center h-24">No QR codes saved yet.</ZoruTableCell></ZoruTableRow>}
-                        </ZoruTableBody>
+                            : <Tr><Td colSpan={5} className="text-center h-24">No QR codes saved yet.</Td></Tr>}
+                        </TBody>
                     </Table>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
         </>
     );

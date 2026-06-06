@@ -14,27 +14,7 @@
 
 import * as React from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast, DropdownMenu, ZoruDropdownMenuTrigger, ZoruDropdownMenuContent, ZoruDropdownMenuItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
 import { CheckCheck, Download, Trash2, X, XCircle, MoreHorizontal } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -155,7 +135,7 @@ export function PurchaseOrdersListClient({
 }: PurchaseOrdersListClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* Filters */
   const [query, setQuery] = React.useState(initialQuery);
@@ -364,20 +344,20 @@ export function PurchaseOrdersListClient({
                 Status
               </Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <ZoruSelectTrigger className="h-8 w-[160px]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                  <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                  <ZoruSelectItem value="awaiting_approval">Awaiting approval</ZoruSelectItem>
-                  <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
-                  <ZoruSelectItem value="sent">Sent</ZoruSelectItem>
-                  <ZoruSelectItem value="partial">Partial</ZoruSelectItem>
-                  <ZoruSelectItem value="received">Received</ZoruSelectItem>
-                  <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
-                  <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-8 w-[160px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="awaiting_approval">Awaiting approval</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="sent">Sent</SelectItem>
+                  <SelectItem value="partial">Partial</SelectItem>
+                  <SelectItem value="received">Received</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
@@ -515,94 +495,94 @@ export function PurchaseOrdersListClient({
         <Card className="overflow-hidden p-0">
           <div className="overflow-x-auto">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                  <ZoruTableHead className="w-10 pl-3">
+              <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                  <Th className="w-10 pl-3">
                     <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all on page"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead>PO #</ZoruTableHead>
-                  <ZoruTableHead>Vendor</ZoruTableHead>
-                  <ZoruTableHead>Date</ZoruTableHead>
-                  <ZoruTableHead>Expected</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Total</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead className="w-10"></ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                  <Th>PO #</Th>
+                  <Th>Vendor</Th>
+                  <Th>Date</Th>
+                  <Th>Expected</Th>
+                  <Th className="text-right">Total</Th>
+                  <Th>Status</Th>
+                  <Th className="w-10"></Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filtered.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={8}
                       className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive
                         ? 'No purchase orders match the current filters.'
                         : 'No purchase orders yet.'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filtered.map((po) => (
-                    <ZoruTableRow key={po._id} className="border-[var(--st-border)]">
-                      <ZoruTableCell className="pl-3">
+                    <Tr key={po._id} className="border-[var(--st-border)]">
+                      <Td className="pl-3">
                         <Checkbox
                           checked={selected.has(po._id)}
                           onCheckedChange={() => toggleRow(po._id)}
                           aria-label={`Select ${po.poNo}`}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <EntityRowLink
                           href={`/dashboard/crm/inventory/purchase-orders/${po._id}`}
                           label={po.poNo}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         {po.vendorLabel ?? po.vendorId ?? '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text-secondary)]">
                         {fmtDate(po.date)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text-secondary)]">
                         {fmtDate(po.expectedDelivery)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
                         {fmt(po.total, po.currency ?? 'INR')}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <StatusBadge status={po.status} />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <DropdownMenu>
-                          <ZoruDropdownMenuTrigger asChild>
+                          <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
-                          </ZoruDropdownMenuTrigger>
-                          <ZoruDropdownMenuContent align="end">
-                            <ZoruDropdownMenuItem onClick={() => router.push(`/dashboard/crm/inventory/purchase-orders/${po._id}`)}>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => router.push(`/dashboard/crm/inventory/purchase-orders/${po._id}`)}>
                               View details
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem onClick={() => { setSelected(new Set([po._id])); setApprovePending(true); }}>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => { setSelected(new Set([po._id])); setApprovePending(true); }}>
                               Approve
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem onClick={() => { setSelected(new Set([po._id])); setCancelPending(true); }}>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => { setSelected(new Set([po._id])); setCancelPending(true); }}>
                               Cancel
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem className="text-[var(--st-text)]" onClick={() => { setSelected(new Set([po._id])); setDeletePending(true); }}>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-[var(--st-text)]" onClick={() => { setSelected(new Set([po._id])); setDeletePending(true); }}>
                               Delete
-                            </ZoruDropdownMenuItem>
-                          </ZoruDropdownMenuContent>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
                         </DropdownMenu>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         </Card>

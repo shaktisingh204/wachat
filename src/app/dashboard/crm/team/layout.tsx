@@ -1,31 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Separator,
-  Skeleton,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Card,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Avatar, AvatarFallback, AvatarImage, Separator, Skeleton, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { useState, useEffect, useRef, useActionState, useTransition } from 'react';
 import { Plus,
   Trash2,
@@ -52,7 +27,7 @@ function RemoveAgentButton({
   onAgentRemoved: () => void;
 }) {
   const [state, formAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -75,8 +50,8 @@ function RemoveAgentButton({
   }, [state, toast, onAgentRemoved]);
 
   return (
-    <ZoruAlertDialog>
-      <ZoruAlertDialogTrigger asChild>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
         <Button variant="destructive" size="sm" disabled={isPending}>
           {isPending ? (
             <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -84,28 +59,28 @@ function RemoveAgentButton({
             <Trash2 className="h-4 w-4" />
           )}
         </Button>
-      </ZoruAlertDialogTrigger>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle className="text-[var(--st-text)]">Are you sure?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-[var(--st-text)]">Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription className="text-[var(--st-text-secondary)]">
             This will remove the agent&apos;s access from all of your projects. This action cannot
             be undone.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction onClick={handleDelete}>Confirm</ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete}>Confirm</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
 function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
   const [state, formAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleFormSubmit = (formData: FormData) => {
@@ -157,16 +132,16 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
             Role
           </Label>
           <Select name="role" defaultValue="agent">
-            <ZoruSelectTrigger
+            <SelectTrigger
               id="role"
               className="h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] sm:w-[180px]"
             >
-              <ZoruSelectValue placeholder="Select role" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
-              <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
-            </ZoruSelectContent>
+              <SelectValue placeholder="Select role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="agent">Agent</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
           </Select>
         </div>
         <Button
@@ -235,13 +210,13 @@ export default function ManageUsersPage() {
               >
                 <div className="flex items-center gap-4">
                   <Avatar className="border border-[var(--st-border)]">
-                    <ZoruAvatarImage
+                    <AvatarImage
                       src={`https://i.pravatar.cc/150?u=${agent.email}`}
                       alt={agent.name}
                     />
-                    <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
+                    <AvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
                       {agent.name.substring(0, 2).toUpperCase()}
-                    </ZoruAvatarFallback>
+                    </AvatarFallback>
                   </Avatar>
                   <div className="space-y-0.5">
                     <p className="text-[13px] font-medium leading-none text-[var(--st-text)]">

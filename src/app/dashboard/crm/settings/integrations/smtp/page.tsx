@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Skeleton,
-  Switch,
-  Card,
-  ZoruCardContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Skeleton, Switch, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,
@@ -288,7 +280,7 @@ export default function SmtpIntegrationPage() {
 
         {stats?.lastErrorMessage ? (
           <Card>
-            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
+            <CardBody className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
               <AlertCircle className="mt-0.5 h-4 w-4 text-[var(--st-danger)]" />
               <div>
                 <p className="text-sm font-medium text-[var(--st-text)]">Last error</p>
@@ -296,7 +288,7 @@ export default function SmtpIntegrationPage() {
                   {stats.lastErrorMessage}
                 </p>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         ) : null}
 

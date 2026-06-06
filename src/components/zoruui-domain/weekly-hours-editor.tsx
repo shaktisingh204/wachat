@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Label,
-  Button,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2 } from 'lucide-react';
 
 import React from 'react';
@@ -57,10 +48,10 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({ hours, onC
                             <div className="space-y-2">
                                 <Label>Day of Week</Label>
                                 <Select value={entry.day_of_week} onValueChange={(val) => handleChange(index, 'day_of_week', val)}>
-                                    <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {daysOfWeek.map(day => <ZoruSelectItem key={day} value={day}>{day}</ZoruSelectItem>)}
-                                    </ZoruSelectContent>
+                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                    <SelectContent>
+                                        {daysOfWeek.map(day => <SelectItem key={day} value={day}>{day}</SelectItem>)}
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="space-y-2">

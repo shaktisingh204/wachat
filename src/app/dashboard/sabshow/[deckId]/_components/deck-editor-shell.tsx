@@ -27,15 +27,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 
-import {
-    Button,
-    Card,
-    Input,
-    Label,
-    Textarea,
-    Separator,
-    ScrollArea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, Separator, ScrollArea } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
     addSabshowElement,

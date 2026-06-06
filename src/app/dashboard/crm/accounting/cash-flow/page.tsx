@@ -14,19 +14,7 @@ import {
 } from 'recharts';
 import { ArrowDownCircle, ArrowUpCircle, Banknote, Wallet } from 'lucide-react';
 
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import {
@@ -248,52 +236,52 @@ export default function CashFlowPage(): React.JSX.Element {
 
     const table = (
         <Table>
-            <TableHeader>
-                <TableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <TableHead className="text-[var(--st-text-secondary)]">Period</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)] text-right">Operating</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)] text-right">Investing</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)] text-right">Financing</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)] text-right">Inflow</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)] text-right">Outflow</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)] text-right">Net</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="text-[var(--st-text-secondary)]">Period</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Operating</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Investing</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Financing</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Inflow</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Outflow</Th>
+                    <Th className="text-[var(--st-text-secondary)] text-right">Net</Th>
+                </Tr>
+            </THead>
+            <TBody>
                 {pageRows.length === 0 ? (
-                    <TableRow className="border-[var(--st-border)]">
-                        <TableCell colSpan={7} className="h-24 text-center text-[var(--st-text-secondary)]">
+                    <Tr className="border-[var(--st-border)]">
+                        <Td colSpan={7} className="h-24 text-center text-[var(--st-text-secondary)]">
                             No data in this range.
-                        </TableCell>
-                    </TableRow>
+                        </Td>
+                    </Tr>
                 ) : (
                     pageRows.map((m) => (
-                        <TableRow key={m.month} className="border-[var(--st-border)]">
-                            <TableCell className="font-medium text-[var(--st-text)]">{m.month}</TableCell>
-                            <TableCell className="text-right font-mono text-[var(--st-text)]">
+                        <Tr key={m.month} className="border-[var(--st-border)]">
+                            <Td className="font-medium text-[var(--st-text)]">{m.month}</Td>
+                            <Td className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(m.operating)}
-                            </TableCell>
-                            <TableCell className="text-right font-mono text-[var(--st-text)]">
+                            </Td>
+                            <Td className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(m.investing)}
-                            </TableCell>
-                            <TableCell className="text-right font-mono text-[var(--st-text)]">
+                            </Td>
+                            <Td className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(m.financing)}
-                            </TableCell>
-                            <TableCell className="text-right font-mono text-[var(--st-text)]">
+                            </Td>
+                            <Td className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(m.inflow)}
-                            </TableCell>
-                            <TableCell className="text-right font-mono text-[var(--st-text)]">
+                            </Td>
+                            <Td className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(m.outflow)}
-                            </TableCell>
-                            <TableCell
+                            </Td>
+                            <Td
                                 className={`text-right font-mono font-semibold ${m.net >= 0 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}
                             >
                                 {fmtMoney(m.net)}
-                            </TableCell>
-                        </TableRow>
+                            </Td>
+                        </Tr>
                     ))
                 )}
-            </TableBody>
+            </TBody>
         </Table>
     );
 

@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   use,
   useCallback,
@@ -83,7 +70,7 @@ export default function EstimateRequestDetailPage(props: {
 }) {
   const { requestId } = use(props.params);
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [data, setData] = useState<Loaded | null>(null);
   const [isLoading, startLoading] = useTransition();
@@ -312,15 +299,15 @@ export default function EstimateRequestDetailPage(props: {
           <div className="flex items-center gap-2">
             {!isQuoted ? (
               <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
-                <ZoruSelectTrigger className="w-48 bg-white h-9">
-                  <ZoruSelectValue placeholder="Select template..." />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="__none__">None (Empty Quote)</ZoruSelectItem>
+                <SelectTrigger className="w-48 bg-white h-9">
+                  <SelectValue placeholder="Select template..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">None (Empty Quote)</SelectItem>
                   {templates.map((t) => (
-                    <ZoruSelectItem key={t._id} value={t._id}>{t.name}</ZoruSelectItem>
+                    <SelectItem key={t._id} value={t._id}>{t.name}</SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             ) : null}
             <Button
@@ -348,16 +335,16 @@ export default function EstimateRequestDetailPage(props: {
             value={request.status}
             onValueChange={(v) => handleStatusChange(v as WsEstimateRequestStatus)}
           >
-            <ZoruSelectTrigger className="w-40">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {WS_ESTIMATE_REQUEST_STATUSES.map((s) => (
-                <ZoruSelectItem key={s} value={s}>
+                <SelectItem key={s} value={s}>
                   {s}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <div className="ml-auto">
             <button

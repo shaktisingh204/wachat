@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Input,
-  Label,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -82,7 +69,7 @@ type Props = { flowId: string };
 export function FlowEditorShell({ flowId }: Props) {
   const router = useRouter();
   const { activeProjectId } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [flow, setFlow] = useState<FlowRow | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -423,14 +410,14 @@ function TestDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <ZoruSheetContent className="flex flex-col gap-4">
-        <ZoruSheetHeader>
-          <ZoruSheetTitle>Test flow</ZoruSheetTitle>
-          <ZoruSheetDescription>
+      <SheetContent className="flex flex-col gap-4">
+        <SheetHeader>
+          <SheetTitle>Test flow</SheetTitle>
+          <SheetDescription>
             Simulates a message against this flow — no Telegram side effects. The trace
             shows which nodes would run.
-          </ZoruSheetDescription>
-        </ZoruSheetHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
@@ -462,7 +449,7 @@ function TestDrawer({
           </div>
         </div>
 
-        <ZoruSheetFooter>
+        <SheetFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isRunning}>
             Close
           </Button>
@@ -479,8 +466,8 @@ function TestDrawer({
             {isRunning ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
             Run test
           </Button>
-        </ZoruSheetFooter>
-      </ZoruSheetContent>
+        </SheetFooter>
+      </SheetContent>
     </Sheet>
   );
 }

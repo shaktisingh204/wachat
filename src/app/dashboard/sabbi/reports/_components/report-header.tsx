@@ -3,13 +3,7 @@
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { RefreshCw, Download, ChevronDown } from 'lucide-react';
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
 
 export interface ReportHeaderProps {
   defaultRangeDays?: number;
@@ -106,21 +100,21 @@ export function ReportHeader({
         Refresh
       </Button>
       <DropdownMenu>
-        <ZoruDropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
             <Download className="mr-1 h-3.5 w-3.5" />
             Export
             <ChevronDown className="ml-1 h-3.5 w-3.5" />
           </Button>
-        </ZoruDropdownMenuTrigger>
-        <ZoruDropdownMenuContent align="end">
-          <ZoruDropdownMenuItem onSelect={() => onExportCsv()}>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={() => onExportCsv()}>
             Export as CSV
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuItem onSelect={() => void onExportXlsx()}>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => void onExportXlsx()}>
             Export as XLSX
-          </ZoruDropdownMenuItem>
-        </ZoruDropdownMenuContent>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
       </DropdownMenu>
     </div>
   );

@@ -12,17 +12,7 @@ const SalesPieChart = dynamic(
   () => import('./sales-deals-charts').then((mod) => mod.SalesPieChart),
   { ssr: false }
 );
-import {
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Badge,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr, Badge, Button } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtMoney, fmtNumber } from '../_components/report-toolbar';
@@ -286,48 +276,48 @@ export function SalesDealsView({
       <Card>
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">
                   Deal
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Stage
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Owner
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Pipeline
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Value
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Created
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {deals.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={6}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No deals.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 deals.map((d) => (
-                  <ZoruTableRow key={d.id} className="border-[var(--st-border)]">
-                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                  <Tr key={d.id} className="border-[var(--st-border)]">
+                    <Td className="font-medium text-[var(--st-text)]">
                       <EntityRowLink
                         href={`/dashboard/crm/sales-crm/deals/${d.id}`}
                         label={d.name}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge
                         variant={
                           isWonStage(d.stage)
@@ -339,25 +329,25 @@ export function SalesDealsView({
                       >
                         {d.stage}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {d.owner}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {d.pipeline}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-right text-[13px] font-medium text-[var(--st-text)]">
                       {fmtMoney(d.value)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {d.createdAt
                         ? new Date(d.createdAt).toLocaleDateString()
                         : '—'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
           <PaginationBar
             page={page}

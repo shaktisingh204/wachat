@@ -1,51 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  ScrollArea,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, ScrollArea, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -190,7 +145,7 @@ function AddMembersDialog({
   groupJid,
   onDone,
 }: AddMembersDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [input, setInput] = React.useState('');
   const [jids, setJids] = React.useState<string[]>([]);
   const [submitting, setSubmitting] = React.useState(false);
@@ -250,13 +205,13 @@ function AddMembersDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Add members</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add members</DialogTitle>
+          <DialogDescription>
             Paste phone numbers in E.164 format. Press Enter to add each one.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3">
           <div className="flex gap-2">
             <Input
@@ -291,15 +246,15 @@ function AddMembersDialog({
             </div>
           )}
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
           <Button onClick={onSubmit} disabled={submitting || jids.length === 0}>
             {submitting ? 'Adding…' : `Add ${jids.length} member(s)`}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -341,7 +296,7 @@ function MembersTab({
   requestConfirm,
   resolve,
 }: MembersTabProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [busy, setBusy] = React.useState<string | null>(null);
 
   const runParticipantOp = React.useCallback(
@@ -448,38 +403,38 @@ function MembersTab({
       <Card>
         <div className="hidden md:block">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-10">
+            <THead>
+              <Tr>
+                <Th className="w-10">
                   <Checkbox
                     checked={allSelected}
                     onCheckedChange={onToggleAll}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Member</ZoruTableHead>
-                <ZoruTableHead>Role</ZoruTableHead>
-                <ZoruTableHead>Joined</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Member</Th>
+                <Th>Role</Th>
+                <Th>Joined</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {group.participants.map((p) => {
                 const role = p.isSuperAdmin ? 'Super admin' : p.isAdmin ? 'Admin' : 'Member';
                 const displayName = p.name?.trim() || resolve(p.jid);
                 return (
-                  <ZoruTableRow key={p.jid}>
-                    <ZoruTableCell>
+                  <Tr key={p.jid}>
+                    <Td>
                       <Checkbox
                         checked={selected.has(p.jid)}
                         onCheckedChange={() => onToggleSelected(p.jid)}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <div className="flex items-center gap-2">
                         <Avatar className="h-8 w-8">
-                          {p.profilePicUrl ? <ZoruAvatarImage src={p.profilePicUrl} alt="" /> : null}
-                          <ZoruAvatarFallback>{initials(displayName)}</ZoruAvatarFallback>
+                          {p.profilePicUrl ? <AvatarImage src={p.profilePicUrl} alt="" /> : null}
+                          <AvatarFallback>{initials(displayName)}</AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
                           <div className="truncate text-sm font-medium text-[var(--st-text)]">
@@ -490,14 +445,14 @@ function MembersTab({
                           </div>
                         </div>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant={p.isAdmin ? 'secondary' : 'outline'}>{role}</Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-xs text-[var(--st-text-secondary)]">
                       {formatDate(p.joinedAt)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex justify-end gap-1">
                         {p.isAdmin ? (
                           <Button
@@ -531,11 +486,11 @@ function MembersTab({
                           Remove
                         </Button>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
         {/* Mobile cards */}
@@ -552,8 +507,8 @@ function MembersTab({
                       onCheckedChange={() => onToggleSelected(p.jid)}
                     />
                     <Avatar className="h-9 w-9">
-                      {p.profilePicUrl ? <ZoruAvatarImage src={p.profilePicUrl} alt="" /> : null}
-                      <ZoruAvatarFallback>{initials(displayName)}</ZoruAvatarFallback>
+                      {p.profilePicUrl ? <AvatarImage src={p.profilePicUrl} alt="" /> : null}
+                      <AvatarFallback>{initials(displayName)}</AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium text-[var(--st-text)]">{displayName}</div>
@@ -601,7 +556,7 @@ interface InfoTabProps {
 }
 
 function InfoTab({ group, sessionId, refresh }: InfoTabProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [subject, setSubject] = React.useState(group.subject);
   const [description, setDescription] = React.useState(group.description ?? '');
   const [iconUrl, setIconUrl] = React.useState(group.iconUrl ?? '');
@@ -668,17 +623,17 @@ function InfoTab({ group, sessionId, refresh }: InfoTabProps) {
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-base">Group identity</ZoruCardTitle>
-        <ZoruCardDescription>Subject, description, icon and disappearing-message timer.</ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-4">
+      <CardHeader>
+        <CardTitle className="text-base">Group identity</CardTitle>
+        <CardDescription>Subject, description, icon and disappearing-message timer.</CardDescription>
+      </CardHeader>
+      <CardBody className="space-y-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-16 w-16">
-            {iconUrl ? <ZoruAvatarImage src={iconUrl} alt="" /> : null}
-            <ZoruAvatarFallback>
+            {iconUrl ? <AvatarImage src={iconUrl} alt="" /> : null}
+            <AvatarFallback>
               <ImageIcon className="h-6 w-6 text-[var(--st-text-secondary)]" />
-            </ZoruAvatarFallback>
+            </AvatarFallback>
           </Avatar>
           {/*
             SabFilePickerButton sources files from SabFiles per the
@@ -735,7 +690,7 @@ function InfoTab({ group, sessionId, refresh }: InfoTabProps) {
             {submitting ? 'Saving…' : 'Save changes'}
           </Button>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -751,7 +706,7 @@ function PermissionsTab({
   sessionId: string;
   refresh: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [busy, setBusy] = React.useState(false);
 
   const applyPatch = React.useCallback(
@@ -788,11 +743,11 @@ function PermissionsTab({
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-base">Permissions</ZoruCardTitle>
-        <ZoruCardDescription>Control who can send messages and edit info.</ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-3">
+      <CardHeader>
+        <CardTitle className="text-base">Permissions</CardTitle>
+        <CardDescription>Control who can send messages and edit info.</CardDescription>
+      </CardHeader>
+      <CardBody className="space-y-3">
         <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
           <div className="min-w-0">
             <div className="text-sm font-medium text-[var(--st-text)]">Who can send messages</div>
@@ -823,7 +778,7 @@ function PermissionsTab({
             }
           />
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -841,7 +796,7 @@ function InviteLinkTab({
   requestConfirm: (state: ConfirmState) => void;
   refresh: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [code, setCode] = React.useState<string | null>(group.inviteCode ?? null);
   const [copied, setCopied] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
@@ -912,11 +867,11 @@ function InviteLinkTab({
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-base">Invite link</ZoruCardTitle>
-        <ZoruCardDescription>Share this link to let people join the group.</ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-3">
+      <CardHeader>
+        <CardTitle className="text-base">Invite link</CardTitle>
+        <CardDescription>Share this link to let people join the group.</CardDescription>
+      </CardHeader>
+      <CardBody className="space-y-3">
         <div className="flex flex-col items-start gap-3 md:flex-row md:items-center">
           <div className="flex flex-1 items-center gap-2">
             <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-[var(--st-text)]">
@@ -948,7 +903,7 @@ function InviteLinkTab({
             Revoke & regenerate
           </Button>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -966,7 +921,7 @@ function PendingTab({
   refresh: () => void;
   resolve: JidResolver;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [busy, setBusy] = React.useState<string | null>(null);
 
   const decide = React.useCallback(
@@ -1000,15 +955,15 @@ function PendingTab({
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-base">Pending join requests</ZoruCardTitle>
-        <ZoruCardDescription>
+      <CardHeader>
+        <CardTitle className="text-base">Pending join requests</CardTitle>
+        <CardDescription>
           {group.isCommunity
             ? 'Community sub-groups can require approval before someone joins.'
             : 'This group does not have a pending-request queue.'}
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+        </CardDescription>
+      </CardHeader>
+      <CardBody>
         {pending.length === 0 ? (
           <p className="py-4 text-center text-sm text-[var(--st-text-secondary)]">
             No pending requests.
@@ -1020,7 +975,7 @@ function PendingTab({
               return (
               <div key={req.jid} className="flex items-center gap-3 py-2">
                 <Avatar className="h-8 w-8">
-                  <ZoruAvatarFallback>{initials(displayName)}</ZoruAvatarFallback>
+                  <AvatarFallback>{initials(displayName)}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium text-[var(--st-text)]">{displayName}</div>
@@ -1050,7 +1005,7 @@ function PendingTab({
             })}
           </div>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -1060,18 +1015,18 @@ function PendingTab({
 function ExportTab({ group }: { group: SabwaGroupDetail }) {
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-base">Export member list</ZoruCardTitle>
-        <ZoruCardDescription>
+      <CardHeader>
+        <CardTitle className="text-base">Export member list</CardTitle>
+        <CardDescription>
           Downloads a CSV of all current participants.
-        </ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent>
+        </CardDescription>
+      </CardHeader>
+      <CardBody>
         <Button onClick={() => downloadMembersCsv(group)}>
           <Download />
           Export CSV ({group.participants.length})
         </Button>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -1080,7 +1035,7 @@ function ExportTab({ group }: { group: SabwaGroupDetail }) {
 
 export function GroupManagerClient({ groupJid }: { groupJid: string }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { current } = useSabwaSession();
   const sessionId = current?.id ?? null;
   const resolve = useResolveJid(sessionId);
@@ -1164,23 +1119,23 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
     return (
       <div className="mx-auto w-full max-w-[1280px] space-y-3 px-4 pt-6 pb-10 md:px-6 lg:px-8">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa/groups">Groups</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Manage</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa/groups">Groups</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Manage</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
         <Button variant="ghost" asChild className="-ml-2">
           <Link href="/sabwa/groups">
@@ -1189,14 +1144,14 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
           </Link>
         </Button>
         <Card>
-          <ZoruCardContent className="flex flex-col items-center gap-2 py-12 text-center">
+          <CardBody className="flex flex-col items-center gap-2 py-12 text-center">
             <p className="text-sm text-[var(--st-text-secondary)]">
               Connect a SabWa session to manage groups.
             </p>
             <Button asChild>
               <Link href="/sabwa/connect">Connect now</Link>
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     );
@@ -1205,25 +1160,25 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
   return (
     <div className="mx-auto w-full max-w-[1280px] space-y-4 px-4 pt-6 pb-10 md:px-6 lg:px-8">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa/groups">Groups</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa/groups">Groups</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>
               {group?.subject ? `${group.subject} · Manage` : 'Manage'}
-            </ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <div className="flex items-center gap-2">
@@ -1237,26 +1192,26 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
 
       {loadError ? (
         <Card>
-          <ZoruCardContent className="flex flex-col items-center gap-2 py-12 text-center">
+          <CardBody className="flex flex-col items-center gap-2 py-12 text-center">
             <p className="text-sm text-[var(--st-danger)]">{loadError}</p>
             <Button variant="outline" onClick={fetchGroup}>
               Retry
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : loading || !group ? (
         <Card>
-          <ZoruCardContent className="flex items-center justify-center gap-2 py-12 text-sm text-[var(--st-text-secondary)]">
+          <CardBody className="flex items-center justify-center gap-2 py-12 text-sm text-[var(--st-text-secondary)]">
             <Loader2 className="h-4 w-4 animate-spin" />
             Loading group…
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : (
         <>
           <div className="flex flex-wrap items-start gap-3">
             <Avatar className="h-14 w-14">
-              {group.iconUrl ? <ZoruAvatarImage src={group.iconUrl} alt="" /> : null}
-              <ZoruAvatarFallback>{initials(group.subject || '#')}</ZoruAvatarFallback>
+              {group.iconUrl ? <AvatarImage src={group.iconUrl} alt="" /> : null}
+              <AvatarFallback>{initials(group.subject || '#')}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
               <h1 className="truncate text-[24px] font-semibold leading-[1.15] tracking-[-0.015em] text-[var(--st-text)]">
@@ -1364,20 +1319,20 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
         </>
       )}
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={confirm !== null}
         onOpenChange={(o) => {
           if (!o) setConfirm(null);
         }}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>{confirm?.title}</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>{confirm?.description}</ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirm?.title}</AlertDialogTitle>
+            <AlertDialogDescription>{confirm?.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               className={cn(
                 confirm?.destructive && 'bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90',
               )}
@@ -1388,10 +1343,10 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
               }}
             >
               {confirm?.confirmLabel ?? 'Confirm'}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

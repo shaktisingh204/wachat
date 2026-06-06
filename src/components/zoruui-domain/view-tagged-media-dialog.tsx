@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Skeleton,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Skeleton, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -48,13 +38,13 @@ export function ViewTaggedMediaDialog({ isOpen, onOpenChange, product, projectId
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-3xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Media Tagged with "{product.name}"</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Media Tagged with "{product.name}"</DialogTitle>
+          <DialogDescription>
             Posts and other media where this product has been tagged.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="max-h-[60vh] overflow-y-auto p-1 -mx-2">
             {isLoading ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
@@ -63,8 +53,8 @@ export function ViewTaggedMediaDialog({ isOpen, onOpenChange, product, projectId
             ) : error ? (
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Error</ZoruAlertTitle>
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             ) : media.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
@@ -85,7 +75,7 @@ export function ViewTaggedMediaDialog({ isOpen, onOpenChange, product, projectId
                 </div>
             )}
         </div>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

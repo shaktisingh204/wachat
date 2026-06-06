@@ -1,35 +1,6 @@
 "use client";
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DatePicker,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Separator,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, DatePicker, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Separator, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -95,7 +66,7 @@ export default function CreateFacebookPostPage() {
     handleCreateFacebookPost,
     initialState,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   const [projectId, setProjectId] = useState<string | null>(null);
@@ -226,39 +197,39 @@ export default function CreateFacebookPostPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Create post</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Create post</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader bordered={false} className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
-          <ZoruPageTitle>Create post</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Meta Suite</PageEyebrow>
+          <PageTitle>Create post</PageTitle>
+          <PageDescription>
             Compose a new post for your connected Facebook Page. Add media,
             schedule for later, or publish immediately.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/facebook/posts">
               <X /> Cancel
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <form action={formAction} ref={formRef} className="mt-6">
@@ -281,21 +252,21 @@ export default function CreateFacebookPostPage() {
           <div className="flex flex-col gap-6">
             {/* Identity */}
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Posting as</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              <CardHeader>
+                <CardTitle>Posting as</CardTitle>
+              </CardHeader>
+              <CardBody>
                 <div className="flex items-center gap-3">
                   <Avatar>
                     {pageDetails?.picture?.data?.url && (
-                      <ZoruAvatarImage
+                      <AvatarImage
                         src={pageDetails.picture.data?.url}
                         alt={pageDetails.name}
                       />
                     )}
-                    <ZoruAvatarFallback>
+                    <AvatarFallback>
                       {pageDetails?.name?.charAt(0) ?? "P"}
-                    </ZoruAvatarFallback>
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold text-[var(--st-text)]">
@@ -306,15 +277,15 @@ export default function CreateFacebookPostPage() {
                     </span>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             {/* Message */}
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Message</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              <CardHeader>
+                <CardTitle>Message</CardTitle>
+              </CardHeader>
+              <CardBody>
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="message" className="sr-only">
                     Post message
@@ -332,15 +303,15 @@ export default function CreateFacebookPostPage() {
                     {message.length} characters
                   </p>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             {/* Media */}
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Media</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex flex-col gap-4">
+              <CardHeader>
+                <CardTitle>Media</CardTitle>
+              </CardHeader>
+              <CardBody className="flex flex-col gap-4">
                 <input type="hidden" name="mediaUrl" value={mediaUrl} />
                 
                 {postType === "carousel" && mediaUrls.length > 0 ? (
@@ -432,15 +403,15 @@ export default function CreateFacebookPostPage() {
                     </span>
                   )}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             {/* Scheduling */}
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Schedule</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex flex-col gap-4">
+              <CardHeader>
+                <CardTitle>Schedule</CardTitle>
+              </CardHeader>
+              <CardBody className="flex flex-col gap-4">
                 <div className="flex items-center justify-between gap-4 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
                   <div className="flex flex-col">
                     <Label
@@ -486,7 +457,7 @@ export default function CreateFacebookPostPage() {
                     </div>
                   </>
                 )}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             {/* Actions */}
@@ -510,8 +481,8 @@ export default function CreateFacebookPostPage() {
           {/* ── Preview pane ─────────────────────────────────────── */}
           <div className="lg:sticky lg:top-6 lg:self-start">
             <Card variant="elevated">
-              <ZoruCardHeader className="flex-row items-center justify-between">
-                <ZoruCardTitle>Preview</ZoruCardTitle>
+              <CardHeader className="flex-row items-center justify-between">
+                <CardTitle>Preview</CardTitle>
                 <Badge variant="ghost">
                   {postType === "video"
                     ? "Video"
@@ -521,19 +492,19 @@ export default function CreateFacebookPostPage() {
                     ? "Carousel"
                     : "Text"}
                 </Badge>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex flex-col gap-3">
+              </CardHeader>
+              <CardBody className="flex flex-col gap-3">
                 <div className="flex items-center gap-3">
                   <Avatar>
                     {pageDetails?.picture?.data?.url && (
-                      <ZoruAvatarImage
+                      <AvatarImage
                         src={pageDetails.picture.data?.url}
                         alt={pageDetails.name}
                       />
                     )}
-                    <ZoruAvatarFallback>
+                    <AvatarFallback>
                       {pageDetails?.name?.charAt(0) ?? "P"}
-                    </ZoruAvatarFallback>
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold text-[var(--st-text)]">
@@ -586,7 +557,7 @@ export default function CreateFacebookPostPage() {
                     )}
                   </div>
                 )}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </div>

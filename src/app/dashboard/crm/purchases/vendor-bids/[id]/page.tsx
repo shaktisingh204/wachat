@@ -1,4 +1,4 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ClipboardList } from 'lucide-react';
 import React, { Suspense } from 'react';
@@ -124,10 +124,10 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
         <>
           {/* Status flow visualizer */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Status flow</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Status flow</CardTitle>
+            </CardHeader>
+            <CardBody>
               <ol className="space-y-1.5">
                 {STATUS_FLOW.map((s) => (
                   <StatusStep key={s} status={s} current={status} />
@@ -136,15 +136,15 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                   <StatusStep status={status} current={status} />
                 ) : null}
               </ol>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* At-a-glance */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>At a glance</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>At a glance</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[var(--st-text-secondary)]">Submitted</span>
@@ -165,7 +165,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                   <span>{fmtDate(bid.updatedAt || bid.audit?.updatedAt)}</span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <LineageRail
@@ -200,10 +200,10 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
 
       {/* Overview */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <DetailField label="Bid label">{bidLabel}</DetailField>
             <DetailField label="Status">
@@ -233,15 +233,15 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
             </DetailField>
             <DetailField label="Currency">{currency}</DetailField>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Line items */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Line items</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Line items</CardTitle>
+        </CardHeader>
+        <CardBody>
           {items.length === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">No line items.</p>
           ) : (
@@ -307,15 +307,15 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
               </table>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Pricing summary */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Pricing summary</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Pricing summary</CardTitle>
+        </CardHeader>
+        <CardBody>
           <dl className="grid gap-2 md:grid-cols-2 text-[13px]">
             <div className="flex justify-between md:col-start-2">
               <span className="text-[var(--st-text-secondary)]">Sub-total</span>
@@ -330,30 +330,30 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
               </span>
             </div>
           </dl>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Terms */}
       {bid.terms ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Terms</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Terms</CardTitle>
+          </CardHeader>
+          <CardBody>
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {bid.terms}
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       {/* Attachments */}
       {attachments.length > 0 ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Attachments</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Attachments</CardTitle>
+          </CardHeader>
+          <CardBody>
             <ul className="flex flex-col gap-1.5">
               {attachments.map((a, idx) => (
                 <li
@@ -376,7 +376,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                 </li>
               ))}
             </ul>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </EntityDetailShell>

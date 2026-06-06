@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  Textarea,
-  Badge,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Textarea, Badge, cn } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 
 import { Download, Layers, Play, Sparkles, Copy, Check } from 'lucide-react';
@@ -215,11 +205,11 @@ export default function KeywordClusteringPage() {
 
             <div className="grid gap-6 md:grid-cols-2">
                 <Card className="h-full">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Input Keywords</ZoruCardTitle>
-                        <ZoruCardDescription>Paste your list (one per line).</ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="h-full">
+                    <CardHeader>
+                        <CardTitle>Input Keywords</CardTitle>
+                        <CardDescription>Paste your list (one per line).</CardDescription>
+                    </CardHeader>
+                    <CardBody className="h-full">
                         <Textarea
                             placeholder="best coffee machine&#10;cheap coffee maker&#10;how to brew coffee&#10;coffee machine reviews..."
                             className="h-[400px] font-mono"
@@ -232,19 +222,19 @@ export default function KeywordClusteringPage() {
                                 Cluster Keywords
                             </Button>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card className="h-full flex flex-col">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Semantic Clusters</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>Semantic Clusters</CardTitle>
+                        <CardDescription>
                             {results
                                 ? `${Object.keys(results).length} groups found.`
                                 : "Results will appear here."}
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="flex-1 overflow-y-auto max-h-[500px]">
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody className="flex-1 overflow-y-auto max-h-[500px]">
                         {!results ? (
                             <div className="h-full flex items-center justify-center text-[var(--st-text-secondary)] border-2 border-dashed rounded-md p-6 text-center">
                                 Run clustering to group keywords by semantic meaning.
@@ -268,7 +258,7 @@ export default function KeywordClusteringPage() {
                                 ))}
                             </div>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

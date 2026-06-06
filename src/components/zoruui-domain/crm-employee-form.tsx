@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  DatePicker,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, DatePicker, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,
@@ -230,7 +217,7 @@ export function EmployeeForm({
     redirectAfterSave,
 }: EmployeeFormProps) {
     const [state, formAction] = useActionState(saveCrmEmployee, initialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
     const isEditing = !!employee;
 
@@ -542,16 +529,16 @@ export function EmployeeForm({
                             name="status"
                             defaultValue={employee?.status || 'Active'}
                         >
-                            <ZoruSelectTrigger className={triggerCls}>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="Active">Active</ZoruSelectItem>
-                                <ZoruSelectItem value="Inactive">Inactive</ZoruSelectItem>
-                                <ZoruSelectItem value="Terminated">
+                            <SelectTrigger className={triggerCls}>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Active">Active</SelectItem>
+                                <SelectItem value="Inactive">Inactive</SelectItem>
+                                <SelectItem value="Terminated">
                                     Terminated
-                                </ZoruSelectItem>
-                            </ZoruSelectContent>
+                                </SelectItem>
+                            </SelectContent>
                         </Select>
                     </Field>
                     <Field label="Department">
@@ -665,15 +652,15 @@ export function EmployeeForm({
                             name="gender"
                             defaultValue={detail?.gender || NONE}
                         >
-                            <ZoruSelectTrigger className={triggerCls}>
-                                <ZoruSelectValue placeholder="Select…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value={NONE}>— None —</ZoruSelectItem>
-                                <ZoruSelectItem value="male">Male</ZoruSelectItem>
-                                <ZoruSelectItem value="female">Female</ZoruSelectItem>
-                                <ZoruSelectItem value="others">Others</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className={triggerCls}>
+                                <SelectValue placeholder="Select…" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={NONE}>— None —</SelectItem>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                                <SelectItem value="others">Others</SelectItem>
+                            </SelectContent>
                         </Select>
                     </Field>
                     <Field label="Marital Status">
@@ -681,16 +668,16 @@ export function EmployeeForm({
                             name="marital_status"
                             defaultValue={detail?.marital_status || NONE}
                         >
-                            <ZoruSelectTrigger className={triggerCls}>
-                                <ZoruSelectValue placeholder="Select…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value={NONE}>— None —</ZoruSelectItem>
-                                <ZoruSelectItem value="single">Single</ZoruSelectItem>
-                                <ZoruSelectItem value="married">Married</ZoruSelectItem>
-                                <ZoruSelectItem value="divorced">Divorced</ZoruSelectItem>
-                                <ZoruSelectItem value="widowed">Widowed</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className={triggerCls}>
+                                <SelectValue placeholder="Select…" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={NONE}>— None —</SelectItem>
+                                <SelectItem value="single">Single</SelectItem>
+                                <SelectItem value="married">Married</SelectItem>
+                                <SelectItem value="divorced">Divorced</SelectItem>
+                                <SelectItem value="widowed">Widowed</SelectItem>
+                            </SelectContent>
                         </Select>
                     </Field>
                     <Field label="Date of Birth (Detailed)">
@@ -705,19 +692,19 @@ export function EmployeeForm({
                             name="blood_group"
                             defaultValue={detail?.blood_group || NONE}
                         >
-                            <ZoruSelectTrigger className={triggerCls}>
-                                <ZoruSelectValue placeholder="Select…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value={NONE}>— None —</ZoruSelectItem>
+                            <SelectTrigger className={triggerCls}>
+                                <SelectValue placeholder="Select…" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={NONE}>— None —</SelectItem>
                                 {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(
                                     (g) => (
-                                        <ZoruSelectItem key={g} value={g}>
+                                        <SelectItem key={g} value={g}>
                                             {g}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ),
                                 )}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </Field>
                     <Field label="Nationality" htmlFor="nationality">
@@ -788,19 +775,19 @@ export function EmployeeForm({
                             name="employment_type"
                             defaultValue={detail?.employment_type || NONE}
                         >
-                            <ZoruSelectTrigger className={triggerCls}>
-                                <ZoruSelectValue placeholder="Select…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value={NONE}>— None —</ZoruSelectItem>
-                                <ZoruSelectItem value="full-time">Full-time</ZoruSelectItem>
-                                <ZoruSelectItem value="part-time">Part-time</ZoruSelectItem>
-                                <ZoruSelectItem value="contract">Contract</ZoruSelectItem>
-                                <ZoruSelectItem value="internship">
+                            <SelectTrigger className={triggerCls}>
+                                <SelectValue placeholder="Select…" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={NONE}>— None —</SelectItem>
+                                <SelectItem value="full-time">Full-time</SelectItem>
+                                <SelectItem value="part-time">Part-time</SelectItem>
+                                <SelectItem value="contract">Contract</SelectItem>
+                                <SelectItem value="internship">
                                     Internship
-                                </ZoruSelectItem>
-                                <ZoruSelectItem value="trainee">Trainee</ZoruSelectItem>
-                            </ZoruSelectContent>
+                                </SelectItem>
+                                <SelectItem value="trainee">Trainee</SelectItem>
+                            </SelectContent>
                         </Select>
                     </Field>
                     <Field label="Reporting To">
@@ -901,13 +888,13 @@ export function EmployeeForm({
                                 detail?.work_anniversary_notified ? 'true' : 'false'
                             }
                         >
-                            <ZoruSelectTrigger className={triggerCls}>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="false">No</ZoruSelectItem>
-                                <ZoruSelectItem value="true">Yes</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className={triggerCls}>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="false">No</SelectItem>
+                                <SelectItem value="true">Yes</SelectItem>
+                            </SelectContent>
                         </Select>
                     </Field>
                 </div>
@@ -952,14 +939,14 @@ export function EmployeeForm({
                             name="tax_regime"
                             defaultValue={detail?.tax_regime || NONE}
                         >
-                            <ZoruSelectTrigger className={triggerCls}>
-                                <ZoruSelectValue placeholder="Select…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value={NONE}>— None —</ZoruSelectItem>
-                                <ZoruSelectItem value="old">Old</ZoruSelectItem>
-                                <ZoruSelectItem value="new">New</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className={triggerCls}>
+                                <SelectValue placeholder="Select…" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={NONE}>— None —</SelectItem>
+                                <SelectItem value="old">Old</SelectItem>
+                                <SelectItem value="new">New</SelectItem>
+                            </SelectContent>
                         </Select>
                     </Field>
                     <Field label="Gross Salary" htmlFor="grossSalary">

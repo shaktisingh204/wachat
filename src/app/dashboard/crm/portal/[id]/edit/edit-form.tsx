@@ -20,17 +20,7 @@
  */
 
 import * as React from 'react';
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Checkbox,
-    Input,
-    Label,
-    Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
 import { z } from 'zod';
@@ -280,10 +270,10 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
             <input type="hidden" name="logoFileName" value={logo?.name ?? ''} />
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Identification</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Identification</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="name">
@@ -354,21 +344,21 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                             </select>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>
+                <CardHeader>
+                    <CardTitle>
                         Linked{' '}
                         {portalType === 'vendor'
                             ? 'vendor'
                             : portalType === 'employee'
                               ? 'employee'
                               : 'customer'}
-                    </ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="space-y-2">
                         <Label>
                             Pick the {portalType} record this portal user maps to.
@@ -382,14 +372,14 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                             placeholder={`Select ${portalType}…`}
                         />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Role & access</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Role & access</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="space-y-3">
                         <div className="grid gap-2 md:grid-cols-3">
                             {ROLE_OPTIONS.map((opt) => (
@@ -452,14 +442,14 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                             </div>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Branding</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Branding</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-[1fr_220px]">
                         <div className="space-y-3">
                             <div className="space-y-2">
@@ -527,14 +517,14 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                             </div>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Internal notes</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Internal notes</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <Textarea
                         id="notes"
                         name="notes"
@@ -542,7 +532,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                         rows={3}
                         placeholder="Internal notes about this portal user."
                     />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-3">

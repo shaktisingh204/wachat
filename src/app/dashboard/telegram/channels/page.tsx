@@ -1,44 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Hash,
   Loader2,
@@ -164,7 +126,7 @@ function ChannelCard({
                     )}
                 </div>
                 <DropdownMenu>
-                    <ZoruDropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
                         <Button
                             variant="ghost"
                             size="icon-sm"
@@ -172,18 +134,18 @@ function ChannelCard({
                         >
                             <MoreHorizontal />
                         </Button>
-                    </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem onSelect={() => onOpen(channel._id)}>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => onOpen(channel._id)}>
                             Open channel
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onSelect={() => onRefresh(channel._id)}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onRefresh(channel._id)}>
                             Refresh from Telegram
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onSelect={() => onRemove(channel._id)}>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onRemove(channel._id)}>
                             Remove channel
-                        </ZoruDropdownMenuItem>
-                    </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
                 </DropdownMenu>
             </div>
 
@@ -249,14 +211,14 @@ function DiscoverDialog({
 }) {
     return (
         <Dialog open={state.open} onOpenChange={(o) => (o ? null : onClose())}>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Discover channel</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Discover channel</DialogTitle>
+                    <DialogDescription>
                         Add the bot as an admin of the channel first, then point us at the
                         channel by its public @username or numeric chat id.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-col gap-1.5">
@@ -265,16 +227,16 @@ function DiscoverDialog({
                             value={state.botId}
                             onValueChange={(v) => onChange({ ...state, botId: v })}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Pick a bot" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Pick a bot" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {bots.map((b) => (
-                                    <ZoruSelectItem key={b._id} value={b._id}>
+                                    <SelectItem key={b._id} value={b._id}>
                                         @{b.username}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
@@ -294,7 +256,7 @@ function DiscoverDialog({
                     </div>
                 </div>
 
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button variant="ghost" onClick={onClose} disabled={state.busy}>
                         Cancel
                     </Button>
@@ -312,8 +274,8 @@ function DiscoverDialog({
                             </>
                         )}
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -329,7 +291,7 @@ function buildDiscoverBody(input: string): { chatId?: string; username?: string 
 
 export default function TelegramChannelsPage() {
     const { activeProjectId, isLoadingProject } = useProject();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [bots, setBots] = React.useState<TelegramBotRow[]>([]);
     const [channels, setChannels] = React.useState<ChannelRow[]>([]);
@@ -512,9 +474,9 @@ export default function TelegramChannelsPage() {
             <TelegramProjectGate />
             <PageHeader>
                 <div className="flex items-start justify-between gap-3">
-                    <ZoruPageHeading>
-                        <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
-                        <ZoruPageTitle>
+                    <PageHeading>
+                        <PageEyebrow>Telegram</PageEyebrow>
+                        <PageTitle>
                             <div className="inline-flex items-center gap-2">
                                 <span
                                     className="flex h-8 w-8 items-center justify-center rounded-md"
@@ -524,12 +486,12 @@ export default function TelegramChannelsPage() {
                                 </span>
                                 Telegram Channels
                             </div>
-                        </ZoruPageTitle>
-                        <ZoruPageDescription>
+                        </PageTitle>
+                        <PageDescription>
                             Discover channels your bots are admins of, post messages, schedule
                             broadcasts, and manage administrators.
-                        </ZoruPageDescription>
-                    </ZoruPageHeading>
+                        </PageDescription>
+                    </PageHeading>
                     <Button
                         onClick={() =>
                             setDiscover({
@@ -604,30 +566,30 @@ export default function TelegramChannelsPage() {
                         setFilters((f) => ({ ...f, type: v }))
                     }
                 >
-                    <ZoruSelectTrigger className="w-[160px]">
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All types</ZoruSelectItem>
-                        <ZoruSelectItem value="channel">Channels</ZoruSelectItem>
-                        <ZoruSelectItem value="supergroup">Supergroups</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All types</SelectItem>
+                        <SelectItem value="channel">Channels</SelectItem>
+                        <SelectItem value="supergroup">Supergroups</SelectItem>
+                    </SelectContent>
                 </Select>
                 <Select
                     value={filters.botId}
                     onValueChange={(v) => setFilters((f) => ({ ...f, botId: v }))}
                 >
-                    <ZoruSelectTrigger className="w-[200px]">
-                        <ZoruSelectValue placeholder="All bots" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All bots</ZoruSelectItem>
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="All bots" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All bots</SelectItem>
                         {bots.map((b) => (
-                            <ZoruSelectItem key={b._id} value={b._id}>
+                            <SelectItem key={b._id} value={b._id}>
                                 @{b.username}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
                 <Button variant="outline" onClick={load} disabled={loading}>
                     {loading ? (
@@ -706,27 +668,27 @@ export default function TelegramChannelsPage() {
                 }
             />
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingRemove}
                 onOpenChange={(o) => (o ? null : setPendingRemove(null))}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Remove channel?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Remove channel?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             This unlinks <strong>{pendingRemove?.title}</strong> from SabNode.
                             The bot keeps its administrator role on Telegram — remove the bot
                             from the channel manually if you also want to revoke its access.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleRemove}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleRemove}>
                             <Trash2 /> Remove
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

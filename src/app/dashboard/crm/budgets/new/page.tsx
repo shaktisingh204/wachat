@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -43,7 +31,7 @@ type HeadType = 'account' | 'department' | 'project';
 export default function NewBudgetPage() {
   const [state, formAction] = useActionState(saveBudget, initialState);
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [headType, setHeadType] = useState<HeadType>('account');
 
   useEffect(() => {
@@ -75,14 +63,14 @@ export default function NewBudgetPage() {
                 value={headType}
                 onValueChange={(v) => setHeadType(v as HeadType)}
               >
-                <ZoruSelectTrigger id="budgetHeadType">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="account">Account</ZoruSelectItem>
-                  <ZoruSelectItem value="department">Department</ZoruSelectItem>
-                  <ZoruSelectItem value="project">Project</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger id="budgetHeadType">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="account">Account</SelectItem>
+                  <SelectItem value="department">Department</SelectItem>
+                  <SelectItem value="project">Project</SelectItem>
+                </SelectContent>
               </Select>
             </div>
 
@@ -128,14 +116,14 @@ export default function NewBudgetPage() {
                 Scenario
               </Label>
               <Select name="scenario" defaultValue="base">
-                <ZoruSelectTrigger id="scenario">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="base">Base</ZoruSelectItem>
-                  <ZoruSelectItem value="best">Best</ZoruSelectItem>
-                  <ZoruSelectItem value="worst">Worst</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger id="scenario">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="base">Base</SelectItem>
+                  <SelectItem value="best">Best</SelectItem>
+                  <SelectItem value="worst">Worst</SelectItem>
+                </SelectContent>
               </Select>
             </div>
 

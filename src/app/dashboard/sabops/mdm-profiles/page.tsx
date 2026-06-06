@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Badge, Button, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardBody, Badge, Button, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import { ShieldCheck, Plus, Smartphone, Laptop } from 'lucide-react';
 
 export default function MdmProfilesPage() {
@@ -14,10 +14,10 @@ export default function MdmProfilesPage() {
         <div className="flex flex-col gap-6">
             <PageHeader>
                 <div className="flex w-full items-center justify-between">
-                    <ZoruPageHeading>
-                        <ZoruPageTitle>MDM Profiles</ZoruPageTitle>
-                        <ZoruPageDescription>Manage mobile device management profiles and policies across your fleet.</ZoruPageDescription>
-                    </ZoruPageHeading>
+                    <PageHeading>
+                        <PageTitle>MDM Profiles</PageTitle>
+                        <PageDescription>Manage mobile device management profiles and policies across your fleet.</PageDescription>
+                    </PageHeading>
                     <Button>
                         <Plus className="mr-2 size-4" />
                         Create Profile
@@ -26,47 +26,47 @@ export default function MdmProfilesPage() {
             </PageHeader>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Active Profiles</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Active Profiles</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Profile Name</TableHead>
-                                <TableHead>Platform</TableHead>
-                                <TableHead>Devices Assigned</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                        <THead>
+                            <Tr>
+                                <Th>Profile Name</Th>
+                                <Th>Platform</Th>
+                                <Th>Devices Assigned</Th>
+                                <Th>Status</Th>
+                                <Th className="text-right">Actions</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {profiles.map(profile => (
-                                <TableRow key={profile.id}>
-                                    <TableCell className="font-medium flex items-center gap-2">
+                                <Tr key={profile.id}>
+                                    <Td className="font-medium flex items-center gap-2">
                                         <ShieldCheck className="size-4 text-[var(--st-text-secondary)]" />
                                         {profile.name}
-                                    </TableCell>
-                                    <TableCell>
+                                    </Td>
+                                    <Td>
                                         <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                                             {profile.platform === 'iOS' || profile.platform === 'Android' ? <Smartphone className="size-3" /> : <Laptop className="size-3" />}
                                             {profile.platform}
                                         </div>
-                                    </TableCell>
-                                    <TableCell>{profile.assigned}</TableCell>
-                                    <TableCell>
+                                    </Td>
+                                    <Td>{profile.assigned}</Td>
+                                    <Td>
                                         <Badge variant={profile.status === 'Active' ? 'default' : 'secondary'}>
                                             {profile.status}
                                         </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <Button variant="outline" size="sm">Edit</Button>
-                                    </TableCell>
-                                </TableRow>
+                                    </Td>
+                                </Tr>
                             ))}
-                        </TableBody>
+                        </TBody>
                     </Table>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

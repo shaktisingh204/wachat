@@ -10,24 +10,7 @@
 import * as React from 'react';
 import { Coins, Copy, Crown, Gift, Share2, Sparkles } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   createRewardsRedemption,
@@ -60,7 +43,7 @@ export function RewardsPortalClient({
   myReferral,
   referrerCode,
 }: Props): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [redeemTarget, setRedeemTarget] = React.useState<RewardsCatalogItemDoc | null>(null);
   const [redeemOpen, setRedeemOpen] = React.useState(false);
@@ -169,7 +152,7 @@ export function RewardsPortalClient({
         </header>
 
         <Card>
-          <ZoruCardContent className="flex flex-wrap items-center justify-between gap-3 p-6">
+          <CardBody className="flex flex-wrap items-center justify-between gap-3 p-6">
             <div className="flex items-center gap-3">
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-accent)]/10 text-[var(--st-accent)]">
                 <Coins className="h-6 w-6" />
@@ -201,7 +184,7 @@ export function RewardsPortalClient({
                 </p>
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <section className="flex flex-col gap-3">
@@ -255,15 +238,15 @@ export function RewardsPortalClient({
 
         <section>
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle className="flex items-center gap-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
                 <Share2 className="h-4 w-4" /> Refer a friend
-              </ZoruCardTitle>
-              <ZoruCardDescription>
+              </CardTitle>
+              <CardDescription>
                 Share your unique link — earn points when your friends qualify.
-              </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex flex-col gap-3">
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="flex flex-col gap-3">
               {referral ? (
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="referral-link">Your referral link</Label>
@@ -289,16 +272,16 @@ export function RewardsPortalClient({
                   {referralBusy ? 'Generating…' : 'Generate my referral link'}
                 </Button>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </section>
       </div>
 
       <Dialog open={redeemOpen} onOpenChange={setRedeemOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Confirm redemption</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm redemption</DialogTitle>
+          </DialogHeader>
           <div className="py-2 text-sm text-[var(--st-text)]">
             {redeemTarget ? (
               <p>
@@ -307,15 +290,15 @@ export function RewardsPortalClient({
               </p>
             ) : null}
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setRedeemOpen(false)} disabled={busy}>
               Cancel
             </Button>
             <Button onClick={handleRedeem} disabled={busy}>
               {busy ? 'Redeeming…' : 'Redeem'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

@@ -10,12 +10,7 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 
 import { getClientKnowledgeBase } from '@/app/actions/client-portal.actions';
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { KbSearch } from '@/components/client-portal/kb-search';
 import { cn } from '@/components/sabcrm/20ui/compat';
@@ -92,10 +87,10 @@ async function ClientKnowledgeBasePageContent({
                         articles.map((a) => (
                             <Link key={a._id} href={`/portal/client/knowledge-base/${a._id}`}>
                                 <Card className="transition-colors hover:bg-[var(--st-bg-muted)]">
-                                    <ZoruCardHeader>
-                                        <ZoruCardTitle>{a.title}</ZoruCardTitle>
-                                    </ZoruCardHeader>
-                                    <ZoruCardContent>
+                                    <CardHeader>
+                                        <CardTitle>{a.title}</CardTitle>
+                                    </CardHeader>
+                                    <CardBody>
                                         {a.excerpt ? (
                                             <p className="line-clamp-2 text-sm text-[var(--st-text-secondary)]">{a.excerpt}</p>
                                         ) : null}
@@ -103,7 +98,7 @@ async function ClientKnowledgeBasePageContent({
                                             {a.category ? `${a.category} · ` : ''}
                                             Updated {fmtDate(a.updatedAt)}
                                         </div>
-                                    </ZoruCardContent>
+                                    </CardBody>
                                 </Card>
                             </Link>
                         ))

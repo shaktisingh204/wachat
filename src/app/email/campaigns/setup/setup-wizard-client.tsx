@@ -4,20 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, ArrowRight, ArrowLeft, Send } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  Input,
-  Label,
-  Textarea,
-  toast,
-  Badge,
-  Checkbox,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Textarea, toast, Badge, Checkbox } from '@/components/sabcrm/20ui/compat';
 import { actionCreateEmailCampaign } from '@/app/actions/email/campaigns.actions';
 import type { EmailListDoc, EmailSegmentDoc } from '@/lib/rust-client/email-audience';
 
@@ -104,11 +91,11 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
       </div>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>{steps[step].title}</ZoruCardTitle>
-          <ZoruCardDescription>{steps[step].description}</ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>{steps[step].title}</CardTitle>
+          <CardDescription>{steps[step].description}</CardDescription>
+        </CardHeader>
+        <CardBody>
           {step === 0 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="space-y-1">
@@ -228,7 +215,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
               </p>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
         <div className="flex justify-between items-center p-6 border-t border-[var(--st-bg-muted)] bg-[var(--st-bg-secondary)]">
           <Button variant="outline" onClick={handlePrev} disabled={step === 0 || pending}>
             <ArrowLeft className="h-4 w-4 mr-2" /> Back

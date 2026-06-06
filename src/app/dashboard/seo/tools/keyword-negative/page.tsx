@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Textarea, Card, ZoruCardContent, Checkbox, Label, Button } from '@/components/sabcrm/20ui/compat';
+import { Textarea, Card, CardBody, Checkbox, Label, Button } from '@/components/sabcrm/20ui/compat';
 import { Copy, Check } from 'lucide-react';
 
 const BUILTIN_LISTS = {
@@ -181,7 +181,7 @@ export default function KeywordNegativePage() {
         {/* Right Column: List Selection & Custom Inputs */}
         <div className="space-y-6">
           <Card>
-            <ZoruCardContent className="p-4 space-y-4">
+            <CardBody className="p-4 space-y-4">
               <div className="font-semibold text-sm">Select Built-in Negative Lists</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {Object.entries(BUILTIN_LISTS).map(([key, list]) => (
@@ -195,11 +195,11 @@ export default function KeywordNegativePage() {
                   </div>
                 ))}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardContent className="p-4 space-y-3">
+            <CardBody className="p-4 space-y-3">
               <Label htmlFor="custom-negatives" className="font-semibold text-sm">Custom Negative Words</Label>
               <Textarea 
                 id="custom-negatives"
@@ -211,14 +211,14 @@ export default function KeywordNegativePage() {
               <p className="text-xs text-[var(--st-text-secondary)]">
                 Add specific words or phrases to exclude. These will be checked along with the built-in lists selected above, and saved automatically.
               </p>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <Card>
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="font-semibold text-sm">Cleaned Keywords ({cleanedKeywords.length})</div>
               <Button size="sm" variant="outline" onClick={handleCopy} disabled={cleanedKeywords.length === 0}>
@@ -232,12 +232,12 @@ export default function KeywordNegativePage() {
               placeholder="Cleaned keywords will appear here..."
               className="min-h-[200px] bg-[var(--st-bg-muted)]/50"
             />
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <div className="space-y-6">
           <Card>
-            <ZoruCardContent className="p-4">
+            <CardBody className="p-4">
               <div className="font-semibold text-sm mb-3">Detected Negatives</div>
               {detectedNegatives.length === 0 ? (
                 <span className="text-sm text-[var(--st-text-secondary)]">
@@ -261,11 +261,11 @@ export default function KeywordNegativePage() {
                   {detectedNegatives.length} negative word(s) detected.
                 </div>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardContent className="p-4">
+            <CardBody className="p-4">
               <div className="font-semibold text-sm mb-3">Currently Active Negatives ({activeNegatives.length})</div>
               <div className="flex flex-wrap gap-1.5 max-h-[120px] overflow-y-auto pr-2 pb-2">
                 {activeNegatives.length === 0 && (
@@ -287,7 +287,7 @@ export default function KeywordNegativePage() {
                   );
                 })}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

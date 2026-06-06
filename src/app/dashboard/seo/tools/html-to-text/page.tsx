@@ -1,7 +1,7 @@
 'use client';
 
 import { Textarea, Switch, Label, Button } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { Copy, Trash } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
@@ -10,7 +10,7 @@ import { htmlToText } from '@/lib/seo-tools/text-utils';
 
 export default function HtmlToTextPage() {
   const [html, setHtml] = useState('');
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   // Options state
   const [preserveNewlines, setPreserveNewlines] = useState(true);

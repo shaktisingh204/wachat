@@ -2,11 +2,7 @@
 
 import * as React from 'react';
 import { useActionState, useEffect } from 'react';
-import {
-  Button,
-  Card,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { LoaderCircle, Send, Trash2 } from 'lucide-react';
 import { saveWsIssueComment, deleteWsIssueComment } from '@/app/actions/worksuite/projects.actions';
 import { MarkdownEditor } from './markdown-editor';
@@ -14,7 +10,7 @@ import { marked } from 'marked';
 import { useRouter } from 'next/navigation';
 
 export function IssueComments({ issueId, initialComments = [] }: { issueId: string, initialComments: any[] }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(saveWsIssueComment, {});
   const formRef = React.useRef<HTMLFormElement>(null);

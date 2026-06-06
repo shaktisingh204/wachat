@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -65,7 +52,7 @@ const BOOL_FIELDS: {
 ];
 
 export default function GdprSettingsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [config, setConfig] = useState<ConfigDoc>(null);
   const [isLoading, startLoading] = useTransition();
   const [saveState, saveFormAction, isSaving] = useActionState(
@@ -148,13 +135,13 @@ export default function GdprSettingsPage() {
                         name={String(f.key)}
                         defaultValue={boolValue(f.key)}
                       >
-                        <ZoruSelectTrigger id={String(f.key)}>
-                          <ZoruSelectValue placeholder="Select" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                          <ZoruSelectItem value="yes">Enabled</ZoruSelectItem>
-                          <ZoruSelectItem value="no">Disabled</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger id={String(f.key)}>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="yes">Enabled</SelectItem>
+                          <SelectItem value="no">Disabled</SelectItem>
+                        </SelectContent>
                       </Select>
                     </div>
                     {f.hint ? (

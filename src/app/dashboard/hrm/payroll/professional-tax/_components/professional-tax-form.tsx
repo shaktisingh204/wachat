@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -88,7 +76,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export function ProfessionalTaxForm({ initialData, currentUserId }: ProfessionalTaxFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(
@@ -199,16 +187,16 @@ const formRef = useRef<HTMLFormElement>(null);
                         <Label htmlFor="state-trigger">State *</Label>
                         {/* TODO 1E.sweep: dynamic list — needs <EntityFormField entity="state"> with India-only filter */}
                         <Select value={stateValue} onValueChange={(val) => { setStateValue(val); setDirty(true); }}>
-                            <ZoruSelectTrigger id="state-trigger">
-                                <ZoruSelectValue placeholder="Select state…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent className="max-h-60">
+                            <SelectTrigger id="state-trigger">
+                                <SelectValue placeholder="Select state…" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-60">
                                 {indianStates.map((s) => (
-                                    <ZoruSelectItem key={s} value={s}>
+                                    <SelectItem key={s} value={s}>
                                         {s}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1.5">

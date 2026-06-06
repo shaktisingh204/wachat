@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 import React from 'react';
 import Image from 'next/image';
 
@@ -106,7 +92,7 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
 
                         switch(field.type) {
                             case 'textarea': return <Textarea {...commonProps} />;
-                            case 'select': return <Select value={formValues[field.fieldId || field.id] || ''} onValueChange={v => handleValueChange(field.fieldId || field.id, v)}><ZoruSelectTrigger className={cn('form-field-preview', sizeClasses)}><ZoruSelectValue placeholder={field.placeholder || "Select..."} /></ZoruSelectTrigger><ZoruSelectContent>{fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}</ZoruSelectContent></Select>;
+                            case 'select': return <Select value={formValues[field.fieldId || field.id] || ''} onValueChange={v => handleValueChange(field.fieldId || field.id, v)}><SelectTrigger className={cn('form-field-preview', sizeClasses)}><SelectValue placeholder={field.placeholder || "Select..."} /></SelectTrigger><SelectContent>{fieldOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent></Select>;
                             case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} checked={formValues[field.fieldId || field.id] === 'true'} onCheckedChange={(c) => handleValueChange(field.fieldId || field.id, c ? 'true' : '')} /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.label}</Label></div>;
                             case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} checked={formValues[field.fieldId || field.id] === 'true'} onCheckedChange={(c) => handleValueChange(field.fieldId || field.id, c ? 'true' : '')} /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
                             case 'radio': return <RadioGroup value={formValues[field.fieldId || field.id] || field.defaultValue || ''} onValueChange={(v) => handleValueChange(field.fieldId || field.id, v)} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><ZoruRadioGroupItem value={opt} id={`preview-${field.id}-${opt}`} /><Label htmlFor={`preview-${field.id}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>

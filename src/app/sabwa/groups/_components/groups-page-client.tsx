@@ -1,44 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Input,
-  Label,
-  ScrollArea,
-  ZoruScrollBar,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label, ScrollArea, ScrollBar, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';
@@ -132,7 +94,7 @@ function NewGroupDialog({
   sessionId,
   onCreated,
 }: NewGroupDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [subject, setSubject] = React.useState('');
   const [phoneInput, setPhoneInput] = React.useState('');
   const [participants, setParticipants] = React.useState<string[]>([]);
@@ -205,13 +167,13 @@ function NewGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>New group</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>New group</DialogTitle>
+          <DialogDescription>
             Create a WhatsApp group with the selected participants.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="new-group-subject">Subject</Label>
@@ -225,8 +187,8 @@ function NewGroupDialog({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="new-group-participants">Participants</Label>
-            <ZoruCommand className="rounded-[var(--st-radius)] border border-[var(--st-border)]">
-              <ZoruCommandInput
+            <Command className="rounded-[var(--st-radius)] border border-[var(--st-border)]">
+              <CommandInput
                 placeholder="Type a phone number (E.164) and press Enter"
                 value={phoneInput}
                 onValueChange={setPhoneInput}
@@ -237,18 +199,18 @@ function NewGroupDialog({
                   }
                 }}
               />
-              <ZoruCommandList>
-                <ZoruCommandEmpty>Type a phone number to add it.</ZoruCommandEmpty>
+              <CommandList>
+                <CommandEmpty>Type a phone number to add it.</CommandEmpty>
                 {phoneInput.trim().length > 0 && (
-                  <ZoruCommandGroup heading="Add">
-                    <ZoruCommandItem onSelect={addParticipant}>
+                  <CommandGroup heading="Add">
+                    <CommandItem onSelect={addParticipant}>
                       <Plus className="mr-2 h-4 w-4" />
                       Add {phoneInput.trim()}
-                    </ZoruCommandItem>
-                  </ZoruCommandGroup>
+                    </CommandItem>
+                  </CommandGroup>
                 )}
-              </ZoruCommandList>
-            </ZoruCommand>
+              </CommandList>
+            </Command>
             {participants.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {participants.map((p) => (
@@ -266,15 +228,15 @@ function NewGroupDialog({
             )}
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
           <Button onClick={onSubmit} disabled={submitting}>
             {submitting ? 'Creating…' : 'Create group'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -342,13 +304,13 @@ const GroupCard = React.memo(function GroupCard({
         onTouchCancel={handleTouchEnd}
       >
         <Card className="cursor-pointer transition hover:shadow-[var(--st-shadow-md)] focus-within:ring-2 focus-within:ring-[var(--st-text)]">
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <div className="flex items-start gap-3">
               <Avatar className="h-12 w-12 shrink-0">
                 {group.profilePicUrl ? (
-                  <ZoruAvatarImage src={group.profilePicUrl} alt="" />
+                  <AvatarImage src={group.profilePicUrl} alt="" />
                 ) : null}
-                <ZoruAvatarFallback>{initials(displayName || '#')}</ZoruAvatarFallback>
+                <AvatarFallback>{initials(displayName || '#')}</AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
@@ -360,7 +322,7 @@ const GroupCard = React.memo(function GroupCard({
                   >
                     {displayName}
                   </button>
-                  <ZoruDropdownMenuTrigger asChild>
+                  <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon-sm"
@@ -369,7 +331,7 @@ const GroupCard = React.memo(function GroupCard({
                     >
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
-                  </ZoruDropdownMenuTrigger>
+                  </DropdownMenuTrigger>
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
                   <span className="inline-flex items-center gap-1">
@@ -404,21 +366,21 @@ const GroupCard = React.memo(function GroupCard({
                 </div>
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
-      <ZoruDropdownMenuContent align="end">
-        <ZoruDropdownMenuItem onSelect={() => onContextAction('open', group.jid)}>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onSelect={() => onContextAction('open', group.jid)}>
           <ExternalLink className="mr-2 h-4 w-4" />
           Open chat
-        </ZoruDropdownMenuItem>
+        </DropdownMenuItem>
         {group.isAdmin ? (
-          <ZoruDropdownMenuItem onSelect={() => onContextAction('manage', group.jid)}>
+          <DropdownMenuItem onSelect={() => onContextAction('manage', group.jid)}>
             <Settings className="mr-2 h-4 w-4" />
             Manage group
-          </ZoruDropdownMenuItem>
+          </DropdownMenuItem>
         ) : null}
-        <ZoruDropdownMenuItem onSelect={() => onContextAction('mute', group.jid)}>
+        <DropdownMenuItem onSelect={() => onContextAction('mute', group.jid)}>
           {group.muted ? (
             <>
               <Volume2 className="mr-2 h-4 w-4" />
@@ -430,16 +392,16 @@ const GroupCard = React.memo(function GroupCard({
               Mute
             </>
           )}
-        </ZoruDropdownMenuItem>
-        <ZoruDropdownMenuSeparator />
-        <ZoruDropdownMenuItem
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
           className="text-[var(--st-danger)] focus:text-[var(--st-danger)]"
           onSelect={() => onContextAction('leave', group.jid)}
         >
           <LogOut className="mr-2 h-4 w-4" />
           Leave group
-        </ZoruDropdownMenuItem>
-      </ZoruDropdownMenuContent>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 });
@@ -519,7 +481,7 @@ function CategoryPill({
 export function GroupsPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { current } = useSabwaSession();
   const sessionId = current?.id ?? null;
   const resolve = useResolveJid(sessionId);
@@ -658,19 +620,19 @@ export function GroupsPageClient() {
   return (
     <div className="mx-auto w-full max-w-[1280px] px-4 pt-6 pb-10 md:px-6 lg:px-8">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Groups</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Groups</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -752,12 +714,12 @@ export function GroupsPageClient() {
             </Link>
           </Button>
         </div>
-        <ZoruScrollBar orientation="horizontal" />
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
 
       {!sessionId ? (
         <Card className="mt-4">
-          <ZoruCardContent className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+          <CardBody className="flex flex-col items-center justify-center gap-2 py-12 text-center">
             <Users className="h-8 w-8 text-[var(--st-text-secondary)]" />
             <p className="text-sm text-[var(--st-text-secondary)]">
               Connect a WhatsApp device to see your groups.
@@ -765,7 +727,7 @@ export function GroupsPageClient() {
             <Button asChild>
               <Link href="/sabwa/connect">Connect now</Link>
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : loading ? (
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -775,12 +737,12 @@ export function GroupsPageClient() {
         </div>
       ) : filteredGroups.length === 0 ? (
         <Card className="mt-4">
-          <ZoruCardContent className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+          <CardBody className="flex flex-col items-center justify-center gap-2 py-12 text-center">
             <Users className="h-8 w-8 text-[var(--st-text-secondary)]" />
             <p className="text-sm text-[var(--st-text-secondary)]">
               {search ? 'No groups match your search.' : 'No groups yet.'}
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

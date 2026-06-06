@@ -10,14 +10,7 @@ import { Button } from '@/components/sabcrm/20ui/compat';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui/compat';
 import { Checkbox } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { fadeInUp, staggerContainer } from '@/lib/motion';
 
 // Mock scope categories and operations
@@ -160,32 +153,32 @@ export default function CredentialScopesPage() {
                     </CardHeader>
                     <CardContent className="p-0 overflow-x-auto">
                         <Table>
-                            <TableHeader className="bg-[var(--st-bg-muted)]/30">
-                                <TableRow>
-                                    <TableHead className="w-[300px] py-4">Resource Category</TableHead>
+                            <THead className="bg-[var(--st-bg-muted)]/30">
+                                <Tr>
+                                    <Th className="w-[300px] py-4">Resource Category</Th>
                                     {OPERATIONS.map((op) => (
-                                        <TableHead key={op.id} className="text-center py-4">{op.label}</TableHead>
+                                        <Th key={op.id} className="text-center py-4">{op.label}</Th>
                                     ))}
-                                    <TableHead className="text-right py-4 pr-6">Quick Select</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                                    <Th className="text-right py-4 pr-6">Quick Select</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {SCOPE_CATEGORIES.map((category) => {
                                     const categoryScopes = scopes[category.id] || {};
                                     const allChecked = OPERATIONS.every((op) => categoryScopes[op.id]);
 
                                     return (
-                                        <TableRow key={category.id} className="group hover:bg-[var(--st-bg-muted)]/10 transition-colors">
-                                            <TableCell className="font-medium py-4">
+                                        <Tr key={category.id} className="group hover:bg-[var(--st-bg-muted)]/10 transition-colors">
+                                            <Td className="font-medium py-4">
                                                 <div className="flex flex-col gap-1">
                                                     <span className="text-[var(--st-text)]">{category.name}</span>
                                                     <span className="text-xs text-[var(--st-text-secondary)] font-normal">
                                                         {category.description}
                                                     </span>
                                                 </div>
-                                            </TableCell>
+                                            </Td>
                                             {OPERATIONS.map((op) => (
-                                                <TableCell key={op.id} className="text-center py-4">
+                                                <Td key={op.id} className="text-center py-4">
                                                     <div className="flex justify-center">
                                                         <Checkbox
                                                             checked={!!categoryScopes[op.id]}
@@ -195,9 +188,9 @@ export default function CredentialScopesPage() {
                                                             aria-label={`${op.label} ${category.name}`}
                                                         />
                                                     </div>
-                                                </TableCell>
+                                                </Td>
                                             ))}
-                                            <TableCell className="text-right py-4 pr-6">
+                                            <Td className="text-right py-4 pr-6">
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
@@ -209,11 +202,11 @@ export default function CredentialScopesPage() {
                                                 >
                                                     {allChecked ? 'Deselect All' : 'Select All'}
                                                 </Button>
-                                            </TableCell>
-                                        </TableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     </CardContent>
                     <CardFooter className="bg-[var(--st-bg-muted)]/20 border-t p-4 flex flex-col sm:flex-row items-center justify-between gap-4">

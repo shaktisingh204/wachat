@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Skeleton,
-  Button,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  ScrollArea,
-  ZoruScrollBar,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Skeleton, Button, Alert, AlertDescription, AlertTitle, ScrollArea, ScrollBar, Input } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -168,10 +159,10 @@ export function FacebookKanbanBoard() {
              <div className="p-4">
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>
+                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertDescription>
                         Please select a project from the main dashboard page to view the chat kanban board.
-                    </ZoruAlertDescription>
+                    </AlertDescription>
                 </Alert>
              </div>
         );
@@ -189,7 +180,7 @@ export function FacebookKanbanBoard() {
                             <AddList onAddList={handleAddList} />
                         </div>
                     </div>
-                    <ZoruScrollBar orientation="horizontal" />
+                    <ScrollBar orientation="horizontal" />
                 </ScrollArea>
             </div>
         </DndContext>

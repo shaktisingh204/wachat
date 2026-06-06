@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Label,
-  Card,
-  Button,
-  Badge,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label, Card, Button, Badge, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useMemo,
@@ -45,7 +29,7 @@ type FormState = { _id: string; user_id: string; skill_id: string };
 const EMPTY_FORM: FormState = { _id: '', user_id: '', skill_id: '' };
 
 export default function EmployeeSkillsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [skills, setSkills] = useState<SkillLite[]>([]);
@@ -145,13 +129,13 @@ export default function EmployeeSkillsPage() {
         <div className="mb-4 flex flex-wrap items-center gap-3">
           <Label className="text-[12px] text-[var(--st-text-secondary)]">Filter by Employee</Label>
           <Select value={filterEmp} onValueChange={setFilterEmp}>
-            <ZoruSelectTrigger className="h-9 w-[220px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="__all__">All Employees</ZoruSelectItem>
-              {employees.map((e) => <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>)}
-            </ZoruSelectContent>
+            <SelectTrigger className="h-9 w-[220px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">All Employees</SelectItem>
+              {employees.map((e) => <SelectItem key={e._id} value={e._id}>{e.name}</SelectItem>)}
+            </SelectContent>
           </Select>
           <span className="text-[12px] text-[var(--st-text-secondary)]">{filtered.length} assignment{filtered.length !== 1 ? 's' : ''}</span>
         </div>
@@ -200,44 +184,44 @@ export default function EmployeeSkillsPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-md border-[var(--st-border)] bg-[var(--st-bg)]">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-[var(--st-text)]">{form._id ? 'Edit Skill Assignment' : 'Assign Skill to Employee'}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent className="max-w-md border-[var(--st-border)] bg-[var(--st-bg)]">
+          <DialogHeader>
+            <DialogTitle className="text-[var(--st-text)]">{form._id ? 'Edit Skill Assignment' : 'Assign Skill to Employee'}</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-2">
             <div>
               <Label className="text-[12px] text-[var(--st-text-secondary)]">Employee <span className="text-[var(--st-danger)]">*</span></Label>
               <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
-                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                  <ZoruSelectValue placeholder="Select employee…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="__none__">— Select employee —</ZoruSelectItem>
-                  {employees.map((e) => <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>)}
-                </ZoruSelectContent>
+                <SelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                  <SelectValue placeholder="Select employee…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Select employee —</SelectItem>
+                  {employees.map((e) => <SelectItem key={e._id} value={e._id}>{e.name}</SelectItem>)}
+                </SelectContent>
               </Select>
             </div>
             <div>
               <Label className="text-[12px] text-[var(--st-text-secondary)]">Skill <span className="text-[var(--st-danger)]">*</span></Label>
               <Select value={form.skill_id || '__none__'} onValueChange={(v) => set('skill_id', v === '__none__' ? '' : v)}>
-                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                  <ZoruSelectValue placeholder="Select skill…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="__none__">— Select skill —</ZoruSelectItem>
-                  {skills.map((s) => <ZoruSelectItem key={s._id} value={s._id}>{s.name}</ZoruSelectItem>)}
-                </ZoruSelectContent>
+                <SelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                  <SelectValue placeholder="Select skill…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Select skill —</SelectItem>
+                  {skills.map((s) => <SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>)}
+                </SelectContent>
               </Select>
             </div>
           </div>
-          <ZoruDialogFooter className="gap-2">
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Assign'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

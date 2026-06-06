@@ -1,4 +1,4 @@
-import { Button, Card, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import {
@@ -160,59 +160,59 @@ export default async function CreditNoteDetailPage({
                             </h3>
                         </div>
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Description</ZoruTableHead>
-                                    <ZoruTableHead>HSN/SAC</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Qty</ZoruTableHead>
-                                    <ZoruTableHead>Unit</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Rate</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Disc %</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Tax %</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Line total</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Description</Th>
+                                    <Th>HSN/SAC</Th>
+                                    <Th className="text-right">Qty</Th>
+                                    <Th>Unit</Th>
+                                    <Th className="text-right">Rate</Th>
+                                    <Th className="text-right">Disc %</Th>
+                                    <Th className="text-right">Tax %</Th>
+                                    <Th className="text-right">Line total</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {(creditNote.items ?? []).length === 0 ? (
-                                    <ZoruTableRow>
-                                        <ZoruTableCell
+                                    <Tr>
+                                        <Td
                                             colSpan={8}
                                             className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                         >
                                             No line items.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     (creditNote.items ?? []).map((item, idx) => (
-                                        <ZoruTableRow key={idx}>
-                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+                                        <Tr key={idx}>
+                                            <Td className="text-[12.5px] text-[var(--st-text)]">
                                                 {item.description || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                            </Td>
+                                            <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {item.hsnSac || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
+                                            </Td>
+                                            <Td className="text-right tabular-nums text-[12.5px]">
                                                 {item.qty}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                            </Td>
+                                            <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {item.unit || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
+                                            </Td>
+                                            <Td className="text-right tabular-nums text-[12.5px]">
                                                 {fmtMoney(item.rate, currency)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
+                                            </Td>
+                                            <Td className="text-right tabular-nums text-[12.5px]">
                                                 {item.discountPct != null ? `${item.discountPct}%` : '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
+                                            </Td>
+                                            <Td className="text-right tabular-nums text-[12.5px]">
                                                 {item.taxRatePct != null ? `${item.taxRatePct}%` : '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
+                                            </Td>
+                                            <Td className="text-right tabular-nums text-[12.5px]">
                                                 {fmtMoney(item.total, currency)}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     ))
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </Card>
 

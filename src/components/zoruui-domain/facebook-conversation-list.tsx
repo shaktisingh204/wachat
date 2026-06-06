@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  ScrollArea,
-  Button,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Skeleton,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { ScrollArea, Button, Avatar, AvatarFallback, AvatarImage, Badge, Skeleton, Input } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Search,
@@ -51,8 +42,8 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                 {sessionUser ? (
                     <div className="flex items-center gap-3">
                         <Avatar>
-                            <ZoruAvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
-                            <ZoruAvatarFallback>{sessionUser.name.charAt(0)}</ZoruAvatarFallback>
+                            <AvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
+                            <AvatarFallback>{sessionUser.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <p className="font-semibold">{sessionUser.name}</p>
                     </div>
@@ -93,8 +84,8 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                                     )}
                                 >
                                     <Avatar>
-                                        <ZoruAvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} data-ai-hint="person avatar" />
-                                        <ZoruAvatarFallback>{participant?.name.charAt(0).toUpperCase() || 'U'}</ZoruAvatarFallback>
+                                        <AvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} data-ai-hint="person avatar" />
+                                        <AvatarFallback>{participant?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1 overflow-hidden">
                                         <div className="flex items-center justify-between">

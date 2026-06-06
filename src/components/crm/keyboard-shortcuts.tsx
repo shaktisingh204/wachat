@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruKbd,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Kbd } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -185,27 +176,27 @@ export function KeyboardShortcuts({ enabled = true }: KeyboardShortcutsProps) {
 function ShortcutsCheatSheet({ onClose }: { onClose: () => void }) {
   return (
     <Dialog open onOpenChange={(next) => (next ? null : onClose())}>
-      <ZoruDialogContent className="sm:max-w-2xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Keyboard shortcuts</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Keyboard shortcuts</DialogTitle>
+          <DialogDescription>
             Press{' '}
-            <ZoruKbd>?</ZoruKbd> any time to toggle this sheet. Sequences
+            <Kbd>?</Kbd> any time to toggle this sheet. Sequences
             time out after a short pause.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="grid gap-6 sm:grid-cols-2">
           <ShortcutGroup heading="Go to" rows={GO_TO_ROWS} />
           <ShortcutGroup heading="Create new" rows={CREATE_ROWS} />
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button type="button" variant="secondary" onClick={onClose}>
             Close
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -243,7 +234,7 @@ function ChordKbd({ chord }: { chord: string }) {
     <span className="flex shrink-0 items-center gap-1">
       {parts.map((part, idx) => (
         <React.Fragment key={`${chord}-${idx}`}>
-          <ZoruKbd>{part}</ZoruKbd>
+          <Kbd>{part}</Kbd>
           {idx < parts.length - 1 ? (
             <span aria-hidden className="text-[10px] text-[var(--st-text-tertiary)]">
               then

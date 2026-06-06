@@ -14,24 +14,7 @@
  */
 
 import * as React from 'react';
-import {
-  Alert,
-  ZoruAlertDescription,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruDrawer,
-  ZoruDrawerClose,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  Input,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, Button, Card, CardBody, CardHeader, CardTitle, Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   recordOfflinePayment,
@@ -171,10 +154,10 @@ export function InvoicePaymentPanel({
   if (!isUnpaid) {
     return (
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Payment</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Payment</CardTitle>
+        </CardHeader>
+        <CardBody>
           {banner ? (
             <Alert
               variant={
@@ -185,7 +168,7 @@ export function InvoicePaymentPanel({
                     : banner.kind
               }
             >
-              <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
+              <AlertDescription>{banner.message}</AlertDescription>
             </Alert>
           ) : null}
           <p className="text-sm text-[var(--st-text)]">
@@ -196,18 +179,18 @@ export function InvoicePaymentPanel({
                 : `Current status: ${status}.`}
           </p>
           <DownloadPdfButton hash={hash} />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     );
   }
 
   return (
     <Card>
-      <ZoruCardHeader className="flex flex-row items-center justify-between">
-        <ZoruCardTitle>Pay this invoice</ZoruCardTitle>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Pay this invoice</CardTitle>
         <DownloadPdfButton hash={hash} />
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-3">
+      </CardHeader>
+      <CardBody className="space-y-3">
         {banner ? (
           <Alert
             variant={
@@ -218,23 +201,23 @@ export function InvoicePaymentPanel({
                   : banner.kind
             }
           >
-            <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
+            <AlertDescription>{banner.message}</AlertDescription>
           </Alert>
         ) : null}
         <p className="text-sm text-[var(--st-text)]">
           Choose a payment method below to settle this invoice.
         </p>
-        <ZoruDrawer open={open} onOpenChange={setOpen}>
+        <Drawer open={open} onOpenChange={setOpen}>
           <Button onClick={() => setOpen(true)} disabled={pending}>
             Pay Now
           </Button>
-          <ZoruDrawerContent>
-            <ZoruDrawerHeader>
-              <ZoruDrawerTitle>Pay invoice</ZoruDrawerTitle>
-              <ZoruDrawerDescription>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Pay invoice</DrawerTitle>
+              <DrawerDescription>
                 Total due: {formatMoney(totalDue, currency)}
-              </ZoruDrawerDescription>
-            </ZoruDrawerHeader>
+              </DrawerDescription>
+            </DrawerHeader>
             <div className="space-y-4 px-6 pb-6">
               {banner ? (
                 <Alert
@@ -246,7 +229,7 @@ export function InvoicePaymentPanel({
                         : banner.kind
                   }
                 >
-                  <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
+                  <AlertDescription>{banner.message}</AlertDescription>
                 </Alert>
               ) : null}
 
@@ -316,15 +299,15 @@ export function InvoicePaymentPanel({
                 </div>
               </div>
 
-              <ZoruDrawerClose asChild>
+              <DrawerClose asChild>
                 <Button variant="ghost" block>
                   Cancel
                 </Button>
-              </ZoruDrawerClose>
+              </DrawerClose>
             </div>
-          </ZoruDrawerContent>
-        </ZoruDrawer>
-      </ZoruCardContent>
+          </DrawerContent>
+        </Drawer>
+      </CardBody>
     </Card>
   );
 }

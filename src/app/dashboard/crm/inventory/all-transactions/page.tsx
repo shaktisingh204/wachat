@@ -52,27 +52,7 @@ import {
 } from '@/app/actions/crm-inventory.actions';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
-import {
-    Badge,
-    Button,
-    Card,
-    DatePicker,
-    Label,
-    Popover,
-    ZoruPopoverContent,
-    ZoruPopoverTrigger,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DatePicker, Label, Popover, PopoverContent, PopoverTrigger, Table, TBody, Td, Th, THead, Tr, useToast, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
     dateStamp,
     downloadCsv,
@@ -118,7 +98,7 @@ function KpiTile({
 }
 
 function AllTransactionsDeepContent(): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [reportData, setReportData] = useState<InventoryTransactionDto[]>([]);
     const [kpis, setKpis] = useState<AllTransactionsDeepKpis>(KPI_EMPTY);
     const [isLoading, startTransition] = useTransition();
@@ -239,10 +219,10 @@ function AllTransactionsDeepContent(): React.JSX.Element {
             primaryAction={
                 <div className="flex items-center gap-2">
                     <Popover>
-                        <ZoruPopoverTrigger asChild>
+                        <PopoverTrigger asChild>
                             <Button variant="outline">Filters</Button>
-                        </ZoruPopoverTrigger>
-                        <ZoruPopoverContent className="w-80 space-y-4">
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 space-y-4">
                             <div className="space-y-2">
                                 <Label>Start date</Label>
                                 <DatePicker value={startDate} onChange={setStartDate} />
@@ -263,7 +243,7 @@ function AllTransactionsDeepContent(): React.JSX.Element {
                             <Button onClick={fetchData} disabled={isLoading} className="w-full">
                                 Apply
                             </Button>
-                        </ZoruPopoverContent>
+                        </PopoverContent>
                     </Popover>
                     <Button
                         variant="outline"
@@ -373,59 +353,59 @@ function AllTransactionsDeepContent(): React.JSX.Element {
                 <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Transaction log</h2>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Item</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Quantity</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Party</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Reference</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Warehouse</ZoruTableHead>
-                                <ZoruTableHead className="w-[50px]"></ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="text-[var(--st-text-secondary)]">Date</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Item</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Type</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Quantity</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Party</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Reference</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Warehouse</Th>
+                                <Th className="w-[50px]"></Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={8} className="h-48 text-center">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={8} className="h-48 text-center">
                                         <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : reportData.length > 0 ? (
                                 reportData.map((row, index) => (
-                                    <ZoruTableRow
+                                    <Tr
                                         key={`${row.reference}-${index}`}
                                         className="border-[var(--st-border)]"
                                     >
-                                        <ZoruTableCell className="text-[11.5px] text-[var(--st-text)]">
+                                        <Td className="text-[11.5px] text-[var(--st-text)]">
                                             {fmtDate(row.date)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="font-medium text-[var(--st-text)]">
                                             {row.itemName}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <Badge variant={getTypeTone(row.type)}>
                                                 {row.type}
                                             </Badge>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell
+                                        </Td>
+                                        <Td
                                             className={`font-semibold ${
                                                 row.quantity < 0 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'
                                             }`}
                                         >
                                             {row.quantity}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {row.partyName || 'N/A'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono text-[11.5px] text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="font-mono text-[11.5px] text-[var(--st-text)]">
                                             {row.reference}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {row.warehouseName || 'Default'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -445,21 +425,21 @@ function AllTransactionsDeepContent(): React.JSX.Element {
                                                     <DropdownMenuItem>View details</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={8} className="h-48 text-center text-[var(--st-text-secondary)]">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={8} className="h-48 text-center text-[var(--st-text-secondary)]">
                                         <div className="flex flex-col items-center gap-2">
                                             <TrendingDown className="h-6 w-6 text-[var(--st-text-secondary)]" />
                                             <Boxes className="hidden h-6 w-6" />
                                             <p>No transactions match the current filters.</p>
                                         </div>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
             </Card>

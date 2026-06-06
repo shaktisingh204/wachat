@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Progress,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Progress, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useParams,
   useRouter,
@@ -102,7 +92,7 @@ export default function LeadDetailPage() {
     const params = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const leadId = (params?.id as string) || '';
     const isPrint = searchParams?.get('print') === '1';
@@ -306,10 +296,10 @@ export default function LeadDetailPage() {
             >
                 {/* ─── Overview ─────────────────────────────────────────── */}
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Overview</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <CardHeader>
+                        <CardTitle>Overview</CardTitle>
+                    </CardHeader>
+                    <CardBody className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <Field label="Contact" value={lead.contactName} />
                         <Field
                             label="Email"
@@ -378,15 +368,15 @@ export default function LeadDetailPage() {
                                 </p>
                             </div>
                         ) : null}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* ─── Money summary ────────────────────────────────────── */}
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Money</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <CardHeader>
+                        <CardTitle>Money</CardTitle>
+                    </CardHeader>
+                    <CardBody className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <Field
                             label="Estimated value"
                             value={
@@ -407,21 +397,21 @@ export default function LeadDetailPage() {
                             </div>
                             <Progress value={probability} className="mt-1" />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* ─── Tags ─────────────────────────────────────────────── */}
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Tags</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Tags</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <LeadTagsChips
                             leadId={leadId}
                             tags={tags}
                             onTagsChanged={refresh}
                         />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 {/* ─── Notes timeline composer ─────────────────────────── */}

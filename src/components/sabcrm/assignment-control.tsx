@@ -40,24 +40,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, ChevronsUpDown, UserMinus, UserPlus } from 'lucide-react';
 
-import {
-  Avatar,
-  ZoruAvatarImage,
-  ZoruAvatarFallback,
-  Button,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  ZoruCommandSeparator,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarImage, AvatarFallback, Button, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, Popover, PopoverContent, PopoverTrigger, cn, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { assignRecordAction } from '@/app/actions/sabcrm.actions';
 
@@ -174,11 +157,11 @@ function AssigneeAvatar({ member, size, loading }: AssigneeAvatarProps) {
   return (
     <Avatar className={cn('shrink-0', dims)}>
       {member.avatarUrl ? (
-        <ZoruAvatarImage src={member.avatarUrl} alt={memberLabel(member)} />
+        <AvatarImage src={member.avatarUrl} alt={memberLabel(member)} />
       ) : null}
-      <ZoruAvatarFallback className={size === 'sm' ? 'text-[10px]' : 'text-xs'}>
+      <AvatarFallback className={size === 'sm' ? 'text-[10px]' : 'text-xs'}>
         {initials(member)}
-      </ZoruAvatarFallback>
+      </AvatarFallback>
     </Avatar>
   );
 }
@@ -199,7 +182,7 @@ export function AssignmentControl({
   onAssigned,
 }: AssignmentControlProps): React.ReactElement {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const roster = React.useMemo<AssignableMember[]>(
     () => members ?? [],
@@ -335,23 +318,23 @@ export function AssignmentControl({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <ZoruPopoverTrigger asChild>{trigger}</ZoruPopoverTrigger>
-      <ZoruPopoverContent
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverContent
         className={cn(
           'p-0',
           variant === 'row' && 'w-[--radix-popover-trigger-width]',
         )}
         align="start"
       >
-        <ZoruCommand>
-          <ZoruCommandInput placeholder="Search members…" />
-          <ZoruCommandList>
-            <ZoruCommandEmpty>No members found.</ZoruCommandEmpty>
-            <ZoruCommandGroup>
+        <Command>
+          <CommandInput placeholder="Search members…" />
+          <CommandList>
+            <CommandEmpty>No members found.</CommandEmpty>
+            <CommandGroup>
               {roster.map((member) => {
                 const isCurrent = member.id === optimisticId;
                 return (
-                  <ZoruCommandItem
+                  <CommandItem
                     key={member.id}
                     value={`${member.name} ${member.email ?? ''}`}
                     onSelect={() => assign(member.id)}
@@ -374,28 +357,28 @@ export function AssignmentControl({
                         isCurrent ? 'opacity-100' : 'opacity-0',
                       )}
                     />
-                  </ZoruCommandItem>
+                  </CommandItem>
                 );
               })}
-            </ZoruCommandGroup>
+            </CommandGroup>
             {currentKnown ? (
               <>
-                <ZoruCommandSeparator />
-                <ZoruCommandGroup>
-                  <ZoruCommandItem
+                <CommandSeparator />
+                <CommandGroup>
+                  <CommandItem
                     value="__unassign__"
                     onSelect={() => assign(null)}
                     className="gap-2 text-[var(--st-danger)]"
                   >
                     <UserMinus className="h-4 w-4 shrink-0" />
                     Clear assignment
-                  </ZoruCommandItem>
-                </ZoruCommandGroup>
+                  </CommandItem>
+                </CommandGroup>
               </>
             ) : null}
-          </ZoruCommandList>
-        </ZoruCommand>
-      </ZoruPopoverContent>
+          </CommandList>
+        </Command>
+      </PopoverContent>
     </Popover>
   );
 }

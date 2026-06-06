@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Input, Button, Badge, Checkbox, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Input, Button, Badge, Checkbox, useToast } from '@/components/sabcrm/20ui/compat';
 import { Download, FileSpreadsheet, Search, Trash } from 'lucide-react';
 
 interface Employee {
@@ -34,7 +34,7 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
   const [search, setSearch] = React.useState('');
   const [deptFilter, setDeptFilter] = React.useState<string>('All');
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   const parentRef = React.useRef<HTMLDivElement>(null);
 

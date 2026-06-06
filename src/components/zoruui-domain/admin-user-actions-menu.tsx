@@ -1,22 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import {
-    Button,
-    DropdownMenu,
-    ZoruDropdownMenuTrigger,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuLabel,
-    ZoruDropdownMenuSeparator,
-    ZoruAlertDialog,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogCancel,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from '@/components/sabcrm/20ui/compat';
 import {
     MoreHorizontal,
     LoaderCircle,
@@ -110,7 +95,7 @@ export function AdminUserActionsMenu({ userId, userName, isSuspended }: Props) {
     return (
         <>
             <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                     <Button
                         variant="ghost"
                         size="icon"
@@ -119,53 +104,53 @@ export function AdminUserActionsMenu({ userId, userName, isSuspended }: Props) {
                     >
                         <MoreHorizontal className="h-4 w-4" />
                     </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end" className="w-52">
-                    <ZoruDropdownMenuLabel className="text-xs text-[var(--st-text)]">
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuLabel className="text-xs text-[var(--st-text)]">
                         Account
-                    </ZoruDropdownMenuLabel>
+                    </DropdownMenuLabel>
                     {isSuspended ? (
-                        <ZoruDropdownMenuItem onSelect={() => setPendingAction('activate')}>
+                        <DropdownMenuItem onSelect={() => setPendingAction('activate')}>
                             <CheckCircle2 className="mr-2 h-4 w-4 text-[var(--st-text)]" />
                             Re-activate user
-                        </ZoruDropdownMenuItem>
+                        </DropdownMenuItem>
                     ) : (
-                        <ZoruDropdownMenuItem
+                        <DropdownMenuItem
                             onSelect={() => setPendingAction('suspend')}
                             className="text-[var(--st-text)] focus:text-[var(--st-text)]"
                         >
                             <Ban className="mr-2 h-4 w-4" />
                             Suspend user
-                        </ZoruDropdownMenuItem>
+                        </DropdownMenuItem>
                     )}
-                    <ZoruDropdownMenuSeparator />
-                    <ZoruDropdownMenuLabel className="text-xs text-[var(--st-text)]">
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel className="text-xs text-[var(--st-text)]">
                         Security
-                    </ZoruDropdownMenuLabel>
-                    <ZoruDropdownMenuItem onSelect={() => setPendingAction('logout')}>
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem onSelect={() => setPendingAction('logout')}>
                         <LogOut className="mr-2 h-4 w-4" />
                         Force log out
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem onSelect={() => setPendingAction('reset2fa')}>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => setPendingAction('reset2fa')}>
                         <Smartphone className="mr-2 h-4 w-4" />
                         Reset 2FA
-                    </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
             </DropdownMenu>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={pendingAction !== null}
                 onOpenChange={(v) => !v && setPendingAction(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>{copy?.title}</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{copy?.title}</AlertDialogTitle>
+                        <AlertDialogDescription>
                             {copy?.description}
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter className="mt-4">
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="mt-4">
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <Button
                             variant={copy?.danger ? 'destructive' : 'default'}
                             disabled={isPending}
@@ -176,9 +161,9 @@ export function AdminUserActionsMenu({ userId, userName, isSuspended }: Props) {
                             )}
                             {copy?.cta}
                         </Button>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

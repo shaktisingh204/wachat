@@ -13,30 +13,7 @@ import {
     X,
 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Checkbox,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -102,7 +79,7 @@ function isLowStock(p: ProductRow): boolean {
 }
 
 export default function ProductsPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // List + KPIs
     const [products, setProducts] = React.useState<ProductRow[]>([]);
@@ -323,19 +300,19 @@ export default function ProductsPage() {
                 primaryAction={
                     <div className="flex items-center gap-2">
                         <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm">
                                     <Download className="h-4 w-4" /> Export
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                                <ZoruDropdownMenuItem onSelect={() => exportRows('csv')}>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => exportRows('csv')}>
                                     Export as CSV
-                                </ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem onSelect={() => exportRows('xlsx')}>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => exportRows('xlsx')}>
                                     Export as XLSX
-                                </ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                         <Button asChild>
                             <Link href="/dashboard/crm/inventory/items/new">
@@ -353,15 +330,15 @@ export default function ProductsPage() {
                                 setPage(1);
                             }}
                         >
-                            <ZoruSelectTrigger className="w-[160px]">
-                                <ZoruSelectValue placeholder="Stock" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All stock</ZoruSelectItem>
-                                <ZoruSelectItem value="inStock">In stock</ZoruSelectItem>
-                                <ZoruSelectItem value="lowStock">Low stock</ZoruSelectItem>
-                                <ZoruSelectItem value="outOfStock">Out of stock</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="w-[160px]">
+                                <SelectValue placeholder="Stock" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All stock</SelectItem>
+                                <SelectItem value="inStock">In stock</SelectItem>
+                                <SelectItem value="lowStock">Low stock</SelectItem>
+                                <SelectItem value="outOfStock">Out of stock</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Select
                             value={typeFilter}
@@ -370,14 +347,14 @@ export default function ProductsPage() {
                                 setPage(1);
                             }}
                         >
-                            <ZoruSelectTrigger className="w-[150px]">
-                                <ZoruSelectValue placeholder="Type" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All types</ZoruSelectItem>
-                                <ZoruSelectItem value="goods">Goods</ZoruSelectItem>
-                                <ZoruSelectItem value="service">Service</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All types</SelectItem>
+                                <SelectItem value="goods">Goods</SelectItem>
+                                <SelectItem value="service">Service</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Select
                             value={trackFilter}
@@ -386,14 +363,14 @@ export default function ProductsPage() {
                                 setPage(1);
                             }}
                         >
-                            <ZoruSelectTrigger className="w-[160px]">
-                                <ZoruSelectValue placeholder="Tracking" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All tracking</ZoruSelectItem>
-                                <ZoruSelectItem value="tracked">Tracked</ZoruSelectItem>
-                                <ZoruSelectItem value="untracked">Untracked</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="w-[160px]">
+                                <SelectValue placeholder="Tracking" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All tracking</SelectItem>
+                                <SelectItem value="tracked">Tracked</SelectItem>
+                                <SelectItem value="untracked">Untracked</SelectItem>
+                            </SelectContent>
                         </Select>
                         {hasActiveFilters ? (
                             <Button
@@ -505,9 +482,9 @@ export default function ProductsPage() {
                     <Card className="p-0">
                         <div className="overflow-x-auto rounded-lg">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                        <ZoruTableHead className="w-10">
+                                <THead>
+                                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                        <Th className="w-10">
                                             <Checkbox
                                                 checked={allSelectedOnPage}
                                                 onCheckedChange={(c) =>
@@ -515,32 +492,32 @@ export default function ProductsPage() {
                                                 }
                                                 aria-label="Select all"
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Name
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             SKU
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Type
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">
                                             Cost
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">
                                             Price
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">
                                             Stock
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Status
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="w-10" />
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                        <Th className="w-10" />
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {displayedProducts.map((p) => {
                                         const id = toIdString(p._id);
                                         const low = isLowStock(p);
@@ -548,14 +525,14 @@ export default function ProductsPage() {
                                             p.isTrackInventory &&
                                             Number(p.totalStock ?? 0) <= 0;
                                         return (
-                                            <ZoruTableRow
+                                            <Tr
                                                 key={id}
                                                 className="border-[var(--st-border)]"
                                                 data-state={
                                                     selected.has(id) ? 'selected' : undefined
                                                 }
                                             >
-                                                <ZoruTableCell>
+                                                <Td>
                                                     <Checkbox
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() =>
@@ -563,40 +540,40 @@ export default function ProductsPage() {
                                                         }
                                                         aria-label={`Select ${p.name}`}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <EntityRowLink
                                                         href={`/dashboard/crm/inventory/items/${id}`}
                                                         label={p.name || 'Untitled product'}
                                                         subtitle={p.description?.slice(0, 60)}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {p.sku || '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {p.itemType === 'service'
                                                         ? 'Service'
                                                         : 'Goods'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right text-[var(--st-text)]">
                                                     {formatCurrency(
                                                         Number(p.costPrice ?? 0),
                                                         p.currency,
                                                     )}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right text-[var(--st-text)]">
                                                     {formatCurrency(
                                                         Number(p.sellingPrice ?? 0),
                                                         p.currency,
                                                     )}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right text-[var(--st-text)]">
                                                     {p.isTrackInventory
                                                         ? Number(p.totalStock ?? 0).toLocaleString()
                                                         : '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     {out ? (
                                                         <Badge variant="destructive">
                                                             Out of stock
@@ -614,10 +591,10 @@ export default function ProductsPage() {
                                                             Untracked
                                                         </Badge>
                                                     )}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <DropdownMenu>
-                                                        <ZoruDropdownMenuTrigger asChild>
+                                                        <DropdownMenuTrigger asChild>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
@@ -625,38 +602,38 @@ export default function ProductsPage() {
                                                             >
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
-                                                        </ZoruDropdownMenuTrigger>
-                                                        <ZoruDropdownMenuContent align="end">
-                                                            <ZoruDropdownMenuItem asChild>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuItem asChild>
                                                                 <Link
                                                                     href={`/dashboard/crm/inventory/items/${id}`}
                                                                 >
                                                                     View
                                                                 </Link>
-                                                            </ZoruDropdownMenuItem>
-                                                            <ZoruDropdownMenuItem asChild>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem asChild>
                                                                 <Link
                                                                     href={`/dashboard/crm/inventory/items/${id}/edit`}
                                                                 >
                                                                     Edit
                                                                 </Link>
-                                                            </ZoruDropdownMenuItem>
-                                                            <ZoruDropdownMenuSeparator />
-                                                            <ZoruDropdownMenuItem
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem
                                                                 onSelect={() =>
                                                                     setDeleteTargetId(id)
                                                                 }
                                                                 className="text-[var(--st-danger)]"
                                                             >
                                                                 Delete
-                                                            </ZoruDropdownMenuItem>
-                                                        </ZoruDropdownMenuContent>
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
                                                     </DropdownMenu>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     </Card>

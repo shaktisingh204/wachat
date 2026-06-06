@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 /**
  * <ItemsFilters> — collapsible filter row for the items list.
  *
@@ -98,32 +98,32 @@ export function ItemsFilters({
           <Label>Status</Label>
           {/* TODO 1E.sweep: filter-with-all — needs <EnumFilterField> variant (sentinel 'all' + clearable) */}
           <Select value={statusFilter} onValueChange={onStatusFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {STATUS_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
         <div className="space-y-1">
           <Label>Type</Label>
           {/* TODO 1E.sweep: filter-with-all — needs <EnumFilterField> variant */}
           <Select value={typeFilter} onValueChange={onTypeFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {TYPE_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
         <div className="space-y-1">
@@ -175,16 +175,16 @@ export function ItemsFilters({
           <Label>Inventory tracking</Label>
           {/* TODO 1E.sweep: filter-with-all — needs <EnumFilterField> variant */}
           <Select value={trackFilter} onValueChange={onTrackFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {TRACK_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
       </div>

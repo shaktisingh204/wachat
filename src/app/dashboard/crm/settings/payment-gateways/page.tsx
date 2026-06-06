@@ -1,34 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  StatCard,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -136,7 +108,7 @@ function ActiveSwitch({
 }
 
 export default function PaymentGatewaysPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = useState<GatewayRow[]>([]);
   const [isLoading, startLoad] = useTransition();
   const [isPending, startPending] = useTransition();
@@ -255,23 +227,23 @@ export default function PaymentGatewaysPage() {
         ) : (
           <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Gateway</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Mode</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">API Key</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Active</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+              <THead>
+                <Tr className="hover:bg-transparent">
+                  <Th className="text-[var(--st-text-secondary)]">Gateway</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Mode</Th>
+                  <Th className="text-[var(--st-text-secondary)]">API Key</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Active</Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">
                     &nbsp;
-                  </ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {rows.map((r) => {
                   const letter = (r.gateway || '?').charAt(0).toUpperCase();
                   return (
-                    <ZoruTableRow key={r._id}>
-                      <ZoruTableCell>
+                    <Tr key={r._id}>
+                      <Td>
                         <div className="flex items-center gap-2">
                           <span
                             className={`flex h-7 w-7 items-center justify-center rounded-lg text-[12px] ${
@@ -282,21 +254,21 @@ export default function PaymentGatewaysPage() {
                           </span>
                           <span className="text-[var(--st-text)]">{r.gateway}</span>
                         </div>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant={r.mode === 'live' ? 'success' : 'warning'}>
                           {r.mode}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="font-mono text-[12px] text-[var(--st-text)]">
                         {r.api_key ? `${String(r.api_key).slice(0, 6)}…` : '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant={r.is_active ? 'success' : 'ghost'}>
                           {r.is_active ? 'active' : 'inactive'}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -325,23 +297,23 @@ export default function PaymentGatewaysPage() {
                         >
                           <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                         </Button>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         )}
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
               {editing ? 'Edit Gateway' : 'Add Gateway'}
-            </ZoruDialogTitle>
-          </ZoruDialogHeader>
+            </DialogTitle>
+          </DialogHeader>
           <form action={formAction} className="grid gap-3">
             {editing?._id ? (
               <input type="hidden" name="_id" value={editing._id} />
@@ -409,7 +381,7 @@ export default function PaymentGatewaysPage() {
                 Show on public invoice/proposal pay pages
               </Label>
             </div>
-            <ZoruDialogFooter>
+            <DialogFooter>
               <Button
                 type="button"
                 variant="ghost"
@@ -418,34 +390,34 @@ export default function PaymentGatewaysPage() {
                 Cancel
               </Button>
               <Button type="submit">Save</Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </form>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!confirmDelete}
         onOpenChange={(o) => !o && setConfirmDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete gateway?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete gateway?</AlertDialogTitle>
+            <AlertDialogDescription>
               Credentials for <strong>{confirmDelete?.gateway}</strong> will be
               removed.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={onDelete} disabled={isPending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={onDelete} disabled={isPending}>
               {isPending && (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               )}
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Checkbox, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -34,7 +34,7 @@ export function RoleForm({
   initialData?: (WsRole & { _id: string }) | null;
 }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const isEditing = !!initialData?._id;
 
   const [state, formAction, isPending] = useActionState(saveRole, initialState);

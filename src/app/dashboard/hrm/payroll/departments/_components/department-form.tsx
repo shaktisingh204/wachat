@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruColorPicker, Input, Label, Switch, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, ColorPicker, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -34,7 +34,7 @@ function SubmitButton({ editing }: { editing: boolean }) {
 
 export function DepartmentForm({ initial }: Props) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(saveDepartmentAction, INITIAL_STATE);
   const editing = !!initial?._id;
@@ -102,7 +102,7 @@ export function DepartmentForm({ initial }: Props) {
             <Label>Color</Label>
             <input type="hidden" name="color" value={color} />
             <div className="mt-1.5">
-              <ZoruColorPicker value={color} onChange={setColor} />
+              <ColorPicker value={color} onChange={setColor} />
             </div>
           </div>
           <div className="md:col-span-2">

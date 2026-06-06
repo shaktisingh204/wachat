@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
@@ -92,7 +80,7 @@ export function AnnouncementForm({
     announcement,
 }: AnnouncementFormProps): React.JSX.Element {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = useActionState(
         saveAnnouncement,
         INITIAL_STATE as SaveState,
@@ -182,13 +170,13 @@ export function AnnouncementForm({
 
             {/* ── Content ─────────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Content</ZoruCardTitle>
+                <CardHeader>
+                    <CardTitle>Content</CardTitle>
                     <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Title and body. Markdown supported in the body.
                     </p>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-4">
+                </CardHeader>
+                <CardBody className="flex flex-col gap-4">
                     <div>
                         <Label htmlFor="title">
                             Title{' '}
@@ -259,15 +247,15 @@ export function AnnouncementForm({
                             </div>
                         ) : null}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ── Scheduling ──────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Schedule</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Schedule</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div>
                             <Label htmlFor="publishAt">
@@ -294,18 +282,18 @@ export function AnnouncementForm({
                             />
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ── Targeting ───────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Audience</ZoruCardTitle>
+                <CardHeader>
+                    <CardTitle>Audience</CardTitle>
                     <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Choose who sees the announcement.
                     </p>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-4">
+                </CardHeader>
+                <CardBody className="flex flex-col gap-4">
                     <div className="grid gap-4 md:grid-cols-2">
                         <div>
                             <Label>Audience</Label>
@@ -379,17 +367,17 @@ export function AnnouncementForm({
                             ) : null}
                         </div>
                     ) : null}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ── Behaviour ───────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>
+                <CardHeader>
+                    <CardTitle>
                         Status, category & behaviour
-                    </ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 md:grid-cols-3">
                         <div>
                             <Label>Status</Label>
@@ -487,14 +475,14 @@ export function AnnouncementForm({
                             </div>
                         ) : null}
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ── Attachments ─────────────────────────────────────── */}
             <Card className="p-0">
-                <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
+                <CardHeader className="flex flex-row items-center justify-between gap-2">
                     <div>
-                        <ZoruCardTitle>Attachments</ZoruCardTitle>
+                        <CardTitle>Attachments</CardTitle>
                         <p className="text-[12px] text-[var(--st-text-secondary)]">
                             Files from your SabFiles library.
                         </p>
@@ -519,8 +507,8 @@ export function AnnouncementForm({
                     >
                         <Paperclip className="mr-1.5 h-3.5 w-3.5" /> Add file
                     </SabFilePickerButton>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     {attachments.length === 0 ? (
                         <p className="rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-3 text-center text-[12px] text-[var(--st-text-secondary)]">
                             No attachments yet.
@@ -550,7 +538,7 @@ export function AnnouncementForm({
                             ))}
                         </ul>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {state?.error ? (

@@ -27,20 +27,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { downloadCsv, downloadXlsx, type ExportRow } from '@/lib/crm-list-export';
@@ -95,7 +82,7 @@ function daysAgo(d: unknown): number {
 }
 
 export function LegacyStickyBoard(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [notes, setNotes] = React.useState<(WsStickyNote & { _id: string })[]>([]);
   const [currentUserId, setCurrentUserId] = React.useState<string | null>(null);
   const [loading, startTransition] = React.useTransition();
@@ -337,17 +324,17 @@ export function LegacyStickyBoard(): React.JSX.Element {
                 setFilters((p) => ({ ...p, colour: v as ColourFilter }))
               }
             >
-              <ZoruSelectTrigger className="h-9 w-[140px]">
-                <ZoruSelectValue placeholder="Colour" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">Any colour</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[140px]">
+                <SelectValue placeholder="Colour" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any colour</SelectItem>
                 {COLORS.map((c) => (
-                  <ZoruSelectItem key={c.key} value={c.key}>
+                  <SelectItem key={c.key} value={c.key}>
                     {c.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Select
               value={filters.pinned}
@@ -355,14 +342,14 @@ export function LegacyStickyBoard(): React.JSX.Element {
                 setFilters((p) => ({ ...p, pinned: v as PinnedFilter }))
               }
             >
-              <ZoruSelectTrigger className="h-9 w-[140px]">
-                <ZoruSelectValue placeholder="Pinned" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All</ZoruSelectItem>
-                <ZoruSelectItem value="pinned">Pinned only</ZoruSelectItem>
-                <ZoruSelectItem value="unpinned">Not pinned</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[140px]">
+                <SelectValue placeholder="Pinned" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="pinned">Pinned only</SelectItem>
+                <SelectItem value="unpinned">Not pinned</SelectItem>
+              </SelectContent>
             </Select>
             <Select
               value={filters.owner}
@@ -370,15 +357,15 @@ export function LegacyStickyBoard(): React.JSX.Element {
                 setFilters((p) => ({ ...p, owner: v as OwnerFilter }))
               }
             >
-              <ZoruSelectTrigger className="h-9 w-[140px]">
-                <ZoruSelectValue placeholder="Owner" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All owners</ZoruSelectItem>
-                <ZoruSelectItem value="mine" disabled={!currentUserId}>
+              <SelectTrigger className="h-9 w-[140px]">
+                <SelectValue placeholder="Owner" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All owners</SelectItem>
+                <SelectItem value="mine" disabled={!currentUserId}>
                   Mine
-                </ZoruSelectItem>
-              </ZoruSelectContent>
+                </SelectItem>
+              </SelectContent>
             </Select>
             {filtersActive ? (
               <Button variant="ghost" size="sm" onClick={() => setFilters(INITIAL)}>

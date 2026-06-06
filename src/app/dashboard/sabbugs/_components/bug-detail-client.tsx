@@ -4,12 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import {
-  Button,
-  Card,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import {
@@ -128,7 +123,7 @@ function SegmentedNav({
 
 function StatusActions({ bug }: { bug: BugDoc }) {
   const router = useRouter();
-  const toast = useZoruToast();
+  const toast = useToast();
   const [busy, setBusy] = React.useState(false);
 
   async function setStatus(status: BugStatus) {
@@ -168,7 +163,7 @@ function CommentsTab({
   initialComments: BugCommentDoc[];
 }) {
   const router = useRouter();
-  const toast = useZoruToast();
+  const toast = useToast();
   const [comments, setComments] =
     React.useState<BugCommentDoc[]>(initialComments);
   const [body, setBody] = React.useState('');

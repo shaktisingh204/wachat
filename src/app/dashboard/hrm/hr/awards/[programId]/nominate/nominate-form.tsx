@@ -1,13 +1,13 @@
 'use client';
 
-import { Button, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { LoaderCircle, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { recordAwardVote } from '@/app/actions/hr-status-flow.actions';
 
 export function NominateForm({ programId, programName }: { programId: string, programName: string }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 

@@ -3,15 +3,7 @@
 import * as React from 'react';
 import { Archive, Download, ListChecks, Trash2, X } from 'lucide-react';
 
-import {
-    Button,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuLabel,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 
 const STATUS_BULK_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
     { value: 'New', label: 'New' },
@@ -48,39 +40,39 @@ export function PurchaseLeadsBulkBar({
             <span className="flex-1" />
 
             <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                     <Button size="sm" variant="outline">
                         <ListChecks className="h-3.5 w-3.5" /> Set status
                     </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
-                    <ZoruDropdownMenuLabel>Set lead status</ZoruDropdownMenuLabel>
-                    <ZoruDropdownMenuSeparator />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
+                    <DropdownMenuLabel>Set lead status</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
                     {STATUS_BULK_OPTIONS.map((opt) => (
-                        <ZoruDropdownMenuItem
+                        <DropdownMenuItem
                             key={opt.value}
                             onSelect={() => onStatusChange(opt.value)}
                         >
                             {opt.label}
-                        </ZoruDropdownMenuItem>
+                        </DropdownMenuItem>
                     ))}
-                </ZoruDropdownMenuContent>
+                </DropdownMenuContent>
             </DropdownMenu>
 
             <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                     <Button size="sm" variant="outline">
                         <Download className="h-3.5 w-3.5" /> Export
                     </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                    <ZoruDropdownMenuItem onSelect={() => onExportCsv()}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={() => onExportCsv()}>
                         Export selected as CSV
-                    </ZoruDropdownMenuItem>
-                    <ZoruDropdownMenuItem onSelect={() => onExportXlsx()}>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => onExportXlsx()}>
                         Export selected as XLSX
-                    </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
             </DropdownMenu>
 
             <Button size="sm" variant="outline" onClick={onArchive}>

@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { notFound } from 'next/navigation';
-import { Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { type DashboardWidget, resolveWidgetData } from '@/app/actions/crm-dashboards.actions';
 import React from 'react';
 import dynamic from 'next/dynamic';
@@ -63,12 +63,12 @@ export default async function PublicDashboardPage({ params }: PageProps) {
         return (
             <div className="flex h-screen w-full items-center justify-center p-4">
                 <Card className="w-full max-w-md">
-                    <ZoruCardContent className="p-8 text-center">
+                    <CardBody className="p-8 text-center">
                         <h2 className="text-lg font-medium text-[var(--st-text)]">Private Dashboard</h2>
                         <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
                             This dashboard is not publicly accessible. The owner must enable public access first.
                         </p>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         );
@@ -89,9 +89,9 @@ export default async function PublicDashboardPage({ params }: PageProps) {
                 
                 {widgets.length === 0 ? (
                     <Card>
-                        <ZoruCardContent className="p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
+                        <CardBody className="p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
                             No widgets configured for this dashboard.
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 ) : (
                     <DashboardGrid widgets={widgets} resolvedData={resolved} />

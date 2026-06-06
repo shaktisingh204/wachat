@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Alert,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Alert, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -121,25 +104,25 @@ export function UserAttributesSettingsTab({ project }: UserAttributesSettingsTab
     if (isLoading) {
         return (
             <Card className="card-gradient card-gradient-purple">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Custom User Attributes</ZoruCardTitle>
-                    <ZoruCardDescription>Define custom data fields to store information about your contacts.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-3">
+                <CardHeader>
+                    <CardTitle>Custom User Attributes</CardTitle>
+                    <CardDescription>Define custom data fields to store information about your contacts.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-3">
                     <Skeleton height={96} />
                     <Skeleton height={96} />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         );
     }
 
     return (
         <Card className="card-gradient card-gradient-purple">
-            <ZoruCardHeader>
-                <ZoruCardTitle>Custom User Attributes</ZoruCardTitle>
-                <ZoruCardDescription>Define custom data fields to store information about your contacts.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
+            <CardHeader>
+                <CardTitle>Custom User Attributes</CardTitle>
+                <CardDescription>Define custom data fields to store information about your contacts.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
                 {loadError && (
                     <Alert tone="danger" title="Could not load attributes">
                         <div className="flex flex-wrap items-center gap-2">
@@ -214,13 +197,13 @@ export function UserAttributesSettingsTab({ project }: UserAttributesSettingsTab
                     <Plus className="mr-2 h-4 w-4" />
                     Add Attribute
                 </Button>
-            </ZoruCardContent>
-            <ZoruCardFooter>
+            </CardBody>
+            <CardFooter>
                 <Button type="button" onClick={handleSave} disabled={isSaving}>
                     {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                     Save Attributes
                 </Button>
-            </ZoruCardFooter>
+            </CardFooter>
         </Card>
     );
 }

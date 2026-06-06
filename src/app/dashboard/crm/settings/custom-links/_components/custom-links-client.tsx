@@ -11,41 +11,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 
@@ -90,7 +56,7 @@ function EditDialog({
   initial: Row | null;
 }) {
   const isEditing = !!initial;
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, formAction] = useActionState(saveCustomLink, { message: '', error: '' });
 
   React.useEffect(() => {
@@ -100,12 +66,12 @@ function EditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl">
         <form action={formAction}>
           {isEditing && <input type="hidden" name="_id" value={initial!._id} />}
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{isEditing ? 'Edit Custom Link' : 'New Custom Link'}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+          <DialogHeader>
+            <DialogTitle>{isEditing ? 'Edit Custom Link' : 'New Custom Link'}</DialogTitle>
+          </DialogHeader>
           <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="link_name">Name <span className="text-[var(--st-danger)]">*</span></Label>
@@ -122,26 +88,26 @@ function EditDialog({
             <div className="space-y-2">
               <Label htmlFor="open_in_new_tab">Opens in</Label>
               <Select name="open_in_new_tab" defaultValue={initial?.open_in_new_tab ? 'true' : 'false'}>
-                <ZoruSelectTrigger id="open_in_new_tab"><ZoruSelectValue /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="false">Same tab</ZoruSelectItem>
-                  <ZoruSelectItem value="true">New tab</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger id="open_in_new_tab"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="false">Same tab</SelectItem>
+                  <SelectItem value="true">New tab</SelectItem>
+                </SelectContent>
               </Select>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitBtn isEditing={isEditing} />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
 
 export function CustomLinksClient(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<Row[]>([]);
   const [kpis, setKpis] = React.useState({ total: 0, newTab: 0, sameTab: 0 });
@@ -279,12 +245,12 @@ export function CustomLinksClient(): React.JSX.Element {
         filters={
           <div className="flex flex-wrap items-center gap-2">
             <Select value={tabFilter} onValueChange={(v) => setTabFilter(v as TabFilter)}>
-              <ZoruSelectTrigger className="h-9 w-[160px]"><ZoruSelectValue placeholder="Opens in" /></ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All</ZoruSelectItem>
-                <ZoruSelectItem value="new_tab">New tab</ZoruSelectItem>
-                <ZoruSelectItem value="same_tab">Same tab</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[160px]"><SelectValue placeholder="Opens in" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="new_tab">New tab</SelectItem>
+                <SelectItem value="same_tab">Same tab</SelectItem>
+              </SelectContent>
             </Select>
             {(search || tabFilter !== 'all') && (
               <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setTabFilter('all'); }}>
@@ -336,34 +302,34 @@ export function CustomLinksClient(): React.JSX.Element {
           <Card className="p-0">
             <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10">
                       <Checkbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => togglePage(v === true)} aria-label="Select all on page" />
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">URL</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Opens In</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Order</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                    <Th className="text-[var(--st-text-secondary)]">URL</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Opens In</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Order</Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {loading && rows.length === 0 ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                      <ZoruTableRow key={i}><ZoruTableCell colSpan={6}><Skeleton className="h-8 w-full" /></ZoruTableCell></ZoruTableRow>
+                      <Tr key={i}><Td colSpan={6}><Skeleton className="h-8 w-full" /></Td></Tr>
                     ))
                   ) : pageRows.length === 0 ? (
-                    <ZoruTableRow>
-                      <ZoruTableCell colSpan={6} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">No custom links match this filter.</ZoruTableCell>
-                    </ZoruTableRow>
+                    <Tr>
+                      <Td colSpan={6} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">No custom links match this filter.</Td>
+                    </Tr>
                   ) : (
                     pageRows.map((row) => (
-                      <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
-                        <ZoruTableCell>
+                      <Tr key={row._id} className="border-[var(--st-border)]">
+                        <Td>
                           <Checkbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.link_name}`} />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                        </Td>
+                        <Td className="font-medium text-[var(--st-text)]">
                           <RowDrawer label={row.link_name} title={`Custom Link · ${row.link_name}`} description="Link details. Use Edit to modify.">
                             <div className="space-y-3 text-sm">
                               <div><div className="text-xs text-[var(--st-text-secondary)]">Name</div><div>{row.link_name}</div></div>
@@ -372,65 +338,65 @@ export function CustomLinksClient(): React.JSX.Element {
                               <div><div className="text-xs text-[var(--st-text-secondary)]">Order</div><div>{row.position ?? 0}</div></div>
                             </div>
                           </RowDrawer>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="max-w-[240px] truncate text-[13px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="max-w-[240px] truncate text-[13px] text-[var(--st-text-secondary)]">
                           <a href={row.url} target="_blank" rel="noreferrer" className="hover:underline">{row.url}</a>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px]">
+                        </Td>
+                        <Td className="text-[13px]">
                           <Badge variant={row.open_in_new_tab ? 'warning' : 'ghost'}>
                             {row.open_in_new_tab ? 'New tab' : 'Same tab'}
                           </Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">{row.position ?? 0}</ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">{row.position ?? 0}</Td>
+                        <Td className="text-right">
                           <div className="flex justify-end gap-1">
                             <Button variant="ghost" size="sm" onClick={() => { setEditing(row); setDialogOpen(true); }} aria-label={`Edit ${row.link_name}`}>Edit</Button>
                             <Button variant="ghost" size="sm" onClick={() => setPendingDelete(row)} aria-label={`Delete ${row.link_name}`}>
                               <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           </div>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>
         </div>
       </EntityListShell>
 
-      <ZoruAlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete custom link?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete custom link?</AlertDialogTitle>
+            <AlertDialogDescription>
               {pendingDelete ? `"${pendingDelete.link_name}" will be permanently removed.` : 'This cannot be undone.'}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDeleteOne} disabled={deletePending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteOne} disabled={deletePending}>
               {deletePending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <ZoruAlertDialog open={pendingBulk} onOpenChange={(o) => !o && setPendingBulk(false)}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete {selected.size} link{selected.size === 1 ? '' : 's'}?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>Selected links will be permanently removed.</ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleBulkDelete} disabled={bulkPending}>
+      <AlertDialog open={pendingBulk} onOpenChange={(o) => !o && setPendingBulk(false)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selected.size} link{selected.size === 1 ? '' : 's'}?</AlertDialogTitle>
+            <AlertDialogDescription>Selected links will be permanently removed.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} disabled={bulkPending}>
               {bulkPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

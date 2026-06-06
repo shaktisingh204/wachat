@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import React, { Component, ReactNode } from 'react';
 import { Download, Copy, CheckCircle2 } from 'lucide-react';
@@ -22,9 +22,9 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     if (this.state.hasError) {
       return (
         <Card className="border-[var(--st-border)] m-4">
-          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">
+          <CardBody className="p-4 text-[var(--st-text)] text-sm">
             Something went wrong: {this.state.error?.message}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       );
     }
@@ -97,7 +97,7 @@ function AltTextCheckerContent() {
         />
         <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</Button>
       </div>
-      {error && <Card className="border-[var(--st-border)]"><ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-[var(--st-border)]"><CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody></Card>}
       {images.length > 0 && (
         <>
           <div className="flex items-center justify-between">
@@ -115,7 +115,7 @@ function AltTextCheckerContent() {
               </div>
             )}
           </div>
-          <Card><ZoruCardContent className="p-0">
+          <Card><CardBody className="p-0">
             <div className="max-h-[600px] overflow-auto">
               <table className="w-full text-xs">
                 <thead className="sticky top-0 bg-[var(--st-bg-secondary)]"><tr className="border-b"><th className="text-left p-2">Image</th><th className="text-left p-2">Alt</th></tr></thead>
@@ -132,7 +132,7 @@ function AltTextCheckerContent() {
                 </tbody>
               </table>
             </div>
-          </ZoruCardContent></Card>
+          </CardBody></Card>
         </>
       )}
     </ToolShell>

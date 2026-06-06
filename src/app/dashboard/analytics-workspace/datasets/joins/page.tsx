@@ -3,18 +3,7 @@
  */
 import Link from 'next/link';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Table,
-  TableBody,
-  TableHeader,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TBody, THead } from '@/components/sabcrm/20ui/compat';
 import {
   listDatasetsAction,
   listJoinsAction,
@@ -67,7 +56,7 @@ export default async function JoinsPage() {
             <p className="text-sm text-[var(--st-text-secondary)]">No joins yet.</p>
           ) : (
             <Table>
-              <TableHeader>
+              <THead>
                 <tr>
                   <th className="text-left">Name</th>
                   <th className="text-left">Type</th>
@@ -75,8 +64,8 @@ export default async function JoinsPage() {
                   <th className="text-left">Right</th>
                   <th className="text-right">Columns</th>
                 </tr>
-              </TableHeader>
-              <TableBody>
+              </THead>
+              <TBody>
                 {joins.map((j) => (
                   <tr key={j._id} className="border-t border-[var(--st-border)]">
                     <td className="py-2">{j.name}</td>
@@ -88,7 +77,7 @@ export default async function JoinsPage() {
                     <td className="py-2 text-right">{j.onColumns?.length ?? 0}</td>
                   </tr>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
           )}
         </CardContent>

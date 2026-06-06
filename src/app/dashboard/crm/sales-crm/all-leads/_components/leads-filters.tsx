@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruDateRangePicker,
-  Input,
-  Label,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, DateRangePicker, Input, Label, Popover, PopoverContent, PopoverTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   Archive,
   ChevronDown,
@@ -78,7 +61,7 @@ export interface LeadsFiltersRowProps {
 export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
     return (
         <Card>
-            <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
+            <CardBody className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <div className="space-y-1">
                     <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
@@ -134,7 +117,7 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                     <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Created
                     </Label>
-                    <ZoruDateRangePicker
+                    <DateRangePicker
                         value={props.dateRange}
                         onChange={(r) => props.onDateRangeChange(r)}
                     />
@@ -169,7 +152,7 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                         </Button>
                     </div>
                 ) : null}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -212,12 +195,12 @@ export function LeadsBulkBar({
 
             {/* Bulk assign owner */}
             <Popover open={assignOpen} onOpenChange={setAssignOpen}>
-                <ZoruPopoverTrigger asChild>
+                <PopoverTrigger asChild>
                     <Button size="sm" variant="outline">
                         <UserPlus className="h-3.5 w-3.5" /> Assign…
                     </Button>
-                </ZoruPopoverTrigger>
-                <ZoruPopoverContent align="start" className="w-72 space-y-2">
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-72 space-y-2">
                     <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Assign to user
                     </p>
@@ -241,17 +224,17 @@ export function LeadsBulkBar({
                     >
                         Unassign
                     </button>
-                </ZoruPopoverContent>
+                </PopoverContent>
             </Popover>
 
             {/* Bulk add tag */}
             <Popover open={tagsOpen} onOpenChange={setTagsOpen}>
-                <ZoruPopoverTrigger asChild>
+                <PopoverTrigger asChild>
                     <Button size="sm" variant="outline">
                         <Tag className="h-3.5 w-3.5" /> Add tag…
                     </Button>
-                </ZoruPopoverTrigger>
-                <ZoruPopoverContent align="start" className="w-80 space-y-2">
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-80 space-y-2">
                     <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Add tags to selected
                     </p>
@@ -262,7 +245,7 @@ export function LeadsBulkBar({
                         }}
                         onCancel={() => setTagsOpen(false)}
                     />
-                </ZoruPopoverContent>
+                </PopoverContent>
             </Popover>
 
             <Button size="sm" variant="outline" onClick={onArchive}>
@@ -425,17 +408,17 @@ export function LeadsViewsMenu({ activePresetId, onSelect }: LeadsViewsMenuProps
     const active = LEADS_VIEW_PRESETS.find((p) => p.id === activePresetId) ?? LEADS_VIEW_PRESETS[0];
     return (
         <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                     <ListChecks className="h-3.5 w-3.5" /> {active.label}
                     <ChevronDown className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
                 </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="start" className="w-64">
-                <ZoruDropdownMenuLabel>Saved views</ZoruDropdownMenuLabel>
-                <ZoruDropdownMenuSeparator />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-64">
+                <DropdownMenuLabel>Saved views</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 {LEADS_VIEW_PRESETS.map((preset) => (
-                    <ZoruDropdownMenuItem
+                    <DropdownMenuItem
                         key={preset.id}
                         onClick={() => onSelect(preset.id)}
                     >
@@ -447,9 +430,9 @@ export function LeadsViewsMenu({ activePresetId, onSelect }: LeadsViewsMenuProps
                                 </span>
                             ) : null}
                         </div>
-                    </ZoruDropdownMenuItem>
+                    </DropdownMenuItem>
                 ))}
-            </ZoruDropdownMenuContent>
+            </DropdownMenuContent>
         </DropdownMenu>
     );
 }

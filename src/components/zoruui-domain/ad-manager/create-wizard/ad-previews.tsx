@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Badge, ScrollArea, ZoruScrollBar } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, ScrollArea, ScrollBar } from '@/components/sabcrm/20ui/compat';
 import {
   Heart,
   MessageCircle,
@@ -521,7 +521,7 @@ export function AdPreviewSwitcher({
                         );
                     })}
                 </div>
-                <ZoruScrollBar orientation="horizontal" />
+                <ScrollBar orientation="horizontal" />
             </ScrollArea>
 
             {/* Active variant */}

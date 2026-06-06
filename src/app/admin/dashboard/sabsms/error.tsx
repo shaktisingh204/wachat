@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
 
 export default function SabsmsError({
@@ -18,20 +18,20 @@ export default function SabsmsError({
   return (
     <div className="space-y-6">
       <Card className="border-[var(--st-danger)] bg-[var(--st-bg-muted)]/50">
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-[var(--st-danger)]">Connection Error</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle className="text-[var(--st-danger)]">Connection Error</CardTitle>
+          <CardDescription>
             Failed to load SabSMS dashboard data. This might be a database connectivity issue.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <div className="text-sm font-mono bg-[var(--st-bg-muted)]/50 p-2 rounded text-[var(--st-text)]">
             {error.message || 'Unknown error occurred'}
           </div>
           <Button variant="destructive" onClick={() => reset()}>
             Retry
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

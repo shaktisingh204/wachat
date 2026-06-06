@@ -12,12 +12,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent } from '@/components/sabcrm/20ui/compat';
 import {
   getSabwriterComment,
   resolveSabwriterComment,

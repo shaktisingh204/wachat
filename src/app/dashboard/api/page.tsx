@@ -1,4 +1,4 @@
-import { Card, ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowUpRight,
   Key,
@@ -81,13 +81,13 @@ export default function DeveloperApiHubPage(): JSX.Element {
   return (
     <div className="flex min-h-full flex-col gap-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Developer platform</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Developer platform</PageTitle>
+          <PageDescription>
             Everything you need to build on top of SabNode — keys, OAuth apps, webhooks, usage,
             and live API docs.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

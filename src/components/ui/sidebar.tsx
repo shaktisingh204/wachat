@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Tooltip,
-  ZoruTooltipContent,
-  ZoruTooltipTrigger,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerTrigger,
-  ScrollArea,
-  type ZoruButtonProps,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Tooltip, TooltipContent, TooltipTrigger, Drawer, DrawerContent, DrawerTrigger, ScrollArea, type ButtonProps } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -61,11 +51,11 @@ export function Sidebar({ className, children }: { className?: string; children:
 
   if (isMobile) {
     return (
-      <ZoruDrawer open={isOpen} onOpenChange={setIsOpen} direction="left">
-        <ZoruDrawerContent className="h-full max-w-xs p-0 bg-sidebar-secondary-background">
+      <Drawer open={isOpen} onOpenChange={setIsOpen} direction="left">
+        <DrawerContent className="h-full max-w-xs p-0 bg-sidebar-secondary-background">
           {sidebarContent}
-        </ZoruDrawerContent>
-      </ZoruDrawer>
+        </DrawerContent>
+      </Drawer>
     );
   }
 
@@ -103,7 +93,7 @@ export const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.HTMLAttribu
 ));
 SidebarMenuItem.displayName = 'SidebarMenuItem';
 
-type SidebarMenuZoruButtonProps = ZoruButtonProps & {
+type SidebarMenuZoruButtonProps = ButtonProps & {
   isActive?: boolean;
   tooltip?: string;
   asChild?: boolean;
@@ -128,10 +118,10 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
 
     return (
       <Tooltip>
-        <ZoruTooltipTrigger asChild>{buttonContent}</ZoruTooltipTrigger>
-        <ZoruTooltipContent side="right" sideOffset={10}>
+        <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
+        <TooltipContent side="right" sideOffset={10}>
           <p>{tooltip}</p>
-        </ZoruTooltipContent>
+        </TooltipContent>
       </Tooltip>
     );
   }
@@ -147,9 +137,9 @@ export const SidebarTrigger = ({ children }: { children?: React.ReactNode }) => 
   const { isMobile, isOpen, setIsOpen } = useSidebar();
   if (isMobile) {
     return (
-      <ZoruDrawerTrigger asChild>
+      <DrawerTrigger asChild>
         {children}
-      </ZoruDrawerTrigger>
+      </DrawerTrigger>
     )
   }
 

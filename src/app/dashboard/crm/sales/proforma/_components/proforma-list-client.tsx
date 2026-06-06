@@ -20,12 +20,7 @@ import {
   Search,
   X,
 } from 'lucide-react';
-import {
-  Button,
-  Card,
-  useZoruToast,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, useToast, Input } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -148,7 +143,7 @@ export function ProformaListClient({
   kpi,
   error,
 }: ProformaListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();

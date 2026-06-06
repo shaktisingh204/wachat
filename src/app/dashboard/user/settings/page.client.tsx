@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  ZoruCardFooter,
-  Button,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Button, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState } from 'react';
 import { getSession } from '@/app/actions/user.actions';
 import type { User } from '@/lib/definitions';
@@ -27,13 +18,13 @@ function SettingsOverviewSkeleton() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3].map((i) => (
                     <Card key={i}>
-                        <ZoruCardHeader>
+                        <CardHeader>
                             <Skeleton className="h-6 w-1/2" />
                             <Skeleton className="h-4 w-full mt-2" />
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        </CardHeader>
+                        <CardBody>
                             <Skeleton className="h-16 w-full" />
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 ))}
             </div>
@@ -62,12 +53,12 @@ export default function UserSettingsOverviewPage() {
     if (!user) {
         return (
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2"><AlertCircle /> Error</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><AlertCircle /> Error</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <p>Could not load settings overview. Please log in again.</p>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         );
     }
@@ -115,16 +106,16 @@ export default function UserSettingsOverviewPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {settingsCards.map((card) => (
                     <Card key={card.title} className="flex flex-col h-full hover:border-primary/50 transition-colors">
-                        <ZoruCardHeader>
+                        <CardHeader>
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="p-2 bg-[var(--st-text)]/10 rounded-md">
                                     <card.icon className="h-5 w-5 text-[var(--st-text)]" />
                                 </div>
-                                <ZoruCardTitle className="text-xl">{card.title}</ZoruCardTitle>
+                                <CardTitle className="text-xl">{card.title}</CardTitle>
                             </div>
-                            <ZoruCardDescription>{card.description}</ZoruCardDescription>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="flex-1">
+                            <CardDescription>{card.description}</CardDescription>
+                        </CardHeader>
+                        <CardBody className="flex-1">
                             <div className="space-y-2 mt-2">
                                 {card.details.map((detail, idx) => (
                                     <div key={idx} className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
@@ -133,29 +124,29 @@ export default function UserSettingsOverviewPage() {
                                     </div>
                                 ))}
                             </div>
-                        </ZoruCardContent>
-                        <ZoruCardFooter>
+                        </CardBody>
+                        <CardFooter>
                             <Button asChild variant="outline" className="w-full justify-between group">
                                 <Link href={card.href}>
                                     Manage {card.title.split(' ')[0]}
                                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                                 </Link>
                             </Button>
-                        </ZoruCardFooter>
+                        </CardFooter>
                     </Card>
                 ))}
             </div>
             
             <Card className="bg-[var(--st-bg-muted)]/30 border-dashed">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Need Help?</ZoruCardTitle>
-                    <ZoruCardDescription>If you have any questions about your account settings, our support team is here to help.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Need Help?</CardTitle>
+                    <CardDescription>If you have any questions about your account settings, our support team is here to help.</CardDescription>
+                </CardHeader>
+                <CardBody>
                     <Button asChild variant="default">
                         <Link href="/dashboard/sabchat/faq">View FAQ</Link>
                     </Button>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

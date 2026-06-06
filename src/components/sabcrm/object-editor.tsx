@@ -47,44 +47,7 @@ import {
   Info,
 } from 'lucide-react';
 
-import {
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Separator,
-  Badge,
-  Switch,
-  cn,
-  useZoruToast,
-  ZoruIconPicker,
-  ZORU_ICONS,
-  ZoruAlertDialog,
-  ZoruAlertDialogTrigger,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogAction,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectValue,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  ZoruDialogDescription,
-  ScrollArea,
-  Tooltip,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  ZoruTooltipContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Separator, Badge, Switch, cn, useToast, IconPicker, ICONS, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Select, SelectTrigger, SelectContent, SelectItem, SelectValue, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, ScrollArea, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/sabcrm/20ui/compat';
 
 import {
   createCustomObjectAction,
@@ -216,7 +179,7 @@ function isStandardField(object: ObjectMetadata): boolean {
 /** Returns the icon component for a key, or null. */
 function IconFor({ name, className }: { name?: string; className?: string }) {
   if (!name) return null;
-  const Comp = ZORU_ICONS[name];
+  const Comp = ICONS[name];
   if (!Comp) return null;
   return <Comp className={className ?? 'h-4 w-4'} />;
 }
@@ -344,7 +307,7 @@ function FieldEditorDialog({
   projectId,
   onSaved,
 }: FieldEditorDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const isEdit = !!field;
 
   /* form state */
@@ -468,15 +431,15 @@ function FieldEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>{isEdit ? `Edit field — ${field!.key}` : 'Add field'}</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{isEdit ? `Edit field — ${field!.key}` : 'Add field'}</DialogTitle>
+          <DialogDescription>
             {isEdit
               ? 'The key and type are immutable; update any other attribute below.'
               : 'New field will be appended to this object.'}
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4 pt-1">
           {/* Label */}
@@ -520,14 +483,14 @@ function FieldEditorDialog({
               onValueChange={(v) => setType(v as FieldType)}
               disabled={saving || isEdit}
             >
-              <ZoruSelectTrigger id="fe-type">
-                <ZoruSelectValue placeholder="Select type" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="fe-type">
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
                 {FIELD_TYPES.map((ft) => (
-                  <ZoruSelectItem key={ft.value} value={ft.value}>{ft.label}</ZoruSelectItem>
+                  <SelectItem key={ft.value} value={ft.value}>{ft.label}</SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             {isEdit && (
               <p className="text-[11px] text-[var(--st-text-secondary)]">
@@ -556,16 +519,16 @@ function FieldEditorDialog({
                   onValueChange={setRelationTarget}
                   disabled={saving || isEdit}
                 >
-                  <ZoruSelectTrigger id="fe-rtarget">
-                    <ZoruSelectValue placeholder="Pick target object" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger id="fe-rtarget">
+                    <SelectValue placeholder="Pick target object" />
+                  </SelectTrigger>
+                  <SelectContent>
                     {allObjects.map((o) => (
-                      <ZoruSelectItem key={o.slug} value={o.slug}>
+                      <SelectItem key={o.slug} value={o.slug}>
                         {o.labelPlural}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="flex flex-col gap-1.5">
@@ -575,13 +538,13 @@ function FieldEditorDialog({
                   onValueChange={(v) => setRelationKind(v as FieldRelation['kind'])}
                   disabled={saving || isEdit}
                 >
-                  <ZoruSelectTrigger id="fe-rkind">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="MANY_TO_ONE">Many-to-one (belongs to one {relationTarget || 'record'})</ZoruSelectItem>
-                    <ZoruSelectItem value="ONE_TO_MANY">One-to-many (has many {relationTarget || 'records'})</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger id="fe-rkind">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MANY_TO_ONE">Many-to-one (belongs to one {relationTarget || 'record'})</SelectItem>
+                    <SelectItem value="ONE_TO_MANY">One-to-many (has many {relationTarget || 'records'})</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </div>
@@ -590,7 +553,7 @@ function FieldEditorDialog({
           {/* Icon */}
           <div className="flex flex-col gap-1.5">
             <Label>Icon</Label>
-            <ZoruIconPicker value={icon} onChange={setIcon} disabled={saving} />
+            <IconPicker value={icon} onChange={setIcon} disabled={saving} />
           </div>
 
           {/* Description */}
@@ -630,7 +593,7 @@ function FieldEditorDialog({
             />
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" disabled={saving} onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
@@ -638,9 +601,9 @@ function FieldEditorDialog({
               {saving && <Loader2 className="animate-spin" />}
               {isEdit ? 'Save changes' : 'Add field'}
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -666,7 +629,7 @@ function RelationBuilderDialog({
   projectId,
   onSaved,
 }: RelationBuilderDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [targetSlug, setTargetSlug] = React.useState('');
   const [kind, setKind] = React.useState<FieldRelation['kind']>('MANY_TO_ONE');
@@ -740,33 +703,33 @@ function RelationBuilderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Add relation</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add relation</DialogTitle>
+          <DialogDescription>
             Link this object to another by adding a RELATION field. A reciprocal
             back-reference field is created on the target by default.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4 pt-1">
           {/* Target */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="rb-target">Target object <span className="text-[var(--st-danger)]" aria-hidden>*</span></Label>
             <Select value={targetSlug} onValueChange={(v) => { setTargetSlug(v); setFieldKeyTouched(false); }} disabled={saving}>
-              <ZoruSelectTrigger id="rb-target">
-                <ZoruSelectValue placeholder="Pick an object" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="rb-target">
+                <SelectValue placeholder="Pick an object" />
+              </SelectTrigger>
+              <SelectContent>
                 {otherObjects.map((o) => (
-                  <ZoruSelectItem key={o.slug} value={o.slug}>
+                  <SelectItem key={o.slug} value={o.slug}>
                     <span className="flex items-center gap-2">
                       <IconFor name={o.icon} className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                       {o.labelPlural}
                     </span>
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
 
@@ -774,17 +737,17 @@ function RelationBuilderDialog({
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="rb-kind">Cardinality</Label>
             <Select value={kind} onValueChange={(v) => { setKind(v as FieldRelation['kind']); setFieldKeyTouched(false); }} disabled={saving}>
-              <ZoruSelectTrigger id="rb-kind">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="MANY_TO_ONE">
+              <SelectTrigger id="rb-kind">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="MANY_TO_ONE">
                   Many-to-one — each record belongs to one {targetObject?.labelSingular ?? 'target'}
-                </ZoruSelectItem>
-                <ZoruSelectItem value="ONE_TO_MANY">
+                </SelectItem>
+                <SelectItem value="ONE_TO_MANY">
                   One-to-many — each record has many {targetObject?.labelPlural ?? 'targets'}
-                </ZoruSelectItem>
-              </ZoruSelectContent>
+                </SelectItem>
+              </SelectContent>
             </Select>
           </div>
 
@@ -811,7 +774,7 @@ function RelationBuilderDialog({
             disabled={saving}
           />
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" disabled={saving} onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
@@ -819,9 +782,9 @@ function RelationBuilderDialog({
               {saving && <Loader2 className="animate-spin" />}
               Create relation
             </Button>
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -930,18 +893,18 @@ function FieldListRow({
           <Badge variant="outline" className="py-0 text-[10px]">table</Badge>
         )}
         {(field.system || readonly) && (
-          <ZoruTooltipProvider>
+          <TooltipProvider>
             <Tooltip>
-              <ZoruTooltipTrigger asChild>
+              <TooltipTrigger asChild>
                 <span>
                   <Badge variant="secondary" className="py-0 text-[10px]">
                     {field.system ? 'system' : 'standard'}
                   </Badge>
                 </span>
-              </ZoruTooltipTrigger>
-              <ZoruTooltipContent>This field is managed by SabCRM and cannot be edited or removed.</ZoruTooltipContent>
+              </TooltipTrigger>
+              <TooltipContent>This field is managed by SabCRM and cannot be edited or removed.</TooltipContent>
             </Tooltip>
-          </ZoruTooltipProvider>
+          </TooltipProvider>
         )}
       </div>
 
@@ -1084,7 +1047,7 @@ function ObjectIdentityForm({
       {/* Icon */}
       <div className="flex flex-col gap-1.5">
         <Label>Icon <span className="text-[var(--st-danger)]" aria-hidden>*</span></Label>
-        <ZoruIconPicker value={icon} onChange={onIconChange} disabled={disabled} />
+        <IconPicker value={icon} onChange={onIconChange} disabled={disabled} />
       </div>
 
       {/* Description */}
@@ -1114,14 +1077,14 @@ function ObjectIdentityForm({
         <div className="flex flex-col gap-1.5 pl-4 border-l-2 border-[var(--st-border)]">
           <Label htmlFor="oe-groupby">Group by field</Label>
           <Select value={groupByField} onValueChange={onGroupByFieldChange} disabled={disabled}>
-            <ZoruSelectTrigger id="oe-groupby">
-              <ZoruSelectValue placeholder="Pick a SELECT field" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger id="oe-groupby">
+              <SelectValue placeholder="Pick a SELECT field" />
+            </SelectTrigger>
+            <SelectContent>
               {selectFields.map((f) => (
-                <ZoruSelectItem key={f.key} value={f.key}>{f.label}</ZoruSelectItem>
+                <SelectItem key={f.key} value={f.key}>{f.label}</SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           {selectFields.length === 0 && (
             <p className="text-[11px] text-[var(--st-text-secondary)]">
@@ -1172,7 +1135,7 @@ export function ObjectEditor({
   onChanged,
   onDeleted,
 }: ObjectEditorProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const isEdit = !!object;
   const isStandard = object?.standard ?? false;
 
@@ -1456,8 +1419,8 @@ export function ObjectEditor({
             </p>
           </div>
           {isEdit && !isStandard && (
-            <ZoruAlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-              <ZoruAlertDialogTrigger asChild>
+            <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+              <AlertDialogTrigger asChild>
                 <Button
                   type="button"
                   variant="ghost"
@@ -1467,29 +1430,29 @@ export function ObjectEditor({
                   <Trash2 className="h-4 w-4" />
                   Delete object
                 </Button>
-              </ZoruAlertDialogTrigger>
-              <ZoruAlertDialogContent>
-                <ZoruAlertDialogHeader>
-                  <ZoruAlertDialogTitle>Delete {liveObject?.labelSingular}?</ZoruAlertDialogTitle>
-                  <ZoruAlertDialogDescription>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete {liveObject?.labelSingular}?</AlertDialogTitle>
+                  <AlertDialogDescription>
                     This will permanently delete the object definition. If there are existing records,
                     deletion will be refused — use the force-delete option in the API if needed.
                     Inbound relation fields on other objects will be detached automatically.
-                  </ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                  <ZoruAlertDialogCancel disabled={deleting}>Cancel</ZoruAlertDialogCancel>
-                  <ZoruAlertDialogAction
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
                     onClick={confirmDelete}
                     disabled={deleting}
                     className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
                   >
                     {deleting && <Loader2 className="animate-spin" />}
                     Delete
-                  </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-              </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
 
@@ -1672,32 +1635,32 @@ export function ObjectEditor({
       )}
 
       {/* Remove field confirmation */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!fieldToRemove}
         onOpenChange={(v) => { if (!v) setFieldToRemove(null); }}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Remove field "{fieldToRemove?.label}"?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove field "{fieldToRemove?.label}"?</AlertDialogTitle>
+            <AlertDialogDescription>
               The field will be removed from the schema. Existing record data stored
               under this key will be orphaned but not immediately deleted from the
               database — data for this key will no longer appear in the UI.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={!!removingField}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!removingField}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={confirmRemoveField}
               disabled={!!removingField}
               className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {removingField && <Loader2 className="animate-spin" />}
               Remove field
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

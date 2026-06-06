@@ -8,12 +8,7 @@ export const dynamic = 'force-dynamic';
 import { redirect } from 'next/navigation';
 
 import { getClientProfile } from '@/app/actions/client-portal.actions';
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { ProfileForm } from '@/components/client-portal/profile-form';
 
 async function ClientProfilePageContent() {
@@ -33,10 +28,10 @@ async function ClientProfilePageContent() {
 
             <div className="grid gap-4 lg:grid-cols-2">
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Account</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Account</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <ProfileForm
                             initialName={profile.name}
                             email={profile.email}
@@ -45,14 +40,14 @@ async function ClientProfilePageContent() {
                             initialTwoFactorEnabled={profile.twoFactorEnabled ?? false}
                             initialNotificationPreferences={profile.notificationPreferences ?? { email: true, sms: false }}
                         />
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Company</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Company</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         {profile.company ? (
                             <dl className="grid grid-cols-1 gap-3 text-sm">
                                 <div>
@@ -78,7 +73,7 @@ async function ClientProfilePageContent() {
                                 company details.
                             </p>
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

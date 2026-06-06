@@ -1,20 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DataTable,
-  EmptyState,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DataTable, EmptyState, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -366,21 +352,21 @@ export default function CatalogDetailPage() {
       {error ? (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Could not load catalog</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not load catalog</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
 
       {/* ── Products ── */}
       <Card className="mt-6">
-        <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
+        <CardHeader className="flex flex-row items-start justify-between gap-3">
           <div>
-            <ZoruCardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2 text-base">
               <ShoppingBag className="h-4 w-4" /> Products
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Items in this catalog. Products sync to Meta Commerce on save.
-            </ZoruCardDescription>
+            </CardDescription>
           </div>
           {projectId ? (
             <div className="flex items-center gap-2">
@@ -393,8 +379,8 @@ export default function CatalogDetailPage() {
               </Button>
             </div>
           ) : null}
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           {products.length === 0 ? (
             <EmptyState
               compact
@@ -419,19 +405,19 @@ export default function CatalogDetailPage() {
               pageSize={10}
             />
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* ── Collections ── */}
       <Card className="mt-6">
-        <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
+        <CardHeader className="flex flex-row items-start justify-between gap-3">
           <div>
-            <ZoruCardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2 text-base">
               <Layers className="h-4 w-4" /> Collections
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Group products into sets for promotions and dynamic ads.
-            </ZoruCardDescription>
+            </CardDescription>
           </div>
           {projectId ? (
             <Button
@@ -443,8 +429,8 @@ export default function CatalogDetailPage() {
               New collection
             </Button>
           ) : null}
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           {collections.length === 0 ? (
             <EmptyState
               compact
@@ -472,7 +458,7 @@ export default function CatalogDetailPage() {
               showColumnMenu={false}
             />
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* ── Dialogs ── */}

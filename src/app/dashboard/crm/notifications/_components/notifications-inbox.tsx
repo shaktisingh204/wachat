@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Badge, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Badge, useToast } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 import { Bell, CheckCheck, Check } from 'lucide-react';
 
@@ -30,7 +30,7 @@ function formatStamp(value?: string | Date | null): string {
 }
 
 export function NotificationsInbox({ initialNotifications }: NotificationsInboxProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>(initialNotifications);
   const [busyAll, setBusyAll] = React.useState(false);
 

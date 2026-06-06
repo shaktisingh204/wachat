@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, Checkbox, Input, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams,
@@ -118,7 +104,7 @@ export function SalesOrdersListClient({
   warehouses,
   error,
 }: SalesOrdersListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -607,21 +593,21 @@ export function SalesOrdersListClient({
 
         <PaginationBar page={bulky.page} limit={bulky.limit} hasMore={hasMore} />
 
-        <ZoruAlertDialog
+        <AlertDialog
           open={pendingDelete !== null}
           onOpenChange={(o) => !o && setPendingDelete(null)}
         >
-          <ZoruAlertDialogContent>
-            <ZoruAlertDialogHeader>
-              <ZoruAlertDialogTitle>Delete sales order?</ZoruAlertDialogTitle>
-              <ZoruAlertDialogDescription>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete sales order?</AlertDialogTitle>
+              <AlertDialogDescription>
                 This permanently removes <strong>{pendingDelete?.soNo ?? ''}</strong>{' '}
                 from the database. The action cannot be undone.
-              </ZoruAlertDialogDescription>
-            </ZoruAlertDialogHeader>
-            <ZoruAlertDialogFooter>
-              <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-              <ZoruAlertDialogAction
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
                 onClick={(e) => {
                   e.preventDefault();
                   confirmDelete();
@@ -629,26 +615,26 @@ export function SalesOrdersListClient({
                 className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
               >
                 Delete permanently
-              </ZoruAlertDialogAction>
-            </ZoruAlertDialogFooter>
-          </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-        <ZoruAlertDialog
+        <AlertDialog
           open={pendingBulkDelete}
           onOpenChange={(o) => !o && setPendingBulkDelete(false)}
         >
-          <ZoruAlertDialogContent>
-            <ZoruAlertDialogHeader>
-              <ZoruAlertDialogTitle>Delete {bulky.selected.size} sales orders?</ZoruAlertDialogTitle>
-              <ZoruAlertDialogDescription>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete {bulky.selected.size} sales orders?</AlertDialogTitle>
+              <AlertDialogDescription>
                 This permanently removes the selected sales orders. The action
                 cannot be undone.
-              </ZoruAlertDialogDescription>
-            </ZoruAlertDialogHeader>
-            <ZoruAlertDialogFooter>
-              <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-              <ZoruAlertDialogAction
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
                 onClick={(e) => {
                   e.preventDefault();
                   confirmBulkDelete();
@@ -656,10 +642,10 @@ export function SalesOrdersListClient({
                 className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
               >
                 Delete permanently
-              </ZoruAlertDialogAction>
-            </ZoruAlertDialogFooter>
-          </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </Card>
     </div>
   );

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
 import { getBooking } from '@/app/actions/crm/bookings.actions';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Badge } from '@/components/sabcrm/20ui/compat';
 import { PortalActions, ClientDate } from './portal-client';
 export const dynamic = 'force-dynamic';
 
@@ -41,10 +41,10 @@ export default async function BookingPortalPage({
       </div>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>{booking.service || 'Appointment Details'}</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4 text-sm text-[var(--st-text)]">
+        <CardHeader>
+          <CardTitle>{booking.service || 'Appointment Details'}</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-4 text-sm text-[var(--st-text)]">
           <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-3">
             <span className="text-[var(--st-text-secondary)]">Status</span>
             <Badge tone={getStatusTone(booking.status)} className="capitalize">
@@ -67,7 +67,7 @@ export default async function BookingPortalPage({
               This booking cannot be modified at this time.
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

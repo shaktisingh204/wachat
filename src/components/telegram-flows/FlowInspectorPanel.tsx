@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   Trash2 } from 'lucide-react';
@@ -171,14 +161,14 @@ function SendMessageForm({ data, patch, disabled }: FormProps) {
           onValueChange={(v) => patch({ parseMode: v })}
           disabled={disabled}
         >
-          <ZoruSelectTrigger id="sm-parse">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="HTML">HTML</ZoruSelectItem>
-            <ZoruSelectItem value="MarkdownV2">MarkdownV2</ZoruSelectItem>
-            <ZoruSelectItem value="None">Plain text</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger id="sm-parse">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="HTML">HTML</SelectItem>
+            <SelectItem value="MarkdownV2">MarkdownV2</SelectItem>
+            <SelectItem value="None">Plain text</SelectItem>
+          </SelectContent>
         </Select>
       </div>
     </div>
@@ -196,15 +186,15 @@ function SendMediaForm({ data, patch, disabled }: FormProps) {
           onValueChange={(v) => patch({ mediaKind: v })}
           disabled={disabled}
         >
-          <ZoruSelectTrigger id="sm-kind">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="photo">Photo</ZoruSelectItem>
-            <ZoruSelectItem value="video">Video</ZoruSelectItem>
-            <ZoruSelectItem value="document">Document</ZoruSelectItem>
-            <ZoruSelectItem value="audio">Audio</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger id="sm-kind">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="photo">Photo</SelectItem>
+            <SelectItem value="video">Video</SelectItem>
+            <SelectItem value="document">Document</SelectItem>
+            <SelectItem value="audio">Audio</SelectItem>
+          </SelectContent>
         </Select>
       </div>
 
@@ -447,16 +437,16 @@ function HttpRequestForm({ data, patch, disabled }: FormProps) {
             onValueChange={(v) => patch({ method: v })}
             disabled={disabled}
           >
-            <ZoruSelectTrigger id="hr-method">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger id="hr-method">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].map((m) => (
-                <ZoruSelectItem key={m} value={m}>
+                <SelectItem key={m} value={m}>
                   {m}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
         <div className="col-span-2 flex flex-col gap-1.5">

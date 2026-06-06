@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Button,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, Button, Input, Label } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useActionState,
@@ -108,12 +98,12 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+            <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     {app && <input type="hidden" name="appId" value={app.appId} />}
                     {app && <input type="hidden" name="appName" value={app.name} />}
                     {app && app.credentials && <input type="hidden" name="credentialKeys" value={app.credentials.map((c: any) => c.name).join(',')} />}
-                    <ZoruDialogHeader className="items-center text-center px-6 pt-6 pb-2">
+                    <DialogHeader className="items-center text-center px-6 pt-6 pb-2">
                         {app?.logo ? (
                             <Image src={app.logo} alt={`${app.name} logo`} width={48} height={48} className="rounded-md" />
                         ) : app?.icon ? (
@@ -121,20 +111,20 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                                 <app.icon className="w-8 h-8 text-[var(--st-text-secondary)]" />
                             </div>
                         ) : null}
-                        <ZoruDialogTitle>Connect to {app?.name}</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                        <DialogTitle>Connect to {app?.name}</DialogTitle>
+                        <DialogDescription>
                             {app?.description || 'Provide the necessary details to connect your account.'}
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="flex-1 overflow-y-auto px-6 py-2">
                         {renderFormFields()}
                     </div>
-                    <ZoruDialogFooter className="px-6 pb-6 pt-2">
+                    <DialogFooter className="px-6 pb-6 pt-2">
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton app={app} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

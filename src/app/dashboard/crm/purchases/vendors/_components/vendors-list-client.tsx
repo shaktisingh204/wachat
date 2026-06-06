@@ -1,28 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  useZoruToast,
-  ZoruDropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
 import {
   Banknote,
   Download,
@@ -139,7 +117,7 @@ interface VendorsListClientProps {
 }
 
 export function VendorsListClient({ initialVendors = [] }: VendorsListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [vendors, setVendors] = React.useState<VendorRow[]>(initialVendors);
   const [isLoading, startLoading] = React.useTransition();
   const [search, setSearch] = React.useState('');
@@ -375,7 +353,7 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
           >
             <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
           </Button>
-          <ZoruDropdownMenu>
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
                 <MoreHorizontal className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -395,7 +373,7 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </ZoruDropdownMenu>
+          </DropdownMenu>
         </div>
       ),
     },
@@ -437,17 +415,17 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
         }}
         filters={
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <ZoruSelectTrigger className="h-9 w-[200px]">
-              <ZoruSelectValue placeholder="Vendor type" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All types</ZoruSelectItem>
+            <SelectTrigger className="h-9 w-[200px]">
+              <SelectValue placeholder="Vendor type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All types</SelectItem>
               {types.map((t) => (
-                <ZoruSelectItem key={t} value={t}>
+                <SelectItem key={t} value={t}>
                   {t}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         }
         bulkBar={
@@ -518,31 +496,31 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
         </div>
       </EntityListShell>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!pendingDelete}
         onOpenChange={(o) => !o && setPendingDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete vendor?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete vendor?</AlertDialogTitle>
+            <AlertDialogDescription>
               Are you sure you want to delete &ldquo;{pendingDelete?.name}&rdquo;?
               Related purchase orders / bills will keep referencing the deleted id.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={() =>
                 pendingDelete && handleDelete(String(pendingDelete._id))
               }
               disabled={deletePending}
             >
               {deletePending ? 'Deleting…' : 'Delete'}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

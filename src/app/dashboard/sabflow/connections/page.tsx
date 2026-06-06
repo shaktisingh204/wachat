@@ -26,21 +26,7 @@ import {
   Info,
 } from "lucide-react"
 
-import { PageHeader } from '@/components/sabcrm/20ui/compat'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/sabcrm/20ui/compat'
-import { Badge } from '@/components/sabcrm/20ui/compat'
-import { Button } from '@/components/sabcrm/20ui/compat'
-import { Input } from '@/components/sabcrm/20ui/compat'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat'
-import { Progress } from '@/components/sabcrm/20ui/compat'
-import {
-  ZoruDialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-} from '@/components/sabcrm/20ui/compat'
-import { fadeInUp, staggerContainer } from "@/lib/motion"
+import { PageHeader } from '@/components/sabcrm/20ui/compat';import { Card, CardContent, CardFooter, CardHeader } from '@/components/sabcrm/20ui/compat';import { Badge } from '@/components/sabcrm/20ui/compat';import { Button } from '@/components/sabcrm/20ui/compat';import { Input } from '@/components/sabcrm/20ui/compat';import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';import { Progress } from '@/components/sabcrm/20ui/compat';import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';import { fadeInUp, staggerContainer } from "@/lib/motion"
 
 type ConnectionStatus = "Connected" | "Expired" | "Error"
 
@@ -383,17 +369,17 @@ export default function ConnectionsPage() {
       )}
 
       {/* Activity Log Dialog */}
-      <ZoruDialog open={activityLogOpen} onOpenChange={setActivityLogOpen}>
-        <ZoruDialogContent className="max-w-lg">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="flex items-center gap-2">
+      <Dialog open={activityLogOpen} onOpenChange={setActivityLogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
               <Activity className="w-5 h-5" />
               Connection Activity Log
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Recent authentication and sync events for your integrations.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="mt-2 space-y-3 max-h-[360px] overflow-y-auto">
             {connections.map((conn) => (
               <div key={conn.id} className="flex items-start gap-3 rounded-lg border border-[var(--st-border)] p-3">
@@ -420,23 +406,23 @@ export default function ConnectionsPage() {
               Open Full Audit Log
             </Button>
           </div>
-        </ZoruDialogContent>
-      </ZoruDialog>
+        </DialogContent>
+      </Dialog>
 
       {/* Connection Detail Dialog */}
-      <ZoruDialog open={!!detailConn} onOpenChange={(open) => { if (!open) setDetailConn(null) }}>
-        <ZoruDialogContent className="max-w-md">
+      <Dialog open={!!detailConn} onOpenChange={(open) => { if (!open) setDetailConn(null) }}>
+        <DialogContent className="max-w-md">
           {detailConn && (
             <>
-              <ZoruDialogHeader>
-                <ZoruDialogTitle className="flex items-center gap-3">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-3">
                   <div className={`w-9 h-9 rounded-xl bg-[var(--st-bg-muted)]/50 flex items-center justify-center border ${detailConn.color}`}>
                     <detailConn.icon className="w-5 h-5" />
                   </div>
                   {detailConn.name}
-                </ZoruDialogTitle>
-                <ZoruDialogDescription>{detailConn.provider} · {detailConn.type}</ZoruDialogDescription>
-              </ZoruDialogHeader>
+                </DialogTitle>
+                <DialogDescription>{detailConn.provider} · {detailConn.type}</DialogDescription>
+              </DialogHeader>
               <div className="mt-3 space-y-3 text-sm">
                 <div className="flex justify-between items-center py-2 border-b border-[var(--st-border)]/50">
                   <span className="text-[var(--st-text-secondary)]">Status</span>
@@ -465,8 +451,8 @@ export default function ConnectionsPage() {
               </div>
             </>
           )}
-        </ZoruDialogContent>
-      </ZoruDialog>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

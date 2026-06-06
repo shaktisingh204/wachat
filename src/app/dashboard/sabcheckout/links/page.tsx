@@ -1,26 +1,15 @@
 import { Link } from 'lucide-react';
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Button
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, Button } from '@/components/sabcrm/20ui/compat';
 
 export default function LinksPage() {
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>Payment Links</ZoruPageTitle>
-            <ZoruPageDescription>Quick links to collect payments anywhere.</ZoruPageDescription>
-          </ZoruPageHeading>
+          <PageHeading>
+            <PageTitle>Payment Links</PageTitle>
+            <PageDescription>Quick links to collect payments anywhere.</PageDescription>
+          </PageHeading>
         </PageHeader>
         <div className="flex items-center gap-2">
           <Button>Create New</Button>
@@ -28,18 +17,18 @@ export default function LinksPage() {
       </div>
 
       <Card className="flex flex-col overflow-hidden">
-        <ZoruCardContent className="p-0">
+        <CardBody className="p-0">
           <div className="flex flex-col items-center justify-center p-12 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] mb-4">
               <Link className="h-6 w-6" />
             </div>
-            <ZoruCardTitle className="text-lg">No payment links found</ZoruCardTitle>
-            <ZoruCardDescription className="max-w-sm mt-2">
+            <CardTitle className="text-lg">No payment links found</CardTitle>
+            <CardDescription className="max-w-sm mt-2">
               This module is currently being scaffolded. You can build out this feature next!
-            </ZoruCardDescription>
+            </CardDescription>
             <Button variant="outline" className="mt-6">Refresh</Button>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

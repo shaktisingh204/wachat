@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useDebouncedCallback } from 'use-debounce';
 import { Plus,
@@ -64,7 +64,7 @@ const EMPTY_KPIS: CrmWarehouseKpis = {
 };
 
 export function WarehousesListClient() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [rows, setRows] = React.useState<WithId<CrmWarehouse>[]>([]);
     const [total, setTotal] = React.useState(0);

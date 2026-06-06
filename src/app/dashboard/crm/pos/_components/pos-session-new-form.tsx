@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, Textarea, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -41,7 +41,7 @@ export function PosSessionNewForm() {
 
     return (
         <Card className="p-0">
-            <ZoruCardContent className="p-5">
+            <CardBody className="p-5">
                 <form action={formAction} className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="terminalId">Terminal</Label>
@@ -99,7 +99,7 @@ export function PosSessionNewForm() {
                         </Button>
                     </div>
                 </form>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

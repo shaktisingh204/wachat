@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Button,
-  ScrollArea,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button, ScrollArea, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useRef,
@@ -150,7 +141,7 @@ export function ChatWindow({
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
                     <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
-                        <ZoruAvatarFallback>{contact.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
+                        <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div>
                         <p className="font-semibold leading-none">{contact.name}</p>
@@ -192,10 +183,10 @@ export function ChatWindow({
                 {isWindowExpired && (
                     <Alert variant="destructive" className="bg-[var(--st-text)]/10 border-destructive/30 mb-2">
                         <AlertCircle className="h-4 w-4" />
-                        <ZoruAlertTitle>24-Hour Window Closed</ZoruAlertTitle>
-                        <ZoruAlertDescription>
+                        <AlertTitle>24-Hour Window Closed</AlertTitle>
+                        <AlertDescription>
                             You can no longer send free-form messages. Send a new template message to start a conversation.
-                        </ZoruAlertDescription>
+                        </AlertDescription>
                     </Alert>
                 )}
                 {replyToMessage && (

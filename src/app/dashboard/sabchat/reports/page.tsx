@@ -6,15 +6,7 @@
  * queue card, an agent leaderboard table, an inbox rollup table, a channel
  * rollup table, and a CSAT card. MVP — numbers + tables only, no charts.
  */
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Badge,
-    Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Badge, Separator } from '@/components/sabcrm/20ui/compat';
 import {
     getByAgent,
     getByChannel,
@@ -85,17 +77,17 @@ function Kpi({
                 : 'text-[var(--st-text)]';
     return (
         <Card>
-            <ZoruCardHeader className="pb-2">
-                <ZoruCardDescription className="text-xs uppercase tracking-wide">
+            <CardHeader className="pb-2">
+                <CardDescription className="text-xs uppercase tracking-wide">
                     {label}
-                </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+                </CardDescription>
+            </CardHeader>
+            <CardBody>
                 <div className={`text-3xl font-semibold tabular-nums ${toneClass}`}>{value}</div>
                 {sub ? (
                     <div className="mt-1 text-xs text-[var(--st-text-secondary)]">{sub}</div>
                 ) : null}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -165,14 +157,14 @@ export default async function SabChatReportsPage({
     return (
         <div className="zoruui flex flex-col gap-4 p-4">
             <Card>
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <ZoruCardTitle>SabChat — Reports</ZoruCardTitle>
-                            <ZoruCardDescription>
+                            <CardTitle>SabChat — Reports</CardTitle>
+                            <CardDescription>
                                 Live queue, response-time SLAs, agent leaderboard, and channel
                                 rollups for <span className="font-medium">{windowLabel}</span>.
-                            </ZoruCardDescription>
+                            </CardDescription>
                         </div>
                         {anyError ? (
                             <Badge variant="outline" className="border-[var(--st-border)] text-[var(--st-text)]">
@@ -180,7 +172,7 @@ export default async function SabChatReportsPage({
                             </Badge>
                         ) : null}
                     </div>
-                </ZoruCardHeader>
+                </CardHeader>
             </Card>
 
             {/* Top row — live KPIs */}
@@ -213,13 +205,13 @@ export default async function SabChatReportsPage({
             {/* Middle row — response times + inbox queue */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Response times</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>Response times</CardTitle>
+                        <CardDescription>
                             First-response latency (minutes) over the selected window.
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody>
                         {rtimesOk ? (
                             <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
                                 <Stat label="Count" value={fmtNum(rtimesOk.count)} />
@@ -231,15 +223,15 @@ export default async function SabChatReportsPage({
                         ) : (
                             <EmptyHint message="Response-time data unavailable." />
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Queue by inbox</ZoruCardTitle>
-                        <ZoruCardDescription>Open + pending, right now.</ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Queue by inbox</CardTitle>
+                        <CardDescription>Open + pending, right now.</CardDescription>
+                    </CardHeader>
+                    <CardBody>
                         {liveOk && liveOk.queueByInbox.length > 0 ? (
                             <SimpleTable
                                 head={['Inbox', 'Open']}
@@ -255,20 +247,20 @@ export default async function SabChatReportsPage({
                         ) : (
                             <EmptyHint message="No active queue right now." />
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 
             {/* Bottom row — agent / inbox / channel / csat */}
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Agent leaderboard</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>Agent leaderboard</CardTitle>
+                        <CardDescription>
                             {agentsOk.length} agent{agentsOk.length === 1 ? '' : 's'} in window.
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody>
                         {agentsOk.length > 0 ? (
                             <SimpleTable
                                 head={['Agent', 'Handled', 'Avg 1st', 'Resolved', 'Open']}
@@ -293,17 +285,17 @@ export default async function SabChatReportsPage({
                         ) : (
                             <EmptyHint message="No agent activity in window." />
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>By inbox</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>By inbox</CardTitle>
+                        <CardDescription>
                             {inboxesOk.length} inbox{inboxesOk.length === 1 ? '' : 'es'}.
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody>
                         {inboxesOk.length > 0 ? (
                             <SimpleTable
                                 head={['Inbox', 'Channel', 'Created', 'Sent', 'Avg 1st', 'Resolved']}
@@ -331,17 +323,17 @@ export default async function SabChatReportsPage({
                         ) : (
                             <EmptyHint message="No inbox activity in window." />
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>By channel</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>By channel</CardTitle>
+                        <CardDescription>
                             Rolled up across all inboxes by channel type.
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody>
                         {channelsOk.length > 0 ? (
                             <SimpleTable
                                 head={['Channel', 'Created', 'Sent', 'Resolved']}
@@ -363,17 +355,17 @@ export default async function SabChatReportsPage({
                         ) : (
                             <EmptyHint message="No channel activity in window." />
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
 
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>CSAT</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>CSAT</CardTitle>
+                        <CardDescription>
                             Customer satisfaction ratings collected in window.
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody>
                         {csatOk && csatOk.count > 0 ? (
                             <div className="flex flex-col gap-4">
                                 <div className="grid grid-cols-2 gap-4">
@@ -428,7 +420,7 @@ export default async function SabChatReportsPage({
                         ) : (
                             <EmptyHint message="No CSAT responses in window." />
                         )}
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Tooltip,
-  ZoruTooltipContent,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useTransition } from 'react';
 
@@ -47,7 +27,7 @@ const typeConfig = {
 
 export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[], onTaskUpdated: () => void }) {
     const [isUpdating, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const handleStatusChange = (taskId: string, newStatus: CrmTask['status']) => {
         startTransition(async () => {
@@ -78,17 +58,17 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
             <div className="p-0">
                 <div className="border border-[var(--st-border)] rounded-lg">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow>
-                                <ZoruTableHead className="w-40">Status</ZoruTableHead>
-                                <ZoruTableHead>Task</ZoruTableHead>
-                                <ZoruTableHead>Type</ZoruTableHead>
-                                <ZoruTableHead>Due Date</ZoruTableHead>
-                                <ZoruTableHead>Priority</ZoruTableHead>
-                                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr>
+                                <Th className="w-40">Status</Th>
+                                <Th>Task</Th>
+                                <Th>Type</Th>
+                                <Th>Due Date</Th>
+                                <Th>Priority</Th>
+                                <Th className="text-right">Actions</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {tasks.length > 0 ? (
                                 tasks.map(task => {
                                     const { variant, label } = priorityConfig[task.priority] || priorityConfig.Medium;
@@ -96,24 +76,24 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                     const isOverdue = task.dueDate && isPast(new Date(task.dueDate)) && task.status !== 'Completed';
 
                                     return (
-                                        <ZoruTableRow key={task._id.toString()} className={cn(isUpdating && 'opacity-50')}>
-                                            <ZoruTableCell>
+                                        <Tr key={task._id.toString()} className={cn(isUpdating && 'opacity-50')}>
+                                            <Td>
                                                 <Select value={task.status} onValueChange={(val) => handleStatusChange(task._id.toString(), val as any)}>
-                                                    <ZoruSelectTrigger className={cn(
+                                                    <SelectTrigger className={cn(
                                                         'h-8 text-xs w-32',
                                                         task.status === 'Completed' && 'border-[var(--st-border)] text-[var(--st-text)]',
                                                         task.status === 'In Progress' && 'border-[var(--st-border)] text-[var(--st-text)]'
                                                     )}>
-                                                        <ZoruSelectValue />
-                                                    </ZoruSelectTrigger>
-                                                    <ZoruSelectContent>
-                                                        <ZoruSelectItem value="To-Do">To-Do</ZoruSelectItem>
-                                                        <ZoruSelectItem value="In Progress">In Progress</ZoruSelectItem>
-                                                        <ZoruSelectItem value="Completed">Completed</ZoruSelectItem>
-                                                    </ZoruSelectContent>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="To-Do">To-Do</SelectItem>
+                                                        <SelectItem value="In Progress">In Progress</SelectItem>
+                                                        <SelectItem value="Completed">Completed</SelectItem>
+                                                    </SelectContent>
                                                 </Select>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <EntityRowLink
                                                     href={`/dashboard/crm/tasks/${task._id.toString()}`}
                                                     label={
@@ -123,37 +103,37 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                                     }
                                                     subtitle={task.description || undefined}
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                 <ZoruTooltipProvider>
+                                            </Td>
+                                            <Td>
+                                                 <TooltipProvider>
                                                     <Tooltip>
-                                                        <ZoruTooltipTrigger><TypeIcon className="h-4 w-4 text-[var(--st-text-secondary)]"/></ZoruTooltipTrigger>
-                                                        <ZoruTooltipContent>{task.type}</ZoruTooltipContent>
+                                                        <TooltipTrigger><TypeIcon className="h-4 w-4 text-[var(--st-text-secondary)]"/></TooltipTrigger>
+                                                        <TooltipContent>{task.type}</TooltipContent>
                                                     </Tooltip>
-                                                 </ZoruTooltipProvider>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                                 </TooltipProvider>
+                                            </Td>
+                                            <Td>
                                                 <span className={cn('text-sm', isOverdue ? 'text-[var(--st-danger)] font-semibold' : 'text-[var(--st-text)]')}>
                                                     {task.dueDate ? format(new Date(task.dueDate), 'PPP') : 'No due date'}
                                                 </span>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <Badge variant={variant}>{label}</Badge>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleDelete(task._id.toString())} disabled={isUpdating}>
                                                     <Trash2 className="h-4 w-4 text-[var(--st-danger)]"/>
                                                 </Button>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     )
                                 })
                             ) : (
-                                <ZoruTableRow>
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">No tasks in this category.</ZoruTableCell>
-                                </ZoruTableRow>
+                                <Tr>
+                                    <Td colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">No tasks in this category.</Td>
+                                </Tr>
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
             </div>

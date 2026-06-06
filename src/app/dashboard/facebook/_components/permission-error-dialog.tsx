@@ -1,17 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle } from "lucide-react";
 
@@ -47,23 +36,23 @@ export function PermissionErrorDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="flex items-center gap-2">
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-[var(--st-danger)]" />
             Permissions required
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             SabNode needs additional permissions to access this feature.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="flex flex-col gap-4">
           {error ? (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <ZoruAlertTitle>Error from Meta</ZoruAlertTitle>
-              <ZoruAlertDescription>{error}</ZoruAlertDescription>
+              <AlertTitle>Error from Meta</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -73,7 +62,7 @@ export function PermissionErrorDialog({
           </p>
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button
             type="button"
             variant="ghost"
@@ -86,8 +75,8 @@ export function PermissionErrorDialog({
               <FacebookGlyph className="h-4 w-4" /> Re-authorize
             </a>
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

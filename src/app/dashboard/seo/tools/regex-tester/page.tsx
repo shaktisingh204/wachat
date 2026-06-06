@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Input,
-  Textarea,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  Accordion,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ZoruAccordionContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Textarea, Card, CardBody, CardHeader, CardTitle, CardDescription, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -226,18 +214,18 @@ export default function RegexTesterPage() {
           
           {error && (
             <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]/50">
-              <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm font-medium">
+              <CardBody className="p-4 text-[var(--st-text)] text-sm font-medium">
                 Error: {error}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
 
           {parsedTokens.length > 0 && !error && (
             <Card variant="soft">
-              <ZoruCardHeader className="py-3 px-4 border-b border-[var(--st-border)]/50">
-                <ZoruCardTitle className="text-sm">Regex Explanation</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="p-4 flex flex-wrap gap-2">
+              <CardHeader className="py-3 px-4 border-b border-[var(--st-border)]/50">
+                <CardTitle className="text-sm">Regex Explanation</CardTitle>
+              </CardHeader>
+              <CardBody className="p-4 flex flex-wrap gap-2">
                 {parsedTokens.map((t, idx) => (
                   <div key={idx} className="flex flex-col border border-[var(--st-border)] rounded-md overflow-hidden text-xs bg-[var(--st-bg)]">
                     <div className="bg-[var(--st-bg-muted)] px-2 py-1 font-mono font-bold text-center border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/50">
@@ -248,7 +236,7 @@ export default function RegexTesterPage() {
                     </div>
                   </div>
                 ))}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
 
@@ -270,11 +258,11 @@ export default function RegexTesterPage() {
               </div>
             </div>
             <Card>
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <div className="font-mono text-sm whitespace-pre-wrap break-words leading-relaxed">
                   {highlightedNodes || <span className="text-[var(--st-text-secondary)] italic">No matches yet...</span>}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </div>
@@ -282,18 +270,18 @@ export default function RegexTesterPage() {
         {/* Sidebar: Cheatsheet */}
         <div className="lg:col-span-1">
           <Card className="h-full">
-            <ZoruCardHeader className="pb-3 border-b border-[var(--st-border)]/50">
-              <ZoruCardTitle>Regex Cheatsheet</ZoruCardTitle>
-              <ZoruCardDescription>Quick reference for regular expressions</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="p-0">
+            <CardHeader className="pb-3 border-b border-[var(--st-border)]/50">
+              <CardTitle>Regex Cheatsheet</CardTitle>
+              <CardDescription>Quick reference for regular expressions</CardDescription>
+            </CardHeader>
+            <CardBody className="p-0">
               <Accordion type="multiple" defaultValue={['category-0', 'category-1', 'category-2', 'category-3']} className="w-full">
                 {CHEATSHEET.map((cat, catIdx) => (
-                  <ZoruAccordionItem key={catIdx} value={`category-${catIdx}`} className="border-x-0 first:border-t-0 last:border-b-0">
-                    <ZoruAccordionTrigger className="px-4 py-3 hover:bg-[var(--st-bg-muted)]/50 transition-colors">
+                  <AccordionItem key={catIdx} value={`category-${catIdx}`} className="border-x-0 first:border-t-0 last:border-b-0">
+                    <AccordionTrigger className="px-4 py-3 hover:bg-[var(--st-bg-muted)]/50 transition-colors">
                       {cat.category}
-                    </ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="px-4 pb-4">
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4">
                       <div className="space-y-2.5 pt-1">
                         {cat.items.map((item, i) => (
                           <div key={i} className="flex gap-3 text-sm">
@@ -306,11 +294,11 @@ export default function RegexTesterPage() {
                           </div>
                         ))}
                       </div>
-                    </ZoruAccordionContent>
-                  </ZoruAccordionItem>
+                    </AccordionContent>
+                  </AccordionItem>
                 ))}
               </Accordion>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

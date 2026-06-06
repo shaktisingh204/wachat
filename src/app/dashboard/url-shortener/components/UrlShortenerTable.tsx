@@ -1,21 +1,6 @@
 import { useTransition } from 'react';
 import Link from 'next/link';
-import {
-  Card,
-  Button,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Trash2,
   Check,
@@ -34,7 +19,7 @@ import type { WithId, ShortUrl } from '@/lib/definitions';
 const PAGE_SIZES = [10, 25, 50, 100];
 
 function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => void }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
@@ -54,8 +39,8 @@ function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => vo
   };
 
   return (
-    <ZoruAlertDialog>
-      <ZoruAlertDialogTrigger asChild>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
         <button
           type="button"
           className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
@@ -63,22 +48,22 @@ function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => vo
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
-      </ZoruAlertDialogTrigger>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
             This will permanently delete the short link. This action cannot be undone.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete} disabled={isPending}>
             {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -129,7 +114,7 @@ export function UrlShortenerTable({
   setNotesPanel: (val: { id: string }) => void;
   fetchUrls: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isBulkDeleting, startBulkDelete] = useTransition();
 
   const handleBulkDelete = () => {
@@ -165,8 +150,8 @@ export function UrlShortenerTable({
             >
               Clear
             </Button>
-            <ZoruAlertDialog>
-              <ZoruAlertDialogTrigger asChild>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
                 <Button size="sm" disabled={isBulkDeleting}>
                   {isBulkDeleting ? (
                     <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
@@ -175,22 +160,22 @@ export function UrlShortenerTable({
                   )}
                   Delete selected
                 </Button>
-              </ZoruAlertDialogTrigger>
-              <ZoruAlertDialogContent>
-                <ZoruAlertDialogHeader>
-                  <ZoruAlertDialogTitle>Delete {selectedIds.size} link(s)?</ZoruAlertDialogTitle>
-                  <ZoruAlertDialogDescription>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete {selectedIds.size} link(s)?</AlertDialogTitle>
+                  <AlertDialogDescription>
                     This permanently removes the selected short links. This action cannot be undone.
-                  </ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                  <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                  <ZoruAlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>
                     Delete
-                  </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-              </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       ) : null}

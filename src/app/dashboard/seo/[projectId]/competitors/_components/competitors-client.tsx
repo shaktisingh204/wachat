@@ -1,23 +1,6 @@
 'use client';
 
-import { 
-    Button, 
-    Card, 
-    ZoruCardContent, 
-    ZoruCardHeader, 
-    ZoruCardTitle, 
-    Table, 
-    TableHeader, 
-    TableRow, 
-    TableHead, 
-    TableBody, 
-    TableCell, 
-    Badge, 
-    StatCard, 
-    Separator,
-    Skeleton,
-    useZoruToast
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td, Badge, StatCard, Separator, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import { use, useEffect, useMemo, useState } from 'react';
 import { Swords, Plus, AlertCircle, Link as LinkIcon, Activity } from 'lucide-react';
 import { analyzeGaps, summarizeByCompetitor } from '@/lib/seo-suite/competitors';
@@ -26,7 +9,7 @@ import { getCompetitorAnalysisData } from '@/app/actions/seo.actions';
 import Link from 'next/link';
 
 export function CompetitorsClient({ projectId, initialData }: { projectId: string, initialData: any }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [data] = useState<{
         ourPositions: RankPosition[];
         competitorsRanks: any[];
@@ -86,47 +69,47 @@ export function CompetitorsClient({ projectId, initialData }: { projectId: strin
                     </div>
 
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Keyword Gap Opportunities</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Keyword Gap Opportunities</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Keyword</TableHead>
-                                        <TableHead>Volume</TableHead>
-                                        <TableHead>Competitor</TableHead>
-                                        <TableHead>Their Position</TableHead>
-                                        <TableHead>Our Position</TableHead>
-                                        <TableHead>Opportunity</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
+                                <THead>
+                                    <Tr>
+                                        <Th>Keyword</Th>
+                                        <Th>Volume</Th>
+                                        <Th>Competitor</Th>
+                                        <Th>Their Position</Th>
+                                        <Th>Our Position</Th>
+                                        <Th>Opportunity</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {gaps.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={6} className="text-center py-8 text-[var(--st-text-secondary)]">
+                                        <Tr>
+                                            <Td colSpan={6} className="text-center py-8 text-[var(--st-text-secondary)]">
                                                 No gaps found. You might be outranking them!
-                                            </TableCell>
-                                        </TableRow>
+                                            </Td>
+                                        </Tr>
                                     ) : (
                                         gaps.map((gap, i) => (
-                                            <TableRow key={`${gap.competitor}-${gap.keyword}-${i}`}>
-                                                <TableCell className="font-medium">{gap.keyword}</TableCell>
-                                                <TableCell>{gap.volume.toLocaleString()}</TableCell>
-                                                <TableCell>{gap.competitor}</TableCell>
-                                                <TableCell>#{gap.theirPosition}</TableCell>
-                                                <TableCell>{gap.ourPosition ? `#${gap.ourPosition}` : <span className="text-[var(--st-text-secondary)]">Not Ranked</span>}</TableCell>
-                                                <TableCell>
+                                            <Tr key={`${gap.competitor}-${gap.keyword}-${i}`}>
+                                                <Td className="font-medium">{gap.keyword}</Td>
+                                                <Td>{gap.volume.toLocaleString()}</Td>
+                                                <Td>{gap.competitor}</Td>
+                                                <Td>#{gap.theirPosition}</Td>
+                                                <Td>{gap.ourPosition ? `#${gap.ourPosition}` : <span className="text-[var(--st-text-secondary)]">Not Ranked</span>}</Td>
+                                                <Td>
                                                     <Badge variant={gap.opportunity === 'easy' ? 'success' : gap.opportunity === 'medium' ? 'warning' : 'destructive'}>
                                                         {gap.opportunity.charAt(0).toUpperCase() + gap.opportunity.slice(1)}
                                                     </Badge>
-                                                </TableCell>
-                                            </TableRow>
+                                                </Td>
+                                            </Tr>
                                         ))
                                     )}
-                                </TableBody>
+                                </TBody>
                             </Table>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 </>
             )}
@@ -141,13 +124,13 @@ export function CompetitorsClient({ projectId, initialData }: { projectId: strin
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {data.backlinkProfiles.map((profile, idx) => (
                             <Card key={`${profile.domain}-${idx}`} className={idx === 0 ? 'border-[var(--st-text)] bg-[var(--st-text)]/5' : ''}>
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle className="flex justify-between items-center text-lg">
+                                <CardHeader>
+                                    <CardTitle className="flex justify-between items-center text-lg">
                                         <span className="truncate max-w-[200px]" title={profile.domain}>{profile.domain}</span>
                                         {idx === 0 && <Badge variant="default">You</Badge>}
-                                    </ZoruCardTitle>
-                                </ZoruCardHeader>
-                                <ZoruCardContent>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardBody>
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-center">
                                             <span className="text-[var(--st-text-secondary)] text-sm">Total Backlinks</span>
@@ -177,7 +160,7 @@ export function CompetitorsClient({ projectId, initialData }: { projectId: strin
                                             </div>
                                         </div>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         ))}
                     </div>

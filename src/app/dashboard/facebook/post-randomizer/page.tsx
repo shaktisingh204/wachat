@@ -1,33 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -105,7 +78,7 @@ function RandomizerPostCard({
 }) {
   return (
     <Card className="overflow-hidden">
-      <ZoruCardContent className="flex gap-4 p-4">
+      <CardBody className="flex gap-4 p-4">
         {post.imageUrl && (
           <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)]">
             <Image
@@ -142,7 +115,7 @@ function RandomizerPostCard({
             {isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 />}
           </Button>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -162,7 +135,7 @@ export default function PostRandomizerPage() {
   const [isDeleting, startDeleting] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const isAllowed = sessionUser?.plan?.features?.postRandomizer ?? false;
 
@@ -287,33 +260,33 @@ export default function PostRandomizerPage() {
 
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard/facebook">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard/facebook">
                 Meta Suite
-              </ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Post randomizer</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Post randomizer</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
 
         <PageHeader bordered={false} className="mt-5">
-          <ZoruPageHeading>
-            <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
-            <ZoruPageTitle>Post randomizer</ZoruPageTitle>
-            <ZoruPageDescription>
+          <PageHeading>
+            <PageEyebrow>Meta Suite</PageEyebrow>
+            <PageTitle>Post randomizer</PageTitle>
+            <PageDescription>
               Automatically publish a random post from your content pool at a
               set interval.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
-          <ZoruPageActions>
+            </PageDescription>
+          </PageHeading>
+          <PageActions>
             <Badge variant={settings.enabled ? "success" : "ghost"}>
               <Repeat />
               {settings.enabled ? "Active" : "Paused"}
@@ -321,7 +294,7 @@ export default function PostRandomizerPage() {
             <Button onClick={() => setIsDialogOpen(true)} disabled={!isAllowed}>
               <PlusCircle /> Add to pool
             </Button>
-          </ZoruPageActions>
+          </PageActions>
         </PageHeader>
 
         <div className="relative mt-6">
@@ -333,13 +306,13 @@ export default function PostRandomizerPage() {
             <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
               {/* ── Settings ──────────────────────────────────────── */}
               <Card className="lg:col-span-1">
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Settings</ZoruCardTitle>
-                  <ZoruCardDescription>
+                <CardHeader>
+                  <CardTitle>Settings</CardTitle>
+                  <CardDescription>
                     Configure the randomizer schedule.
-                  </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-4">
+                  </CardDescription>
+                </CardHeader>
+                <CardBody className="flex flex-col gap-4">
                   <div className="flex items-center justify-between gap-4 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
                     <div className="flex flex-col">
                       <Label
@@ -418,8 +391,8 @@ export default function PostRandomizerPage() {
                       </p>
                     </div>
                   )}
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                   <Button
                     className="w-full"
                     onClick={handleSaveSettings}
@@ -428,20 +401,20 @@ export default function PostRandomizerPage() {
                     {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
                     Save settings
                   </Button>
-                </ZoruCardFooter>
+                </CardFooter>
               </Card>
 
               {/* ── Right Column ──────────────────────────────────── */}
               <div className="flex flex-col gap-6 lg:col-span-2">
                 {/* ── Content pool ──────────────────────────────────── */}
                 <Card>
-                <ZoruCardHeader>
+                <CardHeader>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-col">
-                      <ZoruCardTitle>Content pool</ZoruCardTitle>
-                      <ZoruCardDescription>
+                      <CardTitle>Content pool</CardTitle>
+                      <CardDescription>
                         Posts that will be randomly selected for publishing.
-                      </ZoruCardDescription>
+                      </CardDescription>
                     </div>
                     <Button
                       size="sm"
@@ -450,8 +423,8 @@ export default function PostRandomizerPage() {
                       <PlusCircle /> Add post
                     </Button>
                   </div>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                   {isLoading ? (
                     <div className="flex flex-col gap-3">
                       <Skeleton className="h-24 w-full" />
@@ -483,18 +456,18 @@ export default function PostRandomizerPage() {
                       }
                     />
                   )}
-                </ZoruCardContent>
+                </CardBody>
                 </Card>
 
                 {/* ── History ──────────────────────────────────────── */}
                 <Card>
-                  <ZoruCardHeader>
-                    <ZoruCardTitle>Publishing History</ZoruCardTitle>
-                    <ZoruCardDescription>
+                  <CardHeader>
+                    <CardTitle>Publishing History</CardTitle>
+                    <CardDescription>
                       Recently published posts by the randomizer.
-                    </ZoruCardDescription>
-                  </ZoruCardHeader>
-                  <ZoruCardContent>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardBody>
                     {!settings.history || settings.history.length === 0 ? (
                       <EmptyState
                         icon={<Repeat />}
@@ -525,7 +498,7 @@ export default function PostRandomizerPage() {
                         ))}
                       </div>
                     )}
-                  </ZoruCardContent>
+                  </CardBody>
                 </Card>
               </div>
             </div>

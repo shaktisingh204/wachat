@@ -6,19 +6,7 @@ import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   getPublicSignupSettings,
   submitClientSignup,
@@ -60,7 +48,7 @@ const signupSchema = z.object({
 type SignupFormData = z.infer<typeof signupSchema>;
 
 export default function ClientSignupPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [settings, setSettings] = useState<SignupSettings | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -255,16 +243,16 @@ export default function ClientSignupPage() {
                 name="country"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <ZoruSelectTrigger id="country">
-                      <ZoruSelectValue placeholder="Select country" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger id="country">
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
                       {COUNTRIES.map((c) => (
-                        <ZoruSelectItem key={c} value={c}>
+                        <SelectItem key={c} value={c}>
                           {c}
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                   </Select>
                 )}
               />

@@ -24,22 +24,7 @@ import {
   X,
 } from 'lucide-react';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
@@ -99,7 +84,7 @@ function isThisMonth(v: unknown): boolean {
 }
 
 export default function AppreciationsPage(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [apps, setApps] = React.useState<AppRow[]>([]);
   const [awards, setAwards] = React.useState<(WsAward & { _id: string })[]>([]);
   const [loading, startTransition] = React.useTransition();
@@ -375,49 +360,49 @@ export default function AppreciationsPage(): React.JSX.Element {
               value={filters.awardId}
               onValueChange={(v) => setFilters((p) => ({ ...p, awardId: v }))}
             >
-              <ZoruSelectTrigger className="h-9 w-[180px]">
-                <ZoruSelectValue placeholder="Award" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">Any award</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[180px]">
+                <SelectValue placeholder="Award" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any award</SelectItem>
                 {awards.map((a) => (
-                  <ZoruSelectItem key={a._id} value={a._id}>
+                  <SelectItem key={a._id} value={a._id}>
                     {a.title}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Select
               value={filters.recipient}
               onValueChange={(v) => setFilters((p) => ({ ...p, recipient: v }))}
             >
-              <ZoruSelectTrigger className="h-9 w-[180px]">
-                <ZoruSelectValue placeholder="Recipient" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">Any recipient</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[180px]">
+                <SelectValue placeholder="Recipient" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any recipient</SelectItem>
                 {recipientOptions.map(([id, name]) => (
-                  <ZoruSelectItem key={id} value={id}>
+                  <SelectItem key={id} value={id}>
                     {name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Select
               value={filters.giver}
               onValueChange={(v) => setFilters((p) => ({ ...p, giver: v }))}
             >
-              <ZoruSelectTrigger className="h-9 w-[180px]">
-                <ZoruSelectValue placeholder="Giver" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">Any giver</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[180px]">
+                <SelectValue placeholder="Giver" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any giver</SelectItem>
                 {giverOptions.map(([id, name]) => (
-                  <ZoruSelectItem key={id} value={id}>
+                  <SelectItem key={id} value={id}>
                     {name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Input
               type="date"
@@ -559,9 +544,9 @@ export default function AppreciationsPage(): React.JSX.Element {
                       className="mt-1"
                     />
                     <Avatar className="h-9 w-9">
-                      <ZoruAvatarFallback>
+                      <AvatarFallback>
                         {initials(a.given_to_user_name, a.given_to_user_id)}
-                      </ZoruAvatarFallback>
+                      </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">

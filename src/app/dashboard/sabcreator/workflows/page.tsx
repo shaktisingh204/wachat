@@ -6,14 +6,7 @@ import { PageHeader } from '@/components/sabcrm/20ui/compat';
 import { Card } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from '@/components/sabcrm/20ui/compat';
+import { Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 
 const MOCK_WORKFLOWS = [
   {
@@ -71,35 +64,35 @@ export default function SabCreatorWorkflowsPage() {
 
       <Card className="p-0 overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>App</TableHead>
-              <TableHead>Trigger</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Last Run</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <THead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>App</Th>
+              <Th>Trigger</Th>
+              <Th>Status</Th>
+              <Th>Last Run</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {MOCK_WORKFLOWS.map((wf) => (
-              <TableRow key={wf.id}>
-                <TableCell>
+              <Tr key={wf.id}>
+                <Td>
                   <div className="flex flex-col">
                     <span className="font-medium text-[var(--st-text)]">{wf.name}</span>
                     <span className="text-xs text-[var(--st-text)]/60">{wf.description}</span>
                   </div>
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   <Badge variant="outline">{wf.app}</Badge>
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   <div className="flex items-center text-sm text-[var(--st-text)]/80">
                     <Clock className="w-4 h-4 mr-1.5 text-[var(--st-text)]/50" />
                     {wf.trigger}
                   </div>
-                </TableCell>
-                <TableCell>
+                </Td>
+                <Td>
                   <Badge
                     variant={
                       wf.status === 'active'
@@ -111,11 +104,11 @@ export default function SabCreatorWorkflowsPage() {
                   >
                     {wf.status}
                   </Badge>
-                </TableCell>
-                <TableCell className="text-sm text-[var(--st-text)]/70">
+                </Td>
+                <Td className="text-sm text-[var(--st-text)]/70">
                   {wf.lastRun}
-                </TableCell>
-                <TableCell className="text-right">
+                </Td>
+                <Td className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="icon">
                       <Play className="w-4 h-4 text-[var(--st-text)]/60" />
@@ -127,10 +120,10 @@ export default function SabCreatorWorkflowsPage() {
                       <MoreHorizontal className="w-4 h-4 text-[var(--st-text)]/60" />
                     </Button>
                   </div>
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ))}
-          </TableBody>
+          </TBody>
         </Table>
       </Card>
     </div>

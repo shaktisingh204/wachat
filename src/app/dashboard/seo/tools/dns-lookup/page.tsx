@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, Component, ErrorInfo, ReactNode } from 'react';
-import { Button, Input, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiDnsLookup } from '@/lib/seo-tools/api-client';
 import { Copy, Download, AlertCircle } from 'lucide-react';
@@ -162,16 +162,16 @@ function DnsLookupPage() {
 
       {error && (
         <Card className="border-[var(--st-border)]">
-          <ZoruCardContent className="p-4 flex items-center gap-2 text-[var(--st-text)] text-sm">
+          <CardBody className="p-4 flex items-center gap-2 text-[var(--st-text)] text-sm">
             <AlertCircle className="w-4 h-4" />
             {error}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {data && !error && (
         <Card>
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
               <div className="text-lg font-semibold">Results for: {data.host}</div>
               <div className="flex gap-2">
@@ -212,7 +212,7 @@ function DnsLookupPage() {
                 </table>
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

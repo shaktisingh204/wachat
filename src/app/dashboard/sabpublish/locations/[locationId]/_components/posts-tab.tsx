@@ -2,16 +2,7 @@
 
 import * as React from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  Checkbox,
-  EmptyState,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, Checkbox, EmptyState, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   createSabpublishPost,

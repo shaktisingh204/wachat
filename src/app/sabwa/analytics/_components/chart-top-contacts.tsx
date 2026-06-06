@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 import {
   Users } from 'lucide-react';
 
@@ -34,7 +34,7 @@ export function ChartTopContacts({ data }: ChartTopContactsProps) {
     count: c.count,
   }));
   return (
-    <ZoruChartContainer height={288}>
+    <ChartContainer height={288}>
       <ZoruChart.BarChart
         data={chartData}
         layout="vertical"
@@ -58,13 +58,13 @@ export function ChartTopContacts({ data }: ChartTopContactsProps) {
           axisLine={false}
           width={110}
         />
-        <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+        <ZoruChart.Tooltip content={<ChartTooltip />} />
         <ZoruChart.Bar
           dataKey="count"
           fill={ZORU_CHART_PALETTE[0]}
           radius={[0, 4, 4, 0]}
         />
       </ZoruChart.BarChart>
-    </ZoruChartContainer>
+    </ChartContainer>
   );
 }

@@ -3,22 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  Badge,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ScreenShare, KeyRound, ServerCog, ArrowLeft, Copy } from 'lucide-react';
 import {
@@ -143,12 +128,12 @@ export default function SabassistNewSessionPage() {
           </div>
 
           <Alert>
-            <ZoruAlertTitle>Share with the customer</ZoruAlertTitle>
-            <ZoruAlertDescription>
+            <AlertTitle>Share with the customer</AlertTitle>
+            <AlertDescription>
               The customer must open this link in their browser and click
               &ldquo;Allow technician to view your screen&rdquo;.
               {issued.oneTimePin && ' They will also need the PIN below.'}
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
 
           <div className="grid gap-3">
@@ -325,7 +310,7 @@ export default function SabassistNewSessionPage() {
 
           {error && (
             <Alert variant="destructive">
-              <ZoruAlertDescription>{error}</ZoruAlertDescription>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 

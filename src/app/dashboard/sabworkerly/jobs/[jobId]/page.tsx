@@ -1,21 +1,7 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardContent,
-    PageHeader,
-    ZoruPageTitle,
-    Badge,
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardContent, PageHeader, PageTitle, Badge, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
 import {
     getSabworkerlyJobById,
     getSabworkerlyPlacements,
@@ -48,7 +34,7 @@ export default async function JobDetailPage({
     return (
         <div className="zoruui flex flex-col gap-5">
             <PageHeader>
-                <ZoruPageTitle>{job.title}</ZoruPageTitle>
+                <PageTitle>{job.title}</PageTitle>
             </PageHeader>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -107,24 +93,24 @@ export default async function JobDetailPage({
                         </p>
                     ) : (
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Worker</TableHead>
-                                    <TableHead>Start</TableHead>
-                                    <TableHead>End</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Worker</Th>
+                                    <Th>Start</Th>
+                                    <Th>End</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {placements.map((p) => (
-                                    <TableRow key={p._id}>
-                                        <TableCell className="font-mono text-xs">{p.workerId}</TableCell>
-                                        <TableCell>{new Date(p.startDate).toLocaleDateString()}</TableCell>
-                                        <TableCell>{p.endDate ? new Date(p.endDate).toLocaleDateString() : '—'}</TableCell>
-                                        <TableCell><Badge variant="secondary">{p.status}</Badge></TableCell>
-                                    </TableRow>
+                                    <Tr key={p._id}>
+                                        <Td className="font-mono text-xs">{p.workerId}</Td>
+                                        <Td>{new Date(p.startDate).toLocaleDateString()}</Td>
+                                        <Td>{p.endDate ? new Date(p.endDate).toLocaleDateString() : '—'}</Td>
+                                        <Td><Badge variant="secondary">{p.status}</Badge></Td>
+                                    </Tr>
                                 ))}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     )}
                 </CardContent>

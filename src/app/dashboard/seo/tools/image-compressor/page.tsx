@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -198,7 +198,7 @@ export default function ImageCompressorPage() {
   return (
     <ToolShell title="Image Compressor" description="Compress images client-side with adjustable quality and format. Supports WebP and batch compression.">
       <Card>
-        <ZoruCardContent className="p-4 space-y-4">
+        <CardBody className="p-4 space-y-4">
           <div>
             <Label>Image files</Label>
             <Input
@@ -239,11 +239,11 @@ export default function ImageCompressorPage() {
           <Button onClick={compressAll} disabled={files.length === 0 || isCompressing}>
             {isCompressing ? 'Compressing...' : 'Compress'}
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       {results.length > 0 && (
         <Card className="mt-6">
-          <ZoruCardContent className="p-4 space-y-4">
+          <CardBody className="p-4 space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="font-semibold text-lg">Results</h3>
               {results.filter(r => !r.error).length > 1 && (
@@ -286,7 +286,7 @@ export default function ImageCompressorPage() {
                 </div>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

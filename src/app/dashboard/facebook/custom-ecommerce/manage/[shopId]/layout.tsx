@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, ZoruAlertDescription, ZoruAlertTitle, Button, Skeleton, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -83,7 +83,7 @@ export default function ShopManagementLayout({
   const params = useParams();
   const pathname = usePathname();
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const shopId = params?.shopId as string | undefined;
   const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,10 +114,10 @@ export default function ShopManagementLayout({
       <ShopPage>
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Shop not found</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Shop not found</AlertTitle>
+          <AlertDescription>
             The requested shop could not be loaded.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
         <div className="mt-4">
           <Button variant="outline" asChild>

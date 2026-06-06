@@ -2,16 +2,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Coins, Gift, RefreshCcw, Share2, Trophy, Users } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  StatCard,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, StatCard, EmptyState } from '@/components/sabcrm/20ui/compat';
 
 import {
   getRewardsDashboard,
@@ -73,13 +64,13 @@ export default async function RewardsDashboardPage(): Promise<React.JSX.Element>
 
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <ZoruCardHeader>
-            <ZoruCardTitle>Top earners</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Top earners</CardTitle>
+            <CardDescription>
               Members ranked by lifetime points across all rewards programs.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {topEarners.length === 0 ? (
               <EmptyState
                 title="No members yet"
@@ -117,17 +108,17 @@ export default async function RewardsDashboardPage(): Promise<React.JSX.Element>
                 ))}
               </ol>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Active programs</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>Active programs</CardTitle>
+            <CardDescription>
               Each program reuses a loyalty tier engine — no duplication.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="flex flex-col gap-2">
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="flex flex-col gap-2">
             {programs.length === 0 ? (
               <EmptyState
                 title="No rewards programs yet"
@@ -157,7 +148,7 @@ export default async function RewardsDashboardPage(): Promise<React.JSX.Element>
                 </div>
               ))
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </section>
 

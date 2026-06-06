@@ -1,25 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-    Dialog,
-    ZoruDialogContent as DialogContent,
-    ZoruDialogHeader as DialogHeader,
-    ZoruDialogTitle as DialogTitle,
-    ZoruDialogTrigger as DialogTrigger,
-    ZoruDialogFooter as DialogFooter,
-    ZoruDialogDescription as DialogDescription,
-    Button,
-    Switch,
-    Label,
-    ScrollArea,
-    useZoruToast,
-    Tabs,
-    ZoruTabsContent as TabsContent,
-    ZoruTabsList as TabsList,
-    ZoruTabsTrigger as TabsTrigger,
-    Badge,
-} from "@/components/sabcrm/20ui/compat";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription, Button, Switch, Label, ScrollArea, useToast, Tabs, TabsContent, TabsList, TabsTrigger, Badge } from '@/components/sabcrm/20ui/compat';
 import { ShieldCheck, Check, X, Info } from "lucide-react";
 import { updateUserPermissions } from "@/app/actions/admin.actions";
 import { moduleCategories, permissionActions } from "@/lib/permission-modules";
@@ -34,7 +16,7 @@ export function AdminUserPermissionsDialog({ userId, userName, initialPermission
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [permissions, setPermissions] = useState<any>(initialPermissions?.agent || {}); // Editing 'agent' role permissions effectively for the user context
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // We mainly focus on the 'agent' role for user-specific overrides as that's the primary permission set applied to users.
     // However, if we need to override other roles, we can expand this. For simplicity, we assume we are overriding the user's base 'agent' permissions.

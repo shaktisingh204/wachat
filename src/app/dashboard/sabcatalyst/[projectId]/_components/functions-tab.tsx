@@ -14,24 +14,7 @@ import {
     invokeSabcatalystFunction,
     deleteSabcatalystFunction,
 } from '@/app/actions/sabcatalyst.actions';
-import {
-    Button,
-    Card,
-    Input,
-    Label,
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-    Badge,
-    EmptyState,
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge, EmptyState, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import type {
     SabcatalystFunction,

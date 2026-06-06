@@ -11,17 +11,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, Plus, Database } from 'lucide-react';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Input,
-  Label,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, cn } from '@/components/sabcrm/20ui/compat';
 import { createSabtablesTable } from '@/app/actions/sabtables.actions';
 import type { SabtablesBaseDoc } from '@/lib/rust-client/sabtables-bases';
 import type { SabtablesTableDoc } from '@/lib/rust-client/sabtables-tables';
@@ -117,10 +107,10 @@ export function BaseShellClient({
       <div className="flex-1 min-h-0">{children}</div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New table</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New table</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
               <Label htmlFor="tbl-name">Name</Label>
@@ -132,15 +122,15 @@ export function BaseShellClient({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={pending || !name.trim()}>
               {pending ? 'Creating…' : 'Create'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui/compat';
 export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings: any, onUpdate: (newSettings: any) => void, blockType: string }) {
     const handleUpdate = (field: string, value: any) => {
         onUpdate({ ...settings, [field]: value });
@@ -27,12 +16,12 @@ export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings
                      <div className="space-y-2">
                         <Label>Alignment</Label>
                         <Select value={settings.textAlign || 'left'} onValueChange={(val) => handleUpdate('textAlign', val)}>
-                            <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="left">Left</ZoruSelectItem>
-                                <ZoruSelectItem value="center">Center</ZoruSelectItem>
-                                <ZoruSelectItem value="right">Right</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger><SelectValue/></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="left">Left</SelectItem>
+                                <SelectItem value="center">Center</SelectItem>
+                                <SelectItem value="right">Right</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                 );
@@ -41,12 +30,12 @@ export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings
                     <div className="space-y-2">
                         <Label>Object Fit</Label>
                         <Select value={settings.objectFit || 'cover'} onValueChange={(val) => handleUpdate('objectFit', val)}>
-                            <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="cover">Cover</ZoruSelectItem>
-                                <ZoruSelectItem value="contain">Contain</ZoruSelectItem>
-                                <ZoruSelectItem value="fill">Fill</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger><SelectValue/></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="cover">Cover</SelectItem>
+                                <SelectItem value="contain">Contain</SelectItem>
+                                <SelectItem value="fill">Fill</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                 );
@@ -60,12 +49,12 @@ export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings
     return (
         <div className="space-y-4">
              <Accordion type="single" collapsible className="w-full" defaultValue={'settings'}>
-                <ZoruAccordionItem value="settings">
-                    <ZoruAccordionTrigger>Settings</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="pt-2">
+                <AccordionItem value="settings">
+                    <AccordionTrigger>Settings</AccordionTrigger>
+                    <AccordionContent className="pt-2">
                         {renderSpecificEditor()}
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
             </Accordion>
         </div>
     );

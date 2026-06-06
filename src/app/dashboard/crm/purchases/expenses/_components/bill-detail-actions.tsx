@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -68,7 +61,7 @@ export function BillDetailActions({
   vendorEmail,
 }: BillDetailActionsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [currentStatus, setCurrentStatus] = React.useState(status ?? 'draft');
   const [, startTransition] = React.useTransition();
 
@@ -105,7 +98,7 @@ export function BillDetailActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <DropdownMenu>
-        <ZoruDropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild>
           <button
             type="button"
             className="inline-flex items-center gap-1 rounded-full transition-opacity hover:opacity-80"
@@ -116,17 +109,17 @@ export function BillDetailActions({
               tone={statusToTone(currentStatus)}
             />
           </button>
-        </ZoruDropdownMenuTrigger>
-        <ZoruDropdownMenuContent>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
           {STATUS_OPTIONS.map((s) => (
-            <ZoruDropdownMenuItem
+            <DropdownMenuItem
               key={s.value}
               onSelect={() => moveTo(s.value)}
             >
               {s.label}
-            </ZoruDropdownMenuItem>
+            </DropdownMenuItem>
           ))}
-        </ZoruDropdownMenuContent>
+        </DropdownMenuContent>
       </DropdownMenu>
 
       <Button size="sm" variant="outline" asChild>

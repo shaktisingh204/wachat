@@ -6,16 +6,7 @@
  * KPI renders the first measure as a big number. map / heatmap show a
  * raw-rows table with a TODO badge.
  */
-import {
-  Badge,
-  Table,
-  TableBody,
-  TableHeader,
-  ZORU_CHART_PALETTE,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Table, TBody, THead, ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 import type { BiChartColumn, BiChartType } from '@/lib/rust-client/bi-charts';
 
 interface Props {
@@ -57,7 +48,7 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
           </Badge>
         )}
         <Table>
-          <TableHeader>
+          <THead>
             <tr>
               {keys.map((k) => (
                 <th key={k} className="text-left">
@@ -65,8 +56,8 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
                 </th>
               ))}
             </tr>
-          </TableHeader>
-          <TableBody>
+          </THead>
+          <TBody>
             {rows.slice(0, 100).map((r, i) => (
               <tr key={i} className="border-t border-[var(--st-border)]">
                 {keys.map((k) => (
@@ -76,7 +67,7 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
                 ))}
               </tr>
             ))}
-          </TableBody>
+          </TBody>
         </Table>
       </div>
     );
@@ -92,7 +83,7 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
 
   if (chartType === 'pie') {
     return (
-      <ZoruChartContainer height={280}>
+      <ChartContainer height={280}>
         <ZoruChart.PieChart>
           <ZoruChart.Pie
             data={rows}
@@ -107,21 +98,21 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
               />
             ))}
           </ZoruChart.Pie>
-          <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+          <ZoruChart.Tooltip content={<ChartTooltip />} />
           <ZoruChart.Legend />
         </ZoruChart.PieChart>
-      </ZoruChartContainer>
+      </ChartContainer>
     );
   }
 
   if (chartType === 'line') {
     return (
-      <ZoruChartContainer height={280}>
+      <ChartContainer height={280}>
         <ZoruChart.LineChart data={rows}>
           <ZoruChart.CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
           <ZoruChart.XAxis dataKey={dimKey} />
           <ZoruChart.YAxis />
-          <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+          <ZoruChart.Tooltip content={<ChartTooltip />} />
           <ZoruChart.Line
             type="monotone"
             dataKey={measureKey}
@@ -129,20 +120,20 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
             dot={false}
           />
         </ZoruChart.LineChart>
-      </ZoruChartContainer>
+      </ChartContainer>
     );
   }
 
   // bar (default)
   return (
-    <ZoruChartContainer height={280}>
+    <ChartContainer height={280}>
       <ZoruChart.BarChart data={rows}>
         <ZoruChart.CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
         <ZoruChart.XAxis dataKey={dimKey} />
         <ZoruChart.YAxis />
-        <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+        <ZoruChart.Tooltip content={<ChartTooltip />} />
         <ZoruChart.Bar dataKey={measureKey} fill={ZORU_CHART_PALETTE[0]} />
       </ZoruChart.BarChart>
-    </ZoruChartContainer>
+    </ChartContainer>
   );
 }

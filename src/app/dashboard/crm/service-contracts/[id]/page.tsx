@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 
@@ -145,10 +145,10 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
       rightRail={
         <>
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Coverage</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Coverage</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--st-text-secondary)]">Status</span>
@@ -177,14 +177,14 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Customer</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Customer</CardTitle>
+            </CardHeader>
+            <CardBody>
               {contract.customerId ? (
                 <EntityPickerChip
                   entity="client"
@@ -195,25 +195,25 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
                   {contract.customerName || '—'}
                 </span>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Technician</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Technician</CardTitle>
+            </CardHeader>
+            <CardBody>
               <span className="text-[12.5px] text-[var(--st-text)]">
                 {contract.technician || '—'}
               </span>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Related</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Related</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/sabdesk?contractId=${id}`}
@@ -228,16 +228,16 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
                   Linked invoices →
                 </Link>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </>
       }
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Contract number">{contract.contractNo || '—'}</Field>
             <Field label="Coverage">{contract.coverage || '—'}</Field>
@@ -250,14 +250,14 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
               {fmtMoney(contract.billingAmount, contract.currency)}
             </Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Coverage details</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Coverage details</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Customer">
               {contract.customerId ? (
@@ -277,14 +277,14 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
             <Field label="Technician">{contract.technician || '—'}</Field>
             <Field label="Billing model">{contract.billing || '—'}</Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Visit schedule</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Visit schedule</CardTitle>
+        </CardHeader>
+        <CardBody>
           {visits.length === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">
               No visits scheduled. Use{' '}
@@ -317,14 +317,14 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
               </tbody>
             </table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Billing history</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Billing history</CardTitle>
+        </CardHeader>
+        <CardBody>
           {/* TODO 1D.2: billing-history child collection not yet implemented */}
           <p className="text-[13px] text-[var(--st-text-secondary)]">
             No billing entries yet.{' '}
@@ -335,19 +335,19 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
               View linked invoices →
             </Link>
           </p>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {contract.notes ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Notes</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Notes</CardTitle>
+          </CardHeader>
+          <CardBody>
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {contract.notes}
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </EntityDetailShell>

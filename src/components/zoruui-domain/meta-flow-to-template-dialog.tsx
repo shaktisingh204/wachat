@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -93,19 +76,19 @@ export function MetaFlowToTemplateDialog({ flow }: MetaFlowToTemplateDialogProps
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="secondary" size="sm"><Send className="mr-2 h-4 w-4" />Create Send Template</Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="projectId" value={flow.projectId.toString()} />
           <input type="hidden" name="flowId" value={flow.metaId} />
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle>Create Template for Flow</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Create Template for Flow</DialogTitle>
+            <DialogDescription>
               Create a message template with a button to trigger the "{flow.name}" flow.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
@@ -117,21 +100,21 @@ export function MetaFlowToTemplateDialog({ flow }: MetaFlowToTemplateDialogProps
                 <div className="space-y-2">
                   <Label htmlFor="language">Language</Label>
                   <Select name="language" defaultValue="en_US" required>
-                    <ZoruSelectTrigger id="language"><ZoruSelectValue /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      {languages.map(lang => <ZoruSelectItem key={lang.code} value={lang.code}>{lang.name}</ZoruSelectItem>)}
-                    </ZoruSelectContent>
+                    <SelectTrigger id="language"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {languages.map(lang => <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>)}
+                    </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
                   <Select name="category" required>
-                    <ZoruSelectTrigger id="category"><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="MARKETING">Marketing</ZoruSelectItem>
-                      <ZoruSelectItem value="UTILITY">Utility</ZoruSelectItem>
-                      <ZoruSelectItem value="AUTHENTICATION">Authentication</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger id="category"><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MARKETING">Marketing</SelectItem>
+                      <SelectItem value="UTILITY">Utility</SelectItem>
+                      <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -145,12 +128,12 @@ export function MetaFlowToTemplateDialog({ flow }: MetaFlowToTemplateDialogProps
               </div>
             </div>
           </div>
-          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

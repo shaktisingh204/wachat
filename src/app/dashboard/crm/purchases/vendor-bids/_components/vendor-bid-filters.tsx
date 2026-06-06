@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 /**
  * <VendorBidFilters> — collapsible filter row for the Vendor Bids list.
  *
@@ -109,16 +109,16 @@ export function VendorBidFilters(props: VendorBidFiltersProps) {
         <div className="space-y-1">
           <Label>Lead time</Label>
           <Select value={leadTimeFilter} onValueChange={onLeadTimeChange}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {LEAD_TIME_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
 

@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useForm,
   Controller } from 'react-hook-form';
@@ -174,8 +163,8 @@ export function CheckoutForm() {
             </div>
             <div>
                 <Card>
-                    <ZoruCardHeader><ZoruCardTitle>Your Order</ZoruCardTitle></ZoruCardHeader>
-                    <ZoruCardContent className="space-y-4">
+                    <CardHeader><CardTitle>Your Order</CardTitle></CardHeader>
+                    <CardBody className="space-y-4">
                         {cart.map(item => (
                              <div key={item.productId} className="flex justify-between items-center text-sm">
                                 <span>{item.name} x {item.quantity}</span>
@@ -187,7 +176,7 @@ export function CheckoutForm() {
                             <span>Total</span>
                             <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}</span>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
         </div>

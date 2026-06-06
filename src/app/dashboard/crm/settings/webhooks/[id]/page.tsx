@@ -1,33 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Checkbox, Input, Label, PageHeader, PageHeading, PageTitle, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useParams,
   useRouter } from 'next/navigation';
@@ -59,7 +32,7 @@ export default function CrmWebhookDetailPage() {
     const router = useRouter();
     const params = useParams<{ id: string }>();
     const id = params?.id ?? '';
-    const toast = useZoruToast();
+    const toast = useToast();
 
     const [row, setRow] = React.useState<CrmWebhookRow | null>(null);
     const [loading, setLoading] = React.useState(true);
@@ -194,31 +167,31 @@ export default function CrmWebhookDetailPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/crm/settings/webhooks">
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/crm/settings/webhooks">
                             Webhooks
-                        </ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>{row.name}</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{row.name}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader>
                 <div className="flex items-start justify-between gap-3">
                     <div>
-                        <ZoruPageHeading>
+                        <PageHeading>
                             <Webhook className="size-5" />
-                            <ZoruPageTitle>{row.name}</ZoruPageTitle>
+                            <PageTitle>{row.name}</PageTitle>
                             <Badge
                                 variant={row.status === 'active' ? 'default' : 'secondary'}
                             >
                                 {row.status}
                             </Badge>
-                        </ZoruPageHeading>
+                        </PageHeading>
                     </div>
                     <div className="flex gap-2">
                         <Button variant="outline" onClick={toggleStatus} disabled={saving}>
@@ -234,30 +207,30 @@ export default function CrmWebhookDetailPage() {
                                 </>
                             )}
                         </Button>
-                        <ZoruAlertDialog>
-                            <ZoruAlertDialogTrigger asChild>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
                                 <Button variant="destructive" disabled={deleting}>
                                     <Trash2 className="mr-2 size-4" />
                                     Delete
                                 </Button>
-                            </ZoruAlertDialogTrigger>
-                            <ZoruAlertDialogContent>
-                                <ZoruAlertDialogHeader>
-                                    <ZoruAlertDialogTitle>Delete subscription?</ZoruAlertDialogTitle>
-                                    <ZoruAlertDialogDescription>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete subscription?</AlertDialogTitle>
+                                    <AlertDialogDescription>
                                         All future events that would have been delivered to{' '}
                                         <code className="font-mono">{row.targetUrl}</code> will be
                                         dropped. This cannot be undone.
-                                    </ZoruAlertDialogDescription>
-                                </ZoruAlertDialogHeader>
-                                <ZoruAlertDialogFooter>
-                                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                    <ZoruAlertDialogAction onClick={handleDelete}>
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDelete}>
                                         Delete
-                                    </ZoruAlertDialogAction>
-                                </ZoruAlertDialogFooter>
-                            </ZoruAlertDialogContent>
-                        </ZoruAlertDialog>
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                 </div>
             </PageHeader>

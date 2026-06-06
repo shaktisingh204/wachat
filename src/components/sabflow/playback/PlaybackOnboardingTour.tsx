@@ -35,11 +35,7 @@
 
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import {
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverAnchor,
-} from '@/components/sabcrm/20ui/compat';
+import { Popover, PopoverContent, PopoverAnchor } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/lib/utils';
 
 /* ─── Public API ─────────────────────────────────────────────────────── */
@@ -301,10 +297,10 @@ export function PlaybackOnboardingTour({
       <div style={spotlightStyle} aria-hidden />
 
       <Popover open modal={false}>
-        <ZoruPopoverAnchor asChild>
+        <PopoverAnchor asChild>
           <div style={anchorStyle} aria-hidden />
-        </ZoruPopoverAnchor>
-        <ZoruPopoverContent
+        </PopoverAnchor>
+        <PopoverContent
           side={step.side ?? 'bottom'}
           align={step.align ?? 'center'}
           sideOffset={12}
@@ -348,7 +344,7 @@ export function PlaybackOnboardingTour({
               advanceFrom(stepIdx + 1);
             }}
           />
-        </ZoruPopoverContent>
+        </PopoverContent>
       </Popover>
     </div>,
     portalTarget,

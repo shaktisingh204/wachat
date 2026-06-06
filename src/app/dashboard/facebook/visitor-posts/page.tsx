@@ -1,44 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  EmptyState,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-  Textarea,
-  zoruSonnerToast,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  Label,
-  Input,
-  Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Textarea, zoruSonnerToast, Checkbox, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Label, Input, Switch } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -332,19 +294,19 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">Meta Suite</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Visitor Posts</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">Meta Suite</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Visitor Posts</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -363,15 +325,15 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
             value={filter}
             onValueChange={(v) => setFilter(v as StatusFilter)}
           >
-            <ZoruSelectTrigger className="w-[160px]">
-              <ZoruSelectValue placeholder="Filter" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All</ZoruSelectItem>
-              <ZoruSelectItem value="published">Published</ZoruSelectItem>
-              <ZoruSelectItem value="hidden">Hidden</ZoruSelectItem>
-              <ZoruSelectItem value="spam">Spam</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Filter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="hidden">Hidden</SelectItem>
+              <SelectItem value="spam">Spam</SelectItem>
+            </SelectContent>
           </Select>
           <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
@@ -383,8 +345,8 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
       {error && (
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>Could not load visitor posts</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not load visitor posts</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
@@ -408,7 +370,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
       )}
 
       <Card>
-        <ZoruCardContent className="pt-6">
+        <CardBody className="pt-6">
           {loading && posts.length === 0 ? (
             <div className="flex flex-col gap-2">
               <Skeleton className="h-14 w-full" />
@@ -476,22 +438,22 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
               </ul>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Sheet
         open={!!selected}
         onOpenChange={(open) => !open && closeSheet()}
       >
-        <ZoruSheetContent className="w-full sm:max-w-lg">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>
+        <SheetContent className="w-full sm:max-w-lg">
+          <SheetHeader>
+            <SheetTitle>
               {selected?.from?.name ?? 'Visitor post'}
-            </ZoruSheetTitle>
-            <ZoruSheetDescription>
+            </SheetTitle>
+            <SheetDescription>
               {selected ? fmtDate(selected.created_time) : ''}
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </SheetDescription>
+          </SheetHeader>
           {selected ? (
             <div className="flex flex-col gap-4 pt-4">
               <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
@@ -557,17 +519,17 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
               </div>
             </div>
           ) : null}
-        </ZoruSheetContent>
+        </SheetContent>
       </Sheet>
 
       <Dialog open={isSpamRulesOpen} onOpenChange={setIsSpamRulesOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Spam Detection Rules</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Spam Detection Rules</DialogTitle>
+            <DialogDescription>
               Configure automated actions for new visitor posts.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex flex-col gap-4 py-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="keywords">Spam Keywords (comma separated)</Label>
@@ -593,15 +555,15 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
               <Switch id="auto-spam" checked={autoSpam} onCheckedChange={setAutoSpam} />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setIsSpamRulesOpen(false)} disabled={savingRules}>
               Cancel
             </Button>
             <Button onClick={handleSaveSpamRules} disabled={savingRules}>
               {savingRules ? 'Saving...' : 'Save Rules'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

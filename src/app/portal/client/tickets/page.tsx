@@ -9,18 +9,8 @@ import Link from 'next/link';
 
 import { getClientTickets } from '@/app/actions/client-portal.actions';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import {
-    Card,
-    ZoruCardContent,
-} from '@/components/sabcrm/20ui/compat';
-import {
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
 import { NewTicketDrawer } from '@/components/client-portal/new-ticket-drawer';
 import { TicketFilters } from './ticket-filters';
@@ -71,25 +61,25 @@ async function ClientTicketsPageContent(props: { searchParams?: { status?: strin
                 />
             ) : (
                 <Card>
-                    <ZoruCardContent className="p-0">
+                    <CardBody className="p-0">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>#</ZoruTableHead>
-                                    <ZoruTableHead>Subject</ZoruTableHead>
-                                    <ZoruTableHead>Status</ZoruTableHead>
-                                    <ZoruTableHead>Priority</ZoruTableHead>
-                                    <ZoruTableHead>Last Reply</ZoruTableHead>
-                                    <ZoruTableHead>Created</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>#</Th>
+                                    <Th>Subject</Th>
+                                    <Th>Status</Th>
+                                    <Th>Priority</Th>
+                                    <Th>Last Reply</Th>
+                                    <Th>Created</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {tickets.map((t) => (
-                                    <ZoruTableRow key={t._id} className={t.awaitingClientResponse ? "bg-[var(--st-bg-muted)]/30" : ""}>
-                                        <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
+                                    <Tr key={t._id} className={t.awaitingClientResponse ? "bg-[var(--st-bg-muted)]/30" : ""}>
+                                        <Td className="text-xs text-[var(--st-text-secondary)]">
                                             {t.number ?? t._id.slice(-6).toUpperCase()}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <div className="flex flex-col gap-1.5 items-start">
                                                 <div className="flex items-center gap-2">
                                                     <Link
@@ -106,18 +96,18 @@ async function ClientTicketsPageContent(props: { searchParams?: { status?: strin
                                                 </div>
                                                 <SlaIndicator dueBy={t.dueBy || null} status={t.status} />
                                             </div>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <Badge variant={statusVariant(t.status)}>{t.status}</Badge>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>{t.priority}</ZoruTableCell>
-                                        <ZoruTableCell>{fmtDate(t.lastReplyAt)}</ZoruTableCell>
-                                        <ZoruTableCell>{fmtDate(t.createdAt)}</ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                        <Td>{t.priority}</Td>
+                                        <Td>{fmtDate(t.lastReplyAt)}</Td>
+                                        <Td>{fmtDate(t.createdAt)}</Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

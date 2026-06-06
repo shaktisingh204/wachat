@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Edit,
   GitBranch,
@@ -74,7 +51,7 @@ export default function DepartmentsListPage() {
     const [activeFilter, setActiveFilter] = React.useState<ActiveFilter>('all');
     const [pendingDelete, setPendingDelete] = React.useState<CrmDepartmentDoc | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // RBAC is enforced server-side inside the actions (`requirePermission(
     // 'crm_department', …)`); the UI always renders the buttons and the
@@ -161,53 +138,53 @@ export default function DepartmentsListPage() {
                             value={activeFilter}
                             onValueChange={(v) => setActiveFilter(v as ActiveFilter)}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[200px]">
-                                <ZoruSelectValue placeholder={t('hrm.payroll.departments.activeFilter.placeholder')} />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[200px]">
+                                <SelectValue placeholder={t('hrm.payroll.departments.activeFilter.placeholder')} />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {ACTIVE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     }
                     loading={isLoading && departments.length === 0}
                 >
                     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.name')}</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.code')}</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.costCenter')}</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.status')}</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.actions')}</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.name')}</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.code')}</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.costCenter')}</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.status')}</Th>
+                                    <Th className="text-right text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.actions')}</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell colSpan={5} className="h-24 text-center">
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td colSpan={5} className="h-24 text-center">
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : departments.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td
                                             colSpan={5}
                                             className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             {t('hrm.payroll.departments.empty')}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     departments.map((d) => {
                                         const active = d.active !== false;
                                         return (
-                                            <ZoruTableRow key={d._id} className="border-[var(--st-border)]">
-                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                            <Tr key={d._id} className="border-[var(--st-border)]">
+                                                <Td className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${d._id}`}
                                                         className="hover:underline"
@@ -219,11 +196,11 @@ export default function DepartmentsListPage() {
                                                             {d.description}
                                                         </div>
                                                     ) : null}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {d.code ?? '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {d.costCenter ? (
                                                         <Badge variant="outline">
                                                             {d.costCenter}
@@ -231,14 +208,14 @@ export default function DepartmentsListPage() {
                                                     ) : (
                                                         '—'
                                                     )}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <StatusPill
                                                         label={active ? t('hrm.payroll.departments.status.active') : t('hrm.payroll.departments.status.inactive')}
                                                         tone={active ? 'green' : 'neutral'}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </Td>
+                                                <Td className="text-right">
                                                     <Button variant="ghost" size="icon" asChild>
                                                         <Link href={`${BASE}/${d._id}/edit`}>
                                                             <Edit className="h-4 w-4" />
@@ -251,38 +228,38 @@ export default function DepartmentsListPage() {
                                                     >
                                                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>{t('hrm.payroll.departments.delete.title')}</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{t('hrm.payroll.departments.delete.title')}</AlertDialogTitle>
+                        <AlertDialogDescription>
                             {t('hrm.payroll.departments.delete.description', { name: pendingDelete?.name ?? '' })}
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>{t('hrm.payroll.departments.delete.cancel')}</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>{t('hrm.payroll.departments.delete.cancel')}</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deletePending}
                         >
                             {deletePending ? t('hrm.payroll.departments.delete.inProgress') : t('hrm.payroll.departments.delete.confirm')}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

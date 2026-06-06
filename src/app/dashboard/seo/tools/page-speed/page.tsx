@@ -1,24 +1,6 @@
 'use client';
 
-import { 
-  Button, 
-  Input, 
-  Card, 
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Select, 
-  SelectTrigger, 
-  SelectValue, 
-  SelectContent, 
-  SelectItem,
-  Accordion,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ZoruAccordionContent,
-  Badge,
-  cn 
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, CardHeader, CardTitle, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Badge, cn } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -117,9 +99,9 @@ export default function PageSpeedPage() {
   return (
     <ToolShell title="Page Speed Insights" description="Analyze page speed and Core Web Vitals with real Google PSI data.">
       <Card className="border-[var(--st-border)] bg-[var(--st-bg-secondary)] dark:bg-[var(--st-bg-secondary)]">
-        <ZoruCardContent className="p-3 text-xs text-[var(--st-text-secondary)]">
+        <CardBody className="p-3 text-xs text-[var(--st-text-secondary)]">
           For production use, provide a Google PageSpeed Insights API key to avoid rate limits. Without a key, requests may be limited.
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       
       <div className="flex flex-col sm:flex-row gap-2">
@@ -153,9 +135,9 @@ export default function PageSpeedPage() {
 
       {error && (
         <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30">
-          <ZoruCardContent className="p-3 text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+          <CardBody className="p-3 text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
             {error}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
@@ -179,14 +161,14 @@ export default function PageSpeedPage() {
           
           {data.opportunities.length > 0 && (
             <Card className="border-[var(--st-border)]">
-              <ZoruCardHeader>
-                <ZoruCardTitle className="text-lg">Opportunities to Improve</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              <CardHeader>
+                <CardTitle className="text-lg">Opportunities to Improve</CardTitle>
+              </CardHeader>
+              <CardBody>
                 <Accordion type="single" collapsible className="w-full">
                   {data.opportunities.map((opp) => (
-                    <ZoruAccordionItem key={opp.id} value={opp.id}>
-                      <ZoruAccordionTrigger className="text-left font-medium">
+                    <AccordionItem key={opp.id} value={opp.id}>
+                      <AccordionTrigger className="text-left font-medium">
                         <div className="flex items-center gap-3">
                           <span className={cn(
                             "w-2 h-2 rounded-full flex-shrink-0",
@@ -197,14 +179,14 @@ export default function PageSpeedPage() {
                             <Badge variant="outline" className="ml-2 font-mono text-xs">{opp.displayValue}</Badge>
                           )}
                         </div>
-                      </ZoruAccordionTrigger>
-                      <ZoruAccordionContent className="text-sm text-[var(--st-text-secondary)] leading-relaxed">
+                      </AccordionTrigger>
+                      <AccordionContent className="text-sm text-[var(--st-text-secondary)] leading-relaxed">
                         <div dangerouslySetInnerHTML={{ __html: formatDescription(opp.description) }} />
-                      </ZoruAccordionContent>
-                    </ZoruAccordionItem>
+                      </AccordionContent>
+                    </AccordionItem>
                   ))}
                 </Accordion>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
         </div>
@@ -216,10 +198,10 @@ export default function PageSpeedPage() {
 function MetricCard({ title, value }: { title: string, value: string }) {
   return (
     <Card className="border-[var(--st-border)]">
-      <ZoruCardContent className="p-4 flex flex-col justify-between h-full">
+      <CardBody className="p-4 flex flex-col justify-between h-full">
         <div className="text-2xl font-bold text-[var(--st-text)] break-words">{value}</div>
         <div className="text-xs text-[var(--st-text-secondary)] mt-2">{title}</div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

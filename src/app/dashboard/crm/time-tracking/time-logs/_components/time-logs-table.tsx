@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Checkbox, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   Square,
@@ -85,44 +85,44 @@ export function TimeLogsTable({
   return (
     <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-            {selected !== undefined ? <ZoruTableHead className="w-10" /> : null}
-            <ZoruTableHead>Memo</ZoruTableHead>
-            <ZoruTableHead>Employee</ZoruTableHead>
-            <ZoruTableHead>Project</ZoruTableHead>
-            <ZoruTableHead>Task</ZoruTableHead>
-            <ZoruTableHead>Date</ZoruTableHead>
-            <ZoruTableHead className="text-right">Hours</ZoruTableHead>
-            <ZoruTableHead>Billable</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+        <THead>
+          <Tr className="border-[var(--st-border)] hover:bg-transparent">
+            {selected !== undefined ? <Th className="w-10" /> : null}
+            <Th>Memo</Th>
+            <Th>Employee</Th>
+            <Th>Project</Th>
+            <Th>Task</Th>
+            <Th>Date</Th>
+            <Th className="text-right">Hours</Th>
+            <Th>Billable</Th>
+            <Th>Status</Th>
+            <Th className="text-right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {rows.map((log) => {
             const s = badge(log);
             return (
-              <ZoruTableRow
+              <Tr
                 key={log._id}
                 className="border-[var(--st-border)] transition-colors"
               >
                 {selected !== undefined && log._id ? (
-                  <ZoruTableCell>
+                  <Td>
                     <Checkbox
                       checked={selected.has(log._id)}
                       onCheckedChange={() => onToggleRow?.(log._id!)}
                       aria-label={`Select log ${log.memo || log._id}`}
                     />
-                  </ZoruTableCell>
+                  </Td>
                 ) : null}
-                <ZoruTableCell>
+                <Td>
                   <EntityRowLink
                     href={`/dashboard/crm/time-tracking/time-logs/${log._id}`}
                     label={log.memo || '—'}
                   />
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </Td>
+                <Td>
                   {log.user_id ? (
                     <EntityPickerChip
                       entity="user"
@@ -132,8 +132,8 @@ export function TimeLogsTable({
                   ) : (
                     <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                   )}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </Td>
+                <Td>
                   {log.project_id ? (
                     <EntityPickerChip
                       entity="project"
@@ -143,8 +143,8 @@ export function TimeLogsTable({
                   ) : (
                     <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                   )}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                </Td>
+                <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                   {log.task_id ? (
                     <span className="font-mono">
                       {String(log.task_id).slice(-8)}
@@ -152,32 +152,32 @@ export function TimeLogsTable({
                   ) : (
                     '—'
                   )}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                </Td>
+                <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                   {fmt(log.start_time)}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
+                </Td>
+                <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                   {log.end_time ? (
                     wsFormatDuration(log.start_time, log.end_time)
                   ) : (
                     <LiveElapsed start={log.start_time} />
                   )}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </Td>
+                <Td>
                   {(log as { billable?: boolean }).billable ? (
                     <Badge variant="success">Billable</Badge>
                   ) : (
                     <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                   )}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </Td>
+                <Td>
                   <Badge
                     variant={s.variant as 'success' | 'danger' | 'warning' | 'ghost'}
                   >
                     {s.label}
                   </Badge>
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right">
+                </Td>
+                <Td className="text-right">
                   <div className="flex justify-end gap-1.5">
                     {!log.end_time ? (
                       <Button
@@ -218,11 +218,11 @@ export function TimeLogsTable({
                       <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                     </Button>
                   </div>
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             );
           })}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </div>
   );

@@ -1,33 +1,6 @@
 'use client';
 
-import {
-  Button,
-  StatCard,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Input,
-  Label,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Checkbox,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, StatCard, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, Input, Label, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Checkbox, useToast } from '@/components/sabcrm/20ui/compat';
 import { useDebouncedCallback } from 'use-debounce';
 import {
   X,
@@ -93,7 +66,7 @@ interface SubtasksListClientProps {
 }
 
 export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>(initialRows);
   const [loading, startLoading] = React.useTransition();
   const [search, setSearch] = React.useState('');
@@ -280,17 +253,17 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
         filters={
           <>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[160px] text-[13px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
                 {STATUS_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
+                  <SelectItem key={o.value} value={o.value}>
                     {o.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Input
               value={parentTaskFilter}
@@ -367,9 +340,9 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
           {filtered.length === 0 && !loading ? null : (
             <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10">
                       {(() => {
                         const allCk = filtered.length > 0 && filtered.every((r) => selection.has(r._id));
                         const someCk = !allCk && filtered.some((r) => selection.has(r._id));
@@ -381,21 +354,21 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                           />
                         );
                       })()}
-                    </ZoruTableHead>
-                    <ZoruTableHead>Title</ZoruTableHead>
-                    <ZoruTableHead>Parent task</ZoruTableHead>
-                    <ZoruTableHead>Dependency</ZoruTableHead>
-                    <ZoruTableHead>Assignee</ZoruTableHead>
-                    <ZoruTableHead>Due</ZoruTableHead>
-                    <ZoruTableHead>Status</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th>Title</Th>
+                    <Th>Parent task</Th>
+                    <Th>Dependency</Th>
+                    <Th>Assignee</Th>
+                    <Th>Due</Th>
+                    <Th>Status</Th>
+                    <Th className="text-right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {filtered.map((r) => {
                     const overdue = isOverdue(r);
                     return (
-                      <ZoruTableRow
+                      <Tr
                         key={r._id}
                         className={[
                           'border-[var(--st-border)] transition-colors',
@@ -403,21 +376,21 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                           isCompleted(r.status) ? 'opacity-70' : '',
                         ].join(' ')}
                       >
-                        <ZoruTableCell>
+                        <Td>
                           <Checkbox
                             checked={selection.has(r._id)}
                             onCheckedChange={() => handleToggle(r._id)}
                             aria-label={`Select ${r.title ?? 'subtask'}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <EntityRowLink
                             href={`/dashboard/crm/projects/subtasks/${r._id}`}
                             label={r.title || 'Untitled'}
                             subtitle={r.description || undefined}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px]">
+                        </Td>
+                        <Td className="text-[12.5px]">
                           {r.taskId ? (
                             <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                               {String(r.taskId).slice(-8)}
@@ -425,15 +398,15 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                           ) : (
                             '—'
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px]">
+                        </Td>
+                        <Td className="text-[12.5px]">
                           {r.dependencyId ? (
                             <EntityPickerChip entity="subtask" id={String(r.dependencyId)} fallback="View Subtask" />
                           ) : (
                             '—'
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           {r.assignedTo ? (
                             <EntityPickerChip
                               entity="employee"
@@ -445,24 +418,24 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                               {r.assignedToName || 'Unassigned'}
                             </span>
                           )}
-                        </ZoruTableCell>
-                        <ZoruTableCell
+                        </Td>
+                        <Td
                           className={[
                             'text-[12.5px]',
                             overdue ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]',
                           ].join(' ')}
                         >
                           {fmtDateUTC(r.dueDate)}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <StatusPill
                             label={r.status || 'incomplete'}
                             tone={statusToTone(r.status || '')}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                               <button
                                 type="button"
                                 aria-label={`Actions for ${r.title}`}
@@ -470,33 +443,33 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                               >
                                 <MoreHorizontal className="h-4 w-4" />
                               </button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                              <ZoruDropdownMenuItem asChild>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem asChild>
                                 <Link href={`/dashboard/crm/projects/subtasks/${r._id}/edit`}>
                                   <Eye className="mr-1.5 h-3.5 w-3.5" /> View / Edit
                                 </Link>
-                              </ZoruDropdownMenuItem>
-                              <ZoruDropdownMenuItem asChild>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
                                 <Link
                                   href={`/dashboard/crm/sales-crm/tasks/${String(r.taskId)}`}
                                 >
                                   <Edit className="mr-1.5 h-3.5 w-3.5" /> Open parent
                                 </Link>
-                              </ZoruDropdownMenuItem>
-                              <ZoruDropdownMenuItem
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
                                 onClick={() => setDeleteTargetId(r._id)}
                                 className="text-[var(--st-danger)]"
                               >
                                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
-                              </ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
                           </DropdownMenu>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           )}
@@ -533,10 +506,10 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
       />
 
       <Dialog open={confirmBulk === 'assign'} onOpenChange={(o) => !o && setConfirmBulk(null)}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Assign {selection.size} subtask{selection.size === 1 ? '' : 's'}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign {selection.size} subtask{selection.size === 1 ? '' : 's'}</DialogTitle>
+          </DialogHeader>
           <form action={bulkAssignAction} className="space-y-4 pt-4">
             <div>
               <Label>Assignee</Label>
@@ -548,12 +521,12 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
               />
             </div>
             {bulkAssignState?.error && <p className="text-sm text-[var(--st-danger)]">{bulkAssignState.error}</p>}
-            <ZoruDialogFooter>
+            <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setConfirmBulk(null)}>Cancel</Button>
               <Button type="submit">Assign</Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </form>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </>
   );

@@ -1,22 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  Card,
-  StatCard,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Card, StatCard, EmptyState } from '@/components/sabcrm/20ui/compat';
 
 interface FeatureShellProps {
   title: string;
@@ -40,30 +25,30 @@ export function FeatureShell({
       {/* Breadcrumb */}
       {breadcrumbs.length > 0 && (
         <Breadcrumb>
-          <ZoruBreadcrumbList>
+          <BreadcrumbList>
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={idx}>
-                <ZoruBreadcrumbItem>
+                <BreadcrumbItem>
                   {crumb.href ? (
-                    <ZoruBreadcrumbLink href={crumb.href}>{crumb.label}</ZoruBreadcrumbLink>
+                    <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
                   ) : (
-                    <ZoruBreadcrumbPage>{crumb.label}</ZoruBreadcrumbPage>
+                    <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
                   )}
-                </ZoruBreadcrumbItem>
-                {idx < breadcrumbs.length - 1 && <ZoruBreadcrumbSeparator />}
+                </BreadcrumbItem>
+                {idx < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
               </React.Fragment>
             ))}
-          </ZoruBreadcrumbList>
+          </BreadcrumbList>
         </Breadcrumb>
       )}
 
       {/* Header */}
       <PageHeader bordered={false}>
-        <ZoruPageHeading>
-          <ZoruPageTitle>{title}</ZoruPageTitle>
-          <ZoruPageDescription>{description}</ZoruPageDescription>
-        </ZoruPageHeading>
-        {actions && <ZoruPageActions>{actions}</ZoruPageActions>}
+        <PageHeading>
+          <PageTitle>{title}</PageTitle>
+          <PageDescription>{description}</PageDescription>
+        </PageHeading>
+        {actions && <PageActions>{actions}</PageActions>}
       </PageHeader>
 
       {/* Stats */}

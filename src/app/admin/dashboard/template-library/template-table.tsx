@@ -1,17 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import {
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Button,
-  Checkbox,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr, Button, Checkbox, Input } from '@/components/sabcrm/20ui/compat';
 import { ChevronLeft, ChevronRight, GripVertical, Search } from 'lucide-react';
 import {
   DndContext,
@@ -111,26 +101,26 @@ export function TemplateTable({
     const isSelected = selectedIds.has(id);
 
     return (
-      <ZoruTableRow ref={setNodeRef} style={style} className="hover:bg-[var(--st-bg-secondary)] transition-colors">
-        <ZoruTableCell className="w-10">
+      <Tr ref={setNodeRef} style={style} className="hover:bg-[var(--st-bg-secondary)] transition-colors">
+        <Td className="w-10">
           <Checkbox
             checked={isSelected}
             onCheckedChange={(c) => toggleOne(id, !!c)}
           />
-        </ZoruTableCell>
+        </Td>
         {type === 'premade' && (
-          <ZoruTableCell className="w-10 text-[var(--st-text-secondary)] cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
+          <Td className="w-10 text-[var(--st-text-secondary)] cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
             <GripVertical className="h-4 w-4" />
-          </ZoruTableCell>
+          </Td>
         )}
-        <ZoruTableCell className="font-medium text-[var(--st-text)]">{template.name}</ZoruTableCell>
-        <ZoruTableCell>
+        <Td className="font-medium text-[var(--st-text)]">{template.name}</Td>
+        <Td>
           <span className="inline-flex items-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 text-[10px] font-medium text-[var(--st-text-secondary)]">
             {template.category}
           </span>
-        </ZoruTableCell>
-        <ZoruTableCell className="text-[var(--st-text-secondary)]">{template.language}</ZoruTableCell>
-      </ZoruTableRow>
+        </Td>
+        <Td className="text-[var(--st-text-secondary)]">{template.language}</Td>
+      </Tr>
     );
   };
 
@@ -163,21 +153,21 @@ export function TemplateTable({
       </div>
 
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead className="w-10">
+        <THead>
+          <Tr>
+            <Th className="w-10">
               <Checkbox
                 checked={selectedIds.size > 0 && selectedIds.size === filteredData.length}
                 onCheckedChange={(c) => toggleAll(!!c)}
               />
-            </ZoruTableHead>
-            {type === 'premade' && <ZoruTableHead className="w-10"></ZoruTableHead>}
-            <ZoruTableHead>Name</ZoruTableHead>
-            <ZoruTableHead>Category</ZoruTableHead>
-            <ZoruTableHead>Language</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+            </Th>
+            {type === 'premade' && <Th className="w-10"></Th>}
+            <Th>Name</Th>
+            <Th>Category</Th>
+            <Th>Language</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {type === 'premade' && !search ? (
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={paginatedData.map((d) => d._id!.toString())} strategy={verticalListSortingStrategy}>
@@ -190,37 +180,37 @@ export function TemplateTable({
             paginatedData.map((t) => {
               const id = t._id!.toString();
               return (
-                <ZoruTableRow key={id} className="hover:bg-[var(--st-bg-secondary)] transition-colors">
-                  <ZoruTableCell className="w-10">
+                <Tr key={id} className="hover:bg-[var(--st-bg-secondary)] transition-colors">
+                  <Td className="w-10">
                     <Checkbox
                       checked={selectedIds.has(id)}
                       onCheckedChange={(c) => toggleOne(id, !!c)}
                     />
-                  </ZoruTableCell>
+                  </Td>
                   {type === 'premade' && (
-                    <ZoruTableCell className="w-10 text-[var(--st-text-secondary)] cursor-not-allowed">
+                    <Td className="w-10 text-[var(--st-text-secondary)] cursor-not-allowed">
                       <GripVertical className="h-4 w-4 opacity-50" />
-                    </ZoruTableCell>
+                    </Td>
                   )}
-                  <ZoruTableCell className="font-medium text-[var(--st-text)]">{t.name}</ZoruTableCell>
-                  <ZoruTableCell>
+                  <Td className="font-medium text-[var(--st-text)]">{t.name}</Td>
+                  <Td>
                     <span className="inline-flex items-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 text-[10px] font-medium text-[var(--st-text-secondary)]">
                       {t.category}
                     </span>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[var(--st-text-secondary)]">{t.language}</ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                  <Td className="text-[var(--st-text-secondary)]">{t.language}</Td>
+                </Tr>
               );
             })
           )}
           {paginatedData.length === 0 && (
-            <ZoruTableRow>
-              <ZoruTableCell colSpan={type === 'premade' ? 5 : 4} className="h-24 text-center text-[var(--st-text-secondary)]">
+            <Tr>
+              <Td colSpan={type === 'premade' ? 5 : 4} className="h-24 text-center text-[var(--st-text-secondary)]">
                 No templates found.
-              </ZoruTableCell>
-            </ZoruTableRow>
+              </Td>
+            </Tr>
           )}
-        </ZoruTableBody>
+        </TBody>
       </Table>
 
       <div className="flex items-center justify-between px-1">

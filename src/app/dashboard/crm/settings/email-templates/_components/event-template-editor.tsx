@@ -11,22 +11,7 @@
 import * as React from 'react';
 import { LoaderCircle, RotateCcw, Send, Save, Eye, Code } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Input,
-    Label,
-    Textarea,
-    Tooltip,
-    ZoruTooltipContent,
-    ZoruTooltipProvider,
-    ZoruTooltipTrigger,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/components/sabcrm/20ui/compat';
 
 import {
@@ -49,7 +34,7 @@ export function EventTemplateEditor({
     template,
     onPersisted,
 }: EventTemplateEditorProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [subject, setSubject] = React.useState(template.subject);
     const [body, setBody] = React.useState(template.body);
     const [viewMode, setViewMode] = React.useState<ViewMode>('edit');
@@ -191,13 +176,13 @@ export function EventTemplateEditor({
 
     return (
         <Card className="flex h-full flex-col">
-            <ZoruCardHeader className="border-b border-[var(--st-border)]">
+            <CardHeader className="border-b border-[var(--st-border)]">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                            <ZoruCardTitle className="truncate">
+                            <CardTitle className="truncate">
                                 {template.label}
-                            </ZoruCardTitle>
+                            </CardTitle>
                             {template.isCustomized ? (
                                 <Badge variant="secondary">Customized</Badge>
                             ) : (
@@ -245,9 +230,9 @@ export function EventTemplateEditor({
                         </button>
                     </div>
                 </div>
-            </ZoruCardHeader>
+            </CardHeader>
 
-            <ZoruCardContent className="flex flex-1 flex-col gap-4 overflow-hidden pt-4">
+            <CardBody className="flex flex-1 flex-col gap-4 overflow-hidden pt-4">
                 <div className="grid flex-1 grid-cols-1 gap-4 overflow-hidden lg:grid-cols-[1fr_240px]">
                     {/* Form / preview column */}
                     <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1">
@@ -334,12 +319,12 @@ export function EventTemplateEditor({
                             Variables
                         </div>
                         <div className="flex-1 overflow-y-auto p-2">
-                            <ZoruTooltipProvider delayDuration={200}>
+                            <TooltipProvider delayDuration={200}>
                                 <ul className="flex flex-col gap-1">
                                     {template.variables.map((v) => (
                                         <li key={v.key}>
                                             <Tooltip>
-                                                <ZoruTooltipTrigger asChild>
+                                                <TooltipTrigger asChild>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleInsertVariable(v.key)}
@@ -347,8 +332,8 @@ export function EventTemplateEditor({
                                                     >
                                                         <span className="truncate">{`{{${v.key}}}`}</span>
                                                     </button>
-                                                </ZoruTooltipTrigger>
-                                                <ZoruTooltipContent
+                                                </TooltipTrigger>
+                                                <TooltipContent
                                                     side="left"
                                                     className="max-w-[220px]"
                                                 >
@@ -358,12 +343,12 @@ export function EventTemplateEditor({
                                                     <p className="mt-0.5 text-[11px] text-[var(--st-text-tertiary)]">
                                                         e.g. {v.example}
                                                     </p>
-                                                </ZoruTooltipContent>
+                                                </TooltipContent>
                                             </Tooltip>
                                         </li>
                                     ))}
                                 </ul>
-                            </ZoruTooltipProvider>
+                            </TooltipProvider>
                         </div>
                         <div className="border-t border-[var(--st-border)] px-3 py-2 text-[11px] text-[var(--st-text-tertiary)]">
                             Click a chip to insert at the cursor.
@@ -424,7 +409,7 @@ export function EventTemplateEditor({
                         </Button>
                     </div>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

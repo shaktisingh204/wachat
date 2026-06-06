@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 interface TextInputEditorProps {
@@ -50,15 +50,15 @@ export function TextInputEditor({ component, updateField }: TextInputEditorProps
                 <div className="space-y-2">
                     <Label htmlFor="input-type">Input Type</Label>
                     <Select value={component['input-type'] || 'text'} onValueChange={(v) => updateField('input-type', v)}>
-                        <ZoruSelectTrigger id="input-type"><ZoruSelectValue /></ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="text">Text</ZoruSelectItem>
-                            <ZoruSelectItem value="number">Number</ZoruSelectItem>
-                            <ZoruSelectItem value="email">Email</ZoruSelectItem>
-                            <ZoruSelectItem value="password">Password</ZoruSelectItem>
+                        <SelectTrigger id="input-type"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="text">Text</SelectItem>
+                            <SelectItem value="number">Number</SelectItem>
+                            <SelectItem value="email">Email</SelectItem>
+                            <SelectItem value="password">Password</SelectItem>
                             {/* 'phone' is sometimes supported but usually 'text' with regex is better or use PhoneNumber component if strictly needed, keeping standard types */}
-                            <ZoruSelectItem value="phone">Phone</ZoruSelectItem>
-                        </ZoruSelectContent>
+                            <SelectItem value="phone">Phone</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
             )}

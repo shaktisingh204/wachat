@@ -1,16 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Card,
-  Button,
-  Badge,
-  Input,
-  Textarea,
-  Avatar,
-  ZoruAvatarFallback,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Badge, Input, Textarea, Avatar, AvatarFallback, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   MessageSquare,
   Send,
@@ -50,7 +41,7 @@ export function Crm360Timeline({
   onToggleTask,
   onDeleteItem,
 }: Crm360TimelineProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = React.useState<'comment' | 'whatsapp' | 'task'>('comment');
   const [commentText, setCommentText] = React.useState('');
   const [waPhone, setWaPhone] = React.useState('');
@@ -196,9 +187,9 @@ export function Crm360Timeline({
                 <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-2 mb-2.5">
                   <div className="flex items-center gap-2">
                     <Avatar className="h-6.5 w-6.5 border border-[var(--st-border)]">
-                      <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[9px]">
+                      <AvatarFallback className="bg-[var(--st-bg-muted)] text-[9px]">
                         {item.actorName.charAt(0)}
-                      </ZoruAvatarFallback>
+                      </AvatarFallback>
                     </Avatar>
                     <span className="text-[12.5px] font-semibold text-[var(--st-text)]">{item.actorName}</span>
                     <Badge variant={badgeVariants[item.type] as any} className="text-[9px] uppercase px-1 py-0 h-4">

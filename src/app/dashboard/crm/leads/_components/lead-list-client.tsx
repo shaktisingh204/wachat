@@ -3,23 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Input, Label, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarClock,
   Download,
@@ -122,7 +106,7 @@ export function LeadListClient({
   error,
   customFields = [],
 }: LeadListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { t, locale } = useT();
   const router = useRouter();
   const pathname = usePathname();
@@ -1070,25 +1054,25 @@ export function LeadListClient({
       />
 
       {/* Single lead deletion alert */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingDeleteLead !== null}
         onOpenChange={(o) => !o && setPendingDeleteLead(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               {t('crm.leads.list.delete.title', 'Confirm Deletion')}
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               {t(
                 'crm.leads.list.delete.description',
                 'This will permanently delete this lead and remove all associated history. This operation is irreversible.',
               )}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={isDeleting}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 void runSingleDelete();
@@ -1097,29 +1081,29 @@ export function LeadListClient({
               className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {isDeleting ? 'Deleting...' : 'Delete Permanently'}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Bulk Delete Confirm Alert */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={bulkConfirmOpen}
         onOpenChange={(o) => !o && setBulkConfirmOpen(false)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Delete {selected.size} Lead{selected.size === 1 ? '' : 's'}?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               Are you sure you want to permanently delete the selected leads? This operation is
               irreversible and will remove these records from all tenant accounts.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={bulkDeleting}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={bulkDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 runBulkDelete();
@@ -1128,10 +1112,10 @@ export function LeadListClient({
               className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {bulkDeleting ? 'Deleting Selected...' : 'Delete Selected'}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

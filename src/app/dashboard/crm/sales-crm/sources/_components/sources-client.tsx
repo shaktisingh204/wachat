@@ -1,19 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Button,
-  Input,
-  Label,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import { Download, ListChecks, Radio, Trash2, X } from 'lucide-react';
 import { useTransition } from 'react';
 
@@ -44,7 +32,7 @@ function fmtDate(v?: string | Date | null): string {
 
 /* ─── Inline edit form ──────────────────────────────────────────── */
 function SourceEditForm({ row, onDone }: { row: Row; onDone: () => void }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -99,7 +87,7 @@ function SourceEditForm({ row, onDone }: { row: Row; onDone: () => void }) {
 
 /* ─── Main client component ─────────────────────────────────────── */
 export function SourcesClient({ rows: initialRows, kpi }: Props) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>(initialRows);
   const [search, setSearch] = React.useState('');
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -220,9 +208,9 @@ export function SourcesClient({ rows: initialRows, kpi }: Props) {
       >
         <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-8">
+            <THead>
+              <Tr>
+                <Th className="w-8">
                   <input
                     type="checkbox"
                     checked={allSelectedOnPage}
@@ -230,19 +218,19 @@ export function SourcesClient({ rows: initialRows, kpi }: Props) {
                     aria-label="Select all"
                     className="rounded border-[var(--st-border)]"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead>Source Name</ZoruTableHead>
-                <ZoruTableHead>Color</ZoruTableHead>
-                <ZoruTableHead>Created</ZoruTableHead>
-                <ZoruTableHead className="w-24">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Source Name</Th>
+                <Th>Color</Th>
+                <Th>Created</Th>
+                <Th className="w-24">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.map((row) => {
                 const color = row.color ?? '#64748b';
                 return (
-                  <ZoruTableRow key={row._id} data-selected={selected.has(row._id)}>
-                    <ZoruTableCell>
+                  <Tr key={row._id} data-selected={selected.has(row._id)}>
+                    <Td>
                       <input
                         type="checkbox"
                         checked={selected.has(row._id)}
@@ -250,8 +238,8 @@ export function SourcesClient({ rows: initialRows, kpi }: Props) {
                         aria-label={`Select ${row.type}`}
                         className="rounded border-[var(--st-border)]"
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                    </Td>
+                    <Td className="font-medium text-[var(--st-text)]">
                       <RowDrawer
                         label={row.type}
                         title="Edit Source"
@@ -263,8 +251,8 @@ export function SourcesClient({ rows: initialRows, kpi }: Props) {
                           onDone={() => setDrawerRefresh((n) => n + 1)}
                         />
                       </RowDrawer>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <span className="inline-flex items-center gap-1.5">
                         <span
                           aria-hidden
@@ -275,11 +263,11 @@ export function SourcesClient({ rows: initialRows, kpi }: Props) {
                           {color}
                         </span>
                       </span>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[12px] text-[var(--st-text-secondary)]">
                       {fmtDate(row.createdAt)}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Button
                         size="sm"
                         variant="ghost"
@@ -289,11 +277,11 @@ export function SourcesClient({ rows: initialRows, kpi }: Props) {
                       >
                         <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </EntityListShell>

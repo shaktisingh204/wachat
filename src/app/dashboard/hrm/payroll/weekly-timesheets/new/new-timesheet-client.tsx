@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  useZoruToast,
-  ZoruCheckbox,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, useToast, Checkbox } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -60,7 +54,7 @@ const generateId = () => Math.random().toString(36).substring(2, 9);
 
 export function NewTimesheetClient({ employees }: { employees: EmployeeLite[] }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isSaving, startSave] = useTransition();
 
   const [entries, setEntries] = useState<TimesheetEntry[]>([]);
@@ -316,7 +310,7 @@ export function NewTimesheetClient({ employees }: { employees: EmployeeLite[] })
         </div>
 
         <div className="flex items-center gap-4 px-4 py-2 bg-[var(--st-bg-secondary)] rounded-t-lg border-b border-[var(--st-border)] text-[13px] font-medium text-[var(--st-text)]">
-          <ZoruCheckbox 
+          <Checkbox 
             checked={selectedIds.size === filteredEntries.length && filteredEntries.length > 0} 
             onCheckedChange={toggleSelectAll} 
           />

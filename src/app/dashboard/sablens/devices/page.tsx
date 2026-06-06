@@ -1,16 +1,4 @@
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 import { listSablensDevices } from '@/app/actions/sablens.actions';
 
 import { DeviceRegisterDialog } from './_components/device-register-dialog';
@@ -24,52 +12,52 @@ export default async function SablensDevicesPage() {
   return (
     <div className="zoruui flex flex-col gap-6 p-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Registered devices</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Registered devices</PageTitle>
+          <PageDescription>
             Pre-paired customer devices for repeat unattended support — no
             join-token roundtrip needed.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <DeviceRegisterDialog />
       </PageHeader>
 
       {!res.ok ? (
         <Card className="border-destructive/40">
-          <ZoruCardHeader>
-            <ZoruCardTitle>Couldn't load devices</ZoruCardTitle>
-            <ZoruCardDescription>{res.error}</ZoruCardDescription>
-          </ZoruCardHeader>
+          <CardHeader>
+            <CardTitle>Couldn't load devices</CardTitle>
+            <CardDescription>{res.error}</CardDescription>
+          </CardHeader>
         </Card>
       ) : devices.length === 0 ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>No devices yet</ZoruCardTitle>
-            <ZoruCardDescription>
+          <CardHeader>
+            <CardTitle>No devices yet</CardTitle>
+            <CardDescription>
               Pair a customer's phone or tablet to skip the per-session join
               token next time.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
+            </CardDescription>
+          </CardHeader>
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {devices.map((d) => (
             <Card key={d._id}>
-              <ZoruCardHeader>
+              <CardHeader>
                 <div className="flex items-start justify-between gap-3">
-                  <ZoruCardTitle className="line-clamp-1">{d.label}</ZoruCardTitle>
+                  <CardTitle className="line-clamp-1">{d.label}</CardTitle>
                   <Badge variant={d.online ? 'default' : 'secondary'}>
                     {d.online ? 'online' : 'offline'}
                   </Badge>
                 </div>
-                <ZoruCardDescription className="line-clamp-1">
+                <CardDescription className="line-clamp-1">
                   {d.deviceFingerprint}
-                </ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="text-xs text-[var(--st-text-secondary)]">
+                </CardDescription>
+              </CardHeader>
+              <CardBody className="text-xs text-[var(--st-text-secondary)]">
                 Last seen{' '}
                 {d.lastSeenAt ? new Date(d.lastSeenAt).toLocaleString() : 'never'}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ))}
         </div>

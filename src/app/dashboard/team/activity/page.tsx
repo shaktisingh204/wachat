@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Input,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  type ZoruBadgeProps,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, type BadgeProps } from '@/components/sabcrm/20ui/compat';
 import {
   format,
   formatDistanceToNow } from 'date-fns';
@@ -87,28 +66,28 @@ export default function ActivityLogPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/team/manage-users">Team</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Activity</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/team/manage-users">Team</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Activity</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Activity</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Activity</PageTitle>
+                    <PageDescription>
                         Every invite, role change, task move, and chat event — chronologically.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
             </PageHeader>
 
             <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -121,17 +100,17 @@ export default function ActivityLogPage() {
                                 setPage(1);
                             }}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All actors</ZoruSelectItem>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All actors</SelectItem>
                                 {members.map((m) => (
-                                    <ZoruSelectItem key={m._id.toString()} value={m._id.toString()}>
+                                    <SelectItem key={m._id.toString()} value={m._id.toString()}>
                                         {m.name || m.email}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="w-[180px]">
@@ -142,16 +121,16 @@ export default function ActivityLogPage() {
                                 setPage(1);
                             }}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All events</ZoruSelectItem>
-                                <ZoruSelectItem value="TASK">Tasks</ZoruSelectItem>
-                                <ZoruSelectItem value="MEMBER">Members</ZoruSelectItem>
-                                <ZoruSelectItem value="ROLE">Roles</ZoruSelectItem>
-                                <ZoruSelectItem value="CHAT">Chat</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All events</SelectItem>
+                                <SelectItem value="TASK">Tasks</SelectItem>
+                                <SelectItem value="MEMBER">Members</SelectItem>
+                                <SelectItem value="ROLE">Roles</SelectItem>
+                                <SelectItem value="CHAT">Chat</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     <Input
@@ -292,7 +271,7 @@ function ActivityRow({ log }: { log: WithId<ActivityLog> }) {
 
 function iconForAction(action: string): {
     icon: React.ReactNode;
-    variant: NonNullable<ZoruBadgeProps['variant']>;
+    variant: NonNullable<BadgeProps['variant']>;
 } {
     if (action.startsWith('TASK')) return { icon: <FileText className="h-3 w-3" />, variant: 'info' };
     if (action.startsWith('CHAT')) return { icon: <MessageSquare className="h-3 w-3" />, variant: 'secondary' };

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Textarea, cn, Progress, Badge } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Textarea, cn, Progress, Badge } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 
 void _zoruCn;
@@ -65,50 +65,50 @@ export default function ParagraphCounterPage() {
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Card>
-              <ZoruCardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+              <CardBody className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <div className="text-3xl font-bold text-[var(--st-text)]">{p}</div>
                 <div className="text-sm font-medium text-[var(--st-text-secondary)] mt-1">Paragraphs</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+              <CardBody className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <div className="text-3xl font-bold text-[var(--st-text)]">{s}</div>
                 <div className="text-sm font-medium text-[var(--st-text-secondary)] mt-1">Sentences</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+              <CardBody className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <div className="text-3xl font-bold text-[var(--st-text)]">{w}</div>
                 <div className="text-sm font-medium text-[var(--st-text-secondary)] mt-1">Words</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+              <CardBody className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <div className="text-3xl font-bold text-[var(--st-text)]">{readTime}</div>
                 <div className="text-sm font-medium text-[var(--st-text-secondary)] mt-1">Min Read</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
              <Card>
-              <ZoruCardContent className="p-4 flex justify-between items-center h-full">
+              <CardBody className="p-4 flex justify-between items-center h-full">
                 <div className="text-sm font-medium text-[var(--st-text-secondary)]">Characters (no spaces)</div>
                 <div className="text-xl font-bold">{charsWithoutSpaces}</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
             <Card>
-              <ZoruCardContent className="p-4 flex justify-between items-center h-full">
+              <CardBody className="p-4 flex justify-between items-center h-full">
                 <div className="text-sm font-medium text-[var(--st-text-secondary)]">Characters (with spaces)</div>
                 <div className="text-xl font-bold">{charsWithSpaces}</div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </div>
 
         <div className="flex flex-col gap-4">
           <Card>
-            <ZoruCardContent className="p-5">
+            <CardBody className="p-5">
               <h3 className="text-lg font-semibold mb-4">Readability</h3>
               
               <div className="mb-6">
@@ -132,11 +132,11 @@ export default function ParagraphCounterPage() {
                   Approximate years of schooling required to understand the text.
                 </p>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card className="flex-1">
-            <ZoruCardContent className="p-5 h-full">
+            <CardBody className="p-5 h-full">
               <h3 className="text-lg font-semibold mb-4">Keyword Density</h3>
               {keywords.length > 0 ? (
                 <div className="space-y-6">
@@ -177,7 +177,7 @@ export default function ParagraphCounterPage() {
                   Paste some text to see keyword density.
                 </div>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

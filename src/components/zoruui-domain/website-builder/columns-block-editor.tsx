@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Input, Switch, Accordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/sabcrm/20ui/compat';
+import { Label, Input, Switch, Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui/compat';
 import { Slider } from '@/components/sabcrm/20ui/compat';
 
 export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
@@ -23,9 +23,9 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
     return (
         <div className="space-y-4">
             <Accordion type="multiple" className="w-full" defaultValue={['layout']}>
-                <ZoruAccordionItem value="layout">
-                    <ZoruAccordionTrigger>Layout</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                <AccordionItem value="layout">
+                    <AccordionTrigger>Layout</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
                                 <Label>Columns</Label>
@@ -56,11 +56,11 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
                             <Switch id="stackOnMobile" checked={settings.stackOnMobile !== false} onCheckedChange={(val) => handleUpdate('stackOnMobile', val)} />
                             <Label htmlFor="stackOnMobile">Stack on mobile devices</Label>
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
-                 <ZoruAccordionItem value="spacing">
-                    <ZoruAccordionTrigger>Spacing</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                    </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="spacing">
+                    <AccordionTrigger>Spacing</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                          <div className="space-y-2">
                             <Label>Padding (Top, Right, Bottom, Left) in px</Label>
                             <div className="grid grid-cols-4 gap-2">
@@ -70,8 +70,8 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
                                 <Input type="number" placeholder="Left" value={settings.padding?.left || ''} onChange={(e) => handleSubFieldUpdate('padding', 'left', e.target.value)} />
                             </div>
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
             </Accordion>
         </div>
     );

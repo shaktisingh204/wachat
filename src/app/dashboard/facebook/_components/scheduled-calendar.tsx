@@ -11,7 +11,7 @@ import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 import { FacebookPost } from '@/lib/definitions';
 import { handleReschedulePost } from '@/app/actions/facebook.actions';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 const locales = {
   'en-US': enUS,
@@ -34,7 +34,7 @@ interface ScheduledCalendarProps {
 }
 
 export function ScheduledCalendar({ posts, projectId, onActionComplete }: ScheduledCalendarProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const events = useMemo(() => {
     return posts.map(post => {

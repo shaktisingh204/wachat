@@ -1,35 +1,7 @@
 
 "use client";
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  EmptyState,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  Input,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, EmptyState, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Input, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowLeft,
   ArrowRight,
@@ -105,7 +77,7 @@ function timeAgo(ts: Date | string): string {
 }
 
 export default function SabWaStatusPage() {
-  const toast = useZoruToast();
+  const toast = useToast();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? '';
   const { data: chats } = useChats(sessionId);
@@ -294,19 +266,19 @@ export default function SabWaStatusPage() {
   return (
     <div className="space-y-6 p-4 md:p-6 lg:p-8">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Status / Stories</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Status / Stories</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Header */}
@@ -327,18 +299,18 @@ export default function SabWaStatusPage() {
           </p>
         </div>
         <Dialog open={composerOpen} onOpenChange={setComposerOpen}>
-          <ZoruDialogTrigger asChild>
+          <DialogTrigger asChild>
             <Button type="button">
               <Plus className="mr-2 h-4 w-4" /> Post new status
             </Button>
-          </ZoruDialogTrigger>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>New status</ZoruDialogTitle>
-              <ZoruDialogDescription>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>New status</DialogTitle>
+              <DialogDescription>
                 Pick a mode, set audience, and post.
-              </ZoruDialogDescription>
-            </ZoruDialogHeader>
+              </DialogDescription>
+            </DialogHeader>
 
             {/* Composer mode switcher — segmented buttons (no tab UI) */}
             <div
@@ -449,20 +421,20 @@ export default function SabWaStatusPage() {
                 value={composerAudience}
                 onValueChange={(v) => setComposerAudience(v as Audience)}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {AUDIENCE_OPTIONS.map((o) => (
-                    <ZoruSelectItem key={o.id} value={o.id}>
+                    <SelectItem key={o.id} value={o.id}>
                       {o.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
 
-            <ZoruDialogFooter>
+            <DialogFooter>
               <Button
                 type="button"
                 variant="ghost"
@@ -476,8 +448,8 @@ export default function SabWaStatusPage() {
               <Button type="button" disabled={isPosting} onClick={handlePost}>
                 <Send className="mr-2 h-4 w-4" /> Post
               </Button>
-            </ZoruDialogFooter>
-          </ZoruDialogContent>
+            </DialogFooter>
+          </DialogContent>
         </Dialog>
       </div>
 
@@ -516,7 +488,7 @@ export default function SabWaStatusPage() {
             <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">Loading statuses...</div>
           ) : posted.length === 0 ? (
             <Card className="border-dashed">
-              <ZoruCardContent className="flex flex-col items-center gap-3 p-10 text-center">
+              <CardBody className="flex flex-col items-center gap-3 p-10 text-center">
                 <CircleDot className="h-7 w-7 text-[var(--st-text-secondary)]" />
                 <h3 className="text-sm font-semibold text-[var(--st-text)]">
                   You haven&apos;t posted any status yet
@@ -525,14 +497,14 @@ export default function SabWaStatusPage() {
                   Hit &ldquo;Post new status&rdquo; to share text with a
                   coloured background or an image from your SabFiles library.
                 </p>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2">
               {posted.map((s) => (
                 <li key={s._id}>
                   <Card>
-                    <ZoruCardContent className="space-y-3 p-3">
+                    <CardBody className="space-y-3 p-3">
                       {s.kind === "text" ? (
                         <div
                           className="flex min-h-[120px] items-center justify-center rounded-[var(--st-radius)] p-4 text-center text-base font-medium text-[var(--st-text-inverted)]"
@@ -575,7 +547,7 @@ export default function SabWaStatusPage() {
                           {timeAgo(s.ts)}
                         </span>
                       </div>
-                    </ZoruCardContent>
+                    </CardBody>
                   </Card>
                 </li>
               ))}
@@ -587,7 +559,7 @@ export default function SabWaStatusPage() {
         <div className="space-y-3">
           {friendStatuses.length === 0 ? (
             <Card className="border-dashed">
-              <ZoruCardContent className="flex flex-col items-center gap-3 p-10 text-center">
+              <CardBody className="flex flex-col items-center gap-3 p-10 text-center">
                 <Users className="h-7 w-7 text-[var(--st-text-secondary)]" />
                 <h3 className="text-sm font-semibold text-[var(--st-text)]">
                   No friends&apos; statuses
@@ -596,7 +568,7 @@ export default function SabWaStatusPage() {
                   When your contacts post a status, you&apos;ll see them as
                   cards here. Tap one to open the swipeable viewer.
                 </p>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -608,7 +580,7 @@ export default function SabWaStatusPage() {
                     className="w-full text-left"
                   >
                     <Card className="transition hover:shadow-[var(--st-shadow-md)]">
-                      <ZoruCardContent className="space-y-2 p-3">
+                      <CardBody className="space-y-2 p-3">
                         <div className="flex items-center gap-3">
                           <div
                             aria-hidden
@@ -630,7 +602,7 @@ export default function SabWaStatusPage() {
                             {f.preview}
                           </p>
                         )}
-                      </ZoruCardContent>
+                      </CardBody>
                     </Card>
                   </button>
                 </li>
@@ -647,13 +619,13 @@ export default function SabWaStatusPage() {
           if (!o) setViewersDialogOpen(false);
         }}
       >
-        <ZoruDialogContent className="max-w-sm">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Viewers</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Viewers</DialogTitle>
+            <DialogDescription>
               People who have viewed this status.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="max-h-[300px] overflow-y-auto pt-4 space-y-3">
             {activeStatusForViewers?.viewers.length === 0 ? (
               <div className="py-4 text-center text-sm text-[var(--st-text-secondary)]">No viewers yet.</div>
@@ -678,7 +650,7 @@ export default function SabWaStatusPage() {
               ))
             )}
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
       {/* Friend status viewer */}
@@ -688,13 +660,13 @@ export default function SabWaStatusPage() {
           if (!o) closeViewer();
         }}
       >
-        <ZoruDialogContent className="max-w-md">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{viewerEntry?.name ?? "Status"}</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{viewerEntry?.name ?? "Status"}</DialogTitle>
+            <DialogDescription>
               {viewerEntry ? timeAgo(viewerEntry.postedAt) : ""}
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="relative">
             <div className="flex min-h-[280px] items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-6 text-center text-[13px] text-[var(--st-text)]">
               {viewerEntry?.preview ?? "No preview available."}
@@ -748,7 +720,7 @@ export default function SabWaStatusPage() {
               <MessageCircle className="h-4 w-4" />
             </Button>
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </div>
   );

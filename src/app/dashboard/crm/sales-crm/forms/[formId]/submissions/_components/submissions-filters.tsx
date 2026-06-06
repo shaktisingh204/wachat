@@ -4,15 +4,7 @@ import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 
-import {
-    Button,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 export interface SubmissionsFiltersProps {
     initialQuery: string;
@@ -101,16 +93,16 @@ export function SubmissionsFilters({
                     writeUrl({ status: next });
                 }}
             >
-                <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                    <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger className="h-9 w-[160px] text-[13px]">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                     {STATUS_OPTIONS.map((opt) => (
-                        <ZoruSelectItem key={opt.value} value={opt.value}>
+                        <SelectItem key={opt.value} value={opt.value}>
                             {opt.label}
-                        </ZoruSelectItem>
+                        </SelectItem>
                     ))}
-                </ZoruSelectContent>
+                </SelectContent>
             </Select>
 
             <Input

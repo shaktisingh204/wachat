@@ -4,28 +4,13 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Input,
-    Label,
-    Textarea,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { createStorefront } from '@/app/actions/sabshop.actions';
 
 export default function NewStorefrontPage(): React.JSX.Element {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [busy, setBusy] = React.useState(false);
     const [form, setForm] = React.useState({
         slug: '',
@@ -58,10 +43,10 @@ export default function NewStorefrontPage(): React.JSX.Element {
 
             <form onSubmit={onSubmit}>
                 <Card className="max-w-xl">
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Basics</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="flex flex-col gap-4">
+                    <CardHeader>
+                        <CardTitle>Basics</CardTitle>
+                    </CardHeader>
+                    <CardBody className="flex flex-col gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="displayName">Display name</Label>
                             <Input
@@ -96,15 +81,15 @@ export default function NewStorefrontPage(): React.JSX.Element {
                                 value={form.currency}
                                 onValueChange={(v) => setForm((f) => ({ ...f, currency: v }))}
                             >
-                                <ZoruSelectTrigger>
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="INR">INR (₹)</ZoruSelectItem>
-                                    <ZoruSelectItem value="USD">USD ($)</ZoruSelectItem>
-                                    <ZoruSelectItem value="EUR">EUR (€)</ZoruSelectItem>
-                                    <ZoruSelectItem value="GBP">GBP (£)</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="INR">INR (₹)</SelectItem>
+                                    <SelectItem value="USD">USD ($)</SelectItem>
+                                    <SelectItem value="EUR">EUR (€)</SelectItem>
+                                    <SelectItem value="GBP">GBP (£)</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="flex justify-end gap-2 pt-2">
@@ -115,7 +100,7 @@ export default function NewStorefrontPage(): React.JSX.Element {
                                 {busy ? 'Creating…' : 'Create storefront'}
                             </Button>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </form>
         </div>

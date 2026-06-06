@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -50,7 +50,7 @@ export function BudgetDetailActions({
   scenario,
 }: BudgetDetailActionsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [, startTransition] = React.useTransition();
 
   const [rejectOpen, setRejectOpen] = React.useState(false);

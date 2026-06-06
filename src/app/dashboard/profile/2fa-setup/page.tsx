@@ -4,17 +4,7 @@ import { fmtDate } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { LoaderCircle, Mail, ShieldCheck, ShieldOff, Smartphone } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Separator,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Separator, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   disable2fa,
   disableEmail2fa,
@@ -70,7 +60,7 @@ export default function TwoFactorSetupPage() {
       </header>
 
       <Card>
-        <ZoruCardContent className="flex items-start justify-between gap-4 p-4">
+        <CardBody className="flex items-start justify-between gap-4 p-4">
           <div className="flex items-start gap-3">
             {isEnabled ? (
               <ShieldCheck className="mt-0.5 h-5 w-5 text-[var(--st-text)]" />
@@ -93,7 +83,7 @@ export default function TwoFactorSetupPage() {
           ) : (
             <Badge variant="outline">Disabled</Badge>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <div className="inline-flex rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
@@ -127,10 +117,10 @@ export default function TwoFactorSetupPage() {
       {isEnabled ? <BackupCodesPanel status={status} /> : null}
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Security Audit Log</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle className="text-base">Security Audit Log</CardTitle>
+        </CardHeader>
+        <CardBody>
           {loginAttempts.length === 0 ? (
             <p className="text-sm text-[var(--st-text-secondary)]">No recent login attempts found.</p>
           ) : (
@@ -155,7 +145,7 @@ export default function TwoFactorSetupPage() {
               ))}
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
     </div>
@@ -218,10 +208,10 @@ function EmailPanel({
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-base">Email-based 2FA</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-4">
+      <CardHeader>
+        <CardTitle className="text-base">Email-based 2FA</CardTitle>
+      </CardHeader>
+      <CardBody className="space-y-4">
         <p className="text-sm text-[var(--st-text-secondary)]">
           A 6-digit code is sent to <strong>{status?.email ?? 'your email'}</strong> every
           time you sign in.
@@ -267,7 +257,7 @@ function EmailPanel({
 
         {msg ? <p className="text-xs text-[var(--st-text)]">{msg}</p> : null}
         {err ? <p className="text-xs text-[var(--st-text)]">{err}</p> : null}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -315,10 +305,10 @@ function TotpPanel({
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-base">Authenticator app</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-4">
+      <CardHeader>
+        <CardTitle className="text-base">Authenticator app</CardTitle>
+      </CardHeader>
+      <CardBody className="space-y-4">
         <p className="text-sm text-[var(--st-text-secondary)]">
           Use any TOTP app (Google Authenticator, 1Password, Authy) to generate a
           rotating 6-digit code.
@@ -394,7 +384,7 @@ function TotpPanel({
 
         {msg ? <p className="text-xs text-[var(--st-text)]">{msg}</p> : null}
         {err ? <p className="text-xs text-[var(--st-text)]">{err}</p> : null}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }
@@ -418,10 +408,10 @@ function BackupCodesPanel({ status }: { status: TwoFactorStatus | null }) {
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle className="text-base">Backup codes</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-3">
+      <CardHeader>
+        <CardTitle className="text-base">Backup codes</CardTitle>
+      </CardHeader>
+      <CardBody className="space-y-3">
         <p className="text-sm text-[var(--st-text-secondary)]">
           You have <strong>{remaining}</strong> unused backup code{remaining === 1 ? '' : 's'}.
           Regenerating will invalidate any existing codes.
@@ -440,7 +430,7 @@ function BackupCodesPanel({ status }: { status: TwoFactorStatus | null }) {
           </div>
         ) : null}
         {err ? <p className="text-xs text-[var(--st-text)]">{err}</p> : null}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,35 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  ZoruColorPicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, ColorPicker, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowDown,
   ArrowUp,
@@ -67,7 +38,7 @@ const DEFAULT_COLOR = '#7c3aed';
  * `projectId` is null/undefined.)
  */
 export default function TaskboardColumnsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = useState<ColumnRow[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [isReordering, startReorder] = useTransition();
@@ -233,46 +204,46 @@ export default function TaskboardColumnsPage() {
       <Card>
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Slug</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Colour</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Priority</ZoruTableHead>
-                <ZoruTableHead className="w-[180px] text-right text-[var(--st-text-secondary)]">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                <Th className="text-[var(--st-text-secondary)]">Slug</Th>
+                <Th className="text-[var(--st-text-secondary)]">Colour</Th>
+                <Th className="text-[var(--st-text-secondary)]">Priority</Th>
+                <Th className="w-[180px] text-right text-[var(--st-text-secondary)]">
                   Actions
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {isLoading && rows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={5}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     Loading…
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : rows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={5}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No columns yet — click Add to get started.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 rows.map((row, idx) => (
-                  <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                  <Tr key={row._id} className="border-[var(--st-border)]">
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {row.columnName}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {row.slug || '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <div className="flex items-center gap-2">
                         <span
                           className="inline-block h-4 w-4 rounded-sm border border-[var(--st-border)]"
@@ -285,11 +256,11 @@ export default function TaskboardColumnsPage() {
                           {row.labelColor || DEFAULT_COLOR}
                         </code>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant="ghost">{row.priority ?? 0}</Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
@@ -326,26 +297,26 @@ export default function TaskboardColumnsPage() {
                           <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         </Button>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-lg">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-[var(--st-text)]">
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-[var(--st-text)]">
               {editing ? 'Edit Column' : 'Add Column'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+            </DialogTitle>
+            <DialogDescription className="text-[var(--st-text-secondary)]">
               Columns are shown in the kanban board in priority order.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <form action={saveAction} className="space-y-4">
             {editing?._id ? (
@@ -382,7 +353,7 @@ export default function TaskboardColumnsPage() {
               <Label className="text-[var(--st-text)]">Label colour</Label>
               <input type="hidden" name="labelColor" value={colorPreview} />
               <div className="mt-1.5">
-                <ZoruColorPicker value={colorPreview} onChange={setColorPreview} />
+                <ColorPicker value={colorPreview} onChange={setColorPreview} />
               </div>
             </div>
 
@@ -399,7 +370,7 @@ export default function TaskboardColumnsPage() {
               />
             </div>
 
-            <ZoruDialogFooter className="gap-2">
+            <DialogFooter className="gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -416,30 +387,30 @@ export default function TaskboardColumnsPage() {
                 ) : null}
                 Save
               </Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </form>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-[var(--st-text)]">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[var(--st-text)]">
               Delete column?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[var(--st-text-secondary)]">
               Existing tasks assigned to this column will not be deleted.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
   );
 }

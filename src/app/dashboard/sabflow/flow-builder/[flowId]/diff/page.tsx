@@ -1,19 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, EmptyState } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -301,9 +288,9 @@ export default function FlowDiffPage() {
         <div className="mx-4 mt-3">
           <Alert variant="destructive" className="flex items-center gap-2">
             <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-            <ZoruAlertDescription className="flex-1 truncate">
+            <AlertDescription className="flex-1 truncate">
               {restoreError}
-            </ZoruAlertDescription>
+            </AlertDescription>
             <Button
               variant="ghost"
               size="icon-sm"
@@ -343,28 +330,28 @@ export default function FlowDiffPage() {
       </main>
 
       {/* ── Restore confirmation ───────────────────────────── */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!confirming}
         onOpenChange={(open) => {
           if (!open && !isRestoring) setConfirming(null);
         }}
       >
-        <ZoruAlertDialogContent className="max-w-sm">
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Restore this version?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Restore this version?</AlertDialogTitle>
+            <AlertDialogDescription>
               Restoring{" "}
               <strong className="font-medium text-[var(--st-text)]">
                 &ldquo;{pendingLabel}&rdquo;
               </strong>{" "}
               will overwrite your current flow. This action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={isRestoring}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isRestoring}>
               Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogCancel>
+            <AlertDialogAction
               disabled={isRestoring}
               onClick={() => void handleRestore()}
             >
@@ -379,10 +366,10 @@ export default function FlowDiffPage() {
                   Yes, restore
                 </>
               )}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

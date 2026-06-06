@@ -18,31 +18,7 @@ import {
     Trash2,
 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    ZoruCardContent,
-    Checkbox,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -74,7 +50,7 @@ function sfStatus(sf: StorefrontItem): string {
 }
 
 export default function StorefrontListPage(): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [items, setItems] = React.useState<StorefrontItem[]>([]);
     const [productCount, setProductCount] = React.useState(0);
@@ -202,7 +178,7 @@ export default function StorefrontListPage(): React.JSX.Element {
                 }
                 filters={
                     <Card>
-                        <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
+                        <CardBody className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[160px] space-y-1">
                                 <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Status
@@ -211,18 +187,18 @@ export default function StorefrontListPage(): React.JSX.Element {
                                     value={statusFilter}
                                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="All" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="all">All</ZoruSelectItem>
-                                        <ZoruSelectItem value="published">Published</ZoruSelectItem>
-                                        <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                                        <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All</SelectItem>
+                                        <SelectItem value="published">Published</SelectItem>
+                                        <SelectItem value="draft">Draft</SelectItem>
+                                        <SelectItem value="archived">Archived</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 }
                 bulkBar={
@@ -239,16 +215,16 @@ export default function StorefrontListPage(): React.JSX.Element {
                                 Archive
                             </Button>
                             <DropdownMenu>
-                                <ZoruDropdownMenuTrigger asChild>
+                                <DropdownMenuTrigger asChild>
                                     <Button size="sm" variant="outline">
                                         <Download className="h-3.5 w-3.5" /> Export
                                     </Button>
-                                </ZoruDropdownMenuTrigger>
-                                <ZoruDropdownMenuContent align="end">
-                                    <ZoruDropdownMenuItem onClick={exportCsv}>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={exportCsv}>
                                         Export as CSV
-                                    </ZoruDropdownMenuItem>
-                                </ZoruDropdownMenuContent>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
                             </DropdownMenu>
                             <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
                                 <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -289,63 +265,63 @@ export default function StorefrontListPage(): React.JSX.Element {
                     {filtered.length > 0 ? (
                         <Card className="overflow-hidden p-0">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow>
-                                        <ZoruTableHead className="w-10">
+                                <THead>
+                                    <Tr>
+                                        <Th className="w-10">
                                             <Checkbox
                                                 aria-label="Select all"
                                                 checked={allSelected}
                                                 onCheckedChange={(c) => toggleAll(c === true)}
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead>Name</ZoruTableHead>
-                                        <ZoruTableHead>Slug</ZoruTableHead>
-                                        <ZoruTableHead>Domain</ZoruTableHead>
-                                        <ZoruTableHead>Currency</ZoruTableHead>
-                                        <ZoruTableHead>Status</ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                        <Th>Name</Th>
+                                        <Th>Slug</Th>
+                                        <Th>Domain</Th>
+                                        <Th>Currency</Th>
+                                        <Th>Status</Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {filtered.map((sf) => {
                                         const id = sfId(sf);
                                         const status = sfStatus(sf);
                                         return (
-                                            <ZoruTableRow
+                                            <Tr
                                                 key={id}
                                                 data-state={selected.has(id) ? 'selected' : undefined}
                                             >
-                                                <ZoruTableCell>
+                                                <Td>
                                                     <Checkbox
                                                         aria-label={`Select ${String(sf.name ?? '')}`}
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() => toggleOne(id)}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <EntityRowLink
                                                         href={`/dashboard/crm/store/storefronts/${id}`}
                                                         label={String(sf.name ?? 'Untitled')}
                                                         subtitle={String(sf.slug ?? '')}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {String(sf.slug ?? '—')}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {String(sf.domain ?? '—')}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {String(sf.currency ?? 'INR')}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <Badge variant={statusVariant(status)}>
                                                         {status}
                                                     </Badge>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </Card>
                     ) : null}

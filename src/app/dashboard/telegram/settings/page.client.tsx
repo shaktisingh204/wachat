@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Alert, ZoruAlertDescription, EmptyState, ZoruPageEyebrow, PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Skeleton, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, EmptyState, PageEyebrow, PageHeader, PageHeading, PageTitle, PageDescription, Skeleton, useToast } from '@/components/sabcrm/20ui/compat';
 import { Settings, Sparkles, Clock3, AlertCircle, ShieldAlert, UserCog, Globe2, ClipboardList } from 'lucide-react';
 import { useProject } from '@/context/project-context';
 import { TelegramProjectGate } from '../_components/telegram-project-gate';
@@ -80,7 +80,7 @@ function makeDefaultSettings(): ProjectSettings {
 export default function TelegramSettingsPage() {
     const { activeProject } = useProject();
     const projectId = activeProject?._id?.toString() ?? '';
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [section, setSection] = React.useState<SectionId>('defaults');
     const [loading, setLoading] = React.useState(true);
@@ -158,17 +158,17 @@ export default function TelegramSettingsPage() {
         <div className="space-y-6 p-6">
             <TelegramProjectGate />
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
-                    <ZoruPageTitle className="flex items-center gap-2">
+                <PageHeading>
+                    <PageEyebrow>Telegram</PageEyebrow>
+                    <PageTitle className="flex items-center gap-2">
                         <Settings className="h-5 w-5" style={{ color: ACCENT }} />
                         Telegram Settings
-                    </ZoruPageTitle>
-                    <ZoruPageDescription>
+                    </PageTitle>
+                    <PageDescription>
                         Project-wide defaults plus per-bot overrides for parse mode, signature,
                         business hours, notifications, security and GDPR.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
             </PageHeader>
 
             <div className="flex flex-wrap gap-2">
@@ -197,7 +197,7 @@ export default function TelegramSettingsPage() {
 
             {error ? (
                 <Alert variant="destructive">
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             ) : null}
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, ZoruAlertDescription, ZoruAlertTitle, Button, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -42,10 +42,10 @@ export default function QrCodeSettingsPage() {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <ZoruAlertTitle>Not Logged In</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Not Logged In</AlertTitle>
+                <AlertDescription>
                     You need to be logged in to access this page.
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
         );
     }

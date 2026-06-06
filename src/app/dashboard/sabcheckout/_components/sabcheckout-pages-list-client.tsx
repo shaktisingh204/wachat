@@ -4,19 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ExternalLink, Pencil, Search, Filter, MoreHorizontal, Copy, Trash, Archive, BarChart } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Input,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Input, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 
 import type { SabcheckoutPageDoc } from '@/lib/rust-client/sabcheckout-pages';
 
@@ -59,7 +47,7 @@ export function SabcheckoutPagesListClient({
         </div>
       </div>
       
-      <ZoruCardContent className="p-0">
+      <CardBody className="p-0">
         <ul className="divide-y divide-[var(--st-border)]">
           {filteredItems.map((p) => (
             <li
@@ -139,7 +127,7 @@ export function SabcheckoutPagesListClient({
             </li>
           )}
         </ul>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Button,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  Badge,
-  ScrollArea,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Popover, PopoverContent, PopoverTrigger, Badge, ScrollArea, Select } from '@/components/sabcrm/20ui/compat';
 import {
   cn } from '@/lib/utils';
 import { Check,
@@ -56,7 +42,7 @@ export function MultiSelectCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
-      <ZoruPopoverTrigger asChild>
+      <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
@@ -92,16 +78,16 @@ export function MultiSelectCombobox({
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
-      </ZoruPopoverTrigger>
-      <ZoruPopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-        <ZoruCommand>
-          <ZoruCommandInput placeholder="Search tags..." />
-          <ZoruCommandList>
-            <ZoruCommandEmpty>No options found.</ZoruCommandEmpty>
-            <ZoruCommandGroup>
+      </PopoverTrigger>
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <Command>
+          <CommandInput placeholder="Search tags..." />
+          <CommandList>
+            <CommandEmpty>No options found.</CommandEmpty>
+            <CommandGroup>
               <ScrollArea className="max-h-60">
                 {options.map((option) => (
-                  <ZoruCommandItem
+                  <CommandItem
                     key={option.value}
                     value={option.label}
                     onSelect={() => handleSelect(option.value)}
@@ -116,13 +102,13 @@ export function MultiSelectCombobox({
                       <span className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: option.color }} />
                     )}
                     {option.label}
-                  </ZoruCommandItem>
+                  </CommandItem>
                 ))}
               </ScrollArea>
-            </ZoruCommandGroup>
-          </ZoruCommandList>
-        </ZoruCommand>
-      </ZoruPopoverContent>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
     </Popover>
   );
 }

@@ -1,10 +1,4 @@
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
     listPortals,
     listCategories,
@@ -53,15 +47,15 @@ export default async function SabChatKnowledgePage({
     return (
         <div className="zoruui flex h-[calc(100vh-4rem)] flex-col gap-4 p-4">
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>SabKnow — Knowledge Base</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>SabKnow — Knowledge Base</CardTitle>
+                    <CardDescription>
                         Author help-center articles, organise them into portals and
                         categories, then publish to your widget. {portals.length}{' '}
                         portal(s).
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
                     <KnowledgeClient
                         portals={portals}
                         selectedPortalId={portalId ?? ''}
@@ -71,7 +65,7 @@ export default async function SabChatKnowledgePage({
                         articles={articlesResp.items ?? []}
                         initialSelectedArticleId={sp.selected}
                     />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

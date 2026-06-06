@@ -1,13 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   EntityDetailShell,
   type EntityStatusTone,
@@ -138,19 +132,19 @@ export default async function EWayBillDetailPage(props: {
       rightRail={
         <>
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Validity</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Validity</CardTitle>
+            </CardHeader>
+            <CardBody>
               <ValidityCountdown validUpto={validUpto} status={status} />
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Status</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Status</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--st-text-secondary)]">Bill</span>
@@ -175,28 +169,28 @@ export default async function EWayBillDetailPage(props: {
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>QR</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>QR</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="flex justify-center">
                 <QrCodeRenderer value={qrPayload} size={160} />
               </div>
               <p className="mt-2 text-center text-[11px] text-[var(--st-text-secondary)]">
                 Scan to verify EWB {bill.ewbNo}
               </p>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Related</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Related</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="flex flex-col gap-2 text-[12.5px]">
                 {bill.linkedInvoiceId ? (
                   <Link
@@ -215,16 +209,16 @@ export default async function EWayBillDetailPage(props: {
                   All e-way bills →
                 </Link>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </>
       }
     >
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="EWB No" mono>
               {bill.ewbNo}
@@ -249,14 +243,14 @@ export default async function EWayBillDetailPage(props: {
               {String(bill.transactionType ?? '—')}
             </Field>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Transport</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Transport</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Vehicle" mono>
               {bill.vehicleNumber ?? '—'}
@@ -271,14 +265,14 @@ export default async function EWayBillDetailPage(props: {
               <Field label="Cancelled at">{fmtDateTime(bill.cancelledAt)}</Field>
             ) : null}
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Items</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Items</CardTitle>
+        </CardHeader>
+        <CardBody>
           {items.length === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">
               No line items recorded on this bill. Items are typically sourced
@@ -330,14 +324,14 @@ export default async function EWayBillDetailPage(props: {
               </table>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Documents</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Documents</CardTitle>
+        </CardHeader>
+        <CardBody>
           <ul className="flex flex-col gap-2 text-[12.5px]">
             {bill.linkedInvoiceId ? (
               <li>
@@ -373,14 +367,14 @@ export default async function EWayBillDetailPage(props: {
               ))
             )}
           </ul>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>History</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>History</CardTitle>
+        </CardHeader>
+        <CardBody>
           {history.length === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">No history.</p>
           ) : (
@@ -408,7 +402,7 @@ export default async function EWayBillDetailPage(props: {
               ))}
             </ol>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </EntityDetailShell>
   );

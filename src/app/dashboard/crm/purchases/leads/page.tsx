@@ -8,18 +8,7 @@ import type { DateRange } from 'react-day-picker';
 import { useDebouncedCallback } from 'use-debounce';
 import { Plus, Target, Upload } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { SabFileToFileButton } from '@/components/sabfiles';
 
@@ -82,7 +71,7 @@ const EMPTY_KPIS: CrmLeadKpis = {
 type RowResult = { row: number; ok: boolean; error?: string };
 
 export default function VendorLeadsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* ─── Data state ─────────────────────────────────────────────── */
   const [leads, setLeads] = React.useState<WithId<CrmLead>[]>([]);
@@ -733,16 +722,16 @@ export default function VendorLeadsPage() {
 
       {/* CSV import dialog */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
-        <ZoruDialogContent className="sm:max-w-md">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Import leads from CSV</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import leads from CSV</DialogTitle>
+            <DialogDescription>
               Pick a CSV from your SabFiles library or upload a new one. Each
               row becomes one lead. Recognized columns: title, contactName,
               email, phone, company, website, country, status, source, value,
               currency, stage, description, nextFollowUp.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="flex flex-col gap-3">
             <SabFileToFileButton
@@ -771,7 +760,7 @@ export default function VendorLeadsPage() {
             ) : null}
           </div>
 
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button
               variant="ghost"
               onClick={() => setImportOpen(false)}
@@ -779,8 +768,8 @@ export default function VendorLeadsPage() {
             >
               {importBusy ? 'Working…' : 'Close'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );

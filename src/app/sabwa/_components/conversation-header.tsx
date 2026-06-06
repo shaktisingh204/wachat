@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowLeft,
   MoreVertical,
@@ -114,11 +104,11 @@ export function ConversationHeader({
       >
         <Avatar className="h-9 w-9 shrink-0">
           {chat.profilePicUrl ? (
-            <ZoruAvatarImage src={chat.profilePicUrl} alt={name} />
+            <AvatarImage src={chat.profilePicUrl} alt={name} />
           ) : null}
-          <ZoruAvatarFallback className="text-xs">
+          <AvatarFallback className="text-xs">
             {isGroup ? <Users className="h-4 w-4" /> : initials}
-          </ZoruAvatarFallback>
+          </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-[var(--st-text)]">{name}</p>
@@ -176,26 +166,26 @@ export function ConversationHeader({
           </Button>
         ) : null}
         <DropdownMenu>
-          <ZoruDropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild>
             <Button type="button" variant="ghost" size="icon" aria-label="More">
               <MoreVertical className="h-4 w-4" />
             </Button>
-          </ZoruDropdownMenuTrigger>
-          <ZoruDropdownMenuContent align="end">
-            <ZoruDropdownMenuItem onSelect={() => onMuteToggle?.()}>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={() => onMuteToggle?.()}>
               {chat.muted ? 'Unmute' : 'Mute notifications'}
-            </ZoruDropdownMenuItem>
-            <ZoruDropdownMenuItem onSelect={() => onArchive?.()}>
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => onArchive?.()}>
               {chat.archived ? 'Unarchive' : 'Archive chat'}
-            </ZoruDropdownMenuItem>
-            <ZoruDropdownMenuSeparator />
-            <ZoruDropdownMenuItem
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
               onSelect={() => onClearMessages?.()}
               className="text-[var(--st-danger)]"
             >
               Clear messages
-            </ZoruDropdownMenuItem>
-          </ZoruDropdownMenuContent>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition, useEffect } from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Textarea } from '@/components/sabcrm/20ui/compat';
@@ -152,8 +152,8 @@ export function LoanActivityClient({ entries, loanId, currentUserId }: Props) {
     return (
         <div className="space-y-6">
             <Card>
-                <ZoruCardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4">
-                    <ZoruCardTitle>Activity Timeline</ZoruCardTitle>
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4">
+                    <CardTitle>Activity Timeline</CardTitle>
                     <Select value={filter} onValueChange={setFilter}>
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Filter activity" />
@@ -165,8 +165,8 @@ export function LoanActivityClient({ entries, loanId, currentUserId }: Props) {
                             <SelectItem value="comments">Comments & Logs</SelectItem>
                         </SelectContent>
                     </Select>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <div className="mb-6 space-y-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/50">
                         <Textarea
                             placeholder="Add a comment or manual log entry..."
@@ -222,7 +222,7 @@ export function LoanActivityClient({ entries, loanId, currentUserId }: Props) {
                             })}
                         </ol>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

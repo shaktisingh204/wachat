@@ -1,4 +1,4 @@
-import { Button, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -80,7 +80,7 @@ export default async function DashboardDetailPage({ params }: PageProps) {
             audit={<EntityAuditTimeline entityKind="dashboard" entityId={id} />}
         >
             <Card>
-                <ZoruCardContent className="space-y-2 p-6 text-sm">
+                <CardBody className="space-y-2 p-6 text-sm">
                     <Row label="Description" value={d.description} />
                     <Row label="Layout" value={d.layout} />
                     <Row label="Visibility" value={d.visibility ?? d.sharedWith ?? d.shareScope} />
@@ -89,14 +89,14 @@ export default async function DashboardDetailPage({ params }: PageProps) {
                         value={String(d.autoRefreshSeconds ?? d.refreshInterval ?? '—')}
                     />
                     <Row label="Widgets" value={String(widgets.length)} />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {widgets.length === 0 ? (
                 <Card className="mt-4">
-                    <ZoruCardContent className="p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
+                    <CardBody className="p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
                         No widgets yet. Click <span className="text-[var(--st-text)]">Edit dashboard</span> to add some.
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : (
                 <DashboardGrid widgets={widgets} resolvedData={resolved} />

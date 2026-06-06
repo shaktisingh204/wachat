@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DatePicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DatePicker, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -47,7 +31,7 @@ interface ApplyForLeaveDialogProps {
 
 export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyForLeaveDialogProps) {
   const [state, formAction] = useActionState(applyForCrmLeave, initialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -68,25 +52,25 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="startDate" value={startDate?.toISOString()} />
           <input type="hidden" name="endDate" value={endDate?.toISOString()} />
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle className="text-[var(--st-text)]">Apply for Leave</ZoruDialogTitle>
-          </ZoruDialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle className="text-[var(--st-text)]">Apply for Leave</DialogTitle>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
                 <Label htmlFor="leaveType" className="text-[var(--st-text)]">Leave Type *</Label>
                 <Select name="leaveType" required>
-                  <ZoruSelectTrigger id="leaveType"><ZoruSelectValue placeholder="Select type..." /></ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="Paid Leave">Paid Leave</ZoruSelectItem>
-                    <ZoruSelectItem value="Sick Leave">Sick Leave</ZoruSelectItem>
-                    <ZoruSelectItem value="Unpaid Leave">Unpaid Leave</ZoruSelectItem>
-                    <ZoruSelectItem value="Other">Other</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger id="leaveType"><SelectValue placeholder="Select type..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Paid Leave">Paid Leave</SelectItem>
+                    <SelectItem value="Sick Leave">Sick Leave</SelectItem>
+                    <SelectItem value="Unpaid Leave">Unpaid Leave</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -105,12 +89,12 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
               </div>
             </div>
           </div>
-          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="px-6 pb-6 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

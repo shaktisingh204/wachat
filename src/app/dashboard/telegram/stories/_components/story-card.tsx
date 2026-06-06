@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, Button, Card, DropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuSeparator, ZoruDropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import { ImageIcon, MoreVertical, Pencil, Send, Trash2, VideoIcon, X, XCircle } from 'lucide-react';
 import type { StoryRow, StoryStatus } from '@/lib/rust-client/telegram-stories';
 
@@ -80,7 +80,7 @@ export function StoryCard({
                 </div>
                 <div className="absolute right-2 top-2">
                     <DropdownMenu>
-                        <ZoruDropdownMenuTrigger asChild>
+                        <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
                                 size="icon-sm"
@@ -89,40 +89,40 @@ export function StoryCard({
                             >
                                 <MoreVertical className="h-4 w-4" />
                             </Button>
-                        </ZoruDropdownMenuTrigger>
-                        <ZoruDropdownMenuContent align="end">
-                            <ZoruDropdownMenuItem onClick={onOpen}>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={onOpen}>
                                 Open
-                            </ZoruDropdownMenuItem>
+                            </DropdownMenuItem>
                             {!isPosted && row.status !== 'deleted' ? (
                                 <>
-                                    <ZoruDropdownMenuItem onClick={onEdit}>
+                                    <DropdownMenuItem onClick={onEdit}>
                                         <Pencil className="h-3.5 w-3.5" /> Edit
-                                    </ZoruDropdownMenuItem>
-                                    <ZoruDropdownMenuItem onClick={onPostNow}>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={onPostNow}>
                                         <Send className="h-3.5 w-3.5" /> Post now
-                                    </ZoruDropdownMenuItem>
+                                    </DropdownMenuItem>
                                 </>
                             ) : null}
                             {row.status === 'scheduled' ? (
-                                <ZoruDropdownMenuItem onClick={onCancel}>
+                                <DropdownMenuItem onClick={onCancel}>
                                     <X className="h-3.5 w-3.5" /> Cancel
-                                </ZoruDropdownMenuItem>
+                                </DropdownMenuItem>
                             ) : null}
                             {isPosted ? (
-                                <ZoruDropdownMenuItem
+                                <DropdownMenuItem
                                     onClick={onDeleteOnTelegram}
                                 >
                                     <XCircle className="h-3.5 w-3.5" />
                                     Delete on Telegram
-                                </ZoruDropdownMenuItem>
+                                </DropdownMenuItem>
                             ) : null}
-                            <ZoruDropdownMenuSeparator />
-                            <ZoruDropdownMenuItem onClick={onDeleteLocal}>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={onDeleteLocal}>
                                 <Trash2 className="h-3.5 w-3.5" />
                                 Delete local
-                            </ZoruDropdownMenuItem>
-                        </ZoruDropdownMenuContent>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
             </div>

@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Skeleton,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -57,7 +37,7 @@ export default function PlanEditorPage() {
     const params = useParams();
     const planId = params.planId as string;
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, setState] = useState<any>(initialState);
     const [, startTransition] = useTransition();
 
@@ -121,10 +101,10 @@ export default function PlanEditorPage() {
             </div>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Basic Details</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                <CardHeader>
+                    <CardTitle>Basic Details</CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <div className="space-y-2">
                             <Label htmlFor="name">Plan Name</Label>
@@ -133,20 +113,20 @@ export default function PlanEditorPage() {
                         <div className="space-y-2">
                             <Label htmlFor="appCategory">Plan Category</Label>
                             <Select name="appCategory" defaultValue={plan?.appCategory}>
-                                <ZoruSelectTrigger id="appCategory">
-                                    <ZoruSelectValue placeholder="Select a category..." />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="All-In-One">All-In-One</ZoruSelectItem>
-                                    <ZoruSelectItem value="Wachat">Wachat</ZoruSelectItem>
-                                    <ZoruSelectItem value="CRM">CRM</ZoruSelectItem>
-                                    <ZoruSelectItem value="Meta">Meta Suite</ZoruSelectItem>
-                                    <ZoruSelectItem value="Instagram">Instagram Suite</ZoruSelectItem>
-                                    <ZoruSelectItem value="Email">Email</ZoruSelectItem>
-                                    <ZoruSelectItem value="SMS">SMS</ZoruSelectItem>
-                                    <ZoruSelectItem value="URL Shortener">URL Shortener</ZoruSelectItem>
-                                    <ZoruSelectItem value="QR Code Generator">QR Code Generator</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger id="appCategory">
+                                    <SelectValue placeholder="Select a category..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="All-In-One">All-In-One</SelectItem>
+                                    <SelectItem value="Wachat">Wachat</SelectItem>
+                                    <SelectItem value="CRM">CRM</SelectItem>
+                                    <SelectItem value="Meta">Meta Suite</SelectItem>
+                                    <SelectItem value="Instagram">Instagram Suite</SelectItem>
+                                    <SelectItem value="Email">Email</SelectItem>
+                                    <SelectItem value="SMS">SMS</SelectItem>
+                                    <SelectItem value="URL Shortener">URL Shortener</SelectItem>
+                                    <SelectItem value="QR Code Generator">QR Code Generator</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
@@ -164,14 +144,14 @@ export default function PlanEditorPage() {
                         <div className="space-y-2">
                             <Label htmlFor="currency">Currency</Label>
                             <Select name="currency" defaultValue={plan?.currency || 'INR'} required>
-                                <ZoruSelectTrigger id="currency">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="INR">INR (Indian Rupee)</ZoruSelectItem>
-                                    <ZoruSelectItem value="USD">USD (US Dollar)</ZoruSelectItem>
-                                    <ZoruSelectItem value="EUR">EUR (Euro)</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger id="currency">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="INR">INR (Indian Rupee)</SelectItem>
+                                    <SelectItem value="USD">USD (US Dollar)</SelectItem>
+                                    <SelectItem value="EUR">EUR (Euro)</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>
@@ -237,8 +217,8 @@ export default function PlanEditorPage() {
                             </div>
                         </div>
                     </div>
-                </ZoruCardContent>
-                <ZoruCardFooter className="flex flex-wrap gap-x-8 gap-y-4">
+                </CardBody>
+                <CardFooter className="flex flex-wrap gap-x-8 gap-y-4">
                     <div className="flex items-center space-x-2">
                         <Switch id="isPublic" name="isPublic" defaultChecked={plan?.isPublic ?? false} />
                         <Label htmlFor="isPublic">Publicly Visible</Label>
@@ -247,16 +227,16 @@ export default function PlanEditorPage() {
                         <Switch id="isDefault" name="isDefault" defaultChecked={plan?.isDefault ?? false} />
                         <Label htmlFor="isDefault">Default for New Signups</Label>
                     </div>
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Feature Limits</ZoruCardTitle>
-                        <ZoruCardDescription>Set to 0 for unlimited.</ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="space-y-3">
+                    <CardHeader>
+                        <CardTitle>Feature Limits</CardTitle>
+                        <CardDescription>Set to 0 for unlimited.</CardDescription>
+                    </CardHeader>
+                    <CardBody className="space-y-3">
                         <div className="space-y-2">
                             <Label htmlFor="projectLimit">Project Limit</Label>
                             <Input
@@ -334,16 +314,16 @@ export default function PlanEditorPage() {
                                 min="0"
                             />
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Enabled Apps & Features</ZoruCardTitle>
-                        <ZoruCardDescription>
+                    <CardHeader>
+                        <CardTitle>Enabled Apps & Features</CardTitle>
+                        <CardDescription>
                             Select which apps and major features are available on this plan.
-                        </ZoruCardDescription>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="space-y-3">
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">
                             {planFeatureMap.map((feature) => (
                                 <div
@@ -364,7 +344,7 @@ export default function PlanEditorPage() {
                                 </div>
                             ))}
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
 

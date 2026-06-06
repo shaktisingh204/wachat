@@ -3,17 +3,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { Calendar as CalendarIcon, List } from 'lucide-react';
-import {
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Badge,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr, Badge, Button } from '@/components/sabcrm/20ui/compat';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 
@@ -73,60 +63,60 @@ export function AttendanceView({
         <Card className="p-0">
           <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Present</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Absent</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Late</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Leave</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Attendance %</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                  <Th className="text-[var(--st-text-secondary)]">Employee</Th>
+                  <Th className="text-[var(--st-text-secondary)]">Department</Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">Present</Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">Absent</Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">Late</Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">Leave</Th>
+                  <Th className="text-right text-[var(--st-text-secondary)]">Attendance %</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {pageRows.length === 0 ? (
-                  <ZoruTableRow className="border-[var(--st-border)]">
-                    <ZoruTableCell
+                  <Tr className="border-[var(--st-border)]">
+                    <Td
                       colSpan={7}
                       className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No attendance data.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   pageRows.map((r) => (
-                    <ZoruTableRow key={r.employeeId} className="border-[var(--st-border)]">
-                      <ZoruTableCell>
+                    <Tr key={r.employeeId} className="border-[var(--st-border)]">
+                      <Td>
                         <EntityRowLink
                           href={`/dashboard/crm/hr-payroll/employees/${r.employeeId}`}
                           label={r.employeeName}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         <Badge variant="outline">{r.department}</Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-text)]">
                         {r.present}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-text)]">
                         {r.absent}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-text)]">
                         {r.late}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-text)]">
                         {r.leave}
-                      </ZoruTableCell>
-                      <ZoruTableCell
+                      </Td>
+                      <Td
                         className={`text-right text-[13px] font-medium ${r.attendancePct >= 90 ? 'text-[var(--st-text)]' : r.attendancePct >= 75 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}
                       >
                         {r.attendancePct.toFixed(1)}%
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
             <PaginationBar
               page={page}

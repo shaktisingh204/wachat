@@ -3,11 +3,7 @@
 import * as React from 'react';
 import { useParams } from 'next/navigation';
 
-import {
-    Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription,
-    Input, Label, Badge, Checkbox, useZoruToast, Switch,
-    Breadcrumb, ZoruBreadcrumbList, ZoruBreadcrumbItem, ZoruBreadcrumbLink, ZoruBreadcrumbSeparator, ZoruBreadcrumbPage
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, Badge, Checkbox, useToast, Switch, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Receipt, Search, ArrowLeft, Percent } from 'lucide-react';
 
 import { listTaxRules, upsertTaxRule, deleteTaxRule } from '@/app/actions/sabshop.actions';
@@ -23,7 +19,7 @@ interface Rule {
 
 export default function TaxesPage(): React.JSX.Element {
     const params = useParams<{ storefrontId: string }>();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const id = params.storefrontId;
     
     const [items, setItems] = React.useState<Rule[]>([]);
@@ -71,19 +67,19 @@ export default function TaxesPage(): React.JSX.Element {
         <div className="zoruui flex flex-col gap-6 p-8 max-w-6xl mx-auto w-full h-full">
             <div className="flex flex-col gap-2">
                 <Breadcrumb>
-                    <ZoruBreadcrumbList>
-                        <ZoruBreadcrumbItem>
-                            <ZoruBreadcrumbLink href={`/dashboard/sabshop/${id}`}>Store</ZoruBreadcrumbLink>
-                        </ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbSeparator />
-                        <ZoruBreadcrumbItem>
-                            <ZoruBreadcrumbLink href={`/dashboard/sabshop/${id}/settings`}>Settings</ZoruBreadcrumbLink>
-                        </ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbSeparator />
-                        <ZoruBreadcrumbItem>
-                            <ZoruBreadcrumbPage>Taxes & Duties</ZoruBreadcrumbPage>
-                        </ZoruBreadcrumbItem>
-                    </ZoruBreadcrumbList>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/dashboard/sabshop/${id}`}>Store</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/dashboard/sabshop/${id}/settings`}>Settings</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Taxes & Duties</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
                 </Breadcrumb>
                 
                 <div className="flex items-center justify-between">
@@ -107,11 +103,11 @@ export default function TaxesPage(): React.JSX.Element {
                         </Button>
                         
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Tax Rule Details</ZoruCardTitle>
-                                <ZoruCardDescription>Specify the region and rate for this tax configuration.</ZoruCardDescription>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="space-y-6">
+                            <CardHeader>
+                                <CardTitle>Tax Rule Details</CardTitle>
+                                <CardDescription>Specify the region and rate for this tax configuration.</CardDescription>
+                            </CardHeader>
+                            <CardBody className="space-y-6">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>Tax Name</Label>
@@ -150,15 +146,15 @@ export default function TaxesPage(): React.JSX.Element {
                                         />
                                     </div>
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                         
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Tax Calculation</ZoruCardTitle>
-                                <ZoruCardDescription>How this tax behaves with your product prices.</ZoruCardDescription>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            <CardHeader>
+                                <CardTitle>Tax Calculation</CardTitle>
+                                <CardDescription>How this tax behaves with your product prices.</CardDescription>
+                            </CardHeader>
+                            <CardBody>
                                 <label className="flex items-start gap-3 p-4 border border-[var(--st-border)] rounded-lg cursor-pointer hover:bg-[var(--st-hover)] transition-colors">
                                     <Checkbox 
                                         className="mt-1"
@@ -172,7 +168,7 @@ export default function TaxesPage(): React.JSX.Element {
                                         </p>
                                     </div>
                                 </label>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
 
                         <div className="flex justify-end gap-3 pb-8">
@@ -184,10 +180,10 @@ export default function TaxesPage(): React.JSX.Element {
                     {/* Sidebar / Status for Draft */}
                     <div className="space-y-6">
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Status</ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                            <CardHeader>
+                                <CardTitle>Status</CardTitle>
+                            </CardHeader>
+                            <CardBody>
                                 <div className="flex items-center justify-between">
                                     <Label className="cursor-pointer" htmlFor="tax-active">Active</Label>
                                     <Switch 
@@ -199,7 +195,7 @@ export default function TaxesPage(): React.JSX.Element {
                                 <p className="text-xs text-[var(--st-text-secondary)] mt-2">
                                     {draft.active ? 'This tax rule is currently active and will be applied at checkout.' : 'This tax rule is disabled and will not apply.'}
                                 </p>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     </div>
                 </div>

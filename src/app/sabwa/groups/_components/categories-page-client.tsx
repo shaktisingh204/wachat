@@ -1,39 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  ScrollArea,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, ScrollArea, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Award,
   Bell,
@@ -134,7 +101,7 @@ function EditCategoryDialog({
   category,
   onSaved,
 }: EditCategoryDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [name, setName] = React.useState('');
   const [color, setColor] = React.useState(PRESET_COLORS[0]);
   const [icon, setIcon] = React.useState<string>('Tag');
@@ -189,13 +156,13 @@ function EditCategoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>{category ? 'Edit category' : 'New category'}</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{category ? 'Edit category' : 'New category'}</DialogTitle>
+          <DialogDescription>
             Categories group related WhatsApp groups for faster triage.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="cat-name">Name</Label>
@@ -249,15 +216,15 @@ function EditCategoryDialog({
             </div>
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
           <Button onClick={onSave} disabled={submitting}>
             {submitting ? 'Saving…' : 'Save'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -360,7 +327,7 @@ function BulkAssignDialog({
   categories,
   onDone,
 }: BulkAssignDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [uncategorised, setUncategorised] = React.useState<SabwaGroupSummary[]>([]);
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [targetCategoryId, setTargetCategoryId] = React.useState<string | null>(null);
@@ -442,13 +409,13 @@ function BulkAssignDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Bulk-assign uncategorised groups</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Bulk-assign uncategorised groups</DialogTitle>
+          <DialogDescription>
             Pick groups, then choose the category to assign them to.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-3">
           <div>
@@ -513,7 +480,7 @@ function BulkAssignDialog({
           </div>
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
@@ -523,8 +490,8 @@ function BulkAssignDialog({
           >
             {submitting ? 'Assigning…' : `Assign (${selected.size})`}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -532,7 +499,7 @@ function BulkAssignDialog({
 // ─── Main client ────────────────────────────────────────────────────────────
 
 export function CategoriesPageClient() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { current } = useSabwaSession();
   const sessionId = current?.id ?? null;
 
@@ -632,23 +599,23 @@ export function CategoriesPageClient() {
   return (
     <div className="mx-auto w-full max-w-[1280px] px-4 pt-6 pb-10 md:px-6 lg:px-8">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa/groups">Groups</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Categories</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa/groups">Groups</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Categories</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -682,10 +649,10 @@ export function CategoriesPageClient() {
       </div>
 
       <Card className="mt-4">
-        <ZoruCardHeader>
-          <ZoruCardTitle className="text-base">Categories</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-2">
+        <CardHeader>
+          <CardTitle className="text-base">Categories</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-2">
           {!sessionId ? (
             <p className="py-6 text-center text-sm text-[var(--st-text-secondary)]">
               Connect a SabWa session to manage categories.
@@ -718,7 +685,7 @@ export function CategoriesPageClient() {
               />
             ))
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <EditCategoryDialog
@@ -737,25 +704,25 @@ export function CategoriesPageClient() {
         onDone={fetchAll}
       />
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={pendingDelete !== null}
         onOpenChange={(o) => !o && setPendingDelete(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete category?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete category?</AlertDialogTitle>
+            <AlertDialogDescription>
               Groups tagged with{' '}
               <span className="font-medium text-[var(--st-text)]">{pendingDelete?.name}</span> will become
               uncategorised. This cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={onConfirmDelete}>Delete</ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={onConfirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

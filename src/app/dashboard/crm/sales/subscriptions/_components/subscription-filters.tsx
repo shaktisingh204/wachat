@@ -1,6 +1,6 @@
 'use client';
 
-import { Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 /**
  * <SubscriptionFilters> — collapsible filter row for the §1D
  * subscriptions list.
@@ -101,32 +101,32 @@ export function SubscriptionFilters({
           <Label>Billing cadence</Label>
           {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
           <Select value={frequencyFilter} onValueChange={onFrequencyFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {FREQUENCY_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
         <div className="space-y-1">
           <Label>Renewal</Label>
           {/* TODO 1E.filter: convert to EnumFilterField once that wrapper exists */}
           <Select value={renewalFilter} onValueChange={onRenewalFilter}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {RENEWAL_OPTIONS.map((o) => (
-                <ZoruSelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={o.value}>
                   {o.label}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
       </div>

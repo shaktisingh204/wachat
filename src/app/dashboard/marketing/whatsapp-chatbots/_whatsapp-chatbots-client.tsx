@@ -4,23 +4,9 @@ import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Plus, Edit2, Trash2, MessageSquare, Users, Activity, MessageCircle, Megaphone, TrendingUp, DollarSign, Target } from 'lucide-react';
-import { 
-  Table, 
-  ZoruTableHeader, 
-  ZoruTableBody, 
-  ZoruTableRow, 
-  ZoruTableHead, 
-  ZoruTableCell 
-} from '@/components/sabcrm/20ui/compat';
-import { 
-  Dialog, 
-  ZoruDialogTrigger, 
-  ZoruDialogContent, 
-  ZoruDialogHeader, 
-  ZoruDialogFooter, 
-  ZoruDialogTitle 
-} from '@/components/sabcrm/20ui/compat';
-import { Input, Label, Badge, useZoruToast, StatCard } from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Badge, useToast, StatCard } from '@/components/sabcrm/20ui/compat';
 import { createWhatsappBot, updateWhatsappBot, deleteWhatsappBot } from '@/app/actions/marketing/whatsapp-chatbots.actions';
 
 export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
@@ -29,7 +15,7 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   // Form State
   const [name, setName] = useState<any>("");
@@ -109,16 +95,16 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
         search={{ value: search, onChange: setSearch, placeholder: 'Search bots...' }}
         primaryAction={
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
               <Button onClick={openNew}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create New Bot
               </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-              <ZoruDialogHeader>
-                <ZoruDialogTitle>{editingItem ? 'Edit Bot' : 'Create New Bot'}</ZoruDialogTitle>
-              </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingItem ? 'Edit Bot' : 'Create New Bot'}</DialogTitle>
+              </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="name" className="text-right">Name</Label>
@@ -153,10 +139,10 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
                   />
                 </div>
               </div>
-              <ZoruDialogFooter>
+              <DialogFooter>
                 <Button disabled={loading} onClick={handleSave}>Save</Button>
-              </ZoruDialogFooter>
-            </ZoruDialogContent>
+              </DialogFooter>
+            </DialogContent>
           </Dialog>
         }
       >
@@ -214,41 +200,41 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
         ) : (
           <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Name</ZoruTableHead>
-                  <ZoruTableHead>Phone Number</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Phone Number</Th>
+                  <Th>Status</Th>
+                  <Th className="text-right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filteredData.map((item) => (
-                  <ZoruTableRow key={item._id}>
-                    <ZoruTableCell className="font-medium">
+                  <Tr key={item._id}>
+                    <Td className="font-medium">
                       {String(item.name || '')}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {String(item.phoneNumber || '')}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {item.isActive ? (
                         <Badge variant="success">Active</Badge>
                       ) : (
                         <Badge variant="secondary">Inactive</Badge>
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right space-x-2">
+                    </Td>
+                    <Td className="text-right space-x-2">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
                         <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         )}

@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  Card,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 /**
  * <DealListClient> — canonical Deals list view per CRM_REBUILD_PLAN §1D.
@@ -143,7 +138,7 @@ export function DealListClient({
   currentUserId,
   error,
 }: DealListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   /* View mode + filters */

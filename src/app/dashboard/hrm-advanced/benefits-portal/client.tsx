@@ -3,13 +3,8 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { saveBenefitPlan, deleteBenefitPlan, getBenefitPlans } from '@/app/actions/hrm-advanced/benefits-portal';
 import { BenefitPlan } from '@/lib/hrm-advanced-types';
-import { 
-  Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter,
-  EmptyState, Checkbox, Card,
-  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Label,
-  Select, SelectTrigger, SelectValue, SelectContent, SelectItem
-} from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, EmptyState, Checkbox, Card, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import Papa from 'papaparse';
 import jsPDF from 'jspdf';
@@ -71,10 +66,10 @@ function BenefitForm({
         <Label htmlFor="costToEmployee">Cost/mo ($)</Label>
         <Input id="costToEmployee" type="number" min="0" step="0.01" required value={formData.costToEmployee || 0} onChange={e => setFormData({ ...formData, costToEmployee: Number(e.target.value) })} />
       </div>
-      <ZoruDialogFooter className="mt-4">
+      <DialogFooter className="mt-4">
         <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
         <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save'}</Button>
-      </ZoruDialogFooter>
+      </DialogFooter>
     </form>
   );
 }
@@ -112,7 +107,7 @@ const exportToPDF = (data: BenefitPlan[]) => {
 
 export default function BenefitsPortalClient({ initialData }: { initialData: BenefitPlan[] }) {
   const [data, setData] = useState<BenefitPlan[]>(initialData);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   // Real-time updates simulation
   useEffect(() => {
@@ -391,16 +386,16 @@ export default function BenefitsPortalClient({ initialData }: { initialData: Ben
 
         {/* Dialog for Add/Edit */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>{editingItem ? 'Edit Benefit Plan' : 'Add Benefit Plan'}</ZoruDialogTitle>
-            </ZoruDialogHeader>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingItem ? 'Edit Benefit Plan' : 'Add Benefit Plan'}</DialogTitle>
+            </DialogHeader>
             <BenefitForm 
               initialData={editingItem || undefined} 
               onSave={handleSave} 
               onCancel={() => setIsDialogOpen(false)} 
             />
-          </ZoruDialogContent>
+          </DialogContent>
         </Dialog>
       </Card>
     </ErrorBoundary>

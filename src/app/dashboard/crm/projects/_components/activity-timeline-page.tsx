@@ -1,28 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Button,
-  Card,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  StatCard,
-  useZoruToast,
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-  Label,
-  Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, Label, Switch } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   CalendarRange,
@@ -84,7 +63,7 @@ function inferAction(activity: string | undefined): string {
 }
 
 export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePageProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [mounted, setMounted] = React.useState(false);
   const [rows, setRows] = React.useState<Row[]>([]);
   const [isLoading, startLoading] = React.useTransition();

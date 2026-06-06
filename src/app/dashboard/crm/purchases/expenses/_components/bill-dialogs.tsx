@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -47,7 +35,7 @@ export function BillEmailDialog({
   billNo,
   initialTo,
 }: BillEmailDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [to, setTo] = React.useState(initialTo ?? '');
   const [subject, setSubject] = React.useState(`Bill ${billNo}`);
   const [message, setMessage] = React.useState(
@@ -80,13 +68,13 @@ export function BillEmailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Email bill</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Email bill</DialogTitle>
+          <DialogDescription>
             Opens your mail client with the bill details prefilled.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
             <Label htmlFor="email-to">Recipient</Label>
@@ -119,13 +107,13 @@ export function BillEmailDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onSubmit}>Open email</Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -141,7 +129,7 @@ export function BillMarkPaidDialog({
   onCompleted,
 }: BillMarkPaidDialogProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [pending, startTransition] = React.useTransition();
 
   const onConfirm = () => {
@@ -164,23 +152,23 @@ export function BillMarkPaidDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Mark this bill paid?</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Mark this bill paid?</DialogTitle>
+          <DialogDescription>
             Sets the status to <strong>paid</strong>. Use Record payout if
             you need to capture amount, method, and a receipt number.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
-        <ZoruDialogFooter>
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onConfirm} disabled={pending}>
             {pending ? 'Saving…' : 'Mark paid'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

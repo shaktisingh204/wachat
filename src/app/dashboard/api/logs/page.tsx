@@ -1,21 +1,6 @@
 import Link from 'next/link';
 import { getUsageLogs } from '@/app/actions/developer-platform.actions';
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Breadcrumb,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbSeparator,
-  ZoruBreadcrumbPage,
-  Alert,
-  ZoruAlertDescription,
-  Card,
-  ZoruCardContent,
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageHeading, PageTitle, PageDescription, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage, Alert, AlertDescription, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 import { LogFilter } from './components/log-filter';
 import { LogTimeline } from './components/log-timeline';
@@ -61,43 +46,43 @@ export default async function LogsPage({
   return (
     <div className="flex min-h-full flex-col gap-6">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Request log</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/api">Developer platform</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Request log</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Request log</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Request log</PageTitle>
+          <PageDescription>
             Last 30 days. Filter logs by providing specific criteria.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <Card>
-        <ZoruCardContent className="pt-4">
+        <CardBody className="pt-4">
           <LogFilter />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {!res.success ? (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertDescription>{res.error}</ZoruAlertDescription>
+          <AlertDescription>{res.error}</AlertDescription>
         </Alert>
       ) : (
         <>
           <Card>
-            <ZoruCardContent className="pt-6">
+            <CardBody className="pt-6">
               <LogTimeline logs={res.rows} />
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {nextUrl ? (

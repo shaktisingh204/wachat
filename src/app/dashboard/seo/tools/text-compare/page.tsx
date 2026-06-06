@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea, Card, ZoruCardContent, Switch, Label } from '@/components/sabcrm/20ui/compat';
+import { Textarea, Card, CardBody, Switch, Label } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState, useRef } from 'react';
 import { diff_match_patch as DiffMatchPatch } from 'diff-match-patch';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -142,7 +142,7 @@ export default function TextComparePage() {
       </div>
       
       <Card>
-        <ZoruCardContent className="p-0 overflow-auto max-h-[600px]">
+        <CardBody className="p-0 overflow-auto max-h-[600px]">
           <div className="font-mono text-xs min-w-[600px]">
             {rows.map((r, i) => (
               <div key={i} className={`flex w-full border-b ${r.equal ? '' : 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20'}`}>
@@ -166,7 +166,7 @@ export default function TextComparePage() {
               <div className="p-4 text-center text-[var(--st-text-secondary)] text-sm">No text to compare</div>
             )}
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </ToolShell>
   );

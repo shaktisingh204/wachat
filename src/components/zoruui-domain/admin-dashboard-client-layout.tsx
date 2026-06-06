@@ -1,33 +1,10 @@
 'use client';
 
-import {
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Button,
-  Avatar,
-  ZoruAvatarImage,
-  ZoruAvatarFallback,
-  Skeleton,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Button, Avatar, AvatarImage, AvatarFallback, Skeleton, cn } from '@/components/sabcrm/20ui/compat';
 import {
   usePathname,
   useRouter } from 'next/navigation';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarFooter,
-  SidebarTrigger,
-  SidebarProvider,
-} from '@/components/sabcrm/20ui/compat';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarTrigger, SidebarProvider } from '@/components/sabcrm/20ui/compat';
 import { SabNodeLogo } from '@/components/zoruui-domain/logo';
 import { LayoutDashboard,
   ShieldCheck,
@@ -150,26 +127,26 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
                         </div>
                         <div className="flex items-center gap-1">
                             <DropdownMenu>
-                                <ZoruDropdownMenuTrigger asChild>
+                                <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="flex items-center gap-2">
                                         <Avatar className="h-8 w-8">
-                                            <ZoruAvatarImage src="https://placehold.co/100x100.png" alt="Admin Avatar" data-ai-hint="person avatar" />
-                                            <ZoruAvatarFallback>A</ZoruAvatarFallback>
+                                            <AvatarImage src="https://placehold.co/100x100.png" alt="Admin Avatar" data-ai-hint="person avatar" />
+                                            <AvatarFallback>A</AvatarFallback>
                                         </Avatar>
                                         <span className="hidden md:inline">Admin User</span>
                                         <ChevronDown className="h-4 w-4" />
                                     </Button>
-                                </ZoruDropdownMenuTrigger>
-                                <ZoruDropdownMenuContent align="end">
-                                    <ZoruDropdownMenuLabel>Admin Account</ZoruDropdownMenuLabel>
-                                    <ZoruDropdownMenuSeparator />
-                                    <ZoruDropdownMenuItem asChild>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem asChild>
                                         <Link href="/api/auth/admin-logout" prefetch={false}>
                                             <LogOut className="mr-2 h-4 w-4" />
                                             <span>Logout</span>
                                         </Link>
-                                    </ZoruDropdownMenuItem>
-                                </ZoruDropdownMenuContent>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
                     </header>

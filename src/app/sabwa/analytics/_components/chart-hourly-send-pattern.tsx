@@ -1,6 +1,6 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/sabcrm/20ui/compat';
+import { ZORU_CHART_PALETTE, ZoruChart, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui/compat';
 import {
   Clock } from 'lucide-react';
 
@@ -56,7 +56,7 @@ export function ChartHourlySendPattern({ data }: ChartHourlySendPatternProps) {
 
   return (
     <div className="space-y-2">
-      <ZoruChartContainer height={288}>
+      <ChartContainer height={288}>
         <ZoruChart.BarChart
           data={filled}
           margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -73,7 +73,7 @@ export function ChartHourlySendPattern({ data }: ChartHourlySendPatternProps) {
           />
           <ZoruChart.YAxis fontSize={11} tickLine={false} axisLine={false} />
           <ZoruChart.Tooltip
-            content={<ZoruChartTooltip />}
+            content={<ChartTooltip />}
             formatter={(value: unknown) =>
               [`${value} msgs`, 'Sent'] as [string, string]
             }
@@ -103,7 +103,7 @@ export function ChartHourlySendPattern({ data }: ChartHourlySendPatternProps) {
             ))}
           </ZoruChart.Bar>
         </ZoruChart.BarChart>
-      </ZoruChartContainer>
+      </ChartContainer>
       <div className="flex flex-wrap items-center gap-3 px-2 text-[11px] text-[var(--st-text-secondary)]">
         <span className="inline-flex items-center gap-1.5">
           <span

@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState } from 'react';
 import { BarChart2, MousePointerClick, Users, Info } from 'lucide-react';
 
@@ -56,13 +49,13 @@ export function QrScanStatsModal({ qrCodeId, qrName, isDynamic, open, onOpenChan
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-sm">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="flex items-center gap-2">
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
             <BarChart2 className="h-5 w-5 text-[var(--st-text)]" />
             Scan Analytics
-          </ZoruDialogTitle>
-        </ZoruDialogHeader>
+          </DialogTitle>
+        </DialogHeader>
 
         <div className="space-y-4 py-2">
           <p className="text-sm text-[var(--st-text-secondary)] truncate" title={qrName}>
@@ -128,7 +121,7 @@ export function QrScanStatsModal({ qrCodeId, qrName, isDynamic, open, onOpenChan
         <div className="flex justify-end pt-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Close</Button>
         </div>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

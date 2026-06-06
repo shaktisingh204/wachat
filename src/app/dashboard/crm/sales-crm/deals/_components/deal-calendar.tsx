@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { ChevronLeft,
@@ -39,7 +39,7 @@ function dayKey(d: Date): string {
 
 export function DealCalendar({ deals: serverDeals }: DealCalendarProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [cursor, setCursor] = React.useState<Date>(() => startOfMonth(new Date()));
 
   // Local overrides for optimistic rescheduling — keyed by deal id.

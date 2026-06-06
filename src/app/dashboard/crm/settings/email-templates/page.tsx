@@ -17,15 +17,7 @@
 import * as React from 'react';
 import { LoaderCircle, Mail, Search } from 'lucide-react';
 
-import {
-    Badge,
-    Input,
-    ZoruPageDescription,
-    ZoruPageEyebrow,
-    PageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Input, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 import { cn } from '@/components/sabcrm/20ui/compat';
 
 import {
@@ -114,15 +106,15 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
     return (
         <div className="flex h-full flex-col gap-6">
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageEyebrow>Settings</ZoruPageEyebrow>
-                    <ZoruPageTitle>Email notification templates</ZoruPageTitle>
-                    <ZoruPageDescription>
+                <PageHeading>
+                    <PageEyebrow>Settings</PageEyebrow>
+                    <PageTitle>Email notification templates</PageTitle>
+                    <PageDescription>
                         Customize the subject and HTML body of every notification
                         SabNode sends on your behalf. Overrides are scoped to your
                         workspace.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                     <Mail className="h-4 w-4" />
                     <span>

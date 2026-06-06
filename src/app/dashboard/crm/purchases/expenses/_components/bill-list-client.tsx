@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <BillListClient> — canonical Bills list view per CRM_REBUILD_PLAN §1D.
  *
@@ -114,7 +114,7 @@ export function BillListClient({
   defaultCurrency,
   error,
 }: BillListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* View + density */
   const [view, setView] = React.useState<BillViewMode>('table');

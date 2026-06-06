@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 /**
  * Generate-new e-way bill — `/dashboard/crm/tax/eway-bills/new`.
@@ -23,12 +23,12 @@ export default function NewEWayBillPage() {
             back={{ href: BASE, label: 'E-way bills' }}
         >
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Consignment details</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Consignment details</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <NewEWayBillForm />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </EntityDetailShell>
     );

@@ -1,49 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerFooter,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Input,
-  Label,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -164,7 +121,7 @@ interface BotLite {
 }
 
 export default function MiniAppsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { activeProjectId, activeProjectName } = useProject();
 
   const [rows, setRows] = useState<MiniAppRow[]>([]);
@@ -413,13 +370,13 @@ export default function MiniAppsPage() {
     return (
       <div className="flex min-h-full flex-col gap-6 p-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
-            <ZoruPageTitle>Telegram Mini Apps</ZoruPageTitle>
-            <ZoruPageDescription>
+          <PageHeading>
+            <PageEyebrow>Telegram</PageEyebrow>
+            <PageTitle>Telegram Mini Apps</PageTitle>
+            <PageDescription>
               Pick a project to manage its Telegram Mini Apps.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
       </div>
     );
@@ -429,9 +386,9 @@ export default function MiniAppsPage() {
     <div className="flex min-h-full flex-col gap-4 p-4">
         <TelegramProjectGate />
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Telegram · {activeProjectName ?? ''}</ZoruPageEyebrow>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageEyebrow>Telegram · {activeProjectName ?? ''}</PageEyebrow>
+          <PageTitle>
             <span className="inline-flex items-center gap-2">
               <LayoutGrid
                 className="h-5 w-5"
@@ -440,12 +397,12 @@ export default function MiniAppsPage() {
               />
               Telegram Mini Apps
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Register Web App URLs for your bots, send them as messages, set
             them as the bot's menu button, and validate incoming initData.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <div className="flex items-center gap-2">
           <Button
             onClick={() => {
@@ -480,27 +437,27 @@ export default function MiniAppsPage() {
           />
         </div>
         <Select value={botFilter} onValueChange={setBotFilter}>
-          <ZoruSelectTrigger className="w-[180px]">
-            <ZoruSelectValue placeholder="Bot" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All bots</ZoruSelectItem>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Bot" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All bots</SelectItem>
             {bots.map((b) => (
-              <ZoruSelectItem key={b._id} value={b._id}>
+              <SelectItem key={b._id} value={b._id}>
                 @{b.username || b.name}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <ZoruSelectTrigger className="w-[140px]">
-            <ZoruSelectValue placeholder="Status" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-            <ZoruSelectItem value="active">Active</ZoruSelectItem>
-            <ZoruSelectItem value="disabled">Disabled</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="disabled">Disabled</SelectItem>
+          </SelectContent>
         </Select>
       </div>
 
@@ -534,21 +491,21 @@ export default function MiniAppsPage() {
           </div>
         ) : (
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Name</ZoruTableHead>
-                <ZoruTableHead>Bot</ZoruTableHead>
-                <ZoruTableHead>Slug</ZoruTableHead>
-                <ZoruTableHead>URL</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Opens (7 d)</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Bot</Th>
+                <Th>Slug</Th>
+                <Th>URL</Th>
+                <Th>Status</Th>
+                <Th>Opens (7 d)</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {rows.map((r) => (
-                <ZoruTableRow key={r._id}>
-                  <ZoruTableCell>
+                <Tr key={r._id}>
+                  <Td>
                     <button
                       type="button"
                       onClick={() => {
@@ -559,14 +516,14 @@ export default function MiniAppsPage() {
                     >
                       {r.name}
                     </button>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     @{r.botUsername || '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11px]">
+                  </Td>
+                  <Td className="font-mono text-[11px]">
                     {r.slug}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <div className="flex items-center gap-1.5">
                       <span
                         className="font-mono text-[11px] text-[var(--st-text-secondary)]"
@@ -583,8 +540,8 @@ export default function MiniAppsPage() {
                         <Copy className="h-3 w-3" />
                       </button>
                     </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <div className="flex items-center gap-2">
                       <Switch
                         checked={r.status === 'active'}
@@ -593,11 +550,11 @@ export default function MiniAppsPage() {
                       />
                       <StatusPill status={r.status} />
                     </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {analytics7d.perApp[r._id] ?? 0}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     <RowActionsMenu
                       app={r}
                       onOpen={() => {
@@ -629,10 +586,10 @@ export default function MiniAppsPage() {
                       }}
                       onDelete={() => setDeleteApp(r)}
                     />
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         )}
       </Card>
@@ -680,16 +637,16 @@ export default function MiniAppsPage() {
         open={!!deleteApp}
         onOpenChange={(o) => !o && setDeleteApp(null)}
       >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Delete mini app?</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete mini app?</DialogTitle>
+            <DialogDescription>
               {deleteApp
                 ? `“${deleteApp.name}” will be removed from the registry. Existing menu-button bindings on Telegram are not removed automatically.`
                 : ''}
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setDeleteApp(null)}>
               Cancel
             </Button>
@@ -705,8 +662,8 @@ export default function MiniAppsPage() {
               )}
               Delete
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

@@ -1,44 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
-  EmptyState,
-  Input,
-  Label,
-  PageHeader,
-  ZoruPageEyebrow,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Skeleton,
-  StatCard,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, EmptyState, Input, Label, PageHeader, PageEyebrow, PageHeading, PageTitle, PageDescription, PageActions, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   Calendar as CalendarIcon,
@@ -353,7 +315,7 @@ function buildMessage(c: ComposerState) {
 export default function TelegramBroadcastsPage() {
     const { activeProject } = useProject();
     const projectId = activeProject?._id?.toString() ?? '';
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // ── Data state ────────────────────────────────────────────────
     const [rows, setRows] = React.useState<BroadcastRow[]>([]);
@@ -864,18 +826,18 @@ export default function TelegramBroadcastsPage() {
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6">
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageEyebrow className="text-[var(--st-text)]">Telegram</ZoruPageEyebrow>
-                    <ZoruPageTitle className="flex items-center gap-2">
+                <PageHeading>
+                    <PageEyebrow className="text-[var(--st-text)]">Telegram</PageEyebrow>
+                    <PageTitle className="flex items-center gap-2">
                         <Megaphone className="text-[var(--st-text)]" />
                         Telegram Broadcasts
-                    </ZoruPageTitle>
-                    <ZoruPageDescription>
+                    </PageTitle>
+                    <PageDescription>
                         Compose, schedule, and ship one-to-many Telegram messages.
                         Counters update live while a broadcast is sending.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
-                <ZoruPageActions>
+                    </PageDescription>
+                </PageHeading>
+                <PageActions>
                     <Button
                         type="button"
                         onClick={openNewComposer}
@@ -883,7 +845,7 @@ export default function TelegramBroadcastsPage() {
                     >
                         <Plus /> New broadcast
                     </Button>
-                </ZoruPageActions>
+                </PageActions>
             </PageHeader>
 
             {/* KPI cards */}
@@ -912,7 +874,7 @@ export default function TelegramBroadcastsPage() {
 
             {/* Filter bar */}
             <Card>
-                <ZoruCardContent className="flex flex-col gap-3 p-3 md:flex-row md:items-center md:p-4">
+                <CardBody className="flex flex-col gap-3 p-3 md:flex-row md:items-center md:p-4">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 opacity-50" />
                         <Input
@@ -926,32 +888,32 @@ export default function TelegramBroadcastsPage() {
                         value={botFilter}
                         onValueChange={(v) => setBotFilter(v as 'all' | string)}
                     >
-                        <ZoruSelectTrigger className="md:w-48">
-                            <ZoruSelectValue placeholder="Bot" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All bots</ZoruSelectItem>
+                        <SelectTrigger className="md:w-48">
+                            <SelectValue placeholder="Bot" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All bots</SelectItem>
                             {bots.map((b) => (
-                                <ZoruSelectItem key={b._id} value={b._id}>
+                                <SelectItem key={b._id} value={b._id}>
                                     @{b.username || b.name}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                     <Select
                         value={statusFilter}
                         onValueChange={(v) => setStatusFilter(v as 'all' | BroadcastStatus)}
                     >
-                        <ZoruSelectTrigger className="md:w-44">
-                            <ZoruSelectValue placeholder="Status" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger className="md:w-44">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {STATUS_OPTIONS.map((opt) => (
-                                <ZoruSelectItem key={opt.value} value={opt.value}>
+                                <SelectItem key={opt.value} value={opt.value}>
                                     {opt.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                     {selected.size > 0 ? (
                         <Button
@@ -962,12 +924,12 @@ export default function TelegramBroadcastsPage() {
                             <Trash2 /> Delete {selected.size}
                         </Button>
                     ) : null}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Table */}
             <Card>
-                <ZoruCardContent className="p-0">
+                <CardBody className="p-0">
                     {error ? (
                         <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-text)]">
                             <AlertCircle className="size-4" /> {error}
@@ -1164,7 +1126,7 @@ export default function TelegramBroadcastsPage() {
                             </Button>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* Composer drawer */}
@@ -1196,14 +1158,14 @@ export default function TelegramBroadcastsPage() {
 
             {/* Test-send dialog */}
             <Dialog open={testOpen} onOpenChange={setTestOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Send a test</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Send a test</DialogTitle>
+                        <DialogDescription>
                             Sends a single copy of this broadcast to one chat id, no
                             counters touched.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="flex flex-col gap-2 py-2">
                         <Label htmlFor="test-chat-id">Chat id</Label>
                         <Input
@@ -1213,7 +1175,7 @@ export default function TelegramBroadcastsPage() {
                             placeholder="e.g. 1234567890"
                         />
                     </div>
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button
                             type="button"
                             variant="outline"
@@ -1229,21 +1191,21 @@ export default function TelegramBroadcastsPage() {
                             {testSending ? <Loader2 className="animate-spin" /> : <Send />}
                             Send test
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Delete confirm */}
             <Dialog open={deleteRow !== null} onOpenChange={(o) => !o && setDeleteRow(null)}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Delete this broadcast?</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete this broadcast?</DialogTitle>
+                        <DialogDescription>
                             This deletes the broadcast and its delivery log. The Telegram
                             messages already sent are not affected.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button
                             type="button"
                             variant="outline"
@@ -1254,23 +1216,23 @@ export default function TelegramBroadcastsPage() {
                         <Button type="button" variant="destructive" onClick={doDelete}>
                             <Trash2 /> Delete
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Bulk delete confirm */}
             <Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-                <ZoruDialogContent>
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
                             Delete {selected.size} broadcast{selected.size === 1 ? '' : 's'}?
-                        </ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                        </DialogTitle>
+                        <DialogDescription>
                             This permanently removes the selected broadcasts and their
                             delivery logs.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <ZoruDialogFooter>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <Button
                             type="button"
                             variant="outline"
@@ -1281,8 +1243,8 @@ export default function TelegramBroadcastsPage() {
                         <Button type="button" variant="destructive" onClick={doBulkDelete}>
                             <Trash2 /> Delete
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Detail drawer */}
@@ -1370,17 +1332,17 @@ function Composer(props: ComposerProps) {
     };
 
     return (
-        <ZoruDrawer open={open} onOpenChange={onOpenChange}>
-            <ZoruDrawerContent className="max-h-[92vh]">
-                <ZoruDrawerHeader>
-                    <ZoruDrawerTitle>
+        <Drawer open={open} onOpenChange={onOpenChange}>
+            <DrawerContent className="max-h-[92vh]">
+                <DrawerHeader>
+                    <DrawerTitle>
                         {composer.broadcastId ? 'Edit broadcast' : 'New broadcast'}
-                    </ZoruDrawerTitle>
-                    <ZoruDrawerDescription>
+                    </DrawerTitle>
+                    <DrawerDescription>
                         Configure the basics, message, inline keyboard, and schedule. A
                         draft is saved before any send.
-                    </ZoruDrawerDescription>
-                </ZoruDrawerHeader>
+                    </DrawerDescription>
+                </DrawerHeader>
 
                 <div className="flex flex-col gap-6 overflow-y-auto px-4 pb-4 md:px-6">
                     {error ? (
@@ -1406,10 +1368,10 @@ function Composer(props: ComposerProps) {
                                     value={composer.botId}
                                     onValueChange={(v) => update('botId', v)}
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="Pick a bot…" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Pick a bot…" />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {bots.length === 0 ? (
                                             <div className="px-2 py-1.5 text-sm text-[var(--st-text-secondary)]">
                                                 No bots yet — connect one from
@@ -1417,12 +1379,12 @@ function Composer(props: ComposerProps) {
                                             </div>
                                         ) : (
                                             bots.map((b) => (
-                                                <ZoruSelectItem key={b._id} value={b._id}>
+                                                <SelectItem key={b._id} value={b._id}>
                                                     @{b.username || b.name}
-                                                </ZoruSelectItem>
+                                                </SelectItem>
                                             ))
                                         )}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         </div>
@@ -1877,8 +1839,8 @@ function Composer(props: ComposerProps) {
                         </Button>
                     )}
                 </div>
-            </ZoruDrawerContent>
-        </ZoruDrawer>
+            </DrawerContent>
+        </Drawer>
     );
 }
 
@@ -1924,7 +1886,7 @@ function DetailDrawer(props: DetailDrawerProps) {
         onCancel,
     } = props;
     const [exporting, setExporting] = React.useState(false);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const onExportCsv = async () => {
         if (!row) return;
         setExporting(true);
@@ -1950,9 +1912,9 @@ function DetailDrawer(props: DetailDrawerProps) {
     };
     if (!row) {
         return (
-            <ZoruDrawer open={open} onOpenChange={onOpenChange}>
-                <ZoruDrawerContent />
-            </ZoruDrawer>
+            <Drawer open={open} onOpenChange={onOpenChange}>
+                <DrawerContent />
+            </Drawer>
         );
     }
     const counters = row.counters ?? {};
@@ -1962,18 +1924,18 @@ function DetailDrawer(props: DetailDrawerProps) {
     const skipped = counters.skipped ?? 0;
 
     return (
-        <ZoruDrawer open={open} onOpenChange={onOpenChange}>
+        <Drawer open={open} onOpenChange={onOpenChange}>
             <TelegramProjectGate />
-            <ZoruDrawerContent className="max-h-[92vh]">
-                <ZoruDrawerHeader>
-                    <ZoruDrawerTitle className="flex items-center gap-2">
+            <DrawerContent className="max-h-[92vh]">
+                <DrawerHeader>
+                    <DrawerTitle className="flex items-center gap-2">
                         <Megaphone className="text-[var(--st-text)]" />
                         {row.name}
-                    </ZoruDrawerTitle>
-                    <ZoruDrawerDescription>
+                    </DrawerTitle>
+                    <DrawerDescription>
                         {botName} · created {fmtRelative(row.createdAt)}
-                    </ZoruDrawerDescription>
-                </ZoruDrawerHeader>
+                    </DrawerDescription>
+                </DrawerHeader>
 
                 <div className="flex flex-col gap-4 overflow-y-auto px-4 pb-4 md:px-6">
                     <div className="flex flex-wrap items-center gap-2">
@@ -2117,7 +2079,7 @@ function DetailDrawer(props: DetailDrawerProps) {
                         Close
                     </Button>
                 </div>
-            </ZoruDrawerContent>
-        </ZoruDrawer>
+            </DrawerContent>
+        </Drawer>
     );
 }

@@ -4,15 +4,7 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-    Button,
-    Card,
-    CardContent,
-    Input,
-    Label,
-    Textarea,
-    Switch,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, Input, Label, Textarea, Switch } from '@/components/sabcrm/20ui/compat';
 
 import {
     createSabmonitorStatusPage,

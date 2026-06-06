@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent as DialogContent,
-  ZoruDialogDescription as DialogDescription,
-  ZoruDialogHeader as DialogHeader,
-  ZoruDialogTitle as DialogTitle,
-  ZoruDialogTrigger as DialogTrigger,
-  Button,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, Button, Badge } from '@/components/sabcrm/20ui/compat';
 import { SeoPageAudit } from '@/lib/seo/definitions';
 import { ArrowRight, CheckCircle, AlertCircle, FilePlus, FileMinus } from 'lucide-react';
 import { useMemo } from 'react';

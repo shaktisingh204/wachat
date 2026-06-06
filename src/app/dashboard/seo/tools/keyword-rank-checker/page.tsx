@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { checkKeywordRankAction } from './action';
@@ -53,16 +53,16 @@ export default function KeywordRankCheckerPage() {
   return (
     <ToolShell title="Keyword Rank Checker" description="Check true keyword ranking for a domain using a SERP API.">
       <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30">
-        <ZoruCardContent className="p-3 text-xs">
+        <CardBody className="p-3 text-xs">
           Rank data requires a SERP API provider (DataForSEO, SerpApi, or ScaleSERP). Set DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD, SERPAPI_KEY, or SCALESERP_KEY environment variables. If no keys are provided, it will fallback to scraping a free SERP provider.
-        </ZoruCardContent>
+        </CardBody>
       </Card>
       
       {error && (
         <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white">
-          <ZoruCardContent className="p-3 text-sm">
+          <CardBody className="p-3 text-sm">
             {error}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
@@ -88,7 +88,7 @@ export default function KeywordRankCheckerPage() {
       {result && (
         <div className="space-y-4">
           <Card>
-            <ZoruCardContent className="p-6 text-center">
+            <CardBody className="p-6 text-center">
               {result.rank > 0 ? (
                 <>
                   <div className="text-5xl font-bold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
@@ -116,7 +116,7 @@ export default function KeywordRankCheckerPage() {
                   </div>
                 </>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
           
           {result.serpResults && result.serpResults.length > 0 && (
@@ -124,7 +124,7 @@ export default function KeywordRankCheckerPage() {
               <div className="p-4 border-b">
                 <h3 className="font-semibold text-lg">Top SERP Results</h3>
               </div>
-              <ZoruCardContent className="p-0">
+              <CardBody className="p-0">
                 <div className="divide-y">
                   {result.serpResults.map((item, idx) => (
                     <div 
@@ -160,7 +160,7 @@ export default function KeywordRankCheckerPage() {
                     </div>
                   ))}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
         </div>

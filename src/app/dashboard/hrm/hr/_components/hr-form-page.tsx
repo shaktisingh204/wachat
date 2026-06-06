@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -77,7 +66,7 @@ export function HrFormPage({
 }: HrFormPageProps) {
   void _Icon;
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, formAction, _isPending] = useActionState(saveAction, SAVE_INITIAL);
   void _isPending;
 
@@ -218,16 +207,16 @@ function renderField(field: HrField, raw?: unknown) {
   if (field.type === 'select') {
     return (
       <Select name={field.name} defaultValue={String(common.defaultValue || '')}>
-        <ZoruSelectTrigger id={field.name}>
-          <ZoruSelectValue placeholder={field.placeholder || 'Select'} />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger id={field.name}>
+          <SelectValue placeholder={field.placeholder || 'Select'} />
+        </SelectTrigger>
+        <SelectContent>
           {(field.options || []).map((opt) => (
-            <ZoruSelectItem key={opt.value} value={opt.value}>
+            <SelectItem key={opt.value} value={opt.value}>
               {opt.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
     );
   }
@@ -324,16 +313,16 @@ function FieldArray({
                           )
                         }
                       >
-                        <ZoruSelectTrigger id={fieldId}>
-                          <ZoruSelectValue placeholder={s.placeholder || 'Select'} />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger id={fieldId}>
+                          <SelectValue placeholder={s.placeholder || 'Select'} />
+                        </SelectTrigger>
+                        <SelectContent>
                           {(s.options || []).map((opt) => (
-                            <ZoruSelectItem key={opt.value} value={opt.value}>
+                            <SelectItem key={opt.value} value={opt.value}>
                               {opt.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                           ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                       </Select>
                     </div>
                   );

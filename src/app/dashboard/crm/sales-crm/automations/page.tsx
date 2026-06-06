@@ -14,30 +14,7 @@ import {
     X,
 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Checkbox,
-    DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -97,7 +74,7 @@ function formatDate(value: string | Date | undefined): string {
 }
 
 export default function AutomationsPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // List + KPIs
     const [items, setItems] = React.useState<CrmAutomationListItem[]>([]);
@@ -300,19 +277,19 @@ export default function AutomationsPage() {
                 primaryAction={
                     <div className="flex items-center gap-2">
                         <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm">
                                     <Download className="h-4 w-4" /> Export
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                                <ZoruDropdownMenuItem onSelect={() => exportRows('csv')}>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => exportRows('csv')}>
                                     Export as CSV
-                                </ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem onSelect={() => exportRows('xlsx')}>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => exportRows('xlsx')}>
                                     Export as XLSX
-                                </ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                         <Button asChild>
                             <Link href="/dashboard/crm/sales-crm/automations/new">
@@ -330,14 +307,14 @@ export default function AutomationsPage() {
                                 setPage(1);
                             }}
                         >
-                            <ZoruSelectTrigger className="w-[150px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All status</ZoruSelectItem>
-                                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                <ZoruSelectItem value="paused">Paused</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All status</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="paused">Paused</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Select
                             value={triggerFilter}
@@ -346,16 +323,16 @@ export default function AutomationsPage() {
                                 setPage(1);
                             }}
                         >
-                            <ZoruSelectTrigger className="w-[180px]">
-                                <ZoruSelectValue placeholder="Trigger" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Trigger" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {KNOWN_TRIGGERS.map((t) => (
-                                    <ZoruSelectItem key={t.value} value={t.value}>
+                                    <SelectItem key={t.value} value={t.value}>
                                         {t.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                         {hasActiveFilters ? (
                             <Button
@@ -480,9 +457,9 @@ export default function AutomationsPage() {
                     <Card className="p-0">
                         <div className="overflow-x-auto rounded-lg">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                        <ZoruTableHead className="w-10">
+                                <THead>
+                                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                        <Th className="w-10">
                                             <Checkbox
                                                 checked={allSelectedOnPage}
                                                 onCheckedChange={(c) =>
@@ -490,44 +467,44 @@ export default function AutomationsPage() {
                                                 }
                                                 aria-label="Select all"
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Name
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Trigger
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">
                                             Actions
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">
                                             Conditions
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">
                                             Runs
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Last run
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Status
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="w-10" />
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                        <Th className="w-10" />
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {items.map((a) => {
                                         const id = String(a._id);
                                         const isActive = Boolean(a.isActive);
                                         return (
-                                            <ZoruTableRow
+                                            <Tr
                                                 key={id}
                                                 className="border-[var(--st-border)]"
                                                 data-state={
                                                     selected.has(id) ? 'selected' : undefined
                                                 }
                                             >
-                                                <ZoruTableCell>
+                                                <Td>
                                                     <Checkbox
                                                         checked={selected.has(id)}
                                                         onCheckedChange={() =>
@@ -535,29 +512,29 @@ export default function AutomationsPage() {
                                                         }
                                                         aria-label={`Select ${a.name}`}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <EntityRowLink
                                                         href={`/dashboard/crm/sales-crm/automations/${id}`}
                                                         label={a.name || 'Untitled automation'}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {formatTrigger(a.trigger)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right text-[var(--st-text)]">
                                                     {Number(a.actionsCount ?? 0)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right text-[var(--st-text)]">
                                                     {Number(a.conditionsCount ?? 0)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right text-[var(--st-text)]">
                                                     {Number(a.runCount ?? 0)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text)]">
                                                     {formatDate(a.lastRunAt)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     {isActive ? (
                                                         <Badge variant="success">
                                                             Active
@@ -567,10 +544,10 @@ export default function AutomationsPage() {
                                                             Paused
                                                         </Badge>
                                                     )}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <DropdownMenu>
-                                                        <ZoruDropdownMenuTrigger asChild>
+                                                        <DropdownMenuTrigger asChild>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
@@ -578,31 +555,31 @@ export default function AutomationsPage() {
                                                             >
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
-                                                        </ZoruDropdownMenuTrigger>
-                                                        <ZoruDropdownMenuContent align="end">
-                                                            <ZoruDropdownMenuItem asChild>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuItem asChild>
                                                                 <Link
                                                                     href={`/dashboard/crm/sales-crm/automations/${id}`}
                                                                 >
                                                                     Edit
                                                                 </Link>
-                                                            </ZoruDropdownMenuItem>
-                                                            <ZoruDropdownMenuSeparator />
-                                                            <ZoruDropdownMenuItem
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem
                                                                 onSelect={() =>
                                                                     setDeleteTargetId(id)
                                                                 }
                                                                 className="text-[var(--st-danger)]"
                                                             >
                                                                 Delete
-                                                            </ZoruDropdownMenuItem>
-                                                        </ZoruDropdownMenuContent>
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
                                                     </DropdownMenu>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     </Card>

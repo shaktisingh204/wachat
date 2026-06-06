@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Progress,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Table, TBody, Td, Th, THead, Tr, Progress, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   Archive,
   Download,
@@ -229,35 +215,35 @@ export function ProjectsTable({
 
       <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-              <ZoruTableHead className="w-10">
+          <THead>
+            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+              <Th className="w-10">
                 <Checkbox
                   aria-label="Select all projects"
                   checked={allSelected}
                   onCheckedChange={(v) => toggleAll(Boolean(v))}
                 />
-              </ZoruTableHead>
-              <ZoruTableHead>Name</ZoruTableHead>
-              <ZoruTableHead>Client</ZoruTableHead>
-              <ZoruTableHead>Start</ZoruTableHead>
-              <ZoruTableHead>End</ZoruTableHead>
-              <ZoruTableHead className="text-right">Budget</ZoruTableHead>
-              <ZoruTableHead>Billable</ZoruTableHead>
-              <ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead>% Complete</ZoruTableHead>
-              <ZoruTableHead>Owner</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+              </Th>
+              <Th>Name</Th>
+              <Th>Client</Th>
+              <Th>Start</Th>
+              <Th>End</Th>
+              <Th className="text-right">Budget</Th>
+              <Th>Billable</Th>
+              <Th>Status</Th>
+              <Th>% Complete</Th>
+              <Th>Owner</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {rows.map((p) => {
               const overdue = isOverdue(p);
               const pct = Number(p.completionPercent ?? p.progress ?? 0);
               const priority = (p.priority ?? '').toLowerCase();
               const isChecked = selected.has(p._id);
               return (
-                <ZoruTableRow
+                <Tr
                   key={p._id}
                   className={[
                     'border-[var(--st-border)] transition-colors',
@@ -265,14 +251,14 @@ export function ProjectsTable({
                     isChecked ? 'bg-[var(--st-bg-secondary)]' : '',
                   ].join(' ')}
                 >
-                  <ZoruTableCell>
+                  <Td>
                     <Checkbox
                       aria-label={`Select ${p.name || p.projectName || 'project'}`}
                       checked={isChecked}
                       onCheckedChange={() => toggleOne(p._id)}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <EntityRowLink
                       href={`/dashboard/crm/projects/${p._id}`}
                       label={p.name || p.projectName || 'Untitled'}
@@ -285,8 +271,8 @@ export function ProjectsTable({
                         />
                       </span>
                     ) : null}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {p.clientId ? (
                       <EntityPickerChip
                         entity="client"
@@ -298,42 +284,42 @@ export function ProjectsTable({
                         {p.clientName || '—'}
                       </span>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {fmtDate(p.startDate)}
-                  </ZoruTableCell>
-                  <ZoruTableCell
+                  </Td>
+                  <Td
                     className={[
                       'text-[12.5px]',
                       overdue ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]',
                     ].join(' ')}
                   >
                     {fmtDate(p.deadline ?? p.endDate)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text)]">
+                  </Td>
+                  <Td className="text-right text-[12.5px] text-[var(--st-text)]">
                     {fmtMoney(
                       Number(p.projectBudget ?? p.budget ?? 0) || null,
                       p.currency ?? 'INR',
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {p.hoursAllocated ? `${p.hoursAllocated}h` : '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <StatusPill
                       label={p.status || 'not started'}
                       tone={statusToTone(p.status || '')}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="min-w-[120px]">
+                  </Td>
+                  <Td className="min-w-[120px]">
                     <div className="flex items-center gap-2">
                       <Progress value={pct} className="h-1.5 w-16" />
                       <span className="text-[12px] tabular-nums text-[var(--st-text-secondary)]">
                         {pct}%
                       </span>
                     </div>
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     {p.projectAdmin ? (
                       <EntityPickerChip
                         entity="user"
@@ -345,10 +331,10 @@ export function ProjectsTable({
                         {p.managerName || '—'}
                       </span>
                     )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild>
                         <button
                           type="button"
                           aria-label={`Actions for ${p.name}`}
@@ -356,31 +342,31 @@ export function ProjectsTable({
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem asChild>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
                           <Link href={`/dashboard/crm/projects/${p._id}`}>
                             <Eye className="mr-1.5 h-3.5 w-3.5" /> View
                           </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link href={`/dashboard/crm/projects/${p._id}`}>
                             <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
                           </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                           onClick={() => onDelete(p._id)}
                           className="text-[var(--st-danger)]"
                         >
                           <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
                     </DropdownMenu>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               );
             })}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </div>
     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Button, Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, Badge, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Badge, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { Radar, RefreshCw, Link2, Unlink } from 'lucide-react';
 import { AlertsDialog } from './alerts-dialog';
 import { useEffect, useState } from 'react';
@@ -44,11 +44,11 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
 
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Sentiment Score</ZoruCardTitle>
-            <ZoruCardDescription>AI Analysis of last 100 mentions</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Sentiment Score</CardTitle>
+            <CardDescription>AI Analysis of last 100 mentions</CardDescription>
+          </CardHeader>
+          <CardBody>
             {sentimentLoading ? (
               <Skeleton className="h-10 w-24 mb-1" />
             ) : (
@@ -57,14 +57,14 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
                 <p className="text-sm text-[var(--st-text-secondary)] mt-1">Positive Sentiment</p>
               </>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>New Mentions</ZoruCardTitle>
-            <ZoruCardDescription>Last 7 Days</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>New Mentions</CardTitle>
+            <CardDescription>Last 7 Days</CardDescription>
+          </CardHeader>
+          <CardBody>
             {sentimentLoading ? (
               <Skeleton className="h-10 w-24 mb-1" />
             ) : (
@@ -73,14 +73,14 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
                 <p className="text-sm text-[var(--st-text-secondary)] mt-1">{sentiment?.mentionsDiff} from previous week</p>
               </>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Share of Voice</ZoruCardTitle>
-            <ZoruCardDescription>vs Competitors</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Share of Voice</CardTitle>
+            <CardDescription>vs Competitors</CardDescription>
+          </CardHeader>
+          <CardBody>
             {sentimentLoading ? (
               <Skeleton className="h-10 w-24 mb-1" />
             ) : (
@@ -89,15 +89,15 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
                 <p className="text-sm text-[var(--st-text-secondary)] mt-1">{sentiment?.rankText}</p>
               </>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Recent Mentions (Social Listening)</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Recent Mentions (Social Listening)</CardTitle>
+        </CardHeader>
+        <CardBody>
           {mentionsLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-16 w-full" />
@@ -149,7 +149,7 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
               ))}
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

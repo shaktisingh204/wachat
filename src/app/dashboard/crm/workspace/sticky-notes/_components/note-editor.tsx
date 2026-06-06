@@ -16,17 +16,7 @@
 import * as React from 'react';
 import { Archive, ArchiveRestore, Pin, PinOff, Save, Trash2 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import {
   archiveSabnotebookNote,
   deleteSabnotebookNote,
@@ -246,16 +236,16 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
           value={body.kind}
           onValueChange={(v) => handleKindChange(v as SabnotebookNoteKind)}
         >
-          <ZoruSelectTrigger className="h-9 w-[130px]">
-            <ZoruSelectValue placeholder="Kind" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[130px]">
+            <SelectValue placeholder="Kind" />
+          </SelectTrigger>
+          <SelectContent>
             {NOTE_KINDS.map((k) => (
-              <ZoruSelectItem key={k.value} value={k.value}>
+              <SelectItem key={k.value} value={k.value}>
                 {k.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
         <Button
           variant="ghost"

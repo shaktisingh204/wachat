@@ -1,50 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn } from '@/components/sabcrm/20ui/compat';
 import {
   BookUser,
   Ban,
@@ -276,19 +232,19 @@ export default function Page() {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
         <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Contacts</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Contacts</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
         </Breadcrumb>
         <EmptyState
           icon={<Smartphone />}
@@ -308,19 +264,19 @@ export default function Page() {
     <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/sabwa">SabWa</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Contacts</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Contacts</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Header */}
@@ -351,7 +307,7 @@ export default function Page() {
 
       {/* Filter bar */}
       <Card>
-        <ZoruCardHeader className="gap-3">
+        <CardHeader className="gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative min-w-[220px] flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
@@ -364,32 +320,32 @@ export default function Page() {
               />
             </div>
             <Select value={tagFilter} onValueChange={setTagFilter}>
-              <ZoruSelectTrigger className="w-[180px]">
-                <ZoruSelectValue placeholder="All tags" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All tags</ZoruSelectItem>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All tags" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All tags</SelectItem>
                 {allTags.map((t) => (
-                  <ZoruSelectItem key={t} value={t}>
+                  <SelectItem key={t} value={t}>
                     {t}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Select
               value={sourceFilter}
               onValueChange={(v) => setSourceFilter(v as ContactSource | 'all')}
             >
-              <ZoruSelectTrigger className="w-[160px]">
-                <ZoruSelectValue placeholder="All sources" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="All sources" />
+              </SelectTrigger>
+              <SelectContent>
                 {SOURCES.map((s) => (
-                  <ZoruSelectItem key={s.value} value={s.value}>
+                  <SelectItem key={s.value} value={s.value}>
                     {s.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           {selected.size > 0 && (
@@ -420,12 +376,12 @@ export default function Page() {
               </Button>
             </div>
           )}
-        </ZoruCardHeader>
-        <ZoruCardContent className="p-0">
+        </CardHeader>
+        <CardBody className="p-0">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-10">
+            <THead>
+              <Tr>
+                <Th className="w-10">
                   <button
                     type="button"
                     aria-label="Select all"
@@ -438,26 +394,26 @@ export default function Page() {
                       <Square className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     )}
                   </button>
-                </ZoruTableHead>
-                <ZoruTableHead>Contact</ZoruTableHead>
-                <ZoruTableHead>Phone</ZoruTableHead>
-                <ZoruTableHead>Last interaction</ZoruTableHead>
-                <ZoruTableHead>Tags</ZoruTableHead>
-                <ZoruTableHead>Source</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th>Contact</Th>
+                <Th>Phone</Th>
+                <Th>Last interaction</Th>
+                <Th>Tags</Th>
+                <Th>Source</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {loading && contacts.length === 0 &&
                 Array.from({ length: 6 }).map((_, i) => (
-                  <ZoruTableRow key={`contacts-skeleton-${i}`}>
-                    <ZoruTableCell colSpan={6} className="py-2">
+                  <Tr key={`contacts-skeleton-${i}`}>
+                    <Td colSpan={6} className="py-2">
                       <Skeleton className="h-[56px] w-full rounded-[var(--st-radius-lg)]" />
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
               {!loading && contacts.length === 0 && (
-                <ZoruTableRow>
-                  <ZoruTableCell colSpan={6} className="py-8">
+                <Tr>
+                  <Td colSpan={6} className="py-8">
                     <EmptyState
                       icon={<Users />}
                       title="No contacts yet"
@@ -478,13 +434,13 @@ export default function Page() {
                         </div>
                       }
                     />
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               )}
               {contacts.map((c) => {
                 const checked = selected.has(c.id);
                 return (
-                  <ZoruTableRow
+                  <Tr
                     key={c.id}
                     className={cn(
                       'cursor-pointer',
@@ -492,7 +448,7 @@ export default function Page() {
                     )}
                     onClick={() => openContact(c)}
                   >
-                    <ZoruTableCell onClick={(e) => e.stopPropagation()}>
+                    <Td onClick={(e) => e.stopPropagation()}>
                       <button
                         type="button"
                         aria-label={`Select ${c.name ?? c.jid}`}
@@ -505,16 +461,16 @@ export default function Page() {
                           <Square className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         )}
                       </button>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
                           {c.profilePicUrl ? (
-                            <ZoruAvatarImage src={c.profilePicUrl} alt="" />
+                            <AvatarImage src={c.profilePicUrl} alt="" />
                           ) : null}
-                          <ZoruAvatarFallback className="text-xs">
+                          <AvatarFallback className="text-xs">
                             {initialsFromName(c.name ?? c.pushName)}
-                          </ZoruAvatarFallback>
+                          </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
@@ -532,14 +488,14 @@ export default function Page() {
                           </div>
                         </div>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-xs">
+                    </Td>
+                    <Td className="font-mono text-xs">
                       {c.phoneE164 ?? '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-sm text-[var(--st-text-secondary)]">
                       {formatRelative(c.lastInteractionAt)}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <div className="flex flex-wrap gap-1">
                         {c.tags.length === 0 && (
                           <span className="text-xs text-[var(--st-text-secondary)]">—</span>
@@ -555,21 +511,21 @@ export default function Page() {
                           </Badge>
                         )}
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge
                         variant="outline"
                         className="text-[10px] uppercase tracking-wide"
                       >
                         {c.source}
                       </Badge>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Detail drawer */}
@@ -588,13 +544,13 @@ export default function Page() {
 
       {/* Add contact dialog */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add contact</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add contact</DialogTitle>
+            <DialogDescription>
               Add a phone number that&apos;s not in your synced WhatsApp contacts.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="contact-name">Name</Label>
@@ -615,7 +571,7 @@ export default function Page() {
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setAddOpen(false)}>
               Cancel
             </Button>
@@ -630,27 +586,27 @@ export default function Page() {
             >
               Add contact
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       {/* Import CSV dialog */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Import contacts from CSV</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Import contacts from CSV</DialogTitle>
+            <DialogDescription>
               CSV columns: <code>name,phone,tags</code>. Phones must be E.164.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Input type="file" accept=".csv,text/csv" />
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setImportOpen(false)}>
               Cancel
             </Button>
             <Button onClick={() => setImportOpen(false)}>Import</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );
@@ -725,22 +681,22 @@ function ContactDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <ZoruSheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
-        <ZoruSheetHeader>
-          <ZoruSheetTitle>Contact</ZoruSheetTitle>
-          <ZoruSheetDescription>
+      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle>Contact</SheetTitle>
+          <SheetDescription>
             Profile, tags, notes, history.
-          </ZoruSheetDescription>
-        </ZoruSheetHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <div className="mt-4 flex items-center gap-3">
           <Avatar className="h-14 w-14">
             {contact.profilePicUrl ? (
-              <ZoruAvatarImage src={contact.profilePicUrl} alt="" />
+              <AvatarImage src={contact.profilePicUrl} alt="" />
             ) : null}
-            <ZoruAvatarFallback>
+            <AvatarFallback>
               {initialsFromName(contact.name ?? contact.pushName)}
-            </ZoruAvatarFallback>
+            </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
@@ -958,7 +914,7 @@ function ContactDrawer({
             </ul>
           </div>
         )}
-      </ZoruSheetContent>
+      </SheetContent>
     </Sheet>
   );
 }

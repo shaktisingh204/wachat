@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, useZoruToast, ZoruSelect, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { createGenerativeAIDraft, updateGenerativeAIDraftStatus, deleteGenerativeAIDraft } from '@/app/actions/platform/generative-ai-drafter.actions';
 import type { GenerativeAIDraft } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, CheckCircle, XCircle, Bot, Cpu, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -22,7 +22,7 @@ export default function GenerativeAIDrafterClientPage({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const [form, setForm] = useState<{ entityType: string, aiModel: 'gpt-4' | 'claude', prompt: string }>({ 
@@ -162,31 +162,31 @@ export default function GenerativeAIDrafterClientPage({
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-xl">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Generate AI Content</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Generate AI Content</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>AI Model</Label>
-              <ZoruSelect value={form.aiModel} onValueChange={(v: 'gpt-4' | 'claude') => setForm({ ...form, aiModel: v })}>
-                <ZoruSelectTrigger><ZoruSelectValue placeholder="Select AI Model" /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="gpt-4">GPT-4</ZoruSelectItem>
-                  <ZoruSelectItem value="claude">Claude</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <Select value={form.aiModel} onValueChange={(v: 'gpt-4' | 'claude') => setForm({ ...form, aiModel: v })}>
+                <SelectTrigger><SelectValue placeholder="Select AI Model" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gpt-4">GPT-4</SelectItem>
+                  <SelectItem value="claude">Claude</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid gap-2">
               <Label>Content Type</Label>
-              <ZoruSelect value={form.entityType} onValueChange={(v) => setForm({ ...form, entityType: v })}>
-                <ZoruSelectTrigger><ZoruSelectValue placeholder="Select type" /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="email">Email</ZoruSelectItem>
-                  <ZoruSelectItem value="proposal">Proposal</ZoruSelectItem>
-                  <ZoruSelectItem value="contract">Contract</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <Select value={form.entityType} onValueChange={(v) => setForm({ ...form, entityType: v })}>
+                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="proposal">Proposal</SelectItem>
+                  <SelectItem value="contract">Contract</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid gap-2">
               <Label>Prompt</Label>
@@ -198,13 +198,13 @@ export default function GenerativeAIDrafterClientPage({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleCreate} disabled={isPending}>
               {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : <Bot className="w-4 h-4 mr-2" />} Generate
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

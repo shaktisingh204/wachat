@@ -1,41 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Checkbox,
-  ZoruColorPicker,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruIconPicker,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Checkbox, ColorPicker, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, IconPicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -109,7 +74,7 @@ function ExpenseCategoryDialog({
 }) {
     const isEditing = !!initialData;
     const [state, formAction] = useActionState(saveExpenseCategory, saveInitialState);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [parentId, setParentId] = React.useState<string>(initialData?.parentId ?? '');
     const [defaultAccountId, setDefaultAccountId] = React.useState<string>(
@@ -153,7 +118,7 @@ function ExpenseCategoryDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-2xl">
+            <DialogContent className="sm:max-w-2xl">
                 <form action={formAction}>
                     {isEditing ? (
                         <input type="hidden" name="_id" value={initialData!._id} />
@@ -170,11 +135,11 @@ function ExpenseCategoryDialog({
                     <input type="hidden" name="color" value={color} />
                     <input type="hidden" name="icon" value={icon} />
 
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                    <DialogHeader>
+                        <DialogTitle>
                             {isEditing ? 'Edit' : 'Create new'} expense category
-                        </ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                        </DialogTitle>
+                    </DialogHeader>
 
                     <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
                         <div className="space-y-2 sm:col-span-2">
@@ -204,17 +169,17 @@ function ExpenseCategoryDialog({
                                 value={parentId || 'none'}
                                 onValueChange={(v) => setParentId(v === 'none' ? '' : v)}
                             >
-                                <ZoruSelectTrigger id="parentId">
-                                    <ZoruSelectValue placeholder="Top-level…" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="none">Top-level (none)</ZoruSelectItem>
+                                <SelectTrigger id="parentId">
+                                    <SelectValue placeholder="Top-level…" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Top-level (none)</SelectItem>
                                     {parentOptions.map((p) => (
-                                        <ZoruSelectItem key={p._id} value={p._id}>
+                                        <SelectItem key={p._id} value={p._id}>
                                             {p.name}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
 
@@ -290,12 +255,12 @@ function ExpenseCategoryDialog({
 
                         <div className="space-y-2">
                             <Label>Color</Label>
-                            <ZoruColorPicker value={color} onChange={setColor} />
+                            <ColorPicker value={color} onChange={setColor} />
                         </div>
 
                         <div className="space-y-2">
                             <Label>Icon</Label>
-                            <ZoruIconPicker value={icon} onChange={setIcon} color={color} />
+                            <IconPicker value={icon} onChange={setIcon} color={color} />
                         </div>
 
                         <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-3">
@@ -341,14 +306,14 @@ function ExpenseCategoryDialog({
                         </div>
                     </div>
 
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
                         <SubmitButton isEditing={isEditing} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -367,7 +332,7 @@ export default function ExpenseCategoriesPage() {
     const [pendingDelete, setPendingDelete] = React.useState<Category | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
     const [bulkPending, startBulkTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     // Selection
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -603,40 +568,40 @@ export default function ExpenseCategoriesPage() {
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[150px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[150px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All statuses</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="archived">Archived</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Select
                             value={billableFilter}
                             onValueChange={(v) => setBillableFilter(v as BoolFilter)}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[150px]">
-                                <ZoruSelectValue placeholder="Billable" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">Billable: any</ZoruSelectItem>
-                                <ZoruSelectItem value="true">Billable: yes</ZoruSelectItem>
-                                <ZoruSelectItem value="false">Billable: no</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[150px]">
+                                <SelectValue placeholder="Billable" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Billable: any</SelectItem>
+                                <SelectItem value="true">Billable: yes</SelectItem>
+                                <SelectItem value="false">Billable: no</SelectItem>
+                            </SelectContent>
                         </Select>
                         <Select
                             value={reimbursableFilter}
                             onValueChange={(v) => setReimbursableFilter(v as BoolFilter)}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[170px]">
-                                <ZoruSelectValue placeholder="Reimbursable" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">Reimbursable: any</ZoruSelectItem>
-                                <ZoruSelectItem value="true">Reimbursable: yes</ZoruSelectItem>
-                                <ZoruSelectItem value="false">Reimbursable: no</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger className="h-9 w-[170px]">
+                                <SelectValue placeholder="Reimbursable" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Reimbursable: any</SelectItem>
+                                <SelectItem value="true">Reimbursable: yes</SelectItem>
+                                <SelectItem value="false">Reimbursable: no</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                 }
@@ -676,7 +641,7 @@ export default function ExpenseCategoriesPage() {
                         >
                             Deactivate
                         </Button>
-                        <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+                        <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
                             <Button
                                 variant="destructive"
                                 size="sm"
@@ -686,19 +651,19 @@ export default function ExpenseCategoriesPage() {
                                 <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                 Delete selected
                             </Button>
-                            <ZoruAlertDialogContent>
-                                <ZoruAlertDialogHeader>
-                                    <ZoruAlertDialogTitle>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>
                                         Delete {selectedIds.length} category/categories?
-                                    </ZoruAlertDialogTitle>
-                                    <ZoruAlertDialogDescription>
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
                                         This will affect any expense records that reference these
                                         categories. This action cannot be undone.
-                                    </ZoruAlertDialogDescription>
-                                </ZoruAlertDialogHeader>
-                                <ZoruAlertDialogFooter>
-                                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                    <ZoruAlertDialogAction
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
                                         onClick={handleBulkDelete}
                                         disabled={bulkPending}
                                     >
@@ -706,10 +671,10 @@ export default function ExpenseCategoriesPage() {
                                             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                                         ) : null}
                                         Delete
-                                    </ZoruAlertDialogAction>
-                                </ZoruAlertDialogFooter>
-                            </ZoruAlertDialogContent>
-                        </ZoruAlertDialog>
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                         <Button
                             variant="ghost"
                             size="sm"
@@ -722,9 +687,9 @@ export default function ExpenseCategoriesPage() {
 
                 <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                <ZoruTableHead className="w-10">
+                        <THead>
+                            <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                <Th className="w-10">
                                     <Checkbox
                                         checked={allChecked}
                                         aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
@@ -732,51 +697,51 @@ export default function ExpenseCategoriesPage() {
                                         aria-label="Select all"
                                         disabled={filtered.length === 0}
                                     />
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Code</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Parent</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">Name</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Code</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Parent</Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">
                                     Tax %
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Reimbursable</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Billable</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">Reimbursable</Th>
+                                <Th className="text-[var(--st-text-secondary)]">Billable</Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">
                                     Max Amount
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                                <Th className="text-[var(--st-text-secondary)] text-right">
                                     Actions
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell colSpan={10} className="h-24 text-center">
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td colSpan={10} className="h-24 text-center">
                                         <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : filtered.length === 0 ? (
-                                <ZoruTableRow className="border-[var(--st-border)]">
-                                    <ZoruTableCell
+                                <Tr className="border-[var(--st-border)]">
+                                    <Td
                                         colSpan={10}
                                         className="h-24 text-center text-[var(--st-text-secondary)]"
                                     >
                                         No expense categories match this filter.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ) : (
                                 filtered.map((c) => (
-                                    <ZoruTableRow key={c._id} className="border-[var(--st-border)]">
-                                        <ZoruTableCell>
+                                    <Tr key={c._id} className="border-[var(--st-border)]">
+                                        <Td>
                                             <Checkbox
                                                 checked={selected.has(c._id)}
                                                 onCheckedChange={() => toggleOne(c._id)}
                                                 aria-label={`Select ${c.name}`}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="font-medium text-[var(--st-text)]">
                                             <RowDrawer
                                                 label={
                                                     <span className="inline-flex items-center gap-2">
@@ -839,42 +804,42 @@ export default function ExpenseCategoriesPage() {
                                                     </div>
                                                 </div>
                                             </RowDrawer>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="font-mono text-[var(--st-text)]">
                                             {c.code ?? '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-[var(--st-text)]">
                                             {c.parentId
                                                 ? parentNameById.get(c.parentId) ?? '—'
                                                 : '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right font-mono text-[var(--st-text)]">
                                             {typeof c.taxRate === 'number'
                                                 ? `${c.taxRate.toFixed(2)}%`
                                                 : '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <StatusPill
                                                 label={c.isReimbursable ? 'Yes' : 'No'}
                                                 tone={c.isReimbursable ? 'green' : 'neutral'}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <StatusPill
                                                 label={c.isBillable ? 'Yes' : 'No'}
                                                 tone={c.isBillable ? 'blue' : 'neutral'}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                        </Td>
+                                        <Td className="text-right font-mono text-[var(--st-text)]">
                                             {formatMoney(c.maxAmount)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <StatusPill
                                                 label={c.status === 'active' ? 'Active' : 'Archived'}
                                                 tone={c.status === 'active' ? 'green' : 'neutral'}
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
+                                        </Td>
+                                        <Td className="text-right">
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
@@ -891,30 +856,30 @@ export default function ExpenseCategoriesPage() {
                                             >
                                                 <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                             </Button>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))
                             )}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </div>
             </EntityListShell>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete expense category?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete expense category?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Deleting &ldquo;{pendingDelete?.name}&rdquo; will affect any
                             expense records that reference it. This action cannot be undone.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deletePending}
                         >
@@ -922,10 +887,10 @@ export default function ExpenseCategoriesPage() {
                                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                             ) : null}
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarRange,
   Download,
@@ -286,16 +286,16 @@ export function SoFiltersBar({
           onUpdate({ status: v === '__all' ? undefined : v, page: '1' })
         }
       >
-        <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-          <ZoruSelectValue placeholder="Status" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="h-9 w-[140px] text-[13px]">
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
           {STATUS_OPTIONS.map((o) => (
-            <ZoruSelectItem key={o.value || '__all'} value={o.value || '__all'}>
+            <SelectItem key={o.value || '__all'} value={o.value || '__all'}>
               {o.label}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
       <div className="w-[200px]">
         <EntityPicker
@@ -441,16 +441,16 @@ export function SoBulkBar({
       </Button>
       <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
       <Select onValueChange={(v) => onStatus(v as CrmSalesOrderStatus)}>
-        <ZoruSelectTrigger className="h-8 w-[150px] text-[12px]">
-          <ZoruSelectValue placeholder="Change status…" />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
+        <SelectTrigger className="h-8 w-[150px] text-[12px]">
+          <SelectValue placeholder="Change status…" />
+        </SelectTrigger>
+        <SelectContent>
           {STATUS_TRANSITIONS.map((s) => (
-            <ZoruSelectItem key={s} value={s}>
+            <SelectItem key={s} value={s}>
               {s}
-            </ZoruSelectItem>
+            </SelectItem>
           ))}
-        </ZoruSelectContent>
+        </SelectContent>
       </Select>
       <Button variant="outline" size="sm" onClick={onExport}>
         <Download className="h-3.5 w-3.5" /> Export CSV

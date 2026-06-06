@@ -1,30 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  Card,
-  ZoruCardContent as CardContent,
-  ZoruCardDescription as CardDescription,
-  ZoruCardHeader as CardHeader,
-  ZoruCardTitle as CardTitle,
-  Table,
-  ZoruTableBody as TableBody,
-  ZoruTableCell as TableCell,
-  ZoruTableHead as TableHead,
-  ZoruTableHeader as TableHeader,
-  ZoruTableRow as TableRow,
-  Skeleton,
-  useZoruToast,
-  Alert,
-  ZoruAlertDescription as AlertDescription,
-  ZoruAlertTitle as AlertTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Card, CardBody as CardContent, CardDescription, CardHeader, CardTitle, Table, TBody as TableBody, Td as TableCell, Th as TableHead, THead as TableHeader, Tr as TableRow, Skeleton, useToast, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -43,7 +19,7 @@ const LOGS_PER_PAGE = 15;
 
 function ReprocessButton({ logId, onReprocessComplete }: { logId: string; onReprocessComplete: () => void }) {
     const [isProcessing, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const onReprocess = () => {
         startTransition(async () => {
@@ -76,7 +52,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [selectedLog, setSelectedLog] = useState<WebhookLogListItem | null>(null);
     const [selectedLogPayload, setSelectedLogPayload] = useState<any | null>(null);
     const [loadingPayload, setLoadingPayload] = useState(false);
@@ -284,12 +260,12 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
             </CardContent>
 
             <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
-                <ZoruDialogContent className="max-w-3xl">
-                    <ZoruDialogHeader>
+                <DialogContent className="max-w-3xl">
+                    <DialogHeader>
                         <div className="flex justify-between items-start gap-4">
                             <div>
-                                <ZoruDialogTitle>Webhook Payload</ZoruDialogTitle>
-                                <ZoruDialogDescription>Full JSON payload received from Meta at {selectedLog ? new Date(selectedLog.createdAt).toLocaleString() : ''}</ZoruDialogDescription>
+                                <DialogTitle>Webhook Payload</DialogTitle>
+                                <DialogDescription>Full JSON payload received from Meta at {selectedLog ? new Date(selectedLog.createdAt).toLocaleString() : ''}</DialogDescription>
                             </div>
                             {selectedLogPayload && (
                                 <Button variant="outline" size="icon" onClick={() => handleCopyPayload(selectedLogPayload)}>
@@ -298,7 +274,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                                 </Button>
                             )}
                         </div>
-                    </ZoruDialogHeader>
+                    </DialogHeader>
                     <div className="mt-2 text-sm max-h-[60vh] overflow-y-auto">
                         {loadingPayload ? (
                             <div className="flex items-center justify-center p-8">
@@ -312,7 +288,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                             <div className="text-center text-[var(--st-text-secondary)] p-8">Could not load payload.</div>
                         )}
                     </div>
-                </ZoruDialogContent>
+                </DialogContent>
             </Dialog>
         </Card>
     );

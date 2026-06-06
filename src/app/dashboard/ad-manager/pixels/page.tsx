@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Skeleton,
-  Badge,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Card, CardBody, CardHeader, CardTitle, Skeleton, Badge, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   Target,
   Plus,
@@ -111,15 +95,15 @@ export default function PixelsPage() {
                             <RefreshCw className="h-4 w-4" />
                         </Button>
                         <Dialog open={open} onOpenChange={setOpen}>
-                            <ZoruDialogTrigger asChild>
+                            <DialogTrigger asChild>
                                 <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90">
                                     <Plus className="h-4 w-4 mr-1" /> Create pixel
                                 </Button>
-                            </ZoruDialogTrigger>
-                            <ZoruDialogContent>
-                                <ZoruDialogHeader>
-                                    <ZoruDialogTitle>Create Meta Pixel</ZoruDialogTitle>
-                                </ZoruDialogHeader>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Create Meta Pixel</DialogTitle>
+                                </DialogHeader>
                                 <div className="space-y-4 py-2">
                                     <div className="space-y-2">
                                         <Label>Pixel name</Label>
@@ -133,11 +117,11 @@ export default function PixelsPage() {
                                         </p>
                                     </div>
                                 </div>
-                                <ZoruDialogFooter>
+                                <DialogFooter>
                                     <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
                                     <Button onClick={handleCreate} disabled={!name.trim()}>Create</Button>
-                                </ZoruDialogFooter>
-                            </ZoruDialogContent>
+                                </DialogFooter>
+                            </DialogContent>
                         </Dialog>
                     </div>
                 }
@@ -149,7 +133,7 @@ export default function PixelsPage() {
                 </div>
             ) : pixels.length === 0 ? (
                 <Card className="border-dashed">
-                    <ZoruCardContent className="py-12 text-center space-y-3">
+                    <CardBody className="py-12 text-center space-y-3">
                         <Target className="h-10 w-10 mx-auto text-[var(--st-text-secondary)]" />
                         <p className="font-medium">No pixels yet</p>
                         <p className="text-sm text-[var(--st-text-secondary)]">Create your first pixel to start tracking website activities and optimizing ads.</p>
@@ -157,23 +141,23 @@ export default function PixelsPage() {
                             <Plus className="h-4 w-4 mr-2" />
                             Create Pixel
                         </Button>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : (
                 <div className="grid md:grid-cols-2 gap-4">
                     {pixels.map((p) => (
                         <Card key={p.id} className="transition-all hover:shadow-sm">
-                            <ZoruCardHeader className="pb-2">
-                                <ZoruCardTitle className="text-base flex items-center justify-between">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-base flex items-center justify-between">
                                     <span className="truncate pr-2" title={p.name}>{p.name}</span>
                                     {p.last_fired_time ? (
                                         <Badge variant="outline" className="text-[var(--st-text)] bg-[var(--st-bg-muted)] shrink-0">Active</Badge>
                                     ) : (
                                         <Badge variant="secondary" className="shrink-0 text-xs font-normal">No Recent Activity</Badge>
                                     )}
-                                </ZoruCardTitle>
-                            </ZoruCardHeader>
-                            <ZoruCardContent className="space-y-4 pt-0">
+                                </CardTitle>
+                            </CardHeader>
+                            <CardBody className="space-y-4 pt-0">
                                 <div className="flex flex-col gap-1.5">
                                     <Label className="text-[10px] text-[var(--st-text-secondary)] uppercase tracking-wider font-semibold">Pixel ID</Label>
                                     <div className="flex items-center gap-2 text-sm font-mono bg-[var(--st-bg-muted)]/50 px-2 py-1.5 rounded border border-[var(--st-border)]/50">
@@ -209,16 +193,16 @@ export default function PixelsPage() {
                                     </Button>
                                     
                                     <Dialog>
-                                        <ZoruDialogTrigger asChild>
+                                        <DialogTrigger asChild>
                                             <Button variant="outline" size="sm" className="flex-1 text-xs h-8">
                                                 <Code2 className="h-3.5 w-3.5 mr-1.5 text-[var(--st-text-secondary)]" />
                                                 Install Code
                                             </Button>
-                                        </ZoruDialogTrigger>
-                                        <ZoruDialogContent className="sm:max-w-xl">
-                                            <ZoruDialogHeader>
-                                                <ZoruDialogTitle>Install Pixel Base Code</ZoruDialogTitle>
-                                            </ZoruDialogHeader>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-xl">
+                                            <DialogHeader>
+                                                <DialogTitle>Install Pixel Base Code</DialogTitle>
+                                            </DialogHeader>
                                             <div className="space-y-4">
                                                 <p className="text-sm text-[var(--st-text-secondary)]">
                                                     Copy and paste this code at the bottom of the header section of your website, just above the <code className="bg-[var(--st-bg-muted)] px-1 py-0.5 rounded">&lt;/head&gt;</code> tag.
@@ -256,7 +240,7 @@ src="https://www.facebook.com/tr?id=${p.id}&ev=PageView&noscript=1"
                                                     </Button>
                                                 </div>
                                             </div>
-                                        </ZoruDialogContent>
+                                        </DialogContent>
                                     </Dialog>
 
                                     <Button
@@ -274,7 +258,7 @@ src="https://www.facebook.com/tr?id=${p.id}&ev=PageView&noscript=1"
                                         <Trash2 className="h-3.5 w-3.5" />
                                     </Button>
                                 </div>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     ))}
                 </div>

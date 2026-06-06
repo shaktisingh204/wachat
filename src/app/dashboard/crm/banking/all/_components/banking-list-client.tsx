@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import { Plus } from 'lucide-react';
 
 /**
@@ -57,7 +41,7 @@ const DEFAULT_FILTERS: FiltersState = {
 };
 
 export function BankingListClient(): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [rows, setRows] = React.useState<PaymentAccountRow[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
@@ -274,50 +258,50 @@ export function BankingListClient(): React.JSX.Element {
                     search={{ value: search, onChange: setSearch, placeholder: 'Search accounts…' }}
                     filters={
                         <div className="flex flex-wrap items-center gap-2">
-                            <ZoruSelect
+                            <Select
                                 value={filters.currency}
                                 onValueChange={(v) => setFilters({ ...filters, currency: v })}
                             >
-                                <ZoruSelectTrigger className="h-9 w-[150px]">
-                                    <ZoruSelectValue placeholder="Currency" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="all">All currencies</ZoruSelectItem>
+                                <SelectTrigger className="h-9 w-[150px]">
+                                    <SelectValue placeholder="Currency" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All currencies</SelectItem>
                                     {currencies.map((c) => (
-                                        <ZoruSelectItem key={c} value={c}>
+                                        <SelectItem key={c} value={c}>
                                             {c}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                                </SelectContent>
+                            </Select>
+                            <Select
                                 value={filters.status}
                                 onValueChange={(v) => setFilters({ ...filters, status: v as FiltersState['status'] })}
                             >
-                                <ZoruSelectTrigger className="h-9 w-[150px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="all">All status</ZoruSelectItem>
-                                    <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                    <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                                <SelectTrigger className="h-9 w-[150px]">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All status</SelectItem>
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <Select
                                 value={filters.defaultOnly}
                                 onValueChange={(v) =>
                                     setFilters({ ...filters, defaultOnly: v as FiltersState['defaultOnly'] })
                                 }
                             >
-                                <ZoruSelectTrigger className="h-9 w-[160px]">
-                                    <ZoruSelectValue placeholder="Default flag" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="all">Any default</ZoruSelectItem>
-                                    <ZoruSelectItem value="yes">Default only</ZoruSelectItem>
-                                    <ZoruSelectItem value="no">Non-default</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                <SelectTrigger className="h-9 w-[160px]">
+                                    <SelectValue placeholder="Default flag" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Any default</SelectItem>
+                                    <SelectItem value="yes">Default only</SelectItem>
+                                    <SelectItem value="no">Non-default</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     }
                     bulkBar={
@@ -372,51 +356,51 @@ export function BankingListClient(): React.JSX.Element {
                 </EntityListShell>
             </div>
 
-            <ZoruAlertDialog open={!!pendingRow} onOpenChange={(o) => !o && setPendingRow(null)}>
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete payment account?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+            <AlertDialog open={!!pendingRow} onOpenChange={(o) => !o && setPendingRow(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete payment account?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Deleting &ldquo;{pendingRow?.accountName}&rdquo; is permanent. Posted vouchers
                             referencing it will keep the historical reference.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleRowDelete} disabled={isPending}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleRowDelete} disabled={isPending}>
                             Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
-            <ZoruAlertDialog open={!!confirmBulk} onOpenChange={(o) => !o && setConfirmBulk(null)}>
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+            <AlertDialog open={!!confirmBulk} onOpenChange={(o) => !o && setConfirmBulk(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             {confirmBulk === 'delete'
                                 ? `Delete ${selection.size} accounts?`
                                 : confirmBulk === 'archive'
                                   ? `Archive ${selection.size} accounts?`
                                   : `Activate ${selection.size} accounts?`}
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             {confirmBulk === 'delete'
                                 ? 'Make sure none of these accounts are referenced by recurring payments.'
                                 : 'You can reverse this from the bulk bar at any time.'}
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={() => confirmBulk && handleBulk(confirmBulk)}
                             disabled={isPending}
                         >
                             Confirm
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

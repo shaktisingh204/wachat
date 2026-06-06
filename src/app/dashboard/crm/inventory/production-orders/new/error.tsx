@@ -1,15 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
 
 export default function NewProductionOrderError({
@@ -26,32 +18,32 @@ export default function NewProductionOrderError({
 
   return (
     <div className="flex min-h-[400px] items-center justify-center p-6">
-      <ZoruCard className="w-full max-w-md border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/10">
-        <ZoruCardHeader>
+      <Card className="w-full max-w-md border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/10">
+        <CardHeader>
           <div className="flex items-center gap-2 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
             <AlertCircle className="h-5 w-5" />
-            <ZoruCardTitle>Something went wrong!</ZoruCardTitle>
+            <CardTitle>Something went wrong!</CardTitle>
           </div>
-          <ZoruCardDescription className="text-[var(--st-text)]/80 dark:text-[var(--st-text-secondary)]/80">
+          <CardDescription className="text-[var(--st-text)]/80 dark:text-[var(--st-text-secondary)]/80">
             An error occurred while loading the production order form.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
           <p className="text-sm text-[var(--st-text)]/80 dark:text-[var(--st-text-secondary)]/80">
             {error.message || 'Unknown error occurred. Please try again later.'}
           </p>
-        </ZoruCardContent>
-        <ZoruCardFooter>
-          <ZoruButton
+        </CardBody>
+        <CardFooter>
+          <Button
             variant="destructive"
             onClick={reset}
             className="w-full gap-2"
           >
             <RefreshCcw className="h-4 w-4" />
             Try again
-          </ZoruButton>
-        </ZoruCardFooter>
-      </ZoruCard>
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

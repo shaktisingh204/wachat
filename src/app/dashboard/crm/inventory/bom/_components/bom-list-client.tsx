@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Factory,
@@ -80,7 +80,7 @@ export function BomListClient({ initialBoms, initialKpis }: BomListClientProps) 
     const router = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const { boms } = useBomWebsocket(initialBoms);
     const [kpis] = React.useState(initialKpis);

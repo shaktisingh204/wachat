@@ -7,14 +7,7 @@
  */
 import { notFound } from 'next/navigation';
 
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { resolveEmbedAction } from '@/app/actions/analytics-bi.actions';
 
 export const dynamic = 'force-dynamic';

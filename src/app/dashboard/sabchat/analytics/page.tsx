@@ -1,45 +1,6 @@
 "use client";
 
-import {
-  cn,
-  ZORU_CHART_PALETTE,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  StatCard,
-  Button,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruPageActions,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { cn, ZORU_CHART_PALETTE, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Card, CardBody, CardHeader, CardTitle, ZoruChart, ChartContainer, ChartTooltip, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, Button, Table, TBody, Td, Th, THead, Tr, Avatar, AvatarFallback, PageActions, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Badge } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -139,52 +100,52 @@ export default function SabChatAnalyticsPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/sabchat/inbox">
               SabChat
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Analytics</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Advanced Analytics</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Advanced Analytics</PageTitle>
+          <PageDescription>
             Comprehensive insights into your support operations and visitor satisfaction.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions className="flex items-center gap-3">
-          <ZoruDropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+          </PageDescription>
+        </PageHeading>
+        <PageActions className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline">
                 <Calendar className="mr-2 h-4 w-4" />
                 {dateRange}
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuItem onClick={() => setDateRange("Today")}>Today</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onClick={() => setDateRange("Yesterday")}>Yesterday</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onClick={() => setDateRange("Last 7 Days")}>Last 7 Days</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onClick={() => setDateRange("Last 30 Days")}>Last 30 Days</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem>Custom Range...</ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setDateRange("Today")}>Today</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDateRange("Yesterday")}>Yesterday</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDateRange("Last 7 Days")}>Last 7 Days</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDateRange("Last 30 Days")}>Last 30 Days</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Custom Range...</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button>
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {isLoading || !data ? (
@@ -244,68 +205,68 @@ export default function SabChatAnalyticsPage() {
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Main Volume Chart */}
             <Card className="lg:col-span-2">
-              <ZoruCardHeader>
-                <ZoruCardTitle>Chat Volume vs Resolution</ZoruCardTitle>
-                <ZoruPageDescription>Daily total incoming conversations and resolved chats.</ZoruPageDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent>
-                <ZoruChartContainer height={300}>
+              <CardHeader>
+                <CardTitle>Chat Volume vs Resolution</CardTitle>
+                <PageDescription>Daily total incoming conversations and resolved chats.</PageDescription>
+              </CardHeader>
+              <CardBody>
+                <ChartContainer height={300}>
                   <ZoruChart.AreaChart data={data.dailyChatVolume}>
                     <ZoruChart.CartesianGrid vertical={false} stroke="var(--st-border)" strokeDasharray="3 3" />
                     <ZoruChart.XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="var(--st-text-secondary)" />
                     <ZoruChart.YAxis tickLine={false} axisLine={false} fontSize={11} stroke="var(--st-text-secondary)" />
-                    <ZoruChart.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ZoruChartTooltip />} />
+                    <ZoruChart.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ChartTooltip />} />
                     <ZoruChart.Area type="monotone" dataKey="count" name="Total Chats" stroke={ZORU_CHART_PALETTE[0]} fill={ZORU_CHART_PALETTE[0]} fillOpacity={0.2} strokeWidth={2} />
                   </ZoruChart.AreaChart>
-                </ZoruChartContainer>
-              </ZoruCardContent>
+                </ChartContainer>
+              </CardBody>
             </Card>
 
             {/* CSAT Distribution */}
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>CSAT Breakdown</ZoruCardTitle>
-                <ZoruPageDescription>Customer feedback ratings distribution.</ZoruPageDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex flex-col items-center justify-center">
-                <ZoruChartContainer height={220}>
+              <CardHeader>
+                <CardTitle>CSAT Breakdown</CardTitle>
+                <PageDescription>Customer feedback ratings distribution.</PageDescription>
+              </CardHeader>
+              <CardBody className="flex flex-col items-center justify-center">
+                <ChartContainer height={220}>
                   <ZoruChart.PieChart>
-                    <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                    <ZoruChart.Tooltip content={<ChartTooltip />} />
                     <ZoruChart.Pie data={MOCK_CSAT_DATA} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
                     </ZoruChart.Pie>
                   </ZoruChart.PieChart>
-                </ZoruChartContainer>
+                </ChartContainer>
                 <div className="flex gap-4 mt-4 w-full justify-center">
                   <div className="flex items-center gap-1.5"><Smile className="h-4 w-4 text-[var(--st-status-ok)]" /><span className="text-sm font-medium">75%</span></div>
                   <div className="flex items-center gap-1.5"><Meh className="h-4 w-4 text-[var(--st-warn)]" /><span className="text-sm font-medium">15%</span></div>
                   <div className="flex items-center gap-1.5"><Frown className="h-4 w-4 text-[var(--st-danger)]" /><span className="text-sm font-medium">10%</span></div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Top Tags */}
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Top Tags</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent>
-                <ZoruChartContainer height={220}>
+              <CardHeader>
+                <CardTitle>Top Tags</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <ChartContainer height={220}>
                   <ZoruChart.PieChart>
-                    <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                    <ZoruChart.Tooltip content={<ChartTooltip />} />
                     <ZoruChart.Pie data={MOCK_TAGS_DATA} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} />
                   </ZoruChart.PieChart>
-                </ZoruChartContainer>
-              </ZoruCardContent>
+                </ChartContainer>
+              </CardBody>
             </Card>
 
             {/* Device Breakdown */}
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Device Breakdown</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex flex-col justify-center h-[260px]">
+              <CardHeader>
+                <CardTitle>Device Breakdown</CardTitle>
+              </CardHeader>
+              <CardBody className="flex flex-col justify-center h-[260px]">
                 <div className="space-y-6">
                   <div>
                     <div className="flex justify-between text-sm mb-2 font-medium">
@@ -326,24 +287,24 @@ export default function SabChatAnalyticsPage() {
                     </div>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             {/* Heatmap Mock */}
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Busiest Hours</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent>
-                <ZoruChartContainer height={220}>
+              <CardHeader>
+                <CardTitle>Busiest Hours</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <ChartContainer height={220}>
                   <ZoruChart.BarChart data={MOCK_HOURS_HEATMAP}>
                     <ZoruChart.XAxis dataKey="day" tickLine={false} axisLine={false} fontSize={10} stroke="var(--st-text-secondary)" />
-                    <ZoruChart.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ZoruChartTooltip />} />
+                    <ZoruChart.Tooltip cursor={{ fill: "var(--st-bg-secondary)" }} content={<ChartTooltip />} />
                     <ZoruChart.Bar dataKey="h12" name="Noon chats" fill={ZORU_CHART_PALETTE[1]} radius={[2, 2, 0, 0]} stackId="a" />
                     <ZoruChart.Bar dataKey="h15" name="Afternoon chats" fill={ZORU_CHART_PALETTE[0]} radius={[2, 2, 0, 0]} stackId="a" />
                   </ZoruChart.BarChart>
-                </ZoruChartContainer>
-              </ZoruCardContent>
+                </ChartContainer>
+              </CardBody>
             </Card>
           </div>
 
@@ -351,45 +312,45 @@ export default function SabChatAnalyticsPage() {
           <Card className="overflow-hidden p-0">
             <div className="p-5 border-b border-[var(--st-border)] flex items-center justify-between">
               <div>
-                <ZoruCardTitle>Agent Performance Leaderboard</ZoruCardTitle>
-                <ZoruPageDescription className="mt-1">Resolution metrics broken down by individual agent.</ZoruPageDescription>
+                <CardTitle>Agent Performance Leaderboard</CardTitle>
+                <PageDescription className="mt-1">Resolution metrics broken down by individual agent.</PageDescription>
               </div>
             </div>
             <Table>
-              <ZoruTableHeader className="bg-[var(--st-bg-muted)]/30">
-                <ZoruTableRow>
-                  <ZoruTableHead>Agent</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Chats Resolved</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Avg Response Time</ZoruTableHead>
-                  <ZoruTableHead className="text-right">CSAT</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead className="bg-[var(--st-bg-muted)]/30">
+                <Tr>
+                  <Th>Agent</Th>
+                  <Th className="text-right">Chats Resolved</Th>
+                  <Th className="text-right">Avg Response Time</Th>
+                  <Th className="text-right">CSAT</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {MOCK_AGENTS.map((agent, i) => (
-                  <ZoruTableRow key={i}>
-                    <ZoruTableCell>
+                  <Tr key={i}>
+                    <Td>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
-                          <ZoruAvatarFallback>{agent.name.charAt(0)}</ZoruAvatarFallback>
+                          <AvatarFallback>{agent.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="font-medium text-[var(--st-text)]">{agent.name}</div>
                           <div className="text-xs text-[var(--st-text-secondary)]">{agent.email}</div>
                         </div>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right font-medium">{agent.chats}</ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[var(--st-text-secondary)]">{agent.time}</ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right font-medium">{agent.chats}</Td>
+                    <Td className="text-right text-[var(--st-text-secondary)]">{agent.time}</Td>
+                    <Td className="text-right">
                       <Badge variant="outline" className={cn(
                         agent.csat > 90 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]" : "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]"
                       )}>
                         {agent.csat}%
                       </Badge>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </Card>
         </>

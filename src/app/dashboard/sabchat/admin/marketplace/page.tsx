@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { listMarketplaceApps } from '@/app/actions/sabchat-admin.actions';
 import { AdminMarketplaceClient } from './_components/admin-marketplace-client';
 
@@ -10,12 +10,12 @@ export default async function AdminMarketplacePage() {
 
     return (
         <Card className="flex-1 flex flex-col min-h-0 border-0 rounded-none shadow-none">
-            <ZoruCardHeader>
-                <ZoruCardTitle>Marketplace</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex-1 overflow-y-auto">
+            <CardHeader>
+                <CardTitle>Marketplace</CardTitle>
+            </CardHeader>
+            <CardBody className="flex-1 overflow-y-auto">
                 <AdminMarketplaceClient initialData={apps} />
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

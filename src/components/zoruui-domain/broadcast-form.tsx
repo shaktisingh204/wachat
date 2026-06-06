@@ -1,26 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadioGroup, ZoruRadioGroupItem, Popover, PopoverContent, PopoverTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Papa from 'papaparse';
@@ -383,16 +363,16 @@ export function BroadcastForm({
             value={selectedPhoneNumber}
             onValueChange={setSelectedPhoneNumber}
           >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Choose a number…" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose a number…" />
+            </SelectTrigger>
+            <SelectContent>
               {(activeProject?.phoneNumbers || []).map((phone) => (
-                <ZoruSelectItem key={phone.id} value={phone.id}>
+                <SelectItem key={phone.id} value={phone.id}>
                   {phone.display_phone_number} · {phone.verified_name}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
       </div>
@@ -411,13 +391,13 @@ export function BroadcastForm({
             value={selectedTemplate?._id.toString() || ''}
             onValueChange={handleTemplateChange}
           >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Choose an approved template…" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose an approved template…" />
+            </SelectTrigger>
+            <SelectContent>
               {approvedTemplates.length > 0 ? (
                 approvedTemplates.map((template) => (
-                  <ZoruSelectItem
+                  <SelectItem
                     key={template._id.toString()}
                     value={template._id.toString()}
                   >
@@ -427,7 +407,7 @@ export function BroadcastForm({
                         ? template.status.replace(/_/g, ' ').toLowerCase()
                         : 'n/a'}
                     </span>
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))
               ) : (
                 <div className="px-2 py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
@@ -435,7 +415,7 @@ export function BroadcastForm({
                   one.
                 </div>
               )}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         ) : (
           <Select
@@ -443,25 +423,25 @@ export function BroadcastForm({
             value={selectedFlow?._id.toString() || ''}
             onValueChange={handleFlowChange}
           >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Choose a flow…" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose a flow…" />
+            </SelectTrigger>
+            <SelectContent>
               {metaFlows.length > 0 ? (
                 metaFlows.map((flow) => (
-                  <ZoruSelectItem
+                  <SelectItem
                     key={flow._id.toString()}
                     value={flow._id.toString()}
                   >
                     {flow.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))
               ) : (
                 <div className="px-2 py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
                   No flows found. Sync with Meta or create a new one.
                 </div>
               )}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         )}
       </div>
@@ -628,7 +608,7 @@ export function BroadcastForm({
               Contact tags
             </Label>
             <Popover>
-              <ZoruPopoverTrigger asChild>
+              <PopoverTrigger asChild>
                 <button
                   type="button"
                   role="combobox"
@@ -645,20 +625,20 @@ export function BroadcastForm({
                   </span>
                   <LuChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                 </button>
-              </ZoruPopoverTrigger>
-              <ZoruPopoverContent
+              </PopoverTrigger>
+              <PopoverContent
                 className="w-[--radix-popover-trigger-width] p-0"
                 align="start"
               >
-                <ZoruCommand>
-                  <ZoruCommandInput placeholder="Search tags…" />
-                  <ZoruCommandList>
-                    <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
-                    <ZoruCommandGroup>
+                <Command>
+                  <CommandInput placeholder="Search tags…" />
+                  <CommandList>
+                    <CommandEmpty>No tags found.</CommandEmpty>
+                    <CommandGroup>
                       {(activeProject?.tags || []).map((tag: Tag) => {
                         const isSelected = selectedTagIds.includes(tag._id);
                         return (
-                          <ZoruCommandItem
+                          <CommandItem
                             key={tag._id}
                             value={tag.name}
                             onSelect={() => {
@@ -688,13 +668,13 @@ export function BroadcastForm({
                               style={{ backgroundColor: tag.color }}
                             />
                             <span>{tag.name}</span>
-                          </ZoruCommandItem>
+                          </CommandItem>
                         );
                       })}
-                    </ZoruCommandGroup>
-                  </ZoruCommandList>
-                </ZoruCommand>
-              </ZoruPopoverContent>
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
             </Popover>
             <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
               Send this broadcast to every contact matching one or more of

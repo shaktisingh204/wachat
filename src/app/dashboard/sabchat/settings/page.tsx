@@ -1,40 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Skeleton,
-  Switch,
-  Textarea,
-  zoruSonnerToast,
-  Tabs,
-  ZoruTabsList,
-  ZoruTabsTrigger,
-  ZoruTabsContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Checkbox, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Switch, Textarea, zoruSonnerToast, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -154,8 +120,8 @@ export default function SabchatSettingsPage() {
             <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
                 <Alert variant="destructive">
                     <AlertCircle />
-                    <ZoruAlertTitle>Could not load SabChat settings</ZoruAlertTitle>
-                    <ZoruAlertDescription>{loadError}</ZoruAlertDescription>
+                    <AlertTitle>Could not load SabChat settings</AlertTitle>
+                    <AlertDescription>{loadError}</AlertDescription>
                 </Alert>
             </div>
         );
@@ -166,33 +132,33 @@ export default function SabchatSettingsPage() {
     return (
         <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">SabChat</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/sabchat/inbox">SabChat</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Settings</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <PageHeader className="mt-5" bordered={false}>
-                <ZoruPageHeading>
+                <PageHeading>
                     {activeProject?.name ? (
                         <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
                             Project · {activeProject.name}
                         </p>
                     ) : null}
-                    <ZoruPageTitle>Workspace Settings</ZoruPageTitle>
-                    <ZoruPageDescription>
+                    <PageTitle>Workspace Settings</PageTitle>
+                    <PageDescription>
                         Advanced configuration for routing, business hours, SLA, security, and webhooks.
-                    </ZoruPageDescription>
-                </ZoruPageHeading>
+                    </PageDescription>
+                </PageHeading>
                 <div className="flex items-center gap-2">
                     <Badge variant="outline" className="gap-1.5 bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] font-mono text-xs">
                         Last saved: {formatTimestamp(settings.updatedAt)}
@@ -201,16 +167,16 @@ export default function SabchatSettingsPage() {
             </PageHeader>
 
             <Tabs defaultValue="general" className="mt-6">
-                <ZoruTabsList className="w-full justify-start border-b rounded-none px-0 h-12 bg-transparent mb-6 overflow-x-auto">
-                    <ZoruTabsTrigger value="general" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">General</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="hours" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Business Hours</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="routing" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Routing & SLA</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="security" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Security & Data</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="webhooks" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Webhooks</ZoruTabsTrigger>
-                </ZoruTabsList>
+                <TabsList className="w-full justify-start border-b rounded-none px-0 h-12 bg-transparent mb-6 overflow-x-auto">
+                    <TabsTrigger value="general" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">General</TabsTrigger>
+                    <TabsTrigger value="hours" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Business Hours</TabsTrigger>
+                    <TabsTrigger value="routing" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Routing & SLA</TabsTrigger>
+                    <TabsTrigger value="security" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Security & Data</TabsTrigger>
+                    <TabsTrigger value="webhooks" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Webhooks</TabsTrigger>
+                </TabsList>
 
                 {/* GENERAL TAB */}
-                <ZoruTabsContent value="general" className="space-y-6 m-0 outline-none">
+                <TabsContent value="general" className="space-y-6 m-0 outline-none">
                     <ChannelsSection
                         value={settings.channels}
                         onChange={(channels) => setSettings({ ...settings, channels })}
@@ -229,14 +195,14 @@ export default function SabchatSettingsPage() {
                             <div className="grid gap-1.5">
                                 <Label>Rating Scale Type</Label>
                                 <Select defaultValue="smileys">
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue placeholder="Select scale" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="smileys">Smileys (3-point)</ZoruSelectItem>
-                                        <ZoruSelectItem value="stars">Stars (5-point)</ZoruSelectItem>
-                                        <ZoruSelectItem value="nps">NPS Score (0-10)</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select scale" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="smileys">Smileys (3-point)</SelectItem>
+                                        <SelectItem value="stars">Stars (5-point)</SelectItem>
+                                        <SelectItem value="nps">NPS Score (0-10)</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="grid gap-1.5">
@@ -252,10 +218,10 @@ export default function SabchatSettingsPage() {
                         onSave={() => commitSave('notifications', { notifications: settings.notifications }, 'Notifications')}
                         saving={savingSection === 'notifications'}
                     />
-                </ZoruTabsContent>
+                </TabsContent>
 
                 {/* HOURS TAB */}
-                <ZoruTabsContent value="hours" className="space-y-6 m-0 outline-none">
+                <TabsContent value="hours" className="space-y-6 m-0 outline-none">
                     <WorkingHoursSection
                         value={settings.workingHours}
                         onChange={(workingHours) => setSettings({ ...settings, workingHours })}
@@ -268,10 +234,10 @@ export default function SabchatSettingsPage() {
                         onSave={() => commitSave('autoresponder', { autoresponder: settings.autoresponder }, 'Autoresponder')}
                         saving={savingSection === 'autoresponder'}
                     />
-                </ZoruTabsContent>
+                </TabsContent>
 
                 {/* ROUTING TAB */}
-                <ZoruTabsContent value="routing" className="space-y-6 m-0 outline-none">
+                <TabsContent value="routing" className="space-y-6 m-0 outline-none">
                     <RoutingSection
                         value={settings.routing}
                         onChange={(routing) => setSettings({ ...settings, routing })}
@@ -295,13 +261,13 @@ export default function SabchatSettingsPage() {
                                 <div className="grid gap-1.5 flex-1">
                                     <Label>Assign to Team</Label>
                                     <Select defaultValue="sales">
-                                        <ZoruSelectTrigger>
-                                            <ZoruSelectValue placeholder="Team" />
-                                        </ZoruSelectTrigger>
-                                        <ZoruSelectContent>
-                                            <ZoruSelectItem value="sales">Sales Team</ZoruSelectItem>
-                                            <ZoruSelectItem value="support">Support Team</ZoruSelectItem>
-                                        </ZoruSelectContent>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Team" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="sales">Sales Team</SelectItem>
+                                            <SelectItem value="support">Support Team</SelectItem>
+                                        </SelectContent>
                                     </Select>
                                 </div>
                                 <Button variant="outline" className="text-[var(--st-text)]">Remove</Button>
@@ -324,14 +290,14 @@ export default function SabchatSettingsPage() {
                                     <p className="text-xs text-[var(--st-text-secondary)]">Warn agents if no reply in...</p>
                                 </div>
                                 <Select defaultValue="5m">
-                                    <ZoruSelectTrigger className="w-24">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="2m">2 mins</ZoruSelectItem>
-                                        <ZoruSelectItem value="5m">5 mins</ZoruSelectItem>
-                                        <ZoruSelectItem value="15m">15 mins</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger className="w-24">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="2m">2 mins</SelectItem>
+                                        <SelectItem value="5m">5 mins</SelectItem>
+                                        <SelectItem value="15m">15 mins</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="flex items-center justify-between p-3 border border-[var(--st-border)] rounded-[var(--st-radius)]">
@@ -340,22 +306,22 @@ export default function SabchatSettingsPage() {
                                     <p className="text-xs text-[var(--st-text-secondary)]">Warn if chat open for...</p>
                                 </div>
                                 <Select defaultValue="1h">
-                                    <ZoruSelectTrigger className="w-24">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="30m">30 mins</ZoruSelectItem>
-                                        <ZoruSelectItem value="1h">1 hour</ZoruSelectItem>
-                                        <ZoruSelectItem value="24h">24 hours</ZoruSelectItem>
-                                    </ZoruSelectContent>
+                                    <SelectTrigger className="w-24">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="30m">30 mins</SelectItem>
+                                        <SelectItem value="1h">1 hour</SelectItem>
+                                        <SelectItem value="24h">24 hours</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         </div>
                     </Card>
-                </ZoruTabsContent>
+                </TabsContent>
 
                 {/* SECURITY TAB */}
-                <ZoruTabsContent value="security" className="space-y-6 m-0 outline-none">
+                <TabsContent value="security" className="space-y-6 m-0 outline-none">
                     <Card className="p-6">
                         <div className="flex items-start justify-between gap-4">
                             <SectionHeader title="IP & Country Blocking" description="Prevent specific IP addresses or countries from loading the chat widget." icon={<Shield className="h-4 w-4" />} />
@@ -389,29 +355,29 @@ export default function SabchatSettingsPage() {
                                 <p className="text-xs text-[var(--st-text-secondary)] mt-1">This action is irreversible.</p>
                             </div>
                             <Select defaultValue="90">
-                                <ZoruSelectTrigger className="w-32 bg-[var(--st-bg)]">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="never">Never (Keep forever)</ZoruSelectItem>
-                                    <ZoruSelectItem value="30">30 Days</ZoruSelectItem>
-                                    <ZoruSelectItem value="90">90 Days</ZoruSelectItem>
-                                    <ZoruSelectItem value="365">1 Year</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger className="w-32 bg-[var(--st-bg)]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="never">Never (Keep forever)</SelectItem>
+                                    <SelectItem value="30">30 Days</SelectItem>
+                                    <SelectItem value="90">90 Days</SelectItem>
+                                    <SelectItem value="365">1 Year</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                     </Card>
-                </ZoruTabsContent>
+                </TabsContent>
 
                 {/* WEBHOOKS TAB */}
-                <ZoruTabsContent value="webhooks" className="m-0 outline-none">
+                <TabsContent value="webhooks" className="m-0 outline-none">
                     <WebhooksSection
                         value={settings.webhooks}
                         onChange={(webhooks) => setSettings({ ...settings, webhooks })}
                         onSave={() => commitSave('webhooks', { webhooks: settings.webhooks }, 'Webhooks')}
                         saving={savingSection === 'webhooks'}
                     />
-                </ZoruTabsContent>
+                </TabsContent>
 
             </Tabs>
         </div>
@@ -492,10 +458,10 @@ function WorkingHoursSection({
                 <div className="grid gap-1.5">
                     <Label htmlFor="wh-timezone">Timezone</Label>
                     <Select value={value.timezone} onValueChange={(tz) => onChange({ ...value, timezone: tz })}>
-                        <ZoruSelectTrigger id="wh-timezone"><ZoruSelectValue placeholder="Pick a timezone" /></ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {TIMEZONES.map((tz) => <ZoruSelectItem key={tz} value={tz}>{tz}</ZoruSelectItem>)}
-                        </ZoruSelectContent>
+                        <SelectTrigger id="wh-timezone"><SelectValue placeholder="Pick a timezone" /></SelectTrigger>
+                        <SelectContent>
+                            {TIMEZONES.map((tz) => <SelectItem key={tz} value={tz}>{tz}</SelectItem>)}
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="grid gap-1.5">

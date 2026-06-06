@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Input,
-  Label,
-  Textarea,
-  Card,
-  Button,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, Label, Textarea, Card, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useMemo,
@@ -52,7 +35,7 @@ type FormState = {
 const EMPTY_FORM: FormState = { _id: '', user_id: '', name: '', relation: '', phone: '', address: '' };
 
 export default function EmergencyContactsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [contacts, setContacts] = useState<ContactRow[]>([]);
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -184,21 +167,21 @@ export default function EmergencyContactsPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-lg border-[var(--st-border)] bg-[var(--st-bg)]">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-[var(--st-text)]">{form._id ? 'Edit Emergency Contact' : 'Add Emergency Contact'}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent className="max-w-lg border-[var(--st-border)] bg-[var(--st-bg)]">
+          <DialogHeader>
+            <DialogTitle className="text-[var(--st-text)]">{form._id ? 'Edit Emergency Contact' : 'Add Emergency Contact'}</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-2">
             <div>
               <Label className="text-[12px] text-[var(--st-text-secondary)]">Employee <span className="text-[var(--st-danger)]">*</span></Label>
               <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
-                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-                  <ZoruSelectValue placeholder="Select employee…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="__none__">— Select employee —</ZoruSelectItem>
-                  {employees.map((e) => <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>)}
-                </ZoruSelectContent>
+                <SelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+                  <SelectValue placeholder="Select employee…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Select employee —</SelectItem>
+                  {employees.map((e) => <SelectItem key={e._id} value={e._id}>{e.name}</SelectItem>)}
+                </SelectContent>
               </Select>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
@@ -220,14 +203,14 @@ export default function EmergencyContactsPage() {
               <Textarea rows={2} value={form.address} onChange={(e) => set('address', e.target.value)} className="mt-1.5 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
             </div>
           </div>
-          <ZoruDialogFooter className="gap-2">
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Add'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

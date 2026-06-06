@@ -10,35 +10,7 @@ import {
   LoaderCircle,
 } from 'lucide-react';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { RowDrawer } from '@/components/crm/row-drawer';
@@ -81,7 +53,7 @@ function fmt(v: unknown): string {
 }
 
 export function SavedSearchesClient(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<Row[]>([]);
   const [kpis, setKpis] = React.useState({ total: 0, usedToday: 0, avgFilters: 0 });
@@ -227,14 +199,14 @@ export function SavedSearchesClient(): React.JSX.Element {
               value={moduleFilter}
               onValueChange={(v) => setModuleFilter(v as ModuleFilter)}
             >
-              <ZoruSelectTrigger className="h-9 w-[170px]">
-                <ZoruSelectValue placeholder="Module" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[170px]">
+                <SelectValue placeholder="Module" />
+              </SelectTrigger>
+              <SelectContent>
                 {MODULE_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>{o.label}</ZoruSelectItem>
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             {(search || moduleFilter !== 'all') && (
               <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setModuleFilter('all'); }}>
@@ -301,47 +273,47 @@ export function SavedSearchesClient(): React.JSX.Element {
           <Card className="p-0">
             <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10">
                       <Checkbox
                         checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                         onCheckedChange={(v) => togglePage(v === true)}
                         aria-label="Select all on page"
                       />
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name / Term</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Module</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Results</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Last Used</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Created</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">Name / Term</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Module</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Results</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Last Used</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Created</Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {loading && rows.length === 0 ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                      <ZoruTableRow key={i}>
-                        <ZoruTableCell colSpan={7}><Skeleton className="h-8 w-full" /></ZoruTableCell>
-                      </ZoruTableRow>
+                      <Tr key={i}>
+                        <Td colSpan={7}><Skeleton className="h-8 w-full" /></Td>
+                      </Tr>
                     ))
                   ) : pageRows.length === 0 ? (
-                    <ZoruTableRow>
-                      <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
+                    <Tr>
+                      <Td colSpan={7} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                         No saved searches match this filter.
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     pageRows.map((row) => (
-                      <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
-                        <ZoruTableCell>
+                      <Tr key={row._id} className="border-[var(--st-border)]">
+                        <Td>
                           <Checkbox
                             checked={selected.has(row._id)}
                             onCheckedChange={() => toggleOne(row._id)}
                             aria-label={`Select ${row.search_term}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                        </Td>
+                        <Td className="font-medium text-[var(--st-text)]">
                           <RowDrawer
                             label={row.search_term || '—'}
                             title={`Saved Search · ${row.search_term}`}
@@ -370,20 +342,20 @@ export function SavedSearchesClient(): React.JSX.Element {
                               </div>
                             </div>
                           </RowDrawer>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px]">
+                        </Td>
+                        <Td className="text-[13px]">
                           <Badge variant="ghost">{row.module ?? '—'}</Badge>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {row.result_count ?? '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {fmt(row.last_used_at)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[13px] text-[var(--st-text)]">
                           {fmt(row.createdAt)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -392,11 +364,11 @@ export function SavedSearchesClient(): React.JSX.Element {
                           >
                             <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>
@@ -404,40 +376,40 @@ export function SavedSearchesClient(): React.JSX.Element {
       </EntityListShell>
 
       {/* Single delete confirm */}
-      <ZoruAlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete saved search?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete saved search?</AlertDialogTitle>
+            <AlertDialogDescription>
               {pendingDelete ? `"${pendingDelete.search_term}" will be permanently removed.` : 'This cannot be undone.'}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDeleteOne} disabled={deletePending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteOne} disabled={deletePending}>
               {deletePending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Bulk delete confirm */}
-      <ZoruAlertDialog open={pendingBulk} onOpenChange={(o) => !o && setPendingBulk(false)}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete {selected.size} saved {selected.size === 1 ? 'search' : 'searches'}?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>Selected searches will be permanently removed. This cannot be undone.</ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleBulkDelete} disabled={bulkPending}>
+      <AlertDialog open={pendingBulk} onOpenChange={(o) => !o && setPendingBulk(false)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selected.size} saved {selected.size === 1 ? 'search' : 'searches'}?</AlertDialogTitle>
+            <AlertDialogDescription>Selected searches will be permanently removed. This cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} disabled={bulkPending}>
               {bulkPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

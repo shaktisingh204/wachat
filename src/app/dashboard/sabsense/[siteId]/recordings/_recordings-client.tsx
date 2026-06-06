@@ -5,26 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Play } from 'lucide-react';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Input,
-    Label,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    EmptyState,
-    Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, PageHeader, PageTitle, PageDescription, Table, TBody, Td, Th, THead, Tr, EmptyState, Badge } from '@/components/sabcrm/20ui/compat';
 
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 import type { Recording } from '@/lib/rust-client/pagesense-recordings';
@@ -70,19 +51,19 @@ export function RecordingsClient({
     return (
         <div className="zoruui p-8 space-y-6">
             <PageHeader>
-                <ZoruPageTitle>{site.name} — Session recordings</ZoruPageTitle>
-                <ZoruPageDescription>
+                <PageTitle>{site.name} — Session recordings</PageTitle>
+                <PageDescription>
                     Replay visitor sessions captured by the snippet.
-                </ZoruPageDescription>
+                </PageDescription>
             </PageHeader>
 
             <PagesenseSiteNav siteId={site._id} />
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Filters</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Filters</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 sm:grid-cols-[1fr_1fr_1fr_auto]">
                         <div className="space-y-2">
                             <Label htmlFor="r-url">URL path</Label>
@@ -115,7 +96,7 @@ export function RecordingsClient({
                             <Button onClick={apply}>Apply</Button>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {recordings.length === 0 ? (
@@ -125,35 +106,35 @@ export function RecordingsClient({
                 />
             ) : (
                 <Card>
-                    <ZoruCardContent className="p-0">
+                    <CardBody className="p-0">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Started</ZoruTableHead>
-                                    <ZoruTableHead>URL</ZoruTableHead>
-                                    <ZoruTableHead>Duration</ZoruTableHead>
-                                    <ZoruTableHead>Country</ZoruTableHead>
-                                    <ZoruTableHead>Events</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Open</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Started</Th>
+                                    <Th>URL</Th>
+                                    <Th>Duration</Th>
+                                    <Th>Country</Th>
+                                    <Th>Events</Th>
+                                    <Th className="text-right">Open</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {recordings.map((r) => (
-                                    <ZoruTableRow key={r._id}>
-                                        <ZoruTableCell className="font-mono text-xs">
+                                    <Tr key={r._id}>
+                                        <Td className="font-mono text-xs">
                                             {new Date(r.startedAt).toLocaleString()}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono text-xs">
+                                        </Td>
+                                        <Td className="font-mono text-xs">
                                             {r.urlPath}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>{r.durationSecs}s</ZoruTableCell>
-                                        <ZoruTableCell>{r.country || '—'}</ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>{r.durationSecs}s</Td>
+                                        <Td>{r.country || '—'}</Td>
+                                        <Td>
                                             <Badge variant={r.eventsFileId ? 'default' : 'secondary'}>
                                                 {r.eventsFileId ? 'ready' : 'pending'}
                                             </Badge>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
+                                        </Td>
+                                        <Td className="text-right">
                                             <Link
                                                 href={`/dashboard/pagesense/${site._id}/recordings/${r._id}`}
                                             >
@@ -161,12 +142,12 @@ export function RecordingsClient({
                                                     <Play className="mr-2 h-4 w-4" /> Play
                                                 </Button>
                                             </Link>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

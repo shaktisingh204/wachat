@@ -3,26 +3,7 @@
 import * as React from 'react';
 import { Columns3, GripVertical, Plus, Trash2 } from 'lucide-react';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Input,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Skeleton,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { RowDrawer } from '@/components/crm/row-drawer';
@@ -85,7 +66,7 @@ interface StageEditFormProps {
 }
 
 function StageEditForm({ initial, pipelines, defaultPipelineId, onSaved, onCancel }: StageEditFormProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [pipelineId, setPipelineId] = React.useState<string>(
         initial?.pipeline_id ? String(initial.pipeline_id) : defaultPipelineId ?? pipelines[0]?._id ?? '',
     );
@@ -135,16 +116,16 @@ function StageEditForm({ initial, pipelines, defaultPipelineId, onSaved, onCance
             <div className="space-y-1">
                 <Label className="text-[var(--st-text)]">Pipeline</Label>
                 <Select value={pipelineId} onValueChange={setPipelineId}>
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Select…" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select…" />
+                    </SelectTrigger>
+                    <SelectContent>
                         {pipelines.map((p) => (
-                            <ZoruSelectItem key={p._id} value={p._id}>
+                            <SelectItem key={p._id} value={p._id}>
                                 {p.name}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
             <div className="space-y-1">
@@ -193,7 +174,7 @@ function StageEditForm({ initial, pipelines, defaultPipelineId, onSaved, onCance
 /* ─── Page ─────────────────────────────────────────────────────────── */
 
 export default function LeadPipelineStagesPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [pipelines, setPipelines] = React.useState<PipelineRow[]>([]);
     const [stages, setStages] = React.useState<StageRow[]>([]);
     const [pipelineFilter, setPipelineFilter] = React.useState<string>('');
@@ -357,17 +338,17 @@ export default function LeadPipelineStagesPage() {
                     <div className="min-w-[220px]">
                         <Label className="text-[var(--st-text)]">Pipeline</Label>
                         <Select value={pipelineFilter} onValueChange={setPipelineFilter}>
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="All pipelines" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All pipelines" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {pipelines.map((p) => (
-                                    <ZoruSelectItem key={p._id} value={p._id}>
+                                    <SelectItem key={p._id} value={p._id}>
                                         {p.name}
                                         {p.default ? ' (default)' : ''}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     {pipelineFilter ? (
@@ -403,27 +384,27 @@ export default function LeadPipelineStagesPage() {
                 ) : (
                     <div className="overflow-x-auto">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="w-[40px]" />
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Stage</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Pipeline</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Slug</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Order</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Color</ZoruTableHead>
-                                    <ZoruTableHead className="w-[140px] text-right text-[var(--st-text-secondary)]">
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="w-[40px]" />
+                                    <Th className="text-[var(--st-text-secondary)]">Stage</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Pipeline</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Slug</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Order</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Color</Th>
+                                    <Th className="w-[140px] text-right text-[var(--st-text-secondary)]">
                                         Actions
-                                    </ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                    </Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {filteredStages.map((stage, idx) => {
                                     const color = stage.label_color || DEFAULT_COLOR;
                                     const isDefaultPipeline = defaultPipelineIds.has(
                                         String(stage.pipeline_id),
                                     );
                                     return (
-                                        <ZoruTableRow
+                                        <Tr
                                             key={stage._id}
                                             className="border-[var(--st-border)]"
                                             draggable={Boolean(pipelineFilter)}
@@ -431,7 +412,7 @@ export default function LeadPipelineStagesPage() {
                                             onDragOver={handleDragOver}
                                             onDrop={() => handleDrop(idx)}
                                         >
-                                            <ZoruTableCell>
+                                            <Td>
                                                 <GripVertical
                                                     className={`h-4 w-4 ${
                                                         pipelineFilter
@@ -440,8 +421,8 @@ export default function LeadPipelineStagesPage() {
                                                     }`}
                                                     aria-label="Drag to reorder"
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <RowDrawer
                                                     label={stage.name}
                                                     subtitle={
@@ -459,17 +440,17 @@ export default function LeadPipelineStagesPage() {
                                                         onCancel={() => undefined}
                                                     />
                                                 </RowDrawer>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                            </Td>
+                                            <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                                 {pipelineNameById.get(String(stage.pipeline_id)) ?? '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                                            </Td>
+                                            <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                                                 {stage.slug || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                            </Td>
+                                            <Td className="text-[13px] text-[var(--st-text)]">
                                                 {stage.priority ?? 0}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
+                                            </Td>
+                                            <Td>
                                                 <span className="inline-flex items-center gap-2">
                                                     <span
                                                         className="inline-block h-3 w-3 rounded-full border border-[var(--st-border)]"
@@ -485,8 +466,8 @@ export default function LeadPipelineStagesPage() {
                                                         {color}
                                                     </Badge>
                                                 </span>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
@@ -503,11 +484,11 @@ export default function LeadPipelineStagesPage() {
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5" />
                                                 </Button>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 )}

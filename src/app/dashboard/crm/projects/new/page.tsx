@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { useActionState } from 'react';
@@ -64,7 +53,7 @@ export default function NewProjectPage() {
 
 export function ProjectForm({ initial }: ProjectFormProps = {}) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [state, formAction] = useActionState(
     async (
@@ -208,16 +197,16 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                   name="status"
                   defaultValue={initial?.status ?? 'not started'}
                 >
-                  <ZoruSelectTrigger id="status">
-                    <ZoruSelectValue placeholder="Status" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="not started">Not Started</ZoruSelectItem>
-                    <ZoruSelectItem value="in progress">In Progress</ZoruSelectItem>
-                    <ZoruSelectItem value="on hold">On Hold</ZoruSelectItem>
-                    <ZoruSelectItem value="finished">Finished</ZoruSelectItem>
-                    <ZoruSelectItem value="canceled">Canceled</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="not started">Not Started</SelectItem>
+                    <SelectItem value="in progress">In Progress</SelectItem>
+                    <SelectItem value="on hold">On Hold</SelectItem>
+                    <SelectItem value="finished">Finished</SelectItem>
+                    <SelectItem value="canceled">Canceled</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
@@ -226,15 +215,15 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                   name="priority"
                   defaultValue={initial?.priority ?? 'medium'}
                 >
-                  <ZoruSelectTrigger id="priority">
-                    <ZoruSelectValue placeholder="Priority" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="low">Low</ZoruSelectItem>
-                    <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
-                    <ZoruSelectItem value="high">High</ZoruSelectItem>
-                    <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger id="priority">
+                    <SelectValue placeholder="Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>

@@ -10,25 +10,7 @@
  */
 
 import * as React from 'react';
-import {
-    Badge,
-    Button,
-    Card,
-    Checkbox,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
     Download,
     LoaderCircle,
@@ -218,7 +200,7 @@ function rowsToXlsx(rows: Gstr3bFilingRow[]): string {
 }
 
 export default function Gstr3bPage() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [period, setPeriod] = React.useState<Period>(currentPeriod);
     const [loading, setLoading] = React.useState(false);
     const [result, setResult] = React.useState<ReportRunResult | null>(null);
@@ -422,16 +404,16 @@ export default function Gstr3bPage() {
                             setPage(1);
                         }}
                     >
-                        <ZoruSelectTrigger className="w-40">
-                            <ZoruSelectValue placeholder="Status" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger className="w-40">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {STATUS_OPTIONS.map((o) => (
-                                <ZoruSelectItem key={o.value} value={o.value}>
+                                <SelectItem key={o.value} value={o.value}>
                                     {o.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                     <Select
                         value={fyFilter}
@@ -440,16 +422,16 @@ export default function Gstr3bPage() {
                             setPage(1);
                         }}
                     >
-                        <ZoruSelectTrigger className="w-40">
-                            <ZoruSelectValue placeholder="Financial year" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger className="w-40">
+                            <SelectValue placeholder="Financial year" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {FY_OPTIONS.map((o) => (
-                                <ZoruSelectItem key={o.value} value={o.value}>
+                                <SelectItem key={o.value} value={o.value}>
                                     {o.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                     {hasActiveFilters ? (
                         <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -518,16 +500,16 @@ export default function Gstr3bPage() {
                                     setPeriod((p) => ({ ...p, month: Number(v) }))
                                 }
                             >
-                                <ZoruSelectTrigger className="w-40">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger className="w-40">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {MONTHS.map((m) => (
-                                        <ZoruSelectItem key={m.value} value={m.value}>
+                                        <SelectItem key={m.value} value={m.value}>
                                             {m.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div>
@@ -588,23 +570,23 @@ export default function Gstr3bPage() {
                         </h2>
                         <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--st-border)]">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                <THead>
+                                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
                                         {result.columns.map((c) => (
-                                            <ZoruTableHead
+                                            <Th
                                                 key={c}
                                                 className="text-[var(--st-text-secondary)]"
                                             >
                                                 {c.replace(/_/g, ' ')}
-                                            </ZoruTableHead>
+                                            </Th>
                                         ))}
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {result.rows.map((row, i) => (
-                                        <ZoruTableRow key={i} className="border-[var(--st-border)]">
+                                        <Tr key={i} className="border-[var(--st-border)]">
                                             {row.map((cell, j) => (
-                                                <ZoruTableCell
+                                                <Td
                                                     key={j}
                                                     className={
                                                         j === 0
@@ -617,11 +599,11 @@ export default function Gstr3bPage() {
                                                         : typeof cell === 'number'
                                                           ? cell.toFixed(2)
                                                           : String(cell ?? '')}
-                                                </ZoruTableCell>
+                                                </Td>
                                             ))}
-                                        </ZoruTableRow>
+                                        </Tr>
                                     ))}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     </Card>
@@ -656,9 +638,9 @@ export default function Gstr3bPage() {
                     ) : (
                         <div className="overflow-x-auto">
                             <Table>
-                                <ZoruTableHeader>
-                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                        <ZoruTableHead className="w-10">
+                                <THead>
+                                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                        <Th className="w-10">
                                             <Checkbox
                                                 checked={
                                                     allOnPageSelected
@@ -670,44 +652,44 @@ export default function Gstr3bPage() {
                                                 onCheckedChange={toggleAllOnPage}
                                                 aria-label="Select all on page"
                                             />
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Period
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Status
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">
                                             Outward Taxable
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-right text-[var(--st-text-secondary)]">
                                             Net Payable
-                                        </ZoruTableHead>
-                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                        </Th>
+                                        <Th className="text-[var(--st-text-secondary)]">
                                             Generated
-                                        </ZoruTableHead>
-                                    </ZoruTableRow>
-                                </ZoruTableHeader>
-                                <ZoruTableBody>
+                                        </Th>
+                                    </Tr>
+                                </THead>
+                                <TBody>
                                     {rows.map((r) => {
                                         const isSelected = selected.has(r.runId);
                                         return (
-                                            <ZoruTableRow key={r.runId} className="border-[var(--st-border)]">
-                                                <ZoruTableCell>
+                                            <Tr key={r.runId} className="border-[var(--st-border)]">
+                                                <Td>
                                                     <Checkbox
                                                         checked={isSelected}
                                                         onCheckedChange={() => toggleOne(r.runId)}
                                                         aria-label={`Select filing ${r.period}`}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <EntityRowLink
                                                         href={`/dashboard/sabbi/reports/runs/${r.runId}`}
                                                         label={`${monthLabel(r.month)} ${r.year}`}
                                                         subtitle={r.period}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </Td>
+                                                <Td>
                                                     <Badge
                                                         variant={
                                                             r.status === 'succeeded'
@@ -719,20 +701,20 @@ export default function Gstr3bPage() {
                                                     >
                                                         {r.status}
                                                     </Badge>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right font-mono text-[var(--st-text)]">
                                                     {fmtInr(r.outwardTaxable ?? 0)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right font-mono text-[var(--st-text)]">
                                                     {fmtInr(r.netPayable ?? 0)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[var(--st-text-secondary)]">
                                                     {formatDateTime(r.startedAt)}
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })}
-                                </ZoruTableBody>
+                                </TBody>
                             </Table>
                         </div>
                     )}

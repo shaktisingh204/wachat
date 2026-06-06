@@ -11,23 +11,7 @@
 
 import * as React from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, StatCard, Table, TBody, Td, Th, THead, Tr, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Ban,
   CheckCircle2,
@@ -98,7 +82,7 @@ function buildCsv(rows: Row[]): string {
 }
 
 export function InvitationsManager({ initialInvitations }: InvitationsManagerProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>(initialInvitations);
   const [email, setEmail] = React.useState('');
   const [roleId, setRoleId] = React.useState('');
@@ -416,54 +400,54 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
       ) : (
         <Card className="p-0 overflow-x-auto">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="hover:bg-transparent">
-                <ZoruTableHead className="w-10">
+            <THead>
+              <Tr className="hover:bg-transparent">
+                <Th className="w-10">
                   <Checkbox
                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                     onCheckedChange={(v) => toggleAll(v === true)}
                     aria-label="Select all on page"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Email</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Role</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Sent</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Expires</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">Email</Th>
+                <Th className="text-[var(--st-text-secondary)]">Role</Th>
+                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                <Th className="text-[var(--st-text-secondary)]">Sent</Th>
+                <Th className="text-[var(--st-text-secondary)]">Expires</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.map((inv) => (
-                <ZoruTableRow
+                <Tr
                   key={inv._id}
                   className={cn(selected.has(inv._id) && 'bg-[var(--st-bg-secondary)]')}
                 >
-                  <ZoruTableCell>
+                  <Td>
                     <Checkbox
                       checked={selected.has(inv._id)}
                       onCheckedChange={() => toggleOne(inv._id)}
                       aria-label={`Select ${inv.email}`}
                     />
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
+                  </Td>
+                  <Td className="text-[13px] font-medium text-[var(--st-text)]">
                     {inv.email}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12px] text-[var(--st-text-secondary)]">
                     {inv.role_id || '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
+                  </Td>
+                  <Td>
                     <Badge variant={STATUS_BADGE[inv.status] ?? 'ghost'}>
                       {inv.status}
                     </Badge>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12px] text-[var(--st-text-secondary)]">
                     {formatStamp(inv.createdAt)}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                  </Td>
+                  <Td className="text-[12px] text-[var(--st-text-secondary)]">
                     {inv.expires_at ? formatStamp(inv.expires_at) : '—'}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-right">
+                  </Td>
+                  <Td className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button
                         variant="ghost"
@@ -492,10 +476,10 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                         <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                       </Button>
                     </div>
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       )}

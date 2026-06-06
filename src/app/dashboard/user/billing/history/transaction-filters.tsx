@@ -1,12 +1,4 @@
-import {
-  ZoruInput,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruButton
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button } from '@/components/sabcrm/20ui/compat';
 import { Search, RefreshCw } from 'lucide-react';
 
 export type SortOption = 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc';
@@ -42,7 +34,7 @@ export function TransactionFilters({
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
-        <ZoruInput 
+        <Input 
           placeholder="Search descriptions..." 
           className="pl-9 bg-[var(--st-bg-secondary)]/50"
           value={searchQuery}
@@ -51,42 +43,42 @@ export function TransactionFilters({
       </div>
       
       <div className="flex flex-col sm:flex-row gap-2">
-        <ZoruSelect value={filterType} onValueChange={(val) => setFilterType(val as FilterType)}>
-          <ZoruSelectTrigger className="w-full sm:w-[130px] bg-[var(--st-bg-secondary)]/50">
-            <ZoruSelectValue placeholder="Type" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="ALL">All Types</ZoruSelectItem>
-            <ZoruSelectItem value="CREDIT">Credit</ZoruSelectItem>
-            <ZoruSelectItem value="DEBIT">Debit</ZoruSelectItem>
-          </ZoruSelectContent>
-        </ZoruSelect>
+        <Select value={filterType} onValueChange={(val) => setFilterType(val as FilterType)}>
+          <SelectTrigger className="w-full sm:w-[130px] bg-[var(--st-bg-secondary)]/50">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All Types</SelectItem>
+            <SelectItem value="CREDIT">Credit</SelectItem>
+            <SelectItem value="DEBIT">Debit</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <ZoruSelect value={filterStatus} onValueChange={(val) => setFilterStatus(val as FilterStatus)}>
-          <ZoruSelectTrigger className="w-full sm:w-[130px] bg-[var(--st-bg-secondary)]/50">
-            <ZoruSelectValue placeholder="Status" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="ALL">All Status</ZoruSelectItem>
-            <ZoruSelectItem value="SUCCESS">Success</ZoruSelectItem>
-            <ZoruSelectItem value="PENDING">Pending</ZoruSelectItem>
-            <ZoruSelectItem value="FAILED">Failed</ZoruSelectItem>
-          </ZoruSelectContent>
-        </ZoruSelect>
+        <Select value={filterStatus} onValueChange={(val) => setFilterStatus(val as FilterStatus)}>
+          <SelectTrigger className="w-full sm:w-[130px] bg-[var(--st-bg-secondary)]/50">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All Status</SelectItem>
+            <SelectItem value="SUCCESS">Success</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="FAILED">Failed</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <ZoruSelect value={sortOption} onValueChange={(val) => setSortOption(val as SortOption)}>
-          <ZoruSelectTrigger className="w-full sm:w-[150px] bg-[var(--st-bg-secondary)]/50">
-            <ZoruSelectValue placeholder="Sort By" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="date-desc">Newest First</ZoruSelectItem>
-            <ZoruSelectItem value="date-asc">Oldest First</ZoruSelectItem>
-            <ZoruSelectItem value="amount-desc">Amount: High-Low</ZoruSelectItem>
-            <ZoruSelectItem value="amount-asc">Amount: Low-High</ZoruSelectItem>
-          </ZoruSelectContent>
-        </ZoruSelect>
+        <Select value={sortOption} onValueChange={(val) => setSortOption(val as SortOption)}>
+          <SelectTrigger className="w-full sm:w-[150px] bg-[var(--st-bg-secondary)]/50">
+            <SelectValue placeholder="Sort By" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="date-desc">Newest First</SelectItem>
+            <SelectItem value="date-asc">Oldest First</SelectItem>
+            <SelectItem value="amount-desc">Amount: High-Low</SelectItem>
+            <SelectItem value="amount-asc">Amount: Low-High</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <ZoruButton 
+        <Button 
           variant="outline" 
           size="icon" 
           onClick={onRefresh} 
@@ -95,7 +87,7 @@ export function TransactionFilters({
           className="bg-[var(--st-bg-secondary)]/50"
         >
           <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

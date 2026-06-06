@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Tabs, ZoruTabsContent as TabsContent, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
 
 export function ItemDetailTabs({ defaultTab, children }: { defaultTab?: string; children: React.ReactNode }) {
   const router = useRouter();

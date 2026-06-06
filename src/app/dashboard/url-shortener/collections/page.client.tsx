@@ -1,10 +1,7 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import {
-    PageHeader, ZoruPageTitle, ZoruPageHeading, ZoruPageDescription,
-    Card, Button, Badge, cn, useZoruToast, Skeleton
-} from '@/components/sabcrm/20ui/compat';
+import { PageHeader, PageTitle, PageHeading, PageDescription, Card, Button, Badge, cn, useToast, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { FolderOpen, Link2 } from 'lucide-react';
 import {
     getCollections, addLinkToCollection, removeLinkFromCollection,
@@ -21,7 +18,7 @@ export default function CollectionsPage() {
     const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const [isLoading, setIsLoading] = useState(true);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const loadData = () => {
         startTransition(async () => {
@@ -65,12 +62,12 @@ export default function CollectionsPage() {
     return (
         <div className="flex flex-col gap-6 p-6">
             <PageHeader>
-                <ZoruPageHeading>
-                    <ZoruPageTitle>Collections</ZoruPageTitle>
-                </ZoruPageHeading>
-                <ZoruPageDescription>
+                <PageHeading>
+                    <PageTitle>Collections</PageTitle>
+                </PageHeading>
+                <PageDescription>
                     Organise your short links into named folders. Select a collection, then toggle links to add or remove them.
-                </ZoruPageDescription>
+                </PageDescription>
             </PageHeader>
 
             <div className="flex gap-4 min-h-[400px]">

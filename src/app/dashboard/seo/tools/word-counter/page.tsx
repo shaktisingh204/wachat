@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, Textarea, cn } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Textarea, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useMemo, useState } from 'react';
 
 void _zoruCn;
@@ -48,10 +48,10 @@ export default function WordCounterPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {boxes.map((b) => (
           <Card key={b.label}>
-            <ZoruCardContent className="p-4">
+            <CardBody className="p-4">
               <div className="text-2xl font-bold">{b.value}</div>
               <div className="text-xs text-[var(--st-text-secondary)]">{b.label}</div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         ))}
       </div>

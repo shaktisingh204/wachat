@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { listAdminInboxes } from '@/app/actions/sabchat-admin.actions';
 import { AdminInboxesClient } from '../_components/admin-inboxes-client';
 
@@ -10,12 +10,12 @@ export default async function AdminInboxesPage() {
 
     return (
         <Card className="flex-1 flex flex-col min-h-0 border-0 rounded-none shadow-none">
-            <ZoruCardHeader>
-                <ZoruCardTitle>Inboxes</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex-1 overflow-y-auto">
+            <CardHeader>
+                <CardTitle>Inboxes</CardTitle>
+            </CardHeader>
+            <CardBody className="flex-1 overflow-y-auto">
                 <AdminInboxesClient initialData={inboxes} />
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

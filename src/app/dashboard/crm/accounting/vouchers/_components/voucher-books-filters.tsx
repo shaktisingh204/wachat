@@ -1,6 +1,6 @@
 'use client';
 
-import { Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
@@ -38,40 +38,40 @@ export function VoucherBooksFilters({ value, onChange }: VoucherBooksFiltersProp
                 value={value.status}
                 onValueChange={(v) => onChange({ ...value, status: v as VoucherBookFilterState['status'] })}
             >
-                <ZoruSelectTrigger className="h-9 w-[140px]">
-                    <ZoruSelectValue placeholder="Status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All status</ZoruSelectItem>
-                    <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                    <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-9 w-[140px]">
+                    <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
             </Select>
             <Select
                 value={value.defaultOnly}
                 onValueChange={(v) => onChange({ ...value, defaultOnly: v as VoucherBookFilterState['defaultOnly'] })}
             >
-                <ZoruSelectTrigger className="h-9 w-[140px]">
-                    <ZoruSelectValue placeholder="Default" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">Any default</ZoruSelectItem>
-                    <ZoruSelectItem value="yes">Default only</ZoruSelectItem>
-                    <ZoruSelectItem value="no">Non-default</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-9 w-[140px]">
+                    <SelectValue placeholder="Default" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">Any default</SelectItem>
+                    <SelectItem value="yes">Default only</SelectItem>
+                    <SelectItem value="no">Non-default</SelectItem>
+                </SelectContent>
             </Select>
             <Select
                 value={value.approval}
                 onValueChange={(v) => onChange({ ...value, approval: v as VoucherBookFilterState['approval'] })}
             >
-                <ZoruSelectTrigger className="h-9 w-[170px]">
-                    <ZoruSelectValue placeholder="Approval" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">Any approval flag</ZoruSelectItem>
-                    <ZoruSelectItem value="yes">Approval required</ZoruSelectItem>
-                    <ZoruSelectItem value="no">Approval not required</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-9 w-[170px]">
+                    <SelectValue placeholder="Approval" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">Any approval flag</SelectItem>
+                    <SelectItem value="yes">Approval required</SelectItem>
+                    <SelectItem value="no">Approval not required</SelectItem>
+                </SelectContent>
             </Select>
         </div>
     );

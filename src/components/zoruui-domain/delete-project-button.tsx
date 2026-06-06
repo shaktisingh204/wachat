@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -30,7 +19,7 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ZoruAlertDialogAction asChild>
+    <AlertDialogAction asChild>
       <Button type="submit" variant="destructive" disabled={pending}>
         {pending ? (
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -39,7 +28,7 @@ function SubmitButton() {
         )}
         Yes, Delete Project
       </Button>
-    </ZoruAlertDialogAction>
+    </AlertDialogAction>
   );
 }
 
@@ -65,27 +54,27 @@ export function DeleteProjectButton({ projectId, projectName }: DeleteProjectBut
   }, [state, toast]);
 
   return (
-    <ZoruAlertDialog open={open} onOpenChange={setOpen}>
-      <ZoruAlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
         <Button variant="ghost" size="icon" className="h-7 w-7">
           <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
         </Button>
-      </ZoruAlertDialogTrigger>
-      <ZoruAlertDialogContent>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
         <form action={formAction}>
           <input type="hidden" name="projectId" value={projectId} />
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Are you absolutely sure?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the project "{projectName}" and all of its associated data, including campaigns, contacts, and flows.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter className="mt-4">
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <SubmitButton />
-          </ZoruAlertDialogFooter>
+          </AlertDialogFooter>
         </form>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

@@ -8,16 +8,7 @@ import type {
   BiChartType,
   BiFilterOp,
 } from '@/lib/rust-client/bi-charts';
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 import { ChartPreview } from '../chart-preview';
 
@@ -90,16 +81,16 @@ export function DrilldownRunner({
                 )
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {OPS.map((o) => (
-                  <ZoruSelectItem key={o} value={o}>
+                  <SelectItem key={o} value={o}>
                     {o}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Input
               value={f.value}

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   Archive,
@@ -34,7 +34,7 @@ export interface DiscussionsDetailActionsProps {
 export function DiscussionsDetailActions({
     discussionId,
 }: DiscussionsDetailActionsProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [confirmDelete, setConfirmDelete] = React.useState(false);
     const [busy, setBusy] = React.useState<string | null>(null);
 

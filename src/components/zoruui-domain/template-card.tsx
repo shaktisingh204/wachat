@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Languages, Edit, FilePlus2, ShoppingCart, View, FileText } from 'lucide-react';
@@ -86,9 +72,9 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
   return (
     <>
       <Card className={cn("flex flex-col transition-transform hover:-translate-y-1", gradientClass)}>
-        <ZoruCardHeader>
+        <CardHeader>
           <div className="flex items-start justify-between gap-2">
-            <ZoruCardTitle className="text-lg font-headline break-all">{template.name}</ZoruCardTitle>
+            <CardTitle className="text-lg font-headline break-all">{template.name}</CardTitle>
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
               {isProductCarousel ? (
                 <Badge variant="secondary" className="capitalize">
@@ -115,7 +101,7 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
               <p className="text-xs text-[var(--st-text)] mt-1">Reason: {(template as any).rejectedReason}</p>
             )}
           </div>
-          <ZoruCardDescription className="flex items-center pt-2 text-xs">
+          <CardDescription className="flex items-center pt-2 text-xs">
             {isProductCarousel ? (
               <ShoppingCart className="h-4 w-4 mr-2" />
             ) : isMarketingCarousel ? (
@@ -125,12 +111,12 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
             )}
 
             {isProductCarousel ? 'Interactive Product Message' : isMarketingCarousel ? 'Marketing Carousel' : `Category: ${template.category}`}
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex-grow">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="flex-grow">
           <p className="text-sm text-[var(--st-text)]/80 line-clamp-4">{template.body || template.components?.find(c => c.type === 'BODY')?.text}</p>
-        </ZoruCardContent>
-        <ZoruCardFooter className="flex justify-end gap-2 mt-auto">
+        </CardBody>
+        <CardFooter className="flex justify-end gap-2 mt-auto">
           <Button variant="ghost" onClick={() => setIsViewOpen(true)}>View</Button>
           <Button variant="outline" onClick={() => handleAction('clone')}>
             <FilePlus2 className="mr-2 h-4 w-4" />
@@ -140,14 +126,14 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
             <Edit className="mr-2 h-4 w-4" />
             Edit
           </Button>
-        </ZoruCardFooter>
+        </CardFooter>
       </Card>
 
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <ZoruDialogContent className="sm:max-w-2xl">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{template.name}</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{template.name}</DialogTitle>
+            <DialogDescription>
               Category: {template.category} | {isProductCarousel ? `Type: ${template.type}` : `Language: ${template.language}`} | Status: <span className="capitalize">{template.status?.replace(/_/g, ' ') || 'Unknown'}</span>
               {!isProductCarousel && !isMarketingCarousel && template.qualityScore && template.qualityScore !== 'UNKNOWN' && (
                 <> | Quality: <span className="capitalize">{template.qualityScore.toLowerCase()}</span></>
@@ -155,8 +141,8 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
               {(template as any).rejectedReason && (
                 <><br /><span className="text-[var(--st-text)]">Rejection reason: {(template as any).rejectedReason}</span></>
               )}
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto pr-4">
             {(Array.isArray(template.components) && template.components.length > 0) ? (
               template.components.map((component, index) => (
@@ -176,7 +162,7 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
               </div>
             )}
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </>
   );

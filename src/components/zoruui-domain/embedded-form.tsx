@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Textarea,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Checkbox,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Card,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Label, RadioGroup, ZoruRadioGroupItem, Card } from '@/components/sabcrm/20ui/compat';
 import {
   useForm,
   Controller } from 'react-hook-form';
@@ -393,12 +379,12 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                                 case 'select':
                                     return (
                                         <Select onValueChange={controllerField.onChange} value={(controllerField.value as string) || ''}>
-                                            <ZoruSelectTrigger className={cn('form-field', sizeClasses)}>
-                                                <ZoruSelectValue placeholder={field.placeholder || 'Select...'} />
-                                            </ZoruSelectTrigger>
-                                            <ZoruSelectContent>
-                                                {fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}
-                                            </ZoruSelectContent>
+                                            <SelectTrigger className={cn('form-field', sizeClasses)}>
+                                                <SelectValue placeholder={field.placeholder || 'Select...'} />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {fieldOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                                            </SelectContent>
                                         </Select>
                                     );
                                 case 'checkbox':

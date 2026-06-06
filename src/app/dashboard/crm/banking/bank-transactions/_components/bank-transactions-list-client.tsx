@@ -18,33 +18,7 @@ import Link from 'next/link';
 import Papa from 'papaparse';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -202,7 +176,7 @@ export function BankTransactionsListClient({
   initialFrom,
   initialTo,
 }: BankTransactionsListClientProps): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -374,17 +348,17 @@ export function BankTransactionsListClient({
             className="h-9 w-56 text-[13px]"
           />
           <Select value={accountFilter} onValueChange={setAccountFilter}>
-            <ZoruSelectTrigger className="h-9 w-[200px]">
-              <ZoruSelectValue placeholder="Account" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All accounts</ZoruSelectItem>
+            <SelectTrigger className="h-9 w-[200px]">
+              <SelectValue placeholder="Account" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All accounts</SelectItem>
               {accounts.map((a) => (
-                <ZoruSelectItem key={a._id.toString()} value={a._id.toString()}>
+                <SelectItem key={a._id.toString()} value={a._id.toString()}>
                   {a.accountName}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
           <EnumFilterField
             enumName="bankTransactionStatus"
@@ -489,64 +463,64 @@ export function BankTransactionsListClient({
           ) : (
             <div className="overflow-x-auto">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10 text-[var(--st-text-secondary)]">
                       <Checkbox
                         checked={allSelected}
                         data-indeterminate={someSelected ? 'true' : undefined}
                         onCheckedChange={(v) => handleToggleAll(Boolean(v))}
                         aria-label="Select all rows"
                       />
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Account</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Description</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Reference</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Category</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Amount</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Balance</ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">Date</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Account</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Description</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Reference</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Category</Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">Amount</Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">Balance</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                    <Th className="text-right text-[var(--st-text-secondary)]">
                       &nbsp;
-                    </ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {rows.map((r) => {
                     const checked = selection.has(r._id);
                     return (
-                      <ZoruTableRow
+                      <Tr
                         key={r._id}
                         className="border-[var(--st-border)]"
                         data-state={checked ? 'selected' : undefined}
                       >
-                        <ZoruTableCell>
+                        <Td>
                           <Checkbox
                             checked={checked}
                             onCheckedChange={() => handleToggle(r._id)}
                             aria-label={`Select ${r.description ?? r._id}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(r.transactionDate)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text)]">
                           {r.accountName ?? '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+                        </Td>
+                        <Td className="text-[12.5px] text-[var(--st-text)]">
                           <EntityRowLink
                             href={`/dashboard/crm/banking/bank-transactions/${r._id}`}
                             label={r.description ?? '—'}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12px] text-[var(--st-text-secondary)]">
                           {r.referenceNumber ?? '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-[12px] text-[var(--st-text-secondary)]">
                           {r.category ?? '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell
+                        </Td>
+                        <Td
                           className={[
                             'text-right text-[12.5px] font-semibold tabular-nums',
                             r.type === 'credit'
@@ -555,17 +529,17 @@ export function BankTransactionsListClient({
                           ].join(' ')}
                         >
                           {r.type === 'credit' ? '+' : '-'}{fmtMoney(r.amount)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-right text-[12.5px] tabular-nums text-[var(--st-text-secondary)]">
                           {r.balanceAfter != null ? fmtMoney(r.balanceAfter) : '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <StatusPill
                             label={r.status}
                             tone={STATUS_TONE[r.status] ?? 'neutral'}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
+                        </Td>
+                        <Td className="text-right">
                           <Button size="sm" variant="ghost" asChild>
                             <Link
                               href={`/dashboard/crm/banking/bank-transactions/${r._id}`}
@@ -573,11 +547,11 @@ export function BankTransactionsListClient({
                               <Eye className="h-3.5 w-3.5" />
                             </Link>
                           </Button>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           )}
@@ -589,22 +563,22 @@ export function BankTransactionsListClient({
       </div>
 
       {/* Bulk delete confirm */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={confirmBulk === 'delete'}
         onOpenChange={(o) => !o && setConfirmBulk(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Delete {selection.size} transaction{selection.size !== 1 ? 's' : ''}?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               This action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={() => handleBulk('delete')}
               disabled={isPending}
             >
@@ -612,10 +586,10 @@ export function BankTransactionsListClient({
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               )}
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* CSV import dialog */}
       <CsvImportDialog

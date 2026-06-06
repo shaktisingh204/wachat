@@ -1,15 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, Button } from '@/components/sabcrm/20ui/compat';
 import { FilePlus2, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 export interface FormSection {
@@ -50,19 +42,19 @@ export function CrmFormDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <ZoruSheetContent className="w-[90vw] max-w-[840px] p-0 flex flex-col bg-[var(--st-bg-secondary)] overflow-hidden border-l border-[var(--st-border)]">
+      <SheetContent className="w-[90vw] max-w-[840px] p-0 flex flex-col bg-[var(--st-bg-secondary)] overflow-hidden border-l border-[var(--st-border)]">
         
         {/* Drawer Header */}
-        <ZoruSheetHeader className="px-6 py-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/40">
-          <ZoruSheetTitle className="text-lg font-semibold text-[var(--st-text)] flex items-center gap-2">
+        <SheetHeader className="px-6 py-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/40">
+          <SheetTitle className="text-lg font-semibold text-[var(--st-text)] flex items-center gap-2">
             <FilePlus2 className="h-4 w-4 text-[var(--st-text)]" /> {title}
-          </ZoruSheetTitle>
+          </SheetTitle>
           {description && (
-            <ZoruSheetDescription className="text-[13px] text-[var(--st-text-secondary)] mt-0.5">
+            <SheetDescription className="text-[13px] text-[var(--st-text-secondary)] mt-0.5">
               {description}
-            </ZoruSheetDescription>
+            </SheetDescription>
           )}
-        </ZoruSheetHeader>
+        </SheetHeader>
 
         {/* Drawer Body - Split into navigation sidebar & content */}
         <div className="flex-1 flex overflow-hidden">
@@ -119,7 +111,7 @@ export function CrmFormDrawer({
         </div>
 
         {/* Drawer Footer */}
-        <ZoruSheetFooter className="px-6 py-3.5 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]/20 flex flex-row items-center justify-between gap-2">
+        <SheetFooter className="px-6 py-3.5 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]/20 flex flex-row items-center justify-between gap-2">
           <Button
             type="button"
             variant="outline"
@@ -145,9 +137,9 @@ export function CrmFormDrawer({
               </>
             )}
           </Button>
-        </ZoruSheetFooter>
+        </SheetFooter>
 
-      </ZoruSheetContent>
+      </SheetContent>
     </Sheet>
   );
 }

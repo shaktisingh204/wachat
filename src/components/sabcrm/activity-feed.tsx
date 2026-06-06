@@ -37,19 +37,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-import {
-  Card,
-  CardContent,
-  Button,
-  Badge,
-  Avatar,
-  ZoruAvatarImage,
-  ZoruAvatarFallback,
-  EmptyState,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardContent, Button, Badge, Avatar, AvatarImage, AvatarFallback, EmptyState, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   getActivityFeedAction,
 } from '@/app/actions/sabcrm.actions';
@@ -177,9 +165,9 @@ function AuthorAvatar({
   return (
     <Avatar className="h-8 w-8 shrink-0">
       {author?.avatarUrl ? (
-        <ZoruAvatarImage src={author.avatarUrl} alt={name} />
+        <AvatarImage src={author.avatarUrl} alt={name} />
       ) : null}
-      <ZoruAvatarFallback>{initials(name)}</ZoruAvatarFallback>
+      <AvatarFallback>{initials(name)}</AvatarFallback>
     </Avatar>
   );
 }
@@ -305,7 +293,7 @@ export function ActivityFeed({
   maxItems = 50,
   className,
 }: ActivityFeedProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [activities, setActivities] = React.useState<CrmActivityRecord[]>(
     () => (initialData && 'activities' in initialData) ? initialData.activities : [],

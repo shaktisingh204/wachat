@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Popover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Popover, PopoverContent, PopoverTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Tag,
   X } from 'lucide-react';
@@ -26,7 +26,7 @@ interface LeadTagsChipsProps {
 }
 
 export function LeadTagsChips({ leadId, tags, onTagsChanged }: LeadTagsChipsProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [localTags, setLocalTags] = React.useState<string[]>(tags);
     const [addOpen, setAddOpen] = React.useState(false);
     const [isPending, startTransition] = React.useTransition();
@@ -97,12 +97,12 @@ export function LeadTagsChips({ leadId, tags, onTagsChanged }: LeadTagsChipsProp
                 ))
             )}
             <Popover open={addOpen} onOpenChange={setAddOpen}>
-                <ZoruPopoverTrigger asChild>
+                <PopoverTrigger asChild>
                     <Button variant="ghost" size="sm" className="h-6 px-2 text-[12px]">
                         <Tag className="h-3 w-3" /> + Add tag
                     </Button>
-                </ZoruPopoverTrigger>
-                <ZoruPopoverContent align="start" className="w-64 space-y-2">
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-64 space-y-2">
                     <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Add a tag
                     </p>
@@ -112,7 +112,7 @@ export function LeadTagsChips({ leadId, tags, onTagsChanged }: LeadTagsChipsProp
                         placeholder="Pick or create a tag…"
                         onChange={handleAdd}
                     />
-                </ZoruPopoverContent>
+                </PopoverContent>
             </Popover>
         </div>
     );

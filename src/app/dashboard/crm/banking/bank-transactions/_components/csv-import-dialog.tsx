@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast, cn } from '@/components/sabcrm/20ui/compat';
 import {
   FileUp,
   LoaderCircle,
@@ -109,7 +93,7 @@ export function CsvImportDialog({
     accounts,
     onImported,
 }: CsvImportDialogProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [accountId, setAccountId] = React.useState<string>('');
     const [pick, setPick] = React.useState<SabFilePick | null>(null);
     const [preview, setPreview] = React.useState<PreviewRow[]>([]);
@@ -220,31 +204,31 @@ export function CsvImportDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>Import bank statement CSV</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Import bank statement CSV</DialogTitle>
+                    <DialogDescription>
                         Recognised columns: <code>date</code>, <code>amount</code> (or{' '}
                         <code>debit</code> / <code>credit</code>), <code>type</code>,{' '}
                         <code>description</code>, <code>reference</code>,{' '}
                         <code>balance</code>, <code>category</code>.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
                 <div className="flex flex-col gap-4">
                     <div className="space-y-1.5">
                         <Label htmlFor="csv-account">Target account</Label>
                         <Select value={accountId} onValueChange={setAccountId}>
-                            <ZoruSelectTrigger id="csv-account">
-                                <ZoruSelectValue placeholder="Pick a payment account…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="csv-account">
+                                <SelectValue placeholder="Pick a payment account…" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {accounts.map((a) => (
-                                    <ZoruSelectItem key={a._id.toString()} value={a._id.toString()}>
+                                    <SelectItem key={a._id.toString()} value={a._id.toString()}>
                                         {a.accountName} ({a.accountType})
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
 
@@ -311,7 +295,7 @@ export function CsvImportDialog({
                     ) : null}
                 </div>
 
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button variant="ghost" onClick={() => onOpenChange(false)}>
                         Cancel
                     </Button>
@@ -327,8 +311,8 @@ export function CsvImportDialog({
                         Import {preview.length || ''}{' '}
                         {preview.length === 1 ? 'row' : preview.length > 1 ? 'rows' : ''}
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

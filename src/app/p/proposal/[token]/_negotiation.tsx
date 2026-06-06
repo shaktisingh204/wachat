@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, ZoruCardContent, Button, Textarea } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Button, Textarea } from '@/components/sabcrm/20ui/compat';
 import { MessageSquare, ThumbsDown, Loader2, Send } from 'lucide-react';
 import { addProposalComment, declineProposal } from './_actions';
 
@@ -42,7 +42,7 @@ export function ProposalNegotiation({ token }: { token: string }) {
 
   return (
     <Card className="border-[var(--st-border)] shadow-sm mt-6">
-      <ZoruCardContent className="p-5 flex flex-col gap-4">
+      <CardBody className="p-5 flex flex-col gap-4">
         <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
           <MessageSquare className="h-4 w-4" />
           <h3 className="font-mono text-[12px] uppercase tracking-wider font-bold">Negotiation & Comments</h3>
@@ -83,7 +83,7 @@ export function ProposalNegotiation({ token }: { token: string }) {
             Send Comment
           </Button>
         </div>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
 
 export function AnnouncementPresence({ entityId }: { entityId: string }) {
     const [viewers, setViewers] = useState<{ id: string; name: string; color: string }[]>([
@@ -81,8 +81,8 @@ export function AnnouncementPresence({ entityId }: { entityId: string }) {
 
     return (
         <Card>
-            <ZoruCardHeader className="flex flex-row items-center justify-between py-3">
-                <ZoruCardTitle className="text-sm font-medium">Active Viewers</ZoruCardTitle>
+            <CardHeader className="flex flex-row items-center justify-between py-3">
+                <CardTitle className="text-sm font-medium">Active Viewers</CardTitle>
                 <div className="flex items-center gap-2">
                     <span className="relative flex h-2 w-2">
                       <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${isConnected ? 'bg-[var(--st-bg-muted)]' : 'bg-[var(--st-bg-muted)]'}`}></span>
@@ -90,8 +90,8 @@ export function AnnouncementPresence({ entityId }: { entityId: string }) {
                     </span>
                     <span className="text-xs text-[var(--st-text)]">{isConnected ? 'Live' : 'Offline'}</span>
                 </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="pb-4 pt-0">
+            </CardHeader>
+            <CardBody className="pb-4 pt-0">
                 <div className="flex -space-x-2 overflow-hidden">
                     {viewers.map((viewer, i) => (
                         <div 
@@ -111,7 +111,7 @@ export function AnnouncementPresence({ entityId }: { entityId: string }) {
                 <p className="mt-2 text-xs text-[var(--st-text)]">
                     {viewers.length} person{viewers.length === 1 ? '' : 's'} viewing this announcement.
                 </p>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

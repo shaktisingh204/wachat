@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruDateRangePicker,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, DateRangePicker, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import type { DateRange } from 'react-day-picker';
 import {
   Archive,
@@ -58,7 +46,7 @@ export interface AccountsFiltersRowProps {
 export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
     return (
         <Card>
-            <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-5">
+            <CardBody className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-5">
                 <div className="space-y-1">
                     <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
@@ -69,14 +57,14 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                             props.onStatusChange(v as AccountStatusFilter)
                         }
                     >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All</ZoruSelectItem>
-                            <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                            <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
 
@@ -90,16 +78,16 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                             props.onCategoryChange(v as AccountCategoryFilter)
                         }
                     >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All categories</ZoruSelectItem>
-                            <ZoruSelectItem value="new">New</ZoruSelectItem>
-                            <ZoruSelectItem value="strategic">Strategic</ZoruSelectItem>
-                            <ZoruSelectItem value="key">Key</ZoruSelectItem>
-                            <ZoruSelectItem value="regular">Regular</ZoruSelectItem>
-                        </ZoruSelectContent>
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All categories</SelectItem>
+                            <SelectItem value="new">New</SelectItem>
+                            <SelectItem value="strategic">Strategic</SelectItem>
+                            <SelectItem value="key">Key</SelectItem>
+                            <SelectItem value="regular">Regular</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
 
@@ -147,7 +135,7 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                         <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                             Created
                         </Label>
-                        <ZoruDateRangePicker
+                        <DateRangePicker
                             value={props.dateRange}
                             onChange={props.onDateRangeChange}
                             placeholder="Any time"
@@ -162,7 +150,7 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                         </Button>
                     </div>
                 ) : null}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -205,16 +193,16 @@ export function AccountsBulkBar({
                     </Button>
                 ) : null}
                 <Select onValueChange={(v) => onCategoryChange(v as 'new' | 'strategic' | 'key' | 'regular')}>
-                    <ZoruSelectTrigger className="h-8 w-[180px] text-[12px]">
+                    <SelectTrigger className="h-8 w-[180px] text-[12px]">
                         <Tag className="mr-1.5 h-3.5 w-3.5" />
-                        <ZoruSelectValue placeholder="Set category…" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="new">Mark as New</ZoruSelectItem>
-                        <ZoruSelectItem value="strategic">Mark as Strategic</ZoruSelectItem>
-                        <ZoruSelectItem value="key">Mark as Key</ZoruSelectItem>
-                        <ZoruSelectItem value="regular">Mark as Regular</ZoruSelectItem>
-                    </ZoruSelectContent>
+                        <SelectValue placeholder="Set category…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="new">Mark as New</SelectItem>
+                        <SelectItem value="strategic">Mark as Strategic</SelectItem>
+                        <SelectItem value="key">Mark as Key</SelectItem>
+                        <SelectItem value="regular">Mark as Regular</SelectItem>
+                    </SelectContent>
                 </Select>
                 <Button variant="outline" size="sm" onClick={onExport}>
                     <Download className="h-3.5 w-3.5" /> Export CSV

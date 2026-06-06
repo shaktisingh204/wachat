@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Skeleton,
-  Textarea,
-  useZoruToast,
-  Breadcrumb,
-} from '@/components/sabcrm/20ui/compat';
+import { BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, useToast, Breadcrumb } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -69,7 +46,7 @@ export default function ProfileSettingsPage() {
   const [loading, startLoading] = useTransition();
   const [language, setLanguage] = useState('en');
   const [state, formAction] = useActionState(handleUpdateUserProfile, initialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const load = () => {
     startLoading(async () => {
@@ -97,24 +74,24 @@ export default function ProfileSettingsPage() {
   return (
     <div className="flex min-h-full flex-col gap-6">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>{t('settings.profile.title')}</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{t('settings.profile.title')}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>{t('settings.profile.title')}</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>{t('settings.profile.title')}</PageTitle>
+          <PageDescription>
             {t('settings.profile.subtitle')}
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       {loading || !user ? (
@@ -158,16 +135,16 @@ export default function ProfileSettingsPage() {
               </Field>
               <Field label={t('settings.profile.fields.preferredLanguage')}>
                 <Select name="language" value={language} onValueChange={setLanguage}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
                     {LANGUAGES.map((l) => (
-                      <ZoruSelectItem key={l.value} value={l.value}>
+                      <SelectItem key={l.value} value={l.value}>
                         {l.label}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
                 <input type="hidden" name="language" value={language} />
               </Field>

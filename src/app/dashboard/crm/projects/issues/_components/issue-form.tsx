@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useId, useMemo, useState } from 'react';
 import {
@@ -151,7 +141,7 @@ function toDateInput(value: unknown): string {
 
 export function IssueForm({ mode, initial }: IssueFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formId = useId();
   const [state, action, isPending] = useActionState(saveWsIssue, INITIAL_STATE);
 
@@ -259,10 +249,10 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
 
       {/* ── Overview ─────────────────────────────────────────────── */}
       <Card className="p-0">
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex flex-col gap-4">
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
           <div>
             <Label htmlFor="title">
               Title <span className="text-[var(--st-danger)]">*</span>
@@ -311,15 +301,15 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               />
             </div>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* ── Classification ───────────────────────────────────────── */}
       <Card className="p-0">
-        <ZoruCardHeader>
-          <ZoruCardTitle>Classification</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex flex-col gap-4">
+        <CardHeader>
+          <CardTitle>Classification</CardTitle>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label>Status</Label>
@@ -418,14 +408,14 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               />
             </div>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* ── Subtasks ─────────────────────────────────────────────── */}
       <Card className="p-0">
-        <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
-            <ZoruCardTitle>Subtasks</ZoruCardTitle>
+            <CardTitle>Subtasks</CardTitle>
             <p className="text-[12px] text-[var(--st-text-secondary)]">
               Break this issue into smaller pieces. Use arrows to reorder.
             </p>
@@ -438,8 +428,8 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
           >
             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add subtask
           </Button>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           {subtasks.length === 0 ? (
             <p className="rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-3 text-center text-[12px] text-[var(--st-text-secondary)]">
               No subtasks yet — click Add subtask to start.
@@ -532,14 +522,14 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               ))}
             </ul>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* ── Attachments ──────────────────────────────────────────── */}
       <Card className="p-0">
-        <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
-            <ZoruCardTitle>Attachments</ZoruCardTitle>
+            <CardTitle>Attachments</CardTitle>
             <p className="text-[12px] text-[var(--st-text-secondary)]">
               Screenshots, logs, repro files — picked from your SabFiles library.
             </p>
@@ -564,8 +554,8 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
           >
             <Paperclip className="mr-1.5 h-3.5 w-3.5" /> Add file
           </SabFilePickerButton>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           {attachments.length === 0 ? (
             <p className="rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-3 text-center text-[12px] text-[var(--st-text-secondary)]">
               No attachments — add files from SabFiles to share context.
@@ -591,7 +581,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               ))}
             </ul>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {state?.error ? (

@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
@@ -24,7 +17,7 @@ import { saveLoan } from '@/app/actions/crm-loans.actions';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { EntityKey } from '@/lib/lookup-registry';
-import { ZoruDatePicker } from '@/components/sabcrm/20ui/compat';
+import { DatePicker } from '@/components/sabcrm/20ui/compat';
 import { format } from 'date-fns';
 
 function SubmitButton() {
@@ -52,7 +45,7 @@ function borrowerEntityForType(type: string): EntityKey {
 function LoanFormInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, formAction] = useActionState(saveLoan, initialState);
   const [loanType, setLoanType] = useState<string>('customer_loan');
 
@@ -200,7 +193,7 @@ function LoanFormInner() {
       {/* Start Date */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="startDate">Start Date</Label>
-        <ZoruDatePicker
+        <DatePicker
           value={startDate}
           onChange={setStartDate}
           className="max-w-xs"

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
@@ -72,7 +72,7 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
     const today = new Date();
     return (
         <Card>
-            <ZoruCardContent className="space-y-3 pt-4">
+            <CardBody className="space-y-3 pt-4">
                 <header className="flex items-center justify-between">
                     <h3 className="text-[15px] font-medium text-[var(--st-text)]">{monthLabel}</h3>
                     <div className="flex items-center gap-1">
@@ -194,7 +194,7 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
                     <StatusPill label="In Progress" tone={statusToTone('In Progress')} />
                     <StatusPill label="Completed" tone={statusToTone('Completed')} />
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

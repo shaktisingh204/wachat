@@ -1,61 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-  StatCard,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Skeleton, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   CreditCard,
   Plus,
@@ -187,45 +132,45 @@ export function InvoicesSection({
     return (
         <Card className="overflow-hidden">
             <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow>
-                        <ZoruTableHead>Template</ZoruTableHead>
-                        <ZoruTableHead>Chat ID</ZoruTableHead>
-                        <ZoruTableHead>Amount</ZoruTableHead>
-                        <ZoruTableHead>Status</ZoruTableHead>
-                        <ZoruTableHead>Link</ZoruTableHead>
-                        <ZoruTableHead>Created</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                <THead>
+                    <Tr>
+                        <Th>Template</Th>
+                        <Th>Chat ID</Th>
+                        <Th>Amount</Th>
+                        <Th>Status</Th>
+                        <Th>Link</Th>
+                        <Th>Created</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {invoices.length === 0 && (
-                        <ZoruTableRow>
-                            <ZoruTableCell colSpan={6}>
+                        <Tr>
+                            <Td colSpan={6}>
                                 <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
                                     No invoices sent or created yet.
                                 </div>
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                        </Tr>
                     )}
                     {invoices.map((inv) => (
-                        <ZoruTableRow key={inv._id}>
-                            <ZoruTableCell>
+                        <Tr key={inv._id}>
+                            <Td>
                                 {inv.templateId
                                     ? (templateMap.get(inv.templateId)?.name ?? inv.title)
                                     : inv.title}
-                            </ZoruTableCell>
-                            <ZoruTableCell>
+                            </Td>
+                            <Td>
                                 <span className="font-mono text-xs">
                                     {inv.chatId ?? '—'}
                                 </span>
-                            </ZoruTableCell>
-                            <ZoruTableCell>
+                            </Td>
+                            <Td>
                                 {fmtCurrency(inv.amount, inv.currency)}
-                            </ZoruTableCell>
-                            <ZoruTableCell>
+                            </Td>
+                            <Td>
                                 <StatusBadge status={inv.status} />
-                            </ZoruTableCell>
-                            <ZoruTableCell>
+                            </Td>
+                            <Td>
                                 {inv.invoiceLink ? (
                                     <a
                                         href={inv.invoiceLink}
@@ -238,11 +183,11 @@ export function InvoicesSection({
                                 ) : (
                                     '—'
                                 )}
-                            </ZoruTableCell>
-                            <ZoruTableCell>{fmtDate(inv.createdAt)}</ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                            <Td>{fmtDate(inv.createdAt)}</Td>
+                        </Tr>
                     ))}
-                </ZoruTableBody>
+                </TBody>
             </Table>
         </Card>
     );

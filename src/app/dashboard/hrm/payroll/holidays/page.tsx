@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarHeart,
   PartyPopper,
@@ -99,7 +99,7 @@ function quarterOf(d: Date): number {
 }
 
 export default function HolidaysPage(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { t } = useT();
 
   /* Data */

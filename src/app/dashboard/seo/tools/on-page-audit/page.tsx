@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { Check, X, Globe } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -96,21 +96,21 @@ export default function OnPageAuditPage() {
           {loading ? 'Auditing…' : 'Audit'}
         </Button>
       </div>
-      {error && <Card className="border-[var(--st-border)]"><ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-[var(--st-border)]"><CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody></Card>}
       
       {loading && (
         <Card className="mt-4 border-dashed">
-          <ZoruCardContent className="p-8 text-center text-[var(--st-text-secondary)] flex flex-col items-center gap-4">
+          <CardBody className="p-8 text-center text-[var(--st-text-secondary)] flex flex-col items-center gap-4">
             <Globe className="h-8 w-8 animate-pulse text-[var(--st-text)]" />
             <p>Launching headless browser & executing JS...</p>
             <p className="text-xs">This may take up to 10-15 seconds depending on the site.</p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {checks.length > 0 && !loading && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-4 space-y-2">
+          <CardBody className="p-4 space-y-2">
             <div className="text-sm font-semibold">Score: {passed} / {checks.length} checks passed</div>
             <div className="space-y-1">
               {checks.map((c, i) => (
@@ -123,7 +123,7 @@ export default function OnPageAuditPage() {
                 </div>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

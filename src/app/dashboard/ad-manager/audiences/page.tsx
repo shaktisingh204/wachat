@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Label,
-  Progress,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label, Progress } from '@/components/sabcrm/20ui/compat';
 import {
   Users,
   Plus,
@@ -201,14 +178,14 @@ function AudienceRow({
 
       {/* delete confirmation dialog */}
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <ZoruDialogContent className="max-w-sm">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-[15px]">Delete audience</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-[13px] text-[var(--st-text-secondary)]">
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-[15px]">Delete audience</DialogTitle>
+            <DialogDescription className="text-[13px] text-[var(--st-text-secondary)]">
               Are you sure you want to delete <strong>{audience.name}</strong>? This action cannot be undone.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter className="gap-2 sm:gap-0">
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" size="sm" onClick={() => setConfirmOpen(false)}>
               Cancel
             </Button>
@@ -222,8 +199,8 @@ function AudienceRow({
             >
               Delete
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );
@@ -336,13 +313,13 @@ function CreateAudienceSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <ZoruSheetContent side="right" className="w-full sm:max-w-md bg-[var(--st-bg-secondary)] overflow-y-auto">
-        <ZoruSheetHeader className="mb-6">
-          <ZoruSheetTitle className="text-[18px] font-semibold text-[var(--st-text)]">Create audience</ZoruSheetTitle>
-          <ZoruSheetDescription className="text-[13px] text-[var(--st-text-secondary)]">
+      <SheetContent side="right" className="w-full sm:max-w-md bg-[var(--st-bg-secondary)] overflow-y-auto">
+        <SheetHeader className="mb-6">
+          <SheetTitle className="text-[18px] font-semibold text-[var(--st-text)]">Create audience</SheetTitle>
+          <SheetDescription className="text-[13px] text-[var(--st-text-secondary)]">
             Build a custom or lookalike audience for targeting.
-          </ZoruSheetDescription>
-        </ZoruSheetHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         {/* type tabs */}
         <div className="flex gap-2 mb-6">
@@ -383,14 +360,14 @@ function CreateAudienceSheet({
                 Source type
               </Label>
               <Select value={customSubtype} onValueChange={(v) => setCustomSubtype(v as typeof customSubtype)}>
-                <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="WEBSITE">Website (Pixel)</ZoruSelectItem>
-                  <ZoruSelectItem value="ENGAGEMENT">Engagement</ZoruSelectItem>
-                  <ZoruSelectItem value="CUSTOM">Customer list</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="WEBSITE">Website (Pixel)</SelectItem>
+                  <SelectItem value="ENGAGEMENT">Engagement</SelectItem>
+                  <SelectItem value="CUSTOM">Customer list</SelectItem>
+                </SelectContent>
               </Select>
             </div>
           </div>
@@ -401,16 +378,16 @@ function CreateAudienceSheet({
                 Source audience
               </Label>
               <Select value={lookOrigin} onValueChange={setLookOrigin}>
-                <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
-                  <ZoruSelectValue placeholder="Select a source audience" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
+                  <SelectValue placeholder="Select a source audience" />
+                </SelectTrigger>
+                <SelectContent>
                   {audiences.map((a) => (
-                    <ZoruSelectItem key={a.id} value={a.id}>
+                    <SelectItem key={a.id} value={a.id}>
                       {a.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
 
@@ -419,16 +396,16 @@ function CreateAudienceSheet({
                 Country
               </Label>
               <Select value={lookCountry} onValueChange={setLookCountry}>
-                <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {COUNTRIES.map((c) => (
-                    <ZoruSelectItem key={c.code} value={c.code}>
+                    <SelectItem key={c.code} value={c.code}>
                       {c.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
 
@@ -474,7 +451,7 @@ function CreateAudienceSheet({
             {submitting ? 'Creating...' : 'Create audience'}
           </Button>
         </div>
-      </ZoruSheetContent>
+      </SheetContent>
     </Sheet>
   );
 }
@@ -520,13 +497,13 @@ function SyncCrmDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Sync CRM Data</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Sync CRM Data</DialogTitle>
+          <DialogDescription>
             Import your Wachat CRM contacts to create a custom audience on Meta.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
@@ -545,28 +522,28 @@ function SyncCrmDialog({
               CRM Segment
             </Label>
             <Select value={segment} onValueChange={setSegment}>
-              <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
-                <ZoruSelectValue placeholder="Select segment" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All Contacts</ZoruSelectItem>
-                <ZoruSelectItem value="active">Active Subscribers</ZoruSelectItem>
-                <ZoruSelectItem value="inactive">Inactive / Churned</ZoruSelectItem>
-                <ZoruSelectItem value="high_value">High Value (LTV &gt; $500)</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
+                <SelectValue placeholder="Select segment" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Contacts</SelectItem>
+                <SelectItem value="active">Active Subscribers</SelectItem>
+                <SelectItem value="inactive">Inactive / Churned</SelectItem>
+                <SelectItem value="high_value">High Value (LTV &gt; $500)</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </div>
 
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
           <Button variant="default" onClick={submit} disabled={submitting || !audienceName.trim()}>
             {submitting ? 'Syncing...' : 'Sync & Create'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

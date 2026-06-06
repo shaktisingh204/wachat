@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Badge, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
@@ -123,16 +123,16 @@ export default function BacklinkCheckerPage() {
 
       {error && (
         <Card className="border-[var(--st-border)]/50 bg-[var(--st-text)]/10">
-          <ZoruCardContent className="p-4 flex items-center gap-3 text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+          <CardBody className="p-4 flex items-center gap-3 text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <div>{error}</div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {rows && (
         <Card>
-          <ZoruCardContent className="p-4 space-y-4">
+          <CardBody className="p-4 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="text-sm font-medium text-[var(--st-text-secondary)]">
                 Found {rows.length} backlinks
@@ -178,7 +178,7 @@ export default function BacklinkCheckerPage() {
                 ))}
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

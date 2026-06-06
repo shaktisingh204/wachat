@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   LoaderCircle,
   Play } from 'lucide-react';
@@ -45,14 +34,14 @@ export function StartTimerDialog({
 }: StartTimerDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Start a timer</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Start a timer</DialogTitle>
+          <DialogDescription>
             Optionally pin to a project, task, or write a memo for what
             you&apos;re working on.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3">
           <div>
             <Label>Project</Label>
@@ -86,7 +75,7 @@ export function StartTimerDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter className="gap-2">
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -98,8 +87,8 @@ export function StartTimerDialog({
             )}
             Start
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -121,26 +110,26 @@ export function RejectLogDialog({
 }: RejectLogDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-md">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Reject log</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Reject log</DialogTitle>
+          <DialogDescription>
             Give a reason for the rejection — the employee will see this.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <Textarea
           rows={4}
           value={reason}
           onChange={(e) => onReasonChange(e.target.value)}
           placeholder="Reason…"
         />
-        <ZoruDialogFooter className="gap-2">
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={onConfirm}>Reject</Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

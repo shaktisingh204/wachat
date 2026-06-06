@@ -17,14 +17,7 @@ import {
   type HrmRoadmap,
 } from '@/app/actions/hrm-roadmaps.actions';
 import { fmtDate } from '@/lib/utils';
-import {
-  Button,
-  Badge,
-  StatCard,
-  Progress,
-  Card,
-  ZoruCardContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, StatCard, Progress, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 
 /* ─── Error Boundary ─────────────────────────────────────────────────── */
 
@@ -424,7 +417,7 @@ function RoadmapsClient() {
 
       {/* Table Area */}
       <Card>
-        <ZoruCardContent className="p-0">
+        <CardBody className="p-0">
           {isInitialLoad ? (
             <div className="flex h-48 items-center justify-center text-sm text-[var(--st-text-secondary)] animate-pulse">
               Loading roadmaps...
@@ -482,7 +475,7 @@ function RoadmapsClient() {
               </div>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

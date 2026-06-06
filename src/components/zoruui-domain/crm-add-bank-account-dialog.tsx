@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useRef,
@@ -32,7 +15,7 @@ interface CrmAddBankAccountDialogProps {
 }
 
 export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAddBankAccountDialogProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [details, setDetails] = useState<Partial<BankAccountDetails>>({});
     const [confirmAccountNumber, setConfirmAccountNumber] = useState('');
     const [showSwift, setShowSwift] = useState(false);
@@ -52,18 +35,18 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
-                <ZoruDialogHeader className="px-6 pt-6 pb-2">
-                    <ZoruDialogTitle className="text-[var(--st-text)]">Add New Bank Account</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
+            <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
+                <DialogHeader className="px-6 pt-6 pb-2">
+                    <DialogTitle className="text-[var(--st-text)]">Add New Bank Account</DialogTitle>
+                    <DialogDescription className="text-[var(--st-text-secondary)]">
                         Enter the vendor's bank details for payouts.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <div className="flex-1 overflow-y-auto px-6 py-2">
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label className="text-[var(--st-text)]">Country *</Label>
-                            <Select defaultValue="India"><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="India">India</ZoruSelectItem></ZoruSelectContent></Select>
+                            <Select defaultValue="India"><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="India">India</SelectItem></SelectContent></Select>
                         </div>
                         <div className="space-y-2">
                             <Label className="text-[var(--st-text)]">Bank Name *</Label>
@@ -88,20 +71,20 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
                         <div className="space-y-2">
                             <Label className="text-[var(--st-text)]">Account Type *</Label>
                             <Select value={details.accountType || ''} onValueChange={val => setDetails(prev => ({ ...prev, accountType: val as any }))} required>
-                                <ZoruSelectTrigger><ZoruSelectValue placeholder="Select account type..." /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="current">Current</ZoruSelectItem>
-                                    <ZoruSelectItem value="savings">Savings</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger><SelectValue placeholder="Select account type..." /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="current">Current</SelectItem>
+                                    <SelectItem value="savings">Savings</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
                             <Label className="text-[var(--st-text)]">Currency *</Label>
                             <Select value={details.currency || 'INR'} onValueChange={val => setDetails(prev => ({ ...prev, currency: val }))} required>
-                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="INR">Indian Rupee (INR, ₹)</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="INR">Indian Rupee (INR, ₹)</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="flex items-center space-x-2 pt-2">
@@ -116,11 +99,11 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
                         {showIban && <div className="space-y-2"><Input value={details.ibanCode || ''} onChange={e => setDetails(prev => ({ ...prev, ibanCode: e.target.value }))} maxLength={34} /></div>}
                     </div>
                 </div>
-                <ZoruDialogFooter className="shrink-0 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-6 pb-6 pt-4">
+                <DialogFooter className="shrink-0 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-6 pb-6 pt-4">
                     <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                     <Button type="button" onClick={handleSave}>Add Account</Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

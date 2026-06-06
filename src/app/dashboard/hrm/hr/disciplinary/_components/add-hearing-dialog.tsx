@@ -1,17 +1,7 @@
 "use client";
 
 import React, { useState, useTransition } from 'react';
-import { 
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  Textarea
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import { PlusCircle } from 'lucide-react';
 import { addDisciplinaryHearing } from '@/app/actions/hr.actions';
 import { toast } from 'sonner';
@@ -39,16 +29,16 @@ export function AddHearingDialog({ caseId }: { caseId: string }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="outline">
           <PlusCircle className="mr-2 h-4 w-4" />
           Add Hearing
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Add Hearing</ZoruDialogTitle>
-        </ZoruDialogHeader>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Hearing</DialogTitle>
+        </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="space-y-1.5">
             <Label>Date</Label>
@@ -64,7 +54,7 @@ export function AddHearingDialog({ caseId }: { caseId: string }) {
             </Button>
           </div>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

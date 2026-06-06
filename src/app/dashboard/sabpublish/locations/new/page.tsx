@@ -3,18 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-  Button,
-  Card,
-  CardContent,
-  Input,
-  Label,
-  PageHeader,
-  Textarea,
-  ZoruPageDescription,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, Input, Label, PageHeader, Textarea, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 import { createSabpublishLocation } from '@/app/actions/sabpublish.actions';
 
 export default function NewSabpublishLocationPage() {
@@ -57,13 +46,13 @@ export default function NewSabpublishLocationPage() {
   return (
     <div className="zoruui space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>New location</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>New location</PageTitle>
+          <PageDescription>
             Create a draft location. You can connect providers and edit
             profile details after it&apos;s saved.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
       <Card>
         <CardContent className="p-6">

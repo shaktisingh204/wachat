@@ -1,15 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import {
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr, Badge } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -165,74 +156,74 @@ export default async function ExpenseReportPage(props: {
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">
                   Date
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Category
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Description
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Reference
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Amount
-                </ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">
                   Tax
-                </ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Status
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={7}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No expenses for this range.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 pageRows.map((r) => (
-                  <ZoruTableRow key={r.id} className="border-[var(--st-border)]">
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                  <Tr key={r.id} className="border-[var(--st-border)]">
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {r.date}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {r.category}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[280px] truncate text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="max-w-[280px] truncate text-[13px] text-[var(--st-text-secondary)]">
                       <EntityRowLink
                         href={`/dashboard/crm/purchases/expenses/${r.id}`}
                         label={r.description || '(no description)'}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.reference || '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-danger)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-danger)]">
                       {fmtMoney(r.amount)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {fmtMoney(r.taxAmount)}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant="secondary">
                         {r.status || '—'}
                       </Badge>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

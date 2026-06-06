@@ -23,34 +23,7 @@ import {
   Bell,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Checkbox,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Input,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -150,18 +123,18 @@ function KpiStrip({ rows, loading }: KpiStripProps) {
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {tiles.map((t) => (
         <Card key={t.label}>
-          <ZoruCardHeader className="pb-1 pt-4">
-            <ZoruCardTitle className="text-[12px] font-medium text-[var(--st-text-secondary)]">
+          <CardHeader className="pb-1 pt-4">
+            <CardTitle className="text-[12px] font-medium text-[var(--st-text-secondary)]">
               {t.label}
-            </ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="pb-4">
+            </CardTitle>
+          </CardHeader>
+          <CardBody className="pb-4">
             {loading ? (
               <div className="h-6 w-12 animate-pulse rounded bg-[var(--st-bg-muted)]" />
             ) : (
               <p className="text-xl font-semibold text-[var(--st-text)]">{t.value}</p>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ))}
     </div>
@@ -235,7 +208,7 @@ function BulkBar({
 /* ─── Page ───────────────────────────────────────────────────────── */
 
 export default function ContractRenewalsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const nowRef = React.useRef(new Date());
   const now = nowRef.current;
 
@@ -555,9 +528,9 @@ export default function ContractRenewalsPage() {
 
         <div className="overflow-x-auto rounded-b-lg border-t border-[var(--st-border)]">
           <Table>
-            <TableHeader>
-              <TableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <TableHead className="w-10">
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="w-10">
                   <Checkbox
                     checked={
                       allChecked || (someChecked ? 'indeterminate' : false)
@@ -565,60 +538,60 @@ export default function ContractRenewalsPage() {
                     onCheckedChange={toggleAll}
                     aria-label="Select all visible"
                   />
-                </TableHead>
-                <TableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Title
-                </TableHead>
-                <TableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Counterparty
-                </TableHead>
-                <TableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Type
-                </TableHead>
-                <TableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Expiry
-                </TableHead>
-                <TableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Days left
-                </TableHead>
-                <TableHead className="text-[var(--st-text-secondary)]">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)]">
                   Auto-renew
-                </TableHead>
-                <TableHead className="text-[var(--st-text-secondary)] text-right">
+                </Th>
+                <Th className="text-[var(--st-text-secondary)] text-right">
                   Open
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {loading ? (
-                <TableRow className="border-[var(--st-border)]">
-                  <TableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={8}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     Loading renewals…
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ) : loadError ? (
-                <TableRow className="border-[var(--st-border)]">
-                  <TableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={8}
                     className="h-24 text-center text-[13px] text-[var(--st-text)]"
                   >
                     {loadError}
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ) : filtered.length === 0 ? (
-                <TableRow className="border-[var(--st-border)]">
-                  <TableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={8}
                     className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {rows.length === 0
                       ? `Nothing expiring in the next ${RENEWAL_WINDOW_DAYS} days.`
                       : 'No contracts match your filters.'}
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ) : (
                 filtered.map((c) => {
                   const expiry = c.expiryDate
@@ -631,46 +604,46 @@ export default function ContractRenewalsPage() {
                   const counterparty =
                     c.partyB ?? c.counterparty ?? c.partyName ?? '—';
                   return (
-                    <TableRow
+                    <Tr
                       key={c._id}
                       className="border-[var(--st-border)]"
                     >
-                      <TableCell>
+                      <Td>
                         <Checkbox
                           checked={selected.has(c._id)}
                           onCheckedChange={() => toggleOne(c._id)}
                           aria-label={`Select ${c.title ?? c._id}`}
                         />
-                      </TableCell>
-                      <TableCell className="font-medium text-[var(--st-text)]">
+                      </Td>
+                      <Td className="font-medium text-[var(--st-text)]">
                         <EntityRowLink
                           href={`${CONTRACTS_BASE}/${c._id}`}
                           label={c.title ?? 'Untitled contract'}
                         />
-                      </TableCell>
-                      <TableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {counterparty}
-                      </TableCell>
-                      <TableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {c.contractType ?? '—'}
-                      </TableCell>
-                      <TableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {fmtDate(c.expiryDate)}
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <StatusPill
                           label={urgencyLabel(daysLeft)}
                           tone={urgencyTone(daysLeft)}
                         />
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         {c.autoRenew ? (
                           <Badge variant="success">On</Badge>
                         ) : (
                           <Badge variant="ghost">Off</Badge>
                         )}
-                      </TableCell>
-                      <TableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -681,12 +654,12 @@ export default function ContractRenewalsPage() {
                             <ArrowRight className="ml-1 h-3.5 w-3.5" />
                           </Link>
                         </Button>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </TableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

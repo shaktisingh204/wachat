@@ -9,15 +9,7 @@
 import * as React from 'react';
 import { Headphones, Mic, MicOff, PhoneOff, Users } from 'lucide-react';
 
-import {
-    Button,
-    ZoruDrawer,
-    ZoruDrawerContent,
-    ZoruDrawerHeader,
-    ZoruDrawerTitle,
-    ZoruDrawerFooter,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
     startTeamHuddle,
@@ -42,7 +34,7 @@ export function HuddleDrawer({
     meId,
     participantNames,
 }: HuddleDrawerProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [huddle, setHuddle] = React.useState<HuddleView | null>(null);
     const [busy, setBusy] = React.useState(false);
     const [micOn, setMicOn] = React.useState(true);
@@ -98,14 +90,14 @@ export function HuddleDrawer({
     const meInHuddle = !!huddle && !!meId && huddle.participantIds.includes(meId);
 
     return (
-        <ZoruDrawer open={open} onOpenChange={onOpenChange}>
-            <ZoruDrawerContent className="px-6 pb-6 pt-4">
-                <ZoruDrawerHeader>
-                    <ZoruDrawerTitle className="flex items-center gap-2">
+        <Drawer open={open} onOpenChange={onOpenChange}>
+            <DrawerContent className="px-6 pb-6 pt-4">
+                <DrawerHeader>
+                    <DrawerTitle className="flex items-center gap-2">
                         <Headphones className="h-4 w-4" />
                         Huddle
-                    </ZoruDrawerTitle>
-                </ZoruDrawerHeader>
+                    </DrawerTitle>
+                </DrawerHeader>
 
                 <div className="mt-4 flex flex-col gap-4">
                     <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
@@ -151,7 +143,7 @@ export function HuddleDrawer({
                     ) : null}
                 </div>
 
-                <ZoruDrawerFooter className="mt-6 flex flex-row justify-end gap-2">
+                <DrawerFooter className="mt-6 flex flex-row justify-end gap-2">
                     {huddle && meInHuddle ? (
                         <Button
                             type="button"
@@ -174,8 +166,8 @@ export function HuddleDrawer({
                             {huddle ? 'Join huddle' : 'Start huddle'}
                         </Button>
                     )}
-                </ZoruDrawerFooter>
-            </ZoruDrawerContent>
-        </ZoruDrawer>
+                </DrawerFooter>
+            </DrawerContent>
+        </Drawer>
     );
 }

@@ -4,7 +4,7 @@ import { fmtINR } from "@/lib/utils";
 import { useState, useTransition } from 'react';
 import useSWR from 'swr';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, useZoruToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { createSalesForecast, deleteSalesForecast, getSalesForecasts } from '@/app/actions/platform/ai-sales-forecasting.actions';
 import type { AISalesForecast } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
@@ -13,7 +13,7 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
   const [dialogOpen, setDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { data: forecasts = initialData, mutate } = useSWR<AISalesForecast[]>('ai-sales-forecasts', () => getSalesForecasts(), {
     fallbackData: initialData,
   });
@@ -60,45 +60,45 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
     >
       <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>Period</ZoruTableHead>
-              <ZoruTableHead>Model</ZoruTableHead>
-              <ZoruTableHead>Predicted Revenue</ZoruTableHead>
-              <ZoruTableHead>Confidence</ZoruTableHead>
-              <ZoruTableHead>Drivers</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>Period</Th>
+              <Th>Model</Th>
+              <Th>Predicted Revenue</Th>
+              <Th>Confidence</Th>
+              <Th>Drivers</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredData.map(item => (
-              <ZoruTableRow key={item.id}>
-                <ZoruTableCell className="font-medium">{item.period}</ZoruTableCell>
-                <ZoruTableCell>{item.aiModel || 'N/A'}</ZoruTableCell>
-                <ZoruTableCell>{fmtINR(item.predictedRevenue)}</ZoruTableCell>
-                <ZoruTableCell>{item.confidenceScore}%</ZoruTableCell>
-                <ZoruTableCell>{item.drivers.join(', ')}</ZoruTableCell>
-                <ZoruTableCell className="text-right">
+              <Tr key={item.id}>
+                <Td className="font-medium">{item.period}</Td>
+                <Td>{item.aiModel || 'N/A'}</Td>
+                <Td>{fmtINR(item.predictedRevenue)}</Td>
+                <Td>{item.confidenceScore}%</Td>
+                <Td>{item.drivers.join(', ')}</Td>
+                <Td className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
                     <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
                   </Button>
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))}
             {filteredData.length === 0 && (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={6} className="text-center py-8 text-[var(--st-text-tertiary)]">No forecasts found.</ZoruTableCell>
-              </ZoruTableRow>
+              <Tr>
+                <Td colSpan={6} className="text-center py-8 text-[var(--st-text-tertiary)]">No forecasts found.</Td>
+              </Tr>
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New Sales Forecast</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Sales Forecast</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>Period (e.g. Q4 2026)</Label>
@@ -131,13 +131,13 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
               <Input value={form.drivers} onChange={e => setForm({ ...form, drivers: e.target.value })} placeholder="Marketing spend, new leads" />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleCreate} disabled={isPending}>
               {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} Create
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * Body cards for the contact detail page (extracted to keep
  * `[contactId]/page.tsx` under the 600-line scope cap).
@@ -40,10 +40,10 @@ export function ContactDetailBody({
         <>
             {/* ─── Overview ───────────────────────────────────────── */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Overview</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <CardHeader>
+                    <CardTitle>Overview</CardTitle>
+                </CardHeader>
+                <CardBody className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <Field label="Name" value={contact.name} />
                     <Field
                         label="Email"
@@ -128,15 +128,15 @@ export function ContactDetailBody({
                             />
                         }
                     />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Address ────────────────────────────────────────── */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Address</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <CardHeader>
+                    <CardTitle>Address</CardTitle>
+                </CardHeader>
+                <CardBody className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <Field
                         label="Country"
                         value={
@@ -151,15 +151,15 @@ export function ContactDetailBody({
                         label="City"
                         value={(anyContact.city as string | undefined) ?? '—'}
                     />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Social ─────────────────────────────────────────── */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Social</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <CardHeader>
+                    <CardTitle>Social</CardTitle>
+                </CardHeader>
+                <CardBody className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <Field
                         label="LinkedIn"
                         value={
@@ -198,15 +198,15 @@ export function ContactDetailBody({
                             )
                         }
                     />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Notes ──────────────────────────────────────────── */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Notes</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-3">
+                <CardHeader>
+                    <CardTitle>Notes</CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-3">
                     {Array.isArray(contact.notes) && contact.notes.length > 0 ? (
                         <ol className="flex flex-col gap-3">
                             {contact.notes.map((n, i) => (
@@ -247,15 +247,15 @@ export function ContactDetailBody({
                     {/* TODO 1D.2: inline note composer + per-note edit/delete deferred —
                         the existing `addCrmContactNote` action covers append-only;
                         a dedicated composer dialog ships in a follow-up batch. */}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Attachments ───────────────────────────────────── */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Attachments</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Attachments</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <p className="text-sm text-[var(--st-text-secondary)]">
                         No attachments yet.
                     </p>
@@ -263,15 +263,15 @@ export function ContactDetailBody({
                         requires a `contact.attachments[]` field on CrmContact which
                         isn't part of the current type. Linkable via custom-fields once
                         the per-tenant schema ships. */}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Tags ──────────────────────────────────────────── */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Tags</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Tags</CardTitle>
+                </CardHeader>
+                <CardBody>
                     {Array.isArray(contact.tags) && contact.tags.length > 0 ? (
                         <div className="flex flex-wrap gap-1.5">
                             {contact.tags.map((t) => (
@@ -285,22 +285,22 @@ export function ContactDetailBody({
                             No tags yet.
                         </p>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {/* ─── Custom fields ─────────────────────────────────── */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Custom fields</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Custom fields</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <p className="text-sm text-[var(--st-text-secondary)]">
                         No custom fields configured for contacts.
                     </p>
                     {/* TODO 1D.2: render per-tenant custom fields from
                         `applyCustomFieldsToEntity('contact', …)` once the
                         read-side helper ships. */}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </>
     );

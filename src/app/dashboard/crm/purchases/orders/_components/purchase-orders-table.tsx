@@ -3,15 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { MoreHorizontal } from 'lucide-react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -78,7 +70,7 @@ export function PurchaseOrdersTable({
   filtersActive,
   density = 'comfortable',
 }: PurchaseOrdersTableProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const bulky = useCrmBulkyState<PurchaseOrderListRow>({
@@ -230,7 +222,7 @@ export function PurchaseOrdersTable({
         const id = row._id;
         return (
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <Button
                 size="sm"
                 variant="ghost"
@@ -239,35 +231,35 @@ export function PurchaseOrdersTable({
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuItem asChild>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/orders/${id}`}>
                   View Details
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/orders/${id}/edit`}>
                   Edit Order
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/inventory/grn/new?fromKind=purchaseOrder&fromId=${id}`}>
                   Convert to GRN
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/bills/new?fromKind=purchaseOrder&fromId=${id}`}>
                   Convert to Bill
                 </Link>
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem asChild>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/purchases/orders/${id}/activity`}>
                   Audit Logs / Activity
                 </Link>
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         );
       },

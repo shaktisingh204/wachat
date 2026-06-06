@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Checkbox,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   formatDistanceToNow } from 'date-fns';
 import {
@@ -89,47 +74,47 @@ export function LeadsTable({
     return (
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                        <ZoruTableHead className="w-[36px]">
+                <THead>
+                    <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                        <Th className="w-[36px]">
                             <Checkbox
                                 aria-label="Select all leads on this page"
                                 checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                 onCheckedChange={(c) => onToggleAll(c === true)}
                             />
-                        </ZoruTableHead>
-                        <ZoruTableHead>Lead</ZoruTableHead>
-                        <ZoruTableHead>Company</ZoruTableHead>
-                        <ZoruTableHead>Email</ZoruTableHead>
-                        <ZoruTableHead>Phone</ZoruTableHead>
-                        <ZoruTableHead>Source</ZoruTableHead>
-                        <ZoruTableHead>Pipeline</ZoruTableHead>
-                        <ZoruTableHead>Stage</ZoruTableHead>
-                        <ZoruTableHead>Owner</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Value</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Score</ZoruTableHead>
-                        <ZoruTableHead>Created</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                        </Th>
+                        <Th>Lead</Th>
+                        <Th>Company</Th>
+                        <Th>Email</Th>
+                        <Th>Phone</Th>
+                        <Th>Source</Th>
+                        <Th>Pipeline</Th>
+                        <Th>Stage</Th>
+                        <Th>Owner</Th>
+                        <Th className="text-right">Value</Th>
+                        <Th className="text-right">Score</Th>
+                        <Th>Created</Th>
+                        <Th className="text-right">Actions</Th>
+                    </Tr>
+                </THead>
+                <TBody>
                     {loading ? (
                         Array.from({ length: 6 }).map((_, i) => (
-                            <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                                <ZoruTableCell colSpan={13}>
+                            <Tr key={i} className="border-[var(--st-border)]">
+                                <Td colSpan={13}>
                                     <Skeleton className="h-10 w-full" />
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ))
                     ) : leads.length === 0 ? (
-                        <ZoruTableRow className="border-[var(--st-border)]">
-                            <ZoruTableCell
+                        <Tr className="border-[var(--st-border)]">
+                            <Td
                                 colSpan={13}
                                 className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 No leads match the current filters.
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </Td>
+                        </Tr>
                     ) : (
                         leads.map((lead) => {
                             const id = String(lead._id);
@@ -138,7 +123,7 @@ export function LeadsTable({
                             const isSel = selectedIds.has(id);
 
                             return (
-                                <ZoruTableRow
+                                <Tr
                                     key={id}
                                     className={[
                                         'border-[var(--st-border)] transition-colors',
@@ -146,14 +131,14 @@ export function LeadsTable({
                                         isSel ? 'bg-[var(--st-bg-muted)]/70' : '',
                                     ].join(' ')}
                                 >
-                                    <ZoruTableCell>
+                                    <Td>
                                         <Checkbox
                                             aria-label={`Select lead ${lead.title}`}
                                             checked={isSel}
                                             onCheckedChange={() => onToggleOne(id)}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <EntityRowLink
                                             href={`/dashboard/crm/sales-crm/all-leads/${id}`}
                                             label={
@@ -168,8 +153,8 @@ export function LeadsTable({
                                             }
                                             subtitle={lead.contactName || undefined}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text)]">
                                         {lead.company ? (
                                             <span className="inline-flex items-center gap-1.5">
                                                 <Building className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
@@ -178,8 +163,8 @@ export function LeadsTable({
                                         ) : (
                                             <span className="text-[var(--st-text-secondary)]">—</span>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                         {lead.email ? (
                                             <a
                                                 href={`mailto:${lead.email}`}
@@ -191,8 +176,8 @@ export function LeadsTable({
                                         ) : (
                                             '—'
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                         {lead.phone ? (
                                             <a
                                                 href={`tel:${lead.phone}`}
@@ -204,15 +189,15 @@ export function LeadsTable({
                                         ) : (
                                             '—'
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                         {lead.source ? (
                                             <Badge variant="secondary">{lead.source}</Badge>
                                         ) : (
                                             '—'
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {lead.pipelineId ? (
                                             <EntityPickerChip
                                                 entity="pipeline"
@@ -222,8 +207,8 @@ export function LeadsTable({
                                         ) : (
                                             <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {lead.stage ? (
                                             <InlineStageEdit 
                                                 leadId={id} 
@@ -243,8 +228,8 @@ export function LeadsTable({
                                                 }} 
                                             />
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <InlineOwnerEdit 
                                             leadId={id} 
                                             ownerId={lead.assignedTo ? String(lead.assignedTo) : null} 
@@ -253,24 +238,24 @@ export function LeadsTable({
                                                 onRefresh?.();
                                             }} 
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                         {formatMoney(lead.value, lead.currency)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
                                         {(lead as any).leadScore ?? '—'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell
+                                    </Td>
+                                    <Td
                                         className="text-[12.5px] text-[var(--st-text-secondary)]"
                                         title={lead.createdAt ? new Date(lead.createdAt).toLocaleString() : ''}
                                     >
                                         {lead.createdAt
                                             ? formatDistanceToNow(new Date(lead.createdAt), { addSuffix: true })
                                             : '—'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         <DropdownMenu>
-                                            <ZoruDropdownMenuTrigger asChild>
+                                            <DropdownMenuTrigger asChild>
                                                 <button
                                                     type="button"
                                                     aria-label={`Actions for ${lead.title}`}
@@ -278,21 +263,21 @@ export function LeadsTable({
                                                 >
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </button>
-                                            </ZoruDropdownMenuTrigger>
-                                            <ZoruDropdownMenuContent align="end">
-                                                <ZoruDropdownMenuItem asChild>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem asChild>
                                                     <Link href={`/dashboard/crm/sales-crm/all-leads/${id}`}>
                                                         <ChevronDown className="mr-1.5 h-3.5 w-3.5 rotate-[-90deg]" />
                                                         View
                                                     </Link>
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem asChild>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
                                                     <Link href={`/dashboard/crm/sales-crm/all-leads/${id}/edit`}>
                                                         <Edit className="mr-1.5 h-3.5 w-3.5" />
                                                         Edit
                                                     </Link>
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     disabled={
                                                         convertingId === id || status === 'Converted'
                                                     }
@@ -300,27 +285,27 @@ export function LeadsTable({
                                                 >
                                                     <Building className="mr-1.5 h-3.5 w-3.5" />
                                                     Convert to Account
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuSeparator />
-                                                <ZoruDropdownMenuItem onClick={() => onArchive(id)}>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem onClick={() => onArchive(id)}>
                                                     <Archive className="mr-1.5 h-3.5 w-3.5" />
                                                     {archived ? 'Restore' : 'Archive'}
-                                                </ZoruDropdownMenuItem>
-                                                <ZoruDropdownMenuItem
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     onClick={() => onDelete(id)}
                                                     className="text-[var(--st-danger)]"
                                                 >
                                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                                     Delete
-                                                </ZoruDropdownMenuItem>
-                                            </ZoruDropdownMenuContent>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             );
                         })
                     )}
-                </ZoruTableBody>
+                </TBody>
             </Table>
         </div>
     );

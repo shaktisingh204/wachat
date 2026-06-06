@@ -1,26 +1,6 @@
 "use client";
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, cn } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -144,12 +124,12 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
         <div className="flex items-center gap-3">
           <div className="relative">
             <Avatar className="h-12 w-12">
-              <ZoruAvatarImage
+              <AvatarImage
                 src={`https://graph.facebook.com/${project.facebookPageId}/picture?type=large`}
               />
-              <ZoruAvatarFallback>
+              <AvatarFallback>
                 <FacebookGlyph className="h-5 w-5" />
-              </ZoruAvatarFallback>
+              </AvatarFallback>
             </Avatar>
             <span
               className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-[var(--st-bg)] bg-[var(--st-status-ok)] text-[var(--st-text-inverted)]"
@@ -322,34 +302,34 @@ export default function AllFacebookPagesPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Connected pages</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Connected pages</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5" bordered={false}>
-        <ZoruPageHeading>
+        <PageHeading>
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
             Meta Suite
           </p>
-          <ZoruPageTitle>Connected pages</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>Connected pages</PageTitle>
+          <PageDescription>
             Connect and manage your Facebook Pages, Messenger, posts and
             commerce.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={fetchData}>
             <RefreshCw /> Refresh

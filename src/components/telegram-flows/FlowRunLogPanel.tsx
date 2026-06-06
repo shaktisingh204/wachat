@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -43,7 +43,7 @@ function statusVariant(s: string): 'default' | 'secondary' | 'danger' | 'outline
 }
 
 export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [runs, setRuns] = useState<RunRow[]>([]);
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);

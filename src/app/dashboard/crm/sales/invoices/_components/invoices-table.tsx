@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   MoreHorizontal } from 'lucide-react';
 
@@ -221,7 +214,7 @@ export function InvoicesTable({
                   </td>
                   <td className={`${cell} text-right align-middle`}>
                     <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild>
                         <Button
                           size="sm"
                           variant="ghost"
@@ -229,43 +222,43 @@ export function InvoicesTable({
                         >
                           <MoreHorizontal className="h-3.5 w-3.5" />
                         </Button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent>
-                        <ZoruDropdownMenuItem asChild>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem asChild>
                           <Link href={`/dashboard/crm/sales/invoices/${id}`}>
                             View
                           </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link
                             href={`/dashboard/crm/sales/invoices/${id}/edit`}
                           >
                             Edit
                           </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link
                             href={`/dashboard/crm/sales/receipts/new?fromKind=invoice&fromId=${id}`}
                           >
                             Record payment
                           </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link
                             href={`/dashboard/crm/sales/credit-notes/new?fromKind=invoice&fromId=${id}`}
                           >
                             Convert to credit note
                           </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuSeparator />
-                        <ZoruDropdownMenuItem asChild>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
                           <Link
                             href={`/dashboard/crm/sales/invoices/${id}/activity`}
                           >
                             Activity
                           </Link>
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
                 </tr>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   useSearchParams,
@@ -105,16 +105,16 @@ export function PaginationBar({
           value={String(limit)}
           onValueChange={(v) => setQuery({ limit: Number(v) })}
         >
-          <ZoruSelectTrigger className="h-8 w-[80px] text-[12px]">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-8 w-[80px] text-[12px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
             {pageSizes.map((n) => (
-              <ZoruSelectItem key={n} value={String(n)}>
+              <SelectItem key={n} value={String(n)}>
                 {n}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
       </div>
 

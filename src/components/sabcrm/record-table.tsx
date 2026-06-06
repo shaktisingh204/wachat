@@ -42,21 +42,7 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import {
-  Button,
-  Input,
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-  TableCaption,
-  EmptyState,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Table, THead, TBody, Tr, Th, Td, TCaption, EmptyState, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   listRecordsAction,
   deleteRecordAction,
@@ -155,7 +141,7 @@ const RecordRow = React.memo(function RecordRow({
   const isBusy = isDeleting || isUpdating;
 
   return (
-    <TableRow
+    <Tr
       key={record._id}
       tabIndex={isInteractive ? 0 : undefined}
       role="row"
@@ -174,21 +160,21 @@ const RecordRow = React.memo(function RecordRow({
         if (!isBusy) onRowKeyDown(record, e);
       }}
     >
-      <TableCell className="font-medium text-[var(--st-text)]">
+      <Td className="font-medium text-[var(--st-text)]">
         {title}
-      </TableCell>
+      </Td>
       {columns.map((col) => (
-        <TableCell key={col.key}>
+        <Td key={col.key}>
           <FieldValue
             field={col}
             value={record.data[col.key]}
             resolveRelationLabel={resolveRelationLabel}
             dense
           />
-        </TableCell>
+        </Td>
       ))}
       {canDelete && (
-        <TableCell>
+        <Td>
           <Button
             type="button"
             variant="ghost"
@@ -205,9 +191,9 @@ const RecordRow = React.memo(function RecordRow({
           >
             <Trash2 className="text-[var(--st-text-secondary)]" aria-hidden />
           </Button>
-        </TableCell>
+        </Td>
       )}
-    </TableRow>
+    </Tr>
   );
 });
 
@@ -228,7 +214,7 @@ export function RecordTable({
   resolveRelationLabel,
   className,
 }: RecordTableProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { confirm, dialog: confirmDialog } = useStConfirm();
 
   const columns = React.useMemo<FieldMetadata[]>(
@@ -560,14 +546,14 @@ export function RecordTable({
            * purpose for screen reader users who navigate by table landmarks.
            * The visible column headers are sufficient for sighted users.
            */}
-          <TableCaption className="sr-only">
+          <TCaption className="sr-only">
             {object.labelPlural}
             {debouncedSearch ? ` — filtered by "${debouncedSearch}"` : ''}
             {sort ? ` — sorted by ${sort.by} ${sort.dir}ending` : ''}
-          </TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead
+          </TCaption>
+          <THead>
+            <Tr>
+              <Th
                 className="w-[36%]"
                 scope="col"
                 aria-sort={ariaSortFor('__title__')}
@@ -578,9 +564,9 @@ export function RecordTable({
                   dir={sort?.dir}
                   onClick={() => toggleSort('__title__')}
                 />
-              </TableHead>
+              </Th>
               {columns.map((col) => (
-                <TableHead
+                <Th
                   key={col.key}
                   scope="col"
                   aria-sort={ariaSortFor(col.key)}
@@ -591,41 +577,41 @@ export function RecordTable({
                     dir={sort?.dir}
                     onClick={() => toggleSort(col.key)}
                   />
-                </TableHead>
+                </Th>
               ))}
               {canDelete && (
-                <TableHead
+                <Th
                   className="w-12"
                   scope="col"
                   aria-label="Row actions"
                 />
               )}
-            </TableRow>
-          </TableHeader>
+            </Tr>
+          </THead>
           {/* Pass the ref down to the <tbody> so keyboard nav can query rows */}
-          <TableBody ref={tbodyRef}>
+          <TBody ref={tbodyRef}>
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <TableRow key={`skeleton-${i}`} aria-hidden>
+                <Tr key={`skeleton-${i}`} aria-hidden>
                   {Array.from({ length: colSpan }).map((__, j) => (
-                    <TableCell key={j}>
+                    <Td key={j}>
                       <Skeleton className="h-4 w-full max-w-[160px]" />
-                    </TableCell>
+                    </Td>
                   ))}
-                </TableRow>
+                </Tr>
               ))
             ) : error ? (
-              <TableRow>
-                <TableCell colSpan={colSpan} className="py-10">
+              <Tr>
+                <Td colSpan={colSpan} className="py-10">
                   <EmptyState
                     title="Couldn't load records"
                     description={error}
                   />
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ) : records.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={colSpan} className="py-10">
+              <Tr>
+                <Td colSpan={colSpan} className="py-10">
                   <EmptyState
                     title={
                       debouncedSearch
@@ -638,8 +624,8 @@ export function RecordTable({
                         : `Create your first ${object.labelSingular.toLowerCase()} to get started.`
                     }
                   />
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ) : (
               records.map((record, rowIndex) => (
                 <RecordRow
@@ -659,7 +645,7 @@ export function RecordTable({
                 />
               ))
             )}
-          </TableBody>
+          </TBody>
         </Table>
       </div>
 

@@ -5,16 +5,7 @@ import {
   getSabcreatorApp,
   listSabcreatorWorkflows,
 } from '@/app/actions/sabcreator.actions';
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  PageHeader,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, PageHeader, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui/compat';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,18 +29,18 @@ export default async function WorkflowsListPage({
     <div className="px-6 py-8 space-y-6">
       <PageHeader>
         <div>
-          <ZoruPageTitle>Workflows</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>Workflows</PageTitle>
+          <PageDescription>
             {app.name} — triggers, schedules and SabFlow delegations.
-          </ZoruPageDescription>
+          </PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Button asChild variant="outline">
             <Link href={`/dashboard/sabcreator/${appId}/builder`}>
               Back to builder
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {workflows.items.length === 0 ? (

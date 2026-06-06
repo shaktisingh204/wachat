@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Avatar,
-  ZoruAvatarImage,
-  ZoruAvatarFallback,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardFooter, CardHeader, CardTitle, Avatar, AvatarImage, AvatarFallback } from '@/components/sabcrm/20ui/compat';
 import Image from 'next/image';
 import React from 'react';
 
@@ -31,21 +22,21 @@ export function TestimonialsBlockRenderer({ settings }: { settings: any }) {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {(settings.testimonials || []).map((item: any) => (
                 <Card key={item.id} className="flex flex-col">
-                    <ZoruCardContent className="p-6 flex-grow">
+                    <CardBody className="p-6 flex-grow">
                         <p className="italic text-[var(--st-text-secondary)]">"{item.quote}"</p>
-                    </ZoruCardContent>
-                    <ZoruCardFooter className="flex items-center gap-4 mt-auto">
+                    </CardBody>
+                    <CardFooter className="flex items-center gap-4 mt-auto">
                         <Avatar>
                             {item.avatar ? (
-                                <ZoruAvatarImage src={item.avatar} alt={item.author} data-ai-hint="person avatar" />
+                                <AvatarImage src={item.avatar} alt={item.author} data-ai-hint="person avatar" />
                             ) : null}
-                            <ZoruAvatarFallback>{item.author?.charAt(0) || 'A'}</ZoruAvatarFallback>
+                            <AvatarFallback>{item.author?.charAt(0) || 'A'}</AvatarFallback>
                         </Avatar>
                         <div>
                             <p className="font-semibold">{item.author}</p>
                             <p className="text-sm text-[var(--st-text-secondary)]">{item.title}</p>
                         </div>
-                    </ZoruCardFooter>
+                    </CardFooter>
                 </Card>
             ))}
         </div>

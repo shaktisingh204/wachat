@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Input, Label, cn } from '@/components/sabcrm/20ui/compat';
 import { useEffect, useState } from 'react';
 import { Palette, Plus, Trash2, ChevronLeft } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';
@@ -120,13 +111,13 @@ export default function BrandKitPage() {
 
       {showForm && (
         <Card className="border-[var(--st-border)] ring-1 ring-[var(--st-border)]">
-          <ZoruCardHeader>
-            <ZoruCardTitle className="flex items-center gap-2 text-base">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
               <Palette className="h-4 w-4 text-[var(--st-text)]" />
               New Brand Kit
-            </ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-4">
+            </CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-4">
             <div className="space-y-2">
               <Label>Kit Name <span className="text-[var(--st-text)]">*</span></Label>
               <Input
@@ -200,7 +191,7 @@ export default function BrandKitPage() {
               <Button onClick={handleAdd}>Save Kit</Button>
               <Button variant="ghost" onClick={() => { setShowForm(false); setForm(defaultForm()); setFormError(''); }}>Cancel</Button>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
@@ -215,7 +206,7 @@ export default function BrandKitPage() {
       <div className="space-y-3">
         {kits.map(kit => (
           <Card key={kit.id} className="border hover:shadow-sm transition-shadow">
-            <ZoruCardContent className="flex items-center gap-4 py-4">
+            <CardBody className="flex items-center gap-4 py-4">
               <div className="flex gap-2 shrink-0">
                 <div
                   className="w-10 h-10 rounded-lg border shadow-sm"
@@ -256,7 +247,7 @@ export default function BrandKitPage() {
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         ))}
       </div>

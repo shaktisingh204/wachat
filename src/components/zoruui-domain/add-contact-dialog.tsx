@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ScrollArea,
-  Button,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, ScrollArea, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -133,7 +116,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button
           variant="rose"
           size="md"
@@ -141,9 +124,9 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
         >
           Add contact
         </Button>
-      </ZoruDialogTrigger>
+      </DialogTrigger>
 
-      <ZoruDialogContent
+      <DialogContent
         className={cn(
           'max-w-[520px] rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0 shadow-lg',
         )}
@@ -158,20 +141,20 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
           />
           <input type="hidden" name="countryCode" value={countryCode} />
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
+          <DialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <LuUserPlus className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
+              <DialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
                 Add new contact
-              </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
+              </DialogTitle>
+              <DialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
                 Manually add a contact to your project. They&apos;ll become
                 available for chat and broadcasts right away.
-              </ZoruDialogDescription>
+              </DialogDescription>
             </div>
-          </ZoruDialogHeader>
+          </DialogHeader>
 
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* WhatsApp number */}
@@ -180,16 +163,16 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
                 value={selectedPhoneNumberId}
                 onValueChange={setSelectedPhoneNumberId}
               >
-                <ZoruSelectTrigger id="phoneNumberId-dialog">
-                  <ZoruSelectValue placeholder="Choose a number…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger id="phoneNumberId-dialog">
+                  <SelectValue placeholder="Choose a number…" />
+                </SelectTrigger>
+                <SelectContent>
                   {(project?.phoneNumbers || []).map((phone) => (
-                    <ZoruSelectItem key={phone.id} value={phone.id}>
+                    <SelectItem key={phone.id} value={phone.id}>
                       {phone.display_phone_number} ({phone.verified_name})
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </Field>
 
@@ -207,18 +190,18 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
             <div className="grid grid-cols-[120px_1fr] items-end gap-3">
               <Field label="Country">
                 <Select value={countryCode} onValueChange={setCountryCode}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Code" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Code" />
+                  </SelectTrigger>
+                  <SelectContent>
                     <ScrollArea className="h-64">
                       {countryCodes.map((c) => (
-                        <ZoruSelectItem key={c.name} value={c.code}>
+                        <SelectItem key={c.name} value={c.code}>
                           +{c.code} ({c.name})
-                        </ZoruSelectItem>
+                        </SelectItem>
                       ))}
                     </ScrollArea>
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </Field>
               <Field label="Phone number" required htmlFor="phone">
@@ -246,7 +229,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
             </div>
           </div>
 
-          <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
             <Button
               type="button"
               variant="pill"
@@ -256,9 +239,9 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
               Cancel
             </Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

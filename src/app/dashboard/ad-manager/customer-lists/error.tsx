@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import * as React from 'react';
 
@@ -25,10 +20,10 @@ export default function CustomerListsError({
     <div className="p-6">
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>Something went wrong!</ZoruAlertTitle>
-        <ZoruAlertDescription>
+        <AlertTitle>Something went wrong!</AlertTitle>
+        <AlertDescription>
           {error.message || 'An unexpected error occurred in the customer lists module.'}
-        </ZoruAlertDescription>
+        </AlertDescription>
       </Alert>
       <div className="mt-4">
         <Button onClick={() => reset()} variant="outline">

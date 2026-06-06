@@ -2,27 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Button, 
-  Input, 
-  Label, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge } from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createInventoryItem, updateInventoryItem, deleteInventoryItem, InventoryItem } from '@/app/actions/finance/inventory.actions';
@@ -212,24 +192,24 @@ export function InventoryItemListClient({ initialItems, error }: { initialItems:
 
       <div className="rounded-md border bg-white overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Sku</TableHead><TableHead>Name</TableHead><TableHead>TotalQty</TableHead><TableHead>Status</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <THead>
+            <Tr>
+              <Th>Sku</Th><Th>Name</Th><Th>TotalQty</Th><Th>Status</Th>
+              <Th className="w-[80px]"></Th>
+            </Tr>
+          </THead>
+          <TBody>
             {filteredItems.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+              <Tr>
+                <Td colSpan={5} className="h-24 text-center">
                   No results.
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ) : (
               filteredItems.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell>{String(item.sku ?? '')}</TableCell><TableCell>{String(item.name ?? '')}</TableCell><TableCell>{String(item.totalQty ?? '')}</TableCell><TableCell>{String(item.status ?? '')}</TableCell>
-                  <TableCell>
+                <Tr key={item._id}>
+                  <Td>{String(item.sku ?? '')}</Td><Td>{String(item.name ?? '')}</Td><Td>{String(item.totalQty ?? '')}</Td><Td>{String(item.status ?? '')}</Td>
+                  <Td>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -248,11 +228,11 @@ export function InventoryItemListClient({ initialItems, error }: { initialItems:
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))
             )}
-          </TableBody>
+          </TBody>
         </Table>
       </div>
 

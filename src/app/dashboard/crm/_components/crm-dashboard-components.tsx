@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Badge,
-  Card,
-  ScrollArea,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Card, ScrollArea, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   Users,
   UserPlus,
@@ -78,29 +65,29 @@ export const RecentDealsCard = ({ deals, currency }: RecentDealsCardProps) => (
       <EmptyState icon={Handshake} text="No recent deals found." />
     ) : (
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Deal Name</ZoruTableHead>
-            <ZoruTableHead>Stage</ZoruTableHead>
-            <ZoruTableHead className="text-right">Value</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+        <THead>
+          <Tr>
+            <Th>Deal Name</Th>
+            <Th>Stage</Th>
+            <Th className="text-right">Value</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {deals.map((deal) => (
-            <ZoruTableRow key={deal._id}>
-              <ZoruTableCell className="font-medium text-[var(--st-text)]">{deal.name}</ZoruTableCell>
-              <ZoruTableCell>
+            <Tr key={deal._id}>
+              <Td className="font-medium text-[var(--st-text)]">{deal.name}</Td>
+              <Td>
                 <Badge variant="ghost">{deal.stage}</Badge>
-              </ZoruTableCell>
-              <ZoruTableCell className="text-right font-medium text-[var(--st-text)]">
+              </Td>
+              <Td className="text-right font-medium text-[var(--st-text)]">
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: deal.currency || currency || 'USD',
                 }).format(deal.value || 0)}
-              </ZoruTableCell>
-            </ZoruTableRow>
+              </Td>
+            </Tr>
           ))}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     )}
   </Card>
@@ -213,10 +200,10 @@ export const RecentContactsCard = ({ contacts }: RecentContactsCardProps) => (
         {contacts.map((contact) => (
           <div key={contact._id} className="flex items-center gap-3">
             <Avatar className="h-9 w-9 border border-[var(--st-border)]">
-              <ZoruAvatarImage src={contact.avatarUrl} alt={contact.name} />
-              <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
+              <AvatarImage src={contact.avatarUrl} alt={contact.name} />
+              <AvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
                 {contact.name?.charAt(0) ?? '?'}
-              </ZoruAvatarFallback>
+              </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
               <p className="truncate text-[13px] font-medium leading-tight text-[var(--st-text)]">

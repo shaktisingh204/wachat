@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardFooter, CardHeader, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -32,16 +18,16 @@ function FeedPageSkeleton() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {[...Array(8)].map((_, i) => (
         <Card key={i} className="p-0">
-          <ZoruCardHeader>
+          <CardHeader>
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-3 w-1/4" />
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          </CardHeader>
+          <CardBody>
             <Skeleton className="aspect-square w-full" />
-          </ZoruCardContent>
-          <ZoruCardFooter>
+          </CardBody>
+          <CardFooter>
             <Skeleton className="h-8 w-full" />
-          </ZoruCardFooter>
+          </CardFooter>
         </Card>
       ))}
     </div>
@@ -88,8 +74,8 @@ export default function InstagramFeedPage() {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>Error Loading Feed</ZoruAlertTitle>
-        <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        <AlertTitle>Error Loading Feed</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
       </Alert>
     );
   }
@@ -107,27 +93,27 @@ export default function InstagramFeedPage() {
       )}
       <div className="flex flex-col gap-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>
+          <PageHeading>
+            <PageTitle>
               <span className="inline-flex items-center gap-3">
                 <Newspaper className="h-7 w-7" />
                 Content Feed
               </span>
-            </ZoruPageTitle>
-            <ZoruPageDescription>
+            </PageTitle>
+            <PageDescription>
               Browse recent posts from your connected Instagram account.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {media.map((item) => (
             <Card key={item.id} className="flex flex-col p-0">
-              <ZoruCardHeader>
+              <CardHeader>
                 <p className="text-xs text-[var(--st-text-secondary)]">
                   {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}
                 </p>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex-grow">
+              </CardHeader>
+              <CardBody className="flex-grow">
                 <div className="relative aspect-square mb-2">
                   {item.media_type === 'VIDEO' ? (
                     <div className="w-full h-full bg-black rounded-md flex items-center justify-center">
@@ -147,8 +133,8 @@ export default function InstagramFeedPage() {
                   )}
                 </div>
                 <p className="text-sm line-clamp-3">{item.caption}</p>
-              </ZoruCardContent>
-              <ZoruCardFooter className="flex justify-between items-center text-sm text-[var(--st-text-secondary)]">
+              </CardBody>
+              <CardFooter className="flex justify-between items-center text-sm text-[var(--st-text-secondary)]">
                 <div className="flex gap-4">
                   <span className="flex items-center gap-1">
                     <ThumbsUp className="h-4 w-4" /> {item.like_count}
@@ -167,7 +153,7 @@ export default function InstagramFeedPage() {
                     <Eye className="h-4 w-4" />
                   </Link>
                 </Button>
-              </ZoruCardFooter>
+              </CardFooter>
             </Card>
           ))}
         </div>

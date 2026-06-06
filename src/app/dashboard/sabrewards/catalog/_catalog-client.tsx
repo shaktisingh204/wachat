@@ -9,33 +9,7 @@
 import * as React from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import {
@@ -79,7 +53,7 @@ export function CatalogClient({
   initialItems: RewardsCatalogItemDoc[];
   programs: ProgramOption[];
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [items, setItems] = React.useState<RewardsCatalogItemDoc[]>(initialItems);
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -204,30 +178,30 @@ export function CatalogClient({
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)]">
-                <ZoruTableHead>Reward</ZoruTableHead>
-                <ZoruTableHead>Program</ZoruTableHead>
-                <ZoruTableHead>Points</ZoruTableHead>
-                <ZoruTableHead>Stock</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)]">
+                <Th>Reward</Th>
+                <Th>Program</Th>
+                <Th>Points</Th>
+                <Th>Stock</Th>
+                <Th>Status</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {items.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell colSpan={6} className="p-0">
+                <Tr>
+                  <Td colSpan={6} className="p-0">
                     <EmptyState
                       title="No rewards yet"
                       description="Create your first catalog item to let customers redeem points."
                     />
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 items.map((item) => (
-                  <ZoruTableRow key={item._id} className="border-[var(--st-border)]">
-                    <ZoruTableCell className="text-[var(--st-text)]">
+                  <Tr key={item._id} className="border-[var(--st-border)]">
+                    <Td className="text-[var(--st-text)]">
                       <div className="flex flex-col">
                         <span className="font-medium">{item.name}</span>
                         {item.description ? (
@@ -236,24 +210,24 @@ export function CatalogClient({
                           </span>
                         ) : null}
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[var(--st-text)]">
                       {item.programId
                         ? programNameById.get(item.programId) ?? '—'
                         : '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[var(--st-text)]">
                       {item.pointsCost.toLocaleString()}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[var(--st-text)]">
+                    </Td>
+                    <Td className="text-[var(--st-text)]">
                       {item.stock == null ? '∞' : item.stock.toLocaleString()}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Badge variant={item.active ? 'success' : 'ghost'}>
                         {item.active ? 'active' : 'inactive'}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="space-x-1 text-right">
+                    </Td>
+                    <Td className="space-x-1 text-right">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -264,20 +238,20 @@ export function CatalogClient({
                       >
                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{editing ? 'Edit reward' : 'New reward'}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Edit reward' : 'New reward'}</DialogTitle>
+          </DialogHeader>
           <div className="flex flex-col gap-3 py-2">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="reward-name">Name</Label>
@@ -305,16 +279,16 @@ export function CatalogClient({
                   value={form.programId}
                   onValueChange={(v) => setForm((f) => ({ ...f, programId: v }))}
                 >
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="No program" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger>
+                    <SelectValue placeholder="No program" />
+                  </SelectTrigger>
+                  <SelectContent>
                     {programs.map((p) => (
-                      <ZoruSelectItem key={p.id} value={p.id}>
+                      <SelectItem key={p.id} value={p.id}>
                         {p.name}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="flex flex-col gap-1.5">
@@ -397,15 +371,15 @@ export function CatalogClient({
               </div>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setDialogOpen(false)} disabled={saving}>
               Cancel
             </Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving ? 'Saving…' : editing ? 'Save changes' : 'Create reward'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

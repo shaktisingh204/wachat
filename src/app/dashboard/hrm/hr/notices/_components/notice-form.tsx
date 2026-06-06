@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -142,7 +129,7 @@ export interface NoticeFormProps {
 export function NoticeForm({ initialData }: NoticeFormProps) {
     const isEditing = !!initialData?._id;
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [state, formAction] = useActionState(saveNotice, initialState);
 
@@ -277,16 +264,16 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                                     (initialData?.category as string) ?? 'general'
                                 }
                             >
-                                <ZoruSelectTrigger id="category">
-                                    <ZoruSelectValue placeholder="Category" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger id="category">
+                                    <SelectValue placeholder="Category" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {NOTICE_CATEGORIES.map((c) => (
-                                        <ZoruSelectItem key={c.value} value={c.value}>
+                                        <SelectItem key={c.value} value={c.value}>
                                             {c.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-1.5">
@@ -308,16 +295,16 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                                     (initialData?.issuedTo as string) ?? 'all'
                                 }
                             >
-                                <ZoruSelectTrigger id="issuedTo">
-                                    <ZoruSelectValue placeholder="Audience" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger id="issuedTo">
+                                    <SelectValue placeholder="Audience" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {NOTICE_AUDIENCES.map((c) => (
-                                        <ZoruSelectItem key={c.value} value={c.value}>
+                                        <SelectItem key={c.value} value={c.value}>
                                             {c.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>
@@ -373,16 +360,16 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                                     (initialData?.status as string) ?? 'draft'
                                 }
                             >
-                                <ZoruSelectTrigger id="status">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger id="status">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {NOTICE_STATUSES.map((c) => (
-                                        <ZoruSelectItem key={c.value} value={c.value}>
+                                        <SelectItem key={c.value} value={c.value}>
                                             {c.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                     </div>

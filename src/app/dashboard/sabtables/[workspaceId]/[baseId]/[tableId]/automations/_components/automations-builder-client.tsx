@@ -3,23 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Plus, Play, Trash2 } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, EmptyState } from '@/components/sabcrm/20ui/compat';
 import {
   createSabtablesAutomation,
   deleteSabtablesAutomation,
@@ -147,10 +131,10 @@ export function AutomationsBuilderClient({ tableId, initialAutomations }: Props)
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New automation</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New automation</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
               <Label htmlFor="auto-name">Name</Label>
@@ -166,43 +150,43 @@ export function AutomationsBuilderClient({ tableId, initialAutomations }: Props)
                 value={triggerKind}
                 onValueChange={(v) => setTriggerKind(v as SabtablesTriggerKind)}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {TRIGGER_KINDS.map((t) => (
-                    <ZoruSelectItem key={t.kind} value={t.kind}>
+                    <SelectItem key={t.kind} value={t.kind}>
                       {t.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div>
               <Label>First action</Label>
               <Select value={actionKind} onValueChange={setActionKind}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {ACTION_KINDS.map((a) => (
-                    <ZoruSelectItem key={a.kind} value={a.kind}>
+                    <SelectItem key={a.kind} value={a.kind}>
                       {a.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={!name.trim()}>
               Create
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

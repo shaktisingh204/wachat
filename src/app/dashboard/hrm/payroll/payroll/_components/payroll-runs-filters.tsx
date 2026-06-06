@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/sabcrm/20ui/compat';
+import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   RefreshCw,
@@ -80,31 +80,31 @@ export function PayrollRunsFiltersRow({
         />
 
         <Select value={monthFilter} onValueChange={onMonthChange}>
-          <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Month">
-            <ZoruSelectValue placeholder="All months" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All months</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[140px]" aria-label="Month">
+            <SelectValue placeholder="All months" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All months</SelectItem>
             {MONTH_OPTIONS.map((m) => (
-              <ZoruSelectItem key={m.value} value={m.value}>
+              <SelectItem key={m.value} value={m.value}>
                 {m.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         <Select value={yearFilter} onValueChange={onYearChange}>
-          <ZoruSelectTrigger className="h-9 w-[120px]" aria-label="Year">
-            <ZoruSelectValue placeholder="Year" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All years</ZoruSelectItem>
+          <SelectTrigger className="h-9 w-[120px]" aria-label="Year">
+            <SelectValue placeholder="Year" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All years</SelectItem>
             {yearOptions.map((y) => (
-              <ZoruSelectItem key={y} value={String(y)}>
+              <SelectItem key={y} value={String(y)}>
                 {y}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         <Button

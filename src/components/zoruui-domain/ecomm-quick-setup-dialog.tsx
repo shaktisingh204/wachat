@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -66,18 +50,18 @@ export function EcommQuickSetupDialog({ project, onSuccess, children }: EcommQui
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         {children}
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Configure Your Shop</ZoruDialogTitle>
-            <ZoruDialogDescription>
+          <DialogHeader>
+            <DialogTitle>Configure Your Shop</DialogTitle>
+            <DialogDescription>
               Set a name and currency for your shop to get started. You can add more details later in settings.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="shopName">Shop Name</Label>
@@ -86,22 +70,22 @@ export function EcommQuickSetupDialog({ project, onSuccess, children }: EcommQui
             <div className="space-y-2">
               <Label htmlFor="currency">Currency</Label>
               <Select name="currency" defaultValue="USD" required>
-                  <ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                      <ZoruSelectItem value="USD">USD - US Dollar</ZoruSelectItem>
-                      <ZoruSelectItem value="EUR">EUR - Euro</ZoruSelectItem>
-                      <ZoruSelectItem value="INR">INR - Indian Rupee</ZoruSelectItem>
-                      <ZoruSelectItem value="GBP">GBP - British Pound</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="USD">USD - US Dollar</SelectItem>
+                      <SelectItem value="EUR">EUR - Euro</SelectItem>
+                      <SelectItem value="INR">INR - Indian Rupee</SelectItem>
+                      <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                  </SelectContent>
               </Select>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
-          </ZoruDialogFooter>
+          </DialogFooter>
         </form>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }

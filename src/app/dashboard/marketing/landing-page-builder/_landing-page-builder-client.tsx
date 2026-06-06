@@ -5,31 +5,15 @@ import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Plus, Edit2, Trash2, Globe, Eye, MousePointerClick, Percent } from 'lucide-react';
-import { 
-  Table, 
-  ZoruTableHeader, 
-  ZoruTableBody, 
-  ZoruTableRow, 
-  ZoruTableHead, 
-  ZoruTableCell,
-  StatCard,
-  Switch
-} from '@/components/sabcrm/20ui/compat';
-import { 
-  Dialog, 
-  ZoruDialogTrigger, 
-  ZoruDialogContent, 
-  ZoruDialogHeader, 
-  ZoruDialogFooter, 
-  ZoruDialogTitle 
-} from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td, StatCard, Switch } from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/sabcrm/20ui/compat';
 import { Input } from '@/components/sabcrm/20ui/compat';
 import { Label } from '@/components/sabcrm/20ui/compat';
 import { Badge } from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { createLandingPage, updateLandingPage, deleteLandingPage } from '@/app/actions/marketing/landing-page-builder.actions';
-import { Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger } from '@/components/sabcrm/20ui/compat';
-import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
+import { ChartContainer, ChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/sabcrm/20ui/compat';
 
 export function LandingPageClient({ initialData }: { initialData: any[] }) {
@@ -38,7 +22,7 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   // Form State
   const [title, setTitle] = useState("");
@@ -132,12 +116,12 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
   return (
     <div className="flex flex-col gap-6 w-full">
       <Tabs defaultValue="dashboard" className="w-full">
-        <ZoruTabsList className="mb-4">
-          <ZoruTabsTrigger value="dashboard">Global Campaign Dashboard</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="landing-pages">Landing Pages</ZoruTabsTrigger>
-        </ZoruTabsList>
+        <TabsList className="mb-4">
+          <TabsTrigger value="dashboard">Global Campaign Dashboard</TabsTrigger>
+          <TabsTrigger value="landing-pages">Landing Pages</TabsTrigger>
+        </TabsList>
 
-        <ZoruTabsContent value="dashboard" className="space-y-6">
+        <TabsContent value="dashboard" className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatCard
               label="Total Cross-Channel Spend"
@@ -175,16 +159,16 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
                 <CardTitle>Cross-Channel Revenue vs Spend</CardTitle>
               </CardHeader>
               <CardContent>
-                <ZoruChartContainer height={300}>
+                <ChartContainer height={300}>
                   <ZoruChart.BarChart data={mockChannelData}>
                     <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <ZoruChart.XAxis dataKey="channel" axisLine={false} tickLine={false} />
                     <ZoruChart.YAxis axisLine={false} tickLine={false} tickFormatter={(val: number) => `$${val/1000}k`} />
-                    <ZoruChart.Tooltip content={<ZoruChartTooltip />} cursor={{ fill: 'var(--zoru-bg-zoru-surface-2)' }} />
+                    <ZoruChart.Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--zoru-bg-zoru-surface-2)' }} />
                     <ZoruChart.Bar dataKey="revenue" name="Revenue" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
                     <ZoruChart.Bar dataKey="spend" name="Spend" fill={ZORU_CHART_PALETTE[3]} radius={[4, 4, 0, 0]} />
                   </ZoruChart.BarChart>
-                </ZoruChartContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -193,21 +177,21 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
                 <CardTitle>Channel ROI (%)</CardTitle>
               </CardHeader>
               <CardContent>
-                <ZoruChartContainer height={300}>
+                <ChartContainer height={300}>
                   <ZoruChart.LineChart data={mockChannelData}>
                     <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <ZoruChart.XAxis dataKey="channel" axisLine={false} tickLine={false} />
                     <ZoruChart.YAxis axisLine={false} tickLine={false} />
-                    <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                    <ZoruChart.Tooltip content={<ChartTooltip />} />
                     <ZoruChart.Line type="monotone" dataKey="roi" name="ROI (%)" stroke={ZORU_CHART_PALETTE[0]} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
                   </ZoruChart.LineChart>
-                </ZoruChartContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>
-        </ZoruTabsContent>
+        </TabsContent>
 
-        <ZoruTabsContent value="landing-pages" className="space-y-6">
+        <TabsContent value="landing-pages" className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Total Landing Pages"
@@ -245,16 +229,16 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
         search={{ value: search, onChange: setSearch, placeholder: 'Search...' }}
         primaryAction={
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
               <Button onClick={openNew}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create New
               </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-              <ZoruDialogHeader>
-                <ZoruDialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</ZoruDialogTitle>
-              </ZoruDialogHeader>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
+              </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="title" className="text-right">Title</Label>
@@ -287,10 +271,10 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
                   </div>
                 </div>
               </div>
-              <ZoruDialogFooter>
+              <DialogFooter>
                 <Button disabled={loading} onClick={handleSave}>Save</Button>
-              </ZoruDialogFooter>
-            </ZoruDialogContent>
+              </DialogFooter>
+            </DialogContent>
           </Dialog>
         }
       >
@@ -301,54 +285,54 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
         ) : (
           <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead className="capitalize">Title</ZoruTableHead>
-                  <ZoruTableHead className="capitalize">Slug</ZoruTableHead>
-                  <ZoruTableHead className="capitalize">Status</ZoruTableHead>
-                  <ZoruTableHead className="capitalize text-right">Views</ZoruTableHead>
-                  <ZoruTableHead className="capitalize text-right">Conversions</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th className="capitalize">Title</Th>
+                  <Th className="capitalize">Slug</Th>
+                  <Th className="capitalize">Status</Th>
+                  <Th className="capitalize text-right">Views</Th>
+                  <Th className="capitalize text-right">Conversions</Th>
+                  <Th className="text-right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filteredData.map((item) => (
-                  <ZoruTableRow key={item._id}>
-                    <ZoruTableCell>
+                  <Tr key={item._id}>
+                    <Td>
                       {String(item.title || '')}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {String(item.slug || '')}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       {item.isPublished ? (
                         <Badge variant="success">Published</Badge>
                       ) : (
                         <Badge variant="secondary">Draft</Badge>
                       )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       {item.views?.toLocaleString() || 0}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       {item.conversions?.toLocaleString() || 0}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right space-x-2">
+                    </Td>
+                    <Td className="text-right space-x-2">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
                         <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
                         <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         )}
       </EntityListShell>
-        </ZoruTabsContent>
+        </TabsContent>
       </Tabs>
     </div>
   );

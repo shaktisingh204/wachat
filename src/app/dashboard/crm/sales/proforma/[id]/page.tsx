@@ -1,4 +1,4 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ClipboardList, Pencil, FileText } from 'lucide-react';
 import Link from 'next/link';
@@ -239,10 +239,10 @@ export default async function ProformaDetailPage({
         <>
           {/* Status flow visualizer */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Status flow</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>Status flow</CardTitle>
+            </CardHeader>
+            <CardBody>
               <ol className="space-y-1.5">
                 {STATUS_FLOW.map((s) => (
                   <StatusStep key={s} status={s} current={status} />
@@ -251,7 +251,7 @@ export default async function ProformaDetailPage({
                   <StatusStep status={status} current={status} />
                 ) : null}
               </ol>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Lineage rail */}
@@ -274,10 +274,10 @@ export default async function ProformaDetailPage({
 
           {/* At a glance */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>At a glance</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>At a glance</CardTitle>
+            </CardHeader>
+            <CardBody>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[var(--st-text-secondary)]">Total</span>
@@ -298,7 +298,7 @@ export default async function ProformaDetailPage({
                   <span>{fmtDate(proforma.updatedAt)}</span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           <Button size="sm" variant="ghost" asChild className="w-full">
@@ -322,10 +322,10 @@ export default async function ProformaDetailPage({
 
       {/* Overview */}
       <Card className="mb-6">
-        <ZoruCardHeader>
-          <ZoruCardTitle>Overview</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Overview</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <DetailField label="Proforma #">
               {proforma.proformaNumber}
@@ -345,15 +345,15 @@ export default async function ProformaDetailPage({
               {(proforma as any).subject || '—'}
             </DetailField>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Customer details */}
       <Card className="mb-6">
-        <ZoruCardHeader>
-          <ZoruCardTitle>Customer &amp; Client Info</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Customer &amp; Client Info</CardTitle>
+        </CardHeader>
+        <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <DetailField label="Customer Account">
               {proforma.accountId ? (
@@ -363,15 +363,15 @@ export default async function ProformaDetailPage({
               )}
             </DetailField>
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Line items table */}
       <Card className="mb-6">
-        <ZoruCardHeader>
-          <ZoruCardTitle>Line Items</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Line Items</CardTitle>
+        </CardHeader>
+        <CardBody>
           {lineItems.length === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">No line items.</p>
           ) : (
@@ -425,15 +425,15 @@ export default async function ProformaDetailPage({
               </table>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Money summary / Statutory computation break-down */}
       <Card className="mb-6">
-        <ZoruCardHeader>
-          <ZoruCardTitle>Statutory Financial Summary</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Statutory Financial Summary</CardTitle>
+        </CardHeader>
+        <CardBody>
           <dl className="grid gap-2 md:grid-cols-2 text-[13px]">
             <div className="flex justify-between md:col-start-2">
               <span className="text-[var(--st-text-secondary)]">Subtotal</span>
@@ -520,30 +520,30 @@ export default async function ProformaDetailPage({
               </span>
             </div>
           </dl>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Terms & notes */}
       {proforma.termsAndConditions && proforma.termsAndConditions.length > 0 ? (
         <Card className="mb-6">
-          <ZoruCardHeader>
-            <ZoruCardTitle>Terms &amp; conditions</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Terms &amp; conditions</CardTitle>
+          </CardHeader>
+          <CardBody>
             <ol className="list-decimal pl-5 space-y-1 text-[13px] text-[var(--st-text)]">
               {proforma.termsAndConditions.map((t, idx) => (
                 <li key={idx}>{t}</li>
               ))}
             </ol>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       <Card className="mb-6">
-        <ZoruCardHeader>
-          <ZoruCardTitle>Notes</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Notes</CardTitle>
+        </CardHeader>
+        <CardBody>
           {proforma.notes ? (
             <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {proforma.notes}
@@ -553,7 +553,7 @@ export default async function ProformaDetailPage({
               No notes yet — add them via the Edit form.
             </p>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Interactive 360 Timeline */}

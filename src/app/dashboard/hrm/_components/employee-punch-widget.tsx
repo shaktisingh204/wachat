@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useTransition } from 'react';
-import { Badge, Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { Clock, PlayCircle, StopCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { punchInAction, punchOutAction } from '@/app/actions/crm/attendance.actions';
 
@@ -11,7 +11,7 @@ interface EmployeePunchWidgetProps {
 }
 
 export function EmployeePunchWidget({ employeeId, initialAttendance }: EmployeePunchWidgetProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [attendance, setAttendance] = useState<any | null>(initialAttendance);

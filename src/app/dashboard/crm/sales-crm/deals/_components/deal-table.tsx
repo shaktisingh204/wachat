@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';
 /**
  * <DealTable> — the table-view body of the canonical deals list.
  *
@@ -153,32 +146,32 @@ export function DealTable({
                 <td className={`${cell} align-middle text-[var(--st-text-secondary)]`}>{fmtDate(d.createdAt)}</td>
                 <td className={`${cell} text-right align-middle`}>
                   <DropdownMenu>
-                    <ZoruDropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
                       <Button size="sm" variant="ghost" aria-label="Row actions">
                         …
                       </Button>
-                    </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent>
-                      <ZoruDropdownMenuItem asChild>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem asChild>
                         <Link href={`/dashboard/crm/sales-crm/deals/${d._id}`}>View</Link>
-                      </ZoruDropdownMenuItem>
-                      <ZoruDropdownMenuItem asChild>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
                         <Link href={`/dashboard/crm/sales-crm/deals/${d._id}/edit`}>Edit</Link>
-                      </ZoruDropdownMenuItem>
-                      <ZoruDropdownMenuItem asChild>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
                         <Link
                           href={`/dashboard/crm/sales/quotations/new?fromKind=deal&fromId=${d._id}`}
                         >
                           Convert to quotation
                         </Link>
-                      </ZoruDropdownMenuItem>
-                      <ZoruDropdownMenuSeparator />
-                      <ZoruDropdownMenuItem asChild>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
                         <Link href={`/dashboard/crm/sales-crm/deals/${d._id}/activity`}>
                           Activity
                         </Link>
-                      </ZoruDropdownMenuItem>
-                    </ZoruDropdownMenuContent>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
                   </DropdownMenu>
                 </td>
               </tr>

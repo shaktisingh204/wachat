@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   FileText,
@@ -224,28 +215,28 @@ export function QuotationListToolbar({
       <div className="flex items-center gap-1.5">
         {/* Presets */}
         <Select value={preset} onValueChange={(v) => onPresetChange(v as PresetKey)}>
-          <ZoruSelectTrigger className="h-9 w-[200px]" aria-label="Saved view">
-            <ZoruSelectValue placeholder="Saved view" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[200px]" aria-label="Saved view">
+            <SelectValue placeholder="Saved view" />
+          </SelectTrigger>
+          <SelectContent>
             {PRESET_OPTIONS.map((p) => (
-              <ZoruSelectItem key={p.key} value={p.key}>
+              <SelectItem key={p.key} value={p.key}>
                 {p.label}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         {/* Density */}
         <Select value={density} onValueChange={(v) => onDensityChange(v as Density)}>
-          <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Row density">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="comfortable">Comfortable</ZoruSelectItem>
-            <ZoruSelectItem value="compact">Compact</ZoruSelectItem>
-            <ZoruSelectItem value="dense">Dense</ZoruSelectItem>
-          </ZoruSelectContent>
+          <SelectTrigger className="h-9 w-[140px]" aria-label="Row density">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="comfortable">Comfortable</SelectItem>
+            <SelectItem value="compact">Compact</SelectItem>
+            <SelectItem value="dense">Dense</SelectItem>
+          </SelectContent>
         </Select>
 
         {/* View switcher */}

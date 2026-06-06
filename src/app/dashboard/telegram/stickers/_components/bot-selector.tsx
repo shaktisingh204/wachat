@@ -1,26 +1,5 @@
 import * as React from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetDescription,
-  StatCard,
-  EmptyState,
-  Skeleton,
-  useZoruToast,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, StatCard, EmptyState, Skeleton, useToast, cn } from '@/components/sabcrm/20ui/compat';
 import {
   Sticker as StickerIcon,
   Plus,
@@ -78,8 +57,8 @@ export function BotSelector({
                     onValueChange={(v) => onSelect(v)}
                     disabled={loading || bots.length === 0}
                 >
-                    <ZoruSelectTrigger className="w-full">
-                        <ZoruSelectValue
+                    <SelectTrigger className="w-full">
+                        <SelectValue
                             placeholder={
                                 loading
                                     ? 'Loading bots…'
@@ -88,17 +67,17 @@ export function BotSelector({
                                       : 'Select a bot'
                             }
                         />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    </SelectTrigger>
+                    <SelectContent>
                         {bots.map((b) => (
-                            <ZoruSelectItem key={b._id} value={b._id}>
+                            <SelectItem key={b._id} value={b._id}>
                                 <span className="flex items-center gap-2">
                                     <span className="font-medium">{b.name || b.username}</span>
                                     <span className="text-[var(--st-text-secondary)]">@{b.username}</span>
                                 </span>
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
         </Card>

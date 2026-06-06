@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { AlertTriangle, ChevronRight, Hash } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -91,10 +91,10 @@ export default function PageStructurePage() {
 
       {error && (
         <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]/50">
-          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm flex items-center gap-2">
+          <CardBody className="p-4 text-[var(--st-text)] text-sm flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
             {error}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
@@ -102,7 +102,7 @@ export default function PageStructurePage() {
         <div className="space-y-6">
           {warnings.length > 0 && (
             <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]/30">
-              <ZoruCardContent className="p-4">
+              <CardBody className="p-4">
                 <h3 className="text-sm font-bold text-[var(--st-text)] flex items-center gap-2 mb-2">
                   <AlertTriangle className="w-4 h-4" />
                   Structure Warnings ({warnings.length})
@@ -112,12 +112,12 @@ export default function PageStructurePage() {
                     <li key={i} className="text-xs text-[var(--st-text)]">{w}</li>
                   ))}
                 </ul>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
 
           <Card>
-            <ZoruCardContent className="p-0">
+            <CardBody className="p-0">
               <div className="p-4 border-b bg-[var(--st-bg-muted)]/20">
                 <h3 className="text-sm font-semibold">Heading Tree</h3>
                 <p className="text-xs text-[var(--st-text-secondary)] mt-1">
@@ -156,7 +156,7 @@ export default function PageStructurePage() {
                   </div>
                 )}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Skeleton, Switch, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,
@@ -50,7 +50,7 @@ function ToggleRow({
 }
 
 export default function InvoiceSettingsPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [settings, setSettings] = useState<WsInvoiceSetting | null>(null);
   const [isLoading, startLoading] = useTransition();
   const [saveState, formAction, isSaving] = useActionState(

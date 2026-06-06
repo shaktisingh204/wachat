@@ -1,16 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { 
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
-    Button, Input, Label, Select, ZoruSelectContent, ZoruSelectItem, 
-    ZoruSelectTrigger, ZoruSelectValue, useZoruToast 
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import { CalendarClock, Mail } from 'lucide-react';
 import { scheduleAnalyticsReport } from '@/app/actions/crm-analytics-reports.actions';
 
 export function ScheduleReportDialog() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     
@@ -63,27 +59,27 @@ export function ScheduleReportDialog() {
                     <div className="space-y-2">
                         <Label>Frequency</Label>
                         <Select required defaultValue="weekly" name="frequency">
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Select frequency" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="daily">Daily</ZoruSelectItem>
-                                <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
-                                <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select frequency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="daily">Daily</SelectItem>
+                                <SelectItem value="weekly">Weekly</SelectItem>
+                                <SelectItem value="monthly">Monthly</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-2">
                         <Label>Format</Label>
                         <Select required defaultValue="pdf" name="format">
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Select format" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="pdf">PDF Document</ZoruSelectItem>
-                                <ZoruSelectItem value="png">PNG Image</ZoruSelectItem>
-                                <ZoruSelectItem value="csv">Raw Data (CSV)</ZoruSelectItem>
-                            </ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select format" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="pdf">PDF Document</SelectItem>
+                                <SelectItem value="png">PNG Image</SelectItem>
+                                <SelectItem value="csv">Raw Data (CSV)</SelectItem>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="flex justify-end gap-2 pt-4">

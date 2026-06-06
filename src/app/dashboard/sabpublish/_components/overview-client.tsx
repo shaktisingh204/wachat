@@ -3,20 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  EmptyState,
-  PageHeader,
-  StatCard,
-  ZoruPageDescription,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, StatCard, PageDescription, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 import type { SabpublishProviderDoc } from '@/lib/rust-client/sabpublish-providers';
 import type { SabpublishSyncJobDoc } from '@/lib/rust-client/sabpublish-sync-jobs';
@@ -43,13 +30,13 @@ export function SabpublishOverviewClient({
   return (
     <div className="zoruui space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>SabPublish</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>SabPublish</PageTitle>
+          <PageDescription>
             One console for your business listings across Google, Yelp,
             Bing, Apple Maps and Facebook.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <Button asChild>
           <Link href="/dashboard/sabpublish/locations/new">New location</Link>
         </Button>

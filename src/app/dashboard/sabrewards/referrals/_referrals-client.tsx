@@ -10,31 +10,7 @@
 import * as React from 'react';
 import { Plus, Share2, Trash2 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   createRewardsReferral,
@@ -60,7 +36,7 @@ export function ReferralsClient({
   programs: ProgramOption[];
   members: MemberOption[];
 }): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [referrals, setReferrals] = React.useState<RewardsReferralDoc[]>(initialReferrals);
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -181,51 +157,51 @@ export function ReferralsClient({
         <Card className="lg:col-span-2 p-0">
           <div className="overflow-x-auto rounded-lg">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableHead>Code</ZoruTableHead>
-                  <ZoruTableHead>Owner</ZoruTableHead>
-                  <ZoruTableHead>Program</ZoruTableHead>
-                  <ZoruTableHead>Conversions</ZoruTableHead>
-                  <ZoruTableHead>Reward pts</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr className="border-[var(--st-border)]">
+                  <Th>Code</Th>
+                  <Th>Owner</Th>
+                  <Th>Program</Th>
+                  <Th>Conversions</Th>
+                  <Th>Reward pts</Th>
+                  <Th>Status</Th>
+                  <Th className="text-right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {referrals.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell colSpan={7} className="p-0">
+                  <Tr>
+                    <Td colSpan={7} className="p-0">
                       <EmptyState
                         title="No referral codes yet"
                         description="Create the first code and share its link via the customer portal."
                       />
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   referrals.map((r) => (
-                    <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
-                      <ZoruTableCell className="font-mono text-[var(--st-text)]">
+                    <Tr key={r._id} className="border-[var(--st-border)]">
+                      <Td className="font-mono text-[var(--st-text)]">
                         {r.code}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {memberLabelById.get(r.memberId) ?? '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {r.programId ? programNameById.get(r.programId) ?? '—' : '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {(r.conversions?.length ?? 0).toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[var(--st-text)]">
                         {(r.rewardPoints ?? 0).toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant={r.active ? 'success' : 'ghost'}>
                           {r.active ? 'active' : 'inactive'}
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="space-x-1 text-right">
+                      </Td>
+                      <Td className="space-x-1 text-right">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -242,11 +218,11 @@ export function ReferralsClient({
                         >
                           <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                         </Button>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         </Card>
@@ -279,39 +255,39 @@ export function ReferralsClient({
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New referral code</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New referral code</DialogTitle>
+          </DialogHeader>
           <div className="flex flex-col gap-3 py-2">
             <div className="flex flex-col gap-1.5">
               <Label>Owner (member)</Label>
               <Select value={memberId} onValueChange={setMemberId}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Pick a member" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pick a member" />
+                </SelectTrigger>
+                <SelectContent>
                   {members.map((m) => (
-                    <ZoruSelectItem key={m.id} value={m.id}>
+                    <SelectItem key={m.id} value={m.id}>
                       {m.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Program (optional)</Label>
               <Select value={programId} onValueChange={setProgramId}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="No program" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="No program" />
+                </SelectTrigger>
+                <SelectContent>
                   {programs.map((p) => (
-                    <ZoruSelectItem key={p.id} value={p.id}>
+                    <SelectItem key={p.id} value={p.id}>
                       {p.name}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="flex flex-col gap-1.5">
@@ -324,15 +300,15 @@ export function ReferralsClient({
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setDialogOpen(false)} disabled={saving}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={saving}>
               {saving ? 'Creating…' : 'Create code'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

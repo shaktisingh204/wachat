@@ -2,32 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Button, 
-  Input, 
-  Label, 
-  Table, 
-  ZoruTableBody, 
-  ZoruTableCell, 
-  ZoruTableHead, 
-  ZoruTableHeader, 
-  ZoruTableRow,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  Badge,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  EmptyState,
-  StatCard
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Badge, Alert, AlertTitle, AlertDescription, EmptyState, StatCard } from '@/components/sabcrm/20ui/compat';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, DollarSign, Calendar, CreditCard, AlertCircle, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createSubscription, updateSubscription, deleteSubscription, Subscription } from '@/app/actions/finance/subscriptions.actions';
@@ -163,15 +138,15 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
             <Download className="mr-2 h-4 w-4" /> Export CSV
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <ZoruDialogTrigger asChild>
+          <DialogTrigger asChild>
             <Button size="sm" onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" /> New Record
             </Button>
-          </ZoruDialogTrigger>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>{editingId ? 'Edit' : 'Create'} Record</ZoruDialogTitle>
-            </ZoruDialogHeader>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
+            </DialogHeader>
             <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
               <div className="grid gap-4">
             <div className="space-y-1">
@@ -231,7 +206,7 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
                 </Button>
               </div>
             </form>
-          </ZoruDialogContent>
+          </DialogContent>
         </Dialog>
         </div>
       }
@@ -239,8 +214,8 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
       {error && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Error Loading Subscriptions</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Error Loading Subscriptions</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
@@ -289,54 +264,54 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
 
           <div className="rounded-md border bg-white overflow-hidden">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>CustomerId</ZoruTableHead><ZoruTableHead>PlanId</ZoruTableHead><ZoruTableHead>BillingCycle</ZoruTableHead><ZoruTableHead>NextBillingDate</ZoruTableHead><ZoruTableHead>Amount</ZoruTableHead><ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead className="w-[80px]"></ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>CustomerId</Th><Th>PlanId</Th><Th>BillingCycle</Th><Th>NextBillingDate</Th><Th>Amount</Th><Th>Status</Th>
+                  <Th className="w-[80px]"></Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filteredItems.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell colSpan={7} className="h-24 text-center">
+                  <Tr>
+                    <Td colSpan={7} className="h-24 text-center">
                       No results.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   filteredItems.map((item) => (
-                    <ZoruTableRow key={item._id}>
-                      <ZoruTableCell>{String(item.customerId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.planId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.billingCycle ?? '')}</ZoruTableCell><ZoruTableCell>{item.nextBillingDate ? fmtDate(item.nextBillingDate.toString()) : ''}</ZoruTableCell><ZoruTableCell>{fmtINR(item.amount)}</ZoruTableCell><ZoruTableCell>{String(item.status ?? '')}</ZoruTableCell>
-                      <ZoruTableCell>
+                    <Tr key={item._id}>
+                      <Td>{String(item.customerId ?? '')}</Td><Td>{String(item.planId ?? '')}</Td><Td>{String(item.billingCycle ?? '')}</Td><Td>{item.nextBillingDate ? fmtDate(item.nextBillingDate.toString()) : ''}</Td><Td>{fmtINR(item.amount)}</Td><Td>{String(item.status ?? '')}</Td>
+                      <Td>
                         <DropdownMenu>
-                          <ZoruDropdownMenuTrigger asChild>
+                          <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
-                          </ZoruDropdownMenuTrigger>
-                          <ZoruDropdownMenuContent align="end">
-                            <ZoruDropdownMenuItem onClick={() => openEdit(item._id as string)}>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
                               <Pencil className="mr-2 h-4 w-4" /> Edit
-                            </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
                               <Trash className="mr-2 h-4 w-4" /> Delete
-                            </ZoruDropdownMenuItem>
-                          </ZoruDropdownMenuContent>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
                         </DropdownMenu>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         </>
       )}
 
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>View Details</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Details</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
               <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
@@ -345,7 +320,7 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
               </div>
             ))}
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

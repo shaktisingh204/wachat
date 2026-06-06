@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Label,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Label, StatCard, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -107,7 +86,7 @@ function fmtDate(iso?: string): string {
 
 export default function GdprEraseRequestsPage() {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [rows, setRows] = React.useState<CrmEraseRequestDTO[]>([]);
     const [isLoading, startLoading] = React.useTransition();
     const [isPending, startPending] = React.useTransition();
@@ -353,35 +332,35 @@ export default function GdprEraseRequestsPage() {
             >
                 <Card className="overflow-x-auto p-0">
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="hover:bg-transparent">
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                        <THead>
+                            <Tr className="hover:bg-transparent">
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Subject
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Kind
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Scope
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Status
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Hold
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="text-[var(--st-text-secondary)]">
                                     Requested
-                                </ZoruTableHead>
-                                <ZoruTableHead className="w-[260px] text-right text-[var(--st-text-secondary)]">
+                                </Th>
+                                <Th className="w-[260px] text-right text-[var(--st-text-secondary)]">
                                     Actions
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {rows.map((row) => (
-                                <ZoruTableRow key={row._id}>
-                                    <ZoruTableCell>
+                                <Tr key={row._id}>
+                                    <Td>
                                         <div className="flex flex-col">
                                             <Link
                                                 href={`/dashboard/crm/settings/gdpr/removal-requests/${row._id}`}
@@ -395,19 +374,19 @@ export default function GdprEraseRequestsPage() {
                                                 </span>
                                             ) : null}
                                         </div>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                         {row.subjectKind}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                                         {row.scope === 'hard_delete' ? 'Hard delete' : 'Soft redact'}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         <Badge variant={STATUS_TONE[row.status]}>
                                             {row.status}
                                         </Badge>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </Td>
+                                    <Td>
                                         {row.legalHold ? (
                                             <span className="inline-flex items-center gap-1 text-[12px] text-[var(--st-danger)]">
                                                 <ShieldOff className="h-3.5 w-3.5" />
@@ -416,16 +395,16 @@ export default function GdprEraseRequestsPage() {
                                         ) : (
                                             <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                                    </Td>
+                                    <Td className="text-[12px] text-[var(--st-text-secondary)]">
                                         {fmtDate(row.requestedAt)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </Td>
+                                    <Td className="text-right">
                                         {renderRowActions(row)}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ))}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </Card>
             </EntityListShell>
@@ -439,13 +418,13 @@ export default function GdprEraseRequestsPage() {
                     }
                 }}
             >
-                <ZoruDialogContent className="max-w-lg">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Reject erase request</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Reject erase request</DialogTitle>
+                        <DialogDescription>
                             Reason is required and is recorded in the audit ledger.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     <div className="space-y-2">
                         <Label htmlFor="reject-reason">Reason</Label>
                         <Textarea
@@ -456,7 +435,7 @@ export default function GdprEraseRequestsPage() {
                             placeholder="Outstanding legal obligation under tax law…"
                         />
                     </div>
-                    <ZoruDialogFooter className="gap-2">
+                    <DialogFooter className="gap-2">
                         <Button
                             type="button"
                             variant="outline"
@@ -477,8 +456,8 @@ export default function GdprEraseRequestsPage() {
                             ) : null}
                             Reject
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

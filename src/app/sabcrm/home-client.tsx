@@ -37,7 +37,7 @@ import { useProject } from '@/context/project-context';
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import { countSabcrmRecordsTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { ObjectMetadata } from '@/lib/rust-client/sabcrm-objects';
-import { ZORU_ICONS } from '@/components/sabcrm/20ui/compat';
+import { ICONS } from '@/components/sabcrm/20ui/compat';
 import './home.css';
 
 const STANDARD_ICON: Record<string, LucideIcon> = {
@@ -50,7 +50,7 @@ const STANDARD_ICON: Record<string, LucideIcon> = {
 
 function iconFor(object: ObjectMetadata): LucideIcon {
   const picked = object.icon
-    ? (ZORU_ICONS[object.icon] as LucideIcon | undefined)
+    ? (ICONS[object.icon] as LucideIcon | undefined)
     : undefined;
   return picked ?? STANDARD_ICON[object.slug] ?? Database;
 }

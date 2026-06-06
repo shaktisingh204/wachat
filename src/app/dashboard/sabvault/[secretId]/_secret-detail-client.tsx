@@ -3,12 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-    Button,
-    ZoruCard,
-    ZoruBadge,
-    Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Badge, Separator } from '@/components/sabcrm/20ui/compat';
 import {
     decryptPayload,
     hibpKAnonymityHash,
@@ -120,12 +115,12 @@ export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
                 </div>
             </div>
 
-            <ZoruCard className="p-5">
+            <Card className="p-5">
                 <div className="mb-3 flex items-center gap-3">
                     <h1 className="text-lg font-semibold">{secret.name}</h1>
-                    <ZoruBadge>{secret.kind}</ZoruBadge>
-                    {secret.breached ? <ZoruBadge variant="destructive">Breached</ZoruBadge> : null}
-                    {secret.reused ? <ZoruBadge>Reused</ZoruBadge> : null}
+                    <Badge>{secret.kind}</Badge>
+                    {secret.breached ? <Badge variant="destructive">Breached</Badge> : null}
+                    {secret.reused ? <Badge>Reused</Badge> : null}
                 </div>
                 {secret.url ? (
                     <div className="mb-3 text-sm">
@@ -179,7 +174,7 @@ export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
                 )}
 
                 {error ? <div className="mt-3 text-sm text-[var(--st-danger)]">{error}</div> : null}
-            </ZoruCard>
+            </Card>
         </div>
     );
 }

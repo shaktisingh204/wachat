@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
 import { OffboardingTask } from '@/lib/hrm-advanced-types';
 
 interface OffboardingFormProps {
@@ -36,10 +36,10 @@ export function OffboardingForm({ open, onOpenChange, initialData, onSave }: Off
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>{initialData?._id ? 'Edit' : 'Add'} Offboarding Task</ZoruDialogTitle>
-        </ZoruDialogHeader>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{initialData?._id ? 'Edit' : 'Add'} Offboarding Task</DialogTitle>
+        </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium">Task Name</label>
@@ -75,13 +75,13 @@ export function OffboardingForm({ open, onOpenChange, initialData, onSave }: Off
             <label htmlFor="isCompleted" className="text-sm font-medium">Completed</label>
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>Cancel</Button>
           <Button onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,5 +1,5 @@
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function InventoryItemDetailLoading() {
     return (
@@ -9,12 +9,12 @@ export default function InventoryItemDetailLoading() {
             back={{ href: '/dashboard/crm/inventory/items', label: 'Back to all items' }}
         >
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>
+                <CardHeader>
+                    <CardTitle>
                         <Skeleton className="h-4 w-32" />
-                    </ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                         {Array.from({ length: 6 }).map((_, i) => (
                             <div key={i}>
@@ -27,22 +27,22 @@ export default function InventoryItemDetailLoading() {
                             </div>
                         ))}
                     </dl>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>
+                <CardHeader>
+                    <CardTitle>
                         <Skeleton className="h-4 w-32" />
-                    </ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="p-0">
+                    </CardTitle>
+                </CardHeader>
+                <CardBody className="p-0">
                     <div className="p-4">
                         <Skeleton className="mb-4 h-8 w-full" />
                         <Skeleton className="mb-2 h-8 w-full" />
                         <Skeleton className="h-8 w-full" />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </EntityDetailShell>
     );

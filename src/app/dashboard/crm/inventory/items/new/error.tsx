@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 
 export default function NewItemError({
@@ -18,20 +18,20 @@ export default function NewItemError({
     return (
         <div className="flex h-[50vh] items-center justify-center p-6">
             <Card className="max-w-md w-full border-[var(--st-border)]">
-                <ZoruCardHeader>
+                <CardHeader>
                     <div className="flex items-center gap-2 text-[var(--st-text)]">
                         <AlertCircle className="h-5 w-5" />
-                        <ZoruCardTitle>Failed to load</ZoruCardTitle>
+                        <CardTitle>Failed to load</CardTitle>
                     </div>
-                    <ZoruCardDescription>
+                    <CardDescription>
                         We encountered an error while loading the source item.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
                     <Button onClick={() => reset()} variant="outline" className="w-full">
                         Try again
                     </Button>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

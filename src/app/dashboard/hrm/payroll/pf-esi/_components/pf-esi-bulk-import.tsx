@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Card, Input, Label, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import { bulkImportPfEsiFromPayrollRun } from '@/app/actions/crm-pf-esi.actions';
 import { LoaderCircle, FileDown } from 'lucide-react';
 
@@ -13,7 +13,7 @@ function currentMonth(): string {
 
 export function PfEsiBulkImport() {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isPending, setIsPending] = useState(false);
     const [month, setMonth] = useState(currentMonth());
 

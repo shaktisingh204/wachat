@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   format } from 'date-fns';
 import { Eye, MessageSquare, Pencil } from 'lucide-react';
@@ -61,46 +52,46 @@ export function LeaveTable({
   return (
     <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow className="hover:bg-transparent">
-            <ZoruTableHead className="w-10">
+        <THead>
+          <Tr className="hover:bg-transparent">
+            <Th className="w-10">
               <Checkbox
                 aria-label="Select all rows on this page"
                 checked={allSelected}
                 onCheckedChange={(v) => onToggleAll(Boolean(v))}
               />
-            </ZoruTableHead>
-            <ZoruTableHead>Employee</ZoruTableHead>
-            <ZoruTableHead>Leave type</ZoruTableHead>
-            <ZoruTableHead>From</ZoruTableHead>
-            <ZoruTableHead>To</ZoruTableHead>
-            <ZoruTableHead className="text-right">Days</ZoruTableHead>
-            <ZoruTableHead>Reason</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead>Approver</ZoruTableHead>
-            <ZoruTableHead>Submitted</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+            </Th>
+            <Th>Employee</Th>
+            <Th>Leave type</Th>
+            <Th>From</Th>
+            <Th>To</Th>
+            <Th className="text-right">Days</Th>
+            <Th>Reason</Th>
+            <Th>Status</Th>
+            <Th>Approver</Th>
+            <Th>Submitted</Th>
+            <Th className="text-right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {rows.map((row) => (
-            <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
-              <ZoruTableCell>
+            <Tr key={row._id} className="border-[var(--st-border)]">
+              <Td>
                 <Checkbox
                   aria-label={`Select leave for ${row.employeeName}`}
                   checked={selected.has(row._id)}
                   onCheckedChange={() => onToggleOne(row._id)}
                 />
-              </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+              </Td>
+              <Td className="text-[13px] text-[var(--st-text)]">
                 <Link
                   href={`/dashboard/hrm/payroll/leave/${row._id}`}
                   className="hover:underline"
                 >
                   {row.employeeName}
                 </Link>
-              </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+              </Td>
+              <Td className="text-[13px] text-[var(--st-text)]">
                 {row.leaveTypeName ? (
                   <span
                     className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11.5px]"
@@ -123,40 +114,40 @@ export function LeaveTable({
                 ) : (
                   '—'
                 )}
-              </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+              </Td>
+              <Td className="text-[13px] text-[var(--st-text)]">
                 {fmtDate(row.from)}
-              </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+              </Td>
+              <Td className="text-[13px] text-[var(--st-text)]">
                 {fmtDate(row.to)}
-              </ZoruTableCell>
-              <ZoruTableCell className="text-right text-[13px] tabular-nums text-[var(--st-text)]">
+              </Td>
+              <Td className="text-right text-[13px] tabular-nums text-[var(--st-text)]">
                 {Number.isFinite(row.days) ? row.days : '—'}
                 {row.halfDay ? (
                   <span className="ml-1 text-[11px] text-[var(--st-text-secondary)]">
                     ½
                   </span>
                 ) : null}
-              </ZoruTableCell>
-              <ZoruTableCell
+              </Td>
+              <Td
                 className="max-w-[220px] truncate text-[13px] text-[var(--st-text-secondary)]"
                 title={row.reason ?? ''}
               >
                 {row.reason ?? '—'}
-              </ZoruTableCell>
-              <ZoruTableCell>
+              </Td>
+              <Td>
                 <StatusPill
                   label={row.status}
                   tone={statusToTone(row.status)}
                 />
-              </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+              </Td>
+              <Td className="text-[13px] text-[var(--st-text-secondary)]">
                 {row.approverName ?? '—'}
-              </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+              </Td>
+              <Td className="text-[13px] text-[var(--st-text-secondary)]">
                 {fmtDate(row.submittedAt)}
-              </ZoruTableCell>
-              <ZoruTableCell>
+              </Td>
+              <Td>
                 <div className="flex justify-end gap-1">
                   {row.employeeEmail ? (
                     <Button variant="ghost" size="icon" asChild>
@@ -186,10 +177,10 @@ export function LeaveTable({
                     </Link>
                   </Button>
                 </div>
-              </ZoruTableCell>
-            </ZoruTableRow>
+              </Td>
+            </Tr>
           ))}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </div>
   );

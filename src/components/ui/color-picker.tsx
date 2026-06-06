@@ -1,6 +1,6 @@
 'use client';
 
-import { Popover, ZoruPopoverContent, ZoruPopoverTrigger, Button } from '@/components/sabcrm/20ui/compat';
+import { Popover, PopoverContent, PopoverTrigger, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import { SketchPicker } from 'react-color';
@@ -19,7 +19,7 @@ export function ColorPicker({ value, onChange, className, id }: ColorPickerProps
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
                 <Button
                     id={id}
                     variant="outline"
@@ -31,15 +31,15 @@ export function ColorPicker({ value, onChange, className, id }: ColorPickerProps
                     />
                     {value}
                 </Button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent className="w-auto p-0 border-none" align="start">
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 border-none" align="start">
                 <SketchPicker
                     color={value}
                     onChange={(color) => onChange(color.hex)}
                     disableAlpha={true} // Usually hex for simple widgets doesn't need alpha, but can be enabled if needed. Keeping it simple.
                     presetColors={['#25D366', '#128C7E', '#075E54', '#34B7F1', '#ECE5DD', '#FFFFFF', '#000000']}
                 />
-            </ZoruPopoverContent>
+            </PopoverContent>
         </Popover>
     );
 }

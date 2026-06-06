@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -74,7 +74,7 @@ function safeNumber(n: unknown, fallback = 0): number {
 export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const editing = Boolean(initial?._id);
   const formRef = React.useRef<HTMLFormElement>(null);
 

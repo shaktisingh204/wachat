@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef, useTransition, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
@@ -156,7 +148,7 @@ export function DomainStepper({
   onDomainAdded: () => Promise<void>;
   onVerifySuccess: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const step1FormRef = useRef<HTMLFormElement>(null);
   const [stepper, setStepper] = useState<StepperState>({ step: 'idle' });
   const [addState, addAction] = useActionState(addCustomDomain, addDomainInitialState);
@@ -336,10 +328,10 @@ export function DomainStepper({
 
           <Alert className="border-[var(--st-border)]/30 bg-[var(--st-text)]/10">
             <AlertTriangle className="h-4 w-4 text-[var(--st-text-secondary)]" />
-            <ZoruAlertTitle className="text-[var(--st-text-secondary)]">DNS Propagation</ZoruAlertTitle>
-            <ZoruAlertDescription className="text-[var(--st-text-secondary)]/80">
+            <AlertTitle className="text-[var(--st-text-secondary)]">DNS Propagation</AlertTitle>
+            <AlertDescription className="text-[var(--st-text-secondary)]/80">
               DNS changes typically propagate within 5–30 minutes. You can verify once the records are live.
-            </ZoruAlertDescription>
+            </AlertDescription>
           </Alert>
 
           <div className="flex items-center gap-3 pt-1">
@@ -410,10 +402,10 @@ export function DomainStepper({
               {stepper.verifyError && (
                 <Alert className="border-[var(--st-danger)]/40 bg-[var(--st-danger)]/10">
                   <AlertTriangle className="h-4 w-4 text-[var(--st-danger)]" />
-                  <ZoruAlertTitle className="text-[var(--st-danger)]">Verification failed</ZoruAlertTitle>
-                  <ZoruAlertDescription className="text-[var(--st-danger)]/80">
+                  <AlertTitle className="text-[var(--st-danger)]">Verification failed</AlertTitle>
+                  <AlertDescription className="text-[var(--st-danger)]/80">
                     DNS records may not have propagated yet. Wait a few minutes and try again.
-                  </ZoruAlertDescription>
+                  </AlertDescription>
                 </Alert>
               )}
 

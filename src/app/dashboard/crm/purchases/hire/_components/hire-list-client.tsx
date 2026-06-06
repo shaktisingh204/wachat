@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   CheckCircle2,
   Download,
@@ -136,7 +131,7 @@ function downloadHiresCsv(rows: HireListRow[]): void {
 }
 
 export function HireListClient({ rows, error, newHref }: HireListClientProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [search, setSearch] = React.useState('');
     const [stageFilter, setStageFilter] = React.useState<string>('all');
 

@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -79,7 +68,7 @@ function toDateInputValue(v?: string): string {
 
 export function FixedAssetForm({ initial }: FixedAssetFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(saveFixedAssetAction, INITIAL_STATE);
 
@@ -293,16 +282,16 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
           <div>
             <Label htmlFor="depreciationMethod">Depreciation method</Label>
             <Select value={depreciationMethod} onValueChange={setDepreciationMethod}>
-              <ZoruSelectTrigger id="depreciationMethod" className="mt-1.5">
-                <ZoruSelectValue placeholder="Select method" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="depreciationMethod" className="mt-1.5">
+                <SelectValue placeholder="Select method" />
+              </SelectTrigger>
+              <SelectContent>
                 {DEPRECIATION_METHODS.map((m) => (
-                  <ZoruSelectItem key={m.value} value={m.value}>
+                  <SelectItem key={m.value} value={m.value}>
                     {m.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div>
@@ -345,16 +334,16 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
           <div>
             <Label htmlFor="condition">Condition</Label>
             <Select value={condition} onValueChange={setCondition}>
-              <ZoruSelectTrigger id="condition" className="mt-1.5">
-                <ZoruSelectValue placeholder="Select condition" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="condition" className="mt-1.5">
+                <SelectValue placeholder="Select condition" />
+              </SelectTrigger>
+              <SelectContent>
                 {CONDITIONS.map((c) => (
-                  <ZoruSelectItem key={c.value} value={c.value}>
+                  <SelectItem key={c.value} value={c.value}>
                     {c.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
         </div>

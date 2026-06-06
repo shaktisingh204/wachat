@@ -9,20 +9,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Input,
-    Label,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Switch,
-    Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
     createBlueprint,
     deleteBlueprint,
@@ -270,16 +257,16 @@ export function BlueprintEditor({ mode, initial }: Props) {
                                             })
                                         }
                                     >
-                                        <ZoruSelectTrigger>
-                                            <ZoruSelectValue />
-                                        </ZoruSelectTrigger>
-                                        <ZoruSelectContent>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
                                             {APPROVER_KINDS.map((k) => (
-                                                <ZoruSelectItem key={k} value={k}>
+                                                <SelectItem key={k} value={k}>
                                                     {k}
-                                                </ZoruSelectItem>
+                                                </SelectItem>
                                             ))}
-                                        </ZoruSelectContent>
+                                        </SelectContent>
                                     </Select>
                                 </div>
                                 {s.approverKind === 'user' ? (

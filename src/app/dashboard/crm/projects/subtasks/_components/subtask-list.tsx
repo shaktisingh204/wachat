@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -85,7 +73,7 @@ export function SubtaskList({
     readOnly = false,
     limit = 200,
 }: SubtaskListProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [rows, setRows] = useState<CrmSubtaskDoc[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [statusPending, startStatusTransition] = useTransition();
@@ -289,7 +277,7 @@ function AddSubtaskInline({
     parentKind,
     onAdded,
 }: AddSubtaskInlineProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [expanded, setExpanded] = useState(false);
     const [state, formAction] = useActionState(saveSubtask, {});
 
@@ -349,16 +337,16 @@ function AddSubtaskInline({
                     className="h-9 text-[12.5px]"
                 />
                 <Select name="status" defaultValue="todo">
-                    <ZoruSelectTrigger className="h-9 text-[12.5px]">
-                        <ZoruSelectValue placeholder="Status" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger className="h-9 text-[12.5px]">
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
                         {STATUS_OPTIONS.map((o) => (
-                            <ZoruSelectItem key={o.value} value={o.value}>
+                            <SelectItem key={o.value} value={o.value}>
                                 {o.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
             <Textarea

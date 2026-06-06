@@ -1,6 +1,6 @@
 'use client';
 
-import { DropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 
@@ -41,7 +41,7 @@ export function RfqQuickEdits({
   status,
 }: RfqQuickEditsProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [currentStatus, setCurrentStatus] = React.useState(status);
 
   React.useEffect(() => setCurrentStatus(status), [status]);
@@ -82,7 +82,7 @@ export function RfqQuickEdits({
         <dt className="text-[var(--st-text-secondary)]">Status</dt>
         <dd>
           <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
               <button
                 type="button"
                 className="rounded-full transition-opacity hover:opacity-80"
@@ -90,14 +90,14 @@ export function RfqQuickEdits({
               >
                 <StatusPill label={currentStatus} tone={statusToTone(currentStatus)} />
               </button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
               {STATUS_OPTIONS.map((s) => (
-                <ZoruDropdownMenuItem key={s} onSelect={() => changeStatus(s)}>
+                <DropdownMenuItem key={s} onSelect={() => changeStatus(s)}>
                   {s}
-                </ZoruDropdownMenuItem>
+                </DropdownMenuItem>
               ))}
-            </ZoruDropdownMenuContent>
+            </DropdownMenuContent>
           </DropdownMenu>
         </dd>
       </div>

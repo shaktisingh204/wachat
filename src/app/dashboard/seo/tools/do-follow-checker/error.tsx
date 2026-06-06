@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { AlertTriangle } from 'lucide-react';
 
 export default function ErrorBoundary({
@@ -19,7 +19,7 @@ export default function ErrorBoundary({
   return (
     <div className="flex h-[50vh] w-full items-center justify-center p-4">
       <Card className="max-w-md border-[var(--st-border)]/50">
-        <ZoruCardContent className="flex flex-col items-center gap-4 p-6 text-center">
+        <CardBody className="flex flex-col items-center gap-4 p-6 text-center">
           <div className="rounded-full bg-[var(--st-bg-muted)] p-3 text-[var(--st-text)] dark:bg-[var(--st-text)]/20">
             <AlertTriangle className="h-8 w-8" />
           </div>
@@ -32,7 +32,7 @@ export default function ErrorBoundary({
           <Button onClick={() => reset()} variant="outline" className="mt-2">
             Try again
           </Button>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

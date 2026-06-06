@@ -1,4 +1,4 @@
-import { Button, Card, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import { Edit,
@@ -243,46 +243,46 @@ export default async function ChartOfAccountDetailPage(props: {
                     </div>
                     <div className="overflow-x-auto border-t border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Voucher #</ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Note</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Debit</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Credit</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">Date</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Voucher #</Th>
+                                    <Th className="text-[var(--st-text-secondary)]">Note</Th>
+                                    <Th className="text-right text-[var(--st-text-secondary)]">Debit</Th>
+                                    <Th className="text-right text-[var(--st-text-secondary)]">Credit</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {flattenedRecent.length === 0 ? (
-                                    <ZoruTableRow className="border-[var(--st-border)]">
-                                        <ZoruTableCell colSpan={5} className="h-24 text-center text-[var(--st-text-secondary)]">
+                                    <Tr className="border-[var(--st-border)]">
+                                        <Td colSpan={5} className="h-24 text-center text-[var(--st-text-secondary)]">
                                             No transactions posted yet.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ) : (
                                     flattenedRecent.map((entry) => {
                                         return (
-                                            <ZoruTableRow key={entry._id} className="border-[var(--st-border)]">
-                                                <ZoruTableCell className="text-[var(--st-text)]">
+                                            <Tr key={entry._id} className="border-[var(--st-border)]">
+                                                <Td className="text-[var(--st-text)]">
                                                     {entry.date}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {entry.voucherNumber}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                                                </Td>
+                                                <Td className="text-[12px] text-[var(--st-text-secondary)]">
                                                     {entry.note}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right font-mono text-[var(--st-text)]">
                                                     {entry.debit > 0 ? fmtMoney(entry.debit, account.currency) : '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
+                                                </Td>
+                                                <Td className="text-right font-mono text-[var(--st-text)]">
                                                     {entry.credit > 0 ? fmtMoney(entry.credit, account.currency) : '—'}
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </Td>
+                                            </Tr>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </Card>

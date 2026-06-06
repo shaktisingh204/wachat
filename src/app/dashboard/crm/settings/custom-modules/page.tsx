@@ -1,42 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruIconPicker,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, IconPicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Plus,
   Pencil,
@@ -122,7 +86,7 @@ function entityKindOf(row: Row): string {
 }
 
 export default function CustomModulesPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [roles, setRoles] = useState<RoleRow[]>([]);
   const [perms, setPerms] = useState<PermRow[]>([]);
@@ -386,17 +350,17 @@ export default function CustomModulesPage() {
               setPage(1);
             }}
           >
-            <ZoruSelectTrigger className="h-8 w-[180px] text-[12px]">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All kinds</ZoruSelectItem>
+            <SelectTrigger className="h-8 w-[180px] text-[12px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All kinds</SelectItem>
               {allKinds.map((k) => (
-                <ZoruSelectItem key={k} value={k}>
+                <SelectItem key={k} value={k}>
                   {k}
-                </ZoruSelectItem>
+                </SelectItem>
               ))}
-            </ZoruSelectContent>
+            </SelectContent>
           </Select>
         </div>
       }
@@ -478,62 +442,62 @@ export default function CustomModulesPage() {
         <Card className="p-0">
           <div className="overflow-x-auto">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="w-[40px]">
+              <THead>
+                <Tr className="hover:bg-transparent">
+                  <Th className="w-[40px]">
                     <Checkbox
                       checked={allOnPageSelected}
                       onCheckedChange={toggleAllOnPage}
                       aria-label="Select all on page"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Name
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Slug
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Table
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="text-[var(--st-text-secondary)]">
                     Kind
-                  </ZoruTableHead>
-                  <ZoruTableHead className="w-[120px] text-right text-[var(--st-text-secondary)]">
+                  </Th>
+                  <Th className="w-[120px] text-right text-[var(--st-text-secondary)]">
                     Actions
-                  </ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {isLoading && rows.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={6}
                       className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : pageRows.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={6}
                       className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No custom modules match the current filters.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ) : (
                   pageRows.map((row) => (
-                    <ZoruTableRow key={row._id}>
-                      <ZoruTableCell>
+                    <Tr key={row._id}>
+                      <Td>
                         <Checkbox
                           checked={selected.has(row._id)}
                           onCheckedChange={() => toggleOne(row._id)}
                           aria-label={`Select ${row.name}`}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         <RowDrawer
                           label={row.display_name || row.name}
                           subtitle={row.description || undefined}
@@ -588,19 +552,19 @@ export default function CustomModulesPage() {
                             </div>
                           </div>
                         </RowDrawer>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         <Badge variant="ghost">
                           <code>{row.name}</code>
                         </Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[12px] text-[var(--st-text-secondary)]">
                         {row.table || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-[12px] text-[var(--st-text-secondary)]">
                         {entityKindOf(row)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button
                             variant="ghost"
@@ -622,11 +586,11 @@ export default function CustomModulesPage() {
                             <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
           <PaginationBar
@@ -656,40 +620,40 @@ export default function CustomModulesPage() {
             </div>
             <div className="overflow-x-auto p-5">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="hover:bg-transparent">
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                <THead>
+                  <Tr className="hover:bg-transparent">
+                    <Th className="text-[var(--st-text-secondary)]">
                       Module
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">
                       Role
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-center text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-center text-[var(--st-text-secondary)]">
                       View
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-center text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-center text-[var(--st-text-secondary)]">
                       Create
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-center text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-center text-[var(--st-text-secondary)]">
                       Edit
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-center text-[var(--st-text-secondary)]">
+                    </Th>
+                    <Th className="text-center text-[var(--st-text-secondary)]">
                       Delete
-                    </ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {filtered.flatMap((m) =>
                     roles.map((r) => {
                       const p = permFor(m._id, r._id);
                       return (
-                        <ZoruTableRow key={`${m._id}:${r._id}`}>
-                          <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        <Tr key={`${m._id}:${r._id}`}>
+                          <Td className="text-[13px] text-[var(--st-text)]">
                             {m.display_name || m.name}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
+                          </Td>
+                          <Td className="text-[13px] text-[var(--st-text-secondary)]">
                             {r.display_name || r.name}
-                          </ZoruTableCell>
+                          </Td>
                           {(
                             [
                               'can_view',
@@ -698,7 +662,7 @@ export default function CustomModulesPage() {
                               'can_delete',
                             ] as const
                           ).map((key) => (
-                            <ZoruTableCell
+                            <Td
                               key={key}
                               className="text-center"
                             >
@@ -710,13 +674,13 @@ export default function CustomModulesPage() {
                                 onChange={() => togglePerm(m._id, r._id, key)}
                                 aria-label={`${m.name}/${r.name}/${key}`}
                               />
-                            </ZoruTableCell>
+                            </Td>
                           ))}
-                        </ZoruTableRow>
+                        </Tr>
                       );
                     }),
                   )}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             </div>
           </Card>
@@ -724,16 +688,16 @@ export default function CustomModulesPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-lg">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
               {editing ? 'Edit Custom Module' : 'Add Custom Module'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               Custom modules are tenant-specific entities with their own
               permission matrix.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           <form action={saveAction} className="space-y-4">
             {editing?._id ? (
@@ -761,7 +725,7 @@ export default function CustomModulesPage() {
             <div>
               <Label>Icon</Label>
               <input type="hidden" name="icon" value={icon} />
-              <ZoruIconPicker value={icon} onChange={setIcon} />
+              <IconPicker value={icon} onChange={setIcon} />
             </div>
             <div>
               <Label htmlFor="table">Table / collection</Label>
@@ -781,7 +745,7 @@ export default function CustomModulesPage() {
                 defaultValue={editing?.description || ''}
               />
             </div>
-            <ZoruDialogFooter className="gap-2">
+            <DialogFooter className="gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -795,49 +759,49 @@ export default function CustomModulesPage() {
                 ) : null}
                 Save
               </Button>
-            </ZoruDialogFooter>
+            </DialogFooter>
           </form>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
 
-      <ZoruAlertDialog
+      <AlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete custom module?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete custom module?</AlertDialogTitle>
+            <AlertDialogDescription>
               Its role permissions will also be removed.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Delete {selected.size} module(s)?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               Role permissions for the deleted modules will also be removed.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleBulkDelete}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete}>
               {bulkDeleting ? 'Deleting…' : 'Delete'}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </EntityListShell>
   );
 }

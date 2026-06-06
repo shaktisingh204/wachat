@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -103,7 +90,7 @@ const FORM_TYPE_OPTIONS = TYPE_OPTIONS.filter(
 
 export function TrainingForm({ initialData }: TrainingFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveTraining, initialState);
@@ -191,31 +178,31 @@ export function TrainingForm({ initialData }: TrainingFormProps) {
                     <div className="space-y-1.5">
                         <Label htmlFor="trainingType-trigger">Type</Label>
                         <Select value={trainingType} onValueChange={setTrainingType}>
-                            <ZoruSelectTrigger id="trainingType-trigger">
-                                <ZoruSelectValue placeholder="Pick a type…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="trainingType-trigger">
+                                <SelectValue placeholder="Pick a type…" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {FORM_TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1.5">
                         <Label htmlFor="deliveryMode-trigger">Delivery</Label>
                         <Select value={deliveryMode} onValueChange={setDeliveryMode}>
-                            <ZoruSelectTrigger id="deliveryMode-trigger">
-                                <ZoruSelectValue placeholder="Pick a mode…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger id="deliveryMode-trigger">
+                                <SelectValue placeholder="Pick a mode…" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {DELIVERY_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
+                                    <SelectItem key={o.value} value={o.value}>
                                         {o.label}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                 </div>

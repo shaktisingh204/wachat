@@ -1,4 +1,4 @@
-import { Skeleton, Card, ZoruCardContent, ZoruCardHeader, Separator } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, Card, CardBody, CardHeader, Separator } from '@/components/sabcrm/20ui/compat';
 
 export default function Loading() {
     return (
@@ -7,11 +7,11 @@ export default function Loading() {
                  <Skeleton className="h-10 w-48" />
              </div>
             <Card>
-                <ZoruCardHeader className="space-y-2">
+                <CardHeader className="space-y-2">
                     <Skeleton className="h-8 w-48" />
                     <Skeleton className="h-4 w-64" />
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-6">
+                </CardHeader>
+                <CardBody className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                              <Skeleton className="h-6 w-32" />
@@ -42,7 +42,7 @@ export default function Loading() {
                         <div className="flex justify-between"><Skeleton className="h-4 w-16" /><Skeleton className="h-4 w-16" /></div>
                         <div className="flex justify-between"><Skeleton className="h-6 w-16" /><Skeleton className="h-6 w-20" /></div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

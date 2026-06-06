@@ -38,7 +38,7 @@ import {
   X,
 } from 'lucide-react';
 
-import { cn, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Card,
   Button,
@@ -539,7 +539,7 @@ export function ActivityTimeline({
   authors,
   className,
 }: ActivityTimelineProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [activities, setActivities] = React.useState<CrmActivityRecord[]>(
     () => initialActivities ?? [],

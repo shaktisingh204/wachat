@@ -3,45 +3,7 @@
 import React, { useState } from "react"
 import { Plus, Search, Eye, EyeOff, MoreHorizontal, Copy, Check, Shield } from "lucide-react"
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/sabcrm/20ui/compat'
-import { Button } from '@/components/sabcrm/20ui/compat'
-import { Badge } from '@/components/sabcrm/20ui/compat'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/sabcrm/20ui/compat'
-import { Input } from '@/components/sabcrm/20ui/compat'
-import { Label } from '@/components/sabcrm/20ui/compat'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/sabcrm/20ui/compat'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/sabcrm/20ui/compat'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat'
-
-type EnvVar = {
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';import { Button } from '@/components/sabcrm/20ui/compat';import { Badge } from '@/components/sabcrm/20ui/compat';import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui/compat';import { Input } from '@/components/sabcrm/20ui/compat';import { Label } from '@/components/sabcrm/20ui/compat';import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui/compat';import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';type EnvVar = {
   id: string
   key: string
   value: string
@@ -166,16 +128,16 @@ export default function EnvVarsPage() {
           
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader className="bg-[var(--st-bg-muted)]/30">
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[280px]">Variable Name</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Scope</TableHead>
-                  <TableHead>Last Updated</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+              <THead className="bg-[var(--st-bg-muted)]/30">
+                <Tr className="hover:bg-transparent">
+                  <Th className="w-[280px]">Variable Name</Th>
+                  <Th>Value</Th>
+                  <Th>Scope</Th>
+                  <Th>Last Updated</Th>
+                  <Th className="text-right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {filteredVars.map((envVar) => {
                   const isRevealed = revealedKeys.has(envVar.id)
                   
@@ -186,11 +148,11 @@ export default function EnvVarsPage() {
                   if (envVar.scope === "Global") badgeVariant = "prism"
                   
                   return (
-                    <TableRow key={envVar.id} className="group transition-colors hover:bg-[var(--st-bg-muted)]/50">
-                      <TableCell className="font-mono text-sm font-medium">
+                    <Tr key={envVar.id} className="group transition-colors hover:bg-[var(--st-bg-muted)]/50">
+                      <Td className="font-mono text-sm font-medium">
                         {envVar.key}
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <div className="flex items-center gap-2">
                           <code className="relative rounded bg-[var(--st-bg-muted)]/50 px-[0.4rem] py-[0.3rem] font-mono text-sm max-w-[250px] truncate border border-[var(--st-border)]/50 shadow-sm">
                             {isRevealed ? envVar.value : "••••••••••••••••••••"}
@@ -216,14 +178,14 @@ export default function EnvVarsPage() {
                             </Button>
                           </div>
                         </div>
-                      </TableCell>
-                      <TableCell>
+                      </Td>
+                      <Td>
                         <Badge variant={badgeVariant} className="shadow-sm">{envVar.scope}</Badge>
-                      </TableCell>
-                      <TableCell className="text-[var(--st-text-secondary)] text-sm">
+                      </Td>
+                      <Td className="text-[var(--st-text-secondary)] text-sm">
                         {envVar.lastUpdated}
-                      </TableCell>
-                      <TableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -244,21 +206,21 @@ export default function EnvVarsPage() {
                             <DropdownMenuItem className="text-[var(--st-text)]">Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   )
                 })}
                 {filteredVars.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-32 text-center text-[var(--st-text-secondary)]">
+                  <Tr>
+                    <Td colSpan={5} className="h-32 text-center text-[var(--st-text-secondary)]">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <Shield className="h-8 w-8 opacity-20" />
                         <p>No environment variables found matching "{searchTerm}"</p>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 )}
-              </TableBody>
+              </TBody>
             </Table>
           </div>
         </CardContent>

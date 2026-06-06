@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectValue,
-  ZoruSelectTrigger,
-  ZoruSelectContent,
-  ZoruSelectItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { Plus, Trash2, Upload, X } from 'lucide-react';
 
 /**
@@ -333,13 +324,13 @@ export function MetaSection(props: MetaSectionProps) {
               value={props.status}
               onValueChange={(v) => props.onStatus(v as 'active' | 'archived')}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
             </Select>
             <input type="hidden" name="status" value={props.status} />
           </Field>

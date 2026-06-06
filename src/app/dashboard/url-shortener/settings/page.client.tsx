@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Separator,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Separator, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Globe } from 'lucide-react';
 import { getCustomDomains } from '@/app/actions/url-shortener.actions';
@@ -59,15 +51,15 @@ export default function UrlShortenerSettingsPage() {
       </div>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle className="flex items-center gap-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5" /> Custom Domains
-          </ZoruCardTitle>
-          <ZoruCardDescription>
+          </CardTitle>
+          <CardDescription>
             Use your own domain for branded short links (e.g., links.mybrand.com). You must own the domain and be able to configure its DNS records.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-6">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-6">
           <DomainStepper
             domains={domains}
             onDomainAdded={handleDomainAdded}
@@ -79,7 +71,7 @@ export default function UrlShortenerSettingsPage() {
             isLoading={isLoading}
             onRefresh={fetchData}
           />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {isUserLoading ? (

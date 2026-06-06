@@ -1,15 +1,5 @@
 export const dynamic = 'force-dynamic';
-import {
-  Badge,
-  Button,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -201,30 +191,30 @@ export default async function ExpenseClaimDetailPage({ params }: PageProps) {
                 ) : (
                     <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Date</ZoruTableHead>
-                                    <ZoruTableHead>Category</ZoruTableHead>
-                                    <ZoruTableHead>Project</ZoruTableHead>
-                                    <ZoruTableHead>Description</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Amount</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Date</Th>
+                                    <Th>Category</Th>
+                                    <Th>Project</Th>
+                                    <Th>Description</Th>
+                                    <Th className="text-right">Amount</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {lines.map((row, idx) => (
-                                    <ZoruTableRow key={idx}>
-                                        <ZoruTableCell>{fmtDate(row.date)}</ZoruTableCell>
-                                        <ZoruTableCell>{fmtText(row.category)}</ZoruTableCell>
-                                        <ZoruTableCell>
+                                    <Tr key={idx}>
+                                        <Td>{fmtDate(row.date)}</Td>
+                                        <Td>{fmtText(row.category)}</Td>
+                                        <Td>
                                             {fmtText(row.project || row.projectId)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>{fmtText(row.description)}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
+                                        </Td>
+                                        <Td>{fmtText(row.description)}</Td>
+                                        <Td className="text-right">
                                             {fmtCurrency(row.amount, currency)}
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 )}

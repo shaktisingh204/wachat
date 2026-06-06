@@ -1,25 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Checkbox,
-  Label,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-  ZoruDropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Checkbox, Label, Skeleton, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import { useDebouncedCallback } from 'use-debounce';
 import {
@@ -103,7 +84,7 @@ function statusBadge(status: string) {
 }
 
 export function StockTransfersListClient() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<WithId<CrmStockTransfer>[]>([]);
   const [total, setTotal] = React.useState(0);
@@ -453,32 +434,32 @@ export function StockTransfersListClient() {
           {/* Table */}
           <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead className="w-8">
+              <THead>
+                <Tr>
+                  <Th className="w-8">
                     <Checkbox
                       checked={headChecked}
                       onCheckedChange={(c) => toggleAll(Boolean(c))}
                       aria-label="Select all"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead>Transfer #</ZoruTableHead>
-                  <ZoruTableHead>Date</ZoruTableHead>
-                  <ZoruTableHead>From</ZoruTableHead>
-                  <ZoruTableHead>To</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Items</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead className="w-12" />
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </Th>
+                  <Th>Transfer #</Th>
+                  <Th>Date</Th>
+                  <Th>From</Th>
+                  <Th>To</Th>
+                  <Th className="text-right">Items</Th>
+                  <Th>Status</Th>
+                  <Th className="w-12" />
+                </Tr>
+              </THead>
+              <TBody>
                 {isPending && rows.length === 0
                   ? Array.from({ length: 5 }).map((_, i) => (
-                      <ZoruTableRow key={i}>
-                        <ZoruTableCell colSpan={8}>
+                      <Tr key={i}>
+                        <Td colSpan={8}>
                           <Skeleton className="h-6 w-full" />
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     ))
                   : rows.map((r) => {
                       const id = String(r._id);
@@ -487,15 +468,15 @@ export function StockTransfersListClient() {
                         : 0;
                       const checked = selected.has(id);
                       return (
-                        <ZoruTableRow key={id}>
-                          <ZoruTableCell>
+                        <Tr key={id}>
+                          <Td>
                             <Checkbox
                               checked={checked}
                               onCheckedChange={() => toggleOne(id)}
                               aria-label={`Select ${r.transferNumber ?? id.slice(-6)}`}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <EntityRowLink
                               href={`${BASE}/${id}`}
                               label={
@@ -509,30 +490,30 @@ export function StockTransfersListClient() {
                                   : undefined
                               }
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell>{fmtDate(r.transferDate)}</ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>{fmtDate(r.transferDate)}</Td>
+                          <Td>
                             <EntityPickerChip
                               entity="warehouse"
                               id={String(r.fromWarehouseId)}
                               fallback={r.fromWarehouseName || 'Warehouse'}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <EntityPickerChip
                               entity="warehouse"
                               id={String(r.toWarehouseId)}
                               fallback={r.toWarehouseName || 'Warehouse'}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right font-mono">
+                          </Td>
+                          <Td className="text-right font-mono">
                             {lineCount}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             {statusBadge(String(r.status || 'Draft'))}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right">
-                            <ZoruDropdownMenu>
+                          </Td>
+                          <Td className="text-right">
+                            <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" aria-label="Open menu">
                                   <MoreVertical className="h-4 w-4" />
@@ -563,12 +544,12 @@ export function StockTransfersListClient() {
                                   Delete
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
-                            </ZoruDropdownMenu>
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                            </DropdownMenu>
+                          </Td>
+                        </Tr>
                       );
                     })}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -52,7 +52,7 @@ function SubmitButton({ editing }: { editing: boolean }) {
 
 export function DealForm({ initial, customFields }: DealFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(saveDealAction, INITIAL_STATE);
   const editing = !!initial?._id;

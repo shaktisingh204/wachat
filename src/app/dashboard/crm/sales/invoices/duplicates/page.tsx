@@ -26,12 +26,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import {
-    Badge,
-    Button,
-    Card,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { findInvoiceDuplicates, type InvoiceDuplicateGroup } from '@/app/actions/crm/invoices.actions';
 import {
     getInvoiceDuplicatesDeepKpis,
@@ -79,7 +74,7 @@ function MergeClusterCard({
     group: InvoiceDuplicateGroup;
     onMerged: () => void;
 }): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [survivorId, setSurvivorId] = React.useState<string>(
         () => group.members[0]?._id ?? '',
     );
@@ -283,7 +278,7 @@ function MergeClusterCard({
 }
 
 export default function InvoiceDuplicatesPage(): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [groups, setGroups] = React.useState<InvoiceDuplicateGroup[]>([]);
     const [kpis, setKpis] = React.useState<InvoiceDuplicatesDeepKpis>(KPI_EMPTY);
     const [isPending, startTransition] = React.useTransition();

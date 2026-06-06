@@ -9,22 +9,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Layers, Plus } from 'lucide-react';
 
-import {
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogFooter,
-  Input,
-  Label,
-  PageHeader,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-  EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { createSabtablesWorkspace } from '@/app/actions/sabtables.actions';
 import type { SabtablesWorkspaceDoc } from '@/lib/rust-client/sabtables-workspaces';
 
@@ -59,16 +44,16 @@ export function WorkspacesListClient({ initialItems }: Props) {
     <div className="px-6 py-8 space-y-8">
       <PageHeader>
         <div>
-          <ZoruPageTitle>SabTables</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>SabTables</PageTitle>
+          <PageDescription>
             Flexible databases. Group bases under workspaces and collaborate on records.
-          </ZoruPageDescription>
+          </PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Button onClick={() => setOpen(true)}>
             <Plus className="w-4 h-4 mr-2" /> New workspace
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {items.length === 0 ? (
@@ -110,10 +95,10 @@ export function WorkspacesListClient({ initialItems }: Props) {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New workspace</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New workspace</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
               <Label htmlFor="ws-name">Name</Label>
@@ -134,15 +119,15 @@ export function WorkspacesListClient({ initialItems }: Props) {
               />
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={pending || !name.trim()}>
               {pending ? 'Creating…' : 'Create'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

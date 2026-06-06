@@ -16,12 +16,7 @@
 
 import * as React from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label } from '@/components/sabcrm/20ui/compat';
 import { issueSignerOtp, submitSignature } from '@/app/actions/sabsign.actions';
 
 interface SignPagePayload {

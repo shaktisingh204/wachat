@@ -5,21 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { createScheduleAction } from '@/app/actions/analytics-bi.actions';
 import type { BiScheduleFormat } from '@/lib/rust-client/bi-schedules';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 
 interface WorkbookRef {
   id: string;
@@ -88,16 +74,16 @@ export function NewSchedulePanel({ workbooks }: { workbooks: WorkbookRef[] }) {
           <div className="grid gap-1.5">
             <Label>Workbook</Label>
             <Select value={workbookId} onValueChange={setWorkbookId}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Pick a workbook" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue placeholder="Pick a workbook" />
+              </SelectTrigger>
+              <SelectContent>
                 {workbooks.map((w) => (
-                  <ZoruSelectItem key={w.id} value={w.id}>
+                  <SelectItem key={w.id} value={w.id}>
                     {w.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="grid gap-1.5">
@@ -113,16 +99,16 @@ export function NewSchedulePanel({ workbooks }: { workbooks: WorkbookRef[] }) {
           <div className="grid gap-1.5">
             <Label>Format</Label>
             <Select value={format} onValueChange={(v) => setFormat(v as BiScheduleFormat)}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {FORMATS.map((f) => (
-                  <ZoruSelectItem key={f} value={f}>
+                  <SelectItem key={f} value={f}>
                     {f}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="grid gap-1.5 md:col-span-2">

@@ -1,14 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Table,
-  ZoruTableHeader,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableHead,
-  ZoruTableCell,
-} from '@/components/sabcrm/20ui/compat';
+import { Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { EmptyState } from '@/components/sabcrm/20ui/compat';
@@ -81,26 +74,26 @@ export function FeatureTable<T>({
       
       <div className="overflow-x-auto">
         <Table className="w-full text-[13px]">
-          <ZoruTableHeader className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-            <ZoruTableRow className="hover:bg-transparent">
+          <THead className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
+            <Tr className="hover:bg-transparent">
               {columns.map((col, i) => (
-                <ZoruTableHead key={i} className={col.className}>
+                <Th key={i} className={col.className}>
                   {col.header}
-                </ZoruTableHead>
+                </Th>
               ))}
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody className="divide-y divide-[var(--st-border)]">
+            </Tr>
+          </THead>
+          <TBody className="divide-y divide-[var(--st-border)]">
             {data.map((row, i) => (
-              <ZoruTableRow key={i} className="transition-colors hover:bg-[var(--st-bg-secondary)]">
+              <Tr key={i} className="transition-colors hover:bg-[var(--st-bg-secondary)]">
                 {columns.map((col, j) => (
-                  <ZoruTableCell key={j} className={col.className}>
+                  <Td key={j} className={col.className}>
                     {col.cell(row)}
-                  </ZoruTableCell>
+                  </Td>
                 ))}
-              </ZoruTableRow>
+              </Tr>
             ))}
-          </ZoruTableBody>
+          </TBody>
         </Table>
       </div>
 

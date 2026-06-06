@@ -4,21 +4,7 @@ import * as React from 'react';
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateRoadmap } from '@/app/actions/hrm-roadmaps.actions';
-import {
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Card,
-  ZoruCardContent,
-  Select,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  useZoruToast,
-  ZoruToastAction,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, useToast, ToastAction } from '@/components/sabcrm/20ui/compat';
 import { Users } from 'lucide-react';
 import BasicInfoForm from './basic-info-form';
 import PhaseList, { type PhaseDraft } from './phase-list';
@@ -32,7 +18,7 @@ interface EditRoadmapFormProps {
 
 export default function EditRoadmapForm({ initialRoadmap, id }: EditRoadmapFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   const [title, setTitle] = useState(initialRoadmap.title ?? '');
@@ -131,9 +117,9 @@ export default function EditRoadmapForm({ initialRoadmap, id }: EditRoadmapFormP
           description: errMsg, 
           variant: 'destructive',
           action: (
-            <ZoruToastAction altText="Retry" onClick={(e: any) => handleSubmit(e)}>
+            <ToastAction altText="Retry" onClick={(e: any) => handleSubmit(e)}>
               Retry
-            </ZoruToastAction>
+            </ToastAction>
           )
         });
         return;

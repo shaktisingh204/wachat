@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   ChevronDown,
   ChevronUp,
@@ -235,19 +225,19 @@ export function QuestionRepeater({
                                             })
                                         }
                                     >
-                                        <ZoruSelectTrigger id={`${q._key}-type`}>
-                                            <ZoruSelectValue placeholder="Type" />
-                                        </ZoruSelectTrigger>
-                                        <ZoruSelectContent>
+                                        <SelectTrigger id={`${q._key}-type`}>
+                                            <SelectValue placeholder="Type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
                                             {TYPE_OPTIONS.map((o) => (
-                                                <ZoruSelectItem
+                                                <SelectItem
                                                     key={o.value}
                                                     value={o.value}
                                                 >
                                                     {o.label}
-                                                </ZoruSelectItem>
+                                                </SelectItem>
                                             ))}
-                                        </ZoruSelectContent>
+                                        </SelectContent>
                                     </Select>
                                 </div>
                             </div>

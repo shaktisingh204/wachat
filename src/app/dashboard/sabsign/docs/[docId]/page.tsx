@@ -28,16 +28,7 @@ import {
   Users,
 } from 'lucide-react';
 
-import {
-  Avatar,
-  AvatarFallback,
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  Input,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Button, Card, CardContent, Input, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   getSabwriterDocument,
   updateSabwriterDocument,

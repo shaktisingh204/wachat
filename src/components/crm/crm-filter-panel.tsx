@@ -1,19 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Sheet,
-  ZoruSheetTrigger,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  Button,
-  Label,
-  Input,
-  ZoruDateRangePicker,
-} from '@/components/sabcrm/20ui/compat';
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, Button, Label, Input, DateRangePicker } from '@/components/sabcrm/20ui/compat';
 import { Filter, X, SlidersHorizontal, Save } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
@@ -61,7 +49,7 @@ export function CrmFilterPanel({
 
   return (
     <Sheet>
-      <ZoruSheetTrigger asChild>
+      <SheetTrigger asChild>
         <Button variant="outline" size="sm" className="h-9 gap-1.5 text-[12.5px]">
           <SlidersHorizontal className="h-3.5 w-3.5" />
           Filter Options
@@ -71,16 +59,16 @@ export function CrmFilterPanel({
             </span>
           )}
         </Button>
-      </ZoruSheetTrigger>
-      <ZoruSheetContent className="w-[380px] sm:w-[420px] bg-[var(--st-bg-secondary)] overflow-y-auto">
-        <ZoruSheetHeader>
-          <ZoruSheetTitle className="text-lg font-semibold text-[var(--st-text)] flex items-center gap-2">
+      </SheetTrigger>
+      <SheetContent className="w-[380px] sm:w-[420px] bg-[var(--st-bg-secondary)] overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="text-lg font-semibold text-[var(--st-text)] flex items-center gap-2">
             <Filter className="h-4 w-4" /> Filter Panel
-          </ZoruSheetTitle>
-          <ZoruSheetDescription className="text-sm text-[var(--st-text-secondary)]">
+          </SheetTitle>
+          <SheetDescription className="text-sm text-[var(--st-text-secondary)]">
             Configure multi-dimensional filters or save custom dashboard views.
-          </ZoruSheetDescription>
-        </ZoruSheetHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         {/* Saved Segments Section */}
         {savedSegments.length > 0 && (
@@ -141,7 +129,7 @@ export function CrmFilterPanel({
 
                 {field.type === 'date-range' && (
                   <div className="w-full">
-                    <ZoruDateRangePicker
+                    <DateRangePicker
                       value={val as DateRange | undefined}
                       onChange={(range) => onUpdateFilter(field.key, range)}
                       placeholder="Select duration presets"
@@ -202,7 +190,7 @@ export function CrmFilterPanel({
           </div>
         )}
 
-        <ZoruSheetFooter className="mt-8 pt-4 border-t border-[var(--st-border)] flex flex-row items-center gap-2">
+        <SheetFooter className="mt-8 pt-4 border-t border-[var(--st-border)] flex flex-row items-center gap-2">
           {hasActiveFilters && (
             <Button
               variant="outline"
@@ -213,8 +201,8 @@ export function CrmFilterPanel({
               <X className="h-3.5 w-3.5" /> Reset Filters
             </Button>
           )}
-        </ZoruSheetFooter>
-      </ZoruSheetContent>
+        </SheetFooter>
+      </SheetContent>
     </Sheet>
   );
 }

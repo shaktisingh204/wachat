@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Bell,
   Check,
@@ -83,7 +69,7 @@ function formatRelative(value: WsNotification['createdAt']): string {
 export function NotificationsBrowser({
   initialNotifications,
 }: NotificationsBrowserProps): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Row[]>(initialNotifications);
   const [busyAll, setBusyAll] = React.useState(false);
   const [typeFilter, setTypeFilter] = React.useState<string>('all');
@@ -197,17 +183,17 @@ export function NotificationsBrowser({
           <div className="w-44">
             <Label className="text-[11px]">Type</Label>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All types</ZoruSelectItem>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All types</SelectItem>
                 {distinctTypes.map((t) => (
-                  <ZoruSelectItem key={t} value={t}>
+                  <SelectItem key={t} value={t}>
                     {t}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="w-36">
@@ -216,14 +202,14 @@ export function NotificationsBrowser({
               value={readFilter}
               onValueChange={(v) => setReadFilter(v as 'all' | 'unread' | 'read')}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All</ZoruSelectItem>
-                <ZoruSelectItem value="unread">Unread only</ZoruSelectItem>
-                <ZoruSelectItem value="read">Read only</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="unread">Unread only</SelectItem>
+                <SelectItem value="read">Read only</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="w-36">

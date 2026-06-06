@@ -1,27 +1,6 @@
 'use client';
 
-import {
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useParams,
   useRouter } from 'next/navigation';
@@ -187,40 +166,40 @@ export default function FlowBuilderDocsPage() {
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       {/* Breadcrumb */}
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook/flow-builder">
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook/flow-builder">
               Flow Builder
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Documentation</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Documentation</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       {/* Page header */}
       <PageHeader className="mt-4">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Meta Suite · Reference</ZoruPageEyebrow>
-          <ZoruPageTitle>Flow Builder Documentation</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Meta Suite · Reference</PageEyebrow>
+          <PageTitle>Flow Builder Documentation</PageTitle>
+          <PageDescription>
             Learn about each building block and how to combine them into
             powerful Messenger automations.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button
             variant="outline"
             size="sm"
@@ -228,7 +207,7 @@ export default function FlowBuilderDocsPage() {
           >
             <ArrowLeft /> Back to Flow Builder
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       {/* Variables intro */}
@@ -295,16 +274,16 @@ export default function FlowBuilderDocsPage() {
       <Card className="mt-4 px-4">
         <Accordion type="single" collapsible className="w-full">
           {blockDocs.map((doc, index) => (
-            <ZoruAccordionItem value={`item-${index}`} key={doc.title}>
-              <ZoruAccordionTrigger className="text-[14px]">
+            <AccordionItem value={`item-${index}`} key={doc.title}>
+              <AccordionTrigger className="text-[14px]">
                 <span className="flex items-center gap-2">
                   <span className="inline-flex h-6 w-6 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[11px] text-[var(--st-text-secondary)]">
                     {index + 1}
                   </span>
                   {doc.title}
                 </span>
-              </ZoruAccordionTrigger>
-              <ZoruAccordionContent>
+              </AccordionTrigger>
+              <AccordionContent>
                 <div className="flex flex-col gap-4 pb-2 pt-1">
                   <p className="text-[13px] text-[var(--st-text)]">{doc.description}</p>
 
@@ -350,8 +329,8 @@ export default function FlowBuilderDocsPage() {
                     </div>
                   )}
                 </div>
-              </ZoruAccordionContent>
-            </ZoruAccordionItem>
+              </AccordionContent>
+            </AccordionItem>
           ))}
         </Accordion>
       </Card>

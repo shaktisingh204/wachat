@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, useZoruToast, ZoruSelect, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { createOrganization, deleteOrganization } from '@/app/actions/platform/org-switcher.actions';
 import type { Organization } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Building } from 'lucide-react';
@@ -15,7 +15,7 @@ export default function OrgSwitcherClient({ initialData }: OrgSwitcherClientProp
   const [dialogOpen, setDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [form, setForm] = useState({ name: '', slug: '', role: 'owner', active: true });
 
@@ -82,10 +82,10 @@ export default function OrgSwitcherClient({ initialData }: OrgSwitcherClientProp
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New Organization</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Organization</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>Organization Name</Label>
@@ -97,23 +97,23 @@ export default function OrgSwitcherClient({ initialData }: OrgSwitcherClientProp
             </div>
             <div className="grid gap-2">
               <Label>Your Role</Label>
-              <ZoruSelect value={form.role} onValueChange={v => setForm({ ...form, role: v })}>
-                <ZoruSelectTrigger><ZoruSelectValue placeholder="Select role" /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="owner">Owner</ZoruSelectItem>
-                  <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
-                  <ZoruSelectItem value="member">Member</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <Select value={form.role} onValueChange={v => setForm({ ...form, role: v })}>
+                <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="owner">Owner</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="member">Member</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={isPending}>Cancel</Button>
             <Button onClick={handleCreate} disabled={isPending}>
               {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} Create
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

@@ -47,44 +47,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  Checkbox,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Separator,
-  Skeleton,
-  Switch,
-  Textarea,
-  Tooltip,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  ZoruTooltipContent,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Separator, Skeleton, Switch, Textarea, Tooltip, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, TooltipContent, TooltipProvider, TooltipTrigger, cn, useToast } from '@/components/sabcrm/20ui/compat';
 
 import {
   createWebhookAction,
@@ -264,7 +227,7 @@ interface SecretRevealPanelProps {
 }
 
 function SecretRevealPanel({ secret, onDismiss }: SecretRevealPanelProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [copied, setCopied] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
 
@@ -294,9 +257,9 @@ function SecretRevealPanel({ secret, onDismiss }: SecretRevealPanelProps): React
         <div className="flex-1 font-mono text-xs text-white break-all select-all bg-zinc-900 rounded px-3 py-2 border border-zinc-700">
           {visible ? secret : '•'.repeat(Math.min(secret.length, 64))}
         </div>
-        <ZoruTooltipProvider>
+        <TooltipProvider>
           <Tooltip>
-            <ZoruTooltipTrigger asChild>
+            <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
@@ -305,13 +268,13 @@ function SecretRevealPanel({ secret, onDismiss }: SecretRevealPanelProps): React
               >
                 {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
-            </ZoruTooltipTrigger>
-            <ZoruTooltipContent>{visible ? 'Hide' : 'Show'} secret</ZoruTooltipContent>
+            </TooltipTrigger>
+            <TooltipContent>{visible ? 'Hide' : 'Show'} secret</TooltipContent>
           </Tooltip>
-        </ZoruTooltipProvider>
-        <ZoruTooltipProvider>
+        </TooltipProvider>
+        <TooltipProvider>
           <Tooltip>
-            <ZoruTooltipTrigger asChild>
+            <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
@@ -320,10 +283,10 @@ function SecretRevealPanel({ secret, onDismiss }: SecretRevealPanelProps): React
               >
                 {copied ? <Check className="h-4 w-4 text-green-400" /> : <ClipboardCopy className="h-4 w-4" />}
               </Button>
-            </ZoruTooltipTrigger>
-            <ZoruTooltipContent>Copy secret</ZoruTooltipContent>
+            </TooltipTrigger>
+            <TooltipContent>Copy secret</TooltipContent>
           </Tooltip>
-        </ZoruTooltipProvider>
+        </TooltipProvider>
       </div>
 
       <Button
@@ -380,7 +343,7 @@ function WebhookFormDialog({
   onCreated,
   onUpdated,
 }: WebhookFormDialogProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const isEdit = Boolean(subscription);
 
   const [form, setForm] = React.useState<WebhookFormState>(
@@ -624,9 +587,9 @@ function SubscriptionRow({
 
         {/* Row actions */}
         <div className="flex items-center gap-1 shrink-0">
-          <ZoruTooltipProvider>
+          <TooltipProvider>
             <Tooltip>
-              <ZoruTooltipTrigger asChild>
+              <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -635,14 +598,14 @@ function SubscriptionRow({
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
-              </ZoruTooltipTrigger>
-              <ZoruTooltipContent>Edit webhook</ZoruTooltipContent>
+              </TooltipTrigger>
+              <TooltipContent>Edit webhook</TooltipContent>
             </Tooltip>
-          </ZoruTooltipProvider>
+          </TooltipProvider>
 
-          <ZoruTooltipProvider>
+          <TooltipProvider>
             <Tooltip>
-              <ZoruTooltipTrigger asChild>
+              <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -653,10 +616,10 @@ function SubscriptionRow({
                     ? <ChevronUp className="h-3.5 w-3.5" />
                     : <ChevronDown className="h-3.5 w-3.5" />}
                 </Button>
-              </ZoruTooltipTrigger>
-              <ZoruTooltipContent>{expanded ? 'Collapse' : 'Expand'} details</ZoruTooltipContent>
+              </TooltipTrigger>
+              <TooltipContent>{expanded ? 'Collapse' : 'Expand'} details</TooltipContent>
             </Tooltip>
-          </ZoruTooltipProvider>
+          </TooltipProvider>
         </div>
       </div>
 
@@ -715,8 +678,8 @@ function SubscriptionRow({
           {/* Danger actions */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Rotate secret */}
-            <ZoruAlertDialog>
-              <ZoruAlertDialogTrigger asChild>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
@@ -728,28 +691,28 @@ function SubscriptionRow({
                     : <RotateCcw className="h-3.5 w-3.5" />}
                   Rotate secret
                 </Button>
-              </ZoruAlertDialogTrigger>
-              <ZoruAlertDialogContent className="zoruui">
-                <ZoruAlertDialogHeader>
-                  <ZoruAlertDialogTitle>Rotate signing secret?</ZoruAlertDialogTitle>
-                  <ZoruAlertDialogDescription>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="zoruui">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Rotate signing secret?</AlertDialogTitle>
+                  <AlertDialogDescription>
                     The current secret will be invalidated immediately. Any receiver
                     still using the old secret will start failing signature checks.
                     The new secret is shown once — save it before dismissing.
-                  </ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                  <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                  <ZoruAlertDialogAction onClick={onRotate}>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={onRotate}>
                     Rotate secret
-                  </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-              </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
             {/* Delete */}
-            <ZoruAlertDialog>
-              <ZoruAlertDialogTrigger asChild>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
@@ -758,28 +721,28 @@ function SubscriptionRow({
                   <Trash2 className="h-3.5 w-3.5" />
                   Delete
                 </Button>
-              </ZoruAlertDialogTrigger>
-              <ZoruAlertDialogContent className="zoruui">
-                <ZoruAlertDialogHeader>
-                  <ZoruAlertDialogTitle>Delete webhook?</ZoruAlertDialogTitle>
-                  <ZoruAlertDialogDescription>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="zoruui">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete webhook?</AlertDialogTitle>
+                  <AlertDialogDescription>
                     This permanently removes the subscription. No further events
                     will be delivered to{' '}
                     <code className="text-xs">{subscription.url}</code>.
                     This action cannot be undone.
-                  </ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                  <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                  <ZoruAlertDialogAction
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
                     className="bg-red-600 hover:bg-red-700 text-white"
                     onClick={onDelete}
                   >
                     Delete webhook
-                  </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-              </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       )}
@@ -803,7 +766,7 @@ export interface WebhookManagerProps {
  * settings page. Handles list, create, edit, rotate-secret, and delete.
  */
 export function WebhookManager({ projectId, className }: WebhookManagerProps): React.ReactElement {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* ── Data state ── */
   const [subscriptions, setSubscriptions] = React.useState<WebhookSubscription[]>([]);
@@ -911,24 +874,24 @@ export function WebhookManager({ projectId, className }: WebhookManagerProps): R
     <div className={cn('zoruui space-y-4', className)}>
       {/* ── Card header ── */}
       <Card>
-        <ZoruCardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
+        <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
           <div className="min-w-0">
-            <ZoruCardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base flex items-center gap-2">
               <Webhook className="h-4 w-4 text-zinc-500" />
               Webhook subscriptions
-            </ZoruCardTitle>
-            <ZoruCardDescription className="mt-1 text-xs">
+            </CardTitle>
+            <CardDescription className="mt-1 text-xs">
               SabCRM POSTs a signed JSON payload to each active endpoint when a
               subscribed event fires. Payloads are signed with{' '}
               <code className="text-zinc-600">HMAC-SHA-256</code> and verified
               via the{' '}
               <code className="text-zinc-600">X-SabNode-Signature</code> header.
-            </ZoruCardDescription>
+            </CardDescription>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <ZoruTooltipProvider>
+            <TooltipProvider>
               <Tooltip>
-                <ZoruTooltipTrigger asChild>
+                <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -940,18 +903,18 @@ export function WebhookManager({ projectId, className }: WebhookManagerProps): R
                       ? <Loader2 className="h-4 w-4 animate-spin" />
                       : <RefreshCw className="h-4 w-4" />}
                   </Button>
-                </ZoruTooltipTrigger>
-                <ZoruTooltipContent>Refresh</ZoruTooltipContent>
+                </TooltipTrigger>
+                <TooltipContent>Refresh</TooltipContent>
               </Tooltip>
-            </ZoruTooltipProvider>
+            </TooltipProvider>
             <Button size="sm" className="gap-1.5" onClick={openCreate}>
               <Plus className="h-4 w-4" />
               Add webhook
             </Button>
           </div>
-        </ZoruCardHeader>
+        </CardHeader>
 
-        <ZoruCardContent className="pt-0">
+        <CardBody className="pt-0">
           <Separator className="mb-4" />
 
           {/* Loading skeleton */}
@@ -1000,7 +963,7 @@ export function WebhookManager({ projectId, className }: WebhookManagerProps): R
               ))}
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* ── Signing info callout ── */}

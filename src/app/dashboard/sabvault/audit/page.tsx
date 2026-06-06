@@ -1,12 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-    Button,
-    ZoruCard,
-    ZoruBadge,
-    ZoruEmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { listSabvaultAudit } from '@/app/actions/sabvault.actions';
 import type { SabvaultAuditAction } from '@/lib/rust-client/sabvault-audit';
 
@@ -41,10 +36,10 @@ export default async function SabvaultAuditPage(props: {
                 <FilterChip current={sp.action} value="unlock_fail" label="Failed unlocks" />
             </div>
 
-            <ZoruCard className="p-0">
+            <Card className="p-0">
                 {res.items.length === 0 ? (
                     <div className="p-6">
-                        <ZoruEmptyState title="No events" description="Audit events show up here as you use the vault." />
+                        <EmptyState title="No events" description="Audit events show up here as you use the vault." />
                     </div>
                 ) : (
                     <table className="w-full text-sm">
@@ -64,7 +59,7 @@ export default async function SabvaultAuditPage(props: {
                                         {new Date(e.ts).toLocaleString()}
                                     </td>
                                     <td className="px-4 py-2">
-                                        <ZoruBadge>{e.action}</ZoruBadge>
+                                        <Badge>{e.action}</Badge>
                                     </td>
                                     <td className="px-4 py-2 font-mono text-xs">{e.actorUserId}</td>
                                     <td className="px-4 py-2 font-mono text-xs">{e.secretId ?? '—'}</td>
@@ -74,7 +69,7 @@ export default async function SabvaultAuditPage(props: {
                         </tbody>
                     </table>
                 )}
-            </ZoruCard>
+            </Card>
 
             {res.hasMore ? (
                 <div className="flex justify-end">

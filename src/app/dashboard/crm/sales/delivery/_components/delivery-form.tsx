@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -113,7 +113,7 @@ function fromSeedItems(seed?: DeliveryFormSeed): DcLineRow[] {
 
 export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, formAction] = useActionState(saveDeliveryChallan, INITIAL_STATE);
 
   const [clientId, setClientId] = useState<string>(seed?.clientId ?? '');

@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  ZoruColorPicker,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, ColorPicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -141,7 +127,7 @@ export function CustomFieldForm({
   initialData?: CrmCustomFieldDoc | null;
 }) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const isEditing = !!initialData?._id;
 
   const [state, formAction] = useActionState(saveCustomField, initialState);
@@ -210,16 +196,16 @@ export function CustomFieldForm({
               onValueChange={setEntityKind}
               required
             >
-              <ZoruSelectTrigger id="entityKind">
-                <ZoruSelectValue placeholder="Pick an entity…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="entityKind">
+                <SelectValue placeholder="Pick an entity…" />
+              </SelectTrigger>
+              <SelectContent>
                 {ENTITY_KINDS.map((e) => (
-                  <ZoruSelectItem key={e.value} value={e.value}>
+                  <SelectItem key={e.value} value={e.value}>
                     {e.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
@@ -400,7 +386,7 @@ export function CustomFieldForm({
                         updateOption(idx, { value: e.target.value })
                       }
                     />
-                    <ZoruColorPicker
+                    <ColorPicker
                       value={opt.color || '#999999'}
                       onChange={(c) => updateOption(idx, { color: c })}
                     />

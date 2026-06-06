@@ -4,21 +4,7 @@ import React, { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Monitor, Smartphone, Tablet, RefreshCw } from 'lucide-react';
 
-import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    Input,
-    Label,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    ZoruPageActions,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label, PageHeader, PageTitle, PageDescription, PageActions, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { regenerateHeatmapSnapshot } from '@/app/actions/sabsense.actions';
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
@@ -51,7 +37,7 @@ export function HeatmapsClient({
     clickEvents,
 }: Props) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [url, setUrl] = useState(initialUrl);
     const [device, setDevice] = useState<DeviceKey>(initialDevice);
     const [pending, startTransition] = useTransition();
@@ -113,26 +99,26 @@ export function HeatmapsClient({
     return (
         <div className="zoruui p-8 space-y-6">
             <PageHeader>
-                <ZoruPageTitle>{site.name} — Heatmaps</ZoruPageTitle>
-                <ZoruPageDescription>
+                <PageTitle>{site.name} — Heatmaps</PageTitle>
+                <PageDescription>
                     Click density overlay. Pick a URL and a device viewport.
-                </ZoruPageDescription>
-                <ZoruPageActions>
+                </PageDescription>
+                <PageActions>
                     <Button onClick={handleRegenerate} disabled={pending}>
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Regenerate snapshot
                     </Button>
-                </ZoruPageActions>
+                </PageActions>
             </PageHeader>
 
             <PagesenseSiteNav siteId={site._id} />
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Filters</ZoruCardTitle>
-                    <ZoruCardDescription>Page URL and device viewport.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>Filters</CardTitle>
+                    <CardDescription>Page URL and device viewport.</CardDescription>
+                </CardHeader>
+                <CardBody>
                     <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto]">
                         <div className="space-y-2">
                             <Label htmlFor="ps-url">URL path</Label>
@@ -177,17 +163,17 @@ export function HeatmapsClient({
                             <Button onClick={handleApplyUrl}>Apply</Button>
                         </div>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Click density</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Click density</CardTitle>
+                    <CardDescription>
                         {totalClicks} clicks · {snapshots.length} snapshot(s) on file.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
                     <div
                         className="relative mx-auto overflow-hidden rounded-md border border-[color:var(--st-border)] bg-[color:var(--st-bg-muted)]"
                         style={{ width, aspectRatio: '4 / 3' }}
@@ -231,7 +217,7 @@ export function HeatmapsClient({
                             })}
                         </svg>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

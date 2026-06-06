@@ -1,6 +1,6 @@
 'use client';
 
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 
 /**
@@ -27,7 +27,7 @@ interface UseRfqBulkArgs {
 
 export function useRfqBulk({ selected, onCleared }: UseRfqBulkArgs) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [pending, startTransition] = React.useTransition();
 
   const archive = React.useCallback(() => {

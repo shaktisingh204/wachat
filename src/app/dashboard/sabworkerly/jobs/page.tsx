@@ -1,22 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-import {
-    Button,
-    Card,
-    CardContent,
-    PageHeader,
-    ZoruPageTitle,
-    ZoruPageActions,
-    Badge,
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, PageHeader, PageTitle, PageActions, Badge, Table, THead, TBody, Tr, Th, Td, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { Plus, Briefcase } from 'lucide-react';
 import { getSabworkerlyJobs } from '@/app/actions/sabworkerly.actions';
 
@@ -34,15 +19,15 @@ export default async function JobsListPage() {
     return (
         <div className="zoruui flex flex-col gap-5">
             <PageHeader>
-                <ZoruPageTitle>Jobs</ZoruPageTitle>
-                <ZoruPageActions>
+                <PageTitle>Jobs</PageTitle>
+                <PageActions>
                     <Link href="/dashboard/sabworkerly/jobs/new">
                         <Button>
                             <Plus className="mr-2 h-4 w-4" />
                             Post job
                         </Button>
                     </Link>
-                </ZoruPageActions>
+                </PageActions>
             </PageHeader>
 
             {jobs.length === 0 ? (
@@ -57,44 +42,44 @@ export default async function JobsListPage() {
                 <Card>
                     <CardContent className="p-0">
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Shift</TableHead>
-                                    <TableHead>Charge</TableHead>
-                                    <TableHead>Pay</TableHead>
-                                    <TableHead>Margin</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Title</Th>
+                                    <Th>Shift</Th>
+                                    <Th>Charge</Th>
+                                    <Th>Pay</Th>
+                                    <Th>Margin</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {jobs.map((j) => {
                                     const margin = j.hourlyChargeRateMinor - j.hourlyPayRateMinor;
                                     return (
-                                        <TableRow key={j._id}>
-                                            <TableCell>
+                                        <Tr key={j._id}>
+                                            <Td>
                                                 <Link
                                                     href={`/dashboard/sabworkerly/jobs/${j._id}`}
                                                     className="font-medium hover:underline"
                                                 >
                                                     {j.title}
                                                 </Link>
-                                            </TableCell>
-                                            <TableCell>{j.shiftPattern ?? '—'}</TableCell>
-                                            <TableCell>{money(j.hourlyChargeRateMinor, j.currency)}/h</TableCell>
-                                            <TableCell>{money(j.hourlyPayRateMinor, j.currency)}/h</TableCell>
-                                            <TableCell>
+                                            </Td>
+                                            <Td>{j.shiftPattern ?? '—'}</Td>
+                                            <Td>{money(j.hourlyChargeRateMinor, j.currency)}/h</Td>
+                                            <Td>{money(j.hourlyPayRateMinor, j.currency)}/h</Td>
+                                            <Td>
                                                 <Badge variant={margin > 0 ? 'default' : 'outline'}>
                                                     {money(margin, j.currency)}/h
                                                 </Badge>
-                                            </TableCell>
-                                            <TableCell>
+                                            </Td>
+                                            <Td>
                                                 <Badge variant="secondary">{j.status}</Badge>
-                                            </TableCell>
-                                        </TableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </TableBody>
+                            </TBody>
                         </Table>
                     </CardContent>
                 </Card>

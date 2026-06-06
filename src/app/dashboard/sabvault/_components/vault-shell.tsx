@@ -4,15 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import {
-    Button,
-    ZoruCard,
-    Input,
-    ZoruBadge,
-    ZoruEmptyState,
-    ZoruScrollArea,
-    Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Badge, EmptyState, ScrollArea, Separator } from '@/components/sabcrm/20ui/compat';
 import type { SabvaultFolderDoc } from '@/lib/rust-client/sabvault-folders';
 import type { SabvaultSecretDoc } from '@/lib/rust-client/sabvault-secrets';
 
@@ -53,12 +45,12 @@ export function VaultShell({
         <div className="zoruui flex h-full min-h-[calc(100vh-4rem)] gap-4 p-4">
             {/* Folder tree */}
             <aside className="w-64 shrink-0">
-                <ZoruCard className="p-3">
+                <Card className="p-3">
                     <div className="mb-3 flex items-center justify-between">
                         <span className="text-sm font-semibold">Folders</span>
-                        <ZoruBadge>{initialFolders.length}</ZoruBadge>
+                        <Badge>{initialFolders.length}</Badge>
                     </div>
-                    <ZoruScrollArea className="h-[calc(100vh-12rem)] pr-2">
+                    <ScrollArea className="h-[calc(100vh-12rem)] pr-2">
                         <div className="flex flex-col gap-1">
                             <Link
                                 href="/dashboard/sabvault"
@@ -80,8 +72,8 @@ export function VaultShell({
                                 </Link>
                             ))}
                         </div>
-                    </ZoruScrollArea>
-                </ZoruCard>
+                    </ScrollArea>
+                </Card>
             </aside>
 
             {/* Secret list */}
@@ -107,7 +99,7 @@ export function VaultShell({
                 </div>
 
                 {!isUnlocked && keyRecord ? (
-                    <ZoruCard className="mb-3 p-4">
+                    <Card className="mb-3 p-4">
                         <div className="flex items-center justify-between gap-3">
                             <div>
                                 <div className="text-sm font-semibold">Vault is locked</div>
@@ -119,11 +111,11 @@ export function VaultShell({
                                 <Button>Unlock</Button>
                             </Link>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 ) : null}
 
                 {!keyRecord ? (
-                    <ZoruCard className="mb-3 p-4">
+                    <Card className="mb-3 p-4">
                         <div className="flex items-center justify-between gap-3">
                             <div>
                                 <div className="text-sm font-semibold">Set up your vault</div>
@@ -135,13 +127,13 @@ export function VaultShell({
                                 <Button>Set up</Button>
                             </Link>
                         </div>
-                    </ZoruCard>
+                    </Card>
                 ) : null}
 
-                <ZoruCard className="p-0">
+                <Card className="p-0">
                     {initialSecrets.length === 0 ? (
                         <div className="p-6">
-                            <ZoruEmptyState title="No secrets yet" description="Add your first credential to get started." />
+                            <EmptyState title="No secrets yet" description="Add your first credential to get started." />
                         </div>
                     ) : (
                         <ul className="divide-y">
@@ -160,8 +152,8 @@ export function VaultShell({
                                         </div>
                                     </Link>
                                     <div className="flex items-center gap-2">
-                                        {s.breached ? <ZoruBadge variant="destructive">Breached</ZoruBadge> : null}
-                                        {s.reused ? <ZoruBadge>Reused</ZoruBadge> : null}
+                                        {s.breached ? <Badge variant="destructive">Breached</Badge> : null}
+                                        {s.reused ? <Badge>Reused</Badge> : null}
                                         <Separator orientation="vertical" className="h-5" />
                                         <Link href={`/dashboard/sabvault/share/${s._id}`}>
                                             <Button variant="ghost" size="sm">
@@ -173,7 +165,7 @@ export function VaultShell({
                             ))}
                         </ul>
                     )}
-                </ZoruCard>
+                </Card>
             </main>
         </div>
     );

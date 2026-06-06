@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useMemo, useState, Component, ReactNode } from 'react';
 import { Copy, CheckCircle2, Download, Search, AlertCircle, Loader2 } from 'lucide-react';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
@@ -22,12 +22,12 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     if (this.state.hasError) {
       return (
         <Card className="border-[var(--st-border)] m-4">
-          <ZoruCardContent className="p-4 flex flex-col gap-2">
+          <CardBody className="p-4 flex flex-col gap-2">
             <span className="text-[var(--st-text)] text-sm">Something went wrong: {this.state.error?.message}</span>
             <Button variant="outline" size="sm" onClick={() => this.setState({ hasError: false, error: null })}>
               Try Again
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       );
     }
@@ -294,13 +294,13 @@ function EventTagBuilder() {
                           </Button>
                         </div>
                       </div>
-                      <ZoruCardContent className="p-0">
+                      <CardBody className="p-0">
                         <Textarea 
                           readOnly 
                           value={evt.params} 
                           className="min-h-[100px] font-mono text-xs border-0 focus-visible:ring-0 rounded-none resize-none bg-[var(--st-bg-muted)]/5" 
                         />
-                      </ZoruCardContent>
+                      </CardBody>
                     </Card>
                   ))}
                 </div>

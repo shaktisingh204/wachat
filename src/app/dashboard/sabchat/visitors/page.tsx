@@ -1,45 +1,6 @@
 "use client";
 
-import {
-  cn,
-  useZoruToast,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Input,
-  ZoruTooltip,
-  ZoruTooltipContent,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  Tabs,
-  ZoruTabsList,
-  ZoruTabsTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { cn, useToast, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Tabs, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -89,7 +50,7 @@ export default function SabChatVisitorsPage() {
   const [isLoading, startLoading] = useTransition();
   const [didInitialLoad, setDidInitialLoad] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const fetchData = useCallback(
     (showToast = false) => {
@@ -135,36 +96,36 @@ export default function SabChatVisitorsPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/sabchat/inbox">
               SabChat
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Live Visitors</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Live Visitors</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader>
-        <ZoruPageHeading>
+        <PageHeading>
           <div className="flex items-center gap-3">
-            <ZoruPageTitle>Live visitors</ZoruPageTitle>
+            <PageTitle>Live visitors</PageTitle>
             <Badge variant="secondary" className="px-2 py-0.5 animate-pulse bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
               {filteredVisitors.length} Online
             </Badge>
           </div>
-          <ZoruPageDescription>
+          <PageDescription>
             Real-time tracking of visitors currently active on your website.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Button
             variant="outline"
             size="sm"
@@ -178,16 +139,16 @@ export default function SabChatVisitorsPage() {
             )}
             Refresh
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <Tabs defaultValue="all" className="w-[400px]">
-          <ZoruTabsList>
-            <ZoruTabsTrigger value="all">All Visitors</ZoruTabsTrigger>
-            <ZoruTabsTrigger value="active">Active Now</ZoruTabsTrigger>
-            <ZoruTabsTrigger value="returning">Returning</ZoruTabsTrigger>
-          </ZoruTabsList>
+          <TabsList>
+            <TabsTrigger value="all">All Visitors</TabsTrigger>
+            <TabsTrigger value="active">Active Now</TabsTrigger>
+            <TabsTrigger value="returning">Returning</TabsTrigger>
+          </TabsList>
         </Tabs>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -200,24 +161,24 @@ export default function SabChatVisitorsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <ZoruDropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-9 px-3">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
               </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuLabel>Filter by Location</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuItem>North America</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem>Europe</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem>Asia</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuLabel>Filter by Device</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuItem><Laptop className="h-4 w-4 mr-2"/> Desktop</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem><Smartphone className="h-4 w-4 mr-2"/> Mobile</ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
-          </ZoruDropdownMenu>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Filter by Location</DropdownMenuLabel>
+              <DropdownMenuItem>North America</DropdownMenuItem>
+              <DropdownMenuItem>Europe</DropdownMenuItem>
+              <DropdownMenuItem>Asia</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Filter by Device</DropdownMenuLabel>
+              <DropdownMenuItem><Laptop className="h-4 w-4 mr-2"/> Desktop</DropdownMenuItem>
+              <DropdownMenuItem><Smartphone className="h-4 w-4 mr-2"/> Mobile</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -232,16 +193,16 @@ export default function SabChatVisitorsPage() {
       ) : (
         <Card className="overflow-hidden p-0 shadow-sm">
           <Table>
-            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50">
-              <ZoruTableRow>
-                <ZoruTableHead>Visitor</ZoruTableHead>
-                <ZoruTableHead>Status & Time</ZoruTableHead>
-                <ZoruTableHead>Location & Device</ZoruTableHead>
-                <ZoruTableHead>Current Page & Source</ZoruTableHead>
-                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead className="bg-[var(--st-bg-muted)]/50">
+              <Tr>
+                <Th>Visitor</Th>
+                <Th>Status & Time</Th>
+                <Th>Location & Device</Th>
+                <Th>Current Page & Source</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filteredVisitors.map((visitor) => {
                 const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
                 const isOnline = new Date(visitor.updatedAt) > fiveMinutesAgo;
@@ -255,8 +216,8 @@ export default function SabChatVisitorsPage() {
                 const source = Math.random() > 0.5 ? "Google Search" : "Direct";
 
                 return (
-                  <ZoruTableRow key={visitor._id.toString()} className="group">
-                    <ZoruTableCell>
+                  <Tr key={visitor._id.toString()} className="group">
+                    <Td>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-[var(--st-text)]">{name}</span>
@@ -272,8 +233,8 @@ export default function SabChatVisitorsPage() {
                           </span>
                         </div>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <div className="flex flex-col gap-2">
                         <Badge
                           variant={isOnline ? "success" : "secondary"}
@@ -293,8 +254,8 @@ export default function SabChatVisitorsPage() {
                           <span>{timeOnSite}m on site</span>
                         </div>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-1.5 text-sm text-[var(--st-text)]">
                           <MapPin className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
@@ -308,8 +269,8 @@ export default function SabChatVisitorsPage() {
                           <span className="font-mono text-[10px]">{visitor.visitorInfo?.ip || "Unknown IP"}</span>
                         </div>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-1.5">
                           <Globe className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
@@ -326,19 +287,19 @@ export default function SabChatVisitorsPage() {
                           {source}
                         </div>
                       </div>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
+                    </Td>
+                    <Td className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <ZoruTooltipProvider>
-                          <ZoruTooltip>
-                            <ZoruTooltipTrigger asChild>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
                               <Button variant="ghost" size="icon-sm" className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
                                 <History className="h-4 w-4" />
                               </Button>
-                            </ZoruTooltipTrigger>
-                            <ZoruTooltipContent>View Journey</ZoruTooltipContent>
-                          </ZoruTooltip>
-                        </ZoruTooltipProvider>
+                            </TooltipTrigger>
+                            <TooltipContent>View Journey</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                         
                         <Button
                           asChild
@@ -352,25 +313,25 @@ export default function SabChatVisitorsPage() {
                           </a>
                         </Button>
 
-                        <ZoruDropdownMenu>
-                          <ZoruDropdownMenuTrigger asChild>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon-sm" className="h-8 w-8 text-[var(--st-text-secondary)]">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
-                          </ZoruDropdownMenuTrigger>
-                          <ZoruDropdownMenuContent align="end">
-                            <ZoruDropdownMenuItem>View full profile</ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem>Block IP Address</ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuSeparator />
-                            <ZoruDropdownMenuItem className="text-[var(--st-text)]">Delete session</ZoruDropdownMenuItem>
-                          </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>View full profile</DropdownMenuItem>
+                            <DropdownMenuItem>Block IP Address</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-[var(--st-text)]">Delete session</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       )}

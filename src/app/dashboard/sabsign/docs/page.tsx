@@ -23,13 +23,7 @@ import {
 } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  Input,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardContent, Input } from '@/components/sabcrm/20ui/compat';
 import {
   listSabwriterDocuments,
   createSabwriterDocument,

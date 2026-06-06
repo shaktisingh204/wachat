@@ -7,20 +7,7 @@
 import Link from 'next/link';
 import { Plus, LayoutDashboard, CreditCard, Activity, Package, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  StatCard
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, StatCard } from '@/components/sabcrm/20ui/compat';
 
 import { listSabcheckoutPages, listSabcheckoutSessions } from '@/app/actions/sabcheckout.actions';
 import type { SabcheckoutPageStatus } from '@/lib/rust-client/sabcheckout-pages';
@@ -90,12 +77,12 @@ export default async function SabcheckoutHomePage({
     <div className="flex w-full flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>Overview</ZoruPageTitle>
-            <ZoruPageDescription>
+          <PageHeading>
+            <PageTitle>Overview</PageTitle>
+            <PageDescription>
               Build branded, shareable payment pages. One-off or recurring.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
         <Link href="/dashboard/sabcheckout/new">
           <Button>
@@ -122,20 +109,20 @@ export default async function SabcheckoutHomePage({
         <h3 className="mb-4 text-lg font-medium tracking-tight text-[var(--st-text)]">Your Pages</h3>
         {!result.ok ? (
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Couldn't load pages</ZoruCardTitle>
-              <ZoruCardDescription>{result.error}</ZoruCardDescription>
-            </ZoruCardHeader>
+            <CardHeader>
+              <CardTitle>Couldn't load pages</CardTitle>
+              <CardDescription>{result.error}</CardDescription>
+            </CardHeader>
           </Card>
         ) : result.data.items.length === 0 ? (
           <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] mb-4">
               <Package className="h-6 w-6" />
             </div>
-            <ZoruCardTitle className="text-xl">No payment pages yet</ZoruCardTitle>
-            <ZoruCardDescription className="max-w-sm mt-2 mb-6">
+            <CardTitle className="text-xl">No payment pages yet</CardTitle>
+            <CardDescription className="max-w-sm mt-2 mb-6">
               Create your first SabCheckout page to start collecting payments.
-            </ZoruCardDescription>
+            </CardDescription>
             <Link href="/dashboard/sabcheckout/new">
               <Button>
                 <Plus className="mr-2 size-4" />

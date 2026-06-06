@@ -2,16 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { updateShortUrl } from '@/app/actions/url-shortener.actions';
-import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Button,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Input, Label, useToast } from '@/components/sabcrm/20ui/compat';
 import type { WithId } from 'mongodb';
 import type { ShortUrl } from '@/lib/definitions';
 import { Settings, LoaderCircle } from 'lucide-react';
@@ -23,7 +14,7 @@ interface EditLinkDrawerProps {
 export function EditLinkDrawer({ shortUrl }: EditLinkDrawerProps) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [originalUrl, setOriginalUrl] = useState(shortUrl.originalUrl);
   const [expiresAt, setExpiresAt] = useState(
@@ -65,10 +56,10 @@ export function EditLinkDrawer({ shortUrl }: EditLinkDrawerProps) {
         Edit
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <ZoruDialogContent className="max-w-md">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit Link</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Link</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Destination URL</Label>
@@ -129,7 +120,7 @@ export function EditLinkDrawer({ shortUrl }: EditLinkDrawerProps) {
               Save Changes
             </Button>
           </div>
-        </ZoruDialogContent>
+        </DialogContent>
       </Dialog>
     </>
   );

@@ -1,11 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import { Clock, Bell, Mail, MessageSquare, ShieldAlert, CheckCircle2 } from 'lucide-react';
 
 export function InvoiceFollowUp({ invoiceId }: { invoiceId: string }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [scheduled, setScheduled] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
     const [channel, setChannel] = React.useState<'email' | 'whatsapp' | 'both'>('email');
@@ -39,14 +39,14 @@ export function InvoiceFollowUp({ invoiceId }: { invoiceId: string }) {
 
     return (
         <Card className="border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
-            <ZoruCardHeader className="flex flex-row items-center justify-between border-b border-[var(--st-border)] pb-3">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-[var(--st-border)] pb-3">
                 <div className="flex flex-col gap-0.5">
-                    <ZoruCardTitle className="text-[14px] font-semibold text-[var(--st-text)]">Automated Dunning & Follow-ups</ZoruCardTitle>
+                    <CardTitle className="text-[14px] font-semibold text-[var(--st-text)]">Automated Dunning & Follow-ups</CardTitle>
                     <p className="text-[12px] text-[var(--st-text-secondary)]">Set up proactive, automated payment reminders and dunning sequences.</p>
                 </div>
                 <Bell className="h-4 w-4 text-[var(--st-text-secondary)]" />
-            </ZoruCardHeader>
-            <ZoruCardContent className="pt-4 flex flex-col gap-4">
+            </CardHeader>
+            <CardBody className="pt-4 flex flex-col gap-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Channel Selector */}
                     <div className="flex flex-col gap-1.5">
@@ -173,7 +173,7 @@ export function InvoiceFollowUp({ invoiceId }: { invoiceId: string }) {
                         <Clock className="h-3 w-3 text-[var(--st-text)] animate-pulse" /> Next dunning trigger: 3 days before due date.
                     </p>
                 )}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

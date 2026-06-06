@@ -1,31 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -121,7 +96,7 @@ function generateDataString(code: any): string {
 }
 
 export default function QrCodeMakerPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { copy } = useCopyToClipboard();
 
   const [session, setSession] = useState<any>(null);
@@ -294,15 +269,15 @@ export default function QrCodeMakerPage() {
 
   const breadcrumbs = (
     <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">Home</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbPage>QR Code Maker</ZoruBreadcrumbPage>
-        </ZoruBreadcrumbItem>
-      </ZoruBreadcrumbList>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>QR Code Maker</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
     </Breadcrumb>
   );
 
@@ -373,17 +348,17 @@ export default function QrCodeMakerPage() {
 
         <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader>
-            <ZoruPageHeading>
-              <ZoruPageTitle>
+            <PageHeading>
+              <PageTitle>
                 <span className="inline-flex items-center gap-3">
                   <QrCode className="h-7 w-7" />
                   QR Code Maker
                 </span>
-              </ZoruPageTitle>
-              <ZoruPageDescription>
+              </PageTitle>
+              <PageDescription>
                 Generate customizable QR codes for links, text, WhatsApp messages, and more.
-              </ZoruPageDescription>
-            </ZoruPageHeading>
+              </PageDescription>
+            </PageHeading>
           </PageHeader>
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -449,8 +424,8 @@ export default function QrCodeMakerPage() {
                 <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
                   Clear
                 </Button>
-                <ZoruAlertDialog>
-                  <ZoruAlertDialogTrigger asChild>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
                     <Button size="sm" disabled={isBulkDeleting}>
                       {isBulkDeleting ? (
                         <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
@@ -459,23 +434,23 @@ export default function QrCodeMakerPage() {
                       )}
                       Delete selected
                     </Button>
-                  </ZoruAlertDialogTrigger>
-                  <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                      <ZoruAlertDialogTitle>Delete {selectedIds.size} QR code(s)?</ZoruAlertDialogTitle>
-                      <ZoruAlertDialogDescription>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete {selectedIds.size} QR code(s)?</AlertDialogTitle>
+                      <AlertDialogDescription>
                         This permanently removes the selected QR codes and any associated short links. This
                         action cannot be undone.
-                      </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                      <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                      <ZoruAlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>
                         Delete
-                      </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                  </ZoruAlertDialogContent>
-                </ZoruAlertDialog>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           ) : null}
@@ -655,8 +630,8 @@ export default function QrCodeMakerPage() {
                                 <BarChart2 className="h-3.5 w-3.5" />
                               </Button>
                             )}
-                            <ZoruAlertDialog>
-                              <ZoruAlertDialogTrigger asChild>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
                                 <button
                                   type="button"
                                   className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
@@ -664,20 +639,20 @@ export default function QrCodeMakerPage() {
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </button>
-                              </ZoruAlertDialogTrigger>
-                              <ZoruAlertDialogContent>
-                                <ZoruAlertDialogHeader>
-                                  <ZoruAlertDialogTitle>Delete "{code.name}"?</ZoruAlertDialogTitle>
-                                  <ZoruAlertDialogDescription>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete "{code.name}"?</AlertDialogTitle>
+                                  <AlertDialogDescription>
                                     This permanently removes the QR code. This action cannot be undone.
-                                  </ZoruAlertDialogDescription>
-                                </ZoruAlertDialogHeader>
-                                <ZoruAlertDialogFooter>
-                                  <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                  <ZoruAlertDialogAction onClick={() => handleDeleteOne(id)}>Delete</ZoruAlertDialogAction>
-                                </ZoruAlertDialogFooter>
-                              </ZoruAlertDialogContent>
-                            </ZoruAlertDialog>
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteOne(id)}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </td>
                       </tr>

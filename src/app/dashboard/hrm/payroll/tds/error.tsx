@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import { ZoruButton, ZoruEmptyState } from '@/components/sabcrm/20ui/compat';
+import { Button, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { AlertCircle } from 'lucide-react';
 
 export default function TdsError({
@@ -16,11 +16,11 @@ export default function TdsError({
 
   return (
     <div className="flex h-[400px] w-full items-center justify-center">
-      <ZoruEmptyState
+      <EmptyState
         icon={AlertCircle}
         title="Failed to load TDS data"
         description={error.message || "An unexpected error occurred while fetching Tax Deducted at Source information."}
-        action={<ZoruButton onClick={() => reset()}>Try again</ZoruButton>}
+        action={<Button onClick={() => reset()}>Try again</Button>}
       />
     </div>
   );

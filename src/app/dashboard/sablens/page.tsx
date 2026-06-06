@@ -1,18 +1,6 @@
 import Link from 'next/link';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 import { listSablensSessions } from '@/app/actions/sablens.actions';
 import { CirclePlus, Hammer, Smartphone, Video } from 'lucide-react';
 
@@ -32,13 +20,13 @@ export default async function SablensPage() {
   return (
     <div className="zoruui flex flex-col gap-6 p-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>SabLens</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>SabLens</PageTitle>
+          <PageDescription>
             Live AR remote support — the customer points a phone, you see
             their world and draw on it.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
         <div className="flex items-center gap-2">
           <Button asChild variant="outline">
             <Link href="/dashboard/sablens/devices">
@@ -55,29 +43,29 @@ export default async function SablensPage() {
 
       {!result.ok ? (
         <Card className="border-destructive/40">
-          <ZoruCardHeader>
-            <ZoruCardTitle>Couldn't load sessions</ZoruCardTitle>
-            <ZoruCardDescription>{result.error}</ZoruCardDescription>
-          </ZoruCardHeader>
+          <CardHeader>
+            <CardTitle>Couldn't load sessions</CardTitle>
+            <CardDescription>{result.error}</CardDescription>
+          </CardHeader>
         </Card>
       ) : sessions.length === 0 ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="flex items-center gap-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
               <Hammer className="size-5" /> No sessions yet
-            </ZoruCardTitle>
-            <ZoruCardDescription>
+            </CardTitle>
+            <CardDescription>
               Create a session, send the customer a join link, and start
               drawing on their camera feed in real time.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             <Button asChild>
               <Link href="/dashboard/sablens/new">
                 <CirclePlus className="size-4" /> Create your first session
               </Link>
             </Button>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -88,18 +76,18 @@ export default async function SablensPage() {
               className="block"
             >
               <Card className="h-full transition hover:border-primary/50">
-                <ZoruCardHeader>
+                <CardHeader>
                   <div className="flex items-start justify-between gap-3">
-                    <ZoruCardTitle className="line-clamp-1">
+                    <CardTitle className="line-clamp-1">
                       {s.customerName || 'Untitled customer'}
-                    </ZoruCardTitle>
+                    </CardTitle>
                     <Badge variant={STATUS_VARIANT[s.status]}>{s.status}</Badge>
                   </div>
-                  <ZoruCardDescription>
+                  <CardDescription>
                     {s.customerEmail || '—'}
-                  </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
+                  </CardDescription>
+                </CardHeader>
+                <CardBody className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
                   <span className="inline-flex items-center gap-1">
                     <Video className="size-3" />
                     {s.mode === 'live_call' ? 'Live call' : 'Async recorded'}
@@ -109,7 +97,7 @@ export default async function SablensPage() {
                       ? new Date(s.startedAt).toLocaleString()
                       : 'not started'}
                   </span>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             </Link>
           ))}

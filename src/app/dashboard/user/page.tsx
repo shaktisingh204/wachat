@@ -2,22 +2,7 @@ import { getCachedSession, getCachedProjects } from '@/lib/server-cache';
 import { fmtDate } from "@/lib/utils";
 export const dynamic = 'force-dynamic';
 
-import {
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  ZoruCardFooter,
-  PageHeader,
-  Button,
-  Avatar,
-  ZoruAvatarImage,
-  ZoruAvatarFallback,
-  Badge,
-  Separator,
-  EmptyState
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, PageHeader, Button, Avatar, AvatarImage, AvatarFallback, Badge, Separator, EmptyState } from '@/components/sabcrm/20ui/compat';
 import Link from 'next/link';
 import { Shield, Building2, Key, Clock, ChevronRight, Settings, LayoutDashboard, Globe } from 'lucide-react';
 import { redirect } from 'next/navigation';
@@ -61,14 +46,14 @@ export default async function UserDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Profile Card */}
         <Card className="md:col-span-2">
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-xl">Profile Information</ZoruCardTitle>
-            <ZoruCardDescription>Your personal identity on SabNode.</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+          <CardHeader>
+            <CardTitle className="text-xl">Profile Information</CardTitle>
+            <CardDescription>Your personal identity on SabNode.</CardDescription>
+          </CardHeader>
+          <CardBody className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
             <Avatar className="h-24 w-24">
-              <ZoruAvatarImage src={user.image || ''} alt={user.name || 'User'} />
-              <ZoruAvatarFallback className="text-2xl">{initials}</ZoruAvatarFallback>
+              <AvatarImage src={user.image || ''} alt={user.name || 'User'} />
+              <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
             </Avatar>
             <div className="space-y-2 flex-1">
               <h3 className="text-2xl font-semibold tracking-tight">{user.name || 'Anonymous User'}</h3>
@@ -85,27 +70,27 @@ export default async function UserDashboardPage() {
                 )}
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
           <Separator />
-          <ZoruCardFooter className="pt-6">
+          <CardFooter className="pt-6">
             <Button asChild variant="outline">
               <Link href="/dashboard/user/settings/profile">
                 <Settings className="w-4 h-4 mr-2" />
                 Manage Profile
               </Link>
             </Button>
-          </ZoruCardFooter>
+          </CardFooter>
         </Card>
 
         {/* Security Overview */}
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-xl flex items-center gap-2">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-2">
               <Shield className="w-5 h-5 text-[var(--st-text)]" />
               Security
-            </ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-4">
+            </CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <Key className="w-4 h-4 text-[var(--st-text-secondary)]" />
@@ -122,27 +107,27 @@ export default async function UserDashboardPage() {
               </div>
               <span className="text-sm text-[var(--st-text-secondary)]">{apiKeysCount} active</span>
             </div>
-          </ZoruCardContent>
+          </CardBody>
           <Separator />
-          <ZoruCardFooter className="pt-6">
+          <CardFooter className="pt-6">
              <Button asChild variant="ghost" className="w-full justify-between">
               <Link href="/dashboard/user/settings/profile">
                 Security Settings <ChevronRight className="w-4 h-4" />
               </Link>
             </Button>
-          </ZoruCardFooter>
+          </CardFooter>
         </Card>
         
         {/* Business Profile */}
         <Card className="md:col-span-2">
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-xl flex items-center gap-2">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-2">
               <Building2 className="w-5 h-5 text-[var(--st-text)]" />
               Business Profile
-            </ZoruCardTitle>
-            <ZoruCardDescription>Information about your company or organization.</ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardTitle>
+            <CardDescription>Information about your company or organization.</CardDescription>
+          </CardHeader>
+          <CardBody>
             {user.businessProfile ? (
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
                 <div>
@@ -174,18 +159,18 @@ export default async function UserDashboardPage() {
                 }
               />
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         {/* Workspace Info */}
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle className="text-xl flex items-center gap-2">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-2">
               <Globe className="w-5 h-5 text-[var(--st-text)]" />
               Workspaces
-            </ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="space-y-4">
+            </CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-4">
              <div className="flex flex-col gap-1">
                 <span className="text-sm font-medium text-[var(--st-text-secondary)]">Total Workspaces</span>
                 <span className="text-2xl font-bold">{projects.length}</span>
@@ -196,15 +181,15 @@ export default async function UserDashboardPage() {
                  <p className="font-semibold truncate" title={activeProject.name}>{activeProject.name}</p>
                </div>
              )}
-          </ZoruCardContent>
+          </CardBody>
           <Separator />
-          <ZoruCardFooter className="pt-6">
+          <CardFooter className="pt-6">
              <Button asChild variant="ghost" className="w-full justify-between">
               <Link href="/dashboard/platform">
                 Manage Workspaces <ChevronRight className="w-4 h-4" />
               </Link>
             </Button>
-          </ZoruCardFooter>
+          </CardFooter>
         </Card>
       </div>
     </div>

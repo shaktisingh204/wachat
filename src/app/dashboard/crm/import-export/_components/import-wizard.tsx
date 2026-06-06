@@ -28,28 +28,7 @@ import {
     Download,
 } from 'lucide-react';
 
-import {
-    Alert,
-    ZoruAlertDescription,
-    ZoruAlertTitle,
-    Badge,
-    Button,
-    Card,
-    Input,
-    Label,
-    Progress,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import {
     ENTITY_SCHEMAS,
     listEntitySchemas,
@@ -409,16 +388,16 @@ function PickStep({
             <div className="grid grid-cols-1 gap-2">
                 <Label htmlFor="import-entity">What are you importing?</Label>
                 <Select value={entityType} onValueChange={onEntityTypeChange}>
-                    <ZoruSelectTrigger id="import-entity">
-                        <ZoruSelectValue placeholder="Pick an entity" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger id="import-entity">
+                        <SelectValue placeholder="Pick an entity" />
+                    </SelectTrigger>
+                    <SelectContent>
                         {ENTITIES.map((e) => (
-                            <ZoruSelectItem key={e.entityType} value={e.entityType}>
+                            <SelectItem key={e.entityType} value={e.entityType}>
                                 {e.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
                 {schema && (
                     <p className="text-[12.5px] text-[var(--st-text-secondary)]">
@@ -478,8 +457,8 @@ function PickStep({
             {error && (
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Could not parse file</ZoruAlertTitle>
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    <AlertTitle>Could not parse file</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
         </div>
@@ -536,16 +515,16 @@ function MapStep({
 
             <Card className="overflow-hidden">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow>
-                            <ZoruTableHead className="w-[40%]">Field</ZoruTableHead>
-                            <ZoruTableHead className="w-[35%]">
+                    <THead>
+                        <Tr>
+                            <Th className="w-[40%]">Field</Th>
+                            <Th className="w-[35%]">
                                 Mapped column
-                            </ZoruTableHead>
-                            <ZoruTableHead>Type</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                            </Th>
+                            <Th>Type</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {schema.fields.map((field) => (
                             <FieldMappingRow
                                 key={field.name}
@@ -555,7 +534,7 @@ function MapStep({
                                 onChange={(v) => onMappingChange(field.name, v)}
                             />
                         ))}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
             </Card>
 
@@ -567,37 +546,37 @@ function MapStep({
                     </div>
                     <div className="overflow-x-auto">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
+                            <THead>
+                                <Tr>
                                     {schema.fields
                                         .filter((f) => mapping[f.name])
                                         .map((f) => (
-                                            <ZoruTableHead key={f.name}>
+                                            <Th key={f.name}>
                                                 {f.label}
-                                            </ZoruTableHead>
+                                            </Th>
                                         ))}
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {sampleRows.slice(0, 5).map((row, idx) => (
-                                    <ZoruTableRow key={idx}>
+                                    <Tr key={idx}>
                                         {schema.fields
                                             .filter((f) => mapping[f.name])
                                             .map((f) => {
                                                 const header = mapping[f.name];
                                                 const cell = header ? row[header] : '';
                                                 return (
-                                                    <ZoruTableCell
+                                                    <Td
                                                         key={f.name}
                                                         className="max-w-[200px] truncate text-[12.5px] text-[var(--st-text-secondary)]"
                                                     >
                                                         {cell || '—'}
-                                                    </ZoruTableCell>
+                                                    </Td>
                                                 );
                                             })}
-                                    </ZoruTableRow>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </Card>
@@ -606,8 +585,8 @@ function MapStep({
             {error && (
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Cannot start import</ZoruAlertTitle>
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    <AlertTitle>Cannot start import</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 
@@ -643,8 +622,8 @@ function FieldMappingRow({
     onChange: (v: string) => void;
 }): React.ReactElement {
     return (
-        <ZoruTableRow>
-            <ZoruTableCell>
+        <Tr>
+            <Td>
                 <div className="flex flex-col">
                     <span className="text-[12.5px] font-medium text-[var(--st-text)]">
                         {field.label}
@@ -657,28 +636,28 @@ function FieldMappingRow({
                         {field.example ? ` · e.g. ${field.example}` : ''}
                     </span>
                 </div>
-            </ZoruTableCell>
-            <ZoruTableCell>
+            </Td>
+            <Td>
                 <Select value={value} onValueChange={onChange}>
-                    <ZoruSelectTrigger className="h-8">
-                        <ZoruSelectValue placeholder="— skip —" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="__none__">— skip —</ZoruSelectItem>
+                    <SelectTrigger className="h-8">
+                        <SelectValue placeholder="— skip —" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__none__">— skip —</SelectItem>
                         {headers.map((h) => (
-                            <ZoruSelectItem key={h} value={h}>
+                            <SelectItem key={h} value={h}>
                                 {h}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
-            </ZoruTableCell>
-            <ZoruTableCell>
+            </Td>
+            <Td>
                 <Badge variant="outline" className="text-[10.5px]">
                     {field.type}
                 </Badge>
-            </ZoruTableCell>
-        </ZoruTableRow>
+            </Td>
+        </Tr>
     );
 }
 
@@ -799,24 +778,24 @@ function ProgressStep({
                         </div>
                     </button>
                     <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow>
-                                <ZoruTableHead className="w-24">Row</ZoruTableHead>
-                                <ZoruTableHead>Error</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <THead>
+                            <Tr>
+                                <Th className="w-24">Row</Th>
+                                <Th>Error</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
                             {visibleErrors.map((e, i) => (
-                                <ZoruTableRow key={`${e.row}-${i}`}>
-                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                                <Tr key={`${e.row}-${i}`}>
+                                    <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {e.row}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-[12.5px] text-[var(--st-text)]">
                                         {e.message}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </Td>
+                                </Tr>
                             ))}
-                        </ZoruTableBody>
+                        </TBody>
                     </Table>
                 </Card>
             )}

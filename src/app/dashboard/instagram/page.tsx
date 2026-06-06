@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Card, CardBody, CardDescription, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -33,15 +20,15 @@ const StatCard = ({
   icon: React.ElementType;
 }) => (
   <Card className="p-0">
-    <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
-      <ZoruCardTitle className="text-sm">{title}</ZoruCardTitle>
+    <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <CardTitle className="text-sm">{title}</CardTitle>
       <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
-    </ZoruCardHeader>
-    <ZoruCardContent>
+    </CardHeader>
+    <CardBody>
       <div className="text-2xl text-[var(--st-text)]">
         {typeof value === 'number' ? value.toLocaleString() : value}
       </div>
-    </ZoruCardContent>
+    </CardBody>
   </Card>
 );
 
@@ -105,8 +92,8 @@ export default function InstagramDashboardPage() {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>Error Loading Account</ZoruAlertTitle>
-        <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        <AlertTitle>Error Loading Account</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
       </Alert>
     );
   }
@@ -119,8 +106,8 @@ export default function InstagramDashboardPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center gap-4">
         <Avatar className="h-16 w-16 border-2 border-[var(--st-border)]">
-          <ZoruAvatarImage src={account.profile_picture_url} alt={account.username} />
-          <ZoruAvatarFallback>{account.username.charAt(0).toUpperCase()}</ZoruAvatarFallback>
+          <AvatarImage src={account.profile_picture_url} alt={account.username} />
+          <AvatarFallback>{account.username.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
         <div>
           <h1 className="text-3xl text-[var(--st-text)]">@{account.username}</h1>
@@ -136,10 +123,10 @@ export default function InstagramDashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="p-0">
-          <ZoruCardHeader>
-            <ZoruCardTitle>Recent Activity</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+          </CardHeader>
+          <CardBody>
             <ul className="space-y-4">
               <li className="flex items-center gap-3">
                 <Link
@@ -169,13 +156,13 @@ export default function InstagramDashboardPage() {
                 <span className="text-xs text-[var(--st-text-secondary)]">1 day ago</span>
               </li>
             </ul>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
         <Card className="p-0">
-          <ZoruCardHeader>
-            <ZoruCardTitle>Quick Links</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent className="grid grid-cols-2 gap-4">
+          <CardHeader>
+            <CardTitle>Quick Links</CardTitle>
+          </CardHeader>
+          <CardBody className="grid grid-cols-2 gap-4">
             <Link href="/dashboard/instagram/feed">
               <Card className="p-4 text-center hover:bg-[var(--st-bg-muted)]">
                 <Newspaper className="mx-auto h-8 w-8 text-[var(--st-text)] mb-2" />
@@ -200,7 +187,7 @@ export default function InstagramDashboardPage() {
                 Messages
               </Card>
             </Link>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </div>

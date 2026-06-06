@@ -1,10 +1,4 @@
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { listInboxes, listConversations } from '@/app/actions/sabchat-v2.actions';
 import { InboxV2Client } from './_components/inbox-v2-client';
 
@@ -28,13 +22,13 @@ export default async function SabChatInboxV2Page({
     return (
         <div className="zoruui flex h-[calc(100vh-4rem)] flex-col gap-4 p-4">
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>SabChat — Inbox v2</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>SabChat — Inbox v2</CardTitle>
+                    <CardDescription>
                         Omnichannel inbox backed by the Rust BFF. {inboxes.length} inbox(es).
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                    </CardDescription>
+                </CardHeader>
+                <CardBody>
                     {inboxes.length === 0 ? (
                         <div className="rounded border border-dashed p-6 text-center text-sm text-[var(--st-text-secondary)]">
                             No inboxes yet. Create one via{' '}
@@ -49,7 +43,7 @@ export default async function SabChatInboxV2Page({
                             initialSelectedConversationId={sp.selected}
                         />
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

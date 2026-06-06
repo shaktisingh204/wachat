@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 
 /**
@@ -26,7 +26,7 @@ export interface AdjustmentEditFormProps {
 
 export function AdjustmentEditForm({ initial }: AdjustmentEditFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [error, setError] = React.useState<string | undefined>();
 
     const handleAction = async (formData: FormData) => {

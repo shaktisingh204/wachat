@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import {
-    Button, Input, cn, useZoruToast
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import { Folder, Plus, Trash2, LoaderCircle, FolderX } from 'lucide-react';
 import {
     getCollections, createCollection, deleteCollection,
@@ -24,7 +22,7 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
     const [newName, setNewName] = useState('');
     const [newColor, setNewColor] = useState(PALETTE[0]);
     const [isPending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const load = () => {
         startTransition(async () => {

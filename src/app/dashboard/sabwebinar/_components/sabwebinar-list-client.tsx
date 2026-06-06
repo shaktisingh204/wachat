@@ -2,21 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  Badge,
-  Input,
-  EmptyState,
-  PageHeader,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  ZoruPageActions,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Badge, Input, EmptyState, PageHeader, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui/compat';
 import { Plus, Search, Video, Calendar, Users } from 'lucide-react';
 import type { Sabwebinar, SabwebinarStatus } from '@/app/actions/sabwebinar.actions';
 
@@ -64,17 +50,17 @@ export function SabwebinarListClient({ items }: Props) {
   return (
     <div className="zoruui flex flex-col gap-6 p-6">
       <PageHeader>
-        <ZoruPageTitle>SabWebinar</ZoruPageTitle>
-        <ZoruPageDescription>
+        <PageTitle>SabWebinar</PageTitle>
+        <PageDescription>
           Branded webinars with registration funnel, live broadcast, and post-event analytics.
-        </ZoruPageDescription>
-        <ZoruPageActions>
+        </PageDescription>
+        <PageActions>
           <Button asChild>
             <Link href="/dashboard/sabwebinar/new">
               <Plus className="size-4" /> New webinar
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

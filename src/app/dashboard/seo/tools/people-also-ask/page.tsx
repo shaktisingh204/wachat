@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  useZoruToast,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Table, TBody, Td, Th, THead, Tr, useToast, Badge } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -50,7 +39,7 @@ export default function PeopleAlsoAskPage() {
   const [q, setQ] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<QuestionData[]>([]);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const run = async () => {
     if (!q.trim()) return;
@@ -162,24 +151,24 @@ export default function PeopleAlsoAskPage() {
           </div>
           <div className="border border-[var(--st-border)] rounded-lg overflow-hidden bg-[var(--st-bg-secondary)]">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[60%]">Question</TableHead>
-                  <TableHead>Intent</TableHead>
-                  <TableHead className="text-right">Est. Volume</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+              <THead>
+                <Tr>
+                  <Th className="w-[60%]">Question</Th>
+                  <Th>Intent</Th>
+                  <Th className="text-right">Est. Volume</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {results.map((r, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-medium text-[var(--st-text)]">{r.question}</TableCell>
-                    <TableCell>
+                  <Tr key={i}>
+                    <Td className="font-medium text-[var(--st-text)]">{r.question}</Td>
+                    <Td>
                       <Badge variant="secondary">{r.group}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right text-[var(--st-text-secondary)]">{r.volume.toLocaleString()}</TableCell>
-                  </TableRow>
+                    </Td>
+                    <Td className="text-right text-[var(--st-text-secondary)]">{r.volume.toLocaleString()}</Td>
+                  </Tr>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
           </div>
         </div>

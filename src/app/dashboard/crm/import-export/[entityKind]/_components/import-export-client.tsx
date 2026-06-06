@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { Download, Loader2 } from 'lucide-react';
 
 /**
@@ -26,7 +26,7 @@ interface Props {
 }
 
 export function ImportExportClient({ entityKind, canImport, canExport, onExportSuccess }: Props): React.ReactElement {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
     const [busy, setBusy] = React.useState(false);
 

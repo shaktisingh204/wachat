@@ -25,28 +25,7 @@ import {
   HrStatusCell,
 } from '../../hr/_components/hr-list-shell';
 
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Input,
-  useZoruToast,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  Button,
-  Dialog,
-  ZoruDialogTrigger,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  Label,
-  Textarea,
-  ZoruDateRangePicker,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Input, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, Label, Textarea, DateRangePicker } from '@/components/sabcrm/20ui/compat';
 import type { DateRange } from 'react-day-picker';
 
 type Row = WithId<CrmKpi>;
@@ -69,7 +48,7 @@ function AchievementBar({ target, actual }: { target: number; actual: number }) 
 function InlineActualEditor({ row, onRefresh }: { row: StringRow; onRefresh: () => void }) {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(String(row.actual_value));
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   
   const save = async () => {
     setEditing(false);
@@ -153,7 +132,7 @@ function QuickAddModal({ onRefresh }: { onRefresh: () => void }) {
   const [period, setPeriod] = useState('');
   const [employees, setEmployees] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleSave = async () => {
     const employeeList = employees.split(',').map(e => e.trim()).filter(Boolean);
@@ -184,16 +163,16 @@ function QuickAddModal({ onRefresh }: { onRefresh: () => void }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="outline" size="sm">Quick Add</Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Bulk Create KPIs</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Bulk Create KPIs</DialogTitle>
+          <DialogDescription>
             Quickly create a KPI for multiple employees.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -226,7 +205,7 @@ function QuickAddModal({ onRefresh }: { onRefresh: () => void }) {
             {isSubmitting ? 'Saving...' : 'Create KPIs'}
           </Button>
         </div>
-      </ZoruDialogContent>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -308,7 +287,7 @@ export default function KpiTrackingClient({ initialData }: { initialData: Row[] 
           </SelectContent>
         </Select>
       )}
-      <ZoruDateRangePicker
+      <DateRangePicker
         value={dateRange}
         onChange={setDateRange}
         className="h-8 w-[220px] text-xs"

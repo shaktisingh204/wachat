@@ -1,10 +1,10 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
-import { Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui/compat';
 import { Switch } from '@/components/sabcrm/20ui/compat';
 import { Label } from '@/components/sabcrm/20ui/compat';
-import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
+import { ChartContainer, ChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { fmtINR } from '@/lib/utils';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -80,21 +80,21 @@ export default function KeywordCpcPage() {
       {!useLiveApi && (
         <Alert variant="warning" className="mb-4">
           <TriangleAlert className="h-4 w-4" />
-          <ZoruAlertTitle>Simulated Heuristic Mode</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Simulated Heuristic Mode</AlertTitle>
+          <AlertDescription>
             You are currently using a simulated heuristic based on commercial intent words and keyword length. 
             For production-grade estimates, please switch to <strong>Live Data API</strong> mode (requires DataForSEO API integration).
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       )}
 
       {useLiveApi && (
         <Alert variant="info" className="mb-4">
           <Info className="h-4 w-4" />
-          <ZoruAlertTitle>Live Data API Mode</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Live Data API Mode</AlertTitle>
+          <AlertDescription>
             Using real SERP API (DataForSEO) for production-grade estimates. Ensure your environment variables are configured.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       )}
 
@@ -152,16 +152,16 @@ export default function KeywordCpcPage() {
       {errorMsg && (
         <Alert variant="destructive" className="mt-4">
           <TriangleAlert className="h-4 w-4" />
-          <ZoruAlertTitle>Error fetching live data</ZoruAlertTitle>
-          <ZoruAlertDescription>
+          <AlertTitle>Error fetching live data</AlertTitle>
+          <AlertDescription>
             {errorMsg}
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       )}
 
       {heuristicResult && !useLiveApi && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-6 space-y-4">
+          <CardBody className="p-6 space-y-4">
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold">${heuristicResult.low}</span>
               <span className="text-[var(--st-text-secondary)]">–</span>
@@ -174,13 +174,13 @@ export default function KeywordCpcPage() {
             <p className="text-xs text-[var(--st-text-secondary)]">
               Heuristic estimate based on commercial intent words and keyword length. Switch to Live Data API for precise numbers.
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {apiResult && useLiveApi && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-6 space-y-4">
+          <CardBody className="p-6 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-[var(--st-text-secondary)] mb-1">Average CPC</p>
@@ -204,15 +204,15 @@ export default function KeywordCpcPage() {
             <p className="text-xs text-[var(--st-text-secondary)] mt-4 border-t pt-4">
               Production-grade estimate retrieved via DataForSEO Live API.
             </p>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {apiResult && useLiveApi && apiResult.monthly_searches && apiResult.monthly_searches.length > 0 && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-6">
+          <CardBody className="p-6">
             <h4 className="text-sm font-semibold mb-4">Monthly Search Volume Trend</h4>
-            <ZoruChartContainer height={300}>
+            <ChartContainer height={300}>
               <ZoruChart.ResponsiveContainer>
                 <ZoruChart.AreaChart
                   data={apiResult.monthly_searches.map(m => ({
@@ -234,7 +234,7 @@ export default function KeywordCpcPage() {
                     axisLine={false} 
                     tick={{ fontSize: 12, fill: 'var(--st-text-secondary)' }}
                   />
-                  <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                  <ZoruChart.Tooltip content={<ChartTooltip />} />
                   <ZoruChart.Area
                     type="monotone"
                     dataKey="volume"
@@ -245,8 +245,8 @@ export default function KeywordCpcPage() {
                   />
                 </ZoruChart.AreaChart>
               </ZoruChart.ResponsiveContainer>
-            </ZoruChartContainer>
-          </ZoruCardContent>
+            </ChartContainer>
+          </CardBody>
         </Card>
       )}
 

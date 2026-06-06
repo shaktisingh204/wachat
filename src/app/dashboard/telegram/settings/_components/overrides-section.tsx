@@ -1,13 +1,13 @@
 import * as React from 'react';
 import Link from 'next/link';
-import { Label, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem, Input, Switch, Button, EmptyState } from '@/components/sabcrm/20ui/compat';
+import { Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Input, Switch, Button, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { UserCog, Trash2 } from 'lucide-react';
 import { SectionCard, SwitchRow } from './shared';
 import { PARSE_MODES, IANA_TIMEZONES } from '../constants';
 import type { ProjectSettings } from '@/lib/rust-client/telegram-settings';
 import { getTelegramBotOverridesAction, saveTelegramBotOverridesAction, clearTelegramBotOverridesAction } from '@/app/actions/telegram-settings.actions';
 import { listTelegramBots } from '@/app/actions/telegram.actions';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 interface BotOption {
     _id: string;
@@ -21,7 +21,7 @@ export function OverridesSection({
     projectId: string;
     projectDefaults: ProjectSettings;
 }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [bots, setBots] = React.useState<BotOption[]>([]);
     const [selectedBotId, setSelectedBotId] = React.useState<string>('');
     const [overrides, setOverrides] = React.useState<Record<string, unknown>>({});
@@ -205,16 +205,16 @@ export function OverridesSection({
                 <div className="space-y-1">
                     <Label>Bot</Label>
                     <Select value={selectedBotId} onValueChange={setSelectedBotId}>
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue placeholder="Select bot" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select bot" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {bots.map((b) => (
-                                <ZoruSelectItem key={b._id} value={b._id}>
+                                <SelectItem key={b._id} value={b._id}>
                                     {b.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
 
@@ -245,16 +245,16 @@ export function OverridesSection({
                                             }))
                                         }
                                     >
-                                        <ZoruSelectTrigger>
-                                            <ZoruSelectValue />
-                                        </ZoruSelectTrigger>
-                                        <ZoruSelectContent>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
                                             {PARSE_MODES.map((m) => (
-                                                <ZoruSelectItem key={m.value} value={m.value}>
+                                                <SelectItem key={m.value} value={m.value}>
                                                     {m.label}
-                                                </ZoruSelectItem>
+                                                </SelectItem>
                                             ))}
-                                        </ZoruSelectContent>
+                                        </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-1">
@@ -299,16 +299,16 @@ export function OverridesSection({
                                         }))
                                     }
                                 >
-                                    <ZoruSelectTrigger>
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {IANA_TIMEZONES.map((tz) => (
-                                            <ZoruSelectItem key={tz} value={tz}>
+                                            <SelectItem key={tz} value={tz}>
                                                 {tz}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         </OverrideToggle>

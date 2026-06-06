@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  useZoruToast,
-  Checkbox,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, useToast, Checkbox, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useEffect,
@@ -77,7 +66,7 @@ export function WeeklyTimesheetsClient({
   initialSheets,
   initialEmployees,
 }: WeeklyTimesheetsClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [sheets, setSheets] = useState<WsWeeklyTimesheet[]>(initialSheets);
   const [statusFilter, setStatusFilter] = useState<WsWeeklyTimesheetStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');

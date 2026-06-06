@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  Label,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, Label } from '@/components/sabcrm/20ui/compat';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
@@ -68,7 +62,7 @@ export interface ContactsFiltersRowProps {
 export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
     return (
         <Card>
-            <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
+            <CardBody className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <div className="space-y-1">
                     <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
@@ -152,7 +146,7 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                         </Button>
                     </div>
                 ) : null}
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

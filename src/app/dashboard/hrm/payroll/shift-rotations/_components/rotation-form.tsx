@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -132,20 +119,20 @@ const PatternRowItem = React.memo(function PatternRowItem({
                     onValueChange={(v) => updateRow(row.rowId, { shiftId: v })}
                     disabled={row.isOff}
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue
+                    <SelectTrigger>
+                        <SelectValue
                             placeholder={
                                 row.isOff ? 'Day off' : shift?.name || 'Pick a shift'
                             }
                         />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    </SelectTrigger>
+                    <SelectContent>
                         {shifts.map((s) => (
-                            <ZoruSelectItem key={s._id} value={s._id}>
+                            <SelectItem key={s._id} value={s._id}>
                                 {s.name}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
             <label className="flex items-center gap-2 pb-2 text-[12.5px] text-[var(--st-text)]">
@@ -175,7 +162,7 @@ const PatternRowItem = React.memo(function PatternRowItem({
 
 export function RotationForm({ initialData, shifts }: RotationFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveShiftRotation, initialState);
@@ -426,16 +413,16 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                                     setStatus(v as CrmShiftRotationStatus)
                                 }
                             >
-                                <ZoruSelectTrigger id="status-trigger">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger id="status-trigger">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
+                                        <SelectItem key={o.value} value={o.value}>
                                             {o.label}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="flex items-end gap-2 pb-1.5">

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Skeleton, PageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, PageHeader, PageHeading, PageTitle, PageDescription, Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/sabcrm/20ui/compat';
 import { EmailSuiteLayout } from '@/components/email/layout';
 import { FieldsClient } from '@/components/email/audience/fields-client';
 import { Database } from 'lucide-react';
@@ -8,29 +8,29 @@ function FieldsSkeleton() {
   return (
     <div className="space-y-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
+        <PageHeading>
+          <PageTitle>
             <span className="inline-flex items-center gap-3">
               <Database className="h-6 w-6" /> Custom Fields
             </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
+          </PageTitle>
+          <PageDescription>
             Manage custom data fields for your subscribers.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Schema Definition</ZoruCardTitle>
-          <ZoruCardDescription>Current custom fields configured for your account.</ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Schema Definition</CardTitle>
+          <CardDescription>Current custom fields configured for your account.</CardDescription>
+        </CardHeader>
+        <CardBody>
           <div className="space-y-2">
              <Skeleton className="h-10 w-full" />
              <Skeleton className="h-10 w-full" />
              <Skeleton className="h-10 w-full" />
           </div>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

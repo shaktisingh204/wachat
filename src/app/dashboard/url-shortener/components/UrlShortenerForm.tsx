@@ -2,31 +2,9 @@
 
 import { useRef, useEffect, useState, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import {
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Button,
-  useZoruToast,
-  Popover,
-  ZoruPopoverTrigger,
-  ZoruPopoverContent,
-  ZoruCommand,
-  ZoruCommandInput,
-  ZoruCommandList,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandItem,
-  cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Button, useToast, Popover, PopoverTrigger, PopoverContent, Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, cn } from '@/components/sabcrm/20ui/compat';
 import NextLink from 'next/link';
-import { ZoruDatePicker as DatePicker } from '@/components/sabcrm/20ui/compat';
+import { DatePicker } from '@/components/sabcrm/20ui/compat';
 import { BulkImportDialog } from '@/components/zoruui-domain/bulk-url-import-dialog';
 import { TagPicker, type TagPickerTag } from '@/components/zoruui-domain/tag-picker';
 import { Link as LinkIcon, LoaderCircle, ChevronDown, ChevronRight, X, Plus, Check, ChevronsUpDown, Settings } from 'lucide-react';
@@ -68,7 +46,7 @@ function TagsSelector({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <ZoruPopoverTrigger asChild>
+      <PopoverTrigger asChild>
         <button
           type="button"
           className="flex h-9 w-full items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] hover:border-[var(--st-border-strong)] focus:outline-none focus:border-[var(--st-text)]"
@@ -83,12 +61,12 @@ function TagsSelector({
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
         </button>
-      </ZoruPopoverTrigger>
-      <ZoruPopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-        <ZoruCommand>
-          <ZoruCommandInput placeholder="Search tags..." />
-          <ZoruCommandList>
-            <ZoruCommandEmpty>
+      </PopoverTrigger>
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <Command>
+          <CommandInput placeholder="Search tags..." />
+          <CommandList>
+            <CommandEmpty>
               <div className="flex flex-col items-center gap-2 py-2 text-center">
                 <p className="text-[13px] text-[var(--st-text-secondary)]">No tags found.</p>
                 <NextLink
@@ -98,16 +76,16 @@ function TagsSelector({
                   <Settings className="h-3 w-3" /> Create & manage tags
                 </NextLink>
               </div>
-            </ZoruCommandEmpty>
-            <ZoruCommandGroup>
+            </CommandEmpty>
+            <CommandGroup>
               {userTags.map((tag) => (
-                <ZoruCommandItem key={tag._id} value={tag.name} onSelect={() => handleSelect(tag._id)}>
+                <CommandItem key={tag._id} value={tag.name} onSelect={() => handleSelect(tag._id)}>
                   <Check
                     className={cn('mr-2 h-4 w-4', selectedTags.includes(tag._id) ? 'opacity-100' : 'opacity-0')}
                   />
                   <span className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: tag.color }} />
                   <span>{tag.name}</span>
-                </ZoruCommandItem>
+                </CommandItem>
               ))}
               <NextLink
                 href="/dashboard/url-shortener/settings"
@@ -115,10 +93,10 @@ function TagsSelector({
               >
                 <Settings className="h-3.5 w-3.5" /> Manage tags
               </NextLink>
-            </ZoruCommandGroup>
-          </ZoruCommandList>
-        </ZoruCommand>
-      </ZoruPopoverContent>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
     </Popover>
   );
 }
@@ -134,7 +112,7 @@ export function UrlShortenerForm({
   domainOptions: { value: string; label: string }[];
   onSuccess: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(createShortUrl, initialState);
 
@@ -209,16 +187,16 @@ export function UrlShortenerForm({
             <div className="space-y-1.5">
               <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Custom Domain (Optional)</Label>
               <Select value={createDomainId} onValueChange={setCreateDomainId}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
                   {domainOptions.map((opt) => (
-                    <ZoruSelectItem key={opt.value} value={opt.value}>
+                    <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
           </div>

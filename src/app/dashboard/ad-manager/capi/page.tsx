@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Alert, AlertDescription, AlertTitle, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 import {
   ShieldCheck,
   Copy,
@@ -90,18 +75,18 @@ export default function CapiPage() {
 
             <Alert>
                 <ShieldCheck className="h-4 w-4" />
-                <ZoruAlertTitle>Why CAPI?</ZoruAlertTitle>
-                <ZoruAlertDescription>
+                <AlertTitle>Why CAPI?</AlertTitle>
+                <AlertDescription>
                     Meta Pixel alone loses ~30% of events on modern browsers. CAPI closes that gap by sending events server-to-server,
                     and lets you match purchase revenue to ads with near-perfect attribution.
-                </ZoruAlertDescription>
+                </AlertDescription>
             </Alert>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="text-base">1. Pick a pixel</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-2">
+                <CardHeader>
+                    <CardTitle className="text-base">1. Pick a pixel</CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-2">
                     {pixels.length === 0 ? (
                         <p className="text-sm text-[var(--st-text-secondary)]">No pixels yet — create one from Pixels & datasets first.</p>
                     ) : (
@@ -119,28 +104,28 @@ export default function CapiPage() {
                             ))}
                         </div>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="text-base">2. Endpoint</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle className="text-base">2. Endpoint</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <div className="flex items-center gap-2 bg-[var(--st-bg-muted)] p-2.5 rounded font-mono text-xs">
                         <span className="flex-1 break-all">{endpoint}</span>
                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copy(endpoint)}>
                             <Copy className="h-3 w-3" />
                         </Button>
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="text-base">3. Sample event payload</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle className="text-base">3. Sample event payload</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <pre className="bg-[var(--st-bg-muted)] p-3 rounded text-xs overflow-x-auto">{samplePayload}</pre>
                     <Button
                         variant="outline"
@@ -150,14 +135,14 @@ export default function CapiPage() {
                     >
                         <Copy className="h-3 w-3 mr-1" /> Copy payload
                     </Button>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="text-base">4. Send a test event from SabNode</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4 text-sm">
+                <CardHeader>
+                    <CardTitle className="text-base">4. Send a test event from SabNode</CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-4 text-sm">
                     <p>
                         SabNode provides a server action <code className="px-1 py-0.5 bg-[var(--st-bg-muted)] rounded">sendConversionApiEvent</code> you can
                         call from your e-commerce checkout, CRM webhook, or backend.
@@ -166,15 +151,15 @@ export default function CapiPage() {
                         <div className="space-y-1.5">
                             <p className="text-xs font-medium text-[var(--st-text-secondary)]">Event name</p>
                             <Select value={testEventName} onValueChange={setTestEventName}>
-                                <ZoruSelectTrigger className="w-[180px]">
-                                    <ZoruSelectValue />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="PageView">PageView</ZoruSelectItem>
-                                    <ZoruSelectItem value="Purchase">Purchase</ZoruSelectItem>
-                                    <ZoruSelectItem value="Lead">Lead</ZoruSelectItem>
-                                    <ZoruSelectItem value="AddToCart">AddToCart</ZoruSelectItem>
-                                </ZoruSelectContent>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="PageView">PageView</SelectItem>
+                                    <SelectItem value="Purchase">Purchase</SelectItem>
+                                    <SelectItem value="Lead">Lead</SelectItem>
+                                    <SelectItem value="AddToCart">AddToCart</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
                         <Button
@@ -204,7 +189,7 @@ export default function CapiPage() {
                             Read Meta CAPI docs <ExternalLink className="h-3 w-3 ml-1" />
                         </a>
                     </Button>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

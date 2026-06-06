@@ -1,61 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-  StatCard,
-  Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Skeleton, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   CreditCard,
   Plus,
@@ -196,7 +141,7 @@ interface PaymentsSectionProps {
 
 
 export function PaymentsSection(props: PaymentsSectionProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [detail, setDetail] = React.useState<PaymentRow | null>(null);
     const [refundTarget, setRefundTarget] = React.useState<PaymentRow | null>(
         null,
@@ -307,16 +252,16 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                         value={props.statusFilter}
                         onValueChange={props.onStatusFilter}
                     >
-                        <ZoruSelectTrigger className="w-[160px]">
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger className="w-[160px]">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
                             {STATUS_OPTIONS.map((s) => (
-                                <ZoruSelectItem key={s.value} value={s.value}>
+                                <SelectItem key={s.value} value={s.value}>
                                     {s.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="flex flex-col gap-1">
@@ -325,17 +270,17 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                         value={props.currencyFilter}
                         onValueChange={props.onCurrencyFilter}
                     >
-                        <ZoruSelectTrigger className="w-[140px]">
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All</ZoruSelectItem>
+                        <SelectTrigger className="w-[140px]">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
                             {CURRENCY_OPTIONS.map((c) => (
-                                <ZoruSelectItem key={c.code} value={c.code}>
+                                <SelectItem key={c.code} value={c.code}>
                                     {c.code}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="flex flex-col gap-1">
@@ -378,47 +323,47 @@ export function PaymentsSection(props: PaymentsSectionProps) {
             {/* Table */}
             <Card className="overflow-hidden">
                 <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow>
-                            <ZoruTableHead>Chat / User</ZoruTableHead>
-                            <ZoruTableHead>Payload</ZoruTableHead>
-                            <ZoruTableHead>Amount</ZoruTableHead>
-                            <ZoruTableHead>Status</ZoruTableHead>
-                            <ZoruTableHead>Created</ZoruTableHead>
-                            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
+                    <THead>
+                        <Tr>
+                            <Th>Chat / User</Th>
+                            <Th>Payload</Th>
+                            <Th>Amount</Th>
+                            <Th>Status</Th>
+                            <Th>Created</Th>
+                            <Th className="text-right">Actions</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {props.payments.length === 0 && (
-                            <ZoruTableRow>
-                                <ZoruTableCell colSpan={6}>
+                            <Tr>
+                                <Td colSpan={6}>
                                     <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
                                         No payments match these filters yet.
                                     </div>
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         )}
                         {props.payments.map((p) => (
-                            <ZoruTableRow key={p._id}>
-                                <ZoruTableCell>
+                            <Tr key={p._id}>
+                                <Td>
                                     <div className="text-sm">{p.username ?? '—'}</div>
                                     <div className="text-xs text-[var(--st-text-secondary)]">
                                         {p.chatId ?? p.userId ?? '—'}
                                     </div>
-                                </ZoruTableCell>
-                                <ZoruTableCell>
+                                </Td>
+                                <Td>
                                     <span className="truncate font-mono text-xs">
                                         {p.payload ?? '—'}
                                     </span>
-                                </ZoruTableCell>
-                                <ZoruTableCell>
+                                </Td>
+                                <Td>
                                     {fmtCurrency(p.amount, p.currency)}
-                                </ZoruTableCell>
-                                <ZoruTableCell>
+                                </Td>
+                                <Td>
                                     <StatusBadge status={p.status} />
-                                </ZoruTableCell>
-                                <ZoruTableCell>{fmtDate(p.createdAt)}</ZoruTableCell>
-                                <ZoruTableCell className="text-right">
+                                </Td>
+                                <Td>{fmtDate(p.createdAt)}</Td>
+                                <Td className="text-right">
                                     <Button
                                         size="icon-sm"
                                         variant="ghost"
@@ -437,10 +382,10 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                                             <Undo2 className="h-4 w-4" />
                                         </Button>
                                     )}
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </Td>
+                            </Tr>
                         ))}
-                    </ZoruTableBody>
+                    </TBody>
                 </Table>
                 <div className="flex items-center justify-between border-t border-[var(--st-border)] px-3 py-2 text-xs">
                     <div className="text-[var(--st-text-secondary)]">
@@ -474,13 +419,13 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                 open={!!detail}
                 onOpenChange={(v) => !v && setDetail(null)}
             >
-                <ZoruDialogContent className="max-w-2xl">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Payment details</ZoruDialogTitle>
-                        <ZoruDialogDescription>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Payment details</DialogTitle>
+                        <DialogDescription>
                             {detail?._id}
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
+                        </DialogDescription>
+                    </DialogHeader>
                     {detail && (
                         <div className="grid gap-3 text-sm">
                             <div className="grid grid-cols-2 gap-3">
@@ -535,33 +480,33 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                             ) : null}
                         </div>
                     )}
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button variant="outline" onClick={() => setDetail(null)}>
                             Close
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
             {/* Refund confirm */}
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!refundTarget}
                 onOpenChange={(v) => !v && setRefundTarget(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Refund this payment?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Refund this payment?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             {refundTarget?.currency === 'XTR'
                                 ? 'Telegram Stars will be returned to the buyer via refundStarPayment. This cannot be undone.'
                                 : 'Fiat refunds are processed by your payment provider. We will mark this payment as refunded locally — reconcile with your provider for the actual refund.'}
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel disabled={isRefunding}>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isRefunding}>
                             Cancel
-                        </ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogCancel>
+                        <AlertDialogAction
                             disabled={isRefunding}
                             onClick={confirmRefund}
                         >
@@ -569,10 +514,10 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             )}
                             Refund
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

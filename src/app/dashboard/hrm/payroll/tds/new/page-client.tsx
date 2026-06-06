@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger } from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
 import { TdsForm } from '../_components/tds-form';
 import { Users } from 'lucide-react';
 import { BulkUpload } from './components/bulk-upload';
@@ -47,18 +47,18 @@ export function NewTdsClient() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-                <ZoruTabsList>
-                    <ZoruTabsTrigger value="single">Single Entry</ZoruTabsTrigger>
-                    <ZoruTabsTrigger value="bulk">Bulk Upload</ZoruTabsTrigger>
-                </ZoruTabsList>
+                <TabsList>
+                    <TabsTrigger value="single">Single Entry</TabsTrigger>
+                    <TabsTrigger value="bulk">Bulk Upload</TabsTrigger>
+                </TabsList>
 
-                <ZoruTabsContent value="single" className="space-y-4">
+                <TabsContent value="single" className="space-y-4">
                     <TdsForm />
-                </ZoruTabsContent>
+                </TabsContent>
 
-                <ZoruTabsContent value="bulk" className="space-y-4">
+                <TabsContent value="bulk" className="space-y-4">
                     <BulkUpload />
-                </ZoruTabsContent>
+                </TabsContent>
             </Tabs>
         </div>
     );

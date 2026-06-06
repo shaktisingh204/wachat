@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, ZoruAvatarFallback, ZoruAvatarImage, Button } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage, Button } from '@/components/sabcrm/20ui/compat';
 import {
   useProject } from '@/context/project-context';
 import { Bell, Sparkles } from 'lucide-react';
@@ -31,8 +31,8 @@ export function DashboardHeader() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[var(--st-border)]/40 pb-6 mb-8">
             <div className="flex items-center gap-4">
                 <Avatar className="h-14 w-14 border-2 border-primary/20 ring-4 ring-primary/5">
-                    <ZoruAvatarImage src={sessionUser.image || ''} />
-                    <ZoruAvatarFallback className="bg-[var(--st-text)]/10 text-[var(--st-text)] font-bold">{initials}</ZoruAvatarFallback>
+                    <AvatarImage src={sessionUser.image || ''} />
+                    <AvatarFallback className="bg-[var(--st-text)]/10 text-[var(--st-text)] font-bold">{initials}</AvatarFallback>
                 </Avatar>
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-2">

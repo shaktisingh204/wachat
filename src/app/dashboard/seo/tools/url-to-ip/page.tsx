@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 
 void _zoruCn;
@@ -99,15 +99,15 @@ export default function UrlToIpPage() {
       
       {error && (
         <Card className="border-[var(--st-border)] mt-4">
-          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">
+          <CardBody className="p-4 text-[var(--st-text)] text-sm">
             {error}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
       
       {result && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-4">
+          <CardBody className="p-4">
             <div className="text-sm font-semibold mb-4 border-b pb-2">
               Results for: <span className="font-normal">{result.host}</span>
             </div>
@@ -125,7 +125,7 @@ export default function UrlToIpPage() {
                 Note: GeoIP location requires an offline MaxMind database or paid API, which is not included in this local-only mode. The IPs shown above indicate the precise server addresses.
               </div>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

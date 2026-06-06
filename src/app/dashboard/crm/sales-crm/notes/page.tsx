@@ -34,20 +34,7 @@ import {
   Tag,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -97,7 +84,7 @@ function parseTags(input: string): string[] {
 }
 
 export default function LeadNotesPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<Row[]>([]);
   const [kpis, setKpis] = React.useState<LeadNoteKpis | null>(null);
@@ -407,17 +394,17 @@ export default function LeadNotesPage() {
               value={tagFilter || 'all'}
               onValueChange={(v) => setTagFilter(v === 'all' ? '' : v)}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Tag" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All tags</ZoruSelectItem>
+              <SelectTrigger>
+                <SelectValue placeholder="Tag" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All tags</SelectItem>
                 {allTags.map((t) => (
-                  <ZoruSelectItem key={t} value={t}>
+                  <SelectItem key={t} value={t}>
                     {t}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="w-56">
@@ -425,17 +412,17 @@ export default function LeadNotesPage() {
               value={leadFilter || 'all'}
               onValueChange={(v) => setLeadFilter(v === 'all' ? '' : v)}
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Lead" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All leads</ZoruSelectItem>
+              <SelectTrigger>
+                <SelectValue placeholder="Lead" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All leads</SelectItem>
                 {leadOptions.map((l) => (
-                  <ZoruSelectItem key={l.id} value={l.id}>
+                  <SelectItem key={l.id} value={l.id}>
                     {l.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex items-center gap-2">

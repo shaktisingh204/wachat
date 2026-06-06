@@ -1,30 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState } from 'react';
@@ -80,25 +56,25 @@ export default function WebhooksPage() {
     return (
         <div className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
-                <ZoruBreadcrumbList>
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</ZoruBreadcrumbLink>
-                    </ZoruBreadcrumbItem>
-                    <ZoruBreadcrumbSeparator />
-                    <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbPage>{t('settings.webhooks.title')}</ZoruBreadcrumbPage>
-                    </ZoruBreadcrumbItem>
-                </ZoruBreadcrumbList>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/dashboard/settings">{t('settings.overview.title')}</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{t('settings.webhooks.title')}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
             </Breadcrumb>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <PageHeader>
-                    <ZoruPageHeading>
-                        <ZoruPageTitle>{t('settings.webhooks.title')}</ZoruPageTitle>
-                        <ZoruPageDescription>
+                    <PageHeading>
+                        <PageTitle>{t('settings.webhooks.title')}</PageTitle>
+                        <PageDescription>
                             {t('settings.webhooks.subtitle')}
-                        </ZoruPageDescription>
-                    </ZoruPageHeading>
+                        </PageDescription>
+                    </PageHeading>
                 </PageHeader>
                 <AddWebhookDialog onAdd={addRow} />
             </div>
@@ -152,7 +128,7 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
     const [open, setOpen] = useState(false);
     const [url, setUrl] = useState('');
     const [selected, setSelected] = useState<Set<string>>(new Set(['message.received']));
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const handleSave = () => {
         if (!/^https:\/\//.test(url)) {
@@ -178,19 +154,19 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <ZoruDialogTrigger asChild>
+            <DialogTrigger asChild>
                 <Button size="sm">
                     <Plus className="h-4 w-4" />
                     {t('settings.webhooks.addWebhook')}
                 </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent>
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>{t('settings.webhooks.dialog.title')}</ZoruDialogTitle>
-                    <ZoruDialogDescription>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{t('settings.webhooks.dialog.title')}</DialogTitle>
+                    <DialogDescription>
                         {t('settings.webhooks.dialog.description')}
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+                    </DialogDescription>
+                </DialogHeader>
                 <div className="space-y-4 py-2">
                     <div>
                         <Label className="mb-1.5 block text-xs">
@@ -230,15 +206,15 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
                         </div>
                     </div>
                 </div>
-                <ZoruDialogFooter>
+                <DialogFooter>
                     <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
                         {t('action.cancel')}
                     </Button>
                     <Button size="sm" onClick={handleSave}>
                         {t('action.create')}
                     </Button>
-                </ZoruDialogFooter>
-            </ZoruDialogContent>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

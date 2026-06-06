@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   BarChart3,
@@ -188,8 +188,8 @@ export function RequirementsStep({
             {error && (
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Almost there</ZoruAlertTitle>
-                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    <AlertTitle>Almost there</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 

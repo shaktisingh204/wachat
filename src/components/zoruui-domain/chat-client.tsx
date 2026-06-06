@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Skeleton, Alert, ZoruAlertDescription, ZoruAlertTitle, Card, Select } from '@/components/sabcrm/20ui/compat';
+import { Button, Skeleton, Alert, AlertDescription, AlertTitle, Card, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -237,10 +237,10 @@ export function ChatClient() {
             <div className="h-full flex items-center justify-center p-4">
                 <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>
+                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertDescription>
                         Please select a project from the main dashboard to use the chat interface.
-                    </ZoruAlertDescription>
+                    </AlertDescription>
                 </Alert>
             </div>
         );

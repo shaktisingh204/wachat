@@ -1,19 +1,8 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import {
-    Button,
-    Input,
-    Textarea,
-    Label,
-    Select,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSheetFooter,
-} from '@/components/sabcrm/20ui/compat';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Textarea, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SheetFooter } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { assignTaskToEmployee } from '@/app/actions/hrm-portal.actions';
 import type { CrmTask } from '@/lib/definitions';
 import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions.types';
@@ -28,7 +17,7 @@ interface AssignTaskFormProps {
 }
 
 export function AssignTaskForm({ employee, onCancel, onSuccess }: AssignTaskFormProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
 
     const [title, setTitle] = useState('');
@@ -124,20 +113,20 @@ export function AssignTaskForm({ employee, onCancel, onSuccess }: AssignTaskForm
                     onValueChange={(v) => setPriority(v as Priority)}
                     disabled={isPending}
                 >
-                    <ZoruSelectTrigger id="task-priority">
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger id="task-priority">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
                         {PRIORITIES.map((p) => (
-                            <ZoruSelectItem key={p} value={p}>
+                            <SelectItem key={p} value={p}>
                                 {p}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
 
-            <ZoruSheetFooter className="mt-2 flex gap-2">
+            <SheetFooter className="mt-2 flex gap-2">
                 <Button
                     type="button"
                     variant="outline"
@@ -154,7 +143,7 @@ export function AssignTaskForm({ employee, onCancel, onSuccess }: AssignTaskForm
                 >
                     {isPending ? 'Assigning…' : 'Assign Task'}
                 </Button>
-            </ZoruSheetFooter>
+            </SheetFooter>
         </form>
     );
 }

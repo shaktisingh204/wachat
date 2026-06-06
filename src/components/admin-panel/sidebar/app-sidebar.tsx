@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  ZoruCollapsible,
-  ZoruCollapsibleContent,
-  ZoruCollapsibleTrigger,
-  ScrollArea,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Collapsible, CollapsibleContent, CollapsibleTrigger, ScrollArea, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select } from '@/components/sabcrm/20ui/compat';
 import {
   usePathname,
   useRouter } from 'next/navigation';
@@ -141,7 +129,7 @@ const NavItem = ({ item, depth = 0 }: { item: MenuItem; depth?: number }) => {
     );
 };
 
-/* ─── ZoruCollapsible group item ─────────────────────────────────────────────────── */
+/* ─── Collapsible group item ─────────────────────────────────────────────────── */
 
 const NavCollapsible = ({ item }: { item: MenuItem }) => {
     const pathname = usePathname();
@@ -150,8 +138,8 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
     const Icon = item.icon;
 
     return (
-        <ZoruCollapsible open={open} onOpenChange={setOpen} className="w-full">
-            <ZoruCollapsibleTrigger asChild>
+        <Collapsible open={open} onOpenChange={setOpen} className="w-full">
+            <CollapsibleTrigger asChild>
                 <button
                     className={cn(
                         'group flex w-full items-center gap-2.5 rounded-lg py-2 pl-3 pr-3 text-sm font-medium transition-colors relative',
@@ -165,8 +153,8 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
                     <span className="flex-1 text-left truncate">{item.label}</span>
                     <ChevronRight className={cn('h-3.5 w-3.5 transition-transform duration-200', open && 'rotate-90')} />
                 </button>
-            </ZoruCollapsibleTrigger>
-            <ZoruCollapsibleContent>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
                 <div className="mt-0.5 ml-3 pl-3 flex flex-col gap-0.5 border-l border-[var(--st-border)]">
                     {(item.subItems || item.subSubItems || []).map((sub: any, i: number) =>
                         sub.subItems ? (
@@ -176,8 +164,8 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
                         )
                     )}
                 </div>
-            </ZoruCollapsibleContent>
-        </ZoruCollapsible>
+            </CollapsibleContent>
+        </Collapsible>
     );
 };
 
@@ -211,7 +199,7 @@ function InlineProjectSwitcher() {
     return (
         <div className="px-2 py-2">
             <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                     <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-[var(--st-bg-muted)] group border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                         <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 bg-[var(--st-text)] text-[var(--st-bg-secondary)] text-[10px] font-bold">
                             {(activeProject?.name?.[0] || 'P').toUpperCase()}
@@ -221,15 +209,15 @@ function InlineProjectSwitcher() {
                         </span>
                         <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
                     </button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="start" className="w-56 rounded-lg p-1.5">
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56 rounded-lg p-1.5">
                     <div className="px-2 py-1 text-xs uppercase tracking-wider font-semibold text-[var(--st-text-secondary)]/70 mb-1">
                         Projects
                     </div>
                     {projects.map((p: any) => {
                         const isSelected = p._id.toString() === activeProject?._id?.toString();
                         return (
-                            <ZoruDropdownMenuItem
+                            <DropdownMenuItem
                                 key={p._id.toString()}
                                 className="flex items-center gap-2.5 px-2 py-2 rounded-md cursor-pointer text-sm"
                                 onClick={() => handleSelect(p._id.toString(), p.name)}
@@ -242,16 +230,16 @@ function InlineProjectSwitcher() {
                                 </div>
                                 <span className="flex-1 truncate font-medium">{p.name}</span>
                                 {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-[var(--st-text)]" />}
-                            </ZoruDropdownMenuItem>
+                            </DropdownMenuItem>
                         );
                     })}
-                    <ZoruDropdownMenuSeparator />
-                    <ZoruDropdownMenuItem asChild>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
                         <Link href="/wachat/setup" className="flex items-center gap-2 px-2 py-2 text-xs text-[var(--st-text-secondary)] rounded-md">
                             + Add project
                         </Link>
-                    </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
             </DropdownMenu>
         </div>
     );

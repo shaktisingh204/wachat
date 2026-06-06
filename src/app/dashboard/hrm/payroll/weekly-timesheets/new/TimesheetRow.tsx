@@ -1,15 +1,6 @@
 import React, { memo } from 'react';
 import { Trash, LoaderCircle, CheckCircle2, AlertCircle } from 'lucide-react';
-import {
-  Input,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Button,
-  ZoruCheckbox,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button, Checkbox } from '@/components/sabcrm/20ui/compat';
 
 export type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
 
@@ -52,7 +43,7 @@ export const TimesheetRow = memo(({
       }}
       className={`flex items-center gap-4 px-4 border-b border-[var(--st-border)]/50 transition-colors ${entry.status === 'saving' ? 'opacity-70 bg-[var(--st-bg-secondary)]' : 'hover:bg-[var(--st-bg)]/50'}`}
     >
-      <ZoruCheckbox 
+      <Checkbox 
         checked={isSelected}
         onCheckedChange={() => onToggleSelect(entry.id)}
         disabled={entry.status === 'saving'}
@@ -64,16 +55,16 @@ export const TimesheetRow = memo(({
           onValueChange={(val) => onUpdate(entry.id, 'userId', val)}
           disabled={entry.status === 'saving'}
         >
-          <ZoruSelectTrigger className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
-            <ZoruSelectValue placeholder="Select employee" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
+            <SelectValue placeholder="Select employee" />
+          </SelectTrigger>
+          <SelectContent>
             {employees.map((e) => (
-              <ZoruSelectItem key={e._id} value={e._id}>
+              <SelectItem key={e._id} value={e._id}>
                 {[e.firstName, e.lastName].filter(Boolean).join(' ') || 'Unnamed'}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
       </div>
 

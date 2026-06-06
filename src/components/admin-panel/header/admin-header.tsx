@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Button, Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
 import {
   useProject } from '@/context/project-context';
 import { SidebarTrigger } from '@/components/sabcrm/20ui/compat';
@@ -90,12 +90,12 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
                     className="flex items-center gap-2 rounded-full px-2 py-1 bg-[var(--st-bg-secondary)]/80 hover:bg-[var(--st-bg-secondary)] transition-colors cursor-pointer border border-[var(--app-border)]"
                 >
                     <Avatar className="h-7 w-7 shrink-0">
-                        <ZoruAvatarImage src={avatarSrc} alt={displayName} />
-                        <ZoruAvatarFallback
+                        <AvatarImage src={avatarSrc} alt={displayName} />
+                        <AvatarFallback
                             className="text-xs font-bold bg-[var(--app-light)] text-[var(--app-text)]"
                         >
                             {initials}
-                        </ZoruAvatarFallback>
+                        </AvatarFallback>
                     </Avatar>
                     <span className="hidden sm:block text-sm font-medium max-w-[90px] truncate">
                         {displayName}

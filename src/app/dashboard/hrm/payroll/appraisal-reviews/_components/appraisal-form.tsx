@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect,
@@ -101,7 +88,7 @@ export interface AppraisalFormProps {
 
 export function AppraisalForm({ initialData }: AppraisalFormProps) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(
@@ -236,27 +223,27 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                     </div>
                     <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
+                            <THead>
+                                <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                                    <Th className="text-[var(--st-text-secondary)]">
                                         Name
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] w-[120px]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)] w-[120px]">
                                         Target
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] w-[120px]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)] w-[120px]">
                                         Achieved
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-[var(--st-text-secondary)] w-[100px]">
+                                    </Th>
+                                    <Th className="text-[var(--st-text-secondary)] w-[100px]">
                                         Score
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="w-[40px]" />
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                    </Th>
+                                    <Th className="w-[40px]" />
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {kpis.map((row, i) => (
-                                    <ZoruTableRow key={i} className="border-[var(--st-border)]">
-                                        <ZoruTableCell>
+                                    <Tr key={i} className="border-[var(--st-border)]">
+                                        <Td>
                                             <Input
                                                 value={row.name}
                                                 onChange={(e) =>
@@ -265,8 +252,8 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                                                 placeholder="e.g. Onboarding throughput"
                                                 className="h-8"
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <Input
                                                 value={row.target}
                                                 onChange={(e) =>
@@ -276,8 +263,8 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                                                 step="0.01"
                                                 className="h-8"
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <Input
                                                 value={row.achieved}
                                                 onChange={(e) =>
@@ -287,8 +274,8 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                                                 step="0.01"
                                                 className="h-8"
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <Input
                                                 value={row.score}
                                                 onChange={(e) =>
@@ -300,8 +287,8 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                                                 max="5"
                                                 className="h-8"
                                             />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
+                                        </Td>
+                                        <Td>
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -310,10 +297,10 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                                             >
                                                 <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                             </Button>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </Td>
+                                    </Tr>
                                 ))}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
                     </div>
                 </div>

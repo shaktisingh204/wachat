@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, useZoruToast, ZoruSelect, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Table, THead, TBody, Tr, Th, Td, useToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import { createRedactionPolicy, deleteRedactionPolicy, updateRedactionPolicy } from '@/app/actions/platform/data-redaction.actions';
 import type { RedactionPolicy } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Filter, ChevronLeft, ChevronRight, X, Pencil } from 'lucide-react';
@@ -24,7 +24,7 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [form, setForm] = useState({ name: '', targetFields: '', maskPattern: '***', status: 'active' });
 
@@ -140,14 +140,14 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
                   <div className="grid grid-cols-3 items-center gap-4">
                     <Label htmlFor="status">Status</Label>
                     <div className="col-span-2">
-                      <ZoruSelect value={statusFilter} onValueChange={(v) => updateFilters('status', v === 'all' ? '' : v)}>
-                        <ZoruSelectTrigger id="status"><ZoruSelectValue placeholder="All Statuses" /></ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                          <ZoruSelectItem value="all">All</ZoruSelectItem>
-                          <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                          <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
-                        </ZoruSelectContent>
-                      </ZoruSelect>
+                      <Select value={statusFilter} onValueChange={(v) => updateFilters('status', v === 'all' ? '' : v)}>
+                        <SelectTrigger id="status"><SelectValue placeholder="All Statuses" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   <div className="grid grid-cols-3 items-center gap-4">
@@ -179,27 +179,27 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
 
       <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
         <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>Name</ZoruTableHead>
-              <ZoruTableHead>Target Fields</ZoruTableHead>
-              <ZoruTableHead>Mask Pattern</ZoruTableHead>
-              <ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
+          <THead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Target Fields</Th>
+              <Th>Mask Pattern</Th>
+              <Th>Status</Th>
+              <Th className="text-right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {initialData.map(item => (
-              <ZoruTableRow key={item.id}>
-                <ZoruTableCell className="font-medium">{item.name}</ZoruTableCell>
-                <ZoruTableCell className="font-mono text-sm">{item.targetFields.join(', ')}</ZoruTableCell>
-                <ZoruTableCell>{item.maskPattern}</ZoruTableCell>
-                <ZoruTableCell>
+              <Tr key={item.id}>
+                <Td className="font-medium">{item.name}</Td>
+                <Td className="font-mono text-sm">{item.targetFields.join(', ')}</Td>
+                <Td>{item.maskPattern}</Td>
+                <Td>
                   <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-[var(--st-hover)] text-[var(--st-text)]'}`}>
                     {item.status}
                   </span>
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right">
+                </Td>
+                <Td className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
                       <Pencil className="w-4 h-4 text-[var(--st-text)]" />
@@ -208,15 +208,15 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
                       <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
                     </Button>
                   </div>
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))}
             {initialData.length === 0 && (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No redaction policies found.</ZoruTableCell>
-              </ZoruTableRow>
+              <Tr>
+                <Td colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No redaction policies found.</Td>
+              </Tr>
             )}
-          </ZoruTableBody>
+          </TBody>
         </Table>
 
         {totalPages > 1 && (
@@ -253,10 +253,10 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
           setForm({ name: '', targetFields: '', maskPattern: '***', status: 'active' });
         }
       }}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>{editingId ? 'Edit Redaction Policy' : 'New Redaction Policy'}</ZoruDialogTitle>
-          </ZoruDialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingId ? 'Edit Redaction Policy' : 'New Redaction Policy'}</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>Policy Name</Label>
@@ -272,22 +272,22 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
             </div>
             <div className="grid gap-2">
               <Label>Status</Label>
-              <ZoruSelect value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
-                <ZoruSelectTrigger><ZoruSelectValue placeholder="Select status" /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                  <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
+                <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave} disabled={isPending}>
               {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} {editingId ? 'Save Changes' : 'Create'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

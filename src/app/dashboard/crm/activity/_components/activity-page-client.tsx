@@ -20,30 +20,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-  Tabs,
-  ZoruTabsContent as TabsContent,
-  ZoruTabsList as TabsList,
-  ZoruTabsTrigger as TabsTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   CalendarDays,
   Check,
@@ -165,7 +142,7 @@ export function ActivityPageClient({
 }: ActivityPageClientProps): React.JSX.Element {
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* ── feed state ──────────────────────────────────────────────────────── */
   const [filters, setFilters] = React.useState(initialFilters);
@@ -402,19 +379,19 @@ export function ActivityPageClient({
                   setFilters((f) => ({ ...f, entityKind: v === 'all' ? '' : v }))
                 }
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="All entities" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="all">All entities</ZoruSelectItem>
+                <SelectTrigger>
+                  <SelectValue placeholder="All entities" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All entities</SelectItem>
                   {['lead', 'deal', 'contact', 'invoice', 'project', 'task', 'ticket'].map(
                     (k) => (
-                      <ZoruSelectItem key={k} value={k}>
+                      <SelectItem key={k} value={k}>
                         {k}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ),
                   )}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="w-36">
@@ -495,33 +472,33 @@ export function ActivityPageClient({
             <div className="w-40">
               <Label className="text-[11px]">Type</Label>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="all">All types</ZoruSelectItem>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All types</SelectItem>
                   {(['call', 'email', 'meeting', 'task', 'note'] as CrmActivityType[]).map(
                     (t) => (
-                      <ZoruSelectItem key={t} value={t}>
+                      <SelectItem key={t} value={t}>
                         {t.charAt(0).toUpperCase() + t.slice(1)}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ),
                   )}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="w-40">
               <Label className="text-[11px]">Status</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                  <ZoruSelectItem value="open">Open</ZoruSelectItem>
-                  <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
-                  <ZoruSelectItem value="overdue">Overdue</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="overdue">Overdue</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="w-36">
@@ -607,49 +584,49 @@ export function ActivityPageClient({
             ) : (
               <div className="overflow-x-auto">
                 <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow className="hover:bg-transparent">
-                      <ZoruTableHead className="w-8">
+                  <THead>
+                    <Tr className="hover:bg-transparent">
+                      <Th className="w-8">
                         <input
                           type="checkbox"
                           checked={selected.size === activities.length && activities.length > 0}
                           onChange={toggleAll}
                           className="h-3.5 w-3.5"
                         />
-                      </ZoruTableHead>
-                      <ZoruTableHead>Type</ZoruTableHead>
-                      <ZoruTableHead>Subject</ZoruTableHead>
-                      <ZoruTableHead>Related to</ZoruTableHead>
-                      <ZoruTableHead>Assigned</ZoruTableHead>
-                      <ZoruTableHead>Due date</ZoruTableHead>
-                      <ZoruTableHead>Status</ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
+                      </Th>
+                      <Th>Type</Th>
+                      <Th>Subject</Th>
+                      <Th>Related to</Th>
+                      <Th>Assigned</Th>
+                      <Th>Due date</Th>
+                      <Th>Status</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {activities.map((a) => {
                       const id = String(a._id ?? '');
                       return (
-                        <ZoruTableRow key={id}>
-                          <ZoruTableCell>
+                        <Tr key={id}>
+                          <Td>
                             <input
                               type="checkbox"
                               checked={selected.has(id)}
                               onChange={() => toggleSelect(id)}
                               className="h-3.5 w-3.5"
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <div className="flex items-center gap-1.5">
                               <ActivityTypeIcon type={a.type} />
                               <span className="text-[12.5px] capitalize text-[var(--st-text)]">
                                 {a.type}
                               </span>
                             </div>
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[13px] font-medium text-[var(--st-text)]">
                             {a.subject}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                          </Td>
+                          <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                             {a.relatedEntityKind && a.relatedEntityId ? (
                               <span>
                                 {a.relatedEntityKind}{' '}
@@ -660,11 +637,11 @@ export function ActivityPageClient({
                             ) : (
                               '—'
                             )}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                          </Td>
+                          <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                             {a.assignedUserId ? a.assignedUserId.slice(-6) : '—'}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
+                          </Td>
+                          <Td className="text-[12.5px] text-[var(--st-text-secondary)]">
                             {a.dueDate ? (
                               <span
                                 className={
@@ -678,14 +655,14 @@ export function ActivityPageClient({
                             ) : (
                               '—'
                             )}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </Td>
+                          <Td>
                             <StatusBadge status={a.status} />
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </Td>
+                        </Tr>
                       );
                     })}
-                  </ZoruTableBody>
+                  </TBody>
                 </Table>
               </div>
             )}

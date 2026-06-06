@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { 
-  Card, CardHeader, CardTitle, CardDescription, CardContent,
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
-  Button, Badge, Input
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Table, THead, TBody, Tr, Th, Td, Button, Badge, Input } from '@/components/sabcrm/20ui/compat';
 import { Database, Plus, RefreshCw, FileText, UploadCloud, Link2, Search, Trash2, Edit } from 'lucide-react';
 
 const mockDatasets = [
@@ -93,47 +89,47 @@ export default function DatasetsPage() {
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Rows</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Refresh</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Source</Th>
+                <Th>Rows</Th>
+                <Th>Status</Th>
+                <Th>Last Refresh</Th>
+                <Th className="text-right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {filtered.map((dataset) => (
-                <TableRow key={dataset.id}>
-                  <TableCell className="font-medium">{dataset.name}</TableCell>
-                  <TableCell>
+                <Tr key={dataset.id}>
+                  <Td className="font-medium">{dataset.name}</Td>
+                  <Td>
                     <div className="flex items-center">
                       {getSourceIcon(dataset.source)}
                       {getSourceLabel(dataset.source)}
                     </div>
-                  </TableCell>
-                  <TableCell>{dataset.rows.toLocaleString()}</TableCell>
-                  <TableCell>{getStatusBadge(dataset.status)}</TableCell>
-                  <TableCell>{new Date(dataset.lastRefresh).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right">
+                  </Td>
+                  <Td>{dataset.rows.toLocaleString()}</Td>
+                  <Td>{getStatusBadge(dataset.status)}</Td>
+                  <Td>{new Date(dataset.lastRefresh).toLocaleDateString()}</Td>
+                  <Td className="text-right">
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)]/60 hover:text-[var(--st-text)]">
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500/60 hover:text-red-600">
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))}
               {filtered.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                <Tr>
+                  <Td colSpan={6} className="h-24 text-center text-muted-foreground">
                     No datasets found.
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               )}
-            </TableBody>
+            </TBody>
           </Table>
         </CardContent>
       </Card>

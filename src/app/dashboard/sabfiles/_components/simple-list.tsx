@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, cn, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   File as FileIcon,
   FileImage,
@@ -72,7 +72,7 @@ export function SimpleList({
 }) {
     const [nodes, setNodes] = React.useState(initialNodes);
     const [busyId, setBusyId] = React.useState<string | null>(null);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     React.useEffect(() => setNodes(initialNodes), [initialNodes]);
 
@@ -152,7 +152,7 @@ export function SimpleList({
                 </Card>
             ) : (
                 <Card>
-                    <ZoruCardContent className="p-0">
+                    <CardBody className="p-0">
                         <ul className="divide-y divide-[var(--st-border)]">
                             {nodes.map((n) => {
                                 const href =
@@ -235,7 +235,7 @@ export function SimpleList({
                                 );
                             })}
                         </ul>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             )}
         </div>

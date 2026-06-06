@@ -1,36 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  EmptyState,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  zoruSonnerToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, zoruSonnerToast } from '@/components/sabcrm/20ui/compat';
 import {
   useCallback,
   useEffect,
@@ -203,19 +173,19 @@ export default function FacebookLeadsPage(): React.JSX.Element {
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">Meta Suite</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Leads</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">Meta Suite</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Leads</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <header className="flex items-end justify-between gap-4">
@@ -245,17 +215,17 @@ export default function FacebookLeadsPage(): React.JSX.Element {
       {error && (
         <Alert variant="destructive">
           <AlertCircle />
-          <ZoruAlertTitle>Could not load forms</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <AlertTitle>Could not load forms</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[320px_1fr]">
         <Card className="self-start">
-          <ZoruCardHeader>
-            <ZoruCardTitle>Forms</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Forms</CardTitle>
+          </CardHeader>
+          <CardBody>
             {loadingForms && forms.length === 0 ? (
               <div className="flex flex-col gap-2">
                 <Skeleton className="h-12 w-full" />
@@ -299,16 +269,16 @@ export default function FacebookLeadsPage(): React.JSX.Element {
                 })}
               </ul>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>
+          <CardHeader>
+            <CardTitle>
               {selectedForm ? `Leads · ${selectedForm.name}` : 'Leads'}
-            </ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
             {!selectedForm ? (
               <EmptyState
                 icon={<Inbox />}
@@ -329,54 +299,54 @@ export default function FacebookLeadsPage(): React.JSX.Element {
               />
             ) : (
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow>
-                    <ZoruTableHead>Name</ZoruTableHead>
-                    <ZoruTableHead>Email</ZoruTableHead>
-                    <ZoruTableHead>Phone</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Created</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                <THead>
+                  <Tr>
+                    <Th>Name</Th>
+                    <Th>Email</Th>
+                    <Th>Phone</Th>
+                    <Th className="text-right">Created</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {leads.map((l) => {
                     const name = pickField(l, ['full_name', 'name']) ?? '—';
                     const email = pickField(l, ['email']) ?? '—';
                     const phone =
                       pickField(l, ['phone_number', 'phone']) ?? '—';
                     return (
-                      <ZoruTableRow
+                      <Tr
                         key={l.id}
                         onClick={() => setSelectedLead(l)}
                         className="cursor-pointer"
                       >
-                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
+                        <Td className="font-medium text-[var(--st-text)]">
                           <span className="inline-flex items-center gap-2">
                             <User className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                             {name}
                           </span>
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
                             <Mail className="h-3.5 w-3.5" />
                             {email}
                           </span>
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </Td>
+                        <Td>
                           <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
                             <Phone className="h-3.5 w-3.5" />
                             {phone}
                           </span>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-xs text-[var(--st-text-secondary)]">
+                        </Td>
+                        <Td className="text-right text-xs text-[var(--st-text-secondary)]">
                           {fmtDate(l.created_time)}
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </Td>
+                      </Tr>
                     );
                   })}
-                </ZoruTableBody>
+                </TBody>
               </Table>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -384,13 +354,13 @@ export default function FacebookLeadsPage(): React.JSX.Element {
         open={!!selectedLead}
         onOpenChange={(open) => !open && setSelectedLead(null)}
       >
-        <ZoruSheetContent className="w-full sm:max-w-md">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>Lead details</ZoruSheetTitle>
-            <ZoruSheetDescription>
+        <SheetContent className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Lead details</SheetTitle>
+            <SheetDescription>
               {selectedLead ? `ID: ${selectedLead.id}` : ''}
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </SheetDescription>
+          </SheetHeader>
           {selectedLead ? (
             <div className="flex flex-col gap-4 pt-4">
               <div className="flex flex-col gap-1">
@@ -418,7 +388,7 @@ export default function FacebookLeadsPage(): React.JSX.Element {
               </ul>
             </div>
           ) : null}
-        </ZoruSheetContent>
+        </SheetContent>
       </Sheet>
     </div>
   );

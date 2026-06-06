@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useTransition } from 'react';
@@ -39,7 +24,7 @@ export function BulkTemplateForm({
 }: BulkTemplateFormProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,40 +51,40 @@ export function BulkTemplateForm({
   return (
     <Card>
       <form onSubmit={handleSubmit}>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Bulk Add Template</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Bulk Add Template</CardTitle>
+          <CardDescription>
             Choose a template from &ldquo;{sourceProjectName}&rdquo; to add to all selected
             projects.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="template-select">Template to apply</Label>
             <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-              <ZoruSelectTrigger id="template-select">
-                <ZoruSelectValue placeholder="Select a template…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger id="template-select">
+                <SelectValue placeholder="Select a template…" />
+              </SelectTrigger>
+              <SelectContent>
                 {templates.map((t) => (
-                  <ZoruSelectItem key={t._id.toString()} value={t._id.toString()}>
+                  <SelectItem key={t._id.toString()} value={t._id.toString()}>
                     {t.name} ({t.language})
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <p className="text-xs text-[var(--st-text-secondary)]">
               This will add or update the template with the same name and language in each
               selected project.
             </p>
           </div>
-        </ZoruCardContent>
-        <ZoruCardFooter>
+        </CardBody>
+        <CardFooter>
           <Button type="submit" disabled={isPending || !selectedTemplate}>
             {isPending && <LoaderCircle className="h-4 w-4 animate-spin" />}
             Apply to all
           </Button>
-        </ZoruCardFooter>
+        </CardFooter>
       </form>
     </Card>
   );

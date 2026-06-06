@@ -12,24 +12,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, UserPlus } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Input,
-  Label,
-  PageHeader,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, EmptyState, Input, Label, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, PageActions, PageDescription, PageTitle } from '@/components/sabcrm/20ui/compat';
 import {
   assignSabcreatorRole,
   createSabcreatorRole,
@@ -131,18 +114,18 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
     <div className="min-h-screen flex flex-col">
       <PageHeader>
         <div>
-          <ZoruPageTitle>Roles & access</ZoruPageTitle>
-          <ZoruPageDescription>
+          <PageTitle>Roles & access</PageTitle>
+          <PageDescription>
             {app.name} — row-level security + per-user assignments.
-          </ZoruPageDescription>
+          </PageDescription>
         </div>
-        <ZoruPageActions>
+        <PageActions>
           <Button asChild variant="outline">
             <Link href={`/dashboard/sabcreator/${app._id}/builder`}>
               Back to builder
             </Link>
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="grid grid-cols-[260px_1fr] gap-4 px-6 pb-10 flex-1">
@@ -276,14 +259,14 @@ function RuleEditor({
           onChange({ ...value, rule: v as SabcreatorRowLevelRuleKind })
         }
       >
-        <ZoruSelectTrigger>
-          <ZoruSelectValue />
-        </ZoruSelectTrigger>
-        <ZoruSelectContent>
-          <ZoruSelectItem value="own">Own records</ZoruSelectItem>
-          <ZoruSelectItem value="all">All records</ZoruSelectItem>
-          <ZoruSelectItem value="conditional">Conditional</ZoruSelectItem>
-        </ZoruSelectContent>
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="own">Own records</SelectItem>
+          <SelectItem value="all">All records</SelectItem>
+          <SelectItem value="conditional">Conditional</SelectItem>
+        </SelectContent>
       </Select>
       {value.rule === 'conditional' ? (
         <div className="space-y-1">

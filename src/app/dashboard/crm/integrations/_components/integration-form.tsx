@@ -1,20 +1,6 @@
 'use client';
 
-import {
-    Badge,
-    Button,
-    Card,
-    Input,
-    Label,
-    Select,
-    Switch,
-    Textarea,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Input, Label, Select, Switch, Textarea, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 import {
     ArrowLeft,
     LoaderCircle,
@@ -79,7 +65,7 @@ export function IntegrationForm({
     initialData?: CrmIntegrationDoc | null;
 }) {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveIntegration, initialState);
@@ -123,16 +109,16 @@ export function IntegrationForm({
                 <div className="space-y-1.5">
                     <Label htmlFor="provider-trigger">Provider *</Label>
                     <Select value={provider} onValueChange={setProvider}>
-                        <ZoruSelectTrigger id="provider-trigger">
-                            <ZoruSelectValue placeholder="Pick a provider…" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger id="provider-trigger">
+                            <SelectValue placeholder="Pick a provider…" />
+                        </SelectTrigger>
+                        <SelectContent>
                             {PROVIDER_OPTIONS.map((o) => (
-                                <ZoruSelectItem key={o.value} value={o.value}>
+                                <SelectItem key={o.value} value={o.value}>
                                     {o.label}
-                                </ZoruSelectItem>
+                                </SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
                 <div className="space-y-1.5">
@@ -285,16 +271,16 @@ export function IntegrationForm({
                             <div className="space-y-1.5">
                                 <Label htmlFor="provider-trigger">Provider *</Label>
                                 <Select value={provider} onValueChange={setProvider}>
-                                    <ZoruSelectTrigger id="provider-trigger">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger id="provider-trigger">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {PROVIDER_OPTIONS.map((o) => (
-                                            <ZoruSelectItem key={o.value} value={o.value}>
+                                            <SelectItem key={o.value} value={o.value}>
                                                 {o.label}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                         </div>

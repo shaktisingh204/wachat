@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle, Button } from '@/components/sabcrm/20ui/compat';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -27,7 +27,7 @@ export function ProductCard({ product, shopSettings, shopSlug }: { product: With
   return (
     <Link href={`/shop/${shopSlug}/product/${product._id.toString()}`} className="group block">
        <Card className="overflow-hidden h-full flex flex-col transition-all group-hover:shadow-lg">
-            <ZoruCardHeader className="p-0">
+            <CardHeader className="p-0">
                 <div className="relative aspect-[4/5] bg-[var(--st-bg-muted)]">
                 <Image
                     src={product.imageUrl || 'https://placehold.co/400x500.png'}
@@ -38,8 +38,8 @@ export function ProductCard({ product, shopSettings, shopSlug }: { product: With
                     data-ai-hint="product photo"
                 />
                 </div>
-            </ZoruCardHeader>
-            <ZoruCardContent className="p-4 flex-grow flex flex-col justify-between">
+            </CardHeader>
+            <CardBody className="p-4 flex-grow flex flex-col justify-between">
                 <div>
                     <h3 className="font-semibold text-base line-clamp-2">{product.name}</h3>
                     <p className="text-sm text-[var(--st-text-secondary)]">{product.category || 'Uncategorized'}</p>
@@ -56,7 +56,7 @@ export function ProductCard({ product, shopSettings, shopSlug }: { product: With
                         Add
                     </Button>
                 </div>
-            </ZoruCardContent>
+            </CardBody>
       </Card>
     </Link>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Textarea, Card, ZoruCardContent, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Textarea, Card, CardBody, cn } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState, useRef, useMemo } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { JsonTreeView } from '@/components/sabflow/inspector/JsonTreeView';
@@ -206,7 +206,7 @@ export default function JsonFormatterPage() {
 
       {error && (
         <Card className="border-[var(--st-border)] overflow-hidden">
-          <ZoruCardContent className="p-4 bg-[var(--st-bg-muted)]/50">
+          <CardBody className="p-4 bg-[var(--st-bg-muted)]/50">
             <p className="text-[var(--st-text)] font-semibold mb-2">{error.message}</p>
             {error.pos !== undefined && text && (
               <pre className="text-xs font-mono text-[var(--st-text)] bg-[var(--st-bg-muted)] p-2 rounded overflow-x-auto whitespace-pre-wrap break-words">
@@ -219,7 +219,7 @@ export default function JsonFormatterPage() {
                 {Math.min(text.length, error.pos + 40) < text.length && '...'}
               </pre>
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

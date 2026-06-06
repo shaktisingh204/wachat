@@ -1,4 +1,4 @@
-import { Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui/compat';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -80,9 +80,9 @@ export function ClayAvatarStack({
             }
           >
             {item.src ? (
-              <ZoruAvatarImage src={item.src} alt={item.alt || ''} />
+              <AvatarImage src={item.src} alt={item.alt || ''} />
             ) : null}
-            <ZoruAvatarFallback
+            <AvatarFallback
               className="bg-transparent text-inherit"
               style={
                 item.hue !== undefined
@@ -94,7 +94,7 @@ export function ClayAvatarStack({
               }
             >
               {fallbackText}
-            </ZoruAvatarFallback>
+            </AvatarFallback>
           </Avatar>
         );
       })}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, useZoruToast, Input } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, useToast, Input } from '@/components/sabcrm/20ui/compat';
 import { useRouter } from 'next/navigation';
 import { FileText, Plus } from 'lucide-react';
 
@@ -125,7 +125,7 @@ export function QuotationListClient({
   error,
 }: QuotationListClientProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* View + density */
   const [view, setView] = React.useState<ViewMode>('table');

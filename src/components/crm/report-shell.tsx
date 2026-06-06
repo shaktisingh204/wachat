@@ -6,15 +6,7 @@ import { ChevronLeft, Download, RefreshCw, FileSpreadsheet, FileText } from 'luc
 import * as LucideIcons from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
-import {
-    Button,
-    Card,
-    ZoruDateRangePicker,
-    DropdownMenu,
-    ZoruDropdownMenuTrigger,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, DateRangePicker, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
@@ -87,7 +79,7 @@ export function ReportShell({
         <div className="flex flex-wrap items-center gap-2">
             {onDateRangeChange ? (
                 <div className="w-full sm:w-auto sm:min-w-[260px]">
-                    <ZoruDateRangePicker value={dateRange} onChange={onDateRangeChange} />
+                    <DateRangePicker value={dateRange} onChange={onDateRangeChange} />
                 </div>
             ) : null}
             {toolbarExtra}
@@ -110,32 +102,32 @@ export function ReportShell({
             ) : null}
             {hasAnyExport ? (
                 <DropdownMenu>
-                    <ZoruDropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
                         <Button type="button" variant="outline" size="sm">
                             <Download className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                             <span className="ml-1.5">Export</span>
                         </Button>
-                    </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent align="end">
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
                         {onExportCsv ? (
-                            <ZoruDropdownMenuItem onSelect={onExportCsv}>
+                            <DropdownMenuItem onSelect={onExportCsv}>
                                 <FileText className="mr-2 h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                                 Export CSV
-                            </ZoruDropdownMenuItem>
+                            </DropdownMenuItem>
                         ) : null}
                         {onExportXlsx ? (
-                            <ZoruDropdownMenuItem onSelect={onExportXlsx}>
+                            <DropdownMenuItem onSelect={onExportXlsx}>
                                 <FileSpreadsheet className="mr-2 h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                                 Export XLSX
-                            </ZoruDropdownMenuItem>
+                            </DropdownMenuItem>
                         ) : null}
                         {onExportPdf ? (
-                            <ZoruDropdownMenuItem onSelect={onExportPdf}>
+                            <DropdownMenuItem onSelect={onExportPdf}>
                                 <FileText className="mr-2 h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                                 Export PDF
-                            </ZoruDropdownMenuItem>
+                            </DropdownMenuItem>
                         ) : null}
-                    </ZoruDropdownMenuContent>
+                    </DropdownMenuContent>
                 </DropdownMenu>
             ) : null}
         </div>

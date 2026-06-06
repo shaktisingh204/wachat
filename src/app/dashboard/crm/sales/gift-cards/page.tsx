@@ -25,29 +25,7 @@ import {
   Plus,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  ZoruDateRangePicker,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  StatCard,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -149,7 +127,7 @@ function getStatusVariant(
 }
 
 export default function SalesGiftCardsPage(): React.JSX.Element {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<AnyGiftCard[]>([]);
   const [total, setTotal] = React.useState(0);
@@ -368,7 +346,7 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
               </Select>
             </div>
             <div className="w-64">
-              <ZoruDateRangePicker
+              <DateRangePicker
                 value={dateRange}
                 onChange={(r) => {
                   setDateRange(r);
@@ -504,84 +482,84 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
           <Card className="p-0">
             <div className="overflow-x-auto rounded-lg">
               <Table>
-                <TableHeader>
-                  <TableRow className="border-[var(--st-border)] hover:bg-transparent">
-                    <TableHead className="w-10">
+                <THead>
+                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                    <Th className="w-10">
                       <input
                         type="checkbox"
                         aria-label="Select all"
                         checked={allSelected}
                         onChange={(e) => handleToggleAll(e.target.checked)}
                       />
-                    </TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Code</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Issued to</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Value</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Balance</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Expiry</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Transferable</TableHead>
-                    <TableHead className="text-[var(--st-text-secondary)]">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                    </Th>
+                    <Th className="text-[var(--st-text-secondary)]">Code</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Issued to</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Value</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Balance</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Expiry</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Transferable</Th>
+                    <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {rows.length === 0 ? (
-                    <TableRow className="border-[var(--st-border)]">
-                      <TableCell
+                    <Tr className="border-[var(--st-border)]">
+                      <Td
                         colSpan={8}
                         className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         {isPending ? 'Loading…' : 'No gift cards match these filters.'}
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ) : (
                     rows.map((card, idx) => {
                       const id = getId(card, idx);
                       const checked = selected.has(id);
                       const issuedTo = resolveIssuedTo(card);
                       return (
-                        <TableRow key={id} className="border-[var(--st-border)]">
-                          <TableCell>
+                        <Tr key={id} className="border-[var(--st-border)]">
+                          <Td>
                             <input
                               type="checkbox"
                               aria-label={`Select ${card.code ?? id}`}
                               checked={checked}
                               onChange={() => handleToggleOne(id)}
                             />
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             <EntityRowLink
                               href={`/dashboard/crm/sales/gift-cards/${id}`}
                               label={card.code || 'Untitled card'}
                               subtitle={issuedTo !== '—' ? issuedTo : undefined}
                             />
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">{issuedTo}</TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">{issuedTo}</Td>
+                          <Td className="text-[var(--st-text)]">
                             {fmtINR(card.value)}
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             {fmtINR(card.balance)}
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             {fmtDate(card.expiryDate)}
-                          </TableCell>
-                          <TableCell className="text-[var(--st-text)]">
+                          </Td>
+                          <Td className="text-[var(--st-text)]">
                             {card.transferable === true
                               ? 'Yes'
                               : card.transferable === false
                                 ? 'No'
                                 : '—'}
-                          </TableCell>
-                          <TableCell>
+                          </Td>
+                          <Td>
                             <Badge variant={getStatusVariant(card.status)}>
                               {card.status || 'draft'}
                             </Badge>
-                          </TableCell>
-                        </TableRow>
+                          </Td>
+                        </Tr>
                       );
                     })
                   )}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
           </Card>

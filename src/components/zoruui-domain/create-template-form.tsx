@@ -1,25 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Label,
-  Input,
-  RadioGroup,
-  ZoruRadioGroupItem,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Label, Input, RadioGroup, ZoruRadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -400,10 +381,10 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
 
           {/* Common Details Card */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Template Details</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="grid md:grid-cols-2 gap-4">
+            <CardHeader>
+              <CardTitle>Template Details</CardTitle>
+            </CardHeader>
+            <CardBody className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Name</Label>
                 <Input name="name" value={templateName} onChange={(e) => setTemplateName(e.target.value)} placeholder="e.g., summer_promo" required />
@@ -413,28 +394,28 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                   <div className="space-y-2">
                     <Label>Category</Label>
                     <Select name="category" value={category} onValueChange={(v) => setCategory(v as any)} required>
-                      <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                      <ZoruSelectContent>{categories.map(c => <ZoruSelectItem key={c.id} value={c.id}>{c.name}</ZoruSelectItem>)}</ZoruSelectContent>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
                     <Label>Language</Label>
                     <Select name="language" value={language} onValueChange={setLanguage} required>
-                      <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                      <ZoruSelectContent>{languages.map(l => <ZoruSelectItem key={l.code} value={l.code}>{l.name}</ZoruSelectItem>)}</ZoruSelectContent>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{languages.map(l => <SelectItem key={l.code} value={l.code}>{l.name}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                 </>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* --- EDITOR CONTENT BY TYPE --- */}
 
           {(templateType === 'STANDARD' || templateType === 'MARKETING_CAROUSEL') && (
             <Card>
-              <ZoruCardHeader><ZoruCardTitle>{templateType === 'MARKETING_CAROUSEL' ? 'Carousel Introduction' : 'Message Content'}</ZoruCardTitle></ZoruCardHeader>
-              <ZoruCardContent className="space-y-6">
+              <CardHeader><CardTitle>{templateType === 'MARKETING_CAROUSEL' ? 'Carousel Introduction' : 'Message Content'}</CardTitle></CardHeader>
+              <CardBody className="space-y-6">
                 {/* Header - Only for Standard */}
                 {templateType === 'STANDARD' && (
                   <div className="space-y-3">
@@ -521,10 +502,10 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                   <Label>Footer (Optional)</Label>
                   <Input name="footer" value={footer} onChange={e => setFooter(e.target.value)} />
                 </div>
-              </ZoruCardContent>
+              </CardBody>
 
               {/* Buttons Editor for Standard - Moved inside main card to avoid overlap issues */}
-              <ZoruCardContent className="space-y-3 pt-0">
+              <CardBody className="space-y-3 pt-0">
                 <div className="flex items-center justify-between">
                   <Label className="text-base font-semibold">Buttons ({buttons.length})</Label>
                 </div>
@@ -579,7 +560,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                     <Button type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'URL', text: '', url: '' }])}>URL</Button>
                   </div>
                 )}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
 
@@ -590,18 +571,18 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
           {templateType === 'CATALOG_MESSAGE' && (
             <div className="space-y-6">
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Catalog Configuration</ZoruCardTitle>
-                  <ZoruCardDescription>Select a catalog and define your sections.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                <CardHeader>
+                  <CardTitle>Catalog Configuration</CardTitle>
+                  <CardDescription>Select a catalog and define your sections.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                   <div className="space-y-2">
                     <Label>Select Catalog</Label>
                     <Select value={catalogId} onValueChange={setCatalogId} required>
-                      <ZoruSelectTrigger><ZoruSelectValue placeholder="Choose a catalog..." /></ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        {catalogs.map(c => <ZoruSelectItem key={c.id} value={c.id}>{c.name} ({c.id})</ZoruSelectItem>)}
-                      </ZoruSelectContent>
+                      <SelectTrigger><SelectValue placeholder="Choose a catalog..." /></SelectTrigger>
+                      <SelectContent>
+                        {catalogs.map(c => <SelectItem key={c.id} value={c.id}>{c.name} ({c.id})</SelectItem>)}
+                      </SelectContent>
                     </Select>
                   </div>
 
@@ -617,21 +598,21 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                     <Label>Footer Text (Optional)</Label>
                     <Input value={catalogFooter} onChange={e => setCatalogFooter(e.target.value)} placeholder="Prices incl. VAT" />
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
 
               {/* Section 1 */}
               <Card>
-                <ZoruCardHeader className="flex flex-row items-center justify-between">
-                  <ZoruCardTitle className="text-base">Section 1</ZoruCardTitle>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-base">Section 1</CardTitle>
                   <ProductPicker
                     projectId={project?._id.toString() || ''}
                     catalogId={catalogId}
                     selectedIds={catalogSection1Ids}
                     onSelectionChange={setCatalogSection1Ids}
                   />
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                </CardHeader>
+                <CardBody className="space-y-4">
                   <div className="space-y-2">
                     <Label>Section Title</Label>
                     <Input value={catalogSection1Title} onChange={e => setCatalogSection1Title(e.target.value)} />
@@ -652,21 +633,21 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                       </div>
                     )}
                   </div>
-                </ZoruCardContent>
+                </CardBody>
               </Card>
 
               {/* Section 2 */}
               <Card>
-                <ZoruCardHeader className="flex flex-row items-center justify-between">
-                  <ZoruCardTitle className="text-base">Section 2 (Optional)</ZoruCardTitle>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-base">Section 2 (Optional)</CardTitle>
                   <ProductPicker
                     projectId={project?._id.toString() || ''}
                     catalogId={catalogId}
                     selectedIds={catalogSection2Ids}
                     onSelectionChange={setCatalogSection2Ids}
                   />
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                </CardHeader>
+                <CardBody className="space-y-4">
                   <div className="space-y-2">
                     <Label>Section Title</Label>
                     <Input value={catalogSection2Title} onChange={e => setCatalogSection2Title(e.target.value)} />
@@ -685,7 +666,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                       </div>
                     </div>
                   )}
-                </ZoruCardContent>
+                </CardBody>
               </Card>
             </div>
           )}
@@ -694,15 +675,15 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
         {/* Action Column */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="sticky top-6">
-            <ZoruCardHeader><ZoruCardTitle>Publish</ZoruCardTitle></ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader><CardTitle>Publish</CardTitle></CardHeader>
+            <CardBody>
               <p className="text-sm text-[var(--st-text-secondary)] mb-4">
                 {templateType === 'STANDARD' && "Submitting will send this template to Meta for review. Approval usually takes 1 minute."}
                 {templateType === 'MARKETING_CAROUSEL' && "Carousels are validated by Meta. Ensure all images are high quality."}
                 {templateType === 'CATALOG_MESSAGE' && "Product messages are saved locally and do NOT require Meta approval."}
               </p>
               <SubmitButton templateType={templateType} isAdminForm={isAdminForm} isBulkForm={isBulkForm} />
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
         </div>

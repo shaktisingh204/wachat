@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  ZoruCard,
-  ZoruButton,
-  ZoruSeparator,
-  ZoruAlert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  ZoruInput,
-  ZoruSelect,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSelectContent,
-  ZoruSelectItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Separator, Alert, AlertTitle, AlertDescription, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui/compat';
 import {
   Check,
   X,
@@ -166,12 +153,12 @@ export default function BillingPage() {
               Manage your subscription, top up your wallet credits, and view your billing history in one place.
             </p>
           </div>
-          <ZoruButton asChild variant="outline" className="bg-[var(--st-bg)] shadow-sm">
+          <Button asChild variant="outline" className="bg-[var(--st-bg)] shadow-sm">
             <Link href="/dashboard/user/billing/history">
               <History className="mr-2 h-4 w-4" />
               View Billing History
             </Link>
-          </ZoruButton>
+          </Button>
         </div>
       </motion.div>
 
@@ -179,33 +166,33 @@ export default function BillingPage() {
       <AnimatePresence>
         {paymentStatus === 'success' && (
           <motion.div variants={itemVariants} initial="hidden" animate="show" exit="hidden">
-            <ZoruAlert className="bg-[var(--st-status-ok)]/10 border-[var(--st-status-ok)]/20 text-[var(--st-status-ok)]">
+            <Alert className="bg-[var(--st-status-ok)]/10 border-[var(--st-status-ok)]/20 text-[var(--st-status-ok)]">
               <CheckCircle2 className="h-5 w-5 text-[var(--st-status-ok)]" />
-              <ZoruAlertTitle className="text-[var(--st-status-ok)] font-bold">Payment successful</ZoruAlertTitle>
-              <ZoruAlertDescription>
+              <AlertTitle className="text-[var(--st-status-ok)] font-bold">Payment successful</AlertTitle>
+              <AlertDescription>
                 Your payment has been processed successfully. Transaction ID: <span className="font-mono bg-white/50 px-1 rounded">{paymentTxn}</span>
-              </ZoruAlertDescription>
-            </ZoruAlert>
+              </AlertDescription>
+            </Alert>
           </motion.div>
         )}
         {paymentStatus === 'failed' && (
           <motion.div variants={itemVariants} initial="hidden" animate="show" exit="hidden">
-            <ZoruAlert variant="destructive" className="bg-[var(--st-danger)]/10 border-[var(--st-danger)]/20 text-[var(--st-danger)]">
+            <Alert variant="destructive" className="bg-[var(--st-danger)]/10 border-[var(--st-danger)]/20 text-[var(--st-danger)]">
               <AlertCircle className="h-5 w-5 text-[var(--st-danger)]" />
-              <ZoruAlertTitle className="text-[var(--st-danger)] font-bold">Payment failed</ZoruAlertTitle>
-              <ZoruAlertDescription>
+              <AlertTitle className="text-[var(--st-danger)] font-bold">Payment failed</AlertTitle>
+              <AlertDescription>
                 We couldn't process your payment. No funds were deducted. Please try again or contact support.
-              </ZoruAlertDescription>
-            </ZoruAlert>
+              </AlertDescription>
+            </Alert>
           </motion.div>
         )}
         {fetchError && (
           <motion.div variants={itemVariants} initial="hidden" animate="show" exit="hidden">
-            <ZoruAlert variant="destructive" className="bg-[var(--st-danger)]/10 border-[var(--st-danger)]/20 text-[var(--st-danger)]">
+            <Alert variant="destructive" className="bg-[var(--st-danger)]/10 border-[var(--st-danger)]/20 text-[var(--st-danger)]">
               <AlertCircle className="h-5 w-5 text-[var(--st-danger)]" />
-              <ZoruAlertTitle className="text-[var(--st-danger)] font-bold">Failed to load</ZoruAlertTitle>
-              <ZoruAlertDescription>{fetchError}</ZoruAlertDescription>
-            </ZoruAlert>
+              <AlertTitle className="text-[var(--st-danger)] font-bold">Failed to load</AlertTitle>
+              <AlertDescription>{fetchError}</AlertDescription>
+            </Alert>
           </motion.div>
         )}
       </AnimatePresence>
@@ -213,7 +200,7 @@ export default function BillingPage() {
       {/* Current Plan & Wallet Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         <motion.div variants={itemVariants} className="lg:col-span-8 flex flex-col">
-          <ZoruCard className="flex-1 shadow-md border-[var(--st-border)] overflow-hidden flex flex-col">
+          <Card className="flex-1 shadow-md border-[var(--st-border)] overflow-hidden flex flex-col">
             <div className="bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] p-6">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-[var(--st-text)]" />
@@ -244,7 +231,7 @@ export default function BillingPage() {
                 })}
               </div>
             </div>
-          </ZoruCard>
+          </Card>
         </motion.div>
         
         <motion.div variants={itemVariants} className="lg:col-span-4 flex flex-col h-full">
@@ -255,7 +242,7 @@ export default function BillingPage() {
       </div>
 
       <motion.div variants={itemVariants}>
-        <ZoruSeparator className="my-4 opacity-50" />
+        <Separator className="my-4 opacity-50" />
       </motion.div>
 
       {/* Pricing Tiers with Filters */}
@@ -268,24 +255,24 @@ export default function BillingPage() {
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
-              <ZoruInput
+              <Input
                 placeholder="Search plans..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 w-full sm:w-[200px]"
               />
             </div>
-            <ZoruSelect value={sortBy} onValueChange={setSortBy}>
-              <ZoruSelectTrigger className="w-full sm:w-[180px]">
-                <ZoruSelectValue placeholder="Sort by" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="price-asc">Price: Low to High</ZoruSelectItem>
-                <ZoruSelectItem value="price-desc">Price: High to Low</ZoruSelectItem>
-                <ZoruSelectItem value="name-asc">Name: A to Z</ZoruSelectItem>
-                <ZoruSelectItem value="name-desc">Name: Z to A</ZoruSelectItem>
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                <SelectItem value="name-asc">Name: A to Z</SelectItem>
+                <SelectItem value="name-desc">Name: Z to A</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

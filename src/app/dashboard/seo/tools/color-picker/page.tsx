@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Button, Card, ZoruCardContent, Input, Label, cn } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, Input, Label, cn } from '@/components/sabcrm/20ui/compat';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { useToast } from '@/hooks/use-toast';
 
@@ -185,7 +185,7 @@ function ColorPickerContent() {
     <ToolShell title="Color Picker" description="Pick and convert colors. Extract colors from a URL.">
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
-          <ZoruCardContent className="pt-6">
+          <CardBody className="pt-6">
             <h3 className="text-lg font-medium mb-4">Manual Picker</h3>
             <div className="flex items-center gap-4">
               <input type="color" value={hex} onChange={(e) => setHex(e.target.value)} className="h-24 w-24 border rounded cursor-pointer p-1" />
@@ -204,11 +204,11 @@ function ColorPickerContent() {
                 </div>
               </div>
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <ZoruCardContent className="pt-6">
+          <CardBody className="pt-6">
             <h3 className="text-lg font-medium mb-4">Extract from URL</h3>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -252,7 +252,7 @@ function ColorPickerContent() {
                 </div>
               )}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       </div>
     </ToolShell>

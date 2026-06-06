@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Skeleton, Card, ZoruCardContent, Table, ZoruTableHeader, ZoruTableRow, ZoruTableHead, ZoruTableBody, ZoruTableCell } from '@/components/sabcrm/20ui/compat';
+import { Skeleton, Card, CardBody, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 
 export default function CustomConversionsLoading() {
@@ -20,30 +20,30 @@ export default function CustomConversionsLoading() {
       </div>
 
       <Card>
-        <ZoruCardContent className="p-0">
+        <CardBody className="p-0">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Name</ZoruTableHead>
-                <ZoruTableHead>Event type</ZoruTableHead>
-                <ZoruTableHead>Last fired</ZoruTableHead>
-                <ZoruTableHead>Default value</ZoruTableHead>
-                <ZoruTableHead className="w-16" />
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Event type</Th>
+                <Th>Last fired</Th>
+                <Th>Default value</Th>
+                <Th className="w-16" />
+              </Tr>
+            </THead>
+            <TBody>
               {Array.from({ length: 5 }).map((_, i) => (
-                <ZoruTableRow key={i}>
-                  <ZoruTableCell><Skeleton className="h-5 w-32" /></ZoruTableCell>
-                  <ZoruTableCell><Skeleton className="h-5 w-24" /></ZoruTableCell>
-                  <ZoruTableCell><Skeleton className="h-5 w-24" /></ZoruTableCell>
-                  <ZoruTableCell><Skeleton className="h-5 w-16" /></ZoruTableCell>
-                  <ZoruTableCell><Skeleton className="h-8 w-8 rounded-full" /></ZoruTableCell>
-                </ZoruTableRow>
+                <Tr key={i}>
+                  <Td><Skeleton className="h-5 w-32" /></Td>
+                  <Td><Skeleton className="h-5 w-24" /></Td>
+                  <Td><Skeleton className="h-5 w-24" /></Td>
+                  <Td><Skeleton className="h-5 w-16" /></Td>
+                  <Td><Skeleton className="h-8 w-8 rounded-full" /></Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
     </div>
   );

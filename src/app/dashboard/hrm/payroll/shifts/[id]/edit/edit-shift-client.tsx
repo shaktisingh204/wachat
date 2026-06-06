@@ -3,24 +3,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ShiftForm } from '../../_components/shift-form';
 import type { CrmShiftDoc } from '@/lib/rust-client/crm-shifts';
-import { 
-    Button, 
-    Card, 
-    Input, 
-    Table, 
-    ZoruTableHeader, 
-    ZoruTableRow, 
-    ZoruTableHead, 
-    ZoruTableBody, 
-    ZoruTableCell,
-    Checkbox,
-    useZoruToast 
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, Input, Table, THead, Tr, Th, TBody, Td, Checkbox, useToast } from '@/components/sabcrm/20ui/compat';
 import { Download, Users, AlertCircle, FileText, Trash } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 export function EditShiftClient({ initial }: { initial: CrmShiftDoc }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     
     // WebSockets simulation for collaborative editing
     const [collabStatus, setCollabStatus] = useState<string>('Connected');

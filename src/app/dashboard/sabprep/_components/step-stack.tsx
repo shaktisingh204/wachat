@@ -3,15 +3,7 @@
 import * as React from 'react';
 import { ChevronDown, ChevronUp, Trash2, Plus, EyeOff, Eye } from 'lucide-react';
 
-import {
-    Card,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardContent,
-    Button,
-    Badge,
-    EmptyState,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody, Button, Badge, EmptyState } from '@/components/sabcrm/20ui/compat';
 import { STEP_CATALOG, type Step, type StepKind, type StepRunSummary } from '@/lib/rust-client/sabprep-steps';
 import { StepEditor } from './step-editor';
 
@@ -78,10 +70,10 @@ export function StepStack({ steps, columns, datasets, summaries, onChange }: Pro
 
     return (
         <Card>
-            <ZoruCardHeader>
-                <ZoruCardTitle className="text-sm">Steps</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-3">
+            <CardHeader>
+                <CardTitle className="text-sm">Steps</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-3">
                 {steps.length === 0 ? (
                     <EmptyState
                         icon={<Plus className="h-5 w-5" />}
@@ -93,7 +85,7 @@ export function StepStack({ steps, columns, datasets, summaries, onChange }: Pro
                         const summary = summaries.find((s) => s.stepIndex === idx);
                         return (
                             <Card key={step.id ?? idx} className="border-dashed">
-                                <ZoruCardHeader className="flex flex-row items-center justify-between gap-2 py-2">
+                                <CardHeader className="flex flex-row items-center justify-between gap-2 py-2">
                                     <div className="flex items-center gap-2">
                                         <Badge variant="outline">#{idx + 1}</Badge>
                                         <span className="text-sm font-medium">
@@ -145,22 +137,22 @@ export function StepStack({ steps, columns, datasets, summaries, onChange }: Pro
                                             <Trash2 className="h-3.5 w-3.5" />
                                         </Button>
                                     </div>
-                                </ZoruCardHeader>
-                                <ZoruCardContent>
+                                </CardHeader>
+                                <CardBody>
                                     <StepEditor
                                         step={step}
                                         columns={columns}
                                         datasets={datasets}
                                         onChange={(next) => updateAt(idx, next)}
                                     />
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
                         );
                     })
                 )}
 
                 <AddStepBar onAdd={addStep} />
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

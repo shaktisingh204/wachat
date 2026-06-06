@@ -1,4 +1,4 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { Plus } from 'lucide-react';
 
 /**
@@ -52,12 +52,12 @@ export default async function EWayBillsPage() {
 
             {/* Table card — delegated to client for filter + selection + export */}
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>All e-way bills</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                <CardHeader>
+                    <CardTitle>All e-way bills</CardTitle>
+                </CardHeader>
+                <CardBody>
                     <EWayBillsClient bills={bills} />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </EntityListShell>
     );
@@ -74,7 +74,7 @@ function Kpi({
 }) {
     return (
         <Card>
-            <ZoruCardContent className="flex items-center justify-between py-4">
+            <CardBody className="flex items-center justify-between py-4">
                 <div className="flex flex-col gap-1">
                     <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         {label}
@@ -82,7 +82,7 @@ function Kpi({
                     <span className="text-2xl font-semibold">{value}</span>
                 </div>
                 <Badge variant={variant}>{label}</Badge>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

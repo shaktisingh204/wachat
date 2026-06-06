@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Activity,
   Copy,
@@ -31,7 +31,7 @@ export interface NoticesDetailActionsProps {
 export function NoticesDetailActions({
     noticeId,
 }: NoticesDetailActionsProps): React.JSX.Element {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [confirmDelete, setConfirmDelete] = React.useState(false);
 
     const handleCopy = React.useCallback(async () => {

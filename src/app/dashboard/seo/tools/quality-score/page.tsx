@@ -1,12 +1,6 @@
 'use client';
 
-import { 
-  Input, Label, Card, ZoruCardContent, cn,
-  Tooltip, ZoruTooltipProvider, ZoruTooltipTrigger, ZoruTooltipContent,
-  Button,
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
-  ZoruCardHeader, ZoruCardTitle, ZoruCardDescription
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Card, CardBody, cn, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent, Button, Table, THead, TBody, Tr, Th, Td, CardHeader, CardTitle, CardDescription } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState, useEffect } from 'react';
 import { Info, Save, History, TrendingUp, MousePointerClick, Target, LayoutDashboard } from 'lucide-react';
 
@@ -89,17 +83,17 @@ export default function QualityScorePage() {
   };
 
   return (
-    <ZoruTooltipProvider>
+    <TooltipProvider>
       <ToolShell title="Quality Score Estimator" description="Composite Google Ads quality score from three signals. Evaluate expected CTR, ad relevance, and landing page experience.">
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div className="space-y-6">
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Score Signals</ZoruCardTitle>
-                <ZoruCardDescription>Adjust the metrics below (1-10) to see how they affect your overall Quality Score.</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-6">
+              <CardHeader>
+                <CardTitle>Score Signals</CardTitle>
+                <CardDescription>Adjust the metrics below (1-10) to see how they affect your overall Quality Score.</CardDescription>
+              </CardHeader>
+              <CardBody className="space-y-6">
                 {/* CTR Input */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -107,12 +101,12 @@ export default function QualityScorePage() {
                       <MousePointerClick className="w-4 h-4 text-[var(--st-text)]" />
                       Expected CTR
                       <Tooltip>
-                        <ZoruTooltipTrigger type="button" tabIndex={-1}>
+                        <TooltipTrigger type="button" tabIndex={-1}>
                           <Info className="w-4 h-4 text-[var(--st-text-secondary)] cursor-pointer" />
-                        </ZoruTooltipTrigger>
-                        <ZoruTooltipContent className="max-w-xs">
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
                           <p>How likely your ad is to be clicked when shown. Heavily weighted (40%). Improve by testing ad copy.</p>
-                        </ZoruTooltipContent>
+                        </TooltipContent>
                       </Tooltip>
                     </Label>
                     <span className="font-semibold">{ctr}/10</span>
@@ -140,12 +134,12 @@ export default function QualityScorePage() {
                       <Target className="w-4 h-4 text-[var(--st-text)]" />
                       Ad relevance
                       <Tooltip>
-                        <ZoruTooltipTrigger type="button" tabIndex={-1}>
+                        <TooltipTrigger type="button" tabIndex={-1}>
                           <Info className="w-4 h-4 text-[var(--st-text-secondary)] cursor-pointer" />
-                        </ZoruTooltipTrigger>
-                        <ZoruTooltipContent className="max-w-xs">
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
                           <p>How closely your ad matches the intent behind a user's search (30%). Improve with tighter ad groups.</p>
-                        </ZoruTooltipContent>
+                        </TooltipContent>
                       </Tooltip>
                     </Label>
                     <span className="font-semibold">{rel}/10</span>
@@ -173,12 +167,12 @@ export default function QualityScorePage() {
                       <LayoutDashboard className="w-4 h-4 text-[var(--st-text)]" />
                       Landing page
                       <Tooltip>
-                        <ZoruTooltipTrigger type="button" tabIndex={-1}>
+                        <TooltipTrigger type="button" tabIndex={-1}>
                           <Info className="w-4 h-4 text-[var(--st-text-secondary)] cursor-pointer" />
-                        </ZoruTooltipTrigger>
-                        <ZoruTooltipContent className="max-w-xs">
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
                           <p>How relevant and useful your website's landing page is (30%). Improve by optimizing page speed and relevance.</p>
-                        </ZoruTooltipContent>
+                        </TooltipContent>
                       </Tooltip>
                     </Label>
                     <span className="font-semibold">{lp}/10</span>
@@ -198,15 +192,15 @@ export default function QualityScorePage() {
                     />
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Save Campaign</ZoruCardTitle>
-                <ZoruCardDescription>Record this score configuration for future reference.</ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex gap-3">
+              <CardHeader>
+                <CardTitle>Save Campaign</CardTitle>
+                <CardDescription>Record this score configuration for future reference.</CardDescription>
+              </CardHeader>
+              <CardBody className="flex gap-3">
                 <Input 
                   placeholder="Campaign name..." 
                   value={campaignName} 
@@ -217,13 +211,13 @@ export default function QualityScorePage() {
                   <Save className="w-4 h-4 mr-2" />
                   Save
                 </Button>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
 
           <div className="space-y-6">
             <Card className="h-full flex flex-col justify-center">
-              <ZoruCardContent className="p-8 text-center space-y-4">
+              <CardBody className="p-8 text-center space-y-4">
                 <div className="text-[var(--st-text-secondary)] font-medium uppercase tracking-widest text-sm">Estimated Quality Score</div>
                 <div className={cn(
                   "text-8xl font-black",
@@ -239,17 +233,17 @@ export default function QualityScorePage() {
                 )}>
                   {label}
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle className="flex items-center gap-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-[var(--st-text)]" /> 
                   Improvement Suggestions
-                </ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-4 text-sm">
+                </CardTitle>
+              </CardHeader>
+              <CardBody className="space-y-4 text-sm">
                 <div className="flex gap-3">
                   <div className="w-1.5 rounded-full bg-[var(--st-text)] shrink-0" />
                   <div>
@@ -271,51 +265,51 @@ export default function QualityScorePage() {
                     <span className="text-[var(--st-text-secondary)]">{getLPSuggestion(lp)}</span>
                   </div>
                 </div>
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           </div>
         </div>
 
         {mounted && history.length > 0 && (
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle className="flex items-center gap-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
                 <History className="w-5 h-5" /> History
-              </ZoruCardTitle>
-              <ZoruCardDescription>Previously saved campaign estimates.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+              </CardTitle>
+              <CardDescription>Previously saved campaign estimates.</CardDescription>
+            </CardHeader>
+            <CardBody>
               <div className="overflow-x-auto">
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Campaign</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="text-right">Exp. CTR</TableHead>
-                      <TableHead className="text-right">Ad Rel.</TableHead>
-                      <TableHead className="text-right">Land. Page</TableHead>
-                      <TableHead className="text-right">Score</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                  <THead>
+                    <Tr>
+                      <Th>Campaign</Th>
+                      <Th>Date</Th>
+                      <Th className="text-right">Exp. CTR</Th>
+                      <Th className="text-right">Ad Rel.</Th>
+                      <Th className="text-right">Land. Page</Th>
+                      <Th className="text-right">Score</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {history.map((h) => (
-                      <TableRow key={h.id}>
-                        <TableCell className="font-medium">{h.campaign}</TableCell>
-                        <TableCell className="text-[var(--st-text-secondary)]">{h.date}</TableCell>
-                        <TableCell className="text-right">{h.ctr}</TableCell>
-                        <TableCell className="text-right">{h.rel}</TableCell>
-                        <TableCell className="text-right">{h.lp}</TableCell>
-                        <TableCell className="text-right font-bold text-[var(--st-text)]">{h.score.toFixed(1)}</TableCell>
-                      </TableRow>
+                      <Tr key={h.id}>
+                        <Td className="font-medium">{h.campaign}</Td>
+                        <Td className="text-[var(--st-text-secondary)]">{h.date}</Td>
+                        <Td className="text-right">{h.ctr}</Td>
+                        <Td className="text-right">{h.rel}</Td>
+                        <Td className="text-right">{h.lp}</Td>
+                        <Td className="text-right font-bold text-[var(--st-text)]">{h.score.toFixed(1)}</Td>
+                      </Tr>
                     ))}
-                  </TableBody>
+                  </TBody>
                 </Table>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         )}
 
       </ToolShell>
-    </ZoruTooltipProvider>
+    </TooltipProvider>
   );
 }

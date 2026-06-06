@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard } from '@/components/sabcrm/20ui/compat';
 import {
   BadgeCheck,
   CheckCircle2,
@@ -182,15 +172,15 @@ export function AdjustmentsFiltersRow({
                         })
                     }
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="__any">Any status</ZoruSelectItem>
-                        <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
-                        <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
-                        <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
-                    </ZoruSelectContent>
+                    <SelectTrigger>
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__any">Any status</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="approved">Approved</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
                 </Select>
             </div>
 
@@ -217,19 +207,19 @@ export function AdjustmentsFiltersRow({
                         onChange({ reason: v === '__any' ? '' : v })
                     }
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger>
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
                         {REASON_OPTIONS.map((r) => (
-                            <ZoruSelectItem
+                            <SelectItem
                                 key={r.value || '__any'}
                                 value={r.value || '__any'}
                             >
                                 {r.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
 

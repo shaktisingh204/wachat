@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   Terminal, FileCode, ArrowRight, Github, Command, Cpu, Code2, Layers, Shield
 } from 'lucide-react';
-import { Button, Badge, Card, Separator, ZoruKbd, ScrollArea } from '@/components/sabcrm/20ui/compat';
+import { Button, Badge, Card, Separator, Kbd, ScrollArea } from '@/components/sabcrm/20ui/compat';
 import { getSession } from '@/app/actions';
 
 export default function HomePage() {
@@ -118,7 +118,7 @@ export default function HomePage() {
             <Card className="bg-[var(--st-text)] border-[var(--st-border)] rounded-none overflow-hidden mb-8">
               <div className="bg-[var(--st-text)] border-b border-[var(--st-border)] px-4 py-2 flex items-center justify-between">
                 <span className="text-xs text-[var(--st-text-secondary)]">Request Example</span>
-                <ZoruKbd className="bg-[var(--st-text)] text-[var(--st-text-secondary)] border-none">bash</ZoruKbd>
+                <Kbd className="bg-[var(--st-text)] text-[var(--st-text-secondary)] border-none">bash</Kbd>
               </div>
               <div className="p-4 overflow-x-auto text-sm text-[var(--st-text-secondary)] whitespace-pre">
                 <code>

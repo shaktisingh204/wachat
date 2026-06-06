@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, Progress } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, Progress } from '@/components/sabcrm/20ui/compat';
 import {
   HardDrive } from 'lucide-react';
 
@@ -31,13 +31,13 @@ export default async function SabFilesStoragePage() {
             </div>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Cloud storage</ZoruCardTitle>
-                    <ZoruCardDescription>
+                <CardHeader>
+                    <CardTitle>Cloud storage</CardTitle>
+                    <CardDescription>
                         Files uploaded to SabFiles are stored in cloud storage.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="flex flex-col gap-3">
+                    </CardDescription>
+                </CardHeader>
+                <CardBody className="flex flex-col gap-3">
                     <div className="flex items-baseline justify-between">
                         <div>
                             <div className="text-2xl font-semibold text-[var(--st-text)]">
@@ -54,7 +54,7 @@ export default async function SabFilesStoragePage() {
                         )}
                     </div>
                     {pct !== null && <Progress value={pct} />}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

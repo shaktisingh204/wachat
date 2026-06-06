@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, ZoruAvatarFallback, Card } from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Card } from '@/components/sabcrm/20ui/compat';
 import Link from 'next/link';
 
 import { User, Building, FolderKanban } from 'lucide-react';
@@ -45,7 +45,7 @@ export function CrmDealCard({ deal, contact, account, taskCount = 0, index }: Cr
                             <span>{taskCount}</span>
                         </div>
                         <Avatar className="h-6 w-6">
-                            <ZoruAvatarFallback>A</ZoruAvatarFallback>
+                            <AvatarFallback>A</AvatarFallback>
                         </Avatar>
                     </div>
                 </Card>

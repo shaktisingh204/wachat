@@ -16,20 +16,8 @@ import { notFound } from 'next/navigation';
 import { getClientInvoiceById } from '@/app/actions/client-portal.actions';
 import { Badge } from '@/components/sabcrm/20ui/compat';
 import { Button } from '@/components/sabcrm/20ui/compat';
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
-import {
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
+import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 
 function fmtDate(iso: string | null): string {
     if (!iso) return '—';
@@ -56,9 +44,9 @@ async function ClientInvoiceDetailPageContent({
             </Link>
 
             <Card>
-                <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
+                <CardHeader className="flex flex-row items-start justify-between gap-3">
                     <div>
-                        <ZoruCardTitle>Invoice {invoice.invoiceNumber}</ZoruCardTitle>
+                        <CardTitle>Invoice {invoice.invoiceNumber}</CardTitle>
                         <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
                             Issued {fmtDate(invoice.invoiceDate)} · Due {fmtDate(invoice.dueDate)}
                         </p>
@@ -71,8 +59,8 @@ async function ClientInvoiceDetailPageContent({
                             </Button>
                         ) : null}
                     </div>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                         <div>
                             <dt className="text-xs text-[var(--st-text-secondary)]">Total</dt>
@@ -91,49 +79,49 @@ async function ClientInvoiceDetailPageContent({
                             <dd className="text-[var(--st-text)]">{invoice.currency}</dd>
                         </div>
                     </dl>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             {invoice.lineItems && invoice.lineItems.length > 0 ? (
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Line Items</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent className="p-0">
+                    <CardHeader>
+                        <CardTitle>Line Items</CardTitle>
+                    </CardHeader>
+                    <CardBody className="p-0">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Item</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Qty</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Rate</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Amount</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                            <THead>
+                                <Tr>
+                                    <Th>Item</Th>
+                                    <Th className="text-right">Qty</Th>
+                                    <Th className="text-right">Rate</Th>
+                                    <Th className="text-right">Amount</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
                                 {invoice.lineItems.map((li, idx) => {
                                     const qty = typeof li.quantity === 'number' ? li.quantity : 0;
                                     const rate = typeof li.rate === 'number' ? li.rate : 0;
                                     return (
-                                        <ZoruTableRow key={idx}>
-                                            <ZoruTableCell>
+                                        <Tr key={idx}>
+                                            <Td>
                                                 <div className="font-medium text-[var(--st-text)]">{li.name ?? '—'}</div>
                                                 {li.description ? (
                                                     <div className="text-xs text-[var(--st-text-secondary)]">{li.description}</div>
                                                 ) : null}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">{qty}</ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">{qty}</Td>
+                                            <Td className="text-right">
                                                 {fmtINR(rate, invoice.currency)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
+                                            </Td>
+                                            <Td className="text-right">
                                                 {fmtINR(qty * rate, invoice.currency)}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
+                                            </Td>
+                                        </Tr>
                                     );
                                 })}
-                            </ZoruTableBody>
+                            </TBody>
                         </Table>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             ) : null}
         </div>

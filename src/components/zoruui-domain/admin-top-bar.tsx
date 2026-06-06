@@ -4,16 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, LogOut, User } from 'lucide-react';
-import {
-    Badge,
-    DropdownMenu,
-    ZoruDropdownMenuTrigger,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuLabel,
-    ZoruDropdownMenuSeparator,
-    cn,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, cn } from '@/components/sabcrm/20ui/compat';
 
 // Map path segments to readable labels
 const labelMap: Record<string, string> = {
@@ -66,7 +57,7 @@ export function AdminTopBar() {
 
             {/* Admin user menu */}
             <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                     <button
                         className={cn(
                             'flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-sm transition-all',
@@ -84,14 +75,14 @@ export function AdminTopBar() {
                             Root
                         </Badge>
                     </button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end" className="w-52">
-                    <ZoruDropdownMenuLabel className="px-4 py-3">
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuLabel className="px-4 py-3">
                         <p className="text-xs font-normal text-[var(--st-text-secondary)]">Signed in as</p>
                         <p className="text-sm font-semibold text-[var(--st-text)] mt-0.5">Administrator</p>
-                    </ZoruDropdownMenuLabel>
-                    <ZoruDropdownMenuSeparator />
-                    <ZoruDropdownMenuItem asChild>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
                         <Link
                             href="/api/auth/admin-logout"
                             prefetch={false}
@@ -100,8 +91,8 @@ export function AdminTopBar() {
                             <LogOut className="h-4 w-4" />
                             Sign Out
                         </Link>
-                    </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
             </DropdownMenu>
         </header>
     );

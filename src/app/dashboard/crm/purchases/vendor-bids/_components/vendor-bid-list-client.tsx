@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Card, useToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <VendorBidListClient> — canonical Vendor Bids list view per
  * `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D (thin spec).
@@ -110,7 +110,7 @@ export function VendorBidListClient({
   defaultCurrency,
   error,
 }: VendorBidListClientProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   /* View + filters */
   const [view, setView] = React.useState<ViewMode>('table');

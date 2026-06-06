@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Label,
-  Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  useZoruToast,
-  ZoruSelectItem,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Label, Popover, PopoverContent, PopoverTrigger, useToast, SelectItem } from '@/components/sabcrm/20ui/compat';
 import {
   Download,
   SlidersHorizontal,
@@ -31,7 +21,7 @@ import { generateAttendanceReportData,
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
-import { ZoruDatePicker as DatePicker } from '@/components/sabcrm/20ui/compat';
+import { DatePicker } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
@@ -56,7 +46,7 @@ type Summary = {
     totalAbsent: number;
 };
 
-type ZoruSelectItem = { _id: string; name: string };
+type SelectItem = { _id: string; name: string };
 
 const StatCard = ({ title, value, sub, icon: Icon }: { title: string; value: string; sub?: string; icon: React.ElementType }) => (
     <Card className="flex flex-col gap-1 p-6">
@@ -78,10 +68,10 @@ function attendanceBadgeVariant(pct: number): 'success' | 'warning' | 'danger' {
 export default function AttendanceReportPage() {
     const [reportData, setReportData] = useState<AttendanceRow[]>([]);
     const [summary, setSummary] = useState<Summary>({ totalEmployees: 0, overallAttendance: 0, totalPresent: 0, totalAbsent: 0 });
-    const [employees, setEmployees] = useState<ZoruSelectItem[]>([]);
-    const [departments, setDepartments] = useState<ZoruSelectItem[]>([]);
+    const [employees, setEmployees] = useState<SelectItem[]>([]);
+    const [departments, setDepartments] = useState<SelectItem[]>([]);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [startDate, setStartDate] = useState<Date | undefined>(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
     const [endDate, setEndDate] = useState<Date | undefined>(new Date());
@@ -250,13 +240,13 @@ export default function AttendanceReportPage() {
             primaryAction={
                 <>
                     <Popover>
-                        <ZoruPopoverTrigger asChild>
+                        <PopoverTrigger asChild>
                             <Button variant="outline">
                                 <SlidersHorizontal className="h-4 w-4" />
                                 Filters
                             </Button>
-                        </ZoruPopoverTrigger>
-                            <ZoruPopoverContent className="w-80 space-y-4 p-4">
+                        </PopoverTrigger>
+                            <PopoverContent className="w-80 space-y-4 p-4">
                                 <div className="space-y-1.5">
                                     <Label className="text-[12.5px]">Start Date</Label>
                                     <DatePicker date={startDate} setDate={setStartDate} />
@@ -291,7 +281,7 @@ export default function AttendanceReportPage() {
                                     {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
                                     Apply Filters
                                 </Button>
-                            </ZoruPopoverContent>
+                            </PopoverContent>
                         </Popover>
                         <div className="flex gap-2">
                             <Button

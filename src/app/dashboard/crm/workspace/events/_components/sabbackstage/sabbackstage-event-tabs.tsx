@@ -9,13 +9,7 @@
  */
 
 import * as React from 'react';
-import {
-  Card,
-  Tabs,
-  ZoruTabsList,
-  ZoruTabsTrigger,
-  ZoruTabsContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
 
 import { SabbackstageTicketingTab } from './sabbackstage-ticketing-tab';
 import { SabbackstageSponsorsTab } from './sabbackstage-sponsors-tab';
@@ -37,24 +31,24 @@ export function SabbackstageEventTabs({
         SabBackstage — public ticketing
       </h3>
       <Tabs defaultValue="ticketing">
-        <ZoruTabsList>
-          <ZoruTabsTrigger value="ticketing">Ticketing</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="sponsors">Sponsors</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="public-page">Public page</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="checkin">Check-in</ZoruTabsTrigger>
-        </ZoruTabsList>
-        <ZoruTabsContent value="ticketing">
+        <TabsList>
+          <TabsTrigger value="ticketing">Ticketing</TabsTrigger>
+          <TabsTrigger value="sponsors">Sponsors</TabsTrigger>
+          <TabsTrigger value="public-page">Public page</TabsTrigger>
+          <TabsTrigger value="checkin">Check-in</TabsTrigger>
+        </TabsList>
+        <TabsContent value="ticketing">
           <SabbackstageTicketingTab eventId={eventId} />
-        </ZoruTabsContent>
-        <ZoruTabsContent value="sponsors">
+        </TabsContent>
+        <TabsContent value="sponsors">
           <SabbackstageSponsorsTab eventId={eventId} />
-        </ZoruTabsContent>
-        <ZoruTabsContent value="public-page">
+        </TabsContent>
+        <TabsContent value="public-page">
           <SabbackstagePublicPageTab eventId={eventId} eventName={eventName} />
-        </ZoruTabsContent>
-        <ZoruTabsContent value="checkin">
+        </TabsContent>
+        <TabsContent value="checkin">
           <SabbackstageCheckInTab eventId={eventId} />
-        </ZoruTabsContent>
+        </TabsContent>
       </Tabs>
     </Card>
   );

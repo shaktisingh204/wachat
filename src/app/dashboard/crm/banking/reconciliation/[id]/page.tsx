@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Paperclip, Pencil, Sparkles, CheckCircle2, Clock } from 'lucide-react';
@@ -103,10 +103,10 @@ async function ReconciliationDetail({ id }: { id: string }) {
             }
             rightRail={
                 <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Reconciliation Details</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
+                    <CardHeader>
+                        <CardTitle>Reconciliation Details</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <dl className="space-y-1">
                             <Field label="Account ID" value={<span className="font-mono text-xs">{recon.accountId}</span>} />
                             <Field label="Period Start" value={fmtDate(recon.periodStart)} />
@@ -131,7 +131,7 @@ async function ReconciliationDetail({ id }: { id: string }) {
                                 </div>
                             </div>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             }
             audit={<EntityAuditTimeline entityKind="reconciliation" entityId={id} />}
@@ -198,16 +198,16 @@ async function ReconciliationDetail({ id }: { id: string }) {
 
                 {rest && (
                     <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Notes</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
+                        <CardHeader>
+                            <CardTitle>Notes</CardTitle>
+                        </CardHeader>
+                        <CardBody>
                             <div className="rounded-lg bg-[var(--st-bg-secondary)] p-4 border border-[var(--st-border)]/50">
                                 <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-[var(--st-text)]">
                                     {rest}
                                 </p>
                             </div>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 )}
             </div>

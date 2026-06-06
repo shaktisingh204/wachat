@@ -1,15 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import {
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Badge,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Table, TBody, Td, Th, THead, Tr, Badge } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -211,64 +202,64 @@ export default async function TaxReportPage(props: {
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Period</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Tax type</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Collected</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Paid</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Net</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Action</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">Period</Th>
+                <Th className="text-[var(--st-text-secondary)]">Tax type</Th>
+                <Th className="text-[var(--st-text-secondary)]">Status</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Collected</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Paid</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Net</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Action</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={7}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No data for selected filters.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 pageRows.map((r) => {
                   const taxType = labelTaxType(r);
                   const taxStatus = labelTaxStatus(r);
                   return (
-                    <ZoruTableRow key={r.period} className="border-[var(--st-border)]">
-                      <ZoruTableCell>
+                    <Tr key={r.period} className="border-[var(--st-border)]">
+                      <Td>
                         <EntityRowLink
                           href={`/dashboard/sabbi/reports/gstr-1?period=${r.period}`}
                           label={r.period}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">{taxType}</ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">{taxType}</Td>
+                      <Td>
                         <Badge variant={statusVariant[taxStatus]}>{taxStatus}</Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-status-ok)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-status-ok)]">
                         {fmtMoney(r.collected)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-danger)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-danger)]">
                         {fmtMoney(r.paid)}
-                      </ZoruTableCell>
-                      <ZoruTableCell
+                      </Td>
+                      <Td
                         className={`text-right text-[13px] font-medium ${
                           r.net >= 0 ? 'text-[var(--st-warn)]' : 'text-[var(--st-status-ok)]'
                         }`}
                       >
                         {fmtMoney(r.net)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td className="text-right">
                         <TaxSettlementButton period={r.period} taxType={taxType} amount={r.net} />
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

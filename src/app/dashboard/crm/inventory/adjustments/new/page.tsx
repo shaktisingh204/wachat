@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Input,
-  Label,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter } from 'next/navigation';
 import { Plus,
@@ -64,7 +58,7 @@ function createEmptyLine(key: string): LineRow {
 
 export default function NewStockAdjustmentPage() {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [warehouseId, setWarehouseId] = React.useState<string>('');
     const [approverId, setApproverId] = React.useState<string>('');

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Switch, Separator, Card, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Switch, Separator, Card, useToast } from '@/components/sabcrm/20ui/compat';
 import { useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Server, Save } from 'lucide-react';
@@ -29,7 +29,7 @@ interface CrmSmtpFormProps {
 
 export function CrmSmtpForm({ settings }: CrmSmtpFormProps) {
     const [state, formAction] = useActionState(saveCrmEmailSettings as any, initialState as any);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (state.message) toast({ title: 'Success!', description: state.message });

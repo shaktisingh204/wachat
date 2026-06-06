@@ -1,19 +1,6 @@
 "use client";
 
-import {
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Badge,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useParams } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
@@ -217,14 +204,14 @@ export default function FlowBuilderDocsPage() {
       </div>
 
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Using variables</ZoruCardTitle>
-          <ZoruCardDescription>
+        <CardHeader>
+          <CardTitle>Using variables</CardTitle>
+          <CardDescription>
             Variables let you personalize your flows and use data
             dynamically.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4 text-sm">
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4 text-sm">
           <p>
             Variables are placeholders for data that can change, such as a
             user&rsquo;s name or their answer to a question. In the Flow
@@ -257,7 +244,7 @@ export default function FlowBuilderDocsPage() {
             </Badge>{" "}
             (the user&rsquo;s unique Page-Scoped ID).
           </p>
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <Separator />
@@ -273,11 +260,11 @@ export default function FlowBuilderDocsPage() {
 
       <Accordion type="single" collapsible className="w-full">
         {blockDocs.map((doc, index) => (
-          <ZoruAccordionItem value={`item-${index}`} key={index}>
-            <ZoruAccordionTrigger className="text-base">
+          <AccordionItem value={`item-${index}`} key={index}>
+            <AccordionTrigger className="text-base">
               {doc.title}
-            </ZoruAccordionTrigger>
-            <ZoruAccordionContent className="space-y-4 pt-2">
+            </AccordionTrigger>
+            <AccordionContent className="space-y-4 pt-2">
               <p className="text-[14px] text-[var(--st-text-secondary)]">
                 {doc.description}
               </p>
@@ -310,8 +297,8 @@ export default function FlowBuilderDocsPage() {
                   </p>
                 </div>
               ) : null}
-            </ZoruAccordionContent>
-          </ZoruAccordionItem>
+            </AccordionContent>
+          </AccordionItem>
         ))}
       </Accordion>
     </div>

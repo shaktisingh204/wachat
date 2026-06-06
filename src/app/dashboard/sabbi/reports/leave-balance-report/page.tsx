@@ -2,16 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
 
-import {
-  Badge,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui/compat';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -138,67 +129,67 @@ export default async function LeaveBalanceReportPage(props: PageProps) {
       <Card className="p-0">
         <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
-                <ZoruTableHead className="text-[var(--st-text-secondary)]">Leave Type</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Allocated</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Used</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Remaining</ZoruTableHead>
-                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Expires</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                <Th className="text-[var(--st-text-secondary)]">Employee</Th>
+                <Th className="text-[var(--st-text-secondary)]">Department</Th>
+                <Th className="text-[var(--st-text-secondary)]">Leave Type</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Allocated</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Used</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Remaining</Th>
+                <Th className="text-right text-[var(--st-text-secondary)]">Expires</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-[var(--st-border)]">
-                  <ZoruTableCell
+                <Tr className="border-[var(--st-border)]">
+                  <Td
                     colSpan={7}
                     className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No employees or leave types configured.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ) : (
                 pageRows.map((r, i) => {
                   const low = r.allocated > 0 && r.remaining / r.allocated < 0.2;
                   const isNegative = r.remaining < 0;
                   return (
-                    <ZoruTableRow
+                    <Tr
                       key={`${r.employeeId}-${r.leaveTypeName}-${i}`}
                       className={`border-[var(--st-border)] ${isNegative ? 'bg-[var(--st-text)]/10 hover:bg-[var(--st-text)]/20' : ''}`}
                     >
-                      <ZoruTableCell>
+                      <Td>
                         <EntityRowLink
                           href={`/dashboard/crm/hr-payroll/employees/${r.employeeId}`}
                           label={r.employeeName}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         <Badge variant="outline">{r.department}</Badge>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-[13px] text-[var(--st-text)]">
                         {r.leaveTypeName}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-text)]">
                         {r.allocated}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-text)]">
                         {r.used}
-                      </ZoruTableCell>
-                      <ZoruTableCell
+                      </Td>
+                      <Td
                         className={`text-right text-[13px] font-medium ${low ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}
                       >
                         {r.remaining}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                      </Td>
+                      <Td className="text-right text-[13px] text-[var(--st-text-secondary)]">
                         {r.expiresAt ? r.expiresAt.slice(0, 10) : '—'}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </div>
       </Card>

@@ -1,25 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  Input,
-  ScrollArea,
-  Separator,
-  Skeleton,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetTitle,
-  ZoruSheetTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, ScrollArea, Separator, Skeleton, Alert, AlertDescription, AlertTitle, Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -153,11 +134,11 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
     if (!content) return null;
 
     return (
-        <ZoruCardContent className="p-2 pt-0">
+        <CardBody className="p-2 pt-0">
             <div className="bg-[var(--st-bg-muted)] p-2 rounded-lg text-sm text-[var(--st-text)]/80">
                 {content}
             </div>
-        </ZoruCardContent>
+        </CardBody>
     );
 };
 
@@ -199,12 +180,12 @@ const NodeComponent = ({
             onClick={(e) => { e.stopPropagation(); onSelectNode(node.id); }}
         >
             <Card className={cn("w-64 hover:shadow-xl hover:-translate-y-1 bg-[var(--st-bg-secondary)]", isSelected && "ring-2 ring-primary shadow-2xl")}>
-                <ZoruCardHeader className="flex flex-row items-center gap-3 p-3">
+                <CardHeader className="flex flex-row items-center gap-3 p-3">
                     <BlockIcon className="h-5 w-5 text-[var(--st-text-secondary)]" />
-                    <ZoruCardTitle className="text-sm font-medium">{node.data.label}</ZoruCardTitle>
-                </ZoruCardHeader>
+                    <CardTitle className="text-sm font-medium">{node.data.label}</CardTitle>
+                </CardHeader>
                 <NodePreview node={node} />
-                 {node.type === 'condition' && ( <ZoruCardContent className="p-3 pt-0 text-xs text-[var(--st-text-secondary)]"><div className="flex justify-between items-center"><span>Yes</span></div><Separator className="my-1"/><div className="flex justify-between items-center"><span>No</span></div></ZoruCardContent>)}
+                 {node.type === 'condition' && ( <CardBody className="p-3 pt-0 text-xs text-[var(--st-text-secondary)]"><div className="flex justify-between items-center"><span>Yes</span></div><Separator className="my-1"/><div className="flex justify-between items-center"><span>No</span></div></CardBody>)}
             </Card>
 
             {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} style={{top: '50%', transform: 'translateY(-50%)'}} />}
@@ -246,11 +227,11 @@ const FlowsAndBlocksPanel = ({
 }) => (
     <>
         <Card>
-            <ZoruCardHeader className="flex-row items-center justify-between p-3">
-                <ZoruCardTitle className="text-base">Flows</ZoruCardTitle>
+            <CardHeader className="flex-row items-center justify-between p-3">
+                <CardTitle className="text-base">Flows</CardTitle>
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCreateNewFlow}><Plus/></Button>
-            </ZoruCardHeader>
-            <ZoruCardContent className="p-2 pt-0">
+            </CardHeader>
+            <CardBody className="p-2 pt-0">
                 <ScrollArea className="h-40">
                     {isLoading && flows.length === 0 ? <Skeleton className="h-full w-full"/> : 
                         flows.map(flow => (
@@ -270,11 +251,11 @@ const FlowsAndBlocksPanel = ({
                         ))
                     }
                 </ScrollArea>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
         <Card className="flex-1 flex flex-col">
-            <ZoruCardHeader className="p-3"><ZoruCardTitle className="text-base">Blocks</ZoruCardTitle></ZoruCardHeader>
-            <ZoruCardContent className="space-y-2 p-2 pt-0 flex-1 min-h-0">
+            <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
+            <CardBody className="space-y-2 p-2 pt-0 flex-1 min-h-0">
                 <ScrollArea className="h-full">
                     {blockTypes.map(({ type, label, icon: Icon }) => (
                         <Button key={type} variant="outline" className="w-full justify-start mb-2" onClick={() => addNode(type as NodeType)}>
@@ -283,7 +264,7 @@ const FlowsAndBlocksPanel = ({
                         </Button>
                     ))}
                 </ScrollArea>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     </>
 );
@@ -567,10 +548,10 @@ export function FlowBuilder() {
              <div className="h-full flex items-center justify-center p-4">
                 <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
-                    <ZoruAlertDescription>
+                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertDescription>
                         Please select a project from the main dashboard to use the Flow Builder.
-                    </ZoruAlertDescription>
+                    </AlertDescription>
                 </Alert>
             </div>
         );
@@ -600,10 +581,10 @@ export function FlowBuilder() {
                             Save
                         </Button>
                         <Sheet open={isPropsSheetOpen} onOpenChange={setIsPropsSheetOpen}>
-                             <ZoruSheetTrigger asChild>
+                             <SheetTrigger asChild>
                                 <Button variant="outline" size="icon" className="md:hidden" disabled={!selectedNode}><Settings2 className="h-5 w-5" /></Button>
-                            </ZoruSheetTrigger>
-                            <ZoruSheetContent side="right" className="p-0 flex flex-col"><ZoruSheetTitle className="sr-only">Properties</ZoruSheetTitle><ZoruSheetDescription className="sr-only">Configure the selected block.</ZoruSheetDescription>{selectedNode && <PropertiesPanel {...({ node: selectedNode, onUpdate: updateNodeData, deleteNode: deleteNode, availableVariables: [] } as any)} />}</ZoruSheetContent>
+                            </SheetTrigger>
+                            <SheetContent side="right" className="p-0 flex flex-col"><SheetTitle className="sr-only">Properties</SheetTitle><SheetDescription className="sr-only">Configure the selected block.</SheetDescription>{selectedNode && <PropertiesPanel {...({ node: selectedNode, onUpdate: updateNodeData, deleteNode: deleteNode, availableVariables: [] } as any)} />}</SheetContent>
                         </Sheet>
                     </div>
                  </header>
@@ -654,22 +635,22 @@ export function FlowBuilder() {
                     </aside>
                  </main>
                   <Card className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-lg shadow-2xl">
-                    <ZoruCardContent className="p-2">
+                    <CardBody className="p-2">
                         <div className="flex items-center gap-2">
                             <Input placeholder="Describe your workflow and let AI build it..." className="border-none shadow-none focus-visible:ring-0" value={prompt} onChange={e => setPrompt(e.target.value)} />
                             <Button onClick={handleGenerateClick} disabled={isGenerating || !prompt.trim()}>
                                 {isGenerating && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Generate
                             </Button>
                         </div>
-                    </ZoruCardContent>
+                    </CardBody>
                 </Card>
             </div>
             <Sheet open={isBlocksSheetOpen} onOpenChange={setIsBlocksSheetOpen}>
-                <ZoruSheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
-                    <ZoruSheetTitle className="sr-only">Flows and Blocks</ZoruSheetTitle>
-                    <ZoruSheetDescription className="sr-only">A list of flows and draggable blocks.</ZoruSheetDescription>
+                <SheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
+                    <SheetTitle className="sr-only">Flows and Blocks</SheetTitle>
+                    <SheetDescription className="sr-only">A list of flows and draggable blocks.</SheetDescription>
                     <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
-                </ZoruSheetContent>
+                </SheetContent>
             </Sheet>
             <TestFlowDialog open={isTestDialogOpen} onOpenChange={setIsTestDialogOpen} nodes={nodes} edges={edges} />
         </div>

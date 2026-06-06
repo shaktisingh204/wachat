@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Input,
-  Label,
-  Switch,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Switch, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui/compat';
 interface EditorProps {
   node: any;
   onUpdate: (data: any) => void;
@@ -54,15 +45,15 @@ export function DelayEditor({ node, onUpdate }: EditorProps) {
               });
             }}
           >
-            <ZoruSelectTrigger id="delay-unit">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="seconds">Seconds</ZoruSelectItem>
-              <ZoruSelectItem value="minutes">Minutes</ZoruSelectItem>
-              <ZoruSelectItem value="hours">Hours</ZoruSelectItem>
-              <ZoruSelectItem value="days">Days</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger id="delay-unit">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="seconds">Seconds</SelectItem>
+              <SelectItem value="minutes">Minutes</SelectItem>
+              <SelectItem value="hours">Hours</SelectItem>
+              <SelectItem value="days">Days</SelectItem>
+            </SelectContent>
           </Select>
         </div>
       </div>

@@ -1,13 +1,13 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import { LoaderCircle, SplitSquareVertical } from 'lucide-react';
 import { useTransition } from 'react';
 import { splitSalesOrderBackorderAction } from '@/app/actions/crm/sales-orders-split.actions';
 
 export function SplitBackorderedButton({ salesOrderId }: { salesOrderId: string }) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleSplit = () => {
     startTransition(async () => {

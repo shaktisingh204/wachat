@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Textarea, ZoruDynamicSelector, ZoruToaster, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Label, Textarea, ZoruDynamicSelector, ZoruToaster, useToast } from '@/components/sabcrm/20ui/compat';
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Plus, Trash, Upload, Loader2, Download } from 'lucide-react';
@@ -43,7 +43,7 @@ export default function RobotsTxtGeneratorPage() {
   
   const [importUrl, setImportUrl] = useState('');
   const [importing, setImporting] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const addGroup = () => {
     setGroups([...groups, { id: Math.random().toString(36).substring(7), ua: '*', disallow: '', allow: '', crawlDelay: '' }]);

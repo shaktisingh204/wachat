@@ -1,19 +1,6 @@
 "use client";
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui/compat';
 /**
  * Local Meta Suite › Commerce shells.
  *
@@ -52,52 +39,52 @@ export function CommerceBreadcrumb({
 }) {
   return (
     <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard/facebook">
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard/facebook">
             Meta Suite
-          </ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
           {parentLabel || pageLabel ? (
-            <ZoruBreadcrumbLink href="/dashboard/facebook/commerce/shop">
+            <BreadcrumbLink href="/dashboard/facebook/commerce/shop">
               Commerce
-            </ZoruBreadcrumbLink>
+            </BreadcrumbLink>
           ) : (
-            <ZoruBreadcrumbPage>Commerce</ZoruBreadcrumbPage>
+            <BreadcrumbPage>Commerce</BreadcrumbPage>
           )}
-        </ZoruBreadcrumbItem>
+        </BreadcrumbItem>
         {parentLabel ? (
           <>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
               {parentHref ? (
-                <ZoruBreadcrumbLink href={parentHref}>
+                <BreadcrumbLink href={parentHref}>
                   {section}
-                </ZoruBreadcrumbLink>
+                </BreadcrumbLink>
               ) : (
-                <ZoruBreadcrumbPage>{section}</ZoruBreadcrumbPage>
+                <BreadcrumbPage>{section}</BreadcrumbPage>
               )}
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>{parentLabel}</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{parentLabel}</BreadcrumbPage>
+            </BreadcrumbItem>
           </>
         ) : (
           <>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>{pageLabel ?? section}</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{pageLabel ?? section}</BreadcrumbPage>
+            </BreadcrumbItem>
           </>
         )}
-      </ZoruBreadcrumbList>
+      </BreadcrumbList>
     </Breadcrumb>
   );
 }
@@ -115,14 +102,14 @@ export function CommerceHeader({
 }) {
   return (
     <PageHeader className="mt-5">
-      <ZoruPageHeading>
-        <ZoruPageEyebrow>{eyebrow}</ZoruPageEyebrow>
-        <ZoruPageTitle>{title}</ZoruPageTitle>
+      <PageHeading>
+        <PageEyebrow>{eyebrow}</PageEyebrow>
+        <PageTitle>{title}</PageTitle>
         {description ? (
-          <ZoruPageDescription>{description}</ZoruPageDescription>
+          <PageDescription>{description}</PageDescription>
         ) : null}
-      </ZoruPageHeading>
-      {actions ? <ZoruPageActions>{actions}</ZoruPageActions> : null}
+      </PageHeading>
+      {actions ? <PageActions>{actions}</PageActions> : null}
     </PageHeader>
   );
 }

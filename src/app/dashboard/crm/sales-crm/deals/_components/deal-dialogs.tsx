@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 /**
  * Shared dialogs for the Deals detail action group.
  *
@@ -47,7 +30,7 @@ export function DealEmailDialog({
   dealId,
   initialTo = '',
 }: DealEmailDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [to, setTo] = React.useState(initialTo);
   const [subject, setSubject] = React.useState('');
   const [body, setBody] = React.useState('');
@@ -77,13 +60,13 @@ export function DealEmailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Compose email</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Compose email</DialogTitle>
+          <DialogDescription>
             Quick-compose a message — the SMTP relay lands later but the audit is recorded now.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div className="space-y-1">
             <Label htmlFor="deal-email-to">To</Label>
@@ -115,15 +98,15 @@ export function DealEmailDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
             Cancel
           </Button>
           <Button onClick={handleSend} disabled={pending}>
             {pending ? 'Sending…' : 'Send'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -152,7 +135,7 @@ export function DealWhatsAppDialog({
   initialPhone = '',
   templates = DEFAULT_TEMPLATES,
 }: DealWhatsAppDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [phone, setPhone] = React.useState(initialPhone);
   const [templateId, setTemplateId] = React.useState(templates[0]?.id ?? '');
   const [message, setMessage] = React.useState(templates[0]?.body ?? '');
@@ -193,11 +176,11 @@ export function DealWhatsAppDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Send via WhatsApp</ZoruDialogTitle>
-          <ZoruDialogDescription>Opens WhatsApp Web/App with your prepared message.</ZoruDialogDescription>
-        </ZoruDialogHeader>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Send via WhatsApp</DialogTitle>
+          <DialogDescription>Opens WhatsApp Web/App with your prepared message.</DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div className="space-y-1">
             <Label htmlFor="deal-wa-phone">Phone (with country code)</Label>
@@ -211,16 +194,16 @@ export function DealWhatsAppDialog({
           <div className="space-y-1">
             <Label>Template</Label>
             <Select value={templateId} onValueChange={handleTemplateChange}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {templates.map((t) => (
-                  <ZoruSelectItem key={t.id} value={t.id}>
+                  <SelectItem key={t.id} value={t.id}>
                     {t.name}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
@@ -233,15 +216,15 @@ export function DealWhatsAppDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
             Cancel
           </Button>
           <Button onClick={handleSend} disabled={pending}>
             {pending ? 'Opening…' : 'Open WhatsApp'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -268,7 +251,7 @@ export function DealWonLossDialog({
   reasons,
   onCompleted,
 }: DealWonLossDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [pickedReason, setPickedReason] = React.useState<string>('');
   const [freeReason, setFreeReason] = React.useState('');
   const [pending, setPending] = React.useState(false);
@@ -302,16 +285,16 @@ export function DealWonLossDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
             {outcome === 'won' ? 'Mark deal as won' : 'Mark deal as lost'}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
+          </DialogTitle>
+          <DialogDescription>
             Record why this deal {outcome === 'won' ? 'closed' : 'was lost'} — it powers your
             pipeline analytics.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           {/* TODO 1E.sweep: `reasons` is a runtime list from props (per-tenant
               configured win/loss reasons). Once we model `dealReasonsEnum` as
@@ -322,17 +305,17 @@ export function DealWonLossDialog({
             <div className="space-y-1">
               <Label>Reason</Label>
               <Select value={pickedReason} onValueChange={setPickedReason}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Select a reason" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a reason" />
+                </SelectTrigger>
+                <SelectContent>
                   {reasons.map((r) => (
-                    <ZoruSelectItem key={r} value={r}>
+                    <SelectItem key={r} value={r}>
                       {r}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                  <ZoruSelectItem value="__custom__">Other (write below)</ZoruSelectItem>
-                </ZoruSelectContent>
+                  <SelectItem value="__custom__">Other (write below)</SelectItem>
+                </SelectContent>
               </Select>
             </div>
           ) : null}
@@ -349,15 +332,15 @@ export function DealWonLossDialog({
             </div>
           ) : null}
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
             Cancel
           </Button>
           <Button onClick={handleConfirm} disabled={pending}>
             {pending ? 'Saving…' : outcome === 'won' ? 'Mark won' : 'Mark lost'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -377,7 +360,7 @@ export function DealAddTaskDialog({
   dealId,
   onCreated,
 }: DealAddTaskDialogProps) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [title, setTitle] = React.useState('');
   const [due, setDue] = React.useState('');
   const [pending, setPending] = React.useState(false);
@@ -413,11 +396,11 @@ export function DealAddTaskDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent>
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Add task</ZoruDialogTitle>
-          <ZoruDialogDescription>Linked to this deal.</ZoruDialogDescription>
-        </ZoruDialogHeader>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add task</DialogTitle>
+          <DialogDescription>Linked to this deal.</DialogDescription>
+        </DialogHeader>
         <div className="space-y-3 py-2">
           <div className="space-y-1">
             <Label htmlFor="deal-task-title">Title</Label>
@@ -438,15 +421,15 @@ export function DealAddTaskDialog({
             />
           </div>
         </div>
-        <ZoruDialogFooter>
+        <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
             Cancel
           </Button>
           <Button onClick={handleCreate} disabled={pending}>
             {pending ? 'Saving…' : 'Create task'}
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

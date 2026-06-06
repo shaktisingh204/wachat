@@ -1,21 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  ZoruAvatarFallback,
-  Badge,
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Avatar, AvatarFallback, Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useRouter,
   usePathname } from 'next/navigation';
@@ -103,7 +88,7 @@ export function ActivityFeed({
 }: ActivityFeedProps): React.JSX.Element {
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [filters, setFilters] = React.useState(initialFilters);
   const [involvingMe, setInvolvingMe] = React.useState(false);
 
@@ -222,17 +207,17 @@ export function ActivityFeed({
                 setFilters((f) => ({ ...f, resourceType: v === 'all' ? '' : v }))
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="All" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All entities</ZoruSelectItem>
+              <SelectTrigger>
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All entities</SelectItem>
                 {ENTITY_KEYS.map((k) => (
-                  <ZoruSelectItem key={k} value={k}>
+                  <SelectItem key={k} value={k}>
                     {k}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="w-36">
@@ -333,9 +318,9 @@ function BucketCard({ title, rows }: { title: string; rows: Row[] }): React.JSX.
         {rows.map((a) => (
           <li key={a._id} className="flex items-start gap-3 p-4">
             <Avatar className="h-8 w-8">
-              <ZoruAvatarFallback>
+              <AvatarFallback>
                 <UserIcon className="h-4 w-4" />
-              </ZoruAvatarFallback>
+              </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2 text-[13px] text-[var(--st-text)]">

@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/sabcrm/20ui/compat';
 import {
   useState,
   useEffect,
@@ -120,7 +109,7 @@ function DisconnectDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
@@ -129,19 +118,19 @@ function DisconnectDialog({
         >
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-[420px]">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="text-[16px] font-semibold text-[var(--st-text)]">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[420px]">
+        <DialogHeader>
+          <DialogTitle className="text-[16px] font-semibold text-[var(--st-text)]">
             Disconnect ad account?
-          </ZoruDialogTitle>
-          <ZoruDialogDescription className="text-[13px] text-[var(--st-text-secondary)]">
+          </DialogTitle>
+          <DialogDescription className="text-[13px] text-[var(--st-text-secondary)]">
             Are you sure you want to disconnect{' '}
             <strong className="text-[var(--st-text)]">{account.name}</strong>? This
             will remove it from your dashboard but will not affect the account
             on Facebook.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="flex items-center gap-3 rounded-xl bg-[var(--st-bg-muted)]/40 p-3.5 text-[12px] text-[var(--st-text)]">
           <TriangleAlert className="h-4 w-4 shrink-0" />
@@ -151,7 +140,7 @@ function DisconnectDialog({
           </span>
         </div>
 
-        <ZoruDialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="gap-2 sm:gap-0">
           <Button
             variant="outline"
             size="sm"
@@ -171,8 +160,8 @@ function DisconnectDialog({
             ) : null}
             Disconnect
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

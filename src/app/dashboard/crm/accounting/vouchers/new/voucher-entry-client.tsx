@@ -1,23 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Button,
-  Card,
-  DatePicker,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Separator,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertTitle, Button, Card, DatePicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 /**
  * <NewVoucherEntryClient> — moved from the previous `/new/page.tsx`.
  * Records a single voucher entry (debit + credit legs). The book form
@@ -183,7 +166,7 @@ interface NewVoucherEntryClientProps {
 export function NewVoucherEntryClient({ presetBookId, initialUser, initialVoucherBooks }: NewVoucherEntryClientProps) {
     const [state, formAction] = useActionState(saveVoucherEntry, initialState);
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [user] = useState<{ businessProfile?: { name?: string } } | null>(initialUser);
     const [voucherBooks] = useState<WithId<CrmVoucherBook>[]>(initialVoucherBooks);
@@ -324,13 +307,13 @@ export function NewVoucherEntryClient({ presetBookId, initialUser, initialVouche
                     {!businessProfile?.name && (
                         <Alert variant="destructive" className="mb-6">
                             <AlertCircle className="h-4 w-4" />
-                            <ZoruAlertTitle>Business profile incomplete</ZoruAlertTitle>
-                            <ZoruAlertDescription>
+                            <AlertTitle>Business profile incomplete</AlertTitle>
+                            <AlertDescription>
                                 Complete your business profile before posting vouchers.
                                 <Button asChild variant="link" className="p-0 h-auto ml-2">
                                     <Link href="/dashboard/user/settings/profile">Go to settings</Link>
                                 </Button>
-                            </ZoruAlertDescription>
+                            </AlertDescription>
                         </Alert>
                     )}
 
@@ -342,16 +325,16 @@ export function NewVoucherEntryClient({ presetBookId, initialUser, initialVouche
                             {/* TODO(§1E): VoucherBook needs its own EntityKey before this can move to
                                 <EntityFormField>. Keeping the in-memory list bound for now. */}
                             <Select name="voucherBookId" required value={bookId} onValueChange={setBookId}>
-                                <ZoruSelectTrigger id="voucherBookId">
-                                    <ZoruSelectValue placeholder="Select a book…" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
+                                <SelectTrigger id="voucherBookId">
+                                    <SelectValue placeholder="Select a book…" />
+                                </SelectTrigger>
+                                <SelectContent>
                                     {voucherBooks.map((book) => (
-                                        <ZoruSelectItem key={book._id.toString()} value={book._id.toString()}>
+                                        <SelectItem key={book._id.toString()} value={book._id.toString()}>
                                             {book.name}
-                                        </ZoruSelectItem>
+                                        </SelectItem>
                                     ))}
-                                </ZoruSelectContent>
+                                </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-1">
@@ -393,15 +376,15 @@ export function NewVoucherEntryClient({ presetBookId, initialUser, initialVouche
                                     <div className="space-y-1">
                                         <Label>Frequency</Label>
                                         <Select value={recurringFrequency} onValueChange={setRecurringFrequency}>
-                                            <ZoruSelectTrigger>
-                                                <ZoruSelectValue />
-                                            </ZoruSelectTrigger>
-                                            <ZoruSelectContent>
-                                                <ZoruSelectItem value="daily">Daily</ZoruSelectItem>
-                                                <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
-                                                <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
-                                                <ZoruSelectItem value="yearly">Yearly</ZoruSelectItem>
-                                            </ZoruSelectContent>
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="daily">Daily</SelectItem>
+                                                <SelectItem value="weekly">Weekly</SelectItem>
+                                                <SelectItem value="monthly">Monthly</SelectItem>
+                                                <SelectItem value="yearly">Yearly</SelectItem>
+                                            </SelectContent>
                                         </Select>
                                     </div>
                                     <div className="space-y-1">

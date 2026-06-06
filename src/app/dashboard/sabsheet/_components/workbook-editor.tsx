@@ -6,12 +6,7 @@ import Link from 'next/link';
 
 import { Button } from '@/components/sabcrm/20ui/compat';
 import { Input } from '@/components/sabcrm/20ui/compat';
-import {
-  Tabs,
-  ZoruTabsList,
-  ZoruTabsTrigger,
-  ZoruTabsContent,
-} from '@/components/sabcrm/20ui/compat';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui/compat';
 
 import {
   addSabsheetComment,
@@ -505,13 +500,13 @@ function SidePanels({
   return (
     <aside className="w-72 shrink-0 border-l bg-[var(--st-bg-muted)]/20">
       <Tabs defaultValue="comments" className="flex h-full flex-col">
-        <ZoruTabsList className="m-2">
-          <ZoruTabsTrigger value="comments">Comments</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="named">Named</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="pivots">Pivots</ZoruTabsTrigger>
-        </ZoruTabsList>
+        <TabsList className="m-2">
+          <TabsTrigger value="comments">Comments</TabsTrigger>
+          <TabsTrigger value="named">Named</TabsTrigger>
+          <TabsTrigger value="pivots">Pivots</TabsTrigger>
+        </TabsList>
 
-        <ZoruTabsContent value="comments" className="min-h-0 flex-1 space-y-3 overflow-auto p-3">
+        <TabsContent value="comments" className="min-h-0 flex-1 space-y-3 overflow-auto p-3">
           <div className="space-y-2 rounded-md border bg-[var(--st-bg-secondary)] p-2 text-xs">
             <div className="text-[var(--st-text-secondary)]">
               On {a1(selection.row, selection.col)}
@@ -586,9 +581,9 @@ function SidePanels({
               </li>
             ))}
           </ul>
-        </ZoruTabsContent>
+        </TabsContent>
 
-        <ZoruTabsContent value="named" className="min-h-0 flex-1 space-y-2 overflow-auto p-3">
+        <TabsContent value="named" className="min-h-0 flex-1 space-y-2 overflow-auto p-3">
           <div className="space-y-2 rounded-md border bg-[var(--st-bg-secondary)] p-2 text-xs">
             <Input
               value={rangeName}
@@ -642,9 +637,9 @@ function SidePanels({
               </li>
             ))}
           </ul>
-        </ZoruTabsContent>
+        </TabsContent>
 
-        <ZoruTabsContent value="pivots" className="min-h-0 flex-1 space-y-2 overflow-auto p-3">
+        <TabsContent value="pivots" className="min-h-0 flex-1 space-y-2 overflow-auto p-3">
           {/* TODO: pivot table builder UI. The Rust crate stores the config
               JSON; rendering / aggregation is a follow-up. */}
           <ul className="space-y-1">
@@ -664,7 +659,7 @@ function SidePanels({
               ))
             )}
           </ul>
-        </ZoruTabsContent>
+        </TabsContent>
       </Tabs>
     </aside>
   );

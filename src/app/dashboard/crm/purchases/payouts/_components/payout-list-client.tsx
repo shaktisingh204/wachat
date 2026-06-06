@@ -3,16 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Badge,
-  Button,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui/compat';
 import { MoreHorizontal, Pencil, Trash2, CheckCircle2, XCircle, FileText } from 'lucide-react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -74,7 +65,7 @@ export function PayoutListClient({
     onToggleAll,
     onDelete,
 }: PayoutListClientProps) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
 
     const bulky = useCrmBulkyState<CrmPayoutDoc>({
@@ -223,13 +214,13 @@ export function PayoutListClient({
                             </Link>
                         </Button>
                         <DropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild>
                                 <Button size="sm" variant="ghost">
                                     <MoreHorizontal className="h-3.5 w-3.5" />
                                 </Button>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent align="end">
-                                <ZoruDropdownMenuItem onClick={() => {
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => {
                                     setPayoutStatus(id, 'cleared').then(res => {
                                         if (res.success) {
                                             toast({ title: 'Marked cleared' });
@@ -241,8 +232,8 @@ export function PayoutListClient({
                                 }}>
                                     <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
                                     Mark cleared
-                                </ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem onClick={() => {
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {
                                     setPayoutStatus(id, 'failed').then(res => {
                                         if (res.success) {
                                             toast({ title: 'Marked failed' });
@@ -254,13 +245,13 @@ export function PayoutListClient({
                                 }}>
                                     <XCircle className="h-3.5 w-3.5 mr-1.5" />
                                     Mark failed
-                                </ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuSeparator />
-                                <ZoruDropdownMenuItem onClick={() => onDelete(id)} className="text-[var(--st-danger)]">
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => onDelete(id)} className="text-[var(--st-danger)]">
                                     <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                                     Delete
-                                </ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 );

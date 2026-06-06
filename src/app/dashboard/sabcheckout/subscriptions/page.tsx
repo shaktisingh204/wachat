@@ -5,17 +5,7 @@
  */
 import { Download } from 'lucide-react';
 
-import {
-  Card,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Button
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardDescription, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, Button } from '@/components/sabcrm/20ui/compat';
 
 import { listSabcheckoutSubscriptions } from '@/app/actions/sabcheckout.actions';
 import { SubscriptionsClient } from './subscriptions-client';
@@ -29,12 +19,12 @@ export default async function SabcheckoutSubscriptionsPage() {
     <div className="flex w-full flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>Subscriptions</ZoruPageTitle>
-            <ZoruPageDescription>
+          <PageHeading>
+            <PageTitle>Subscriptions</PageTitle>
+            <PageDescription>
               Active, past-due, paused, or cancelled subscriptions.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
+            </PageDescription>
+          </PageHeading>
         </PageHeader>
         <div className="flex items-center gap-2">
           <Button variant="outline">
@@ -46,10 +36,10 @@ export default async function SabcheckoutSubscriptionsPage() {
 
       {!res.ok ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Couldn't load subscriptions</ZoruCardTitle>
-            <ZoruCardDescription>{res.error}</ZoruCardDescription>
-          </ZoruCardHeader>
+          <CardHeader>
+            <CardTitle>Couldn't load subscriptions</CardTitle>
+            <CardDescription>{res.error}</CardDescription>
+          </CardHeader>
         </Card>
       ) : (
         <SubscriptionsClient initial={res.data.items} />

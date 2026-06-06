@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui/compat';
 import { Label } from '@/components/sabcrm/20ui/compat';
-import { Input, ZoruButton } from '@/components/sabcrm/20ui/compat';
+import { Input, Button } from '@/components/sabcrm/20ui/compat';
 
 export function TdsAdjustForm({
     editingRow,
@@ -50,8 +50,8 @@ export function TdsAdjustForm({
                     </div>
                 </div>
                 <DialogFooter>
-                    <ZoruButton variant="outline" onClick={onClose}>Cancel</ZoruButton>
-                    <ZoruButton onClick={handleUpdateTds} variant="primary">Save Changes</ZoruButton>
+                    <Button variant="outline" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleUpdateTds} variant="primary">Save Changes</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

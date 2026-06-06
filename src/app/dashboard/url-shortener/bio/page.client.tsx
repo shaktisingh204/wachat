@@ -1,15 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Button,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  useZoruToast,
-  Skeleton,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, PageDescription, PageHeader, PageHeading, PageTitle, useToast, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { BioState } from './types';
 import { fetchBioData, saveBioData } from './api';
 import { BioProfileForm } from './_components/BioProfileForm';
@@ -17,7 +9,7 @@ import { BioLinksForm } from './_components/BioLinksForm';
 import { BioPreview } from './_components/BioPreview';
 
 export default function BioBuilderPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [state, setState] = useState<BioState | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -66,12 +58,12 @@ export default function BioBuilderPage() {
   return (
     <div className="flex min-h-full flex-col gap-6">
       <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Link in Bio</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageTitle>Link in Bio</PageTitle>
+          <PageDescription>
             Build your public bio page with links and a personal profile.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
+          </PageDescription>
+        </PageHeading>
       </PageHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

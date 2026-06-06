@@ -1,47 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  DatePicker,
-  EmptyState,
-  Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DatePicker, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useCallback,
@@ -86,7 +45,7 @@ import type { FacebookLiveStream,
  * The original page only schedules a premiere from a pre-recorded video.
  * This rebuild keeps that flow intact and layers on a neutral pre-broadcast
  * checklist (`ZoruAlert`s + completion state) plus start/stop confirm
- * `ZoruAlertDialog`s as required by Phase 3.
+ * `AlertDialog`s as required by Phase 3.
  */
 
 import * as React from "react";
@@ -169,7 +128,7 @@ export default function LiveStudioPage() {
     useState<WithId<FacebookLiveStream> | null>(null);
 
   const formRef = useRef<HTMLFormElement>(null);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [state, formAction] = useActionState(
     handleScheduleLiveStream,
@@ -240,33 +199,33 @@ export default function LiveStudioPage() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard/facebook">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard/facebook">
               Meta Suite
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Live Studio</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Live Studio</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
       </Breadcrumb>
 
       <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
-          <ZoruPageTitle>Live Studio</ZoruPageTitle>
-          <ZoruPageDescription>
+        <PageHeading>
+          <PageEyebrow>Meta Suite</PageEyebrow>
+          <PageTitle>Live Studio</PageTitle>
+          <PageDescription>
             Upload a pre-recorded video and schedule it as a Page live
             premiere. Run through the preflight checklist before going live.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
           <Badge variant="secondary">
             <Video />
             {streams.length} stream{streams.length === 1 ? "" : "s"}
@@ -277,7 +236,7 @@ export default function LiveStudioPage() {
           >
             <PlayCircle /> Start premiere
           </Button>
-        </ZoruPageActions>
+        </PageActions>
       </PageHeader>
 
       <div className="mt-6">
@@ -317,8 +276,8 @@ export default function LiveStudioPage() {
                   {state?.error && (
                     <Alert variant="destructive">
                       <AlertTriangle />
-                      <ZoruAlertTitle>Couldn’t schedule stream</ZoruAlertTitle>
-                      <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
+                      <AlertTitle>Couldn’t schedule stream</AlertTitle>
+                      <AlertDescription>{state.error}</AlertDescription>
                     </Alert>
                   )}
 
@@ -422,14 +381,14 @@ export default function LiveStudioPage() {
       </div>
 
       {/* ── Start-stream confirm dialog ─────────────────────────── */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={startConfirmOpen}
         onOpenChange={setStartConfirmOpen}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Start premiere?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Start premiere?</AlertDialogTitle>
+            <AlertDialogDescription>
               SabNode will upload the selected video and schedule it as a live
               premiere on{" "}
               <strong className="text-[var(--st-text)]">
@@ -439,31 +398,31 @@ export default function LiveStudioPage() {
               </strong>{" "}
               at <strong className="text-[var(--st-text)]">{scheduledTime || "—"}</strong>
               . You can’t cancel from this dialog after upload starts.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={() => {
                 // Submit the schedule form — the action handles upload + DB write.
                 formRef.current?.requestSubmit();
               }}
             >
               <PlayCircle /> Start premiere
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* ── Stop-stream confirm dialog ──────────────────────────── */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!stopConfirmTarget}
         onOpenChange={(open) => !open && setStopConfirmTarget(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>End live broadcast?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>End live broadcast?</AlertDialogTitle>
+            <AlertDialogDescription>
               {stopConfirmTarget ? (
                 <>
                   This will stop{" "}
@@ -474,11 +433,11 @@ export default function LiveStudioPage() {
                   disconnected immediately.
                 </>
               ) : null}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Keep broadcasting</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep broadcasting</AlertDialogCancel>
+            <AlertDialogAction
               destructive
               onClick={() => {
                 // No native "stop" server action — surface a hint via toast
@@ -501,10 +460,10 @@ export default function LiveStudioPage() {
               }}
             >
               <StopCircle /> End broadcast
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -521,10 +480,10 @@ function PreflightChecklist({
   return (
     <Alert variant={allOk ? "success" : "info"}>
       {allOk ? <CheckCircle2 /> : <AlertTriangle />}
-      <ZoruAlertTitle>
+      <AlertTitle>
         {allOk ? "Ready to go live" : "Pre-broadcast checklist"}
-      </ZoruAlertTitle>
-      <ZoruAlertDescription>
+      </AlertTitle>
+      <AlertDescription>
         <ul className="mt-2 flex flex-col gap-1.5">
           {items.map((item) => (
             <li
@@ -544,7 +503,7 @@ function PreflightChecklist({
             </li>
           ))}
         </ul>
-      </ZoruAlertDescription>
+      </AlertDescription>
     </Alert>
   );
 }
@@ -632,17 +591,17 @@ function ActiveStreamsPanel({
             />
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Title</ZoruTableHead>
-                  <ZoruTableHead>Scheduled</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Title</Th>
+                  <Th>Scheduled</Th>
+                  <Th>Status</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {streams.slice(0, 6).map((stream) => (
-                  <ZoruTableRow key={stream._id.toString()}>
-                    <ZoruTableCell className="max-w-[160px] truncate font-medium">
+                  <Tr key={stream._id.toString()}>
+                    <Td className="max-w-[160px] truncate font-medium">
                       <Link
                         href={`https://www.facebook.com/${stream.facebookVideoId}`}
                         target="_blank"
@@ -652,16 +611,16 @@ function ActiveStreamsPanel({
                         {stream.title}
                         <ExternalLink className="h-3 w-3 text-[var(--st-text-tertiary)]" />
                       </Link>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[11.5px] text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[11.5px] text-[var(--st-text-secondary)]">
                       {format(new Date(stream.scheduledTime), "PP p")}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <StatusBadge status={stream.status} />
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
         </div>
@@ -670,13 +629,13 @@ function ActiveStreamsPanel({
       {upcoming.length > 0 && live.length === 0 && (
         <Alert variant="info">
           <Clock />
-          <ZoruAlertTitle>
+          <AlertTitle>
             {upcoming.length} upcoming premiere{upcoming.length === 1 ? "" : "s"}
-          </ZoruAlertTitle>
-          <ZoruAlertDescription>
+          </AlertTitle>
+          <AlertDescription>
             Your scheduled premieres will appear in the table above and go live
             automatically at their scheduled time.
-          </ZoruAlertDescription>
+          </AlertDescription>
         </Alert>
       )}
     </div>

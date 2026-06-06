@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruColorPicker, Input, Label, Textarea, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { ColorPicker, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useActionState,
   useEffect } from 'react';
@@ -46,7 +46,7 @@ function toLocalDt(v: unknown): string {
 
 export function EventsForm({ mode, event, initialDate }: EventsFormProps): React.JSX.Element {
     const router = useRouter();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = useActionState(saveEvent, {
         message: '',
         error: '',
@@ -115,7 +115,7 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 <Label>Label colour</Label>
                                 <input type="hidden" name="label_color" value={labelColor} />
                                 <div className="mt-1.5">
-                                    <ZoruColorPicker value={labelColor} onChange={setLabelColor} />
+                                    <ColorPicker value={labelColor} onChange={setLabelColor} />
                                 </div>
                             </div>
                         </div>

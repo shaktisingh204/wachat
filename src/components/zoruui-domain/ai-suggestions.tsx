@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 import { Wand2, LoaderCircle, AlertCircle } from 'lucide-react';
@@ -49,11 +37,11 @@ export function AiSuggestions({ onSuggestionSelect }: AiSuggestionsProps) {
 
   return (
     <Card>
-      <ZoruCardHeader>
-        <ZoruCardTitle>AI Content Assistant</ZoruCardTitle>
-        <ZoruCardDescription>Get AI-powered suggestions for your template body.</ZoruCardDescription>
-      </ZoruCardHeader>
-      <ZoruCardContent className="space-y-4">
+      <CardHeader>
+        <CardTitle>AI Content Assistant</CardTitle>
+        <CardDescription>Get AI-powered suggestions for your template body.</CardDescription>
+      </CardHeader>
+      <CardBody className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="topic">Topic</Label>
           <div className="flex gap-2">
@@ -83,8 +71,8 @@ export function AiSuggestions({ onSuggestionSelect }: AiSuggestionsProps) {
         {error && (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <ZoruAlertTitle>Error</ZoruAlertTitle>
-                <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
             </Alert>
         )}
 
@@ -104,7 +92,7 @@ export function AiSuggestions({ onSuggestionSelect }: AiSuggestionsProps) {
             </div>
           </div>
         )}
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import {
   ShieldCheck,
   CalendarClock,
@@ -52,7 +52,7 @@ const STATUS_OPTIONS = [
 ];
 
 export function ProbationView({ initial }: { initial: Probation[] }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Probation[]>(initial);
   const [search, setSearch] = React.useState('');
   const [activeKpi, setActiveKpi] = React.useState<string | undefined>();

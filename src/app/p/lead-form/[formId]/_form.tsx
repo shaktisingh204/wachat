@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, ZoruCardContent, Button } from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, Button } from '@/components/sabcrm/20ui/compat';
 import { LoaderCircle, Send, Terminal } from 'lucide-react';
 import { submitPublicLead } from '@/app/actions/worksuite/public.actions';
 import { FieldInput } from './_components/field-input';
@@ -71,7 +71,7 @@ export function LeadFormRenderer({
 
   return (
     <Card className="shadow-md border-foreground/10">
-      <ZoruCardContent className="flex flex-col gap-4 p-5">
+      <CardBody className="flex flex-col gap-4 p-5">
         <div className="flex items-center justify-between">
           <h2 className="text-[13px] font-mono uppercase tracking-wider text-[var(--st-text)] flex items-center gap-1.5">
             <Terminal className="h-4 w-4 text-[var(--st-text-secondary)]" />
@@ -122,7 +122,7 @@ export function LeadFormRenderer({
         </div>
 
         <CurlSample formId={formId} values={values} />
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

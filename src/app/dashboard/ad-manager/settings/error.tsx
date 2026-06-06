@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { AmErrorAlert } from '@/app/dashboard/ad-manager/_components/am-page-shell';
-import { ZoruButton } from '@/components/sabcrm/20ui/compat';
+import { Button } from '@/components/sabcrm/20ui/compat';
 
 export default function AdManagerSettingsError({
   error,
@@ -19,9 +19,9 @@ export default function AdManagerSettingsError({
     <div className="flex flex-col gap-4 p-6">
       <AmErrorAlert message={error.message || 'An unexpected error occurred in Ad Manager Settings.'} />
       <div>
-        <ZoruButton onClick={() => reset()} variant="outline">
+        <Button onClick={() => reset()} variant="outline">
           Try again
-        </ZoruButton>
+        </Button>
       </div>
     </div>
   );

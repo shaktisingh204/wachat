@@ -1,29 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Switch,
-  Badge,
-  Skeleton,
-  Separator,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Alert, AlertTitle, AlertDescription, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Button, Input, Label, Textarea, Switch, Badge, Skeleton, Separator, PageHeader, PageHeading, PageTitle, PageDescription, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   Suspense,
   useEffect,
@@ -76,7 +53,7 @@ function PageSkeleton() {
 const complianceInitialState = { message: undefined, error: undefined };
 
 function ComplianceForm({ user }: { user: WithId<User> }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [state, formAction] = useActionState(saveEmailComplianceSettings, complianceInitialState);
     const { pending } = useFormStatus();
 
@@ -90,11 +67,11 @@ function ComplianceForm({ user }: { user: WithId<User> }) {
     return (
         <form action={formAction}>
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Compliance & Unsubscribe</ZoruCardTitle>
-                    <ZoruCardDescription>Configure settings to comply with anti-spam laws like CAN-SPAM and GDPR.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Compliance & Unsubscribe</CardTitle>
+                    <CardDescription>Configure settings to comply with anti-spam laws like CAN-SPAM and GDPR.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                     <div className="flex items-center space-x-2 rounded-lg border border-[var(--st-border)] p-4">
                         <Switch id="unsubscribeLink" name="unsubscribeLink" defaultChecked={compliance.unsubscribeLink} />
                         <Label htmlFor="unsubscribeLink">Automatically include an unsubscribe link in email footers.</Label>
@@ -104,13 +81,13 @@ function ComplianceForm({ user }: { user: WithId<User> }) {
                         <Textarea id="physicalAddress" name="physicalAddress" placeholder="e.g., 123 Main St, Anytown, USA 12345" defaultValue={compliance.physicalAddress} />
                         <p className="text-xs text-[var(--st-text-secondary)]">Required by CAN-SPAM for all commercial emails.</p>
                     </div>
-                </ZoruCardContent>
-                <ZoruCardFooter>
+                </CardBody>
+                <CardFooter>
                     <Button type="submit" disabled={pending}>
                         {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                         Save Compliance Settings
                     </Button>
-                </ZoruCardFooter>
+                </CardFooter>
             </Card>
         </form>
     );
@@ -133,11 +110,11 @@ function DeliverabilityTab() {
 
     return (
         <Card className="p-0">
-            <ZoruCardHeader>
-                <ZoruCardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Domain Authentication</ZoruCardTitle>
-                <ZoruCardDescription>Improve your email deliverability by adding DKIM and SPF records to your domain's DNS settings.</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-6">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Domain Authentication</CardTitle>
+                <CardDescription>Improve your email deliverability by adding DKIM and SPF records to your domain's DNS settings.</CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-6">
                 <div>
                     <h3 className="mb-2 text-[var(--st-text)]">DKIM Record</h3>
                     <p className="text-sm text-[var(--st-text-secondary)] mb-4">DKIM adds a digital signature to your emails, allowing receiving servers to verify that the message was sent by you and was not altered in transit.</p>
@@ -152,12 +129,12 @@ function DeliverabilityTab() {
                 </div>
                 <Alert>
                     <AlertCircle className="h-4 w-4" />
-                    <ZoruAlertTitle>Note</ZoruAlertTitle>
-                    <ZoruAlertDescription>
+                    <AlertTitle>Note</AlertTitle>
+                    <AlertDescription>
                         DNS changes can take up to 48 hours to propagate. These values are placeholders; your specific records will be provided upon domain verification.
-                    </ZoruAlertDescription>
+                    </AlertDescription>
                 </Alert>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -169,11 +146,11 @@ function IntegrationsTab({ userId }: { userId: string }) {
     return (
         <div className="space-y-6">
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />API & Webhooks</ZoruCardTitle>
-                    <ZoruCardDescription>Programmatically interact with your email data.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />API & Webhooks</CardTitle>
+                    <CardDescription>Programmatically interact with your email data.</CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
                     <div className="space-y-2">
                         <Label>API Key</Label>
                         <CodeBlock code={apiKey} />
@@ -182,16 +159,16 @@ function IntegrationsTab({ userId }: { userId: string }) {
                         <Label>Webhook URL for Incoming Events</Label>
                         <CodeBlock code={webhookUrl} />
                     </div>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
             <Card className="p-0">
-                <ZoruCardHeader>
-                    <ZoruCardTitle>CRM Sync</ZoruCardTitle>
-                    <ZoruCardDescription>Sync contacts and activities with your favorite CRM.</ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="text-center text-[var(--st-text-secondary)] p-8">
+                <CardHeader>
+                    <CardTitle>CRM Sync</CardTitle>
+                    <CardDescription>Sync contacts and activities with your favorite CRM.</CardDescription>
+                </CardHeader>
+                <CardBody className="text-center text-[var(--st-text-secondary)] p-8">
                     <p>CRM Sync is coming soon.</p>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     )
@@ -200,14 +177,14 @@ function IntegrationsTab({ userId }: { userId: string }) {
 function OnboardingCard({ title, description, icon: Icon, href, features }: any) {
     return (
         <Card className="p-0 hover:border-[var(--st-border)] transition-colors cursor-pointer group relative overflow-hidden h-full flex flex-col">
-            <ZoruCardHeader>
-                <ZoruCardTitle className="flex items-center gap-3">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-3">
                     <Icon className="h-6 w-6" />
                     {title}
-                </ZoruCardTitle>
-                <ZoruCardDescription>{description}</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="flex-grow">
+                </CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardBody className="flex-grow">
                 <ul className="text-sm text-[var(--st-text-secondary)] space-y-2 mb-6">
                     {features.map((feature: string, i: number) => (
                         <li key={i} className="flex items-start gap-2">
@@ -216,8 +193,8 @@ function OnboardingCard({ title, description, icon: Icon, href, features }: any)
                         </li>
                     ))}
                 </ul>
-            </ZoruCardContent>
-            <ZoruCardFooter>
+            </CardBody>
+            <CardFooter>
                 {href ? (
                     <Button asChild className="w-full">
                         <Link href={href}>{title === 'Custom SMTP' ? 'Configure SMTP' : `Connect ${title}`}</Link>
@@ -227,7 +204,7 @@ function OnboardingCard({ title, description, icon: Icon, href, features }: any)
                         <CrmSmtpForm settings={null} />
                     </div>
                 )}
-            </ZoruCardFooter>
+            </CardFooter>
         </Card>
     )
 }
@@ -246,7 +223,7 @@ function EmailSettingsPageContent() {
     const activeSettingsId = accountIdParam;
 
     const [isLoading, setIsLoading] = useState(true);
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const [activeTab, setActiveTab] = useState(initialTab || 'email');
 
@@ -272,8 +249,8 @@ function EmailSettingsPageContent() {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <ZoruAlertTitle>Not Logged In</ZoruAlertTitle>
-                <ZoruAlertDescription>Please log in to manage email settings.</ZoruAlertDescription>
+                <AlertTitle>Not Logged In</AlertTitle>
+                <AlertDescription>Please log in to manage email settings.</AlertDescription>
             </Alert>
         );
     }
@@ -283,14 +260,14 @@ function EmailSettingsPageContent() {
             <div className="space-y-8">
                 <div className="flex items-center justify-between">
                     <PageHeader>
-                        <ZoruPageHeading>
-                            <ZoruPageTitle>
+                        <PageHeading>
+                            <PageTitle>
                                 <span className="inline-flex items-center gap-3">
                                     <Mail className="h-7 w-7" /> Email Suite
                                 </span>
-                            </ZoruPageTitle>
-                            <ZoruPageDescription>Manage your connected email accounts.</ZoruPageDescription>
-                        </ZoruPageHeading>
+                            </PageTitle>
+                            <PageDescription>Manage your connected email accounts.</PageDescription>
+                        </PageHeading>
                     </PageHeader>
                     <Button onClick={() => router.push('/dashboard/email/settings?view=connect')}>
                         <Plus className="h-4 w-4" /> Connect New Account
@@ -299,7 +276,7 @@ function EmailSettingsPageContent() {
 
                 {allSettings.length === 0 ? (
                     <Card className="p-0">
-                        <ZoruCardContent className="flex flex-col items-center justify-center gap-4 py-16 text-center">
+                        <CardBody className="flex flex-col items-center justify-center gap-4 py-16 text-center">
                             <div className="bg-[var(--st-bg-muted)] p-4 rounded-full">
                                 <Mail className="h-10 w-10 text-[var(--st-text)]" />
                             </div>
@@ -312,7 +289,7 @@ function EmailSettingsPageContent() {
                             <Button onClick={() => router.push('/dashboard/email/settings?view=connect')}>
                                 <Plus className="h-4 w-4" /> Connect Your First Account
                             </Button>
-                        </ZoruCardContent>
+                        </CardBody>
                     </Card>
                 ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -322,19 +299,19 @@ function EmailSettingsPageContent() {
                             <Card key={account._id.toString()} className="p-0 group hover:border-[var(--st-border)] transition-all cursor-pointer" onClick={() => {
                                 router.push(`/dashboard/email/settings?view=manage&accountId=${account._id.toString()}`);
                             }}>
-                                <ZoruCardHeader>
+                                <CardHeader>
                                     <div className="flex justify-between items-start">
                                         <div className="p-3 bg-[var(--st-bg-muted)] rounded-full transition-colors">
                                             <Icon className="h-6 w-6 text-[var(--st-text)] transition-colors" />
                                         </div>
                                         <Badge variant="success"><CheckCircle className="h-3 w-3 mr-1" /> Active</Badge>
                                     </div>
-                                    <ZoruCardTitle className="pt-4 truncate">{account.fromName || 'Unnamed Account'}</ZoruCardTitle>
-                                    <ZoruCardDescription className="truncate">{account.fromEmail}</ZoruCardDescription>
-                                </ZoruCardHeader>
-                                <ZoruCardFooter>
+                                    <CardTitle className="pt-4 truncate">{account.fromName || 'Unnamed Account'}</CardTitle>
+                                    <CardDescription className="truncate">{account.fromEmail}</CardDescription>
+                                </CardHeader>
+                                <CardFooter>
                                     <Button variant="outline" className="w-full">Manage Settings</Button>
-                                </ZoruCardFooter>
+                                </CardFooter>
                             </Card>
                         )
                     })}
@@ -439,17 +416,17 @@ function EmailSettingsPageContent() {
                     {activeTab === 'email' && currentSettings && (
                         <div className="space-y-6">
                             <Card className="p-0">
-                                <ZoruCardHeader>
-                                    <ZoruCardTitle className="flex items-center justify-between">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <div className="h-2 w-2 rounded-full bg-[var(--st-status-ok)] animate-pulse" />
                                             Connected via <span className="capitalize">{currentSettings.provider}</span>
                                         </div>
                                         <Badge variant="ghost">{currentSettings.fromEmail}</Badge>
-                                    </ZoruCardTitle>
-                                    <ZoruCardDescription>This account is active and ready to send campaigns.</ZoruCardDescription>
-                                </ZoruCardHeader>
-                                <ZoruCardContent>
+                                    </CardTitle>
+                                    <CardDescription>This account is active and ready to send campaigns.</CardDescription>
+                                </CardHeader>
+                                <CardBody>
                                     <div className="flex items-center gap-4">
                                         <Button variant="outline">Re-authorize Connection</Button>
                                         <Button variant="outline" className="text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10 border-[var(--st-danger)]/20" onClick={async () => {
@@ -469,7 +446,7 @@ function EmailSettingsPageContent() {
                                             Disconnect Account
                                         </Button>
                                     </div>
-                                </ZoruCardContent>
+                                </CardBody>
                             </Card>
 
                             {currentSettings.provider === 'smtp' && (
@@ -486,17 +463,17 @@ function EmailSettingsPageContent() {
 
                     {activeTab === 'templates' && (
                         <Card>
-                            <ZoruCardHeader>
-                                <ZoruCardTitle>Templates moved</ZoruCardTitle>
-                                <ZoruCardDescription>
+                            <CardHeader>
+                                <CardTitle>Templates moved</CardTitle>
+                                <CardDescription>
                                     The template builder lives in its own section now.
-                                </ZoruCardDescription>
-                            </ZoruCardHeader>
-                            <ZoruCardContent>
+                                </CardDescription>
+                            </CardHeader>
+                            <CardBody>
                                 <Button asChild>
                                     <Link href="/dashboard/email/templates">Open template library</Link>
                                 </Button>
-                            </ZoruCardContent>
+                            </CardBody>
                         </Card>
                     )}
 

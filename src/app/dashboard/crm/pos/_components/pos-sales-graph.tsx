@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui/compat';
 import { PosTransactionDoc } from '@/app/actions/crm-pos.actions';
 
 export function PosSalesGraph({ transactions }: { transactions: PosTransactionDoc[] }) {
@@ -25,10 +25,10 @@ export function PosSalesGraph({ transactions }: { transactions: PosTransactionDo
 
     return (
         <Card className="h-full">
-            <ZoruCardHeader>
-                <ZoruCardTitle>Real-time Sales (Hourly)</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+                <CardTitle>Real-time Sales (Hourly)</CardTitle>
+            </CardHeader>
+            <CardBody>
                 <div className="flex h-[200px] items-end gap-1 sm:gap-2">
                     {hourlyData.map((d, i) => {
                         const heightPct = maxTotal > 0 ? (d.total / maxTotal) * 100 : 0;
@@ -50,7 +50,7 @@ export function PosSalesGraph({ transactions }: { transactions: PosTransactionDo
                         );
                     })}
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

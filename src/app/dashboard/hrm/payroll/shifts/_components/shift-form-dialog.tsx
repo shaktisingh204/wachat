@@ -4,19 +4,7 @@ import * as React from 'react';
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle } from 'lucide-react';
-import {
-    Button,
-    Checkbox,
-    Dialog,
-    ZoruDialogContent,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    Input,
-    Label,
-    Textarea,
-    useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Button, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { ShiftForm } from './shift-form';
 import { saveShift } from '@/app/actions/crm-shifts.actions';
@@ -38,12 +26,12 @@ export function ShiftDialog({
     const isEditing = !!initial;
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-[560px]">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>
+            <DialogContent className="sm:max-w-[560px]">
+                <DialogHeader>
+                    <DialogTitle>
                         {isEditing ? 'Edit shift' : 'New shift'}
-                    </ZoruDialogTitle>
-                </ZoruDialogHeader>
+                    </DialogTitle>
+                </DialogHeader>
                 <ShiftForm
                     initial={initial}
                     onSaved={() => {
@@ -57,7 +45,7 @@ export function ShiftDialog({
                     }}
                     onCancel={() => onOpenChange(false)}
                 />
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }

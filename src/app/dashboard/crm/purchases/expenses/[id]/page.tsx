@@ -1,4 +1,4 @@
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import {
   notFound } from 'next/navigation';
 import { ObjectId } from 'mongodb';
@@ -216,10 +216,10 @@ export default async function BillDetailPage({
 
           {/* Vendor chip + outstanding */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Vendor</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-2 text-[12.5px]">
+            <CardHeader>
+              <CardTitle>Vendor</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-2 text-[12.5px]">
               {bill.vendorId ? (
                 <EntityPickerChip entity="vendor" id={bill.vendorId} />
               ) : (
@@ -237,15 +237,15 @@ export default async function BillDetailPage({
                   {fmtMoney(bill.balance ?? totals.total, currency)}
                 </span>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* At a glance + inline status / vendor */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>At a glance</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
+            <CardHeader>
+              <CardTitle>At a glance</CardTitle>
+            </CardHeader>
+            <CardBody>
               <BillQuickEdits
                 billId={billId}
                 status={status}
@@ -277,7 +277,7 @@ export default async function BillDetailPage({
                   </span>
                 </div>
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* Live-poll wrapper — refreshes related counts when a downstream
@@ -307,10 +307,10 @@ export default async function BillDetailPage({
 
       {/* Payment history (payouts applied) */}
       <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Payment history</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        <CardHeader>
+          <CardTitle>Payment history</CardTitle>
+        </CardHeader>
+        <CardBody>
           {related.payouts === 0 ? (
             <p className="text-[13px] text-[var(--st-text-secondary)]">
               No payouts applied yet.{' '}
@@ -330,16 +330,16 @@ export default async function BillDetailPage({
               {related.payouts === 1 ? '' : 's'} applied to this bill →
             </Link>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Linked PO / GRN cards */}
       {bill.linkedPoId || (bill.linkedGrnIds && bill.linkedGrnIds.length) ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Linked documents</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Linked documents</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="grid gap-3 md:grid-cols-2 text-[13px]">
               {bill.linkedPoId ? (
                 <div>
@@ -374,17 +374,17 @@ export default async function BillDetailPage({
                 </div>
               ) : null}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
 
       {/* Custom fields */}
       {customFields.length > 0 ? (
         <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Custom fields</ZoruCardTitle>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          <CardHeader>
+            <CardTitle>Custom fields</CardTitle>
+          </CardHeader>
+          <CardBody>
             <div className="grid gap-4 md:grid-cols-2">
               {customFields.map((field) => (
                 <div key={String(field._id ?? field.name)}>
@@ -404,7 +404,7 @@ export default async function BillDetailPage({
                 </div>
               ))}
             </div>
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       ) : null}
     </EntityDetailShell>

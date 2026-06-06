@@ -1,4 +1,4 @@
-import { Badge, type ZoruBadgeProps } from '@/components/sabcrm/20ui/compat';
+import { Badge, type BadgeProps } from '@/components/sabcrm/20ui/compat';
 import {
   ArrowLeft } from 'lucide-react';
 import { type ReactNode } from 'react';
@@ -51,12 +51,12 @@ export interface EntityDetailShellProps {
 
 /* ─── Status tone mapping ────────────────────────────────────────────── */
 
-const TONE_TO_VARIANT: Record<EntityStatusTone, ZoruBadgeProps['variant']> = {
-    green: 'success' as ZoruBadgeProps['variant'],
-    amber: 'warning' as ZoruBadgeProps['variant'],
-    red: 'danger' as ZoruBadgeProps['variant'],
-    blue: 'info' as ZoruBadgeProps['variant'],
-    neutral: 'default' as ZoruBadgeProps['variant'],
+const TONE_TO_VARIANT: Record<EntityStatusTone, BadgeProps['variant']> = {
+    green: 'success' as BadgeProps['variant'],
+    amber: 'warning' as BadgeProps['variant'],
+    red: 'danger' as BadgeProps['variant'],
+    blue: 'info' as BadgeProps['variant'],
+    neutral: 'default' as BadgeProps['variant'],
 };
 
 /* ─── Component ──────────────────────────────────────────────────────── */

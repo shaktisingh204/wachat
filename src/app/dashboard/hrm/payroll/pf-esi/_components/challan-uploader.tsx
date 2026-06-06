@@ -5,7 +5,7 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { SabFileUrlInput } from '@/components/sabfiles/sab-file-picker';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import { updatePfEsiDocumentUrl } from '@/app/actions/crm-pf-esi.actions';
 
 interface ChallanUploaderProps {
@@ -16,7 +16,7 @@ interface ChallanUploaderProps {
 export function ChallanUploader({ recordId, initialUrl }: ChallanUploaderProps) {
     const [url, setUrl] = React.useState(initialUrl ?? '');
     const [isPending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const router = useRouter();
 
     const handleChange = async (newUrl: string) => {

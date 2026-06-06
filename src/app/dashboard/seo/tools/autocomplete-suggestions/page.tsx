@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody } from '@/components/sabcrm/20ui/compat';
 import { useState } from 'react';
 import { Download, Copy, Check } from 'lucide-react';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
@@ -84,9 +84,9 @@ export default function AutocompleteSuggestionsPage() {
       </div>
       {error && (
         <Card className="border-[var(--st-border)]">
-          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">
+          <CardBody className="p-4 text-[var(--st-text)] text-sm">
             {error}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
       {results.length > 0 && (
@@ -104,13 +104,13 @@ export default function AutocompleteSuggestionsPage() {
               </Button>
             </div>
           </div>
-          <ZoruCardContent className="p-4 space-y-1">
+          <CardBody className="p-4 space-y-1">
             {results.map((s, i) => (
               <div key={i} className="text-sm border-b last:border-0 py-2">
                 {s}
               </div>
             ))}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
     </ToolShell>

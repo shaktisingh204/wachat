@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, cn, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/sabcrm/20ui/compat';
+import { Button, Input, Card, CardBody, Badge, cn, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui/compat';
 import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { fetchRelatedKeywords, RelatedKeywordIdea } from './actions';
@@ -73,21 +73,21 @@ export default function RelatedKeywordsPage() {
                 </h3>
               </div>
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Keyword</TableHead>
-                    <TableHead className="text-right">Volume</TableHead>
-                    <TableHead className="text-right">CPC</TableHead>
-                    <TableHead className="text-right">Competition</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                <THead>
+                  <Tr>
+                    <Th>Keyword</Th>
+                    <Th className="text-right">Volume</Th>
+                    <Th className="text-right">CPC</Th>
+                    <Th className="text-right">Competition</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {keywords.map((k) => (
-                    <TableRow key={k.term}>
-                      <TableCell className="font-medium">{k.term}</TableCell>
-                      <TableCell className="text-right">{k.volume.toLocaleString()}</TableCell>
-                      <TableCell className="text-right">${k.cpc.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">
+                    <Tr key={k.term}>
+                      <Td className="font-medium">{k.term}</Td>
+                      <Td className="text-right">{k.volume.toLocaleString()}</Td>
+                      <Td className="text-right">${k.cpc.toFixed(2)}</Td>
+                      <Td className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <span className="text-xs text-[var(--st-text-secondary)]">
                             {k.competition > 0.7 ? 'High' : k.competition > 0.3 ? 'Medium' : 'Low'}
@@ -102,10 +102,10 @@ export default function RelatedKeywordsPage() {
                             />
                           </div>
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </TableBody>
+                </TBody>
               </Table>
             </Card>
           ))}

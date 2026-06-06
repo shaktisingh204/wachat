@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  Separator,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Separator } from '@/components/sabcrm/20ui/compat';
 import {
   useState } from 'react';
 
@@ -50,13 +40,13 @@ export function ActionEditor({ label, action, onActionChange, actionType, allScr
         <div className="space-y-2 rounded-lg border p-4">
             <Label className="font-semibold">{label}</Label>
             <Select value={actionName} onValueChange={handleNameChange}>
-                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="complete">Complete Flow</ZoruSelectItem>
-                    <ZoruSelectItem value="navigate">Navigate to Screen</ZoruSelectItem>
-                    <ZoruSelectItem value="data_exchange">Data Exchange (API)</ZoruSelectItem>
-                    <ZoruSelectItem value="open_url">Open URL</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="complete">Complete Flow</SelectItem>
+                    <SelectItem value="navigate">Navigate to Screen</SelectItem>
+                    <SelectItem value="data_exchange">Data Exchange (API)</SelectItem>
+                    <SelectItem value="open_url">Open URL</SelectItem>
+                </SelectContent>
             </Select>
 
             {actionName === 'navigate' && (
@@ -66,12 +56,12 @@ export function ActionEditor({ label, action, onActionChange, actionType, allScr
                         value={action?.next?.name || ''}
                         onValueChange={(val) => onActionChange({ ...action, next: { type: 'screen', name: val } })}
                     >
-                        <ZoruSelectTrigger id="next-screen"><ZoruSelectValue placeholder="Select a screen..." /></ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <SelectTrigger id="next-screen"><SelectValue placeholder="Select a screen..." /></SelectTrigger>
+                        <SelectContent>
                             {allScreens.map(screen => (
-                                <ZoruSelectItem key={screen.id} value={screen.id}>{screen.title || screen.id}</ZoruSelectItem>
+                                <SelectItem key={screen.id} value={screen.id}>{screen.title || screen.id}</SelectItem>
                             ))}
-                        </ZoruSelectContent>
+                        </SelectContent>
                     </Select>
                 </div>
             )}

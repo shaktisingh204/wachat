@@ -9,12 +9,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getClientKnowledgeBaseArticle } from '@/app/actions/client-portal.actions';
-import {
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 
 function fmtDate(iso: string | null): string {
     if (!iso) return '';
@@ -40,14 +35,14 @@ async function ClientKbArticlePageContent({
             </Link>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>{article.title}</ZoruCardTitle>
+                <CardHeader>
+                    <CardTitle>{article.title}</CardTitle>
                     <p className="text-xs text-[var(--st-text-secondary)]">
                         {article.category ? `${article.category} · ` : ''}
                         Updated {fmtDate(article.updatedAt)}
                     </p>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+                </CardHeader>
+                <CardBody>
                     {article.body ? (
                         <div
                             className="prose prose-zinc max-w-none text-sm text-[var(--st-text)]"
@@ -60,7 +55,7 @@ async function ClientKbArticlePageContent({
                     ) : (
                         <p className="text-sm text-[var(--st-text-secondary)]">No content available.</p>
                     )}
-                </ZoruCardContent>
+                </CardBody>
             </Card>
         </div>
     );

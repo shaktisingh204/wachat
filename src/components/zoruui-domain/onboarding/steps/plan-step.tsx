@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/sabcrm/20ui/compat';
+import { Button, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui/compat';
 import {
   AlertCircle,
   Check,
@@ -257,11 +257,11 @@ export function PlanStep({
             <div className="space-y-6">
                 <Alert>
                     <Sparkles className="h-4 w-4" />
-                    <ZoruAlertTitle>No plans configured yet</ZoruAlertTitle>
-                    <ZoruAlertDescription>
+                    <AlertTitle>No plans configured yet</AlertTitle>
+                    <AlertDescription>
                         Your workspace will start on the default account tier.
                         You can upgrade anytime from Settings → Billing.
-                    </ZoruAlertDescription>
+                    </AlertDescription>
                 </Alert>
                 <div className="flex justify-between">
                     <Button variant="ghost" onClick={onBack}>
@@ -284,18 +284,18 @@ export function PlanStep({
                 {paymentStatus === 'success' && !error && (
                     <Alert>
                         <ShieldCheck className="h-4 w-4" />
-                        <ZoruAlertTitle>Payment received</ZoruAlertTitle>
-                        <ZoruAlertDescription>
+                        <AlertTitle>Payment received</AlertTitle>
+                        <AlertDescription>
                             Thanks — we verified your PayU payment. Finalizing
                             your workspace now.
-                        </ZoruAlertDescription>
+                        </AlertDescription>
                     </Alert>
                 )}
                 {error && (
                     <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
-                        <ZoruAlertTitle>Payment issue</ZoruAlertTitle>
-                        <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                        <AlertTitle>Payment issue</AlertTitle>
+                        <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 )}
 

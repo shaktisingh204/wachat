@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Card,
-  Button,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  Input,
-  Label,
-  Textarea
-} from '@/components/sabcrm/20ui/compat';
+import { Card, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 import {
   useEffect,
   useState,
@@ -32,7 +16,7 @@ import type {
   WsLeaveBalanceEmployee,
   WsLeaveType,
 } from '@/lib/worksuite/leave-types';
-import { useZoruToast as useToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - i);

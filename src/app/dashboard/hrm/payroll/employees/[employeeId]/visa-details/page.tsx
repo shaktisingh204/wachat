@@ -1,31 +1,6 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Textarea,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui/compat';
 import {
   useParams } from 'next/navigation';
 import {
@@ -128,7 +103,7 @@ export default function EmployeeVisaDetailsSubPage() {
     const employeeId = params.employeeId;
     const BASE = `/dashboard/hrm/payroll/employees/${employeeId}`;
 
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     const [rows, setRows] = React.useState<CrmVisaDetailDoc[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
     const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -422,12 +397,12 @@ export default function EmployeeVisaDetailsSubPage() {
 
             {/* Add / Edit dialog */}
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <ZoruDialogContent className="max-w-xl">
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                <DialogContent className="max-w-xl">
+                    <DialogHeader>
+                        <DialogTitle>
                             {form.visaId ? 'Edit visa' : 'Add visa'}
-                        </ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                        </DialogTitle>
+                    </DialogHeader>
                     <div className="grid gap-4 py-2">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-1.5">
@@ -489,19 +464,19 @@ export default function EmployeeVisaDetailsSubPage() {
                                         })
                                     }
                                 >
-                                    <ZoruSelectTrigger id="visa-status">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
+                                    <SelectTrigger id="visa-status">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
                                         {STATUS_OPTIONS.map((o) => (
-                                            <ZoruSelectItem
+                                            <SelectItem
                                                 key={o.value}
                                                 value={o.value}
                                             >
                                                 {o.label}
-                                            </ZoruSelectItem>
+                                            </SelectItem>
                                         ))}
-                                    </ZoruSelectContent>
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div className="space-y-1.5">
@@ -614,7 +589,7 @@ export default function EmployeeVisaDetailsSubPage() {
                             </div>
                         </div>
                     </div>
-                    <ZoruDialogFooter className="gap-2">
+                    <DialogFooter className="gap-2">
                         <Button
                             variant="outline"
                             onClick={() => setDialogOpen(false)}
@@ -627,36 +602,36 @@ export default function EmployeeVisaDetailsSubPage() {
                             ) : null}
                             {form.visaId ? 'Save changes' : 'Add visa'}
                         </Button>
-                    </ZoruDialogFooter>
-                </ZoruDialogContent>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
 
-            <ZoruAlertDialog
+            <AlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
             >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
                             Delete visa record?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             The {pendingDelete?.country} ·{' '}
                             {pendingDelete?.visaType} record will be removed.
                             The attached SabFile stays in your library.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDelete}
                             disabled={deleting}
                         >
                             {deleting ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

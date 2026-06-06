@@ -38,20 +38,7 @@ import {
   Layers,
 } from 'lucide-react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  useZoruToast,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui/compat';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { RowDrawer } from '@/components/crm/row-drawer';
@@ -90,7 +77,7 @@ type Row = WsClientCategory & {
 type SubRow = WsClientSubCategory & { _id: string };
 
 export default function ClientCategoriesPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [rows, setRows] = React.useState<Row[]>([]);
   const [subs, setSubs] = React.useState<SubRow[]>([]);
@@ -783,7 +770,7 @@ function SubCategoryDrawerPanel({
   subs: SubRow[];
   onChanged: () => void;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [name, setName] = React.useState('');
   const [parentId, setParentId] = React.useState(parent._id);
   const [editingSub, setEditingSub] = React.useState<SubRow | null>(null);

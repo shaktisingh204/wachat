@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DatePicker,
-  Input,
-  Label,
-  Textarea,
-} from '@/components/sabcrm/20ui/compat';
+import { Card, CardBody, CardDescription, CardHeader, CardTitle, DatePicker, Input, Label, Textarea } from '@/components/sabcrm/20ui/compat';
 /**
  * Field-section sub-components for <ContactForm>, extracted to keep
  * `contacts-form.tsx` under the 600-line scope cap.
@@ -85,13 +75,13 @@ export function PersonalSection({
     const anyInitial = initial as unknown as Record<string, string | undefined>;
     return (
         <Card className="p-0">
-            <ZoruCardHeader>
-                <ZoruCardTitle>Personal</ZoruCardTitle>
-                <ZoruCardDescription>
+            <CardHeader>
+                <CardTitle>Personal</CardTitle>
+                <CardDescription>
                     Identity, role, and locale. Required fields marked with *.
-                </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                </CardDescription>
+            </CardHeader>
+            <CardBody className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                     <Label htmlFor="firstName">First name *</Label>
                     <Input
@@ -221,7 +211,7 @@ export function PersonalSection({
                         }}
                     />
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -263,13 +253,13 @@ export function LinkedSection({
 }: LinkedSectionProps) {
     return (
         <Card className="p-0">
-            <ZoruCardHeader>
-                <ZoruCardTitle>Linked</ZoruCardTitle>
-                <ZoruCardDescription>
+            <CardHeader>
+                <CardTitle>Linked</CardTitle>
+                <CardDescription>
                     Account, owner, lifecycle and lead source.
-                </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                </CardDescription>
+            </CardHeader>
+            <CardBody className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                     <Label htmlFor="accountField">Account</Label>
                     <EntityFormField
@@ -368,7 +358,7 @@ export function LinkedSection({
                         placeholder="0–100"
                     />
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -395,13 +385,13 @@ export function AddressSection({
 }: AddressSectionProps) {
     return (
         <Card className="p-0">
-            <ZoruCardHeader>
-                <ZoruCardTitle>Address</ZoruCardTitle>
-                <ZoruCardDescription>
+            <CardHeader>
+                <CardTitle>Address</CardTitle>
+                <CardDescription>
                     Geography cascade: country → state → city.
-                </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="grid gap-4 md:grid-cols-3">
+                </CardDescription>
+            </CardHeader>
+            <CardBody className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                     <Label htmlFor="country">Country</Label>
                     <EntityFormField
@@ -454,7 +444,7 @@ export function AddressSection({
                         }}
                     />
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -467,13 +457,13 @@ export function SocialSection({ initial }: SocialSectionProps) {
     const anyInitial = initial as unknown as Record<string, string | undefined>;
     return (
         <Card className="p-0">
-            <ZoruCardHeader>
-                <ZoruCardTitle>Social</ZoruCardTitle>
-                <ZoruCardDescription>
+            <CardHeader>
+                <CardTitle>Social</CardTitle>
+                <CardDescription>
                     LinkedIn, X/Twitter and personal website.
-                </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="grid gap-4 md:grid-cols-2">
+                </CardDescription>
+            </CardHeader>
+            <CardBody className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                     <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
                     <Input
@@ -503,7 +493,7 @@ export function SocialSection({ initial }: SocialSectionProps) {
                         placeholder="https://example.com"
                     />
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }
@@ -512,13 +502,13 @@ export function NotesTagsSection({ initial }: BaseSectionProps) {
     const anyInitial = initial as unknown as Record<string, string | undefined>;
     return (
         <Card className="p-0">
-            <ZoruCardHeader>
-                <ZoruCardTitle>Notes &amp; tags</ZoruCardTitle>
-                <ZoruCardDescription>
+            <CardHeader>
+                <CardTitle>Notes &amp; tags</CardTitle>
+                <CardDescription>
                     Free-form context and labels for filtering.
-                </ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent className="grid gap-4">
+                </CardDescription>
+            </CardHeader>
+            <CardBody className="grid gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="tags">Tags</Label>
                     <Input
@@ -545,7 +535,7 @@ export function NotesTagsSection({ initial }: BaseSectionProps) {
                         CrmContact.notes uses a typed array shape; the
                         inline composer here writes free text only. */}
                 </div>
-            </ZoruCardContent>
+            </CardBody>
         </Card>
     );
 }

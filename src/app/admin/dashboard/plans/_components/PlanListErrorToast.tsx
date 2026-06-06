@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 
 export function PlanListErrorToast() {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
     
     useEffect(() => {
         toast({

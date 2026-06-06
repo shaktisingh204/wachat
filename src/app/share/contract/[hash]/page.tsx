@@ -1,13 +1,7 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
 import { getPublicContract } from '@/app/actions/public-contract.actions';
-import {
-  Badge,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui/compat';
 import { ContractSignPanel } from './contract-sign-panel';
 import DOMPurify from 'isomorphic-dompurify';
 import { fmtDate, fmtINR } from '@/lib/utils';
@@ -27,9 +21,9 @@ async function PublicContractContainer({ hash }: { hash: string }) {
   return (
     <div className="space-y-6">
       <Card>
-        <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <ZoruCardTitle>{contract.name || 'Contract'}</ZoruCardTitle>
+            <CardTitle>{contract.name || 'Contract'}</CardTitle>
             <p className="mt-1 text-sm text-[var(--st-text)]">
               {contract.partyFirst && contract.partySecond
                 ? `${contract.partyFirst} ⇄ ${contract.partySecond}`
@@ -55,13 +49,13 @@ async function PublicContractContainer({ hash }: { hash: string }) {
               Download PDF
             </a>
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+        </CardHeader>
+        <CardBody>
           <article
             className="prose prose-sm max-w-none text-[var(--st-text)]"
             dangerouslySetInnerHTML={{ __html: sanitiseHtml(contract.contractDetail || '') }}
           />
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       <ContractSignPanel

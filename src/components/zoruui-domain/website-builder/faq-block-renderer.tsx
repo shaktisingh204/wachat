@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/sabcrm/20ui/compat';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui/compat';
 import React from 'react';
 
 export function FaqBlockRenderer({ settings }: { settings: any }) {
@@ -21,10 +21,10 @@ export function FaqBlockRenderer({ settings }: { settings: any }) {
         </div>
         <Accordion type="single" collapsible className="w-full">
             {(settings.faqItems || []).map((item: any, index: number) => (
-                <ZoruAccordionItem value={`item-${item.id || index}`} key={item.id || index}>
-                    <ZoruAccordionTrigger>{item.question}</ZoruAccordionTrigger>
-                    <ZoruAccordionContent>{item.answer}</ZoruAccordionContent>
-                </ZoruAccordionItem>
+                <AccordionItem value={`item-${item.id || index}`} key={item.id || index}>
+                    <AccordionTrigger>{item.question}</AccordionTrigger>
+                    <AccordionContent>{item.answer}</AccordionContent>
+                </AccordionItem>
             ))}
         </Accordion>
     </div>

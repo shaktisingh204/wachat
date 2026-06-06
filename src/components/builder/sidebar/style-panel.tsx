@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Input,
-  Label,
-  Button,
-  Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Select,
-} from '@/components/sabcrm/20ui/compat';
+import { Input, Label, Button, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Select } from '@/components/sabcrm/20ui/compat';
 import {
   useEditor } from '@/components/builder/editor-provider';
 
@@ -61,9 +52,9 @@ export const StylePanel = () => {
             <Accordion type="multiple" defaultValue={['typography', 'background', 'layout']}>
 
                 {/* TYPOGRAPHY */}
-                <ZoruAccordionItem value="typography">
-                    <ZoruAccordionTrigger>Typography</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                <AccordionItem value="typography">
+                    <AccordionTrigger>Typography</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-2">
                             <div>
                                 <Label className="text-xs">Color</Label>
@@ -115,13 +106,13 @@ export const StylePanel = () => {
                                 </div>
                             </div>
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
 
                 {/* BACKGROUND */}
-                <ZoruAccordionItem value="background">
-                    <ZoruAccordionTrigger>Background</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                <AccordionItem value="background">
+                    <AccordionTrigger>Background</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div>
                             <Label className="text-xs">Background Color</Label>
                             <div className="flex gap-2">
@@ -139,13 +130,13 @@ export const StylePanel = () => {
                                 />
                             </div>
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
 
                 {/* LAYOUT */}
-                <ZoruAccordionItem value="layout">
-                    <ZoruAccordionTrigger>Layout & Spacing</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                <AccordionItem value="layout">
+                    <AccordionTrigger>Layout & Spacing</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-2">
                             <div>
                                 <Label className="text-xs">Padding</Label>
@@ -184,13 +175,13 @@ export const StylePanel = () => {
                                 />
                             </div>
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
 
                 {/* BORDER */}
-                <ZoruAccordionItem value="border">
-                    <ZoruAccordionTrigger>Border</ZoruAccordionTrigger>
-                    <ZoruAccordionContent className="space-y-4 pt-2">
+                <AccordionItem value="border">
+                    <AccordionTrigger>Border</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-2">
                             <div>
                                 <Label className="text-xs">Radius</Label>
@@ -241,8 +232,8 @@ export const StylePanel = () => {
                                 </select>
                             </div>
                         </div>
-                    </ZoruAccordionContent>
-                </ZoruAccordionItem>
+                    </AccordionContent>
+                </AccordionItem>
 
             </Accordion>
         </div>

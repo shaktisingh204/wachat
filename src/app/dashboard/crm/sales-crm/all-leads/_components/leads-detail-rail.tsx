@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
+import { Badge, Card, CardBody, CardHeader, CardTitle, Skeleton } from '@/components/sabcrm/20ui/compat';
 import { use } from 'react';
 import {
   formatDistanceToNow } from 'date-fns';
@@ -41,10 +41,10 @@ export function LeadsDetailRail({
     return (
         <>
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Pipeline</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-3 text-sm">
+                <CardHeader>
+                    <CardTitle>Pipeline</CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-3 text-sm">
                     <RailRow label="Pipeline">
                         {lead.pipelineId ? (
                             <EntityPickerChip entity="pipeline" id={lead.pipelineId} />
@@ -73,14 +73,14 @@ export function LeadsDetailRail({
                             onSaved={onSaved}
                         />
                     </RailRow>
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Activity stats</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-2 text-sm">
+                <CardHeader>
+                    <CardTitle>Activity stats</CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-2 text-sm">
                     <Stat
                         label="Created"
                         value={
@@ -110,21 +110,21 @@ export function LeadsDetailRail({
                         }
                     />
                     <Stat label="Lead score" value={(lead as any).leadScore ?? '—'} />
-                </ZoruCardContent>
+                </CardBody>
             </Card>
 
             <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Related</ZoruCardTitle>
-                </ZoruCardHeader>
+                <CardHeader>
+                    <CardTitle>Related</CardTitle>
+                </CardHeader>
                 <React.Suspense
                     fallback={
-                        <ZoruCardContent className="space-y-2 text-sm">
+                        <CardBody className="space-y-2 text-sm">
                             <Skeleton className="h-9 w-full" />
                             <Skeleton className="h-9 w-full" />
                             <Skeleton className="h-9 w-full" />
                             <Skeleton className="h-9 w-full" />
-                        </ZoruCardContent>
+                        </CardBody>
                     }
                 >
                     <RelatedCardsContent leadId={leadId} countsPromise={countsPromise} />
@@ -143,7 +143,7 @@ function RelatedCardsContent({
 }) {
     const counts = use(countsPromise);
     return (
-        <ZoruCardContent className="space-y-2 text-sm">
+        <CardBody className="space-y-2 text-sm">
             <RelatedLink
                 label="Deals"
                 count={counts.deals}
@@ -164,7 +164,7 @@ function RelatedCardsContent({
                 count={counts.quotations}
                 href={`/dashboard/crm/sales-crm/quotations?leadId=${leadId}`}
             />
-        </ZoruCardContent>
+        </CardBody>
     );
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { useToast } from '@/components/sabcrm/20ui/compat';
 import {
   CheckCircle2,
   XCircle,
@@ -63,7 +63,7 @@ const TYPE_OPTIONS = [
 ];
 
 export function JobsView({ initial }: { initial: Job[] }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [rows, setRows] = React.useState<Job[]>(initial);
   const [search, setSearch] = React.useState('');
   const [activeKpi, setActiveKpi] = React.useState<string | undefined>();

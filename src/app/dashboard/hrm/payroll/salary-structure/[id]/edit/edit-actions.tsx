@@ -1,13 +1,13 @@
 'use client';
 
 import { Download, FileText, Filter, Users } from 'lucide-react';
-import { Button, useZoruToast } from '@/components/sabcrm/20ui/compat';
+import { Button, useToast } from '@/components/sabcrm/20ui/compat';
 import Papa from 'papaparse';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export function EditHeaderActions({ id, data }: { id: string, data: any }) {
-    const { toast } = useZoruToast();
+    const { toast } = useToast();
 
     const handleExportCSV = () => {
         try {
