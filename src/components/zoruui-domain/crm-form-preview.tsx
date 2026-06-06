@@ -145,7 +145,7 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
                     );
                 })}
             </div>
-            <div className="flex p-6 pt-0" style={{flexDirection: 'column', justifyContent: settings.buttonAlign || 'flex-start', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start' }}>
+            <div className="flex flex-col p-6 pt-0" style={{justifyContent: settings.buttonAlign || 'flex-start', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start' }}>
                 <Button disabled className="w-full submit-button-preview" size={settings.buttonSize}>
                     {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`}}/>}
                     {settings.submitButtonText || 'Submit'}

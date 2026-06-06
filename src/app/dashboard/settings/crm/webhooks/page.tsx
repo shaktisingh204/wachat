@@ -654,9 +654,9 @@ function DeleteDialog({
           </button>
         </div>
         <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
+          <p className="m-0 text-[var(--st-text-secondary)]">
             Delete the subscription to{' '}
-            <strong style={{ color: 'var(--st-text)' }}>{sub.url}</strong>? Events
+            <strong className="text-[var(--st-text)]">{sub.url}</strong>? Events
             will no longer be delivered. This cannot be undone.
           </p>
         </div>
@@ -900,7 +900,7 @@ function DeliveriesDialog({
 
 function WebhooksSkeleton(): React.JSX.Element {
   return (
-    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+    <div className="st-table-wrap p-[var(--st-space-3)]">
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="st-skeleton st-skeleton-row" />
       ))}

@@ -594,7 +594,7 @@ function InstalledSection({
                       </span>
                     </div>
                   </td>
-                  <td style={{ color: 'var(--st-text-secondary)' }}>
+                  <td className="text-[var(--st-text-secondary)]">
                     {formatInstalledAt(app.installedAt)}
                   </td>
                   <td className="st-cell-actions">
@@ -660,8 +660,7 @@ const DEVELOPER_LINKS: {
 function DeveloperSection(): React.JSX.Element {
   return (
     <section
-      className="st-apps-section"
-      style={{ marginTop: 0 }}
+      className="st-apps-section mt-0"
       role="tabpanel"
       id="apps-panel-developer"
       aria-labelledby="apps-tab-developer"
@@ -821,8 +820,7 @@ export default function SabcrmApplicationsSettingsPage(): React.JSX.Element {
         {/* ---- Marketplace tab ---- */}
         {activeTab === 'marketplace' ? (
           <section
-            className="st-apps-section"
-            style={{ marginTop: 0 }}
+            className="st-apps-section mt-0"
             role="tabpanel"
             id="apps-panel-marketplace"
             aria-labelledby="apps-tab-marketplace"
@@ -855,7 +853,7 @@ export default function SabcrmApplicationsSettingsPage(): React.JSX.Element {
                 onRemove={handleRemove}
               />
             ) : (
-              <section className="st-apps-section" style={{ marginTop: 0 }}>
+              <section className="st-apps-section mt-0">
                 <div className="st-apps-section__head">
                   <h2 className="st-apps-section__title">
                     <span
@@ -868,8 +866,7 @@ export default function SabcrmApplicationsSettingsPage(): React.JSX.Element {
                   </h2>
                 </div>
                 <div
-                  className="st-table-wrap"
-                  style={{ padding: 'var(--st-space-3)' }}
+                  className="st-table-wrap p-[var(--st-space-3)]"
                 >
                   <div className="st-skeleton st-skeleton-row" />
                   <div className="st-skeleton st-skeleton-row" />

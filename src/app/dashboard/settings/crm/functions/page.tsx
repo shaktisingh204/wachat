@@ -165,7 +165,7 @@ function FunctionEditor({
     <form className="st-fn-editor" onSubmit={handleSave}>
       <div className="st-fn-editor__head">
         <div className="st-fn-editor__head-meta">
-          <Code2 size={15} aria-hidden="true" style={{ color: 'var(--st-text-tertiary)' }} />
+          <Code2 size={15} aria-hidden="true" className="text-[var(--st-text-tertiary)]" />
           <span className="st-fn-editor__head-title">{fn.name || 'untitled'}</span>
           <RuntimeBadge runtime={fn.runtime} />
         </div>
@@ -323,9 +323,9 @@ function DeleteDialog({ fn, onCancel, onConfirm }: DeleteDialogProps): React.JSX
           </button>
         </div>
         <div className="st-dialog__body">
-          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
+          <p className="m-0 text-[var(--st-text-secondary)]">
             Delete{' '}
-            <strong style={{ color: 'var(--st-text)' }}>
+            <strong className="text-[var(--st-text)]">
               {fn.name || 'this function'}
             </strong>
             ? The definition is removed from this browser. This cannot be undone.
@@ -355,12 +355,12 @@ function DeleteDialog({ fn, onCancel, onConfirm }: DeleteDialogProps): React.JSX
 function FunctionsSkeleton(): React.JSX.Element {
   return (
     <div className="st-fn-split">
-      <div className="st-fn-list" style={{ padding: 'var(--st-space-2)' }}>
+      <div className="st-fn-list p-[var(--st-space-2)]">
         <div className="st-skeleton st-skeleton-row" />
         <div className="st-skeleton st-skeleton-row" />
         <div className="st-skeleton st-skeleton-row" />
       </div>
-      <div className="st-fn-editor" style={{ padding: 'var(--st-space-3)' }}>
+      <div className="st-fn-editor p-[var(--st-space-3)]">
         <div className="st-skeleton st-skeleton-row" />
         <div className="st-skeleton st-skeleton-row" />
         <div className="st-skeleton st-skeleton-row" />

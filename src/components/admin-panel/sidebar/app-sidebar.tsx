@@ -267,13 +267,12 @@ function AppHeader({ activeApp }: { activeApp: string }) {
         <div className="px-3 pt-4 pb-3 shrink-0">
             <div className="flex items-center gap-2.5">
                 <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-500"
-                    style={{ background: 'var(--app-light)', boxShadow: '0 0 12px var(--app-glow)' }}
+                    className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-500 bg-[var(--app-light)] shadow-[0_0_12px_var(--app-glow)]"
                 >
-                    <Icon className="h-4 w-4" style={{ color: 'var(--app-text)' }} />
+                    <Icon className="h-4 w-4 text-[var(--app-text)]" />
                 </div>
                 <div>
-                    <p className="text-sm font-bold tracking-tight leading-none" style={{ color: 'var(--app-text)' }}>
+                    <p className="text-sm font-bold tracking-tight leading-none text-[var(--app-text)]">
                         {meta.label}
                     </p>
                     <p className="text-[10px] text-zoru-ink-muted mt-0.5">Navigation</p>
@@ -427,7 +426,7 @@ export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
             <AppHeader activeApp={activeApp} />
 
             {/* Thin accent line under header */}
-            <div className="mx-3 h-px mb-1" style={{ background: 'var(--app-border)' }} />
+            <div className="mx-3 h-px mb-1 bg-[var(--app-border)]" />
 
             {/* Project switcher */}
             {showProjectSwitcher && <InlineProjectSwitcher />}

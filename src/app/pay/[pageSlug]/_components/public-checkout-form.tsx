@@ -154,10 +154,7 @@ export function PublicCheckoutForm({
 
   return (
     <main
-      className="min-h-screen w-full px-4 py-10"
-      style={{
-        background: 'linear-gradient(180deg,#fafafa,#f4f4f5)',
-      }}
+      className="min-h-screen w-full bg-gradient-to-b from-[#fafafa] to-[#f4f4f5] px-4 py-10"
     >
       <div className="mx-auto max-w-xl space-y-6">
         <header className="space-y-3 text-center">

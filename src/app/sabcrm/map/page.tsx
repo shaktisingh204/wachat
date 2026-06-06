@@ -520,8 +520,8 @@ export default function SabcrmMapPage(): React.JSX.Element {
       {loadingObjects ? (
         <>
           <div
-            className="st-skeleton"
-            style={{ height: 132, borderRadius: 'var(--st-radius-lg)', marginBottom: 16 }}
+            className="st-skeleton rounded-[var(--st-radius-lg)]"
+            style={{ height: 132, marginBottom: 16 }}
           />
           <div className="map-explorer">
             <div className="map-places">

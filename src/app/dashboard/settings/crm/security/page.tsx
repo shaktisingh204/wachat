@@ -422,14 +422,14 @@ function SecuritySkeleton(): React.JSX.Element {
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="st-sec-card">
           <div className="st-sec-card__head">
-            <div className="st-skeleton" style={{ width: 32, height: 32, borderRadius: 8 }} />
+            <div className="st-skeleton" style={{ width: 32, height: 32 }} />
             <div style={{ flex: 1 }}>
               <div className="st-skeleton" style={{ width: 180, height: 13, marginBottom: 8 }} />
               <div className="st-skeleton" style={{ width: 280, height: 11 }} />
             </div>
           </div>
           <div className="st-sec-card__body">
-            <div className="st-skeleton" style={{ height: 36 }} />
+            <div className="st-skeleton st-skeleton-row" />
           </div>
         </div>
       ))}
