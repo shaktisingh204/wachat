@@ -1,32 +1,51 @@
 'use client';
 
 /**
- * SabCRM — API Keys settings (`/dashboard/settings/crm/api`), Twenty-style.
+ * SabCRM — API Keys settings (`/dashboard/settings/crm/api`).
  *
  * Lists the active project's API keys (label, masked key, created, last used)
  * and supports issuing a new key (secret shown exactly once) and revoking an
  * existing key with confirmation. All three operations go through the
  * admin-gated server actions, each of which independently re-runs the
- * session → project → RBAC (`sabcrm:admin`) → plan pipeline, so the page fails
+ * session, project, RBAC (`sabcrm:admin`), plan pipeline, so the page fails
  * closed even when the layout guard passes.
  *
  * Project scope comes from `useProject()`. States: skeleton while project /
  * data load, "no project" notice, empty list, error banner, and graceful
  * degradation when the backend is unreachable.
+ *
+ * Built entirely on the 20ui design system (`@/components/sabcrm/20ui`).
  */
 
 import * as React from 'react';
-import {
-  KeyRound,
-  Plus,
-  X,
-  Copy,
-  Check,
-  AlertTriangle,
-  Info,
-} from 'lucide-react';
+import { KeyRound, Plus, Copy, Check, Info } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  Card,
+  Alert,
+  Callout,
+  EmptyState,
+  Skeleton,
+  Modal,
+  Field,
+  Input,
+  Checkbox,
+  Badge,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  useToast,
+} from '@/components/sabcrm/20ui';
+
 import { useProject } from '@/context/project-context';
 import {
   listApiKeysAction,
@@ -38,18 +57,14 @@ import type {
   IssuedSabcrmApiKey,
 } from '@/lib/sabcrm/apikeys.server';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './api-scopes.css';
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function formatDate(iso: string | null): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '—';
+  if (Number.isNaN(d.getTime())) return '-';
   return d.toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'short',
@@ -70,7 +85,7 @@ function maskedKey(prefix: string): string {
  * The scope catalogue offered in the Create-key dialog.
  *
  * NOTE on persistence: the backend `issueApiKeyAction(label, projectId)` action
- * (and the `issueApiKey` store beneath it) accepts ONLY a label — it has no
+ * (and the `issueApiKey` store beneath it) accepts ONLY a label, it has no
  * scopes column. Rather than silently dropping the operator's selection, we
  * encode the chosen scopes into the label using a machine-parseable suffix
  * (`[scopes: a,b,c]`). The suffix round-trips through the existing store, is
@@ -97,7 +112,7 @@ const DEFAULT_SCOPES: readonly ScopeId[] = ['records:read', 'records:write'];
 /** Marker that carries the scope list inside the (label-only) backend field. */
 const SCOPE_TAG_RE = /\s*\[scopes:\s*([^\]]*)\]\s*$/i;
 
-/** Strip the encoded `[scopes: …]` suffix, returning the human-readable label. */
+/** Strip the encoded `[scopes: ...]` suffix, returning the human-readable label. */
 function labelOf(rawLabel: string): string {
   return rawLabel.replace(SCOPE_TAG_RE, '').trim() || rawLabel.trim();
 }
@@ -126,20 +141,16 @@ function encodeLabel(name: string, scopes: readonly ScopeId[]): string {
 
 function ScopeChips({ scopes }: { scopes: ScopeId[] }): React.JSX.Element {
   if (scopes.length === 0) {
-    return (
-      <div className="st-scope-chips">
-        <span className="st-scope-chip st-scope-chip--empty">No scopes</span>
-      </div>
-    );
+    return <Badge tone="neutral">No scopes</Badge>;
   }
   return (
-    <div className="st-scope-chips">
+    <span className="flex flex-wrap gap-1.5">
       {scopes.map((s) => (
-        <span key={s} className="st-scope-chip">
+        <Badge key={s} tone="accent">
           {s}
-        </span>
+        </Badge>
       ))}
-    </div>
+    </span>
   );
 }
 
@@ -156,20 +167,26 @@ function CopyValue({ value }: { value: string }): React.JSX.Element {
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
-      /* clipboard unavailable — no-op */
+      /* clipboard unavailable, no-op */
     }
   }, [value]);
 
   return (
-    <div className="st-secret__value">
-      <code className="st-secret__code">{value}</code>
-      <TwentyButton
+    <div className="flex items-center gap-2">
+      <Input
+        readOnly
+        value={value}
+        aria-label="API key"
+        className="font-mono"
+        onFocus={(e) => e.currentTarget.select()}
+      />
+      <Button
         variant="secondary"
-        icon={copied ? Check : Copy}
+        iconLeft={copied ? Check : Copy}
         onClick={copy}
       >
         {copied ? 'Copied' : 'Copy'}
-      </TwentyButton>
+      </Button>
     </div>
   );
 }
@@ -189,6 +206,7 @@ function CreateKeyDialog({
   onClose,
   onIssued,
 }: CreateKeyDialogProps): React.JSX.Element {
+  const { toast } = useToast();
   const [label, setLabel] = React.useState('');
   const [scopes, setScopes] = React.useState<ScopeId[]>([...DEFAULT_SCOPES]);
   const [submitting, setSubmitting] = React.useState(false);
@@ -214,6 +232,7 @@ function CreateKeyDialog({
         if (res.ok) {
           setIssued(res.data);
           onIssued(res.data);
+          toast.success('API key created');
         } else {
           setError(res.error);
         }
@@ -223,141 +242,120 @@ function CreateKeyDialog({
         setSubmitting(false);
       }
     },
-    [label, scopes, submitting, projectId, onIssued],
+    [label, scopes, submitting, projectId, onIssued, toast],
   );
 
+  if (issued) {
+    return (
+      <Modal
+        open
+        onClose={onClose}
+        title="API key created"
+        size="md"
+        footer={
+          <Button variant="primary" onClick={onClose}>
+            Done
+          </Button>
+        }
+      >
+        <Field
+          label="Your new API key"
+          help="Copy this key now. For security it is shown only once and cannot be recovered afterwards."
+        >
+          <CopyValue value={issued.rawKey} />
+        </Field>
+        {scopes.length > 0 ? (
+          <div className="mt-[var(--st-space-4)]">
+            <p className="mb-2 text-[var(--st-text-secondary)] text-[length:var(--st-fs-sm)]">
+              Scopes
+            </p>
+            <ScopeChips scopes={scopes} />
+          </div>
+        ) : null}
+      </Modal>
+    );
+  }
+
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Create API key"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !issued) onClose();
-      }}
-    >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">
-            {issued ? 'API key created' : 'Create API key'}
-          </h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onClose}
-            aria-label="Close"
+    <Modal
+      open
+      onClose={onClose}
+      title="Create API key"
+      size="md"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="create-api-key-form"
+            variant="primary"
+            loading={submitting}
+            disabled={submitting || !label.trim()}
           >
-            <X size={16} />
-          </button>
+            {submitting ? 'Creating' : 'Create key'}
+          </Button>
+        </>
+      }
+    >
+      <form id="create-api-key-form" onSubmit={submit}>
+        <Field label="Name" required>
+          <Input
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder="e.g. Zapier production"
+            autoFocus
+            maxLength={80}
+          />
+        </Field>
+
+        <div className="mt-[var(--st-space-4)]">
+          <p
+            id="api-key-scopes-label"
+            className="mb-2 text-[var(--st-text)] text-[length:var(--st-fs-sm)] font-[var(--st-fw-medium)]"
+          >
+            Scopes
+          </p>
+          <div
+            role="group"
+            aria-labelledby="api-key-scopes-label"
+            className="flex flex-col gap-2"
+          >
+            {SCOPE_OPTIONS.map((opt) => (
+              <Checkbox
+                key={opt.id}
+                checked={scopes.includes(opt.id)}
+                onChange={() => toggleScope(opt.id)}
+                label={
+                  <span className="flex flex-col">
+                    <span className="font-[var(--st-fw-medium)] text-[var(--st-text)]">
+                      {opt.id}
+                    </span>
+                    <span className="text-[var(--st-text-secondary)] text-[length:var(--st-fs-sm)]">
+                      {opt.desc}
+                    </span>
+                  </span>
+                }
+              />
+            ))}
+          </div>
+          <div className="mt-[var(--st-space-3)]">
+            <Callout tone="info" icon={Info}>
+              Scopes are recorded with the key and shown on each row, but
+              REST-layer enforcement is not yet wired, so for now they are
+              display-only metadata. Enforcement is coming.
+            </Callout>
+          </div>
         </div>
 
-        {issued ? (
-          <>
-            <div className="st-dialog__body">
-              <div className="st-secret">
-                <span className="st-secret__label">Your new API key</span>
-                <CopyValue value={issued.rawKey} />
-                <span className="st-secret__hint">
-                  Copy this key now — for security it is shown only once and
-                  cannot be recovered afterwards.
-                </span>
-              </div>
-              {scopes.length > 0 ? (
-                <div className="st-field mt-[var(--st-space-3)]">
-                  <span className="st-field__label">Scopes</span>
-                  <ScopeChips scopes={scopes} />
-                </div>
-              ) : null}
-            </div>
-            <div className="st-dialog__footer">
-              <TwentyButton variant="primary" onClick={onClose}>
-                Done
-              </TwentyButton>
-            </div>
-          </>
-        ) : (
-          <form onSubmit={submit}>
-            <div className="st-dialog__body">
-              <div className="st-field">
-                <label className="st-field__label" htmlFor="api-key-label">
-                  Name
-                  <span className="st-field__req" aria-hidden="true">
-                    *
-                  </span>
-                </label>
-                <input
-                  id="api-key-label"
-                  className="st-input"
-                  value={label}
-                  onChange={(e) => setLabel(e.target.value)}
-                  placeholder="e.g. Zapier production"
-                  autoFocus
-                  maxLength={80}
-                />
-              </div>
-
-              <div
-                className="st-field mt-[var(--st-space-4)]"
-              >
-                <span className="st-field__label" id="api-key-scopes-label">
-                  Scopes
-                </span>
-                <div
-                  className="st-scopes"
-                  role="group"
-                  aria-labelledby="api-key-scopes-label"
-                >
-                  <div className="st-scopes__list">
-                    {SCOPE_OPTIONS.map((opt) => {
-                      const on = scopes.includes(opt.id);
-                      return (
-                        <label
-                          key={opt.id}
-                          className={`st-scope${on ? ' st-scope--on' : ''}`}
-                        >
-                          <input
-                            type="checkbox"
-                            className="st-scope__check"
-                            checked={on}
-                            onChange={() => toggleScope(opt.id)}
-                          />
-                          <span className="st-scope__text">
-                            <span className="st-scope__name">{opt.id}</span>
-                            <span className="st-scope__desc">{opt.desc}</span>
-                          </span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                  <p className="st-scopes__note">
-                    <Info className="st-scopes__note-icon" size={13} />
-                    <span>
-                      Scopes are recorded with the key and shown on each row, but
-                      REST-layer enforcement is not yet wired — for now they are
-                      display-only metadata. Enforcement is coming.
-                    </span>
-                  </p>
-                </div>
-              </div>
-
-              {error ? <p className="st-form-error">{error}</p> : null}
-            </div>
-            <div className="st-dialog__footer">
-              <TwentyButton variant="secondary" onClick={onClose} disabled={submitting}>
-                Cancel
-              </TwentyButton>
-              <TwentyButton
-                type="submit"
-                variant="primary"
-                disabled={submitting || !label.trim()}
-              >
-                {submitting ? 'Creating…' : 'Create key'}
-              </TwentyButton>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+        {error ? (
+          <div className="mt-[var(--st-space-3)]">
+            <Alert tone="danger">{error}</Alert>
+          </div>
+        ) : null}
+      </form>
+    </Modal>
   );
 }
 
@@ -379,49 +377,29 @@ function RevokeDialog({
   busy,
 }: RevokeDialogProps): React.JSX.Element {
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Revoke API key"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel();
-      }}
-    >
-      <div className="st-dialog">
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Revoke API key</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onCancel}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">
-          <p className="m-0 text-[var(--st-text-secondary)]">
-            Revoke <strong className="text-[var(--st-text)]">{labelOf(apiKey.label)}</strong>
-            ? Any integration using this key will immediately stop working. This
-            cannot be undone.
-          </p>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
+    <Modal
+      open
+      onClose={onCancel}
+      title="Revoke API key"
+      size="sm"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onCancel} disabled={busy}>
             Cancel
-          </TwentyButton>
-          <TwentyButton
-            variant="secondary"
-            className="st-btn--danger"
-            onClick={onConfirm}
-            disabled={busy}
-          >
-            {busy ? 'Revoking…' : 'Revoke key'}
-          </TwentyButton>
-        </div>
-      </div>
-    </div>
+          </Button>
+          <Button variant="danger" onClick={onConfirm} loading={busy} disabled={busy}>
+            {busy ? 'Revoking' : 'Revoke key'}
+          </Button>
+        </>
+      }
+    >
+      <p className="m-0 text-[var(--st-text-secondary)]">
+        Revoke{' '}
+        <strong className="text-[var(--st-text)]">{labelOf(apiKey.label)}</strong>?
+        Any integration using this key will immediately stop working. This cannot
+        be undone.
+      </p>
+    </Modal>
   );
 }
 
@@ -431,11 +409,13 @@ function RevokeDialog({
 
 function KeysSkeleton(): React.JSX.Element {
   return (
-    <div className="st-table-wrap p-[var(--st-space-3)]">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="st-skeleton st-skeleton-row" />
-      ))}
-    </div>
+    <Card padding="md">
+      <div className="flex flex-col gap-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} height={40} radius={8} />
+        ))}
+      </div>
+    </Card>
   );
 }
 
@@ -445,6 +425,7 @@ function KeysSkeleton(): React.JSX.Element {
 
 export default function SabcrmApiKeysSettingsPage(): React.JSX.Element {
   const { activeProjectId, isLoadingProject } = useProject();
+  const { toast } = useToast();
 
   const [keys, setKeys] = React.useState<SabcrmApiKey[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -488,6 +469,7 @@ export default function SabcrmApiKeysSettingsPage(): React.JSX.Element {
       if (res.ok) {
         setKeys((prev) => prev.filter((k) => k.id !== revokeTarget.id));
         setRevokeTarget(null);
+        toast.success('API key revoked');
       } else {
         setError(res.error);
         setRevokeTarget(null);
@@ -498,114 +480,116 @@ export default function SabcrmApiKeysSettingsPage(): React.JSX.Element {
     } finally {
       setRevoking(false);
     }
-  }, [revokeTarget, activeProjectId]);
+  }, [revokeTarget, activeProjectId, toast]);
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader
-          title="API Keys"
-          icon={KeyRound}
-          actions={
-            activeProjectId ? (
-              <TwentyButton
+    <div className="ui20">
+      <div className="mx-auto flex max-w-5xl flex-col gap-[var(--st-space-5)] p-[var(--st-space-6)]">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>API Keys</PageTitle>
+            <PageDescription>
+              Bearer tokens for the SabCRM REST API, scoped to this project.
+              Issuing and revoking keys requires the{' '}
+              <code className="font-mono text-[var(--st-text)]">sabcrm:admin</code>{' '}
+              capability.
+            </PageDescription>
+          </PageHeaderHeading>
+          {activeProjectId ? (
+            <PageActions>
+              <Button
                 variant="primary"
-                icon={Plus}
+                iconLeft={Plus}
                 onClick={() => setCreateOpen(true)}
               >
                 Create key
-              </TwentyButton>
-            ) : null
-          }
-        />
-        <p className="st-settings__intro">
-          Bearer tokens for the SabCRM REST API, scoped to this project. Issuing
-          and revoking keys requires the <code>sabcrm:admin</code> capability.
-        </p>
+              </Button>
+            </PageActions>
+          ) : null}
+        </PageHeader>
 
         {error ? (
-          <div className="st-banner">
-            <AlertTriangle className="st-banner__icon" size={16} />
-            <span>{error}</span>
-          </div>
+          <Alert tone="danger" onClose={() => setError(null)}>
+            {error}
+          </Alert>
         ) : null}
 
         {isLoadingProject || loading ? (
           <KeysSkeleton />
         ) : !activeProjectId ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <AlertTriangle size={20} />
-            </span>
-            <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">
-              Select a project to manage its API keys.
-            </p>
-          </div>
+          <Card padding="lg">
+            <EmptyState
+              icon={KeyRound}
+              tone="warning"
+              title="No project selected"
+              description="Select a project to manage its API keys."
+            />
+          </Card>
         ) : keys.length === 0 ? (
-          <div className="st-empty">
-            <span className="st-empty__icon">
-              <KeyRound size={20} />
-            </span>
-            <h2 className="st-empty__title">No API keys yet</h2>
-            <p className="st-empty__desc">
-              Create a key to authenticate requests to the SabCRM REST API.
-            </p>
-            <TwentyButton
-              variant="secondary"
-              icon={Plus}
-              onClick={() => setCreateOpen(true)}
-            >
-              Create key
-            </TwentyButton>
-          </div>
+          <Card padding="lg">
+            <EmptyState
+              icon={KeyRound}
+              title="No API keys yet"
+              description="Create a key to authenticate requests to the SabCRM REST API."
+              action={
+                <Button
+                  variant="secondary"
+                  iconLeft={Plus}
+                  onClick={() => setCreateOpen(true)}
+                >
+                  Create key
+                </Button>
+              }
+            />
+          </Card>
         ) : (
-          <div className="st-table-wrap">
-            <table className="st-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Key</th>
-                  <th>Scopes</th>
-                  <th>Created</th>
-                  <th>Last used</th>
-                  <th aria-label="Actions" />
-                </tr>
-              </thead>
-              <tbody>
+          <Card padding="none">
+            <Table>
+              <THead>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Key</Th>
+                  <Th>Scopes</Th>
+                  <Th>Created</Th>
+                  <Th>Last used</Th>
+                  <Th align="right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {keys.map((key) => (
-                  <tr key={key.id} className="st-row">
-                    <td className="font-[var(--st-fw-medium)]">
+                  <Tr key={key.id}>
+                    <Td className="font-[var(--st-fw-medium)]">
                       {labelOf(key.label)}
-                    </td>
-                    <td className="st-mono">{maskedKey(key.prefix)}</td>
-                    <td>
+                    </Td>
+                    <Td className="font-mono">{maskedKey(key.prefix)}</Td>
+                    <Td>
                       <ScopeChips scopes={scopesOf(key.label)} />
-                    </td>
-                    <td className="text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[var(--st-text-secondary)]">
                       {formatDate(key.createdAt)}
-                    </td>
-                    <td className="text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td className="text-[var(--st-text-secondary)]">
                       {key.lastUsedAt ? (
                         formatDate(key.lastUsedAt)
                       ) : (
-                        <span className="st-muted">Never</span>
+                        <span className="text-[var(--st-text-tertiary)]">Never</span>
                       )}
-                    </td>
-                    <td className="st-cell-actions">
-                      <TwentyButton
+                    </Td>
+                    <Td align="right">
+                      <Button
                         variant="ghost"
-                        className="st-btn--danger"
+                        size="sm"
                         onClick={() => setRevokeTarget(key)}
+                        className="text-[var(--st-danger)]"
                       >
                         Revoke
-                      </TwentyButton>
-                    </td>
-                  </tr>
+                      </Button>
+                    </Td>
+                  </Tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TBody>
+            </Table>
+          </Card>
         )}
       </div>
 
@@ -614,7 +598,10 @@ export default function SabcrmApiKeysSettingsPage(): React.JSX.Element {
           projectId={activeProjectId}
           onClose={() => setCreateOpen(false)}
           onIssued={(issued) =>
-            setKeys((prev) => [issued.key, ...prev.filter((k) => k.id !== issued.key.id)])
+            setKeys((prev) => [
+              issued.key,
+              ...prev.filter((k) => k.id !== issued.key.id),
+            ])
           }
         />
       ) : null}

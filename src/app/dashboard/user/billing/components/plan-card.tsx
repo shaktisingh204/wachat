@@ -1,21 +1,29 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Separator } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  CardFooter,
+  Separator,
+  Badge,
+} from '@/components/sabcrm/20ui';
 import { Check, X, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PlanPurchaseButton } from '@/components/zoruui-domain/plan-purchase-button';
-import { motion } from 'framer-motion';
 import type { Plan, WithId } from '@/lib/definitions';
 
 const PlanFeature = ({ children, included }: { children: React.ReactNode; included: boolean }) => (
   <li className="flex items-start gap-3">
     {included ? (
-      <div className="mt-0.5 rounded-full bg-[var(--st-status-ok)]/20 p-1">
-        <Check className="h-3.5 w-3.5 text-[var(--st-status-ok)] flex-shrink-0" />
-      </div>
+      <span className="mt-0.5 rounded-[var(--st-radius-pill)] bg-[var(--st-status-ok)]/20 p-1" aria-hidden="true">
+        <Check className="h-3.5 w-3.5 flex-shrink-0 text-[var(--st-status-ok)]" />
+      </span>
     ) : (
-      <div className="mt-0.5 rounded-full bg-[var(--st-bg-muted)] p-1">
-        <X className="h-3.5 w-3.5 text-[var(--st-text-secondary)] flex-shrink-0" />
-      </div>
+      <span className="mt-0.5 rounded-[var(--st-radius-pill)] bg-[var(--st-bg-muted)] p-1" aria-hidden="true">
+        <X className="h-3.5 w-3.5 flex-shrink-0 text-[var(--st-text-secondary)]" />
+      </span>
     )}
     <span className={cn('text-sm leading-snug', !included && 'text-[var(--st-text-secondary)]')}>
       {children}
@@ -35,45 +43,47 @@ export const PlanCard = ({
   const isCurrentPlan = currentPlanId?.toString() === plan._id.toString();
 
   return (
-    <motion.div
-      whileHover={{ y: -8 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className="h-full"
-    >
+    <div className="h-full transition-transform duration-200 ease-out motion-safe:hover:-translate-y-2">
       <Card
+        padding="none"
         className={cn(
-          'relative flex flex-col w-[340px] h-full overflow-hidden transition-all duration-300',
+          'relative flex h-full w-[340px] flex-col overflow-hidden',
           isCurrentPlan
-            ? 'border-2 border-[var(--st-text)] shadow-glow-lg bg-[var(--st-bg)]'
-            : 'border border-[var(--st-border)] hover:border-[var(--st-text)]/50 hover:shadow-xl bg-[var(--st-bg)]'
+            ? 'border-2 border-[var(--st-text)] shadow-[var(--st-shadow-lg)]'
+            : 'border-[var(--st-border)] transition-shadow duration-200 hover:border-[var(--st-text)]/50 hover:shadow-[var(--st-shadow-lg)]'
         )}
       >
         {isCurrentPlan && (
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text-secondary)]" />
+          <span
+            className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text-secondary)]"
+            aria-hidden="true"
+          />
         )}
-        
-        <CardHeader className="flex-grow pt-8 pb-4">
-          <div className="flex justify-between items-start">
+
+        <CardHeader className="flex-grow px-6 pt-8 pb-4">
+          <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
             {isCurrentPlan && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--st-text)]/10 px-2.5 py-0.5 text-xs font-semibold text-[var(--st-text)]">
-                <Sparkles className="h-3 w-3" /> Current
-              </span>
+              <Badge tone="accent">
+                <Sparkles className="h-3 w-3" aria-hidden="true" /> Current
+              </Badge>
             )}
           </div>
           <div className="mt-4 flex items-baseline text-5xl font-extrabold tracking-tight text-[var(--st-text)]">
-            <span className="text-2xl font-medium text-[var(--st-text-secondary)] mr-1">{plan.currency === 'INR' ? '₹' : plan.currency}</span>
+            <span className="mr-1 text-2xl font-medium text-[var(--st-text-secondary)]">
+              {plan.currency === 'INR' ? '₹' : plan.currency}
+            </span>
             {plan.price}
             <span className="ml-1 text-sm font-medium text-[var(--st-text-secondary)]">/mo</span>
           </div>
-          <CardDescription className="mt-4 text-[11px] uppercase tracking-wider font-semibold text-[var(--st-text-secondary)]">
-            + Mkt: ₹{plan.messageCosts?.marketing ?? 'N/A'} • Util: ₹{plan.messageCosts?.utility ?? 'N/A'} • Auth: ₹{plan.messageCosts?.authentication ?? 'N/A'}
+          <CardDescription className="mt-4 text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
+            + Mkt: ₹{plan.messageCosts?.marketing ?? 'N/A'}, Util: ₹{plan.messageCosts?.utility ?? 'N/A'}, Auth: ₹{plan.messageCosts?.authentication ?? 'N/A'}
           </CardDescription>
         </CardHeader>
 
-        <Separator className="opacity-60 mx-6 w-auto" />
+        <Separator className="mx-6 w-auto opacity-60" />
 
-        <CardBody className="pt-6 pb-6 flex-grow space-y-4">
+        <CardBody className="flex-grow space-y-4 px-6 pt-6 pb-6">
           <ul className="space-y-4">
             <PlanFeature included={true}>
               {plan.projectLimit > 0 ? <><strong className="text-[var(--st-text)]">{plan.projectLimit}</strong> Project(s)</> : <strong className="text-[var(--st-text)]">Unlimited</strong>}{' '} Projects
@@ -93,12 +103,12 @@ export const PlanCard = ({
           </ul>
         </CardBody>
 
-        <CardFooter className="mt-auto pt-4 pb-6">
+        <CardFooter className="mt-auto px-6 pt-4 pb-6">
           <div className="w-full">
             <PlanPurchaseButton plan={plan} currentPlanId={currentPlanId} projectId={projectId} />
           </div>
         </CardFooter>
       </Card>
-    </motion.div>
+    </div>
   );
 };

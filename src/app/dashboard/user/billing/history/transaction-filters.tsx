@@ -1,4 +1,13 @@
-import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button } from '@/components/sabcrm/20ui';
+import {
+  Field,
+  Input,
+  IconButton,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/sabcrm/20ui';
 import { Search, RefreshCw } from 'lucide-react';
 
 export type SortOption = 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc';
@@ -32,19 +41,18 @@ export function TransactionFilters({
 }: TransactionFiltersProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
-        <Input 
-          placeholder="Search descriptions..." 
-          className="pl-9 bg-[var(--st-bg-secondary)]/50"
+      <Field label="Search transactions" className="flex-1 [&>.u-field__label]:sr-only">
+        <Input
+          placeholder="Search descriptions..."
+          iconLeft={Search}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-      </div>
-      
+      </Field>
+
       <div className="flex flex-col sm:flex-row gap-2">
         <Select value={filterType} onValueChange={(val) => setFilterType(val as FilterType)}>
-          <SelectTrigger className="w-full sm:w-[130px] bg-[var(--st-bg-secondary)]/50">
+          <SelectTrigger aria-label="Filter by type" className="w-full sm:w-[130px]">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
@@ -55,7 +63,7 @@ export function TransactionFilters({
         </Select>
 
         <Select value={filterStatus} onValueChange={(val) => setFilterStatus(val as FilterStatus)}>
-          <SelectTrigger className="w-full sm:w-[130px] bg-[var(--st-bg-secondary)]/50">
+          <SelectTrigger aria-label="Filter by status" className="w-full sm:w-[130px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -67,27 +75,25 @@ export function TransactionFilters({
         </Select>
 
         <Select value={sortOption} onValueChange={(val) => setSortOption(val as SortOption)}>
-          <SelectTrigger className="w-full sm:w-[150px] bg-[var(--st-bg-secondary)]/50">
+          <SelectTrigger aria-label="Sort transactions" className="w-full sm:w-[150px]">
             <SelectValue placeholder="Sort By" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="date-desc">Newest First</SelectItem>
             <SelectItem value="date-asc">Oldest First</SelectItem>
-            <SelectItem value="amount-desc">Amount: High-Low</SelectItem>
-            <SelectItem value="amount-asc">Amount: Low-High</SelectItem>
+            <SelectItem value="amount-desc">Amount: High to Low</SelectItem>
+            <SelectItem value="amount-asc">Amount: Low to High</SelectItem>
           </SelectContent>
         </Select>
 
-        <Button 
-          variant="outline" 
-          size="icon" 
-          onClick={onRefresh} 
+        <IconButton
+          variant="outline"
+          icon={RefreshCw}
+          label="Refresh transactions"
+          onClick={onRefresh}
           disabled={isRefreshing}
-          title="Refresh transactions"
-          className="bg-[var(--st-bg-secondary)]/50"
-        >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-        </Button>
+          className={isRefreshing ? '[&_svg]:animate-spin' : undefined}
+        />
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * SabCRM — Accounts settings (`/dashboard/settings/crm/accounts`), Twenty-style.
+ * SabCRM — Accounts settings (`/dashboard/settings/crm/accounts`), pure 20ui.
  *
  * The "Connected accounts" surface: where a user would normally hook up their
  * Google / Microsoft / IMAP mailbox + calendar so SabCRM can sync messages,
@@ -15,20 +15,24 @@
  *      backend engine.
  *
  *   2. Connected accounts — a list of the placeholder entries with provider
- *      glyph, email, and a sync-status chip that always reads "Not syncing
+ *      glyph, email, and a sync-status badge that always reads "Not syncing
  *      (engine offline)" because nothing is actually syncing. Each account has
- *      a Disconnect action and two UI-only toggles (Email sync / Calendar sync)
+ *      a Disconnect action and two UI-only switches (Email sync / Calendar sync)
  *      that persist their on/off state but do nothing else.
  *
  * Persistence: the placeholder account list is mirrored to the gated CRM
- * settings document on the backend (via `useSettingsSync('accounts', …)` → the
- * `getCrmSettingsTw` / `updateCrmSettingsTw` server actions) AND a local
- * localStorage cache, so the list follows the user across devices while the page
- * never blocks. When the Rust settings engine is down it degrades to the
+ * settings document on the backend (via `useSettingsSync('accounts', …)`) AND a
+ * local localStorage cache, so the list follows the user across devices while
+ * the page never blocks. When the settings engine is down it degrades to the
  * per-browser cache. No real OAuth or mailbox contact happens either way.
  * Graceful states: a hydration-safe initial render, an empty state when nothing
  * is connected, and the permanent "engine offline" sync status so the UI never
  * lies about syncing.
+ *
+ * UI: pure 20ui (`@/components/sabcrm/20ui`) — Card / Field / Input / Button /
+ * Switch / Badge / EmptyState / Alert / Callout / Skeleton / PageHeader — on the
+ * `.sabcrm-twenty.ui20` scope established by the CRM settings shell. One accent,
+ * built-in 20ui motion, tokenized Tailwind only (no `.st-*` classes / CSS).
  */
 
 import * as React from 'react';
@@ -38,19 +42,36 @@ import {
   Plus,
   X,
   Trash2,
-  Info,
   Inbox,
   CalendarDays,
   Link2,
   type LucideIcon,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
-import { useSettingsSync } from '../use-settings-sync';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Button,
+  Field,
+  Input,
+  Switch,
+  Badge,
+  EmptyState,
+  Alert,
+  Callout,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './accounts.css';
+import { useSettingsSync } from '../use-settings-sync';
 
 // ---------------------------------------------------------------------------
 // Model
@@ -82,7 +103,7 @@ const PROVIDERS: ProviderInfo[] = [
     id: 'imap',
     name: 'IMAP',
     Glyph: AtSign,
-    desc: 'Any mailbox over IMAP/SMTP. Requires host + credentials when live.',
+    desc: 'Any mailbox over IMAP/SMTP. Requires host plus credentials when live.',
   },
 ];
 
@@ -237,33 +258,6 @@ function isValidEmail(value: string): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// UI-only switch
-// ---------------------------------------------------------------------------
-
-function Switch({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: () => void;
-  label: string;
-}): React.JSX.Element {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      className="st-switch"
-      onClick={onChange}
-    >
-      <span className="st-switch__knob" aria-hidden="true" />
-    </button>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Connect form — revealed when a provider's "Connect" is pressed
 // ---------------------------------------------------------------------------
 
@@ -299,51 +293,54 @@ function ConnectForm({
   const { Glyph } = provider;
 
   return (
-    <form className="st-connect-form" onSubmit={submit}>
-      <div className="st-section__title" style={{ margin: 0 }}>
-        <span className="st-section__title-icon" aria-hidden="true">
-          <Glyph size={15} />
-        </span>
-        Connect a {provider.name} account
-      </div>
+    <Card
+      variant="outlined"
+      padding="md"
+      className="mb-[var(--st-space-4)] border-[var(--st-accent)]/40 bg-[var(--st-accent-soft)]"
+    >
+      <form onSubmit={submit} className="flex flex-col gap-[var(--st-space-3)]">
+        <CardTitle className="flex items-center gap-[var(--st-space-2)]">
+          <Glyph size={15} className="text-[var(--st-text-tertiary)]" aria-hidden="true" />
+          Connect a {provider.name} account
+        </CardTitle>
 
-      <div className="st-connect-form__row">
-        <div className="st-field">
-          <label className="st-field__label" htmlFor="connect-email">
-            Email address
-          </label>
-          <input
-            id="connect-email"
-            className="st-input"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={
-              provider.id === 'imap' ? 'you@yourdomain.com' : `you@${provider.name.toLowerCase()}.com`
-            }
-            autoFocus
-          />
+        <div className="flex items-end gap-[var(--st-space-2)]">
+          <Field
+            label="Email address"
+            error={error ?? undefined}
+            className="min-w-0 flex-1"
+          >
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError(null);
+              }}
+              placeholder={
+                provider.id === 'imap'
+                  ? 'you@yourdomain.com'
+                  : `you@${provider.name.toLowerCase()}.com`
+              }
+              autoFocus
+            />
+          </Field>
+          <Button type="submit" variant="primary" iconLeft={Plus}>
+            Add account
+          </Button>
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
         </div>
-        <TwentyButton type="submit" variant="primary" icon={Plus}>
-          Add account
-        </TwentyButton>
-        <TwentyButton variant="secondary" onClick={onCancel}>
-          Cancel
-        </TwentyButton>
-      </div>
 
-      {error ? <p className="st-form-error">{error}</p> : null}
-
-      <div className="st-invite-callout">
-        <Info className="st-invite-callout__icon" size={14} aria-hidden="true" />
-        <span>
-          No real mailbox is contacted and no OAuth happens here — this adds a
+        <Callout tone="info">
+          No real mailbox is contacted and no OAuth happens here. This adds a
           local placeholder account so you can preview the experience. Live
-          syncing needs the backend mail/calendar engine, which isn&apos;t wired
-          up yet.
-        </span>
-      </div>
-    </form>
+          syncing needs the backend mail/calendar engine, which is not wired up
+          yet.
+        </Callout>
+      </form>
+    </Card>
   );
 }
 
@@ -355,196 +352,252 @@ export default function SabcrmAccountsSettingsPage(): React.JSX.Element {
   const { accounts, hydrated, offline, add, remove, toggle } =
     useConnectedAccounts();
   const [connecting, setConnecting] = React.useState<ProviderId | null>(null);
+  const { toast } = useToast();
 
   const handleConnect = React.useCallback(
     (provider: ProviderId, email: string) => {
       add(provider, email);
       setConnecting(null);
+      toast.success(`${email} added as a placeholder account.`);
     },
-    [add],
+    [add, toast],
+  );
+
+  const handleRemove = React.useCallback(
+    (id: string, email: string) => {
+      remove(id);
+      toast.info(`${email} disconnected.`);
+    },
+    [remove, toast],
   );
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Accounts" icon={Mail} />
-        <p className="st-settings__intro">
-          Connect the email and calendar accounts you want SabCRM to sync —
-          messages, meetings and contacts flow in once an account is linked.
-          Real provider OAuth and the sync engine aren&apos;t available yet, so
-          connecting here creates a placeholder you can preview. Placeholders are
-          saved to your workspace so they follow you across devices.
-          {offline ? (
-            <span className="st-accounts-offline" role="status">
-              The settings service is offline — accounts are kept in this browser
-              only for now.
-            </span>
-          ) : null}
-        </p>
+    <div className="flex flex-col gap-[var(--st-space-6)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>SabCRM settings</PageEyebrow>
+          <PageTitle className="flex items-center gap-[var(--st-space-2)]">
+            <Mail size={20} className="text-[var(--st-text-tertiary)]" aria-hidden="true" />
+            Accounts
+          </PageTitle>
+          <PageDescription>
+            Connect the email and calendar accounts you want SabCRM to sync.
+            Messages, meetings and contacts flow in once an account is linked.
+            Real provider OAuth and the sync engine are not available yet, so
+            connecting here creates a placeholder you can preview. Placeholders
+            are saved to your workspace so they follow you across devices.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-        {/* ---- Connect account ---- */}
-        <section className="st-section" style={{ marginTop: 0 }}>
-          <h2 className="st-section__title">
-            <span className="st-section__title-icon" aria-hidden="true">
-              <Link2 size={15} />
-            </span>
-            Connect an account
-          </h2>
-          <p className="st-section__desc">
-            Choose a provider to link a mailbox and calendar.
-          </p>
+      {offline ? (
+        <Alert tone="warning" title="Settings service offline">
+          The settings service is offline, so accounts are kept in this browser
+          only for now.
+        </Alert>
+      ) : null}
 
-          {connecting ? (
-            <ConnectForm
-              provider={PROVIDER_BY_ID[connecting]}
-              onCancel={() => setConnecting(null)}
-              onConnect={(email) => handleConnect(connecting, email)}
-            />
-          ) : null}
+      {/* ---- Connect an account ---- */}
+      <section>
+        <Card variant="ghost" padding="none">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-[var(--st-space-2)]">
+              <Link2 size={15} className="text-[var(--st-text-tertiary)]" aria-hidden="true" />
+              Connect an account
+            </CardTitle>
+            <CardDescription>
+              Choose a provider to link a mailbox and calendar.
+            </CardDescription>
+          </CardHeader>
 
-          <div className="st-provider-grid">
-            {PROVIDERS.map((provider) => {
-              const { Glyph } = provider;
-              const active = connecting === provider.id;
-              return (
-                <div key={provider.id} className="st-provider">
-                  <div className="st-provider__head">
-                    <span className="st-provider__glyph" aria-hidden="true">
-                      <Glyph size={18} />
-                    </span>
-                    <span className="st-provider__name">{provider.name}</span>
-                  </div>
-                  <p className="st-provider__desc">{provider.desc}</p>
-                  <div className="st-provider__action">
-                    <TwentyButton
-                      variant={active ? 'secondary' : 'primary'}
-                      icon={active ? X : Plus}
-                      onClick={() =>
-                        setConnecting((cur) =>
-                          cur === provider.id ? null : provider.id,
-                        )
-                      }
-                    >
-                      {active ? 'Cancel' : 'Connect'}
-                    </TwentyButton>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+          <CardBody className="flex flex-col gap-[var(--st-space-3)]">
+            {connecting ? (
+              <ConnectForm
+                provider={PROVIDER_BY_ID[connecting]}
+                onCancel={() => setConnecting(null)}
+                onConnect={(email) => handleConnect(connecting, email)}
+              />
+            ) : null}
 
-        {/* ---- Connected accounts ---- */}
-        <section className="st-section">
-          <h2 className="st-section__title">
-            <span className="st-section__title-icon" aria-hidden="true">
-              <Inbox size={15} />
-            </span>
-            Connected accounts
-          </h2>
-          <p className="st-section__desc">
-            Linked mailboxes and calendars. Nothing is actually syncing yet —
-            the sync engine is offline, so every account shows as paused until
-            the backend is available.
-          </p>
-
-          {!hydrated ? (
-            <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
-              <div className="st-skeleton st-skeleton-row" />
-              <div className="st-skeleton st-skeleton-row" />
-            </div>
-          ) : accounts.length === 0 ? (
-            <div className="st-empty">
-              <span className="st-empty__icon">
-                <Inbox size={20} />
-              </span>
-              <h2 className="st-empty__title">No accounts connected</h2>
-              <p className="st-empty__desc">
-                Connect a Google, Microsoft or IMAP account above to see it here.
-              </p>
-            </div>
-          ) : (
-            <div className="st-account-list">
-              {accounts.map((account) => {
-                const provider = PROVIDER_BY_ID[account.provider];
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-[var(--st-space-3)]">
+              {PROVIDERS.map((provider) => {
                 const { Glyph } = provider;
+                const active = connecting === provider.id;
                 return (
-                  <div key={account.id} className="st-account">
-                    <div className="st-account__head">
-                      <span className="st-account__glyph" aria-hidden="true">
+                  <Card
+                    key={provider.id}
+                    variant="outlined"
+                    padding="md"
+                    className="flex flex-col gap-[var(--st-space-2)]"
+                  >
+                    <div className="flex items-center gap-[var(--st-space-2)]">
+                      <span
+                        className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                      >
                         <Glyph size={18} />
                       </span>
-                      <span className="st-account__meta">
-                        <span className="st-account__email" title={account.email}>
-                          {account.email}
-                        </span>
-                        <span className="st-account__provider">
-                          {provider.name}
-                        </span>
-                      </span>
-                      <span className="st-account__head-actions">
-                        <span className="st-chip st-chip--idle" title="The sync engine is not running">
-                          <span className="st-chip__dot" aria-hidden="true" />
-                          <span className="st-chip__label">
-                            Not syncing (engine offline)
-                          </span>
-                        </span>
-                        <TwentyButton
-                          variant="ghost"
-                          icon={Trash2}
-                          className="st-btn--danger"
-                          onClick={() => remove(account.id)}
-                          title="Disconnect account"
-                        >
-                          Disconnect
-                        </TwentyButton>
+                      <span className="font-[var(--st-fw-medium)] text-[var(--st-text)]">
+                        {provider.name}
                       </span>
                     </div>
-
-                    <div className="st-account__sync">
-                      <div className="st-sync-toggle">
-                        <span className="st-sync-toggle__icon" aria-hidden="true">
-                          <Inbox size={15} />
-                        </span>
-                        <span className="st-sync-toggle__text">
-                          <span className="st-sync-toggle__label">Email sync</span>
-                          <span className="st-sync-toggle__hint">
-                            Import messages and contacts from this mailbox.
-                          </span>
-                        </span>
-                        <Switch
-                          checked={account.emailSync}
-                          onChange={() => toggle(account.id, 'emailSync')}
-                          label={`Toggle email sync for ${account.email}`}
-                        />
-                      </div>
-
-                      <div className="st-sync-toggle">
-                        <span className="st-sync-toggle__icon" aria-hidden="true">
-                          <CalendarDays size={15} />
-                        </span>
-                        <span className="st-sync-toggle__text">
-                          <span className="st-sync-toggle__label">
-                            Calendar sync
-                          </span>
-                          <span className="st-sync-toggle__hint">
-                            Pull events and meeting participants into timelines.
-                          </span>
-                        </span>
-                        <Switch
-                          checked={account.calendarSync}
-                          onChange={() => toggle(account.id, 'calendarSync')}
-                          label={`Toggle calendar sync for ${account.email}`}
-                        />
-                      </div>
+                    <p className="m-0 text-[length:var(--st-font-size-xs)] leading-[1.5] text-[var(--st-text-secondary)]">
+                      {provider.desc}
+                    </p>
+                    <div className="mt-auto">
+                      <Button
+                        variant={active ? 'secondary' : 'primary'}
+                        iconLeft={active ? X : Plus}
+                        onClick={() =>
+                          setConnecting((cur) =>
+                            cur === provider.id ? null : provider.id,
+                          )
+                        }
+                      >
+                        {active ? 'Cancel' : 'Connect'}
+                      </Button>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>
-          )}
-        </section>
-      </div>
+          </CardBody>
+        </Card>
+      </section>
+
+      {/* ---- Connected accounts ---- */}
+      <section>
+        <Card variant="ghost" padding="none">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-[var(--st-space-2)]">
+              <Inbox size={15} className="text-[var(--st-text-tertiary)]" aria-hidden="true" />
+              Connected accounts
+            </CardTitle>
+            <CardDescription>
+              Linked mailboxes and calendars. Nothing is actually syncing yet.
+              The sync engine is offline, so every account shows as paused until
+              the backend is available.
+            </CardDescription>
+          </CardHeader>
+
+          <CardBody>
+            {!hydrated ? (
+              <div className="flex flex-col gap-[var(--st-space-3)]">
+                <Skeleton height={64} radius="var(--st-radius)" />
+                <Skeleton height={64} radius="var(--st-radius)" />
+              </div>
+            ) : accounts.length === 0 ? (
+              <EmptyState
+                icon={Inbox}
+                title="No accounts connected"
+                description="Connect a Google, Microsoft or IMAP account above to see it here."
+              />
+            ) : (
+              <div className="flex flex-col gap-[var(--st-space-3)]">
+                {accounts.map((account) => {
+                  const provider = PROVIDER_BY_ID[account.provider];
+                  const { Glyph } = provider;
+                  return (
+                    <Card
+                      key={account.id}
+                      variant="outlined"
+                      padding="none"
+                      className="overflow-hidden"
+                    >
+                      <div className="flex items-center gap-[var(--st-space-3)] p-[var(--st-space-3)]">
+                        <span
+                          className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                          aria-hidden="true"
+                        >
+                          <Glyph size={18} />
+                        </span>
+                        <span className="flex min-w-0 flex-1 flex-col">
+                          <span
+                            className="truncate font-[var(--st-fw-medium)] text-[var(--st-text)]"
+                            title={account.email}
+                          >
+                            {account.email}
+                          </span>
+                          <span className="mt-px text-[length:var(--st-font-size-xs)] text-[var(--st-text-tertiary)]">
+                            {provider.name}
+                          </span>
+                        </span>
+                        <span className="ml-auto flex items-center gap-[var(--st-space-2)] whitespace-nowrap">
+                          <Badge
+                            tone="warning"
+                            dot
+                            title="The sync engine is not running"
+                          >
+                            Not syncing (engine offline)
+                          </Badge>
+                          <Button
+                            variant="danger"
+                            iconLeft={Trash2}
+                            onClick={() => handleRemove(account.id, account.email)}
+                            title="Disconnect account"
+                          >
+                            Disconnect
+                          </Button>
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap gap-[var(--st-space-3)] border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-[var(--st-space-3)]">
+                        <div className="flex min-w-0 flex-[1_1_240px] items-center gap-[var(--st-space-2)]">
+                          <span
+                            className="flex-none text-[var(--st-text-tertiary)]"
+                            aria-hidden="true"
+                          >
+                            <Inbox size={15} />
+                          </span>
+                          <span className="flex min-w-0 flex-col">
+                            <span className="text-[length:var(--st-font-size-sm)] font-[var(--st-fw-medium)] text-[var(--st-text)]">
+                              Email sync
+                            </span>
+                            <span className="text-[length:var(--st-font-size-xs)] text-[var(--st-text-secondary)]">
+                              Import messages and contacts from this mailbox.
+                            </span>
+                          </span>
+                          <Switch
+                            checked={account.emailSync}
+                            onCheckedChange={() => toggle(account.id, 'emailSync')}
+                            aria-label={`Toggle email sync for ${account.email}`}
+                            className="ml-auto"
+                          />
+                        </div>
+
+                        <div className="flex min-w-0 flex-[1_1_240px] items-center gap-[var(--st-space-2)]">
+                          <span
+                            className="flex-none text-[var(--st-text-tertiary)]"
+                            aria-hidden="true"
+                          >
+                            <CalendarDays size={15} />
+                          </span>
+                          <span className="flex min-w-0 flex-col">
+                            <span className="text-[length:var(--st-font-size-sm)] font-[var(--st-fw-medium)] text-[var(--st-text)]">
+                              Calendar sync
+                            </span>
+                            <span className="text-[length:var(--st-font-size-xs)] text-[var(--st-text-secondary)]">
+                              Pull events and meeting participants into timelines.
+                            </span>
+                          </span>
+                          <Switch
+                            checked={account.calendarSync}
+                            onCheckedChange={() =>
+                              toggle(account.id, 'calendarSync')
+                            }
+                            aria-label={`Toggle calendar sync for ${account.email}`}
+                            className="ml-auto"
+                          />
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </CardBody>
+        </Card>
+      </section>
     </div>
   );
 }

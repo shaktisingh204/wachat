@@ -1,7 +1,17 @@
 'use client';
 
-import { Card, CardBody, CardHeader, CardTitle, Button, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
-import { ChevronLeft, AlertCircle } from 'lucide-react';
+import {
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    Alert,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+} from '@/components/sabcrm/20ui';
+import { ChevronLeft } from 'lucide-react';
 import type { WalletTransaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import Link from 'next/link';
@@ -64,7 +74,7 @@ export default function BillingHistoryPage() {
         result.sort((a, b) => {
             const dateA = new Date(a.createdAt).getTime();
             const dateB = new Date(b.createdAt).getTime();
-            
+
             switch (sortOption) {
                 case 'date-desc':
                     return dateB - dateA;
@@ -84,29 +94,37 @@ export default function BillingHistoryPage() {
 
     return (
         <div className="flex flex-col gap-8">
-            <div>
-                <Button variant="ghost" asChild className="mb-4 -ml-4">
-                    <Link href="/dashboard/user/billing"><ChevronLeft className="mr-2 h-4 w-4" />Back to Billing</Link>
-                </Button>
-                <h1 className="text-3xl font-bold font-headline text-[var(--st-text)]">Billing History</h1>
-                <p className="text-[var(--st-text-secondary)]">A record of all your plan upgrades and credit purchases.</p>
+            <div className="flex flex-col gap-4">
+                <Link
+                    href="/dashboard/user/billing"
+                    className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
+                >
+                    <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                    Back to Billing
+                </Link>
+                <PageHeader bordered={false}>
+                    <PageHeaderHeading>
+                        <PageTitle>Billing History</PageTitle>
+                        <PageDescription>
+                            A record of all your plan upgrades and credit purchases.
+                        </PageDescription>
+                    </PageHeaderHeading>
+                </PageHeader>
             </div>
 
             {error && (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
+                <Alert tone="danger" title="Error">
+                    {error}
                 </Alert>
             )}
 
             {isInitialLoad ? (
                 <TransactionSkeleton />
             ) : (
-                <Card className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--st-shadow-sm)]">
+                <Card variant="outlined">
                     <CardHeader className="pb-4">
-                        <CardTitle className="text-[var(--st-text)] mb-4">Your Transactions</CardTitle>
-                        <TransactionFilters 
+                        <CardTitle className="mb-4">Your Transactions</CardTitle>
+                        <TransactionFilters
                             searchQuery={searchQuery}
                             setSearchQuery={setSearchQuery}
                             filterType={filterType}
@@ -120,8 +138,8 @@ export default function BillingHistoryPage() {
                         />
                     </CardHeader>
                     <CardBody>
-                        <TransactionTable 
-                            transactions={filteredAndSortedTransactions} 
+                        <TransactionTable
+                            transactions={filteredAndSortedTransactions}
                             isLoading={isPending}
                         />
                     </CardBody>

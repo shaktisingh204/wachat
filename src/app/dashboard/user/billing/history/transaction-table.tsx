@@ -1,9 +1,8 @@
-import { Table, TBody, Td, Th, THead, Tr, Badge } from '@/components/sabcrm/20ui';
+import { Table, TBody, Td, Th, THead, Tr, Badge, EmptyState, type BadgeTone } from '@/components/sabcrm/20ui';
 import { Receipt } from 'lucide-react';
 import type { WalletTransaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { format } from 'date-fns';
-import { useId } from 'react';
 
 interface TransactionTableProps {
   transactions: WithId<WalletTransaction>[];
@@ -11,51 +10,48 @@ interface TransactionTableProps {
 }
 
 export function TransactionTable({ transactions, isLoading }: TransactionTableProps) {
-  const tableId = useId();
+  const getStatusTone = (status: string): BadgeTone => {
+    if (status === 'SUCCESS') return 'success';
+    if (status === 'PENDING') return 'warning';
+    return 'danger';
+  };
 
-  const getStatusVariant = (status: string) => {
-    if (status === 'SUCCESS') return 'default';
-    if (status === 'PENDING') return 'secondary';
-    return 'destructive';
+  if (transactions.length === 0) {
+    return (
+      <EmptyState
+        icon={Receipt}
+        title="No transactions found"
+        description="Adjust your filters or check back after your next purchase."
+      />
+    );
   }
 
   return (
-    <div className="border border-[var(--st-border)] rounded-md bg-[var(--st-bg-secondary)]/50 overflow-hidden shadow-[var(--st-shadow-sm)]">
+    <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
       <Table>
         <THead>
           <Tr>
-            <Th className="text-[var(--st-text-secondary)]">Date</Th>
-            <Th className="text-[var(--st-text-secondary)]">Description</Th>
-            <Th className="text-[var(--st-text-secondary)]">Amount</Th>
-            <Th className="text-[var(--st-text-secondary)]">Type</Th>
-            <Th className="text-[var(--st-text-secondary)]">Status</Th>
+            <Th>Date</Th>
+            <Th>Description</Th>
+            <Th>Amount</Th>
+            <Th>Type</Th>
+            <Th>Status</Th>
           </Tr>
         </THead>
-        <TBody className={isLoading ? "opacity-50 transition-opacity" : "transition-opacity"}>
-          {transactions.length > 0 ? (
-            transactions.map(t => (
-              <Tr key={t._id.toString()}>
-                <Td className="text-[var(--st-text)] whitespace-nowrap">{format(new Date(t.createdAt), 'PPpp')}</Td>
-                <Td className="text-[var(--st-text)]">{t.reason}</Td>
-                <Td className="text-[var(--st-text)] font-semibold whitespace-nowrap">₹{(t.amount / 100).toFixed(2)}</Td>
-                <Td>
-                  <Badge variant={t.type === 'CREDIT' ? 'default' : 'secondary'}>
-                    {t.type}
-                  </Badge>
-                </Td>
-                <Td><Badge variant={getStatusVariant(t.status)}>{t.status}</Badge></Td>
-              </Tr>
-            ))
-          ) : (
-            <Tr>
-              <Td colSpan={5} className="h-48 text-center">
-                <div className="flex flex-col items-center gap-4">
-                  <Receipt className="h-12 w-12 text-[var(--st-text-secondary)]" />
-                  <p className="text-[var(--st-text-secondary)]">No transactions found.</p>
-                </div>
+        <TBody className={isLoading ? 'opacity-50 transition-opacity' : 'transition-opacity'}>
+          {transactions.map((t) => (
+            <Tr key={t._id.toString()}>
+              <Td className="whitespace-nowrap">{format(new Date(t.createdAt), 'PPpp')}</Td>
+              <Td>{t.reason}</Td>
+              <Td className="whitespace-nowrap font-semibold">₹{(t.amount / 100).toFixed(2)}</Td>
+              <Td>
+                <Badge tone={t.type === 'CREDIT' ? 'accent' : 'neutral'}>{t.type}</Badge>
+              </Td>
+              <Td>
+                <Badge tone={getStatusTone(t.status)}>{t.status}</Badge>
               </Td>
             </Tr>
-          )}
+          ))}
         </TBody>
       </Table>
     </div>

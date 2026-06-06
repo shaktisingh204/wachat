@@ -1,30 +1,28 @@
 'use client';
 
 /**
- * SabCRM — Admin Panel settings (`/dashboard/settings/crm/admin`), Twenty-style.
+ * SabCRM - Admin Panel settings (`/dashboard/settings/crm/admin`).
  *
- * A Twenty-parity "Admin Panel" surface. Twenty's admin panel groups a handful
- * of operator-level concerns (config variables, signing keys, health status, AI
- * providers); this page mirrors that structure in the SabNode/SabCRM frame.
+ * An operator-level "Admin Panel" surface, built entirely on the 20ui design
+ * system. It groups a handful of operator concerns (config variables, signing
+ * keys, health status, AI providers) mirroring the structure SabCRM ships
+ * elsewhere.
  *
- * IMPORTANT — honesty over theatre. Most of these concerns have no backend wired
- * up in SabCRM yet, so every section is explicit about where its data really
- * lives:
+ * IMPORTANT - honesty over theatre. Most of these concerns have no backend
+ * wired up in SabCRM yet, so every section is explicit about where its data
+ * really lives:
  *
- *   - Health — a few best-effort status rows (CRM engine reachable? backing
+ *   - Health - a few best-effort status rows (CRM engine reachable? backing
  *     services?). The probe is a client-side fetch that will usually fail
  *     because the engine may be down or unexposed to the browser; rows then show
  *     "Unknown" / "Offline" honestly rather than faking "OK".
- *   - Config variables — a read-only / locally-editable list of CRM config keys.
+ *   - Config variables - a read-only / locally-editable list of CRM config keys.
  *     Edits persist to `localStorage` only (clearly labelled "local override"),
  *     never to a server.
- *   - Signing keys — a stubbed "rotate keys" placeholder. No keys are actually
+ *   - Signing keys - a stubbed "rotate keys" placeholder. No keys are actually
  *     issued or rotated; the button surfaces an honest "not wired up" notice.
- *   - AI providers — provider + API-key fields persisted to `localStorage` only,
+ *   - AI providers - provider + API-key fields persisted to `localStorage` only,
  *     with an explicit note that nothing is sent anywhere.
- *
- * Editable surface for this task is ONLY this page + its `admin.css`. No server
- * actions are introduced. Graceful, fail-closed states throughout.
  */
 
 import * as React from 'react';
@@ -34,18 +32,42 @@ import {
   SlidersHorizontal,
   KeyRound,
   Sparkles,
-  Info,
   RefreshCw,
   Save,
   Check,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
-import { useSettingsSync } from '../use-settings-sync';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Button,
+  Field,
+  Input,
+  Badge,
+  Callout,
+  Skeleton,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../settings-twenty.css';
-import './admin.css';
+import { useSettingsSync } from '../use-settings-sync';
 
 // ---------------------------------------------------------------------------
 // Local admin-panel store
@@ -63,7 +85,7 @@ interface AdminLocalState {
   config: Record<string, string>;
   /** AI provider id (e.g. 'openai'). */
   aiProvider: string;
-  /** AI provider API key — stored server-side, tenant-scoped (no encryption). */
+  /** AI provider API key - stored server-side, tenant-scoped (no encryption). */
   aiApiKey: string;
 }
 
@@ -109,7 +131,7 @@ function writeStored(state: AdminLocalState): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {
-    /* quota / private mode — settings stay in-memory only */
+    /* quota / private mode - settings stay in-memory only */
   }
 }
 
@@ -183,7 +205,7 @@ const AI_PROVIDERS: { id: string; label: string }[] = [
 // Health probe
 //
 // Best-effort, browser-side liveness check. There is no CRM health endpoint
-// exposed to the browser, so this almost always resolves to "unknown" — which
+// exposed to the browser, so this almost always resolves to "unknown" - which
 // is the honest answer. A `same-origin` probe of an internal route is attempted
 // and any failure is treated as "we can't tell from here", NOT as "down".
 // ---------------------------------------------------------------------------
@@ -198,10 +220,17 @@ interface HealthRow {
 }
 
 const STATUS_LABEL: Record<ProbeStatus, string> = {
-  checking: 'Checking…',
+  checking: 'Checking',
   ok: 'Reachable',
   off: 'Offline',
   unknown: 'Unknown',
+};
+
+const STATUS_TONE: Record<ProbeStatus, BadgeTone> = {
+  checking: 'neutral',
+  ok: 'success',
+  off: 'danger',
+  unknown: 'warning',
 };
 
 /**
@@ -232,28 +261,14 @@ async function probe(path: string, timeoutMs = 3500): Promise<ProbeStatus> {
 }
 
 // ---------------------------------------------------------------------------
-// Honest callout
-// ---------------------------------------------------------------------------
-
-function HonestNote({ children }: { children: React.ReactNode }): React.JSX.Element {
-  return (
-    <div className="st-admin-honest">
-      <Info className="st-admin-honest__icon" size={14} aria-hidden="true" />
-      <span>{children}</span>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Status pill
 // ---------------------------------------------------------------------------
 
 function StatusPill({ status }: { status: ProbeStatus }): React.JSX.Element {
   return (
-    <span className={`st-admin-status st-admin-status--${status}`}>
-      <span className="st-admin-status__dot" aria-hidden="true" />
+    <Badge tone={STATUS_TONE[status]} dot>
       {STATUS_LABEL[status]}
-    </span>
+    </Badge>
   );
 }
 
@@ -278,7 +293,7 @@ function HealthSection(): React.JSX.Element {
     {
       id: 'mongo',
       name: 'Primary datastore (Mongo)',
-      sub: 'Not probeable from the browser — reported via the engine only.',
+      sub: 'Not probeable from the browser, reported via the engine only.',
       status: 'checking',
     },
   ]);
@@ -309,13 +324,13 @@ function HealthSection(): React.JSX.Element {
       {
         id: 'engine',
         name: 'SabCRM engine',
-        sub: 'No browser-facing health route yet — status can only be confirmed server-side.',
+        sub: 'No browser-facing health route yet, status can only be confirmed server-side.',
         status: engineStatus,
       },
       {
         id: 'mongo',
         name: 'Primary datastore (Mongo)',
-        sub: 'Not probeable from the browser — reported via the engine only.',
+        sub: 'Not probeable from the browser, reported via the engine only.',
         status: mongoStatus,
       },
     ]);
@@ -328,44 +343,51 @@ function HealthSection(): React.JSX.Element {
   }, [runChecks]);
 
   return (
-    <section className="st-admin-section">
-      <div className="st-admin-section__head">
-        <h2 className="st-admin-section__title">
-          <Activity size={16} aria-hidden="true" />
-          Health
-        </h2>
-        <TwentyButton
+    <Card variant="outlined" padding="lg">
+      <CardHeader className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <CardTitle className="flex items-center gap-2">
+            <Activity size={16} aria-hidden="true" />
+            Health
+          </CardTitle>
+          <CardDescription>
+            Best-effort liveness for the services behind SabCRM. Only the app
+            server can be probed from your browser; the engine and datastore
+            report <strong>Unknown</strong> until a server-side health route is
+            wired up, an honest result, not an outage.
+          </CardDescription>
+        </div>
+        <Button
           variant="secondary"
-          icon={RefreshCw}
+          iconLeft={RefreshCw}
           onClick={() => void runChecks()}
-          disabled={running}
+          loading={running}
         >
-          {running ? 'Checking…' : 'Re-check'}
-        </TwentyButton>
-      </div>
-      <p className="st-admin-section__desc">
-        Best-effort liveness for the services behind SabCRM. Only the app server
-        can be probed from your browser; the engine and datastore report{' '}
-        <strong>Unknown</strong> until a server-side health route is wired up —
-        an honest result, not an outage.
-      </p>
+          {running ? 'Checking' : 'Re-check'}
+        </Button>
+      </CardHeader>
 
-      <div className="st-admin-health">
+      <CardBody className="flex flex-col gap-2">
         {rows.map((row) => (
-          <div key={row.id} className="st-admin-health__row">
-            <div className="st-admin-health__main">
-              <span className="st-admin-health__name">{row.name}</span>
-              <span className="st-admin-health__sub">{row.sub}</span>
+          <div
+            key={row.id}
+            className="flex items-center justify-between gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3.5 py-3"
+          >
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <span className="text-sm font-medium text-[var(--st-text)]">{row.name}</span>
+              <span className="text-xs text-[var(--st-text-secondary)]">{row.sub}</span>
             </div>
             <StatusPill status={row.status} />
           </div>
         ))}
-      </div>
 
-      {checkedAt ? (
-        <p className="st-footnote">Last checked at {checkedAt}.</p>
-      ) : null}
-    </section>
+        {checkedAt ? (
+          <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
+            Last checked at {checkedAt}.
+          </p>
+        ) : null}
+      </CardBody>
+    </Card>
   );
 }
 
@@ -380,54 +402,60 @@ interface ConfigSectionProps {
 
 function ConfigSection({ overrides, onChange }: ConfigSectionProps): React.JSX.Element {
   return (
-    <section className="st-admin-section">
-      <div className="st-admin-section__head">
-        <h2 className="st-admin-section__title">
+    <Card variant="outlined" padding="lg">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
           <SlidersHorizontal size={16} aria-hidden="true" />
           Config variables
-        </h2>
-      </div>
-      <p className="st-admin-section__desc">
-        CRM configuration keys for reference. The authoritative values are set
-        server-side and aren&apos;t readable from the browser — edits here are{' '}
-        <strong>local overrides only</strong>.
-      </p>
+        </CardTitle>
+        <CardDescription>
+          CRM configuration keys for reference. The authoritative values are set
+          server-side and aren&apos;t readable from the browser, edits here are{' '}
+          <strong>local overrides only</strong>.
+        </CardDescription>
+      </CardHeader>
 
-      <HonestNote>
-        Values you type are saved to this browser&apos;s <code>localStorage</code>{' '}
-        and are never sent to the server. They do not change the running
-        configuration; they exist to draft/annotate values before applying them
-        through your real deployment tooling.
-      </HonestNote>
+      <CardBody className="flex flex-col gap-4">
+        <Callout tone="info">
+          Values you type are saved to this browser&apos;s <code>localStorage</code>{' '}
+          and are never sent to the server. They do not change the running
+          configuration; they exist to draft/annotate values before applying
+          them through your real deployment tooling.
+        </Callout>
 
-      <div className="st-admin-config">
-        {CONFIG_KEYS.map((cfg) => {
-          const overridden = Object.prototype.hasOwnProperty.call(overrides, cfg.key);
-          const value = overridden ? overrides[cfg.key]! : cfg.defaultValue;
-          return (
-            <div key={cfg.key} className="st-admin-config__row">
-              <div className="st-admin-config__key">
-                <span className="st-admin-config__name">
-                  {cfg.key}
-                  <span className="st-admin-config__source">
-                    {overridden ? '(local override)' : '(reference default)'}
+        <div className="flex flex-col gap-4">
+          {CONFIG_KEYS.map((cfg) => {
+            const overridden = Object.prototype.hasOwnProperty.call(overrides, cfg.key);
+            const value = overridden ? overrides[cfg.key]! : cfg.defaultValue;
+            return (
+              <div
+                key={cfg.key}
+                className="grid grid-cols-1 items-start gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]"
+              >
+                <div className="flex flex-col gap-0.5">
+                  <span className="flex flex-wrap items-center gap-2 font-mono text-sm text-[var(--st-text)]">
+                    {cfg.key}
+                    <Badge tone={overridden ? 'accent' : 'neutral'} kind="soft">
+                      {overridden ? 'local override' : 'reference default'}
+                    </Badge>
                   </span>
-                </span>
-                <span className="st-admin-config__hint">{cfg.hint}</span>
+                  <span className="text-xs text-[var(--st-text-secondary)]">{cfg.hint}</span>
+                </div>
+                <Field label={`${cfg.key} value`} className="[&_.u-field__label]:sr-only">
+                  <Input
+                    type="text"
+                    value={value}
+                    spellCheck={false}
+                    className="font-mono"
+                    onChange={(e) => onChange(cfg.key, e.target.value)}
+                  />
+                </Field>
               </div>
-              <input
-                className="st-admin-input st-admin-input--mono"
-                type="text"
-                value={value}
-                spellCheck={false}
-                onChange={(e) => onChange(cfg.key, e.target.value)}
-                aria-label={`${cfg.key} value`}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </section>
+            );
+          })}
+        </div>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -436,60 +464,56 @@ function ConfigSection({ overrides, onChange }: ConfigSectionProps): React.JSX.E
 // ---------------------------------------------------------------------------
 
 function SigningKeysSection(): React.JSX.Element {
-  const [notice, setNotice] = React.useState<string | null>(null);
+  const { toast } = useToast();
 
   return (
-    <section className="st-admin-section">
-      <div className="st-admin-section__head">
-        <h2 className="st-admin-section__title">
+    <Card variant="outlined" padding="lg">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
           <KeyRound size={16} aria-hidden="true" />
           Signing keys
-        </h2>
-      </div>
-      <p className="st-admin-section__desc">
-        Keys used to sign tokens and webhook payloads issued by the CRM engine.
-      </p>
+        </CardTitle>
+        <CardDescription>
+          Keys used to sign tokens and webhook payloads issued by the CRM engine.
+        </CardDescription>
+      </CardHeader>
 
-      <HonestNote>
-        Key management isn&apos;t wired up in SabCRM yet. This is a placeholder —
-        no key material is shown, generated, or rotated here. The control below
-        is a stub that confirms the action isn&apos;t backed by a real endpoint.
-      </HonestNote>
+      <CardBody className="flex flex-col gap-4">
+        <Callout tone="info">
+          Key management isn&apos;t wired up in SabCRM yet. This is a placeholder,
+          no key material is shown, generated, or rotated here. The control below
+          is a stub that confirms the action isn&apos;t backed by a real endpoint.
+        </Callout>
 
-      <div className="st-admin-keycard">
-        <div className="st-admin-keycard__row">
-          <span className="st-admin-keycard__id">primary-signing-key</span>
-          <span className="st-chip st-chip--off">
-            <span className="st-chip__dot" aria-hidden="true" />
-            <span className="st-chip__label">Not provisioned</span>
+        <div className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3.5">
+          <div className="flex items-center justify-between gap-3">
+            <span className="font-mono text-sm text-[var(--st-text)]">primary-signing-key</span>
+            <Badge tone="neutral" dot>
+              Not provisioned
+            </Badge>
+          </div>
+          <span className="text-xs text-[var(--st-text-secondary)]">
+            No active signing key is managed from this panel. When key rotation is
+            implemented, the current key id, algorithm, and rotation history will
+            appear here.
           </span>
         </div>
-        <span className="st-admin-keycard__meta">
-          No active signing key is managed from this panel. When key rotation is
-          implemented, the current key id, algorithm, and rotation history will
-          appear here.
-        </span>
-      </div>
 
-      <div className="st-admin-actions">
-        <TwentyButton
-          variant="secondary"
-          icon={RefreshCw}
-          onClick={() =>
-            setNotice(
-              'Key rotation is not wired up. No endpoint was called and no key was changed.',
-            )
-          }
-        >
-          Rotate keys
-        </TwentyButton>
-        {notice ? (
-          <span className="st-form-error" role="status">
-            {notice}
-          </span>
-        ) : null}
-      </div>
-    </section>
+        <div>
+          <Button
+            variant="secondary"
+            iconLeft={RefreshCw}
+            onClick={() =>
+              toast.warning(
+                'Key rotation is not wired up. No endpoint was called and no key was changed.',
+              )
+            }
+          >
+            Rotate keys
+          </Button>
+        </div>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -504,6 +528,7 @@ interface AiSectionProps {
 }
 
 function AiProvidersSection({ provider, apiKey, onSave }: AiSectionProps): React.JSX.Element {
+  const { toast } = useToast();
   const [draftProvider, setDraftProvider] = React.useState(provider);
   const [draftKey, setDraftKey] = React.useState(apiKey);
   const [saved, setSaved] = React.useState(false);
@@ -519,78 +544,69 @@ function AiProvidersSection({ provider, apiKey, onSave }: AiSectionProps): React
   const handleSave = React.useCallback(() => {
     onSave(draftProvider, draftKey.trim());
     setSaved(true);
+    toast.success('Stored in this browser only.');
     window.setTimeout(() => setSaved(false), 1800);
-  }, [draftProvider, draftKey, onSave]);
+  }, [draftProvider, draftKey, onSave, toast]);
 
   return (
-    <section className="st-admin-section">
-      <div className="st-admin-section__head">
-        <h2 className="st-admin-section__title">
+    <Card variant="outlined" padding="lg">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
           <Sparkles size={16} aria-hidden="true" />
           AI providers
-        </h2>
-      </div>
-      <p className="st-admin-section__desc">
-        Choose the AI provider and key SabCRM&apos;s assistive features would use.
-      </p>
+        </CardTitle>
+        <CardDescription>
+          Choose the AI provider and key SabCRM&apos;s assistive features would use.
+        </CardDescription>
+      </CardHeader>
 
-      <HonestNote>
-        This is stored in this browser&apos;s <code>localStorage</code> only — the
-        key is <strong>not</strong> transmitted, validated, or used to make any
-        request from this page. Wire it into a server-side secret before relying
-        on it.
-      </HonestNote>
+      <CardBody className="flex flex-col gap-4">
+        <Callout tone="info">
+          This is stored in this browser&apos;s <code>localStorage</code> only, the
+          key is <strong>not</strong> transmitted, validated, or used to make any
+          request from this page. Wire it into a server-side secret before relying
+          on it.
+        </Callout>
 
-      <div className="st-admin-field">
-        <label className="st-admin-field__label" htmlFor="ai-provider">
-          Provider
-        </label>
-        <select
-          id="ai-provider"
-          className="st-admin-select"
-          value={draftProvider}
-          onChange={(e) => setDraftProvider(e.target.value)}
-        >
-          {AI_PROVIDERS.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label}
-            </option>
-          ))}
-        </select>
-      </div>
+        <Field label="Provider">
+          <Select value={draftProvider} onValueChange={setDraftProvider}>
+            <SelectTrigger aria-label="AI provider">
+              <SelectValue placeholder="Select a provider" />
+            </SelectTrigger>
+            <SelectContent>
+              {AI_PROVIDERS.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
 
-      <div className="st-admin-field">
-        <label className="st-admin-field__label" htmlFor="ai-key">
-          API key
-        </label>
-        <input
-          id="ai-key"
-          className="st-admin-input st-admin-input--mono"
-          type="password"
-          value={draftKey}
-          spellCheck={false}
-          autoComplete="off"
-          placeholder="sk-…"
-          onChange={(e) => setDraftKey(e.target.value)}
-        />
-      </div>
+        <Field label="API key">
+          <Input
+            type="password"
+            value={draftKey}
+            spellCheck={false}
+            autoComplete="off"
+            placeholder="sk-..."
+            className="font-mono"
+            onChange={(e) => setDraftKey(e.target.value)}
+          />
+        </Field>
 
-      <div className="st-admin-actions">
-        <TwentyButton
-          variant="primary"
-          icon={saved ? Check : Save}
-          onClick={handleSave}
-          disabled={!dirty && !saved}
-        >
-          {saved ? 'Saved locally' : 'Save'}
-        </TwentyButton>
-        {saved ? (
-          <span className="st-admin-saved" role="status">
-            Stored in this browser only.
-          </span>
-        ) : null}
-      </div>
-    </section>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="primary"
+            iconLeft={saved ? Check : Save}
+            onClick={handleSave}
+            disabled={!dirty && !saved}
+          >
+            {saved ? 'Saved locally' : 'Save'}
+          </Button>
+        </div>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -653,61 +669,65 @@ export default function SabcrmAdminPanelPage(): React.JSX.Element {
   );
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
-        <TwentyPageHeader title="Admin Panel" icon={ShieldAlert} />
-        <p className="st-settings__intro">
-          Operator-level controls for this SabCRM workspace — service health,
-          configuration reference, signing keys, and AI providers. Several areas
-          aren&apos;t backed by a server yet; each one says so plainly rather than
-          implying a wiring that doesn&apos;t exist.
-        </p>
+    <div className="ui20 mx-auto flex w-full max-w-4xl flex-col gap-6 p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>SabCRM workspace</PageEyebrow>
+          <PageTitle className="flex items-center gap-2">
+            <ShieldAlert size={20} aria-hidden="true" />
+            Admin Panel
+          </PageTitle>
+          <PageDescription>
+            Operator-level controls for this SabCRM workspace, service health,
+            configuration reference, signing keys, and AI providers. Several areas
+            aren&apos;t backed by a server yet; each one says so plainly rather
+            than implying a wiring that doesn&apos;t exist.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-        <div className="st-admin-tabs" role="tablist" aria-label="Admin panel sections">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as TabId)}>
+        <TabsList aria-label="Admin panel sections">
           {TABS.map((t) => {
             const { Icon } = t;
-            const active = tab === t.id;
             return (
-              <button
-                key={t.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                className={`st-admin-tab${active ? ' is-active' : ''}`}
-                onClick={() => setTab(t.id)}
-              >
+              <TabsTrigger key={t.id} value={t.id} className="flex items-center gap-1.5">
                 <Icon size={14} aria-hidden="true" />
                 {t.label}
-              </button>
+              </TabsTrigger>
             );
           })}
-        </div>
+        </TabsList>
 
-        {tab === 'health' ? <HealthSection /> : null}
+        <TabsContent value="health" className="mt-4">
+          <HealthSection />
+        </TabsContent>
 
-        {tab === 'config' ? (
+        <TabsContent value="config" className="mt-4">
           <ConfigSection overrides={state.config} onChange={handleConfigChange} />
-        ) : null}
+        </TabsContent>
 
-        {tab === 'keys' ? <SigningKeysSection /> : null}
+        <TabsContent value="keys" className="mt-4">
+          <SigningKeysSection />
+        </TabsContent>
 
-        {tab === 'ai' ? (
-          hydrated ? (
+        <TabsContent value="ai" className="mt-4">
+          {hydrated ? (
             <AiProvidersSection
               provider={state.aiProvider}
               apiKey={state.aiApiKey}
               onSave={handleAiSave}
             />
           ) : (
-            <section className="st-admin-section">
-              <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
-                <div className="st-skeleton st-skeleton-row" />
-                <div className="st-skeleton st-skeleton-row" />
-              </div>
-            </section>
-          )
-        ) : null}
-      </div>
+            <Card variant="outlined" padding="lg">
+              <CardBody className="flex flex-col gap-3">
+                <Skeleton height={40} />
+                <Skeleton height={40} />
+              </CardBody>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -1,24 +1,48 @@
 'use client';
 
 /**
- * SabCheckout page editor — used both for "new" and "[pageId]" routes.
+ * SabCheckout page editor, used both for "new" and "[pageId]" routes.
  *
  * Sections:
- *   • Basics: slug, displayName, headline, description
- *   • Theme: logo (SabFiles), accent color
- *   • Items: amount-and/or-plan rows with optional quantity
- *   • Required fields: name/email/phone toggles + custom keys
- *   • Redirects: successUrl / cancelUrl
- *   • Status toggle (draft / live / paused)
+ *   - Basics: slug, displayName, headline, description
+ *   - Theme: logo (SabFiles), accent color
+ *   - Items: amount and/or plan rows with optional quantity
+ *   - Required fields: name/email/phone toggles + custom keys
+ *   - Redirects: successUrl / cancelUrl
+ *   - Status toggle (draft / live / paused)
  *
- * Theme assets MUST come from SabFiles — there is no URL paste field.
+ * Theme assets MUST come from SabFiles, there is no URL paste field.
  */
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Field,
+  IconButton,
+  Input,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Textarea,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import {
@@ -37,7 +61,7 @@ import type {
 import type { SabcheckoutPlanDoc } from '@/lib/rust-client/sabcheckout-plans';
 
 export interface SabcheckoutPageEditorProps {
-  /** Undefined → "new" mode. */
+  /** Undefined means "new" mode. */
   initial?: SabcheckoutPageDoc;
   /** Plan list for the plan-item picker. */
   plans: SabcheckoutPlanDoc[];
@@ -155,6 +179,7 @@ export function SabcheckoutPageEditor({
       toast({
         title: 'Missing required fields',
         description: 'Slug and display name are required.',
+        tone: 'warning',
       });
       return;
     }
@@ -179,10 +204,10 @@ export function SabcheckoutPageEditor({
       : await updateSabcheckoutPage(initial!._id, payload);
     setBusy(false);
     if (!res.ok) {
-      toast({ title: 'Save failed', description: res.error });
+      toast.error({ title: 'Save failed', description: res.error });
       return;
     }
-    toast({ title: 'Saved' });
+    toast.success('Saved');
     if (isNew && 'id' in res) {
       router.push(`/dashboard/sabcheckout/${res.id}`);
     } else {
@@ -197,37 +222,34 @@ export function SabcheckoutPageEditor({
     const res = await deleteSabcheckoutPage(initial._id);
     setBusy(false);
     if (!res.ok) {
-      toast({ title: 'Delete failed', description: res.error });
+      toast.error({ title: 'Delete failed', description: res.error });
       return;
     }
     router.push('/dashboard/sabcheckout');
   }
 
   return (
-    <div className="zoruui space-y-6 p-6">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {isNew ? 'New payment page' : form.displayName || 'Edit page'}
-          </h1>
-          <p className="text-sm text-[var(--st-text-secondary)]">
+    <div className="space-y-6 p-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>{isNew ? 'New payment page' : form.displayName || 'Edit page'}</PageTitle>
+          <PageDescription>
             {isNew
               ? 'Build a branded, shareable payment page.'
               : `Public URL: /pay/${form.slug || initial?.slug || ''}`}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
           {!isNew && (
-            <Button variant="ghost" onClick={onDelete} disabled={busy}>
-              <Trash2 className="mr-1 size-4" />
+            <Button variant="ghost" iconLeft={Trash2} onClick={onDelete} disabled={busy}>
               Delete
             </Button>
           )}
-          <Button onClick={onSave} disabled={busy}>
-            {busy ? 'Saving…' : 'Save'}
+          <Button variant="primary" onClick={onSave} loading={busy}>
+            {busy ? 'Saving' : 'Save'}
           </Button>
-        </div>
-      </header>
+        </PageActions>
+      </PageHeader>
 
       {/* Basics */}
       <Card>
@@ -236,58 +258,47 @@ export function SabcheckoutPageEditor({
           <CardDescription>Slug, display name, and copy.</CardDescription>
         </CardHeader>
         <CardBody className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="slug">Slug</Label>
+          <Field label="Slug" required>
             <Input
-              id="slug"
               value={form.slug}
               onChange={(e) => update('slug', e.target.value)}
               placeholder="my-product"
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="displayName">Display name</Label>
+          </Field>
+          <Field label="Display name" required>
             <Input
-              id="displayName"
               value={form.displayName}
               onChange={(e) => update('displayName', e.target.value)}
               placeholder="Acme Subscription"
             />
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="headline">Headline</Label>
+          </Field>
+          <Field label="Headline" className="sm:col-span-2">
             <Input
-              id="headline"
               value={form.headline}
               onChange={(e) => update('headline', e.target.value)}
               placeholder="Get started in seconds"
             />
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="description">Description</Label>
+          </Field>
+          <Field label="Description" className="sm:col-span-2">
             <Textarea
-              id="description"
               value={form.description}
               onChange={(e) => update('description', e.target.value)}
               rows={3}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="currency">Currency</Label>
+          </Field>
+          <Field label="Currency">
             <Input
-              id="currency"
               value={form.currency}
               onChange={(e) => update('currency', e.target.value.toUpperCase())}
               maxLength={3}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="mode">Mode</Label>
+          </Field>
+          <Field label="Mode">
             <Select
               value={form.mode}
               onValueChange={(v) => update('mode', v as SabcheckoutPageMode)}
             >
-              <SelectTrigger id="mode">
+              <SelectTrigger aria-label="Mode">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -296,14 +307,13 @@ export function SabcheckoutPageEditor({
                 <SelectItem value="both">Both</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
+          </Field>
+          <Field label="Status">
             <Select
               value={form.status}
               onValueChange={(v) => update('status', v as SabcheckoutPageStatus)}
             >
-              <SelectTrigger id="status">
+              <SelectTrigger aria-label="Status">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -312,7 +322,7 @@ export function SabcheckoutPageEditor({
                 <SelectItem value="paused">Paused</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </Field>
         </CardBody>
       </Card>
 
@@ -325,29 +335,26 @@ export function SabcheckoutPageEditor({
           </CardDescription>
         </CardHeader>
         <CardBody className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Logo</Label>
-            <SabFilePickerButton
-              accept="image"
-              onPick={(pick) => update('logoFileId', pick.id)}
-            >
-              {form.logoFileId ? 'Change logo' : 'Choose logo'}
-            </SabFilePickerButton>
-            {form.logoFileId ? (
-              <p className="text-xs text-[var(--st-text-secondary)]">
-                File: {form.logoFileId}
-              </p>
-            ) : null}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="accent">Accent colour</Label>
+          <Field
+            label="Logo"
+            help={form.logoFileId ? `File: ${form.logoFileId}` : undefined}
+          >
+            <div>
+              <SabFilePickerButton
+                accept="image"
+                onPick={(pick) => update('logoFileId', pick.id)}
+              >
+                {form.logoFileId ? 'Change logo' : 'Choose logo'}
+              </SabFilePickerButton>
+            </div>
+          </Field>
+          <Field label="Accent colour">
             <Input
-              id="accent"
               type="color"
               value={form.accent}
               onChange={(e) => update('accent', e.target.value)}
             />
-          </div>
+          </Field>
         </CardBody>
       </Card>
 
@@ -363,22 +370,21 @@ export function SabcheckoutPageEditor({
           {form.items.map((it, i) => (
             <div
               key={i}
-              className="grid items-end gap-3 rounded-md border border-[var(--st-border)] p-3 sm:grid-cols-[120px_1fr_180px_120px_auto]"
+              className="grid items-end gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3 sm:grid-cols-[120px_1fr_180px_120px_auto]"
             >
-              <div className="space-y-1">
-                <Label className="text-xs">Type</Label>
-                <Badge variant="secondary">{it.type}</Badge>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Label</Label>
+              <Field label="Type">
+                <div>
+                  <Badge tone="neutral">{it.type}</Badge>
+                </div>
+              </Field>
+              <Field label="Label">
                 <Input
                   value={it.label}
                   onChange={(e) => updateItem(i, { label: e.target.value })}
                 />
-              </div>
+              </Field>
               {it.type === 'amount' ? (
-                <div className="space-y-1">
-                  <Label className="text-xs">Amount (minor units)</Label>
+                <Field label="Amount (minor units)">
                   <Input
                     type="number"
                     value={it.amountMinor ?? 0}
@@ -386,15 +392,14 @@ export function SabcheckoutPageEditor({
                       updateItem(i, { amountMinor: Number(e.target.value) })
                     }
                   />
-                </div>
+                </Field>
               ) : (
-                <div className="space-y-1">
-                  <Label className="text-xs">Plan</Label>
+                <Field label="Plan">
                   <Select
                     value={it.planId ?? ''}
                     onValueChange={(v) => updateItem(i, { planId: v })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Plan">
                       <SelectValue placeholder="Pick a plan" />
                     </SelectTrigger>
                     <SelectContent>
@@ -405,37 +410,35 @@ export function SabcheckoutPageEditor({
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </Field>
               )}
-              <div className="space-y-1">
-                <Label className="text-xs">Qty</Label>
+              <Field label="Qty">
                 <Switch
                   checked={!!it.allowQuantity}
                   onCheckedChange={(v) => updateItem(i, { allowQuantity: v })}
+                  aria-label="Allow quantity"
                 />
-              </div>
-              <Button
+              </Field>
+              <IconButton
+                label="Remove item"
+                icon={Trash2}
                 variant="ghost"
                 size="sm"
                 onClick={() => removeItem(i)}
-                aria-label="Remove item"
-              >
-                <Trash2 className="size-4" />
-              </Button>
+              />
             </div>
           ))}
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => addItem('amount')}>
-              <Plus className="mr-1 size-4" />
+            <Button variant="outline" size="sm" iconLeft={Plus} onClick={() => addItem('amount')}>
               Add amount
             </Button>
             <Button
               variant="outline"
               size="sm"
+              iconLeft={Plus}
               onClick={() => addItem('plan')}
               disabled={plans.length === 0}
             >
-              <Plus className="mr-1 size-4" />
               Add plan
             </Button>
           </div>
@@ -454,42 +457,38 @@ export function SabcheckoutPageEditor({
           {form.requireFields.map((f, i) => (
             <div
               key={i}
-              className="grid items-end gap-3 rounded-md border border-[var(--st-border)] p-3 sm:grid-cols-[1fr_1fr_100px_auto]"
+              className="grid items-end gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3 sm:grid-cols-[1fr_1fr_100px_auto]"
             >
-              <div className="space-y-1">
-                <Label className="text-xs">Key</Label>
+              <Field label="Key">
                 <Input
                   value={f.name}
                   onChange={(e) => updateField(i, { name: e.target.value })}
                   disabled={!f.custom}
                 />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Label</Label>
+              </Field>
+              <Field label="Label">
                 <Input
                   value={f.label}
                   onChange={(e) => updateField(i, { label: e.target.value })}
                 />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Required</Label>
+              </Field>
+              <Field label="Required">
                 <Switch
                   checked={!!f.required}
                   onCheckedChange={(v) => updateField(i, { required: v })}
+                  aria-label="Required field"
                 />
-              </div>
-              <Button
+              </Field>
+              <IconButton
+                label="Remove field"
+                icon={Trash2}
                 variant="ghost"
                 size="sm"
                 onClick={() => removeField(i)}
-                aria-label="Remove field"
-              >
-                <Trash2 className="size-4" />
-              </Button>
+              />
             </div>
           ))}
-          <Button variant="outline" size="sm" onClick={addCustomField}>
-            <Plus className="mr-1 size-4" />
+          <Button variant="outline" size="sm" iconLeft={Plus} onClick={addCustomField}>
             Add custom field
           </Button>
         </CardBody>
@@ -501,28 +500,24 @@ export function SabcheckoutPageEditor({
           <CardTitle>Redirects</CardTitle>
           <CardDescription>
             Where to send the payer after success or cancel. Leave blank to
-            use the built-in `/pay/[slug]/success` and `/cancel` routes.
+            use the built-in /pay/[slug]/success and /cancel routes.
           </CardDescription>
         </CardHeader>
         <CardBody className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="successUrl">Success URL</Label>
+          <Field label="Success URL">
             <Input
-              id="successUrl"
               value={form.successUrl}
               onChange={(e) => update('successUrl', e.target.value)}
               placeholder="https://example.com/thank-you"
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="cancelUrl">Cancel URL</Label>
+          </Field>
+          <Field label="Cancel URL">
             <Input
-              id="cancelUrl"
               value={form.cancelUrl}
               onChange={(e) => update('cancelUrl', e.target.value)}
               placeholder="https://example.com/checkout"
             />
-          </div>
+          </Field>
         </CardBody>
       </Card>
     </div>
