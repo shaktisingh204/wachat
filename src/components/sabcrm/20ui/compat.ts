@@ -28,6 +28,19 @@ export {
   ZoruDynamicSelector,
   SabnodeWaterLoader,
   SabNodeSidebar,
+  ZoruChart,
+  ZoruRadioGroupItem,
+  zoruButtonVariants,
+  zoruButtonVariants as buttonVariants,
+} from '@/components/sabcrm/20ui/zoru';
+// Type-only bridges (must be `export type` so the bundler erases them rather than
+// hunting for a runtime value — see the value-vs-type gotcha in this file's history).
+export type {
+  ZoruFullscreenCalendarEvent,
+  ZoruTagPickerTag,
+  ZoruToastActionElement,
+  ZoruToastProps,
+  ZoruChartTooltipProps,
 } from '@/components/sabcrm/20ui/zoru';
 
 export {

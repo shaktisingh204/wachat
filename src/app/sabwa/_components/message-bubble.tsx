@@ -31,10 +31,10 @@ import {
 import {
   Card,
   DropdownMenu,
-  ZoruZoruDropdownMenuContent,
-  ZoruZoruDropdownMenuItem,
-  ZoruZoruDropdownMenuSeparator,
-  ZoruZoruDropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   cn,
 } from "@/components/sabcrm/20ui/zoru";
 import { formatJid, type JidResolver } from "@/lib/sabwa/format-jid";
